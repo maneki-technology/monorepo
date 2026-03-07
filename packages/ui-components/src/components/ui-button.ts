@@ -153,7 +153,7 @@ const STYLES = /* css */ `
   :host button,
   :host([action="primary"]) button,
   :host([action="primary"][emphasis="bold"]) button {
-    background: var(--ui-btn-bg, ${BLUE_60});
+    background-color: var(--ui-btn-bg, ${BLUE_60});
     color: var(--ui-btn-color, #ffffff);
     border-color: var(--ui-btn-border-color, ${BLUE_60});
   }
@@ -161,7 +161,7 @@ const STYLES = /* css */ `
   /* subtle */
   :host([emphasis="subtle"]) button,
   :host([action="primary"][emphasis="subtle"]) button {
-    background: transparent;
+    background-color: transparent;
     color: var(--ui-btn-color, ${BLUE_60});
     border-color: var(--ui-btn-border-color, ${BLUE_60});
   }
@@ -169,7 +169,7 @@ const STYLES = /* css */ `
   /* minimal */
   :host([emphasis="minimal"]) button,
   :host([action="primary"][emphasis="minimal"]) button {
-    background: transparent;
+    background-color: transparent;
     color: var(--ui-btn-color, ${BLUE_60});
     border-color: transparent;
   }
@@ -178,19 +178,19 @@ const STYLES = /* css */ `
 
   :host([action="secondary"]) button,
   :host([action="secondary"][emphasis="bold"]) button {
-    background: var(--ui-btn-bg, ${GRAY_20});
+    background-color: var(--ui-btn-bg, ${GRAY_20});
     color: var(--ui-btn-color, ${GRAY_90});
     border-color: var(--ui-btn-border-color, ${GRAY_20});
   }
 
   :host([action="secondary"][emphasis="subtle"]) button {
-    background: transparent;
+    background-color: transparent;
     color: var(--ui-btn-color, ${GRAY_90});
     border-color: var(--ui-btn-border-color, ${GRAY_90});
   }
 
   :host([action="secondary"][emphasis="minimal"]) button {
-    background: transparent;
+    background-color: transparent;
     color: var(--ui-btn-color, ${GRAY_90});
     border-color: transparent;
   }
@@ -199,19 +199,19 @@ const STYLES = /* css */ `
 
   :host([action="destructive"]) button,
   :host([action="destructive"][emphasis="bold"]) button {
-    background: var(--ui-btn-bg, ${RED_60});
+    background-color: var(--ui-btn-bg, ${RED_60});
     color: var(--ui-btn-color, #ffffff);
     border-color: var(--ui-btn-border-color, ${RED_60});
   }
 
   :host([action="destructive"][emphasis="subtle"]) button {
-    background: transparent;
+    background-color: transparent;
     color: var(--ui-btn-color, ${RED_60});
     border-color: var(--ui-btn-border-color, ${RED_60});
   }
 
   :host([action="destructive"][emphasis="minimal"]) button {
-    background: transparent;
+    background-color: transparent;
     color: var(--ui-btn-color, ${RED_60});
     border-color: transparent;
   }
@@ -220,19 +220,19 @@ const STYLES = /* css */ `
 
   :host([action="info"]) button,
   :host([action="info"][emphasis="bold"]) button {
-    background: var(--ui-btn-bg, ${BLUE_100});
+    background-color: var(--ui-btn-bg, ${BLUE_100});
     color: var(--ui-btn-color, #ffffff);
     border-color: var(--ui-btn-border-color, ${BLUE_100});
   }
 
   :host([action="info"][emphasis="subtle"]) button {
-    background: transparent;
+    background-color: transparent;
     color: var(--ui-btn-color, ${BLUE_100});
     border-color: var(--ui-btn-border-color, ${BLUE_100});
   }
 
   :host([action="info"][emphasis="minimal"]) button {
-    background: transparent;
+    background-color: transparent;
     color: var(--ui-btn-color, ${BLUE_100});
     border-color: transparent;
   }
@@ -241,19 +241,19 @@ const STYLES = /* css */ `
 
   :host([action="contrast"]) button,
   :host([action="contrast"][emphasis="bold"]) button {
-    background: var(--ui-btn-bg, #ffffff);
+    background-color: var(--ui-btn-bg, #ffffff);
     color: var(--ui-btn-color, ${GRAY_90});
     border-color: var(--ui-btn-border-color, #ffffff);
   }
 
   :host([action="contrast"][emphasis="subtle"]) button {
-    background: transparent;
+    background-color: transparent;
     color: var(--ui-btn-color, #ffffff);
     border-color: var(--ui-btn-border-color, #ffffff);
   }
 
   :host([action="contrast"][emphasis="minimal"]) button {
-    background: transparent;
+    background-color: transparent;
     color: var(--ui-btn-color, #ffffff);
     border-color: transparent;
   }
@@ -392,13 +392,13 @@ const STYLES = /* css */ `
 
   /* Status colors override action */
   :host([status="error"]) button {
-    background: ${RED_60};
+    background-color: ${RED_60};
     color: #ffffff;
     border-color: ${RED_60};
   }
 
   :host([status="success"]) button {
-    background: ${GREEN_60};
+    background-color: ${GREEN_60};
     color: #ffffff;
     border-color: ${GREEN_60};
   }
