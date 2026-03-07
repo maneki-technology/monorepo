@@ -46,6 +46,8 @@ maneki-monorepo/
 - **No runtime dependencies** — if you need a dep, justify it
 - **Don't mutate layouts externally** — always use property setters on components
 - **Don't inherit Web Components** — use composition (see responsive-grid-layout pattern)
+- **Branch per component** — every new component gets its own branch (`feat/ui-*`). Never implement directly on `main`.
+- **Visual Figma verification** — compare Storybook rendering against Figma before marking a component done. Use browser tools to screenshot and verify.
 
 ## COMMANDS
 ```bash

@@ -1,0 +1,41 @@
+name: Chromatic
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'packages/ui-components/**'
+      - 'packages/foundation/**'
+      - '.github/workflows/chromatic.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/ui-components/**'
+      - 'packages/foundation/**'
+      - '.github/workflows/chromatic.yml'
+
+jobs:
+  chromatic:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Build foundation
+        run: npm run build
+        working-directory: packages/foundation
+
+      - name: Publish to Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          workingDir: packages/ui-components
+          buildScriptName: storybook:build
