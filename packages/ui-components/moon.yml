@@ -1,0 +1,49 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+
+dependsOn:
+  - 'foundation'
+
+tasks:
+  build:
+    script: 'vite build && tsc --emitDeclarationOnly'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'
+      - 'vite.config.ts'
+    outputs:
+      - 'dist'
+
+  test:
+    command: 'vitest --run'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'
+      - 'vite.config.ts'
+
+  test-watch:
+    command: 'vitest'
+    inputs:
+      - 'src/**/*'
+    preset: 'server'
+
+  dev:
+    command: 'vite'
+    preset: 'server'
+
+  storybook:
+    command: 'storybook dev -p 6006'
+    deps:
+      - '^:build'
+    preset: 'server'
+
+  storybook-build:
+    command: 'storybook build -o storybook-static'
+    deps:
+      - '^:build'
+    inputs:
+      - 'src/**/*'
+      - '.storybook/**/*'
+    outputs:
+      - 'storybook-static'

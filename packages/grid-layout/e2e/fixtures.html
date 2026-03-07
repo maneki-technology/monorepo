@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visual Test Fixtures</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: sans-serif; background: #fff; }
+    .fixture { margin: 20px; }
+    .fixture h2 { font-size: 14px; margin-bottom: 8px; color: #333; }
+    grid-item {
+      background: #e3f2fd;
+      border: 1px solid #90caf9;
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: #1565c0; font-weight: 600;
+    }
+    grid-item[data-static] {
+      background: #fce4ec;
+      border-color: #ef9a9a;
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+  <!-- Fixture 1: Basic 6-item grid, vertical compact -->
+  <div class="fixture" id="fixture-basic">
+    <h2>Basic Grid (6 items, vertical)</h2>
+    <grid-layout id="grid-basic" style="width: 600px;">
+      <grid-item item-id="a" x="0" y="0" w="2" h="2">A</grid-item>
+      <grid-item item-id="b" x="2" y="0" w="2" h="1">B</grid-item>
+      <grid-item item-id="c" x="4" y="0" w="2" h="1">C</grid-item>
+      <grid-item item-id="d" x="0" y="2" w="3" h="1">D</grid-item>
+      <grid-item item-id="e" x="3" y="2" w="3" h="1">E</grid-item>
+      <grid-item item-id="f" x="6" y="0" w="2" h="2">F</grid-item>
+    </grid-layout>
+  </div>
+
+  <!-- Fixture 2: Horizontal compact -->
+  <div class="fixture" id="fixture-horizontal">
+    <h2>Horizontal Compact</h2>
+    <grid-layout id="grid-horizontal" style="width: 600px;">
+      <grid-item item-id="h1" x="0" y="0" w="2" h="1">1</grid-item>
+      <grid-item item-id="h2" x="4" y="0" w="2" h="1">2</grid-item>
+      <grid-item item-id="h3" x="8" y="0" w="2" h="1">3</grid-item>
+      <grid-item item-id="h4" x="0" y="2" w="3" h="1">4</grid-item>
+      <grid-item item-id="h5" x="6" y="2" w="3" h="1">5</grid-item>
+    </grid-layout>
+  </div>
+
+  <!-- Fixture 3: No compaction (free placement) -->
+  <div class="fixture" id="fixture-none">
+    <h2>No Compaction</h2>
+    <grid-layout id="grid-none" style="width: 600px;">
+      <grid-item item-id="n1" x="0" y="0" w="2" h="1">1</grid-item>
+      <grid-item item-id="n2" x="4" y="3" w="2" h="1">2</grid-item>
+      <grid-item item-id="n3" x="8" y="6" w="2" h="1">3</grid-item>
+    </grid-layout>
+  </div>
+
+  <!-- Fixture 4: Static items -->
+  <div class="fixture" id="fixture-static">
+    <h2>Static Items</h2>
+    <grid-layout id="grid-static" style="width: 600px;">
+      <grid-item item-id="s1" x="0" y="0" w="4" h="1" static>Static</grid-item>
+      <grid-item item-id="s2" x="0" y="1" w="2" h="1">Move</grid-item>
+      <grid-item item-id="s3" x="2" y="1" w="2" h="1">Move</grid-item>
+      <grid-item item-id="s4" x="4" y="0" w="2" h="2">Tall</grid-item>
+    </grid-layout>
+  </div>
+
+  <!-- Fixture 5: Many items (for density test) -->
+  <div class="fixture" id="fixture-dense">
+    <h2>Dense Grid (20 items)</h2>
+    <grid-layout id="grid-dense" style="width: 600px;"></grid-layout>
+  </div>
+
+  <!-- Fixture 6: Responsive -->
+  <div class="fixture" id="fixture-responsive">
+    <h2>Responsive Grid</h2>
+    <responsive-grid-layout id="grid-responsive" style="width: 100%;">
+      <grid-item item-id="r1" x="0" y="0" w="4" h="2">R1</grid-item>
+      <grid-item item-id="r2" x="4" y="0" w="4" h="2">R2</grid-item>
+      <grid-item item-id="r3" x="8" y="0" w="4" h="2">R3</grid-item>
+      <grid-item item-id="r4" x="0" y="2" w="6" h="1">R4</grid-item>
+      <grid-item item-id="r5" x="6" y="2" w="6" h="1">R5</grid-item>
+    </responsive-grid-layout>
+  </div>
+
+  <!-- Fixture 7: Drag target (for interaction tests) -->
+  <div class="fixture" id="fixture-drag">
+    <h2>Drag Test</h2>
+    <grid-layout id="grid-drag" style="width: 600px;">
+      <grid-item item-id="d1" x="0" y="0" w="2" h="2">Drag me</grid-item>
+      <grid-item item-id="d2" x="2" y="0" w="2" h="2">2</grid-item>
+      <grid-item item-id="d3" x="4" y="0" w="2" h="2">3</grid-item>
+      <grid-item item-id="d4" x="0" y="2" w="6" h="1">4</grid-item>
+    </grid-layout>
+  </div>
+
+  <!-- Fixture 8: Resize target -->
+  <div class="fixture" id="fixture-resize">
+    <h2>Resize Test</h2>
+    <grid-layout id="grid-resize" style="width: 600px;">
+      <grid-item item-id="rz1" x="0" y="0" w="3" h="2">Resize me</grid-item>
+      <grid-item item-id="rz2" x="3" y="0" w="3" h="2">2</grid-item>
+      <grid-item item-id="rz3" x="0" y="2" w="6" h="1">3</grid-item>
+    </grid-layout>
+  </div>
+
+  <!-- Fixture 9: Keyboard drag test -->
+  <div class="fixture" id="fixture-keyboard">
+    <h2>Keyboard Drag Test</h2>
+    <grid-layout id="grid-keyboard" style="width: 600px;">
+      <grid-item item-id="kb1" x="0" y="0" w="2" h="2">KB1</grid-item>
+      <grid-item item-id="kb2" x="2" y="0" w="2" h="2">KB2</grid-item>
+      <grid-item item-id="kb3" x="4" y="0" w="2" h="2">KB3</grid-item>
+    </grid-layout>
+  </div>
+
+  <!-- Fixture 10: External drop test -->
+  <div class="fixture" id="fixture-external-drop">
+    <h2>External Drop Test</h2>
+    <div id="drag-source" draggable="true" style="width:80px;height:40px;background:#c8e6c9;border:1px solid #66bb6a;margin-bottom:8px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:grab;">Drag me</div>
+    <grid-layout id="grid-external" style="width: 600px;">
+      <grid-item item-id="ext1" x="0" y="0" w="4" h="2">Existing</grid-item>
+    </grid-layout>
+  </div>
+
+  <script type="module">
+    import "../src/index.ts";
+
+    // Configure grids after components register
+    customElements.whenDefined("grid-layout").then(() => {
+      const basic = document.getElementById("grid-basic");
+      basic.gridConfig = { cols: 12, rowHeight: 50, margin: [8, 8], containerPadding: [8, 8] };
+
+      const horiz = document.getElementById("grid-horizontal");
+      horiz.gridConfig = { cols: 12, rowHeight: 50, margin: [8, 8], containerPadding: [8, 8] };
+      horiz.compactType = "horizontal";
+
+      const none = document.getElementById("grid-none");
+      none.gridConfig = { cols: 12, rowHeight: 50, margin: [8, 8], containerPadding: [8, 8] };
+      none.compactType = null;
+
+      const stat = document.getElementById("grid-static");
+      stat.gridConfig = { cols: 12, rowHeight: 50, margin: [8, 8], containerPadding: [8, 8] };
+
+      // Dense grid — generate 20 items programmatically
+      const dense = document.getElementById("grid-dense");
+      dense.gridConfig = { cols: 12, rowHeight: 30, margin: [4, 4], containerPadding: [4, 4] };
+      const denseLayout = [];
+      let dx = 0, dy = 0;
+      for (let i = 0; i < 20; i++) {
+        const w = 1 + (i % 3);
+        const h = 1;
+        if (dx + w > 12) { dx = 0; dy++; }
+        const el = document.createElement("grid-item");
+        el.setAttribute("item-id", `dense-${i}`);
+        el.setAttribute("x", dx);
+        el.setAttribute("y", dy);
+        el.setAttribute("w", w);
+        el.setAttribute("h", h);
+        el.textContent = i;
+        dense.appendChild(el);
+        denseLayout.push({ i: `dense-${i}`, x: dx, y: dy, w, h });
+        dx += w;
+        if (dx >= 12) { dx = 0; dy++; }
+      }
+      dense.layout = denseLayout;
+
+      const drag = document.getElementById("grid-drag");
+      drag.gridConfig = { cols: 12, rowHeight: 50, margin: [8, 8], containerPadding: [8, 8] };
+
+      const resize = document.getElementById("grid-resize");
+      resize.gridConfig = { cols: 12, rowHeight: 50, margin: [8, 8], containerPadding: [8, 8] };
+      resize.resizeConfig = { enabled: true, handles: ["se"] };
+
+      const kb = document.getElementById("grid-keyboard");
+      kb.gridConfig = { cols: 12, rowHeight: 50, margin: [8, 8], containerPadding: [8, 8] };
+
+      const ext = document.getElementById("grid-external");
+      ext.gridConfig = { cols: 12, rowHeight: 50, margin: [8, 8], containerPadding: [8, 8] };
+      ext.isDroppable = true;
+      ext.droppingItem = { i: "dropped", w: 2, h: 2 };
+
+      // Wire up drag source
+      const dragSrc = document.getElementById("drag-source");
+      dragSrc.addEventListener("dragstart", (e) => {
+        e.dataTransfer.setData("text/plain", "dropped");
+      });
+      // Signal ready for Playwright
+      document.body.setAttribute("data-ready", "true");
+    });
+  </script>
+</body>
+</html>

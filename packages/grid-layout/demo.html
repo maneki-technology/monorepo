@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wc-grid-layout Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      font-size: 1.5rem;
+      color: #333;
+    }
+
+    .controls {
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .controls button {
+      padding: 6px 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .controls button:hover { background: #eee; }
+    .controls button.active { background: #4a90d9; color: #fff; border-color: #4a90d9; }
+
+    .info {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    grid-layout,
+    responsive-grid-layout grid-layout {
+      background: #e8e8e8;
+      border-radius: 6px;
+      min-height: 200px;
+    }
+
+    grid-item {
+      cursor: grab;
+    }
+    grid-item[dragging] {
+      cursor: grabbing;
+    }
+
+    .widget {
+      width: 100%;
+      height: 100%;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #fff;
+      user-select: none;
+    }
+
+    .widget-a { background: #e74c3c; }
+    .widget-b { background: #3498db; }
+    .widget-c { background: #2ecc71; }
+    .widget-d { background: #9b59b6; }
+    .widget-e { background: #f39c12; }
+    .widget-f { background: #1abc9c; }
+
+    .widget-static {
+      background: repeating-linear-gradient(
+        45deg,
+        #95a5a6,
+        #95a5a6 10px,
+        #7f8c8d 10px,
+        #7f8c8d 20px
+      );
+    }
+
+    #event-log {
+      margin-top: 16px;
+      padding: 12px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      border-radius: 6px;
+      font-family: "SF Mono", Monaco, Consolas, monospace;
+      font-size: 0.75rem;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    #event-log .entry { margin-bottom: 2px; }
+    #event-log .type { color: #569cd6; }
+    #event-log .id { color: #ce9178; }
+  </style>
+</head>
+<body>
+  <h1>wc-grid-layout Demo</h1>
+  <p class="info">Drag widgets to rearrange. Resize from the bottom-right corner. The striped widget is static (immovable).</p>
+
+  <div class="controls">
+    <span>Compact:</span>
+    <button id="btn-vertical" class="active">Vertical</button>
+    <button id="btn-horizontal">Horizontal</button>
+    <button id="btn-none">None</button>
+    <span style="margin-left: 16px;">|</span>
+    <button id="btn-add" style="margin-left: 16px;">+ Add Widget</button>
+  </div>
+
+  <grid-layout id="grid">
+    <grid-item item-id="a" x="0" y="0" w="2" h="2" min-w="1" max-w="4">
+      <div class="widget widget-a">A</div>
+    </grid-item>
+    <grid-item item-id="b" x="2" y="0" w="4" h="2">
+      <div class="widget widget-b">B</div>
+    </grid-item>
+    <grid-item item-id="c" x="6" y="0" w="2" h="3" min-h="2">
+      <div class="widget widget-c">C</div>
+    </grid-item>
+    <grid-item item-id="d" x="8" y="0" w="4" h="2">
+      <div class="widget widget-d">D</div>
+    </grid-item>
+    <grid-item item-id="e" x="0" y="2" w="6" h="2">
+      <div class="widget widget-e">E</div>
+    </grid-item>
+    <grid-item item-id="f" x="0" y="4" w="3" h="2" static>
+      <div class="widget widget-static">Static</div>
+    </grid-item>
+  </grid-layout>
+
+  <div id="event-log"></div>
+
+  <hr style="margin: 40px 0; border: none; border-top: 2px solid #ccc;">
+
+  <h1>Responsive Grid Layout Demo</h1>
+  <p class="info">Resize the browser window to see breakpoint changes. Current breakpoint and column count update automatically.</p>
+
+  <div class="controls">
+    <span>Breakpoint: <strong id="bp-label">—</strong></span>
+    <span style="margin-left: 16px;">Cols: <strong id="bp-cols">—</strong></span>
+    <span style="margin-left: 16px;">Width: <strong id="bp-width">—</strong></span>
+  </div>
+
+  <responsive-grid-layout id="responsive-grid">
+    <grid-item item-id="r1"><div class="widget widget-a">1</div></grid-item>
+    <grid-item item-id="r2"><div class="widget widget-b">2</div></grid-item>
+    <grid-item item-id="r3"><div class="widget widget-c">3</div></grid-item>
+    <grid-item item-id="r4"><div class="widget widget-d">4</div></grid-item>
+    <grid-item item-id="r5"><div class="widget widget-e">5</div></grid-item>
+    <grid-item item-id="r6"><div class="widget widget-f">6</div></grid-item>
+  </responsive-grid-layout>
+
+  <div id="responsive-event-log"></div>
+
+  <hr style="margin: 40px 0; border: none; border-top: 2px solid #ccc;">
+
+  <h1>Customization Demo</h1>
+  <p class="info">CSS custom properties for theming + lifecycle hooks. Widget D has drag disabled via hook. Layout rejects items wider than 6 cols.</p>
+
+  <div class="controls">
+    <span>Theme:</span>
+    <button id="btn-theme-default" class="active">Default</button>
+    <button id="btn-theme-dark">Dark</button>
+    <button id="btn-theme-neon">Neon</button>
+  </div>
+
+  <grid-layout id="custom-grid">
+    <grid-item item-id="ca" x="0" y="0" w="3" h="2"><div class="widget widget-a">A</div></grid-item>
+    <grid-item item-id="cb" x="3" y="0" w="3" h="2"><div class="widget widget-b">B</div></grid-item>
+    <grid-item item-id="cc" x="6" y="0" w="3" h="2"><div class="widget widget-c">C</div></grid-item>
+    <grid-item item-id="cd" x="9" y="0" w="3" h="2"><div class="widget widget-d">D (no drag)</div></grid-item>
+    <grid-item item-id="ce" x="0" y="2" w="4" h="2"><div class="widget widget-e">E</div></grid-item>
+  </grid-layout>
+
+  <div id="custom-event-log"></div>
+
+  <script type="module">
+    import "./src/index.ts";
+
+    const grid = document.getElementById("grid");
+    const log = document.getElementById("event-log");
+
+    // Configure grid
+    grid.gridConfig = {
+      cols: 12,
+      rowHeight: 80,
+      margin: [10, 10],
+      containerPadding: [10, 10],
+      maxRows: Infinity,
+    };
+
+    // Listen for events
+    function addLog(type, detail) {
+      const entry = document.createElement("div");
+      entry.classList.add("entry");
+      const itemId = detail.newItem?.i ?? detail.oldItem?.i ?? "?";
+      entry.innerHTML = `<span class="type">${type}</span> item=<span class="id">${itemId}</span>`;
+      log.prepend(entry);
+      // Keep log short
+      while (log.children.length > 50) log.lastChild.remove();
+    }
+
+    grid.addEventListener("drag-start", (e) => addLog("drag-start", e.detail));
+    grid.addEventListener("drag-stop", (e) => addLog("drag-stop", e.detail));
+    grid.addEventListener("resize-start", (e) => addLog("resize-start", e.detail));
+    grid.addEventListener("resize-stop", (e) => addLog("resize-stop", e.detail));
+    grid.addEventListener("layout-change", (e) => {
+      addLog("layout-change", { newItem: { i: `[${e.detail.layout.length} items]` } });
+    });
+
+    // Compact type buttons
+    const btnV = document.getElementById("btn-vertical");
+    const btnH = document.getElementById("btn-horizontal");
+    const btnN = document.getElementById("btn-none");
+
+    function setCompact(type, activeBtn) {
+      grid.compactType = type;
+      [btnV, btnH, btnN].forEach((b) => b.classList.remove("active"));
+      activeBtn.classList.add("active");
+    }
+
+    btnV.addEventListener("click", () => setCompact("vertical", btnV));
+    btnH.addEventListener("click", () => setCompact("horizontal", btnH));
+    btnN.addEventListener("click", () => setCompact(null, btnN));
+
+    // Add widget
+    let counter = 0;
+    const colors = ["#e74c3c", "#3498db", "#2ecc71", "#9b59b6", "#f39c12", "#1abc9c", "#e67e22", "#2c3e50"];
+
+    document.getElementById("btn-add").addEventListener("click", () => {
+      counter++;
+      const id = `new-${counter}`;
+      const color = colors[counter % colors.length];
+
+      const item = document.createElement("grid-item");
+      item.setAttribute("item-id", id);
+      item.setAttribute("x", "0");
+      item.setAttribute("y", "0");
+      item.setAttribute("w", "2");
+      item.setAttribute("h", "2");
+
+      const widget = document.createElement("div");
+      widget.classList.add("widget");
+      widget.style.background = color;
+      widget.textContent = `New ${counter}`;
+      item.appendChild(widget);
+
+      grid.appendChild(item);
+
+      // Update layout to include new item
+      const currentLayout = grid.layout;
+      currentLayout.push({ i: id, x: 0, y: 0, w: 2, h: 2 });
+      grid.layout = currentLayout;
+    });
+
+    // --- Responsive Grid Demo ---
+    const rgrid = document.getElementById("responsive-grid");
+    const rlog = document.getElementById("responsive-event-log");
+    const bpLabel = document.getElementById("bp-label");
+    const bpCols = document.getElementById("bp-cols");
+    const bpWidth = document.getElementById("bp-width");
+
+    rgrid.gridConfig = {
+      rowHeight: 80,
+      margin: [10, 10],
+      containerPadding: [10, 10],
+    };
+
+    rgrid.layouts = {
+      lg: [
+        { i: "r1", x: 0, y: 0, w: 4, h: 2 },
+        { i: "r2", x: 4, y: 0, w: 4, h: 2 },
+        { i: "r3", x: 8, y: 0, w: 4, h: 2 },
+        { i: "r4", x: 0, y: 2, w: 6, h: 2 },
+        { i: "r5", x: 6, y: 2, w: 3, h: 2 },
+        { i: "r6", x: 9, y: 2, w: 3, h: 2 },
+      ],
+      md: [
+        { i: "r1", x: 0, y: 0, w: 5, h: 2 },
+        { i: "r2", x: 5, y: 0, w: 5, h: 2 },
+        { i: "r3", x: 0, y: 2, w: 5, h: 2 },
+        { i: "r4", x: 5, y: 2, w: 5, h: 2 },
+        { i: "r5", x: 0, y: 4, w: 5, h: 2 },
+        { i: "r6", x: 5, y: 4, w: 5, h: 2 },
+      ],
+      sm: [
+        { i: "r1", x: 0, y: 0, w: 6, h: 2 },
+        { i: "r2", x: 0, y: 2, w: 6, h: 2 },
+        { i: "r3", x: 0, y: 4, w: 6, h: 2 },
+        { i: "r4", x: 0, y: 6, w: 6, h: 2 },
+        { i: "r5", x: 0, y: 8, w: 3, h: 2 },
+        { i: "r6", x: 3, y: 8, w: 3, h: 2 },
+      ],
+    };
+
+    rgrid.addEventListener("breakpoint-change", (e) => {
+      bpLabel.textContent = e.detail.breakpoint;
+      bpCols.textContent = e.detail.cols;
+      addRLog("breakpoint-change", { newItem: { i: `${e.detail.breakpoint} (${e.detail.cols} cols)` } });
+    });
+
+    rgrid.addEventListener("layout-change", (e) => {
+      addRLog("layout-change", { newItem: { i: `[${e.detail.layout.length} items] @ ${e.detail.breakpoint}` } });
+    });
+
+    // Track width
+    new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        bpWidth.textContent = Math.round(entry.contentRect.width) + "px";
+      }
+    }).observe(rgrid);
+
+    function addRLog(type, detail) {
+      const entry = document.createElement("div");
+      entry.classList.add("entry");
+      const itemId = detail.newItem?.i ?? detail.oldItem?.i ?? "?";
+      entry.innerHTML = `<span class="type">${type}</span> <span class="id">${itemId}</span>`;
+      rlog.prepend(entry);
+      while (rlog.children.length > 30) rlog.lastChild.remove();
+    }
+
+    // --- Customization Demo ---
+    const cgrid = document.getElementById("custom-grid");
+    const clog = document.getElementById("custom-event-log");
+
+    cgrid.gridConfig = {
+      cols: 12,
+      rowHeight: 80,
+      margin: [10, 10],
+      containerPadding: [10, 10],
+    };
+
+    // Lifecycle hook: prevent dragging widget D
+    cgrid.beforeDragStart = (item, event) => {
+      if (item.i === "cd") {
+        addCLog("hook:beforeDragStart", { newItem: { i: `${item.i} — BLOCKED` } });
+        return false;
+      }
+    };
+
+    // Lifecycle hook: reject layouts where any item is wider than 6
+    cgrid.layoutChangeFilter = (newLayout, oldLayout, source) => {
+      for (const item of newLayout) {
+        if (item.w > 6) {
+          addCLog("hook:layoutChangeFilter", { newItem: { i: `${item.i} w=${item.w} — REJECTED (max 6)` } });
+          return false;
+        }
+      }
+      return newLayout;
+    };
+
+    // Lifecycle hook: log afterDrop
+    cgrid.afterDrop = (item, layout, oldLayout, event) => {
+      addCLog("hook:afterDrop", { newItem: { i: `${item.i} → (${item.x},${item.y})` } });
+    };
+
+    cgrid.addEventListener("layout-change", (e) => {
+      addCLog("layout-change", { newItem: { i: `[${e.detail.layout.length} items]` } });
+    });
+
+    function addCLog(type, detail) {
+      const entry = document.createElement("div");
+      entry.classList.add("entry");
+      const itemId = detail.newItem?.i ?? detail.oldItem?.i ?? "?";
+      entry.innerHTML = `<span class="type">${type}</span> <span class="id">${itemId}</span>`;
+      clog.prepend(entry);
+      while (clog.children.length > 30) clog.lastChild.remove();
+    }
+
+    // Theme switcher via CSS custom properties
+    const themes = {
+      default: {},
+      dark: {
+        "--grid-placeholder-bg": "rgba(255,255,255,0.1)",
+        "--grid-placeholder-border": "2px dashed rgba(255,255,255,0.4)",
+        "--grid-item-active-opacity": "0.9",
+        "--grid-handle-color": "rgba(255,255,255,0.6)",
+        "--grid-container-transition-duration": "0.3s",
+        "--grid-item-transition-duration": "0.3s",
+        "background": "#2c3e50",
+      },
+      neon: {
+        "--grid-placeholder-bg": "rgba(0,255,136,0.15)",
+        "--grid-placeholder-border": "2px dashed #00ff88",
+        "--grid-placeholder-radius": "8px",
+        "--grid-item-active-opacity": "0.95",
+        "--grid-item-active-z-index": "10",
+        "--grid-handle-color": "#00ff88",
+        "--grid-handle-size": "24px",
+        "--grid-container-transition-duration": "0.4s",
+        "--grid-item-transition-duration": "0.35s",
+        "--grid-item-transition-easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "background": "#1a1a2e",
+      },
+    };
+
+    function applyTheme(name) {
+      // Clear previous
+      for (const key of Object.keys({...themes.dark, ...themes.neon})) {
+        cgrid.style.removeProperty(key);
+      }
+      const t = themes[name];
+      for (const [k, v] of Object.entries(t)) {
+        cgrid.style.setProperty(k, v);
+      }
+      document.querySelectorAll("#btn-theme-default,#btn-theme-dark,#btn-theme-neon").forEach(b => b.classList.remove("active"));
+      document.getElementById(`btn-theme-${name}`).classList.add("active");
+      addCLog("theme", { newItem: { i: name } });
+    }
+
+    document.getElementById("btn-theme-default").addEventListener("click", () => applyTheme("default"));
+    document.getElementById("btn-theme-dark").addEventListener("click", () => applyTheme("dark"));
+    document.getElementById("btn-theme-neon").addEventListener("click", () => applyTheme("neon"));
+  </script>
+</body>
+</html>

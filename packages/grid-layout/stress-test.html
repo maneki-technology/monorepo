@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>wc-grid-layout Stress Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 16px;
+    }
+    h1 { font-size: 1.3rem; margin-bottom: 12px; color: #e94560; }
+
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+      margin-bottom: 12px; padding: 12px; background: #16213e; border-radius: 8px;
+    }
+    .toolbar label { font-size: 0.85rem; color: #aaa; }
+    .toolbar input[type="range"] { width: 120px; }
+    .toolbar select, .toolbar button {
+      padding: 4px 10px; border-radius: 4px; border: 1px solid #444;
+      background: #0f3460; color: #eee; cursor: pointer; font-size: 0.85rem;
+    }
+    .toolbar button:hover { background: #e94560; }
+    .toolbar .value { font-weight: bold; color: #e94560; min-width: 36px; display: inline-block; }
+
+    .stats {
+      display: flex; gap: 20px; margin-bottom: 12px; padding: 10px 12px;
+      background: #16213e; border-radius: 8px; font-size: 0.85rem;
+    }
+    .stats .stat-label { color: #888; }
+    .stats .stat-value { font-weight: bold; color: #53d769; font-variant-numeric: tabular-nums; }
+    .stats .stat-value.warn { color: #ffbd2e; }
+    .stats .stat-value.bad { color: #e94560; }
+
+    #grid-container {
+      background: #0f3460; border-radius: 8px; overflow: auto; max-height: 70vh;
+      --grid-placeholder-bg: rgba(233, 69, 96, 0.2);
+      --grid-placeholder-border: 2px dashed rgba(233, 69, 96, 0.5);
+      --grid-item-active-opacity: 0.9;
+    }
+    grid-item {
+      background: linear-gradient(135deg, #16213e, #1a1a2e);
+      border: 1px solid #333;
+      border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.7rem; color: #888;
+      user-select: none;
+    }
+    grid-item[dragging] { border-color: #e94560; z-index: 10; }
+  </style>
+</head>
+<body>
+  <h1>Stress Test</h1>
+
+  <div class="toolbar">
+    <label>Items: <input type="range" id="item-count" min="10" max="500" value="100" step="10" />
+      <span class="value" id="item-count-val">100</span></label>
+    <label>Cols: <input type="range" id="cols" min="4" max="24" value="12" step="1" />
+      <span class="value" id="cols-val">12</span></label>
+    <label>Compact:
+      <select id="compact-type">
+        <option value="vertical">Vertical</option>
+        <option value="horizontal">Horizontal</option>
+        <option value="">None</option>
+      </select>
+    </label>
+    <button id="btn-generate">Generate</button>
+    <button id="btn-auto-drag">Auto-Drag (5s)</button>
+    <button id="btn-auto-resize">Auto-Resize (5s)</button>
+    <button id="btn-shuffle">Shuffle Layout</button>
+  </div>
+
+  <div class="stats">
+    <div><span class="stat-label">FPS: </span><span class="stat-value" id="fps">--</span></div>
+    <div><span class="stat-label">Items: </span><span class="stat-value" id="stat-items">0</span></div>
+    <div><span class="stat-label">Last compact: </span><span class="stat-value" id="stat-compact">--</span></div>
+    <div><span class="stat-label">Last layout set: </span><span class="stat-value" id="stat-layout-set">--</span></div>
+    <div><span class="stat-label">Drag events/s: </span><span class="stat-value" id="stat-drag-rate">--</span></div>
+  </div>
+
+  <div id="grid-container"></div>
+
+  <script type="module">
+    import "./src/index.ts";
+    import { compact } from "./src/core/compact.ts";
+    import { moveElement } from "./src/core/layout-engine.ts";
+
+    const container = document.getElementById("grid-container");
+    const fpsEl = document.getElementById("fps");
+    const statItems = document.getElementById("stat-items");
+    const statCompact = document.getElementById("stat-compact");
+    const statLayoutSet = document.getElementById("stat-layout-set");
+    const statDragRate = document.getElementById("stat-drag-rate");
+    const itemCountSlider = document.getElementById("item-count");
+    const itemCountVal = document.getElementById("item-count-val");
+    const colsSlider = document.getElementById("cols");
+    const colsVal = document.getElementById("cols-val");
+    const compactSelect = document.getElementById("compact-type");
+
+    let gridEl = null;
+    let dragEventCount = 0;
+    let dragCountStart = 0;
+
+    // --- FPS counter ---
+    let frames = 0;
+    let lastFpsTime = performance.now();
+    function fpsLoop() {
+      frames++;
+      const now = performance.now();
+      if (now - lastFpsTime >= 500) {
+        const fps = Math.round(frames / ((now - lastFpsTime) / 1000));
+        fpsEl.textContent = fps;
+        fpsEl.className = "stat-value" + (fps >= 50 ? "" : fps >= 30 ? " warn" : " bad");
+        frames = 0;
+        lastFpsTime = now;
+      }
+      requestAnimationFrame(fpsLoop);
+    }
+    requestAnimationFrame(fpsLoop);
+
+    // --- Drag rate counter ---
+    setInterval(() => {
+      const now = performance.now();
+      const elapsed = (now - dragCountStart) / 1000;
+      if (dragEventCount > 0 && elapsed > 0) {
+        statDragRate.textContent = Math.round(dragEventCount / elapsed);
+      }
+    }, 500);
+
+    // --- Slider labels ---
+    itemCountSlider.addEventListener("input", () => { itemCountVal.textContent = itemCountSlider.value; });
+    colsSlider.addEventListener("input", () => { colsVal.textContent = colsSlider.value; });
+
+    // --- Generate grid ---
+    function generateLayout(count, cols) {
+      const layout = [];
+      let x = 0, y = 0;
+      for (let i = 0; i < count; i++) {
+        const w = 1 + Math.floor(Math.random() * 2); // 1-2
+        const h = 1 + Math.floor(Math.random() * 2); // 1-2
+        if (x + w > cols) { x = 0; y++; }
+        layout.push({ i: `item-${i}`, x, y, w, h });
+        x += w;
+        if (x >= cols) { x = 0; y++; }
+      }
+      return layout;
+    }
+
+    function buildGrid() {
+      const count = parseInt(itemCountSlider.value);
+      const cols = parseInt(colsSlider.value);
+      const compactType = compactSelect.value || null;
+
+      // Remove old grid
+      container.innerHTML = "";
+
+      // Create grid-layout
+      gridEl = document.createElement("grid-layout");
+      gridEl.gridConfig = { cols, rowHeight: 40, margin: [4, 4], containerPadding: [4, 4] };
+      gridEl.compactType = compactType;
+
+      // Create items
+      const layout = generateLayout(count, cols);
+      for (const item of layout) {
+        const el = document.createElement("grid-item");
+        el.setAttribute("item-id", item.i);
+        el.setAttribute("x", item.x);
+        el.setAttribute("y", item.y);
+        el.setAttribute("w", item.w);
+        el.setAttribute("h", item.h);
+        el.textContent = item.i.replace("item-", "#");
+        gridEl.appendChild(el);
+      }
+
+      container.appendChild(gridEl);
+
+      // Measure layout set time
+      requestAnimationFrame(() => {
+        const t0 = performance.now();
+        gridEl.layout = layout;
+        const dt = performance.now() - t0;
+        statLayoutSet.textContent = dt.toFixed(1) + "ms";
+        statLayoutSet.className = "stat-value" + (dt < 16 ? "" : dt < 50 ? " warn" : " bad");
+      });
+
+      statItems.textContent = count;
+
+      // Listen for drag events to count rate
+      gridEl.addEventListener("drag", () => { dragEventCount++; });
+
+      // Measure compact time on layout-change
+      gridEl.addEventListener("layout-change", (e) => {
+        const t0 = performance.now();
+        compact(e.detail.layout, compactType, cols);
+        const dt = performance.now() - t0;
+        statCompact.textContent = dt.toFixed(2) + "ms";
+        statCompact.className = "stat-value" + (dt < 5 ? "" : dt < 16 ? " warn" : " bad");
+      });
+    }
+
+    document.getElementById("btn-generate").addEventListener("click", buildGrid);
+
+    // --- Auto-drag simulation ---
+    document.getElementById("btn-auto-drag").addEventListener("click", () => {
+      if (!gridEl) return;
+      const layout = gridEl.layout;
+      if (layout.length === 0) return;
+
+      dragEventCount = 0;
+      dragCountStart = performance.now();
+
+      const cols = parseInt(colsSlider.value);
+      const compactType = compactSelect.value || null;
+      const duration = 5000;
+      const start = performance.now();
+      let currentLayout = [...layout.map(l => ({ ...l }))];
+      const targetIdx = Math.floor(Math.random() * layout.length);
+
+      function step() {
+        const elapsed = performance.now() - start;
+        if (elapsed > duration) {
+          statDragRate.textContent = Math.round(dragEventCount / (duration / 1000));
+          return;
+        }
+
+        // Simulate moving the target item to a random nearby position
+        const item = currentLayout[targetIdx];
+        const newX = Math.max(0, Math.min(cols - item.w, item.x + Math.floor(Math.random() * 3) - 1));
+        const newY = Math.max(0, item.y + Math.floor(Math.random() * 3) - 1);
+
+        const t0 = performance.now();
+        currentLayout = moveElement(currentLayout, item, newX, newY, true, false, compactType, cols);
+        currentLayout = compact(currentLayout, compactType, cols);
+        const dt = performance.now() - t0;
+
+        statCompact.textContent = dt.toFixed(2) + "ms";
+        statCompact.className = "stat-value" + (dt < 5 ? "" : dt < 16 ? " warn" : " bad");
+
+        gridEl.layout = currentLayout;
+        dragEventCount++;
+
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+
+    // --- Auto-resize simulation ---
+    document.getElementById("btn-auto-resize").addEventListener("click", () => {
+      if (!gridEl) return;
+      const layout = gridEl.layout;
+      if (layout.length === 0) return;
+
+      dragEventCount = 0;
+      dragCountStart = performance.now();
+
+      const cols = parseInt(colsSlider.value);
+      const compactType = compactSelect.value || null;
+      const duration = 5000;
+      const start = performance.now();
+      let currentLayout = [...layout.map(l => ({ ...l }))];
+      const targetIdx = Math.floor(Math.random() * layout.length);
+
+      function step() {
+        const elapsed = performance.now() - start;
+        if (elapsed > duration) {
+          statDragRate.textContent = Math.round(dragEventCount / (duration / 1000)) + " (resize)";
+          return;
+        }
+
+        const item = currentLayout[targetIdx];
+        const newW = Math.max(1, Math.min(cols - item.x, item.w + Math.floor(Math.random() * 3) - 1));
+        const newH = Math.max(1, item.h + Math.floor(Math.random() * 3) - 1);
+        item.w = newW;
+        item.h = newH;
+
+        const t0 = performance.now();
+        currentLayout = compact(currentLayout, compactType, cols);
+        const dt = performance.now() - t0;
+
+        statCompact.textContent = dt.toFixed(2) + "ms";
+        statCompact.className = "stat-value" + (dt < 5 ? "" : dt < 16 ? " warn" : " bad");
+
+        gridEl.layout = currentLayout;
+        dragEventCount++;
+
+        requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+
+    // --- Shuffle ---
+    document.getElementById("btn-shuffle").addEventListener("click", () => {
+      if (!gridEl) return;
+      const count = parseInt(itemCountSlider.value);
+      const cols = parseInt(colsSlider.value);
+      const layout = generateLayout(count, cols);
+      const t0 = performance.now();
+      gridEl.layout = layout;
+      const dt = performance.now() - t0;
+      statLayoutSet.textContent = dt.toFixed(1) + "ms";
+      statLayoutSet.className = "stat-value" + (dt < 16 ? "" : dt < 50 ? " warn" : " bad");
+    });
+
+    // Initial build
+    buildGrid();
+  </script>
+</body>
+</html>
