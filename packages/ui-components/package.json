@@ -16,7 +16,8 @@
     "test": "vitest --run",
     "test:watch": "vitest",
     "storybook": "storybook dev -p 6006",
-    "storybook:build": "storybook build -o storybook-static"
+    "storybook:build": "storybook build -o storybook-static",
+    "chromatic": "chromatic"
   },
   "dependencies": {
     "@maneki/foundation": "*"
@@ -24,6 +25,7 @@
   "devDependencies": {
     "@storybook/web-components": "^10.2.16",
     "@storybook/web-components-vite": "^10.2.16",
+    "chromatic": "^15.2.0",
     "happy-dom": "^17.6.1",
     "lit": "^3.3.2",
     "storybook": "^10.2.16",
