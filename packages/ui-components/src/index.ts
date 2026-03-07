@@ -15,3 +15,9 @@ export type {
   AccordionStatus,
 } from "./components/ui-accordion-item.js";
 export { UiAccordionGroup } from "./components/ui-accordion-group.js";
+export { UiAlert } from "./components/ui-alert.js";
+export type {
+  AlertSize,
+  AlertEmphasis,
+  AlertStatus,
+} from "./components/ui-alert.js";
