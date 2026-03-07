@@ -1,0 +1,70 @@
+# MANEKI MONOREPO — KNOWLEDGE BASE
+
+## OVERVIEW
+Design system monorepo. Web Components + design tokens extracted from Figma "Foundation UI Kit (Community)". TypeScript, Vite, Vitest. Toolchain: proto (version pinning) + Moon (task runner) + npm workspaces.
+
+## STRUCTURE
+```
+maneki-monorepo/
+├── .prototools              # node 22.16.0, moon 2.0.4
+├── .moon/
+│   ├── workspace.yml        # projects: apps/*, packages/*
+│   └── toolchains.yml       # npm package manager
+├── package.json             # npm workspaces root (required by npm, not Moon)
+├── packages/
+│   ├── grid-layout/         # <grid-layout> Web Component library (@maneki/grid-layout)
+│   ├── ui-components/       # <ui-button> etc. + Storybook (@maneki/ui-components)
+│   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints (@maneki/foundation)
+└── apps/                    # (empty — future apps)
+```
+
+## WHERE TO LOOK
+| Task | Location | Notes |
+|------|----------|-------|
+| Add a new package | `packages/` | Moon auto-discovers via glob |
+| Add a new app | `apps/` | Same auto-discovery |
+| Pin tool versions | `.prototools` | Flat format: `node = "22.16.0"` |
+| Configure Moon tasks | `packages/*/moon.yml` | Per-package task definitions |
+| Change package manager | `.moon/toolchains.yml` | Currently npm |
+| Design tokens (colors, spacing, type) | `packages/foundation/` | Extracted from Figma |
+| UI components + Storybook | `packages/ui-components/` | Web Components with stories |
+| Grid layout library | `packages/grid-layout/` | Has its own detailed AGENTS.md |
+
+## CONVENTIONS
+- **Zero runtime deps** (except `ui-components` → `@maneki/foundation`). Grid-layout and foundation have zero production dependencies.
+- **Web Components + Shadow DOM.** All UI is custom elements with `attachShadow({ mode: "open" })`.
+- **CSS custom properties.** Each package has its own prefix: `--grid-*` (grid-layout), `--fd-*` (foundation), `--ui-*` (ui-components).
+- **Package naming.** npm: `@maneki/*` scope (e.g., `@maneki/foundation`, `@maneki/ui-components`, `@maneki/grid-layout`).
+- **Moon tasks.** kebab-case: `build`, `test`, `test-watch`, `dev`, `storybook`, `storybook-build`, `test-visual`.
+- **Build pipeline.** `vite build && tsc --emitDeclarationOnly` → `dist/`. Vite builds JS first, then tsc generates `.d.ts` files.
+- **Testing.** Vitest with happy-dom. Tests co-located: `foo.ts` → `foo.test.ts`. Visual tests via Playwright in `e2e/`.
+- **TypeScript.** Strict mode, ES2022 target, bundler moduleResolution.
+- **Barrel exports.** Each package has `src/index.ts` re-exporting the public API.
+
+## ANTI-PATTERNS
+- **No `as any`, `@ts-ignore`, `@ts-expect-error`** — never suppress types
+- **No runtime dependencies** — if you need a dep, justify it
+- **Don't mutate layouts externally** — always use property setters on components
+- **Don't inherit Web Components** — use composition (see responsive-grid-layout pattern)
+
+## COMMANDS
+```bash
+# Proto / Moon (run from repo root)
+proto use                    # Install pinned tool versions
+moon run <pkg>:build         # Build a specific package
+moon run <pkg>:test          # Test a specific package
+moon check --all             # Run all tasks across all packages
+
+# Per-package (run from package dir)
+npx vitest --run             # Unit tests
+npx tsc --noEmit             # Type check
+npx vite build               # Build
+```
+
+## NOTES
+- No git repo initialized yet
+- No CI/CD configured yet
+- `apps/` directory exists but is empty — reserved for future consumer apps
+- Root `package.json` exists solely for npm workspaces — Moon handles task orchestration
+- Node pinned at 22 because Storybook 10 requires Node 20.19+
+- LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead

@@ -1,0 +1,8 @@
+{
+  "name": "maneki-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

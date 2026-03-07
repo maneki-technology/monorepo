@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Moon cache
+.moon/cache/
+
+# Storybook
+storybook-static/
+
+# Vite cache
+.vite/
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Playwright
+test-results/
+e2e/test-results/
+playwright-report/
+
+# Proto
+.proto/
+
+# Debug logs
+*.log
+
+# Screenshots (non-snapshot)
+*.png
+!e2e/snapshots/**/*.png
