@@ -33,3 +33,5 @@ export type {
 export { UiBreadcrumbItem } from "./components/ui-breadcrumb-item.js";
 export type { BreadcrumbSize } from "./components/ui-breadcrumb-item.js";
 export { UiBreadcrumbGroup } from "./components/ui-breadcrumb-group.js";
+export { UiCard } from "./components/ui-card.js";
+export type { CardSize, CardElevation } from "./components/ui-card.js";
