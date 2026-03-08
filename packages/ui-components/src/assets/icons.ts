@@ -26,3 +26,6 @@ export const ICON_USER = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="ht
 
 /** Chevron-right arrow (breadcrumb separator). */
 export const ICON_CHEVRON_RIGHT = `<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+/** Checkmark icon (checkbox checked state). */
+export const ICON_CHECK = `<svg viewBox="0 0 10 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9.03.97a.75.75 0 0 1 0 1.06l-5 5a.75.75 0 0 1-1.06 0l-2-2a.75.75 0 0 1 1.06-1.06L3.5 5.44 7.97.97a.75.75 0 0 1 1.06 0z" fill="currentColor"/></svg>`;
