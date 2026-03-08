@@ -108,7 +108,7 @@ const STYLES = /* css */ `
 
   .label {
     display: none;
-    font-family: "Goldman Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 400;
     color: var(--ui-cb-label-color, ${TEXT_PRIMARY});
   }

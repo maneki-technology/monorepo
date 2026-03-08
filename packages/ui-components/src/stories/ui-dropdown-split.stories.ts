@@ -155,26 +155,18 @@ export const WithIcons: Story = {
   render: () => html`
     <div style="display: flex; gap: 12px; align-items: flex-start;">
       <ui-dropdown-split icon="leading-icon" label="Download">
-        <svg slot="icon-start" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 3v10M6 9l4 4 4-4M4 15h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <span slot="icon-start" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">download</span>
         <ui-dropdown-item>Download as PDF</ui-dropdown-item>
         <ui-dropdown-item>Download as CSV</ui-dropdown-item>
         <ui-dropdown-item>Download as XLSX</ui-dropdown-item>
       </ui-dropdown-split>
       <ui-dropdown-split icon="trailing-icon" label="Export">
-        <svg slot="icon-end" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M10 3v10M6 9l4 4 4-4M4 15h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <span slot="icon-end" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">upload</span>
         <ui-dropdown-item>Export JSON</ui-dropdown-item>
         <ui-dropdown-item>Export XML</ui-dropdown-item>
       </ui-dropdown-split>
       <ui-dropdown-split icon="icon-only">
-        <svg slot="icon-start" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="10" cy="4" r="1.5" fill="currentColor"/>
-          <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
-          <circle cx="10" cy="16" r="1.5" fill="currentColor"/>
-        </svg>
+        <span slot="icon-start" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">more_vert</span>
         <ui-dropdown-item>Edit</ui-dropdown-item>
         <ui-dropdown-item>Delete</ui-dropdown-item>
       </ui-dropdown-split>

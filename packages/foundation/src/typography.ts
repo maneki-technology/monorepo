@@ -3,7 +3,7 @@
  * of the Foundation UI Kit (Community) Figma file.
  *
  * Three sections: Display Headings, Component/Layout Headings, Body/Supporting.
- * Two font families: "Goldman Sans" (primary) and "Roboto Mono" (code).
+ * Two font families: "Inter" (primary) and "Roboto Mono" (code).
  */
 
 // ---------------------------------------------------------------------------
@@ -23,7 +23,7 @@ export interface TypeToken {
 // ---------------------------------------------------------------------------
 
 export const fontFamilies = {
-  primary: "'Goldman Sans', sans-serif",
+  primary: "'Inter', sans-serif",
   code: "'Roboto Mono', monospace",
 } as const;
 
@@ -38,7 +38,7 @@ export const fontWeights = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Display Headings — Goldman Sans Light, large marketing/content headings
+// Display Headings — Inter Light, large marketing/content headings
 // ---------------------------------------------------------------------------
 
 export const display = {
@@ -66,7 +66,7 @@ export const display = {
 } as const satisfies Record<string, TypeToken>;
 
 // ---------------------------------------------------------------------------
-// Component & Layout Headings — Goldman Sans Medium
+// Component & Layout Headings — Inter Medium
 // ---------------------------------------------------------------------------
 
 export const heading = {
@@ -122,7 +122,7 @@ export const heading = {
 } as const satisfies Record<string, TypeToken>;
 
 // ---------------------------------------------------------------------------
-// Body — Goldman Sans Regular
+// Body — Inter Regular
 // ---------------------------------------------------------------------------
 
 export const body = {

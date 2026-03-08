@@ -66,7 +66,7 @@ const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: "Goldman Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 500;
     text-transform: uppercase;
     white-space: nowrap;

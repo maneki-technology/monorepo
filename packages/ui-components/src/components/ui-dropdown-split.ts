@@ -75,7 +75,7 @@ const STYLES = /* css */ `
     background-color: transparent;
     background-image: none;
     color: inherit;
-    font-family: var(--ui-dds-font-family, "Goldman Sans", sans-serif);
+    font-family: var(--ui-dds-font-family, "Inter", sans-serif);
     font-weight: var(--ui-dds-font-weight, 500);
     transition:
       background-image 0.15s ease,

@@ -1,5 +1,5 @@
 /**
- * Foundation color tokens extracted from the Goldman Sachs Design System (Community).
+ * Foundation color tokens extracted from the Maneki Design System.
  * 13 color families × 10 steps (10–100), plus Gray 110.
  */
 

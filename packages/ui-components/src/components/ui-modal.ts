@@ -63,7 +63,7 @@ const STYLES = /* css */ `
     background-color: var(--ui-modal-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-modal-shadow, ${ELEVATION_06});
     border-radius: 2px;
-    font-family: "Goldman Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     color: ${TEXT_PRIMARY};
     width: var(--ui-modal-width, 441px);
     opacity: 0;
