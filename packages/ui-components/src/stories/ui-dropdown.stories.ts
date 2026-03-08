@@ -131,7 +131,7 @@ export const Disabled: Story = {
 
 export const SingleSelect: Story = {
   render: () => html`
-    <ui-dropdown label="Choose fruit">
+    <ui-dropdown label="Choose fruit" selectable>
       <ui-dropdown-item value="apple">Apple</ui-dropdown-item>
       <ui-dropdown-item value="banana" selected>Banana</ui-dropdown-item>
       <ui-dropdown-item value="cherry">Cherry</ui-dropdown-item>
@@ -142,7 +142,7 @@ export const SingleSelect: Story = {
 
 export const MultiSelect: Story = {
   render: () => html`
-    <ui-dropdown label="Select toppings" multiple>
+    <ui-dropdown label="Select toppings" multiple selectable>
       <ui-dropdown-item value="cheese" selected>Cheese</ui-dropdown-item>
       <ui-dropdown-item value="pepperoni">Pepperoni</ui-dropdown-item>
       <ui-dropdown-item value="mushrooms" selected>Mushrooms</ui-dropdown-item>

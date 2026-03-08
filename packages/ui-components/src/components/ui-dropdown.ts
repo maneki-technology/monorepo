@@ -61,6 +61,11 @@ const STYLES = /* css */ `
     line-height: 0;
   }
 
+  .chevron svg {
+    width: 100%;
+    height: 100%;
+  }
+
   :host([open]) .chevron {
     transform: rotate(180deg);
   }
@@ -125,6 +130,7 @@ export class UiDropdown extends HTMLElement {
     "open",
     "label",
     "multiple",
+    "selectable",
   ];
 
   private _trigger!: HTMLElement;
@@ -305,6 +311,18 @@ export class UiDropdown extends HTMLElement {
     }
   }
 
+  get selectable(): boolean {
+    return this.hasAttribute("selectable");
+  }
+
+  set selectable(value: boolean) {
+    if (value) {
+      this.setAttribute("selectable", "");
+    } else {
+      this.removeAttribute("selectable");
+    }
+  }
+
   get value(): string | string[] {
     const items = this._getSlottedItems();
     const selected = items.filter(el => el.hasAttribute("selected"));
@@ -410,6 +428,7 @@ export class UiDropdown extends HTMLElement {
   private _handleItemSelect = (e: Event): void => {
     const item = e.target as HTMLElement;
     if (item.tagName !== "UI-DROPDOWN-ITEM") return;
+    if (!this.selectable) return;
 
     if (this.multiple) {
       // Multi-select: toggle the clicked item
