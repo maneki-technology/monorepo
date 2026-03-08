@@ -50,3 +50,7 @@ export { UiModal } from "./components/ui-modal.js";
 export type { ModalSize, ModalLayout } from "./components/ui-modal.js";
 export { UiBadge } from "./components/ui-badge.js";
 export type { BadgeSize, BadgeEmphasis, BadgeShape, BadgeColor, BadgeStatus } from "./components/ui-badge.js";
+export { UiSidePanelMenu } from "./components/ui-side-panel-menu.js";
+export type { SidePanelMenuState } from "./components/ui-side-panel-menu.js";
+export { UiSidePanelMenuItem } from "./components/ui-side-panel-menu-item.js";
+export type { SidePanelMenuItemLevel, SidePanelMenuItemType } from "./components/ui-side-panel-menu-item.js";
