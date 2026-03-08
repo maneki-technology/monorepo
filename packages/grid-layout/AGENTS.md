@@ -9,6 +9,7 @@ Zero-dependency Web Component grid layout library (`<grid-layout>`, `<grid-item>
 ├── src/
 │   ├── core/          # Pure logic engine (no DOM). Types, math, collision, compaction, layout engine, responsive utils
 │   ├── components/    # Web Components with Shadow DOM. grid-item, grid-layout, responsive-grid-layout
+│   ├── stories/       # Storybook stories (basic, compaction, resize-handles, responsive, theming, accessibility)
 │   └── index.ts       # Barrel export — all types, utilities, and components
 ├── e2e/
 │   ├── fixtures.html  # Test fixture page with 8 grid scenarios
@@ -36,7 +37,8 @@ Zero-dependency Web Component grid layout library (`<grid-layout>`, `<grid-item>
 | Accessibility / ARIA | `grid-item.ts` (role, tabindex, aria-grabbed) + `grid-layout.ts` (role, live region, keyboard handlers) |
 
 ## CONVENTIONS
-- **No dependencies.** Zero runtime deps. Only devDeps: typescript, vite, vitest, happy-dom, @playwright/test.
+- **`@maneki/foundation` is a production dependency.** Components import `colorVar`, `semanticVar` from foundation and use them as CSS custom property fallbacks in the nested `var(--grid-*, ${token})` pattern.
+- **Custom element spec compliance.** Never set attributes in constructors — use `connectedCallback` instead. `GridLayoutElement` sets `role="grid"` and `aria-roledescription` in `connectedCallback` with a guard (`if (!this.hasAttribute("role"))`). Violating this causes `NotSupportedError` when elements are created via `document.createElement` during Lit template cloning.
 - **Shadow DOM everywhere.** All three components use `attachShadow({ mode: "open" })`.
 - **CSS custom properties** use `--grid-*` prefix. Defined inline in component style constants, not external CSS.
 - **Lifecycle hooks** are JS property setters (not attributes). Return `false` to cancel/reject.
@@ -73,3 +75,7 @@ npm run test:visual:update  # regenerate baseline snapshots
 - `grid-layout.ts` is the largest file (~923 lines) — contains drag/resize, keyboard nav, external drop, and ARIA logic
 - Keyboard state tracked via `_kbDragActive`, `_kbResizeActive`, `_kbFocusedItemId`, `_kbOldLayout` private fields
 - External drop state tracked via `_isDroppable`, `_droppingItem`, `_externalDragOver`, `_externalPlaceholderItem` private fields
+- Storybook stories in `src/stories/` — 6 files, 16 stories covering basic usage, compaction modes, resize handles, responsive breakpoints, CSS theming (with foundation tokens), and accessibility
+- Stories use `import type` + side-effect `import "../components/grid-layout.js"` pattern — named imports get tree-shaken by Vite if only used as TypeScript type generics
+- Storybook keyboard shortcuts (S, A, D, etc.) can intercept keys before they reach the iframe — click inside the story preview first to give the iframe focus
+- `responsive-grid-layout.ts` `layouts` setter directly applies layout for current breakpoint instead of going through `onWidthChange` — fixes race condition where ResizeObserver fires before `setTimeout(0)` sets layouts

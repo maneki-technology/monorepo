@@ -81,7 +81,18 @@ export class ResponsiveGridLayoutElement extends HTMLElement {
   set layouts(value: ResponsiveLayouts) {
     this._layouts = { ...value };
     if (this._mounted && this._currentBreakpoint) {
-      this.onWidthChange(this._containerWidth);
+      // Force-apply layout for current breakpoint (bypass onWidthChange early-return guard)
+      const cols = getColsFromBreakpoint(this._currentBreakpoint, this._cols);
+      const newLayout = findOrGenerateResponsiveLayout(
+        this._layouts,
+        this._breakpoints,
+        this._currentBreakpoint,
+        cols,
+        this._compactType
+      );
+      this._layouts[this._currentBreakpoint] = cloneLayout(newLayout);
+      this.syncInnerGridConfig(cols);
+      this._innerGrid.layout = newLayout;
     }
   }
 

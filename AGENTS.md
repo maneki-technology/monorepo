@@ -11,7 +11,7 @@ maneki-monorepo/
 │   ├── workspace.yml        # projects: apps/*, packages/*
 │   └── toolchains.yml       # npm package manager
 ├── .storybook/              # Root Storybook config (aggregates all packages)
-│   ├── main.ts              # stories from foundation + ui-components
+│   ├── main.ts              # stories from foundation + ui-components + grid-layout
 │   └── preview.ts           # injects tokens + registers components
 ├── package.json             # npm workspaces root + Storybook scripts
 ├── packages/
@@ -33,10 +33,10 @@ maneki-monorepo/
 | Design tokens (colors, spacing, type) | `packages/foundation/` | Extracted from Figma |
 | UI components + Storybook | `packages/ui-components/` | Web Components with stories |
 | Grid layout library | `packages/grid-layout/` | Has its own detailed AGENTS.md |
-| Storybook (all packages) | `.storybook/` | Root-level, aggregates foundation + ui-components |
+| Storybook (all packages) | `.storybook/` | Root-level, aggregates foundation + ui-components + grid-layout |
 
 ## CONVENTIONS
-- **Zero runtime deps** (except `ui-components` → `@maneki/foundation`). Grid-layout and foundation have zero production dependencies.
+- **Zero runtime deps** (except `ui-components` and `grid-layout` → `@maneki/foundation`). Foundation has zero production dependencies.
 - **Web Components + Shadow DOM.** All UI is custom elements with `attachShadow({ mode: "open" })`.
 - **CSS custom properties.** Each package has its own prefix: `--grid-*` (grid-layout), `--fd-*` (foundation), `--ui-*` (ui-components).
 - **Package naming.** npm: `@maneki/*` scope (e.g., `@maneki/foundation`, `@maneki/ui-components`, `@maneki/grid-layout`).

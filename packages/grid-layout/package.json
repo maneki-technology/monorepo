@@ -18,6 +18,9 @@
     "test:visual": "playwright test",
     "test:visual:update": "playwright test --update-snapshots"
   },
+  "dependencies": {
+    "@maneki/foundation": "*"
+  },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "happy-dom": "^17.6.1",
