@@ -1,4 +1,10 @@
 import type { ResizeHandleAxis } from "../core/types";
+import { colorVar, semanticVar } from "@maneki/foundation";
+
+// ─── Token constants ─────────────────────────────────────────────────────────
+
+const BLUE_60 = colorVar("blue", 60);
+const BORDER_BOLD = semanticVar("border", "bold");
 
 const GRID_ITEM_STYLES = `
 :host {
@@ -11,7 +17,7 @@ const GRID_ITEM_STYLES = `
   contain: layout style;
 }
 :host(:focus-visible) {
-  outline: 2px solid var(--grid-focus-ring-color, #4a90d9);
+  outline: 2px solid var(--grid-focus-ring-color, ${BLUE_60});
   outline-offset: -2px;
   z-index: 2;
 }
@@ -99,8 +105,8 @@ const GRID_ITEM_STYLES = `
   bottom: var(--grid-handle-indicator-offset, 3px);
   width: var(--grid-handle-indicator-size, 5px);
   height: var(--grid-handle-indicator-size, 5px);
-  border-right: 2px solid var(--grid-handle-color, rgba(0, 0, 0, 0.4));
-  border-bottom: 2px solid var(--grid-handle-color, rgba(0, 0, 0, 0.4));
+  border-right: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
+  border-bottom: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
 }
 `;
 
