@@ -20,6 +20,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-dropdown-separator>` — horizontal divider line
 - `<ui-modal>` — modal dialog with backdrop, header (title+subtitle+close), scrollable body, footer button slots, 3 sizes, 2 layouts (auto/fluid), dismiss behavior
 - `<ui-badge>` — label/tag with 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses, uppercase text
+- `<ui-dropdown-split>` — split button with action (left) + chevron trigger (right) + floating menu: 4 sizes (s/m/l/xl), 5 actions, 3 emphases, 2 shapes, 4 icon modes, single/multi-select, independent hover/active/focus per button half
 
 ## STRUCTURE
 ```
@@ -49,6 +50,7 @@ ui-components/
 │   │   ├── ui-dropdown-separator.ts
 │   │   ├── ui-modal.ts
 │   │   ├── ui-badge.ts
+│   │   ├── ui-dropdown-split.ts
 │   │   └── *.test.ts        # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
@@ -135,7 +137,7 @@ Property accessors use these types. Invalid values are compile errors.
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (359 tests)
+moon run ui-components:test            # vitest --run (603 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```

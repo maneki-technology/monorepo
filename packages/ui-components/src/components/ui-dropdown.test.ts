@@ -485,6 +485,7 @@ describe("UiDropdown", () => {
   // ── Selection behavior ──────────────────────────────────────────────
 
   it("should select item on click in single-select mode", () => {
+    el.setAttribute("selectable", "");
     const items = [
       document.createElement("ui-dropdown-item"),
       document.createElement("ui-dropdown-item"),
@@ -501,6 +502,7 @@ describe("UiDropdown", () => {
   });
 
   it("should deselect previous item when selecting new one in single-select", () => {
+    el.setAttribute("selectable", "");
     const item1 = document.createElement("ui-dropdown-item");
     const item2 = document.createElement("ui-dropdown-item");
     item1.setAttribute("selected", "");
@@ -515,6 +517,7 @@ describe("UiDropdown", () => {
   });
 
   it("should close menu after single selection", () => {
+    el.setAttribute("selectable", "");
     (el as any).open = true;
     const item = document.createElement("ui-dropdown-item");
     el.appendChild(item);
@@ -526,6 +529,7 @@ describe("UiDropdown", () => {
   });
 
   it("should toggle selection in multi-select mode", () => {
+    el.setAttribute("selectable", "");
     (el as any).multiple = true;
     const item1 = document.createElement("ui-dropdown-item");
     const item2 = document.createElement("ui-dropdown-item");
@@ -544,6 +548,7 @@ describe("UiDropdown", () => {
   });
 
   it("should NOT close menu after multi-select", () => {
+    el.setAttribute("selectable", "");
     (el as any).multiple = true;
     (el as any).open = true;
     const item = document.createElement("ui-dropdown-item");
@@ -555,6 +560,7 @@ describe("UiDropdown", () => {
   });
 
   it("should dispatch 'change' event on selection", () => {
+    el.setAttribute("selectable", "");
     const handler = vi.fn();
     el.addEventListener("change", handler);
     const item = document.createElement("ui-dropdown-item");
@@ -569,6 +575,7 @@ describe("UiDropdown", () => {
   });
 
   it("should return value from value getter (single)", () => {
+    el.setAttribute("selectable", "");
     const item = document.createElement("ui-dropdown-item");
     item.setAttribute("value", "foo");
     el.appendChild(item);
@@ -579,6 +586,7 @@ describe("UiDropdown", () => {
   });
 
   it("should return array from value getter (multiple)", () => {
+    el.setAttribute("selectable", "");
     (el as any).multiple = true;
     const item1 = document.createElement("ui-dropdown-item");
     const item2 = document.createElement("ui-dropdown-item");
@@ -602,6 +610,50 @@ describe("UiDropdown", () => {
     expect(el.hasAttribute("multiple")).toBe(true);
     (el as any).multiple = false;
     expect(el.hasAttribute("multiple")).toBe(false);
+  });
+
+  it("should NOT manage selection state without selectable attribute", () => {
+    const item = document.createElement("ui-dropdown-item");
+    el.appendChild(item);
+
+    const button = item.shadowRoot!.querySelector("button")!;
+    button.click();
+
+    expect(item.hasAttribute("selected")).toBe(false);
+  });
+
+  it("should NOT dispatch 'change' event without selectable attribute", () => {
+    const handler = vi.fn();
+    el.addEventListener("change", handler);
+    const item = document.createElement("ui-dropdown-item");
+    el.appendChild(item);
+
+    item.shadowRoot!.querySelector("button")!.click();
+
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("should manage selection state with selectable attribute", () => {
+    el.setAttribute("selectable", "");
+    const item = document.createElement("ui-dropdown-item");
+    el.appendChild(item);
+
+    const button = item.shadowRoot!.querySelector("button")!;
+    button.click();
+
+    expect(item.hasAttribute("selected")).toBe(true);
+  });
+
+  it("should dispatch 'change' event with selectable attribute", () => {
+    el.setAttribute("selectable", "");
+    const handler = vi.fn();
+    el.addEventListener("change", handler);
+    const item = document.createElement("ui-dropdown-item");
+    el.appendChild(item);
+
+    item.shadowRoot!.querySelector("button")!.click();
+
+    expect(handler).toHaveBeenCalledTimes(1);
   });
 
   // ── Cleanup ────────────────────────────────────────────────────────────

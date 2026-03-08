@@ -44,6 +44,8 @@ export type { DropdownSize, DropdownAction, DropdownEmphasis, DropdownShape } fr
 export { UiDropdownItem } from "./components/ui-dropdown-item.js";
 export { UiDropdownHeading } from "./components/ui-dropdown-heading.js";
 export { UiDropdownSeparator } from "./components/ui-dropdown-separator.js";
+export { UiDropdownSplit } from "./components/ui-dropdown-split.js";
+export type { DropdownSplitSize, DropdownSplitAction, DropdownSplitEmphasis, DropdownSplitShape, DropdownSplitIcon } from "./components/ui-dropdown-split.js";
 export { UiModal } from "./components/ui-modal.js";
 export type { ModalSize, ModalLayout } from "./components/ui-modal.js";
 export { UiBadge } from "./components/ui-badge.js";
