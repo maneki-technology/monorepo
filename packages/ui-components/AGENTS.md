@@ -18,6 +18,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-dropdown-item>` — menu item with select event, selected state with checkmark, value attribute, disabled support
 - `<ui-dropdown-heading>` — section heading (uppercase, non-interactive)
 - `<ui-dropdown-separator>` — horizontal divider line
+- `<ui-modal>` — modal dialog with backdrop, header (title+subtitle+close), scrollable body, footer button slots, 3 sizes, 2 layouts (auto/fluid), dismiss behavior
 
 ## STRUCTURE
 ```
@@ -45,6 +46,7 @@ ui-components/
 │   │   ├── ui-dropdown-item.ts
 │   │   ├── ui-dropdown-heading.ts
 │   │   ├── ui-dropdown-separator.ts
+│   │   ├── ui-modal.ts
 │   │   └── *.test.ts        # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html

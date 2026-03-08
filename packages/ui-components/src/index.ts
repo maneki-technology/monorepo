@@ -44,3 +44,5 @@ export type { DropdownSize, DropdownAction, DropdownEmphasis, DropdownShape } fr
 export { UiDropdownItem } from "./components/ui-dropdown-item.js";
 export { UiDropdownHeading } from "./components/ui-dropdown-heading.js";
 export { UiDropdownSeparator } from "./components/ui-dropdown-separator.js";
+export { UiModal } from "./components/ui-modal.js";
+export type { ModalSize, ModalLayout } from "./components/ui-modal.js";
