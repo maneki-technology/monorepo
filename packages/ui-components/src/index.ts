@@ -39,3 +39,8 @@ export { UiCheckboxItem } from "./components/ui-checkbox-item.js";
 export type { CheckboxSize, CheckboxLabel } from "./components/ui-checkbox-item.js";
 export { UiCheckboxGroup } from "./components/ui-checkbox-group.js";
 export type { CheckboxGroupOrientation } from "./components/ui-checkbox-group.js";
+export { UiDropdown } from "./components/ui-dropdown.js";
+export type { DropdownSize, DropdownAction, DropdownEmphasis, DropdownShape } from "./components/ui-dropdown.js";
+export { UiDropdownItem } from "./components/ui-dropdown-item.js";
+export { UiDropdownHeading } from "./components/ui-dropdown-heading.js";
+export { UiDropdownSeparator } from "./components/ui-dropdown-separator.js";
