@@ -11,6 +11,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-avatar>` — avatar component: 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 5 statuses, 14 colors
 - `<ui-breadcrumb-item>` — breadcrumb link item: 3 sizes, 7 states (enabled/hover/focus/active/visited/disabled/current), chevron separator
 - `<ui-breadcrumb-group>` — breadcrumb nav wrapper with size propagation
+- `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
 
 ## STRUCTURE
 ```
@@ -29,6 +30,9 @@ ui-components/
 │   │   ├── ui-accordion-group.ts
 │   │   ├── ui-alert.ts
 │   │   ├── ui-avatar.ts
+│   │   ├── ui-card.ts
+│   │   ├── ui-breadcrumb-item.ts
+│   │   ├── ui-breadcrumb-group.ts
 │   │   └── *.test.ts        # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
@@ -113,7 +117,7 @@ Property accessors use these types. Invalid values are compile errors.
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (208 tests)
+moon run ui-components:test            # vitest --run (230 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```
