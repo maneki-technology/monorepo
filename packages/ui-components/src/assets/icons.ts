@@ -23,3 +23,6 @@ export const ICON_LOADING = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 
 
 /** User silhouette icon (avatar default). */
 export const ICON_USER = `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`;
+
+/** Chevron-right arrow (breadcrumb separator). */
+export const ICON_CHEVRON_RIGHT = `<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;

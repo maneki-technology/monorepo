@@ -30,3 +30,6 @@ export type {
   AvatarStatus,
   AvatarColor,
 } from "./components/ui-avatar.js";
+export { UiBreadcrumbItem } from "./components/ui-breadcrumb-item.js";
+export type { BreadcrumbSize } from "./components/ui-breadcrumb-item.js";
+export { UiBreadcrumbGroup } from "./components/ui-breadcrumb-group.js";
