@@ -198,13 +198,11 @@ describe("UiDropdownItem", () => {
     expect(el.hasAttribute("selected")).toBe(false);
   });
 
-  it("should show check icon when selected", () => {
-    const check = el.shadowRoot!.querySelector(".check") as HTMLElement;
-    expect(check).toBeTruthy();
-    expect(getComputedStyle(check).display).not.toBe("inline-flex");
+  it("should apply selected styling when selected", () => {
     el.setAttribute("selected", "");
-    // Check icon visibility is CSS-driven via :host([selected]) .check
     expect(el.hasAttribute("selected")).toBe(true);
+    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    expect(styles).toContain("--ui-dd-item-selected-color");
   });
 
   it("should include selected state in select event detail", () => {
@@ -225,6 +223,172 @@ describe("UiDropdownItem", () => {
     (el as any).value = "apple";
     expect(el.getAttribute("value")).toBe("apple");
     expect((el as any).value).toBe("apple");
+  });
+  it("should accept size='l'", () => {
+    (el as any).size = "l";
+    expect((el as any).size).toBe("l");
+  });
+
+  it("should default leading to null", () => {
+    expect((el as any).leading).toBe(null);
+  });
+
+  it("should set leading='icon' via property", () => {
+    (el as any).leading = "icon";
+    expect(el.getAttribute("leading")).toBe("icon");
+  });
+
+  it("should render icon slot when leading='icon'", () => {
+    el.setAttribute("leading", "icon");
+    const slot = el.shadowRoot!.querySelector('slot[name="icon"]');
+    expect(slot).toBeTruthy();
+  });
+
+  it("should render avatar slot when leading='avatar'", () => {
+    el.setAttribute("leading", "avatar");
+    const slot = el.shadowRoot!.querySelector('slot[name="avatar"]');
+    expect(slot).toBeTruthy();
+  });
+
+  it("should render checkbox SVG when leading='checkbox'", () => {
+    el.setAttribute("leading", "checkbox");
+    const svg = el.shadowRoot!.querySelector(".leading svg");
+    expect(svg).toBeTruthy();
+  });
+
+  it("should render radio SVG when leading='radio'", () => {
+    el.setAttribute("leading", "radio");
+    const svg = el.shadowRoot!.querySelector(".leading svg");
+    expect(svg).toBeTruthy();
+  });
+
+  it("should remove leading element when leading is removed", () => {
+    el.setAttribute("leading", "icon");
+    (el as any).leading = null;
+    const leading = el.shadowRoot!.querySelector(".leading");
+    expect(leading).toBe(null);
+  });
+
+
+  it("should default secondary to null", () => {
+    expect((el as any).secondary).toBe(null);
+  });
+
+  it("should render secondary text", () => {
+    el.setAttribute("secondary", "Ctrl+S");
+    const secondary = el.shadowRoot!.querySelector(".secondary");
+    expect(secondary?.textContent).toBe("Ctrl+S");
+  });
+
+  it("should update secondary text", () => {
+    el.setAttribute("secondary", "A");
+    el.setAttribute("secondary", "B");
+    const secondary = el.shadowRoot!.querySelector(".secondary");
+    expect(secondary?.textContent).toBe("B");
+  });
+
+  it("should remove secondary when cleared", () => {
+    el.setAttribute("secondary", "A");
+    (el as any).secondary = null;
+    const secondary = el.shadowRoot!.querySelector(".secondary");
+    expect(secondary).toBe(null);
+  });
+
+  it("should default description to null", () => {
+    expect((el as any).description).toBe(null);
+  });
+
+  it("should render description text", () => {
+    el.setAttribute("description", "Help text");
+    const description = el.shadowRoot!.querySelector(".description");
+    expect(description?.textContent).toBe("Help text");
+  });
+
+  it("should remove description when cleared", () => {
+    el.setAttribute("description", "X");
+    (el as any).description = null;
+    const description = el.shadowRoot!.querySelector(".description");
+    expect(description).toBe(null);
+  });
+
+  it("should default submenu to false", () => {
+    expect((el as any).submenu).toBe(false);
+  });
+
+  it("should render submenu arrow when set", () => {
+    el.setAttribute("submenu", "");
+    const submenu = el.shadowRoot!.querySelector(".submenu");
+    expect(submenu).toBeTruthy();
+  });
+
+  it("should remove submenu arrow when cleared", () => {
+    el.setAttribute("submenu", "");
+    el.removeAttribute("submenu");
+    const submenu = el.shadowRoot!.querySelector(".submenu");
+    expect(submenu).toBe(null);
+  });
+
+  it("should set submenu via property", () => {
+    (el as any).submenu = true;
+    expect(el.hasAttribute("submenu")).toBe(true);
+    (el as any).submenu = false;
+    expect(el.hasAttribute("submenu")).toBe(false);
+  });
+
+  it("should have selected color style in CSS", () => {
+    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    expect(styles).toContain("--ui-dd-item-selected-color");
+  });
+
+  it("should have disabled color style in CSS", () => {
+    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    expect(styles).toContain("--ui-dd-item-disabled-color");
+  });
+
+  // ── Submenu behavior ────────────────────────────────────────────────────
+
+  it("should have submenu slot in shadow DOM when submenu is set", () => {
+    el.setAttribute("submenu", "");
+    const slot = el.shadowRoot!.querySelector('slot[name="submenu"]');
+    expect(slot).toBeTruthy();
+  });
+
+  it("should open submenu on mouseenter", () => {
+    el.setAttribute("submenu", "");
+    const menu = document.createElement("ui-menu");
+    menu.setAttribute("slot", "submenu");
+    el.appendChild(menu);
+    // Trigger mouseenter on host
+    el.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+    expect(menu.hasAttribute("open")).toBe(true);
+  });
+
+  it("should close submenu on mouseleave after delay", async () => {
+    el.setAttribute("submenu", "");
+    const menu = document.createElement("ui-menu");
+    menu.setAttribute("slot", "submenu");
+    el.appendChild(menu);
+    // Open first
+    el.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+    expect(menu.hasAttribute("open")).toBe(true);
+    // Mouseleave
+    el.dispatchEvent(new MouseEvent("mouseleave", { bubbles: true }));
+    // Should still be open immediately
+    expect(menu.hasAttribute("open")).toBe(true);
+    // Wait for close timer (150ms + buffer)
+    await new Promise((r) => setTimeout(r, 200));
+    expect(menu.hasAttribute("open")).toBe(false);
+  });
+
+  it("should propagate size to submenu", () => {
+    el.setAttribute("submenu", "");
+    el.setAttribute("size", "l");
+    const menu = document.createElement("ui-menu");
+    menu.setAttribute("slot", "submenu");
+    el.appendChild(menu);
+    // Trigger open to propagate size
+    el.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+    expect(menu.getAttribute("size")).toBe("l");
   });
 });
 
@@ -402,15 +566,15 @@ describe("UiDropdown", () => {
     expect(heading.getAttribute("size")).toBe("s");
   });
 
-  it("should map l/xl sizes to 'm' for children", () => {
+  it("should map l/xl sizes to 'l' for children", () => {
     const item = document.createElement("ui-dropdown-item");
     el.appendChild(item);
 
     el.setAttribute("size", "l");
-    expect(item.getAttribute("size")).toBe("m");
+    expect(item.getAttribute("size")).toBe("l");
 
     el.setAttribute("size", "xl");
-    expect(item.getAttribute("size")).toBe("m");
+    expect(item.getAttribute("size")).toBe("l");
   });
 
   it("should propagate size to dynamically added children", () => {

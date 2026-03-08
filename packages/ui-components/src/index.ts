@@ -42,6 +42,7 @@ export type { CheckboxGroupOrientation } from "./components/ui-checkbox-group.js
 export { UiDropdown } from "./components/ui-dropdown.js";
 export type { DropdownSize, DropdownAction, DropdownEmphasis, DropdownShape } from "./components/ui-dropdown.js";
 export { UiDropdownItem } from "./components/ui-dropdown-item.js";
+export type { DropdownItemSize, DropdownItemLeading } from "./components/ui-dropdown-item.js";
 export { UiDropdownHeading } from "./components/ui-dropdown-heading.js";
 export { UiDropdownSeparator } from "./components/ui-dropdown-separator.js";
 export { UiDropdownSplit } from "./components/ui-dropdown-split.js";
@@ -54,3 +55,5 @@ export { UiSidePanelMenu } from "./components/ui-side-panel-menu.js";
 export type { SidePanelMenuState } from "./components/ui-side-panel-menu.js";
 export { UiSidePanelMenuItem } from "./components/ui-side-panel-menu-item.js";
 export type { SidePanelMenuItemLevel, SidePanelMenuItemType } from "./components/ui-side-panel-menu-item.js";
+export { UiMenu } from "./components/ui-menu.js";
+export type { MenuSize } from "./components/ui-menu.js";

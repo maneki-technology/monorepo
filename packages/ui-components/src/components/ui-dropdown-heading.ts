@@ -6,7 +6,8 @@ const GRAY_60 = colorVar("gray", 60);
 const SP_05 = spaceVar("0.5");   // 4px
 const SP_15 = spaceVar("1.5");   // 12px
 const SP_2 = spaceVar("2");      // 16px
-
+const SP_1 = spaceVar("1");      // 8px
+const SP_3 = spaceVar("3");      // 24px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -45,6 +46,14 @@ const STYLES = /* css */ `
     line-height: 16px;
     padding: ${SP_05} ${SP_15};
   }
+
+  /* ── Size: l ────────────────────────────────────────────────────────────── */
+
+  :host([size="l"]) .heading {
+    font-size: 14px;
+    line-height: 20px;
+    padding: ${SP_1} ${SP_3};
+  }
 `;
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -72,11 +81,11 @@ export class UiDropdownHeading extends HTMLElement {
 
   // ── Property accessors ──────────────────────────────────────────────────
 
-  get size(): "s" | "m" {
-    return (this.getAttribute("size") as "s" | "m") ?? "m";
+  get size(): "s" | "m" | "l" {
+    return (this.getAttribute("size") as "s" | "m" | "l") ?? "m";
   }
 
-  set size(value: "s" | "m") {
+  set size(value: "s" | "m" | "l") {
     this.setAttribute("size", value);
   }
 }

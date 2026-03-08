@@ -47,6 +47,9 @@ npm install @maneki/ui-components
 | `<ui-dropdown-heading>` | Uppercase section heading |
 | `<ui-dropdown-separator>` | Horizontal divider line |
 | `<ui-dropdown-split>` | Split button (action + chevron trigger): 4 sizes, 5 actions, opt-in `selectable` |
+| `<ui-menu>` | Standalone floating menu panel: 2 sizes, open/close animation, dismiss, single/multi-select |
+| `<ui-side-panel-menu>` | Collapsible sidebar nav: expanded/collapsed, mobile responsive, flyout submenu, overlay |
+| `<ui-side-panel-menu-item>` | Sidebar menu item: 3 levels, expandable parent, leading icon, selected/disabled |
 | `<ui-modal>` | Dialog with backdrop, header, scrollable body, footer: 3 sizes, 2 layouts |
 | `<ui-badge>` | Label/tag: 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses |
 
@@ -69,7 +72,7 @@ moon run ui-components:storybook        # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build → storybook-static/
 ```
 
-19 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
+21 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
 
 ---
 
@@ -77,7 +80,7 @@ moon run ui-components:storybook-build  # Static build → storybook-static/
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (606 tests)
+moon run ui-components:test   # vitest --run (767 tests)
 ```
 
 ---

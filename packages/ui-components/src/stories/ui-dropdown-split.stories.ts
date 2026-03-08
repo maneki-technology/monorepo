@@ -4,6 +4,7 @@ import "../components/ui-dropdown-split.js";
 import "../components/ui-dropdown-item.js";
 import "../components/ui-dropdown-heading.js";
 import "../components/ui-dropdown-separator.js";
+import "../components/ui-menu.js";
 
 const meta: Meta = {
   title: "Components/DropdownSplit",
@@ -215,6 +216,86 @@ export const Selectable: Story = {
       <ui-dropdown-item value="duplicate" selected>Duplicate</ui-dropdown-item>
       <ui-dropdown-item value="archive">Archive</ui-dropdown-item>
       <ui-dropdown-item value="delete">Delete</ui-dropdown-item>
+    </ui-dropdown-split>
+  `,
+};
+
+export const WithLeadingIcons: Story = {
+  render: () => html`
+    <ui-dropdown-split label="Actions">
+      <ui-dropdown-item leading="icon"><span slot="icon" style="display:inline-flex"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 4v12M4 10h12"/></svg></span>New File</ui-dropdown-item>
+      <ui-dropdown-item leading="icon"><span slot="icon" style="display:inline-flex"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h12M4 10h12M4 14h8"/></svg></span>Open File</ui-dropdown-item>
+      <ui-dropdown-item leading="icon" disabled><span slot="icon" style="display:inline-flex"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="6"/></svg></span>Disabled</ui-dropdown-item>
+    </ui-dropdown-split>
+  `,
+};
+
+export const WithCheckboxes: Story = {
+  render: () => html`
+    <ui-dropdown-split label="Formatting" selectable multiple>
+      <ui-dropdown-item leading="checkbox" value="bold" selected>Bold</ui-dropdown-item>
+      <ui-dropdown-item leading="checkbox" value="italic">Italic</ui-dropdown-item>
+      <ui-dropdown-item leading="checkbox" value="underline">Underline</ui-dropdown-item>
+      <ui-dropdown-item leading="checkbox" value="strike" disabled>Strikethrough</ui-dropdown-item>
+    </ui-dropdown-split>
+  `,
+};
+
+export const WithRadios: Story = {
+  render: () => html`
+    <ui-dropdown-split label="Sort By" selectable>
+      <ui-dropdown-heading>Sort By</ui-dropdown-heading>
+      <ui-dropdown-item leading="radio" value="name" selected>Name</ui-dropdown-item>
+      <ui-dropdown-item leading="radio" value="date">Date Modified</ui-dropdown-item>
+      <ui-dropdown-item leading="radio" value="size">Size</ui-dropdown-item>
+      <ui-dropdown-item leading="radio" value="type">Type</ui-dropdown-item>
+    </ui-dropdown-split>
+  `,
+};
+
+export const WithSecondaryLabels: Story = {
+  render: () => html`
+    <ui-dropdown-split label="File Menu">
+      <ui-dropdown-item secondary="Ctrl+N">New File</ui-dropdown-item>
+      <ui-dropdown-item secondary="Ctrl+O">Open File</ui-dropdown-item>
+      <ui-dropdown-item secondary="Ctrl+S">Save</ui-dropdown-item>
+      <ui-dropdown-item secondary="Ctrl+Shift+S">Save As</ui-dropdown-item>
+      <ui-dropdown-separator></ui-dropdown-separator>
+      <ui-dropdown-item secondary="Ctrl+Q">Quit</ui-dropdown-item>
+    </ui-dropdown-split>
+  `,
+};
+
+export const WithDescriptions: Story = {
+  render: () => html`
+    <ui-dropdown-split label="File">
+      <ui-dropdown-item description="Create a new empty document">New File</ui-dropdown-item>
+      <ui-dropdown-item description="Open an existing file from disk">Open File</ui-dropdown-item>
+      <ui-dropdown-item description="Save changes to current file" disabled>Save</ui-dropdown-item>
+    </ui-dropdown-split>
+  `,
+};
+
+export const WithSubmenu: Story = {
+  render: () => html`
+    <ui-dropdown-split label="Edit" open>
+      <ui-dropdown-item>Cut</ui-dropdown-item>
+      <ui-dropdown-item>Copy</ui-dropdown-item>
+      <ui-dropdown-item>Paste</ui-dropdown-item>
+      <ui-dropdown-separator></ui-dropdown-separator>
+      <ui-dropdown-item submenu>Find
+        <ui-menu slot="submenu" open>
+          <ui-dropdown-item>Find in File</ui-dropdown-item>
+          <ui-dropdown-item secondary="Ctrl+F">Find in Project</ui-dropdown-item>
+          <ui-dropdown-item secondary="Ctrl+H">Find and Replace</ui-dropdown-item>
+        </ui-menu>
+      </ui-dropdown-item>
+      <ui-dropdown-item submenu>Replace
+        <ui-menu slot="submenu">
+          <ui-dropdown-item>Replace in File</ui-dropdown-item>
+          <ui-dropdown-item secondary="Ctrl+Shift+H">Replace in Project</ui-dropdown-item>
+        </ui-menu>
+      </ui-dropdown-item>
     </ui-dropdown-split>
   `,
 };
