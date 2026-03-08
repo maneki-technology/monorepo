@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "../components/ui-card.js";
+import "../components/ui-button.js";
 
 const meta: Meta = {
   title: "Components/Card",
@@ -129,16 +130,8 @@ export const WithFooter: Story = {
       <h3 style="margin: 0; font-size: 16px; font-weight: 500;">Card Title</h3>
       <p style="margin: 0; font-size: 14px;">Card body content goes here.</p>
       <div slot="footer" style="display: flex; gap: 8px; padding: 0 16px 16px;">
-        <button
-          style="background-color: #186ade; border: none; border-radius: 2px; padding: 8px 16px; color: #fff; cursor: pointer; font-family: Goldman Sans, sans-serif; font-size: 14px; font-weight: 500;"
-        >
-          Confirm
-        </button>
-        <button
-          style="background-color: transparent; border: 1px solid #c1ccd6; border-radius: 2px; padding: 8px 16px; color: #1c2b36; cursor: pointer; font-family: Goldman Sans, sans-serif; font-size: 14px; font-weight: 500;"
-        >
-          Cancel
-        </button>
+        <ui-button action="primary" emphasis="bold" size="s">Confirm</ui-button>
+        <ui-button action="secondary" emphasis="subtle" size="s">Cancel</ui-button>
       </div>
     </ui-card>
   `,
@@ -159,11 +152,7 @@ export const ImageCard: Story = {
         button.
       </p>
       <div slot="footer" style="padding: 0 16px 16px;">
-        <button
-          style="background-color: #186ade; border: none; border-radius: 2px; padding: 8px 16px; color: #fff; cursor: pointer; font-family: Goldman Sans, sans-serif; font-size: 14px; font-weight: 500;"
-        >
-          Read More
-        </button>
+        <ui-button action="primary" emphasis="bold" size="s">Read More</ui-button>
       </div>
     </ui-card>
   `,

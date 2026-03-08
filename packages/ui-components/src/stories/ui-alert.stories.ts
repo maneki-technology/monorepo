@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "../components/ui-alert.js";
+import "../components/ui-button.js";
 
 const meta: Meta = {
   title: "Components/Alert",
@@ -155,7 +156,7 @@ export const WithFooterButton: Story = {
       Alert Title
       <span slot="description">Description text explaining the alert in more detail.</span>
       <div slot="footer">
-        <button style="background: rgba(255,255,255,0.15); border: none; border-radius: 2px; padding: 6px 12px 6px 8px; color: inherit; cursor: pointer; font-family: Goldman Sans, sans-serif; font-size: 14px; font-weight: 500;">Refresh</button>
+        <ui-button action="contrast" emphasis="subtle" size="s">Refresh</ui-button>
       </div>
     </ui-alert>
   `,
