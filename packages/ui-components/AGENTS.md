@@ -9,6 +9,8 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-accordion-group>` — wrapper with size/emphasis propagation + exclusive mode
 - `<ui-alert>` — dismissable alert/toast: 3 sizes, 2 emphases, 5 statuses, footer slot
 - `<ui-avatar>` — avatar component: 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 5 statuses, 14 colors
+- `<ui-breadcrumb-item>` — breadcrumb link item: 3 sizes, 7 states (enabled/hover/focus/active/visited/disabled/current), chevron separator
+- `<ui-breadcrumb-group>` — breadcrumb nav wrapper with size propagation
 
 ## STRUCTURE
 ```
@@ -72,7 +74,7 @@ SVG icons are centralized in `src/assets/icons.ts`:
 import { ICON_CLOSE, ICON_CHEVRON } from '../assets/icons.js';
 ```
 
-All icons use `currentColor` for stroke/fill so they inherit the parent's `color`. Available: `ICON_CLOSE`, `ICON_CHEVRON`, `ICON_ERROR`, `ICON_SUCCESS`, `ICON_WARNING`, `ICON_LOADING`, `ICON_USER`.
+All icons use `currentColor` for stroke/fill so they inherit the parent's `color`. Available: `ICON_CLOSE`, `ICON_CHEVRON`, `ICON_CHEVRON_RIGHT`, `ICON_ERROR`, `ICON_SUCCESS`, `ICON_WARNING`, `ICON_LOADING`, `ICON_USER`.
 
 ## TYPE SAFETY
 Exported union types cover every attribute:
@@ -111,7 +113,7 @@ Property accessors use these types. Invalid values are compile errors.
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (179 tests)
+moon run ui-components:test            # vitest --run (208 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```
