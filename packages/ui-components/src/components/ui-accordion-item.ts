@@ -168,16 +168,22 @@ const STYLES = /* css */ `
   /* ── Content panel ──────────────────────────────────────────────────────── */
 
   .content {
-    display: none;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.2s ease;
     color: var(--ui-acc-content-color, ${TEXT_PRIMARY});
     font-family: "Goldman Sans", sans-serif;
     font-weight: 400;
   }
-
   :host([expanded]) .content {
-    display: block;
+    grid-template-rows: 1fr;
   }
-
+  .content-inner {
+    overflow: hidden;
+    min-height: 0;
+  }
+  .content-body {
+  }
   /* ── Size: m (default) ──────────────────────────────────────────────────── */
 
   :host .header,
@@ -215,14 +221,13 @@ const STYLES = /* css */ `
     height: 18px;
   }
 
-  :host .content,
-  :host([size="m"]) .content {
+  :host .content-body,
+  :host([size="m"]) .content-body {
     padding-top: 12px;
     padding-bottom: 20px;
     font-size: 14px;
     line-height: 20px;
   }
-
   /* ── Size: s ────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .header {
@@ -254,13 +259,12 @@ const STYLES = /* css */ `
     height: 14px;
   }
 
-  :host([size="s"]) .content {
+  :host([size="s"]) .content-body {
     padding-top: 8px;
     padding-bottom: 16px;
     font-size: 12px;
     line-height: 16px;
   }
-
   /* ── Size: l ────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .header {
@@ -292,13 +296,12 @@ const STYLES = /* css */ `
     height: 20px;
   }
 
-  :host([size="l"]) .content {
+  :host([size="l"]) .content-body {
     padding-top: 12px;
     padding-bottom: 24px;
     font-size: 16px;
     line-height: 24px;
   }
-
   /* ── Disabled ───────────────────────────────────────────────────────────── */
 
   :host([disabled]) {
@@ -313,11 +316,13 @@ const STYLES = /* css */ `
   /* ── Reduced motion ─────────────────────────────────────────────────────── */
 
   @media (prefers-reduced-motion: reduce) {
-    .chevron {
+    .chevron,
+    .content {
       transition-duration: 0.01ms !important;
     }
   }
 `;
+
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -413,8 +418,14 @@ export class UiAccordionItem extends HTMLElement {
     contentPanel.id = this._contentId;
     contentPanel.setAttribute("role", "region");
     contentPanel.setAttribute("aria-labelledby", this._headerId);
+    const contentInner = document.createElement("div");
+    contentInner.className = "content-inner";
+    const contentBody = document.createElement("div");
+    contentBody.className = "content-body";
     const contentSlot = document.createElement("slot");
-    contentPanel.appendChild(contentSlot);
+    contentBody.appendChild(contentSlot);
+    contentInner.appendChild(contentBody);
+    contentPanel.appendChild(contentInner);
     shadow.appendChild(contentPanel);
 
     this._header = header;
