@@ -10,7 +10,10 @@ maneki-monorepo/
 ├── .moon/
 │   ├── workspace.yml        # projects: apps/*, packages/*
 │   └── toolchains.yml       # npm package manager
-├── package.json             # npm workspaces root (required by npm, not Moon)
+├── .storybook/              # Root Storybook config (aggregates all packages)
+│   ├── main.ts              # stories from foundation + ui-components
+│   └── preview.ts           # injects tokens + registers components
+├── package.json             # npm workspaces root + Storybook scripts
 ├── packages/
 │   ├── grid-layout/         # <grid-layout> Web Component library (@maneki/grid-layout)
 │   ├── ui-components/       # UI components + Storybook (@maneki/ui-components)
@@ -30,6 +33,7 @@ maneki-monorepo/
 | Design tokens (colors, spacing, type) | `packages/foundation/` | Extracted from Figma |
 | UI components + Storybook | `packages/ui-components/` | Web Components with stories |
 | Grid layout library | `packages/grid-layout/` | Has its own detailed AGENTS.md |
+| Storybook (all packages) | `.storybook/` | Root-level, aggregates foundation + ui-components |
 
 ## CONVENTIONS
 - **Zero runtime deps** (except `ui-components` → `@maneki/foundation`). Grid-layout and foundation have zero production dependencies.
@@ -61,6 +65,10 @@ moon run <pkg>:build         # Build a specific package
 moon run <pkg>:test          # Test a specific package
 moon check --all             # Run all tasks across all packages
 
+# Root Storybook (all packages)
+npm run storybook            # Dev server on port 6006
+npm run storybook:build      # Static build → storybook-static/
+
 # Per-package (run from package dir)
 npx vitest --run             # Unit tests
 npx tsc --noEmit             # Type check
@@ -69,8 +77,8 @@ npx vite build               # Build
 
 ## NOTES
 - Git repo: `maneki-technology/monorepo` on GitHub
-- CI/CD: Chromatic for Storybook visual review (`.github/workflows/chromatic.yml`)
+- CI/CD: Chromatic for Storybook visual review (`.github/workflows/chromatic.yml`). Storybook: https://www.chromatic.com/builds?appId=69ac56bb2124263f2f04fadc
 - `apps/` directory exists but is empty — reserved for future consumer apps
-- Root `package.json` exists solely for npm workspaces — Moon handles task orchestration
+- Root `package.json` has Storybook scripts (`storybook`, `storybook:build`) and devDependencies for the root-level Storybook
 - Node pinned at 22 because Storybook 10 requires Node 20.19+
 - LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead

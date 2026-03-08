@@ -4,5 +4,16 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "scripts": {
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build -o storybook-static"
+  },
+  "devDependencies": {
+    "@storybook/web-components": "^10.2.16",
+    "@storybook/web-components-vite": "^10.2.16",
+    "chromatic": "^15.2.0",
+    "lit": "^3.3.2",
+    "storybook": "^10.2.16"
+  }
 }
