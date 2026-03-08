@@ -13,7 +13,8 @@ maneki-monorepo/
 ├── package.json             # npm workspaces root (required by npm, not Moon)
 ├── packages/
 │   ├── grid-layout/         # <grid-layout> Web Component library (@maneki/grid-layout)
-│   ├── ui-components/       # <ui-button> etc. + Storybook (@maneki/ui-components)
+│   ├── ui-components/       # UI components + Storybook (@maneki/ui-components)
+│   │                        # button, button-group, accordion-item, accordion-group, alert
 │   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints (@maneki/foundation)
 └── apps/                    # (empty — future apps)
 ```
@@ -64,8 +65,8 @@ npx vite build               # Build
 ```
 
 ## NOTES
-- No git repo initialized yet
-- No CI/CD configured yet
+- Git repo: `maneki-technology/monorepo` on GitHub
+- CI/CD: Chromatic for Storybook visual review (`.github/workflows/chromatic.yml`)
 - `apps/` directory exists but is empty — reserved for future consumer apps
 - Root `package.json` exists solely for npm workspaces — Moon handles task orchestration
 - Node pinned at 22 because Storybook 10 requires Node 20.19+

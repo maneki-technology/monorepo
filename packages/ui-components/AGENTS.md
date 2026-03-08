@@ -1,10 +1,13 @@
 # packages/ui-components — Design System Components
 
 ## OVERVIEW
-Web Component library for the Maneki design system. Shadow DOM, CSS custom properties, TypeScript, Storybook 10. Currently ships two components:
+Web Component library for the Maneki design system. Shadow DOM, CSS custom properties, TypeScript, Storybook 10. Currently ships:
 
 - `<ui-button>` — full Figma spec: 5 actions, 3 emphases, 4 sizes, 2 shapes, 4 icon modes, 3 statuses
 - `<ui-button-group>` — segmented bar that wraps `<ui-button>` elements
+- `<ui-accordion-item>` — expandable panel: 3 sizes, 2 emphases, 4 statuses, smooth CSS transition
+- `<ui-accordion-group>` — wrapper with size/emphasis propagation + exclusive mode
+- `<ui-alert>` — dismissable alert/toast: 3 sizes, 2 emphases, 5 statuses, footer slot
 
 ## STRUCTURE
 ```
@@ -14,15 +17,18 @@ ui-components/
 │   └── preview.ts           # imports injectAllTokens() from @maneki/foundation
 ├── src/
 │   ├── index.ts             # Barrel export + custom element registration
+│   ├── assets/
+│   │   └── icons.ts         # Shared SVG icon constants (ICON_CLOSE, ICON_CHEVRON, etc.)
 │   ├── components/
-│   │   ├── ui-button.ts          # <ui-button> Web Component
-│   │   ├── ui-button.test.ts     # 27 tests
-│   │   ├── ui-button-group.ts    # <ui-button-group> Web Component
-│   │   └── ui-button-group.test.ts # 12 tests
+│   │   ├── ui-button.ts
+│   │   ├── ui-button-group.ts
+│   │   ├── ui-accordion-item.ts
+│   │   ├── ui-accordion-group.ts
+│   │   ├── ui-alert.ts
+│   │   └── *.test.ts        # Co-located tests
 │   └── stories/
-│       ├── ui-button.stories.ts       # 9 stories (CSF3 + lit html)
-│       └── ui-button-group.stories.ts # 4 stories
-└── storybook-static/        # Built Storybook output (gitignore candidate)
+│       └── *.stories.ts     # CSF3 + lit html
+└── storybook-static/        # Built Storybook output
 ```
 
 ## WHERE TO LOOK
@@ -31,28 +37,40 @@ ui-components/
 | Add new component | `src/components/` | Create `ui-foo.ts` + `ui-foo.test.ts` |
 | Add stories | `src/stories/` | CSF3 format with `@storybook/web-components` |
 | Register element | `src/index.ts` | `customElements.define()` + re-export |
+| Add shared icon | `src/assets/icons.ts` | SVG string constant with `currentColor` |
 | Storybook config | `.storybook/main.ts` | Framework: `@storybook/web-components-vite` |
 
 ## COMPONENT PATTERN
-Follow `ui-button.ts` as the reference implementation:
+Follow `ui-button.ts` or `ui-alert.ts` as reference implementations:
 1. Class extends `HTMLElement`
 2. `attachShadow({ mode: "open" })` in constructor
-3. Observed attributes → `attributeChangedCallback` → re-render
-4. Private `render()` method updates `shadowRoot.innerHTML`
-5. CSS uses nested var pattern: `var(--ui-btn-bg, var(--fd-color-blue-60))` — consumer override at the outer var, foundation token as the fallback
-6. `customElements.define("ui-*", Class)` at module level
+3. DOM built imperatively with `document.createElement()` (not innerHTML)
+4. Observed attributes → `attributeChangedCallback`
+5. CSS in `STYLES` template literal with token constants at module level
+6. CSS uses nested var pattern: `var(--ui-btn-bg, ${BLUE_60})` — consumer override → foundation token
+7. `customElements.define("ui-*", Class)` at module level
 
 ## FOUNDATION TOKEN WIRING
-`ui-button.ts` imports `colorVar` and `spaceVar` helpers from `@maneki/foundation`:
+Components import token helpers from `@maneki/foundation`:
 
 ```ts
-import { colorVar, spaceVar } from '@maneki/foundation';
+import { colorVar, semanticVar, spaceVar } from '@maneki/foundation';
 
 const BLUE_60 = colorVar('blue', 60);
-const SPACE_4 = spaceVar(4);
+const TEXT_PRIMARY = semanticVar('text', 'primary');
+const SP_2 = spaceVar(2);
 ```
 
-Token constants are defined at module level and interpolated into the CSS template literal. Invalid token references (wrong color name, out-of-range scale value) are compile errors, not runtime surprises.
+Token constants are defined at module level and interpolated into the CSS template literal. Invalid token references are compile errors.
+
+## SHARED ICONS
+SVG icons are centralized in `src/assets/icons.ts`:
+
+```ts
+import { ICON_CLOSE, ICON_CHEVRON } from '../assets/icons.js';
+```
+
+All icons use `currentColor` for stroke/fill so they inherit the parent's `color`. Available: `ICON_CLOSE`, `ICON_CHEVRON`, `ICON_ERROR`, `ICON_SUCCESS`, `ICON_WARNING`, `ICON_LOADING`.
 
 ## TYPE SAFETY
 Exported union types cover every attribute:
@@ -60,13 +78,10 @@ Exported union types cover every attribute:
 ```ts
 export type ButtonAction   = 'primary' | 'secondary' | 'destructive' | 'info' | 'contrast';
 export type ButtonEmphasis = 'bold' | 'subtle' | 'minimal';
-export type ButtonSize     = 's' | 'm' | 'l' | 'xl';
-export type ButtonShape    = 'basic' | 'rounded';
-export type ButtonIcon     = 'text-only' | 'leading-icon' | 'trailing-icon' | 'icon-only';
-export type ButtonStatus   = 'none' | 'error' | 'loading' | 'success';
+export type AlertStatus    = 'none' | 'information' | 'success' | 'error' | 'warning';
 ```
 
-Property accessors on `UiButton` use these types. `ui-button-group.ts` imports and reuses the same types for its own matching attributes.
+Property accessors use these types. Invalid values are compile errors.
 
 ## STORY PATTERN
 - CSF3 format (export const Story = { args: {...} })
@@ -89,11 +104,12 @@ Property accessors on `UiButton` use these types. `ui-button-group.ts` imports a
 - **No `as any`, `@ts-ignore`, `@ts-expect-error`** — never suppress types
 - **No light DOM components** — always Shadow DOM with `attachShadow({ mode: "open" })`
 - **No CSS var name mismatches** — component override vars must match exactly between parent and child (e.g., `--ui-btn-radius`, not `--ui-button-radius`)
-
+- **No inline SVG duplication** — add new icons to `src/assets/icons.ts` and import
 ## COMMANDS
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (39 tests)
+moon run ui-components:test            # vitest --run (129 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
+moon run ui-components:chromatic       # Publish to Chromatic
 ```
