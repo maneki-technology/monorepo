@@ -20,7 +20,8 @@ Design system monorepo with Web Components and design tokens extracted from Figm
 maneki-monorepo/
 ├── .prototools              # node 22.16.0, moon 2.0.4
 ├── .moon/                   # Moon workspace + toolchain config
-├── package.json             # npm workspaces root
+├── .storybook/              # Root Storybook config (aggregates all packages)
+├── package.json             # npm workspaces root + Storybook scripts
 ├── packages/
 │   ├── foundation/          # Design tokens (@maneki/foundation)
 │   ├── ui-components/       # Web Components + Storybook (@maneki/ui-components)
@@ -56,6 +57,10 @@ moon check --all
 moon run foundation:test
 moon run ui-components:test
 moon run grid-layout:test
+
+# Storybook (all packages)
+npm run storybook            # Dev server on port 6006
+npm run storybook:build      # Static build → storybook-static/
 ```
 
 ---
@@ -68,6 +73,10 @@ moon run grid-layout:test
 - TypeScript strict mode, ES2022 target
 - Tests co-located: `foo.ts` → `foo.test.ts`
 - Moon tasks in kebab-case: `build`, `test`, `test-watch`, `dev`, `storybook`
+
+## Storybook
+
+Published to Chromatic: https://www.chromatic.com/builds?appId=69ac56bb2124263f2f04fadc
 
 ---
 

@@ -4,12 +4,14 @@ on:
   push:
     branches: [main]
     paths:
+      - '.storybook/**'
       - 'packages/ui-components/**'
       - 'packages/foundation/**'
       - '.github/workflows/chromatic.yml'
   pull_request:
     branches: [main]
     paths:
+      - '.storybook/**'
       - 'packages/ui-components/**'
       - 'packages/foundation/**'
       - '.github/workflows/chromatic.yml'
@@ -37,5 +39,4 @@ jobs:
         uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          workingDir: packages/ui-components
           buildScriptName: storybook:build

@@ -6,6 +6,9 @@ Design tokens extracted from the "Foundation UI Kit (Community)" Figma file. Gen
 ## STRUCTURE
 ```
 foundation/
+├── .storybook/
+│   ├── main.ts              # @storybook/web-components-vite
+│   └── preview.ts           # imports injectAllTokens()
 └── src/
     ├── index.ts              # Barrel export (all modules)
     ├── colors.ts             # 131 palette tokens (13 families × 10 steps + gray-110)
@@ -15,7 +18,13 @@ foundation/
     ├── breakpoints.ts        # 3 density variants (compact/standard/spacious) × 7 breakpoints + helpers
     ├── tokens.ts             # CSS custom property generators + var() helpers
     ├── tokens.test.ts        # 28 tests
-    └── breakpoints.test.ts   # 27 tests
+    ├── breakpoints.test.ts   # 27 tests
+    └── stories/
+        ├── colors.stories.ts           # Color palette grid (13 families × 10-11 steps)
+        ├── semantic-tokens.stories.ts  # Surface, border, text, icon, global, status
+        ├── typography.stories.ts       # All 7 typography groups with live samples
+        ├── spacing.stories.ts          # Visual spacing scale (17 steps)
+        └── elevation.stories.ts        # Elevation levels with box-shadow samples
 ```
 
 ## WHERE TO LOOK
@@ -68,3 +77,11 @@ var() helpers — colorVar(), semanticVar(), elevationVar(), typeVar(), spaceVar
 - **Don't hardcode color values in components** — use `colorVar()` / `semanticVar()` helpers
 - **Don't add tokens not in Figma** — this is a faithful extraction, not a creative exercise
 - **Don't forget to update `injectAllTokens()`** when adding a new token category
+
+## COMMANDS
+```bash
+moon run foundation:storybook       # Dev server on port 6007
+moon run foundation:storybook-build  # Static build
+moon run foundation:test            # vitest --run (55 tests)
+moon run foundation:build           # vite build + tsc --emitDeclarationOnly
+```
