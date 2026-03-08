@@ -1,0 +1,84 @@
+import { colorVar, spaceVar } from "@maneki/foundation";
+
+// ─── Token constants ─────────────────────────────────────────────────────────
+
+const GRAY_60 = colorVar("gray", 60);
+const SP_05 = spaceVar("0.5");   // 4px
+const SP_15 = spaceVar("1.5");   // 12px
+const SP_2 = spaceVar("2");      // 16px
+
+// ─── Styles ──────────────────────────────────────────────────────────────────
+
+const STYLES = /* css */ `
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  :host {
+    display: block;
+  }
+
+  .heading {
+    font-family: var(--ui-dd-heading-font-family, "Goldman Sans", sans-serif);
+    font-weight: var(--ui-dd-heading-font-weight, 500);
+    color: var(--ui-dd-heading-color, ${GRAY_60});
+    text-transform: uppercase;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ── Size: m (default) ──────────────────────────────────────────────────── */
+
+  :host .heading,
+  :host([size="m"]) .heading {
+    font-size: 12px;
+    line-height: 16px;
+    padding: ${SP_05} ${SP_2};
+  }
+
+  /* ── Size: s ────────────────────────────────────────────────────────────── */
+
+  :host([size="s"]) .heading {
+    font-size: 11px;
+    line-height: 16px;
+    padding: ${SP_05} ${SP_15};
+  }
+`;
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
+export class UiDropdownHeading extends HTMLElement {
+  static readonly observedAttributes = ["size"];
+
+  constructor() {
+    super();
+    const shadow = this.attachShadow({ mode: "open" });
+
+    const style = document.createElement("style");
+    style.textContent = STYLES;
+    shadow.appendChild(style);
+
+    const heading = document.createElement("div");
+    heading.className = "heading";
+    heading.setAttribute("part", "heading");
+
+    const slot = document.createElement("slot");
+    heading.appendChild(slot);
+
+    shadow.appendChild(heading);
+  }
+
+  // ── Property accessors ──────────────────────────────────────────────────
+
+  get size(): "s" | "m" {
+    return (this.getAttribute("size") as "s" | "m") ?? "m";
+  }
+
+  set size(value: "s" | "m") {
+    this.setAttribute("size", value);
+  }
+}
+
+customElements.define("ui-dropdown-heading", UiDropdownHeading);
