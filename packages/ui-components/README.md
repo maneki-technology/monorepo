@@ -29,43 +29,35 @@ npm install @maneki/ui-components
 
 ## Components
 
-### `<ui-button>`
-
-A button component matching the full Figma spec: 5 actions, 3 emphases, 4 sizes, 2 shapes, 4 icon modes, 3 statuses.
-
-**Attributes**
-
-| Attribute | Type | Default | Description |
-|---|---|---|---|
-| `action` | `"primary" \| "secondary" \| "destructive" \| "info" \| "contrast"` | `"primary"` | Action style |
-| `emphasis` | `"bold" \| "subtle" \| "minimal"` | `"bold"` | Emphasis level |
-| `size` | `"s" \| "m" \| "l" \| "xl"` | `"m"` | Button size |
-| `shape` | `"basic" \| "rounded"` | `"basic"` | Border radius style |
-| `icon` | `"text-only" \| "leading-icon" \| "trailing-icon" \| "icon-only"` | `"text-only"` | Icon layout |
-| `status` | `"none" \| "error" \| "loading" \| "success"` | `"none"` | Status indicator |
-| `disabled` | `boolean` | `false` | Disabled state |
-
----
-
-### `<ui-button-group>`
-
-A segmented bar that wraps `<ui-button>` elements. Propagates shared attributes to its children.
-
-**Attributes**
-
-| Attribute | Type | Default | Description |
-|---|---|---|---|
-| `action` | `ButtonAction` | `"primary"` | Shared action style |
-| `emphasis` | `ButtonEmphasis` | `"bold"` | Shared emphasis level |
-| `size` | `ButtonSize` | `"m"` | Shared button size |
-| `shape` | `ButtonShape` | `"basic"` | Shared border radius style |
+| Component | Description |
+|---|---|
+| `<ui-button>` | 5 actions, 3 emphases, 4 sizes, 2 shapes, 4 icon modes, 3 statuses |
+| `<ui-button-group>` | Segmented bar wrapping `<ui-button>` elements |
+| `<ui-accordion-item>` | Expandable panel: 3 sizes, 2 emphases, 4 statuses |
+| `<ui-accordion-group>` | Wrapper with size/emphasis propagation + exclusive mode |
+| `<ui-alert>` | Dismissable alert: 3 sizes, 2 emphases, 5 statuses, footer slot |
+| `<ui-avatar>` | 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 14 colors |
+| `<ui-breadcrumb-item>` | Breadcrumb link: 3 sizes, 7 states |
+| `<ui-breadcrumb-group>` | Nav wrapper with size propagation |
+| `<ui-card>` | Slot-based container: 3 sizes, 4 elevations, bordered variant |
+| `<ui-checkbox-item>` | 3 sizes, 3 check states, 3 label positions, 5 states |
+| `<ui-checkbox-group>` | Group wrapper: 2 orientations, size propagation |
+| `<ui-dropdown>` | Button + floating menu: 4 sizes, 5 actions, opt-in `selectable` |
+| `<ui-dropdown-item>` | Menu item with select event, checkmark, disabled support |
+| `<ui-dropdown-heading>` | Uppercase section heading |
+| `<ui-dropdown-separator>` | Horizontal divider line |
+| `<ui-dropdown-split>` | Split button (action + chevron trigger): 4 sizes, 5 actions, opt-in `selectable` |
+| `<ui-modal>` | Dialog with backdrop, header, scrollable body, footer: 3 sizes, 2 layouts |
+| `<ui-badge>` | Label/tag: 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses |
 
 ```html
-<ui-button-group action="secondary" size="m">
-  <ui-button>Day</ui-button>
-  <ui-button>Week</ui-button>
-  <ui-button>Month</ui-button>
-</ui-button-group>
+<ui-button action="primary" emphasis="bold" size="m">Save</ui-button>
+<ui-button action="destructive" emphasis="subtle">Delete</ui-button>
+
+<ui-dropdown action="primary" selectable>
+  <ui-dropdown-item value="a">Option A</ui-dropdown-item>
+  <ui-dropdown-item value="b">Option B</ui-dropdown-item>
+</ui-dropdown>
 ```
 
 ---
@@ -77,7 +69,7 @@ moon run ui-components:storybook        # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build → storybook-static/
 ```
 
-13 stories cover all actions, emphases, sizes, shapes, icon modes, statuses, and group configurations (9 button + 4 group).
+19 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
 
 ---
 
@@ -85,7 +77,7 @@ moon run ui-components:storybook-build  # Static build → storybook-static/
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (39 tests)
+moon run ui-components:test   # vitest --run (606 tests)
 ```
 
 ---
