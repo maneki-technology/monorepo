@@ -1,0 +1,205 @@
+import type { Meta, StoryObj } from "@storybook/web-components";
+import { html } from "lit";
+import "../components/ui-card.js";
+
+const meta: Meta = {
+  title: "Components/Card",
+  component: "ui-card",
+  argTypes: {
+    size: { control: { type: "select" }, options: ["s", "m", "l"] },
+    elevation: {
+      control: { type: "select" },
+      options: ["00", "01", "02", "04"],
+    },
+    bordered: { control: "boolean" },
+  },
+  args: {
+    size: "m",
+    elevation: "02",
+    bordered: false,
+  },
+  render: (args) => html`
+    <ui-card
+      size=${args.size}
+      elevation=${args.elevation}
+      ?bordered=${args.bordered}
+    >
+      <h3 style="margin: 0; font-size: 16px; font-weight: 500;">Card Title</h3>
+      <p style="margin: 0; font-size: 14px;">
+        This is a basic card with some body text content.
+      </p>
+    </ui-card>
+  `,
+};
+export default meta;
+type Story = StoryObj;
+
+export const Default: Story = {
+  render: () => html`
+    <ui-card style="max-width: 320px;">
+      <h3 style="margin: 0; font-size: 16px; font-weight: 500;">Card Title</h3>
+      <p style="margin: 0; font-size: 14px;">
+        This is a basic card with some body text content.
+      </p>
+    </ui-card>
+  `,
+};
+
+export const WithImage: Story = {
+  render: () => html`
+    <ui-card style="max-width: 320px;">
+      <div
+        slot="image"
+        style="height: 160px; background-color: #c1ccd6;"
+      ></div>
+      <h3 style="margin: 0; font-size: 16px; font-weight: 500;">Card Title</h3>
+      <p style="margin: 0; font-size: 14px;">
+        Card content below the image area.
+      </p>
+    </ui-card>
+  `,
+};
+
+export const AllSizes: Story = {
+  render: () => html`
+    <div style="display: flex; gap: 24px; align-items: start;">
+      <ui-card size="s" style="flex: 1;">
+        <h3 style="margin: 0; font-size: 14px; font-weight: 500;">Small</h3>
+        <p style="margin: 0; font-size: 12px;">Size s card content.</p>
+      </ui-card>
+      <ui-card size="m" style="flex: 1;">
+        <h3 style="margin: 0; font-size: 16px; font-weight: 500;">Medium</h3>
+        <p style="margin: 0; font-size: 14px;">Size m card content.</p>
+      </ui-card>
+      <ui-card size="l" style="flex: 1;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 500;">Large</h3>
+        <p style="margin: 0; font-size: 16px;">Size l card content.</p>
+      </ui-card>
+    </div>
+  `,
+};
+
+export const AllElevations: Story = {
+  render: () => html`
+    <div style="display: flex; gap: 24px; align-items: start;">
+      <ui-card elevation="00" style="flex: 1;">
+        <h3 style="margin: 0; font-size: 16px; font-weight: 500;">
+          Elevation 00
+        </h3>
+        <p style="margin: 0; font-size: 14px;">No shadow.</p>
+      </ui-card>
+      <ui-card elevation="01" style="flex: 1;">
+        <h3 style="margin: 0; font-size: 16px; font-weight: 500;">
+          Elevation 01
+        </h3>
+        <p style="margin: 0; font-size: 14px;">Subtle shadow.</p>
+      </ui-card>
+      <ui-card elevation="02" style="flex: 1;">
+        <h3 style="margin: 0; font-size: 16px; font-weight: 500;">
+          Elevation 02
+        </h3>
+        <p style="margin: 0; font-size: 14px;">Default shadow.</p>
+      </ui-card>
+      <ui-card elevation="04" style="flex: 1;">
+        <h3 style="margin: 0; font-size: 16px; font-weight: 500;">
+          Elevation 04
+        </h3>
+        <p style="margin: 0; font-size: 14px;">Strong shadow.</p>
+      </ui-card>
+    </div>
+  `,
+};
+
+export const Bordered: Story = {
+  render: () => html`
+    <ui-card bordered elevation="00" style="max-width: 320px;">
+      <h3 style="margin: 0; font-size: 16px; font-weight: 500;">
+        Bordered Card
+      </h3>
+      <p style="margin: 0; font-size: 14px;">
+        A card with a border and no elevation shadow.
+      </p>
+    </ui-card>
+  `,
+};
+
+export const WithFooter: Story = {
+  render: () => html`
+    <ui-card style="max-width: 320px;">
+      <h3 style="margin: 0; font-size: 16px; font-weight: 500;">Card Title</h3>
+      <p style="margin: 0; font-size: 14px;">Card body content goes here.</p>
+      <div slot="footer" style="display: flex; gap: 8px; padding: 0 16px 16px;">
+        <button
+          style="background-color: #186ade; border: none; border-radius: 2px; padding: 8px 16px; color: #fff; cursor: pointer; font-family: Goldman Sans, sans-serif; font-size: 14px; font-weight: 500;"
+        >
+          Confirm
+        </button>
+        <button
+          style="background-color: transparent; border: 1px solid #c1ccd6; border-radius: 2px; padding: 8px 16px; color: #1c2b36; cursor: pointer; font-family: Goldman Sans, sans-serif; font-size: 14px; font-weight: 500;"
+        >
+          Cancel
+        </button>
+      </div>
+    </ui-card>
+  `,
+};
+
+export const ImageCard: Story = {
+  render: () => html`
+    <ui-card style="max-width: 320px;">
+      <div
+        slot="image"
+        style="height: 180px; background-color: #c1ccd6;"
+      ></div>
+      <h3 style="margin: 0; font-size: 16px; font-weight: 500;">
+        Featured Article
+      </h3>
+      <p style="margin: 0; font-size: 14px;">
+        A full card example with image, heading, body text, and an action
+        button.
+      </p>
+      <div slot="footer" style="padding: 0 16px 16px;">
+        <button
+          style="background-color: #186ade; border: none; border-radius: 2px; padding: 8px 16px; color: #fff; cursor: pointer; font-family: Goldman Sans, sans-serif; font-size: 14px; font-weight: 500;"
+        >
+          Read More
+        </button>
+      </div>
+    </ui-card>
+  `,
+};
+
+export const ArticleCard: Story = {
+  render: () => html`
+    <ui-card style="max-width: 320px;">
+      <div
+        slot="image"
+        style="height: 160px; background-color: #c1ccd6;"
+      ></div>
+      <h3 style="margin: 0; font-size: 16px; font-weight: 500;">
+        Article Headline
+      </h3>
+      <p style="margin: 0; font-size: 14px;">
+        Brief summary of the article content that gives readers a preview of
+        what to expect.
+      </p>
+      <div
+        slot="footer"
+        style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px 16px;"
+      >
+        <span style="font-size: 12px; color: #6b7b8a;">5 min read</span>
+        <svg
+          viewBox="0 0 20 20"
+          width="20"
+          height="20"
+          style="color: #6b7b8a;"
+        >
+          <path
+            d="M15 6.67a3.33 3.33 0 0 0-2.36.98L8.91 9.28a3.33 3.33 0 0 0 0 1.44l3.73 1.63A3.33 3.33 0 1 0 15 13.33a3.3 3.3 0 0 0-.55.05L10.72 11.75a3.33 3.33 0 0 0 0-3.5l3.73-1.63A3.3 3.3 0 0 0 15 6.67Z"
+            fill="currentColor"
+          />
+        </svg>
+      </div>
+    </ui-card>
+  `,
+};
