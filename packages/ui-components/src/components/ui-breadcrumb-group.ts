@@ -49,7 +49,9 @@ const STYLES = /* css */ `
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export class UiBreadcrumbGroup extends HTMLElement {
-  static readonly observedAttributes = ["size"];
+  static readonly observedAttributes = ["size", "aria-label"];
+
+  private _nav: HTMLElement;
 
   constructor() {
     super();
@@ -62,16 +64,18 @@ export class UiBreadcrumbGroup extends HTMLElement {
     // <nav aria-label="Breadcrumb">
     const nav = document.createElement("nav");
     nav.setAttribute("aria-label", "Breadcrumb");
+    this._nav = nav;
 
-    // <ol class="list" part="list">
-    const ol = document.createElement("ol");
-    ol.className = "list";
-    ol.setAttribute("part", "list");
+    // <div role="list" class="list" part="list">
+    const list = document.createElement("div");
+    list.className = "list";
+    list.setAttribute("role", "list");
+    list.setAttribute("part", "list");
 
     const slot = document.createElement("slot");
-    ol.appendChild(slot);
+    list.appendChild(slot);
 
-    nav.appendChild(ol);
+    nav.appendChild(list);
     shadow.appendChild(nav);
 
     // Listen for slotchange to propagate size to new children
@@ -87,6 +91,9 @@ export class UiBreadcrumbGroup extends HTMLElement {
     _oldValue: string | null,
     _newValue: string | null,
   ): void {
+    if (_name === "aria-label" && _newValue) {
+      this._nav.setAttribute("aria-label", _newValue);
+    }
     this._propagateSize();
   }
 
@@ -110,6 +117,7 @@ export class UiBreadcrumbGroup extends HTMLElement {
 
     const sizeValue = this.getAttribute("size");
     for (const item of items) {
+      item.setAttribute("role", "listitem");
       if (sizeValue) {
         item.setAttribute("size", sizeValue);
       } else {

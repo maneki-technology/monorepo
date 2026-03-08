@@ -65,12 +65,12 @@ export const Palette: Story = {
         }
         .swatch-label {
           font-size: 10px;
-          color: #7a909e;
+          color: #3e5463;
           line-height: 1.3;
         }
         .swatch-var {
           font-size: 9px;
-          color: #9fb1bd;
+          color: #5b7282;
           font-family: monospace;
           display: none;
         }
@@ -86,7 +86,7 @@ export const Palette: Story = {
         <table>
           <thead>
             <tr>
-              <th></th>
+              <th>Family</th>
               ${allSteps.map((s) => html`<th>${s}</th>`)}
             </tr>
           </thead>

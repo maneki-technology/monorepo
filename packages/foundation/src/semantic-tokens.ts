@@ -182,7 +182,7 @@ export const statusText = {
   noneSubtleText: ref("gray", 70),
   informationSubtleText: ref("blue", 70),
   successSubtleText: ref("green", 70),
-  errorSubtleText: ref("red", 60),
+  errorSubtleText: ref("red", 80),
   warningSubtleText: ref("gray", 90),
 } as const satisfies Record<string, SemanticValue>;
 

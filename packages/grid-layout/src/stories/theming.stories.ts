@@ -35,12 +35,12 @@ function setupGrid(id: string) {
 }
 
 const COLORS = [
-  { bg: colorVar("red", 50), text: "#fff" },
+  { bg: colorVar("red", 50), text: "#111820" },
   { bg: colorVar("blue", 60), text: "#fff" },
-  { bg: colorVar("green", 50), text: "#fff" },
+  { bg: colorVar("green", 50), text: "#111820" },
   { bg: colorVar("purple", 60), text: "#fff" },
-  { bg: colorVar("orange", 50), text: "#fff" },
-  { bg: colorVar("teal", 50), text: "#fff" },
+  { bg: colorVar("orange", 50), text: "#111820" },
+  { bg: colorVar("teal", 50), text: "#111820" },
 ];
 
 export const Default: Story = {
@@ -139,7 +139,7 @@ export const DarkTheme: Story = {
           color: ${colorVar("gray", 20)};
         }
       </style>
-      <p style="font-family:system-ui;font-size:13px;color:${colorVar("gray", 50)};margin:0 0 8px">
+      <p style="font-family:system-ui;font-size:13px;color:${colorVar("gray", 80)};margin:0 0 8px">
         Dark theme — custom placeholder, handle, and focus ring colors.
       </p>
       <grid-layout id="theme-dark">
@@ -205,7 +205,7 @@ export const ColorfulTheme: Story = {
           letter-spacing: 0.5px;
         }
       </style>
-      <p style="font-family:system-ui;font-size:13px;color:${colorVar("gray", 50)};margin:0 0 8px">
+      <p style="font-family:system-ui;font-size:13px;color:${colorVar("gray", 80)};margin:0 0 8px">
         Neon theme — bright placeholder, handles, and focus ring on dark background.
       </p>
       <grid-layout id="theme-colorful">
@@ -231,12 +231,12 @@ export const NoAnimation: Story = {
     setupGrid("theme-no-anim");
 
     const warmColors = [
-      { bg: colorVar("orange", 50), text: "#fff" },
+      { bg: colorVar("orange", 50), text: "#111820" },
       { bg: colorVar("yellow", 30), text: colorVar("gray", 100) },
       { bg: colorVar("orange", 60), text: "#fff" },
       { bg: colorVar("yellow", 40), text: colorVar("gray", 100) },
       { bg: colorVar("orange", 40), text: colorVar("gray", 100) },
-      { bg: colorVar("yellow", 50), text: "#fff" },
+      { bg: colorVar("yellow", 50), text: "#111820" },
     ];
 
     return html`

@@ -121,9 +121,9 @@ export const CornerOnly: Story = {
     }, 0);
 
     const colors = [
-      { bg: colorVar("green", 50), text: "#fff" },
+      { bg: colorVar("green", 50), text: "#111820" },
       { bg: colorVar("purple", 60), text: "#fff" },
-      { bg: colorVar("orange", 50), text: "#fff" },
+      { bg: colorVar("orange", 50), text: "#111820" },
     ];
 
     return html`
@@ -154,7 +154,7 @@ export const CornerOnly: Story = {
         .corner-item__hint {
           font-size: 11px;
           font-family: monospace;
-          opacity: 0.7;
+          opacity: 1;
         }
       </style>
       <p style="font-family:system-ui;font-size:13px;color:${semanticVar("text", "secondary")};margin:0 0 8px">

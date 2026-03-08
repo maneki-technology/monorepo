@@ -66,8 +66,7 @@ const STYLES = /* css */ `
   /* ── Disabled ──────────────────────────────────────────────────────────── */
 
   :host([disabled]) .link {
-    color: var(--ui-bc-link-disabled, ${TEXT_DISABLED});
-    opacity: 0.5;
+    color: var(--ui-bc-link-disabled, #636e75);
     pointer-events: none;
     cursor: default;
   }
@@ -169,6 +168,7 @@ export class UiBreadcrumbItem extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
 
+    // role="listitem" only when inside a breadcrumb-group (role="list" parent)
     const style = document.createElement("style");
     style.textContent = STYLES;
     shadow.appendChild(style);

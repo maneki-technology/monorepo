@@ -40,7 +40,7 @@ export const AllSizes: Story = {
     <div style="display: flex; flex-direction: column; gap: 24px;">
       <div>
         <div style="margin-bottom: 8px; font-size: 12px; color: #666;">Size: s</div>
-        <ui-breadcrumb-group size="s">
+        <ui-breadcrumb-group size="s" aria-label="Small breadcrumb">
           <ui-breadcrumb-item href="/home">Home</ui-breadcrumb-item>
           <ui-breadcrumb-item href="/docs">Docs</ui-breadcrumb-item>
           <ui-breadcrumb-item>Current</ui-breadcrumb-item>
@@ -48,7 +48,7 @@ export const AllSizes: Story = {
       </div>
       <div>
         <div style="margin-bottom: 8px; font-size: 12px; color: #666;">Size: m</div>
-        <ui-breadcrumb-group size="m">
+        <ui-breadcrumb-group size="m" aria-label="Medium breadcrumb">
           <ui-breadcrumb-item href="/home">Home</ui-breadcrumb-item>
           <ui-breadcrumb-item href="/docs">Docs</ui-breadcrumb-item>
           <ui-breadcrumb-item>Current</ui-breadcrumb-item>
@@ -56,7 +56,7 @@ export const AllSizes: Story = {
       </div>
       <div>
         <div style="margin-bottom: 8px; font-size: 12px; color: #666;">Size: l</div>
-        <ui-breadcrumb-group size="l">
+        <ui-breadcrumb-group size="l" aria-label="Large breadcrumb">
           <ui-breadcrumb-item href="/home">Home</ui-breadcrumb-item>
           <ui-breadcrumb-item href="/docs">Docs</ui-breadcrumb-item>
           <ui-breadcrumb-item>Current</ui-breadcrumb-item>

@@ -14,12 +14,12 @@ export default meta;
 type Story = StoryObj;
 
 const COLORS = [
-  { bg: colorVar("red", 50), text: "#fff" },
+  { bg: colorVar("red", 50), text: "#111820" },
   { bg: colorVar("blue", 60), text: "#fff" },
-  { bg: colorVar("green", 50), text: "#fff" },
+  { bg: colorVar("green", 50), text: "#111820" },
   { bg: colorVar("purple", 60), text: "#fff" },
-  { bg: colorVar("orange", 50), text: "#fff" },
-  { bg: colorVar("teal", 50), text: "#fff" },
+  { bg: colorVar("orange", 50), text: "#111820" },
+  { bg: colorVar("teal", 50), text: "#111820" },
 ];
 
 const CONTAINER_STYLE = `

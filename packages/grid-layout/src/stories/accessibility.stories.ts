@@ -14,9 +14,9 @@ export default meta;
 type Story = StoryObj;
 
 const COLORS = [
-  { bg: colorVar("red", 50), text: "#fff" },
+  { bg: colorVar("red", 50), text: "#111820" },
   { bg: colorVar("blue", 60), text: "#fff" },
-  { bg: colorVar("green", 50), text: "#fff" },
+  { bg: colorVar("green", 50), text: "#111820" },
   { bg: colorVar("purple", 60), text: "#fff" },
 ];
 
@@ -193,7 +193,7 @@ export const AriaRoles: Story = {
         .aria-item__attr {
           font-size: 11px;
           font-family: monospace;
-          opacity: 0.7;
+          color: #fff;
         }
       </style>
       <table class="aria-table">

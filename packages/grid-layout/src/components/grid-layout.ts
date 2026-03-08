@@ -295,7 +295,7 @@ export class GridLayoutElement extends HTMLElement {
   connectedCallback(): void {
     // ARIA roles (must be in connectedCallback, not constructor, per custom element spec)
     if (!this.hasAttribute("role")) {
-      this.setAttribute("role", "grid");
+      this.setAttribute("role", "group");
       this.setAttribute("aria-roledescription", "draggable grid");
     }
     this.addEventListener("pointerdown", this._onPointerDown);
