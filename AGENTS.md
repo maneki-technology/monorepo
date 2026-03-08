@@ -14,7 +14,7 @@ maneki-monorepo/
 ├── packages/
 │   ├── grid-layout/         # <grid-layout> Web Component library (@maneki/grid-layout)
 │   ├── ui-components/       # UI components + Storybook (@maneki/ui-components)
-│   │                        # button, button-group, accordion-item, accordion-group, alert, avatar, breadcrumb-item, breadcrumb-group, card
+│   │                        # button, button-group, accordion-item, accordion-group, alert, avatar, breadcrumb-item, breadcrumb-group, card, checkbox-item, checkbox-group
 │   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints (@maneki/foundation)
 └── apps/                    # (empty — future apps)
 ```
