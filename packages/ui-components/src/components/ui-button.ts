@@ -9,13 +9,7 @@ export type ButtonShape = "basic" | "rounded";
 export type ButtonIcon = "text-only" | "leading-icon" | "trailing-icon" | "icon-only";
 export type ButtonStatus = "none" | "error" | "loading" | "success";
 
-// ─── SVG status icons (20×20 viewBox, scalable via CSS font-size) ────────────
-
-const ICON_ERROR = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="5" y1="5" x2="15" y2="15"/><line x1="15" y1="5" x2="5" y2="15"/></svg>`;
-
-const ICON_SUCCESS = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 10 8 14 16 6"/></svg>`;
-
-const ICON_LOADING = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 2a8 8 0 0 1 8 8"/></svg>`;
+import { ICON_ERROR, ICON_SUCCESS, ICON_LOADING } from "../assets/icons.js";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
