@@ -1,3 +1,4 @@
+import { semanticVar } from "@maneki/foundation";
 import type {
   LayoutItem,
   Layout,
@@ -36,6 +37,11 @@ import { moveElement } from "../core/layout-engine";
 import { compact, correctBounds } from "../core/compact";
 import { GridItemElement } from "./grid-item";
 
+
+// ─── Token constants ─────────────────────────────────────────────────────────
+const SURFACE_SECONDARY = semanticVar("surface", "secondary");
+const BORDER_MINIMAL = semanticVar("border", "minimal");
+
 const GRID_LAYOUT_STYLES = `
 :host {
   display: block;
@@ -47,8 +53,8 @@ const GRID_LAYOUT_STYLES = `
 }
 .placeholder {
   position: absolute;
-  background: var(--grid-placeholder-bg, rgba(0, 0, 0, 0.1));
-  border: var(--grid-placeholder-border, 2px dashed rgba(0, 0, 0, 0.3));
+  background: var(--grid-placeholder-bg, ${SURFACE_SECONDARY});
+  border: var(--grid-placeholder-border, 2px dashed ${BORDER_MINIMAL});
   border-radius: var(--grid-placeholder-radius, 4px);
   transition:
     transform var(--grid-placeholder-transition-duration, 0.15s) var(--grid-placeholder-transition-easing, ease),
@@ -169,8 +175,6 @@ export class GridLayoutElement extends HTMLElement {
   constructor() {
     super();
     this._shadow = this.attachShadow({ mode: "open" });
-    this.setAttribute("role", "grid");
-    this.setAttribute("aria-roledescription", "draggable grid");
 
     const style = document.createElement("style");
     style.textContent = GRID_LAYOUT_STYLES;
@@ -289,6 +293,11 @@ export class GridLayoutElement extends HTMLElement {
   // --- Lifecycle ---
 
   connectedCallback(): void {
+    // ARIA roles (must be in connectedCallback, not constructor, per custom element spec)
+    if (!this.hasAttribute("role")) {
+      this.setAttribute("role", "grid");
+      this.setAttribute("aria-roledescription", "draggable grid");
+    }
     this.addEventListener("pointerdown", this._onPointerDown);
     this.addEventListener("keydown", this._onKeyDown);
     this.addEventListener("dragenter", this._onDragEnter);
