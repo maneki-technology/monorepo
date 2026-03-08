@@ -51,6 +51,7 @@ maneki-monorepo/
 - **Fetch + rebase before branching** — always `jj git fetch` and branch off latest `main` before starting a new component. Prevents merge conflicts from stale base.
 - **Visual Figma verification** — compare Storybook rendering against Figma before marking a component done. Use browser tools to screenshot and verify.
 - **Reuse existing primitives** — when adding a new component, review existing components and stories to check if they should consume the new component instead of duplicating markup. Applies to both component implementations and Storybook stories.
+- **No direct pushes to `main`** — all changes go through feature branches and PRs. Use `jj bookmark set <name> -r @` + `jj git push --bookmark <name>` then `gh pr create`.
 
 ## COMMANDS
 ```bash
