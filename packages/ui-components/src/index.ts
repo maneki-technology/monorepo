@@ -21,3 +21,12 @@ export type {
   AlertEmphasis,
   AlertStatus,
 } from "./components/ui-alert.js";
+export { UiAvatar } from "./components/ui-avatar.js";
+export type {
+  AvatarSize,
+  AvatarType,
+  AvatarEmphasis,
+  AvatarShape,
+  AvatarStatus,
+  AvatarColor,
+} from "./components/ui-avatar.js";
