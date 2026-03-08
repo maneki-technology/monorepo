@@ -46,3 +46,5 @@ export { UiDropdownHeading } from "./components/ui-dropdown-heading.js";
 export { UiDropdownSeparator } from "./components/ui-dropdown-separator.js";
 export { UiModal } from "./components/ui-modal.js";
 export type { ModalSize, ModalLayout } from "./components/ui-modal.js";
+export { UiBadge } from "./components/ui-badge.js";
+export type { BadgeSize, BadgeEmphasis, BadgeShape, BadgeColor, BadgeStatus } from "./components/ui-badge.js";
