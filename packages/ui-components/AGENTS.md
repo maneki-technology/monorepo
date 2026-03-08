@@ -8,6 +8,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-accordion-item>` — expandable panel: 3 sizes, 2 emphases, 4 statuses, smooth CSS transition
 - `<ui-accordion-group>` — wrapper with size/emphasis propagation + exclusive mode
 - `<ui-alert>` — dismissable alert/toast: 3 sizes, 2 emphases, 5 statuses, footer slot
+- `<ui-avatar>` — avatar component: 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 5 statuses, 14 colors
 
 ## STRUCTURE
 ```
@@ -18,13 +19,14 @@ ui-components/
 ├── src/
 │   ├── index.ts             # Barrel export + custom element registration
 │   ├── assets/
-│   │   └── icons.ts         # Shared SVG icon constants (ICON_CLOSE, ICON_CHEVRON, etc.)
+│   │   └── icons.ts         # Shared SVG icon constants (ICON_CLOSE, ICON_CHEVRON, ICON_USER, etc.)
 │   ├── components/
 │   │   ├── ui-button.ts
 │   │   ├── ui-button-group.ts
 │   │   ├── ui-accordion-item.ts
 │   │   ├── ui-accordion-group.ts
 │   │   ├── ui-alert.ts
+│   │   ├── ui-avatar.ts
 │   │   └── *.test.ts        # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
@@ -70,7 +72,7 @@ SVG icons are centralized in `src/assets/icons.ts`:
 import { ICON_CLOSE, ICON_CHEVRON } from '../assets/icons.js';
 ```
 
-All icons use `currentColor` for stroke/fill so they inherit the parent's `color`. Available: `ICON_CLOSE`, `ICON_CHEVRON`, `ICON_ERROR`, `ICON_SUCCESS`, `ICON_WARNING`, `ICON_LOADING`.
+All icons use `currentColor` for stroke/fill so they inherit the parent's `color`. Available: `ICON_CLOSE`, `ICON_CHEVRON`, `ICON_ERROR`, `ICON_SUCCESS`, `ICON_WARNING`, `ICON_LOADING`, `ICON_USER`.
 
 ## TYPE SAFETY
 Exported union types cover every attribute:
@@ -109,7 +111,7 @@ Property accessors use these types. Invalid values are compile errors.
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (129 tests)
+moon run ui-components:test            # vitest --run (179 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```
