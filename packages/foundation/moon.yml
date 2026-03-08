@@ -24,3 +24,15 @@ tasks:
     inputs:
       - 'src/**/*'
     preset: 'server'
+
+  storybook:
+    command: 'storybook dev -p 6007'
+    preset: 'server'
+
+  storybook-build:
+    command: 'storybook build -o storybook-static'
+    inputs:
+      - 'src/**/*'
+      - '.storybook/**/*'
+    outputs:
+      - 'storybook-static'
