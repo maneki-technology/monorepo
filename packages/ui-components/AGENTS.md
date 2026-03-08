@@ -14,13 +14,13 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
 - `<ui-checkbox-item>` — checkbox component: 3 sizes (s/m/l), 3 check states (unchecked/checked/indeterminate), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error)
 - `<ui-checkbox-group>` — checkbox group wrapper: 3 sizes (s/m/l), 2 orientations (vertical/horizontal), size propagation to children
-- `<ui-dropdown>` — dropdown button with floating menu: 4 sizes (s/m/l/xl), 5 actions, 3 emphases, 2 shapes, single/multi-select via `multiple` attribute, composes `<ui-button>` as trigger
+- `<ui-dropdown>` — dropdown button with floating menu: 4 sizes (s/m/l/xl), 5 actions, 3 emphases, 2 shapes, opt-in `selectable` attribute for single/multi-select, composes `<ui-button>` as trigger
 - `<ui-dropdown-item>` — menu item with select event, selected state with checkmark, value attribute, disabled support
 - `<ui-dropdown-heading>` — section heading (uppercase, non-interactive)
 - `<ui-dropdown-separator>` — horizontal divider line
 - `<ui-modal>` — modal dialog with backdrop, header (title+subtitle+close), scrollable body, footer button slots, 3 sizes, 2 layouts (auto/fluid), dismiss behavior
 - `<ui-badge>` — label/tag with 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses, uppercase text
-- `<ui-dropdown-split>` — split button with action (left) + chevron trigger (right) + floating menu: 4 sizes (s/m/l/xl), 5 actions, 3 emphases, 2 shapes, 4 icon modes, single/multi-select, independent hover/active/focus per button half
+- `<ui-dropdown-split>` — split button with action (left) + chevron trigger (right) + floating menu: 4 sizes (s/m/l/xl), 5 actions, 3 emphases, 2 shapes, 4 icon modes, opt-in `selectable` for single/multi-select, independent hover/active/focus per button half, full-height divider (hidden for minimal/contrast)
 
 ## STRUCTURE
 ```
@@ -137,7 +137,7 @@ Property accessors use these types. Invalid values are compile errors.
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (603 tests)
+moon run ui-components:test            # vitest --run (606 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```
