@@ -50,6 +50,7 @@ maneki-monorepo/
 - **Branch per component** — every new component gets its own branch (`feat/ui-*`). Never implement directly on `main`.
 - **Fetch + rebase before branching** — always `jj git fetch` and branch off latest `main` before starting a new component. Prevents merge conflicts from stale base.
 - **Visual Figma verification** — compare Storybook rendering against Figma before marking a component done. Use browser tools to screenshot and verify.
+- **Reuse existing primitives** — when adding a new component, review existing components and stories to check if they should consume the new component instead of duplicating markup. Applies to both component implementations and Storybook stories.
 
 ## COMMANDS
 ```bash
