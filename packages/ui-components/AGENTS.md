@@ -12,6 +12,8 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-breadcrumb-item>` — breadcrumb link item: 3 sizes, 7 states (enabled/hover/focus/active/visited/disabled/current), chevron separator
 - `<ui-breadcrumb-group>` — breadcrumb nav wrapper with size propagation
 - `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
+- `<ui-checkbox-item>` — checkbox component: 3 sizes (s/m/l), 3 check states (unchecked/checked/indeterminate), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error)
+- `<ui-checkbox-group>` — checkbox group wrapper: 3 sizes (s/m/l), 2 orientations (vertical/horizontal), size propagation to children
 
 ## STRUCTURE
 ```
@@ -33,6 +35,8 @@ ui-components/
 │   │   ├── ui-card.ts
 │   │   ├── ui-breadcrumb-item.ts
 │   │   ├── ui-breadcrumb-group.ts
+│   │   ├── ui-checkbox-item.ts
+│   │   ├── ui-checkbox-group.ts
 │   │   └── *.test.ts        # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
