@@ -14,7 +14,7 @@ maneki-monorepo/
 ├── packages/
 │   ├── grid-layout/         # <grid-layout> Web Component library (@maneki/grid-layout)
 │   ├── ui-components/       # UI components + Storybook (@maneki/ui-components)
-│   │                        # button, button-group, accordion-item, accordion-group, alert, avatar
+│   │                        # button, button-group, accordion-item, accordion-group, alert, avatar, breadcrumb-item, breadcrumb-group
 │   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints (@maneki/foundation)
 └── apps/                    # (empty — future apps)
 ```
@@ -48,6 +48,7 @@ maneki-monorepo/
 - **Don't mutate layouts externally** — always use property setters on components
 - **Don't inherit Web Components** — use composition (see responsive-grid-layout pattern)
 - **Branch per component** — every new component gets its own branch (`feat/ui-*`). Never implement directly on `main`.
+- **Fetch + rebase before branching** — always `jj git fetch` and branch off latest `main` before starting a new component. Prevents merge conflicts from stale base.
 - **Visual Figma verification** — compare Storybook rendering against Figma before marking a component done. Use browser tools to screenshot and verify.
 
 ## COMMANDS
