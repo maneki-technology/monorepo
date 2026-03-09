@@ -8,16 +8,19 @@ export type CheckboxLabel = "none" | "right" | "left";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
-const BORDER_MODERATE = semanticVar("border", "moderate");
-const SURFACE_ACTION = semanticVar("surface", "action");
-const ICON_SECONDARY = semanticVar("icon", "secondary");
+const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
+const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
+const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
+const BORDER_FOCUS = semanticVar("border", "focus");
 const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
 const TEXT_PRIMARY = semanticVar("text", "primary");
+const DISABLED_BORDER = semanticVar("stateDisabled", "border");
+const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
+const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const SP_075 = spaceVar("0.75");
 const SP_1 = spaceVar("1");
 
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -51,7 +54,6 @@ const STYLES = /* css */ `
     justify-content: center;
     flex-shrink: 0;
     border: 1px solid transparent;
-    border-radius: 2px;
   }
 
   /* ── Inner box (visible checkbox square) ─────────────────────────────────── */
@@ -61,8 +63,7 @@ const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--ui-cb-border, ${ICON_SECONDARY});
-    border-radius: 2px;
+    border: 1px solid var(--ui-cb-border, ${FORM_INPUT_BORDER});
     background-color: var(--ui-cb-bg, #ffffff);
     color: #ffffff;
     transition:
@@ -231,25 +232,25 @@ const STYLES = /* css */ `
 
   :host([checked]) .checkbox,
   :host([indeterminate]) .checkbox {
-    background-color: var(--ui-cb-checked-bg, ${SURFACE_ACTION});
-    border-color: var(--ui-cb-checked-bg, ${SURFACE_ACTION});
+    background-color: var(--ui-cb-checked-bg, ${SELECTED_BOLD});
+    border-color: var(--ui-cb-checked-bg, ${SELECTED_BOLD});
   }
 
   /* ── Hover ───────────────────────────────────────────────────────────────── */
 
   :host(:hover) .checkbox {
-    border-color: var(--ui-cb-hover-border, ${ICON_SECONDARY});
+    border-color: var(--ui-cb-hover-border, ${HOVER_BORDER});
   }
 
   :host([checked]:hover) .checkbox,
   :host([indeterminate]:hover) .checkbox {
-    border-color: var(--ui-cb-checked-bg, ${SURFACE_ACTION});
+    border-color: var(--ui-cb-checked-bg, ${SELECTED_BOLD});
   }
 
   /* ── Focus ───────────────────────────────────────────────────────────────── */
 
   :host(:focus-visible) .outer {
-    border-color: var(--ui-cb-focus-border, ${SURFACE_ACTION});
+    border-color: var(--ui-cb-focus-border, ${BORDER_FOCUS});
   }
 
   /* ── Disabled ────────────────────────────────────────────────────────────── */
@@ -258,12 +259,16 @@ const STYLES = /* css */ `
     pointer-events: none;
   }
 
-  :host([disabled]) .base {
-    opacity: 0.4;
+  :host([disabled]) .checkbox {
+    border-color: var(--ui-cb-disabled-border, ${DISABLED_BORDER});
   }
-
+  :host([disabled][checked]) .checkbox,
+  :host([disabled][indeterminate]) .checkbox {
+    background-color: var(--ui-cb-disabled-bg, ${DISABLED_MINIMAL});
+    border-color: var(--ui-cb-disabled-border, ${DISABLED_BORDER});
+  }
   :host([disabled]) .label {
-    opacity: 0.5;
+    color: var(--ui-cb-disabled-label, ${DISABLED_TEXT});
   }
 
   /* ── Error ───────────────────────────────────────────────────────────────── */
@@ -274,7 +279,8 @@ const STYLES = /* css */ `
 
   :host([error][checked]) .checkbox,
   :host([error][indeterminate]) .checkbox {
-    border-color: var(--ui-cb-checked-bg, ${SURFACE_ACTION});
+    background-color: var(--ui-cb-error-checked-bg, ${ERROR_BOLD});
+    border-color: var(--ui-cb-error-checked-bg, ${ERROR_BOLD});
   }
 
   /* ── Reduced motion ──────────────────────────────────────────────────────── */

@@ -110,6 +110,21 @@ describe("semanticToCssProperties", () => {
     expect(css).toContain("--fd-state-disabled-minimal: rgba(91, 114, 130, 0.2);");
     expect(css).toContain("--fd-state-disabled-text: rgba(91, 114, 130, 0.5);");
   });
+  it("generates form tokens", () => {
+    const css = semanticToCssProperties();
+    expect(css).toContain("--fd-form-input-border: #9fb1bd;");
+    expect(css).toContain("--fd-form-input-background: #ffffff;");
+  });
+
+  it("generates state hover tokens", () => {
+    const css = semanticToCssProperties();
+    expect(css).toContain("--fd-state-hover-border-moderate: #7a909e;");
+  });
+
+  it("generates state selected tokens", () => {
+    const css = semanticToCssProperties();
+    expect(css).toContain("--fd-state-selected-surface-bold: #186ade;");
+  });
 });
 
 describe("elevationToCssProperties", () => {

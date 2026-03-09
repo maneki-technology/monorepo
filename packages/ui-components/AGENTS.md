@@ -144,13 +144,14 @@ Property accessors use these types. Invalid values are compile errors.
 - **No CSS var name mismatches** — component override vars must match exactly between parent and child (e.g., `--ui-btn-radius`, not `--ui-button-radius`)
 - **No inline SVG duplication** — add new icons to `src/assets/icons.ts` and import
 - **Read Figma semantic tokens carefully.** Figma uses domain-specific token names (e.g., `Form/input-border`, `State/Selected/Surface/selected-bold`) that map to foundation tokens. Always check the Figma design context for the exact token names and map them to the closest foundation equivalent:
-  - `Form/input-border` → `semanticVar("border", "moderate")` (`#9FB1BD`)
+  - `Form/input-border` → `semanticVar("form", "inputBorder")` (`#9FB1BD`) — form control border
   - `Form/input-background` → `#ffffff` (white, no token needed)
   - `Border/border-contrast` → `semanticVar("border", "contrast")` (`#1C2B36`)
-  - `State/Selected/Surface/selected-bold` → `semanticVar("surface", "action")` (`#186ADE`)
+  - `State/Hover/Border/border-moderate-hover` → `semanticVar("stateHover", "borderModerate")` (`#7A909E`) — hover border
+  - `State/Selected/Surface/selected-bold` → `semanticVar("stateSelected", "surfaceBold")` (`#186ADE`) — checked/selected fill
   - `State/Focus/border-Focus` → `semanticVar("border", "focus")` (`#186ADE`)
   - `State/Disabled/border-disabled` → `semanticVar("stateDisabled", "border")` (`rgba(91,114,130,0.4)`) — outer ring in disabled state
-  - `State/Disabled/minimal-disabled` → `semanticVar("stateDisabled", "minimal")` (`rgba(91,114,130,0.2)`) — inner dot in disabled state
+  - `State/Disabled/minimal-disabled` → `semanticVar("stateDisabled", "minimal")` (`rgba(91,114,130,0.2)`) — inner fill/dot in disabled state
   - `State/Disabled/text-disabled` → `semanticVar("stateDisabled", "text")` (`rgba(91,114,130,0.5)`) — label text in disabled state
   - `Status/Surface/status-error-bold` → `semanticVar("statusSurface", "errorBold")` (`#D91F11`)
 ## COMMANDS

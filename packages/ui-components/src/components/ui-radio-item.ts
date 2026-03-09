@@ -7,8 +7,9 @@ export type RadioLabel = "none" | "right" | "left";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
-const SURFACE_ACTION = semanticVar("surface", "action");
-const BORDER_MODERATE = semanticVar("border", "moderate");
+const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
+const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
+const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
 const BORDER_CONTRAST = semanticVar("border", "contrast");
 const BORDER_FOCUS = semanticVar("border", "focus");
 const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
@@ -62,7 +63,7 @@ const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--ui-radio-border, ${BORDER_MODERATE});
+    border: 1px solid var(--ui-radio-border, ${FORM_INPUT_BORDER});
     border-radius: 50%;
     background-color: var(--ui-radio-bg, #ffffff);
     transition:
@@ -75,7 +76,7 @@ const STYLES = /* css */ `
   .dot {
     display: none;
     border-radius: 50%;
-    background-color: var(--ui-radio-dot-color, ${SURFACE_ACTION});
+    background-color: var(--ui-radio-dot-color, ${SELECTED_BOLD});
   }
 
   :host([checked]) .dot {
@@ -202,7 +203,7 @@ const STYLES = /* css */ `
   /* ── Hover ──────────────────────────────────────────────────────────────── */
 
   :host(:hover) .radio {
-    border-color: var(--ui-radio-hover-border, ${BORDER_MODERATE});
+    border-color: var(--ui-radio-hover-border, ${HOVER_BORDER});
   }
 
   :host([checked]:hover) .radio {
@@ -245,6 +246,9 @@ const STYLES = /* css */ `
   :host([error][checked]) .radio {
     border-color: var(--ui-radio-error-border, ${ERROR_BOLD});
     background-color: #ffffff;
+  }
+  :host([error][checked]) .dot {
+    background-color: var(--ui-radio-error-dot, ${ERROR_BOLD});
   }
 
   /* ── Reduced motion ─────────────────────────────────────────────────────── */
