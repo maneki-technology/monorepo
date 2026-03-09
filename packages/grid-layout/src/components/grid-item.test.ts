@@ -175,8 +175,8 @@ describe("GridItemElement", () => {
   });
 
   describe("accessibility", () => {
-    it("has role=gridcell", () => {
-      expect(el.getAttribute("role")).toBe("gridcell");
+    it("has role=group", () => {
+      expect(el.getAttribute("role")).toBe("group");
     });
 
     it("has tabindex=0", () => {

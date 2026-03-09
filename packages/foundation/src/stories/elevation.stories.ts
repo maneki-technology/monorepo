@@ -60,7 +60,7 @@ export const Levels: Story = {
         .elevation-shadow {
           font-size: 10px;
           font-family: monospace;
-          color: #9fb1bd;
+          color: #5b7282;
           line-height: 1.5;
           word-break: break-all;
         }

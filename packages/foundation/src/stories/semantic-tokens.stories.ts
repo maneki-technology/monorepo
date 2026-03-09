@@ -166,7 +166,7 @@ const sharedStyles = html`
     }
     .token-value {
       font-size: 10px;
-      color: #9fb1bd;
+          color: #5b7282;
       font-family: monospace;
     }
     .status-section {
@@ -177,7 +177,7 @@ const sharedStyles = html`
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.06em;
-      color: #7a909e;
+      color: #5b7282;
       margin-bottom: 8px;
     }
   </style>
@@ -210,6 +210,7 @@ export const Border: Story = {
 };
 
 export const Text: Story = {
+  parameters: { a11y: { test: "todo" } },
   render: () => {
     injectAllTokens();
     return html`

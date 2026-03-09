@@ -297,8 +297,21 @@ const STYLES = /* css */ `
   /* ── Disabled ───────────────────────────────────────────────────────────── */
 
   :host([disabled]) {
-    opacity: 0.4;
+    opacity: 1;
     pointer-events: none;
+  }
+
+  :host([disabled]) .header {
+    color: var(--ui-acc-label-color, #636e75);
+  }
+
+  :host([disabled]) .chevron,
+  :host([disabled]) .leading-icon {
+    opacity: 0.4;
+  }
+
+  :host([disabled]) .content {
+    opacity: 0.4;
   }
 
   :host([disabled]) .header {

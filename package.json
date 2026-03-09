@@ -1,21 +1,28 @@
 {
   "name": "maneki-monorepo",
   "private": true,
+  "type": "module",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
     "storybook": "storybook dev -p 6006",
-    "storybook:build": "storybook build -o storybook-static"
+    "storybook:build": "storybook build -o storybook-static",
+    "test-storybook": "vitest --project=storybook --run"
   },
   "devDependencies": {
     "@fontsource-variable/inter": "^5.2.8",
+    "@storybook/addon-a11y": "^10.2.16",
+    "@storybook/addon-vitest": "^10.2.16",
     "@storybook/web-components": "^10.2.16",
     "@storybook/web-components-vite": "^10.2.16",
+    "@vitest/browser": "^4.0.18",
+    "@vitest/browser-playwright": "^4.0.18",
     "chromatic": "^15.2.0",
     "lit": "^3.3.2",
     "material-symbols": "^0.40.2",
+    "playwright": "^1.58.2",
     "storybook": "^10.2.16"
   }
 }

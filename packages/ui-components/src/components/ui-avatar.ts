@@ -33,6 +33,7 @@ export type AvatarColor =
 
 const GRAY_60 = colorVar("gray", 60);
 const GRAY_20 = colorVar("gray", 20);
+const GRAY_80 = colorVar("gray", 80);
 const RED_60 = colorVar("red", 60);
 const ORANGE_60 = colorVar("orange", 60);
 const YELLOW_30 = colorVar("yellow", 30);
@@ -263,6 +264,7 @@ const STYLES = /* css */ `
   :host([color="yellow"]) .base,
   :host([color="yellow"][emphasis="bold"]) .base {
     background-color: var(--ui-avatar-bg, ${YELLOW_30});
+    color: var(--ui-avatar-text, #1c2b36);
   }
 
   :host([color="green"]) .base,
@@ -321,7 +323,7 @@ const STYLES = /* css */ `
   :host([status="warning"]) .base,
   :host([status="warning"][emphasis="bold"]) .base {
     background-color: var(--ui-avatar-bg, ${YELLOW_30});
-    color: var(--ui-avatar-text, #ffffff);
+    color: var(--ui-avatar-text, #1c2b36);
   }
 
   :host([status="success"]) .base,
@@ -340,29 +342,29 @@ const STYLES = /* css */ `
 
   :host([emphasis="subtle"]) .base {
     background-color: var(--ui-avatar-bg, ${GRAY_20});
-    color: var(--ui-avatar-text, ${GRAY_60});
+    color: var(--ui-avatar-text, ${GRAY_80});
   }
 
   /* ── Status overrides (subtle) ───────────────────────────────────────────── */
 
   :host([status="error"][emphasis="subtle"]) .base {
     background-color: var(--ui-avatar-bg, ${GRAY_20});
-    color: var(--ui-avatar-text, ${GRAY_60});
+    color: var(--ui-avatar-text, ${GRAY_80});
   }
 
   :host([status="warning"][emphasis="subtle"]) .base {
     background-color: var(--ui-avatar-bg, ${GRAY_20});
-    color: var(--ui-avatar-text, ${GRAY_60});
+    color: var(--ui-avatar-text, ${GRAY_80});
   }
 
   :host([status="success"][emphasis="subtle"]) .base {
     background-color: var(--ui-avatar-bg, ${GRAY_20});
-    color: var(--ui-avatar-text, ${GRAY_60});
+    color: var(--ui-avatar-text, ${GRAY_80});
   }
 
   :host([status="information"][emphasis="subtle"]) .base {
     background-color: var(--ui-avatar-bg, ${GRAY_20});
-    color: var(--ui-avatar-text, ${GRAY_60});
+    color: var(--ui-avatar-text, ${GRAY_80});
   }
 `;
 
@@ -376,6 +378,7 @@ export class UiAvatar extends HTMLElement {
     "shape",
     "status",
     "color",
+    "label",
   ];
 
   private _iconSlot: HTMLSlotElement;
@@ -435,15 +438,21 @@ export class UiAvatar extends HTMLElement {
     if (!this.hasAttribute("role")) {
       this.setAttribute("role", "img");
     }
+    if (!this.hasAttribute("aria-label")) {
+      const text = this.textContent?.trim();
+      this.setAttribute("aria-label", text || "Avatar");
+    }
     this._syncIconSlot();
   }
 
   attributeChangedCallback(
-    _name: string,
+    name: string,
     _oldValue: string | null,
-    _newValue: string | null,
+    newValue: string | null,
   ): void {
-    // All styling is handled via :host([attr]) CSS selectors — no JS sync needed
+    if (name === "label") {
+      this.setAttribute("aria-label", newValue || "Avatar");
+    }
   }
 
   // ── Property accessors ──────────────────────────────────────────────────

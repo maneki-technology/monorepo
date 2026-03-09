@@ -262,8 +262,8 @@ describe("GridLayoutElement — accessibility", () => {
     grid.remove();
   });
 
-  it("has role=grid", () => {
-    expect(grid.getAttribute("role")).toBe("grid");
+  it("has role=group", () => {
+    expect(grid.getAttribute("role")).toBe("group");
   });
 
   it("has aria-roledescription", () => {
