@@ -1,4 +1,4 @@
-import { colorVar, semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
 import { ICON_CHECK } from "../assets/icons.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -9,8 +9,8 @@ export type CheckboxLabel = "none" | "right" | "left";
 // ─── Token constants ─────────────────────────────────────────────────────────
 
 const BORDER_MODERATE = semanticVar("border", "moderate");
-const GRAY_50 = colorVar("gray", 50);
-const BLUE_60 = colorVar("blue", 60);
+const SURFACE_ACTION = semanticVar("surface", "action");
+const ICON_SECONDARY = semanticVar("icon", "secondary");
 const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const SP_075 = spaceVar("0.75");
@@ -61,7 +61,7 @@ const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--ui-cb-border, ${BORDER_MODERATE});
+    border: 1px solid var(--ui-cb-border, ${ICON_SECONDARY});
     border-radius: 2px;
     background-color: var(--ui-cb-bg, #ffffff);
     color: #ffffff;
@@ -231,25 +231,25 @@ const STYLES = /* css */ `
 
   :host([checked]) .checkbox,
   :host([indeterminate]) .checkbox {
-    background-color: var(--ui-cb-checked-bg, ${BLUE_60});
-    border-color: var(--ui-cb-checked-bg, ${BLUE_60});
+    background-color: var(--ui-cb-checked-bg, ${SURFACE_ACTION});
+    border-color: var(--ui-cb-checked-bg, ${SURFACE_ACTION});
   }
 
   /* ── Hover ───────────────────────────────────────────────────────────────── */
 
   :host(:hover) .checkbox {
-    border-color: var(--ui-cb-hover-border, ${GRAY_50});
+    border-color: var(--ui-cb-hover-border, ${ICON_SECONDARY});
   }
 
   :host([checked]:hover) .checkbox,
   :host([indeterminate]:hover) .checkbox {
-    border-color: var(--ui-cb-checked-bg, ${BLUE_60});
+    border-color: var(--ui-cb-checked-bg, ${SURFACE_ACTION});
   }
 
   /* ── Focus ───────────────────────────────────────────────────────────────── */
 
   :host(:focus-visible) .outer {
-    border-color: var(--ui-cb-focus-border, ${BLUE_60});
+    border-color: var(--ui-cb-focus-border, ${SURFACE_ACTION});
   }
 
   /* ── Disabled ────────────────────────────────────────────────────────────── */
@@ -274,7 +274,7 @@ const STYLES = /* css */ `
 
   :host([error][checked]) .checkbox,
   :host([error][indeterminate]) .checkbox {
-    border-color: var(--ui-cb-checked-bg, ${BLUE_60});
+    border-color: var(--ui-cb-checked-bg, ${SURFACE_ACTION});
   }
 
   /* ── Reduced motion ──────────────────────────────────────────────────────── */

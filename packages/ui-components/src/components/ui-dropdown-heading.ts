@@ -1,8 +1,8 @@
-import { colorVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
-const GRAY_60 = colorVar("gray", 60);
+const TEXT_SECONDARY = semanticVar("text", "secondary");
 const SP_05 = spaceVar("0.5");   // 4px
 const SP_15 = spaceVar("1.5");   // 12px
 const SP_2 = spaceVar("2");      // 16px
@@ -24,7 +24,7 @@ const STYLES = /* css */ `
   .heading {
     font-family: var(--ui-dd-heading-font-family, "Inter", sans-serif);
     font-weight: var(--ui-dd-heading-font-weight, 500);
-    color: var(--ui-dd-heading-color, ${GRAY_60});
+    color: var(--ui-dd-heading-color, ${TEXT_SECONDARY});
     text-transform: uppercase;
     user-select: none;
     -webkit-user-select: none;

@@ -75,7 +75,7 @@ var() helpers — colorVar(), semanticVar(), elevationVar(), typeVar(), spaceVar
 
 ## ANTI-PATTERNS
 - **Don't hardcode color values in components** — use `colorVar()` / `semanticVar()` helpers
-- **Don't add tokens not in Figma** — this is a faithful extraction, not a creative exercise
+- **Don't add tokens not in Figma** — this is a faithful extraction, not a creative exercise. Exception: interactive state tokens (e.g., `text.linkHover`, `text.linkActive`) may be added when needed by components, even if not explicitly defined in Figma.
 - **Don't forget to update `injectAllTokens()`** when adding a new token category
 
 ## COMMANDS

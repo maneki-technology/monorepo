@@ -1,4 +1,4 @@
-import { colorVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -13,12 +13,13 @@ import { ICON_ERROR, ICON_SUCCESS, ICON_LOADING } from "../assets/icons.js";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
-const BLUE_60 = colorVar("blue", 60);
-const GRAY_20 = colorVar("gray", 20);
-const GRAY_90 = colorVar("gray", 90);
-const RED_60 = colorVar("red", 60);
-const BLUE_100 = colorVar("blue", 100);
-const GREEN_60 = colorVar("green", 60);
+const SURFACE_ACTION = semanticVar("surface", "action");
+const SURFACE_TERTIARY = semanticVar("surface", "tertiary");
+const TEXT_PRIMARY = semanticVar("text", "primary");
+const SURFACE_DESTRUCTIVE = semanticVar("surface", "destructive");
+const SURFACE_ACTION_CONTRAST = semanticVar("surface", "actionContrast");
+const SURFACE_SUCCESS = semanticVar("surface", "success");
+const BORDER_FOCUS = semanticVar("border", "focus");
 
 const SP_05 = spaceVar("0.5");
 const SP_075 = spaceVar("0.75");
@@ -147,24 +148,24 @@ const STYLES = /* css */ `
   :host button,
   :host([action="primary"]) button,
   :host([action="primary"][emphasis="bold"]) button {
-    background-color: var(--ui-btn-bg, ${BLUE_60});
+    background-color: var(--ui-btn-bg, ${SURFACE_ACTION});
     color: var(--ui-btn-color, #ffffff);
-    border-color: var(--ui-btn-border-color, ${BLUE_60});
+    border-color: var(--ui-btn-border-color, ${SURFACE_ACTION});
   }
 
   /* subtle */
   :host([emphasis="subtle"]) button,
   :host([action="primary"][emphasis="subtle"]) button {
     background-color: transparent;
-    color: var(--ui-btn-color, ${BLUE_60});
-    border-color: var(--ui-btn-border-color, ${BLUE_60});
+    color: var(--ui-btn-color, ${SURFACE_ACTION});
+    border-color: var(--ui-btn-border-color, ${SURFACE_ACTION});
   }
 
   /* minimal */
   :host([emphasis="minimal"]) button,
   :host([action="primary"][emphasis="minimal"]) button {
     background-color: transparent;
-    color: var(--ui-btn-color, ${BLUE_60});
+    color: var(--ui-btn-color, ${SURFACE_ACTION});
     border-color: transparent;
   }
 
@@ -172,20 +173,20 @@ const STYLES = /* css */ `
 
   :host([action="secondary"]) button,
   :host([action="secondary"][emphasis="bold"]) button {
-    background-color: var(--ui-btn-bg, ${GRAY_20});
-    color: var(--ui-btn-color, ${GRAY_90});
-    border-color: var(--ui-btn-border-color, ${GRAY_20});
+    background-color: var(--ui-btn-bg, ${SURFACE_TERTIARY});
+    color: var(--ui-btn-color, ${TEXT_PRIMARY});
+    border-color: var(--ui-btn-border-color, ${SURFACE_TERTIARY});
   }
 
   :host([action="secondary"][emphasis="subtle"]) button {
     background-color: transparent;
-    color: var(--ui-btn-color, ${GRAY_90});
-    border-color: var(--ui-btn-border-color, ${GRAY_90});
+    color: var(--ui-btn-color, ${TEXT_PRIMARY});
+    border-color: var(--ui-btn-border-color, ${TEXT_PRIMARY});
   }
 
   :host([action="secondary"][emphasis="minimal"]) button {
     background-color: transparent;
-    color: var(--ui-btn-color, ${GRAY_90});
+    color: var(--ui-btn-color, ${TEXT_PRIMARY});
     border-color: transparent;
   }
 
@@ -193,20 +194,20 @@ const STYLES = /* css */ `
 
   :host([action="destructive"]) button,
   :host([action="destructive"][emphasis="bold"]) button {
-    background-color: var(--ui-btn-bg, ${RED_60});
+    background-color: var(--ui-btn-bg, ${SURFACE_DESTRUCTIVE});
     color: var(--ui-btn-color, #ffffff);
-    border-color: var(--ui-btn-border-color, ${RED_60});
+    border-color: var(--ui-btn-border-color, ${SURFACE_DESTRUCTIVE});
   }
 
   :host([action="destructive"][emphasis="subtle"]) button {
     background-color: transparent;
-    color: var(--ui-btn-color, ${RED_60});
-    border-color: var(--ui-btn-border-color, ${RED_60});
+    color: var(--ui-btn-color, ${SURFACE_DESTRUCTIVE});
+    border-color: var(--ui-btn-border-color, ${SURFACE_DESTRUCTIVE});
   }
 
   :host([action="destructive"][emphasis="minimal"]) button {
     background-color: transparent;
-    color: var(--ui-btn-color, ${RED_60});
+    color: var(--ui-btn-color, ${SURFACE_DESTRUCTIVE});
     border-color: transparent;
   }
 
@@ -214,20 +215,20 @@ const STYLES = /* css */ `
 
   :host([action="info"]) button,
   :host([action="info"][emphasis="bold"]) button {
-    background-color: var(--ui-btn-bg, ${BLUE_100});
+    background-color: var(--ui-btn-bg, ${SURFACE_ACTION_CONTRAST});
     color: var(--ui-btn-color, #ffffff);
-    border-color: var(--ui-btn-border-color, ${BLUE_100});
+    border-color: var(--ui-btn-border-color, ${SURFACE_ACTION_CONTRAST});
   }
 
   :host([action="info"][emphasis="subtle"]) button {
     background-color: transparent;
-    color: var(--ui-btn-color, ${BLUE_100});
-    border-color: var(--ui-btn-border-color, ${BLUE_100});
+    color: var(--ui-btn-color, ${SURFACE_ACTION_CONTRAST});
+    border-color: var(--ui-btn-border-color, ${SURFACE_ACTION_CONTRAST});
   }
 
   :host([action="info"][emphasis="minimal"]) button {
     background-color: transparent;
-    color: var(--ui-btn-color, ${BLUE_100});
+    color: var(--ui-btn-color, ${SURFACE_ACTION_CONTRAST});
     border-color: transparent;
   }
 
@@ -236,7 +237,7 @@ const STYLES = /* css */ `
   :host([action="contrast"]) button,
   :host([action="contrast"][emphasis="bold"]) button {
     background-color: var(--ui-btn-bg, #ffffff);
-    color: var(--ui-btn-color, ${GRAY_90});
+    color: var(--ui-btn-color, ${TEXT_PRIMARY});
     border-color: var(--ui-btn-border-color, #ffffff);
   }
 
@@ -281,23 +282,23 @@ const STYLES = /* css */ `
 
   button:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${BLUE_60};
+    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${BORDER_FOCUS};
   }
 
   :host([action="secondary"]) button:focus-visible {
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${GRAY_90};
+    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${TEXT_PRIMARY};
   }
 
   :host([action="destructive"]) button:focus-visible {
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${RED_60};
+    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${SURFACE_DESTRUCTIVE};
   }
 
   :host([action="info"]) button:focus-visible {
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${BLUE_100};
+    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${SURFACE_ACTION_CONTRAST};
   }
 
   :host([action="contrast"]) button:focus-visible {
-    box-shadow: 0 0 0 1px ${GRAY_90}, 0 0 0 2px #ffffff;
+    box-shadow: 0 0 0 1px ${TEXT_PRIMARY}, 0 0 0 2px #ffffff;
   }
 
   /* ── Disabled ────────────────────────────────────────────────────────────── */
@@ -386,15 +387,15 @@ const STYLES = /* css */ `
 
   /* Status colors override action */
   :host([status="error"]) button {
-    background-color: ${RED_60};
+    background-color: ${SURFACE_DESTRUCTIVE};
     color: #ffffff;
-    border-color: ${RED_60};
+    border-color: ${SURFACE_DESTRUCTIVE};
   }
 
   :host([status="success"]) button {
-    background-color: ${GREEN_60};
+    background-color: ${SURFACE_SUCCESS};
     color: #ffffff;
-    border-color: ${GREEN_60};
+    border-color: ${SURFACE_SUCCESS};
   }
 
   /* Loading spinner animation */
