@@ -40,7 +40,7 @@ const STYLES = /* css */ `
     border: none;
     margin: 0;
     background-color: var(--ui-spmi-bg, ${SURFACE_SECONDARY});
-    font-family: "Goldman Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     font-size: 14px;
     font-weight: 500;
     line-height: 20px;

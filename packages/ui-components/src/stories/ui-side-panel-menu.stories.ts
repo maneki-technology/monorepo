@@ -5,7 +5,7 @@ import "../components/ui-side-panel-menu-item.js";
 
 // Material Symbols icon helper (font loaded in .storybook/preview.ts)
 const icon = (name: string) =>
-  html`<span slot="icon" class="material-symbols-outlined" style="font-size: 20px;">${name}</span>`;
+  html`<span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${name}</span>`;
 
 const meta: Meta = {
   title: "Components/Side Panel Menu",
@@ -28,7 +28,7 @@ const meta: Meta = {
       <div style="height: 500px; display: flex;">
         ${story()}
         <div style="flex: 1; padding: 24px; background: #fff;">
-          <p style="margin: 0; color: #1c2b36; font-family: Goldman Sans, sans-serif;">
+          <p style="margin: 0; color: #1c2b36; font-family: Inter, sans-serif;">
             Main content area
           </p>
         </div>
@@ -269,7 +269,7 @@ export const Mobile: Story = {
       <div style="height: 500px; display: flex; position: relative;">
         ${story()}
         <div style="flex: 1; padding: 24px; background: #fff;">
-          <p style="margin: 0; color: #1c2b36; font-family: Goldman Sans, sans-serif;">
+          <p style="margin: 0; color: #1c2b36; font-family: Inter, sans-serif;">
             Main content area — resize below 768px to see mobile behavior
           </p>
         </div>

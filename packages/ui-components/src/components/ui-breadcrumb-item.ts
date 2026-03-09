@@ -27,7 +27,7 @@ const STYLES = /* css */ `
   :host {
     display: inline-flex;
     align-items: center;
-    font-family: "Goldman Sans", sans-serif;
+    font-family: "Inter", sans-serif;
   }
 
   .base {

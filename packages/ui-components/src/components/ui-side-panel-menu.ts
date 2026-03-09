@@ -34,7 +34,7 @@ const STYLES = /* css */ `
     width: 300px;
     height: 100%;
     background-color: var(--ui-spm-bg, ${SURFACE_SECONDARY});
-    font-family: "Goldman Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     position: relative;
     transition: width 0.2s ease;
   }
@@ -170,7 +170,7 @@ const STYLES = /* css */ `
     box-shadow: var(--ui-spm-flyout-shadow, ${ELEVATION_03});
     flex-direction: column;
     z-index: 10;
-    font-family: "Goldman Sans", sans-serif;
+    font-family: "Inter", sans-serif;
   }
 
   .flyout[open] {
@@ -388,6 +388,10 @@ export class UiSidePanelMenu extends HTMLElement {
     for (const item of items) {
       if (isCollapsed) {
         item.setAttribute("type", "icon-only");
+        // Collapse any expanded parents — collapsed mode uses flyout instead
+        if (item.hasAttribute("expanded")) {
+          item.removeAttribute("expanded");
+        }
       } else {
         item.removeAttribute("type");
       }

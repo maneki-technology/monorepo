@@ -177,17 +177,7 @@ export const ArticleCard: Story = {
         style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px 16px;"
       >
         <span style="font-size: 12px; color: #6b7b8a;">5 min read</span>
-        <svg
-          viewBox="0 0 20 20"
-          width="20"
-          height="20"
-          style="color: #6b7b8a;"
-        >
-          <path
-            d="M15 6.67a3.33 3.33 0 0 0-2.36.98L8.91 9.28a3.33 3.33 0 0 0 0 1.44l3.73 1.63A3.33 3.33 0 1 0 15 13.33a3.3 3.3 0 0 0-.55.05L10.72 11.75a3.33 3.33 0 0 0 0-3.5l3.73-1.63A3.3 3.3 0 0 0 15 6.67Z"
-            fill="currentColor"
-          />
-        </svg>
+        <span class="material-symbols-outlined" style="font-size: 20px; color: #6b7b8a;">share</span>
       </div>
     </ui-card>
   `,
