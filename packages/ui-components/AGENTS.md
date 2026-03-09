@@ -15,12 +15,15 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-checkbox-item>` — checkbox component: 3 sizes (s/m/l), 3 check states (unchecked/checked/indeterminate), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error)
 - `<ui-checkbox-group>` — checkbox group wrapper: 3 sizes (s/m/l), 2 orientations (vertical/horizontal), size propagation to children
 - `<ui-dropdown>` — dropdown button with floating menu: 4 sizes (s/m/l/xl), 5 actions, 3 emphases, 2 shapes, opt-in `selectable` attribute for single/multi-select, composes `<ui-button>` as trigger
-- `<ui-dropdown-item>` — menu item with select event, selected state with checkmark, value attribute, disabled support
-- `<ui-dropdown-heading>` — section heading (uppercase, non-interactive)
+- `<ui-dropdown-item>` — menu item: 3 sizes (s/m/l), 4 leading elements (icon/checkbox/radio/avatar), secondary label, description, submenu arrow, 6 states (enabled/hover/active/focus/selected/disabled), select event, checkmark, value attribute
+- `<ui-dropdown-heading>` — section heading: 3 sizes (s/m/l), uppercase, non-interactive
 - `<ui-dropdown-separator>` — horizontal divider line
 - `<ui-modal>` — modal dialog with backdrop, header (title+subtitle+close), scrollable body, footer button slots, 3 sizes, 2 layouts (auto/fluid), dismiss behavior
 - `<ui-badge>` — label/tag with 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses, uppercase text
 - `<ui-dropdown-split>` — split button with action (left) + chevron trigger (right) + floating menu: 4 sizes (s/m/l/xl), 5 actions, 3 emphases, 2 shapes, 4 icon modes, opt-in `selectable` for single/multi-select, independent hover/active/focus per button half, full-height divider (hidden for minimal/contrast)
+- `<ui-menu>` — standalone floating menu panel: 3 sizes (s/m/l), open/close animation, outside-click + Escape dismiss, opt-in `selectable` for single/multi-select, size propagation to children, composes `<ui-dropdown-item>` / `<ui-dropdown-heading>` / `<ui-dropdown-separator>`
+- `<ui-side-panel-menu>` — collapsible sidebar navigation: expanded/collapsed states, mobile responsive (auto-collapse), flyout submenu in collapsed mode, overlay mode, selection management with parent highlighting
+- `<ui-side-panel-menu-item>` — sidebar menu item: 3 levels (primary/secondary/tertiary), expandable parent with inline children, leading icon slot, selected/disabled states, keyboard navigation
 
 ## STRUCTURE
 ```
@@ -51,6 +54,9 @@ ui-components/
 │   │   ├── ui-modal.ts
 │   │   ├── ui-badge.ts
 │   │   ├── ui-dropdown-split.ts
+│   │   ├── ui-menu.ts
+│   │   ├── ui-side-panel-menu.ts
+│   │   ├── ui-side-panel-menu-item.ts
 │   │   └── *.test.ts        # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
@@ -137,7 +143,7 @@ Property accessors use these types. Invalid values are compile errors.
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (606 tests)
+moon run ui-components:test            # vitest --run (767 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```

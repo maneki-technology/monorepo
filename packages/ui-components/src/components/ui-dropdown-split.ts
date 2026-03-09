@@ -483,16 +483,10 @@ const STYLES = /* css */ `
     background-color: var(--ui-dds-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-dds-menu-shadow, ${ELEVATION_05});
     border-radius: 2px;
-    opacity: 0;
-    transform: translateY(-4px);
-    transition: opacity 0.15s ease, transform 0.15s ease;
+    overflow: visible;
   }
   :host([open]) .menu {
     display: block;
-  }
-  .menu.visible {
-    opacity: 1;
-    transform: translateY(0);
   }
   /* ── Reduced motion ──────────────────────────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {
@@ -503,19 +497,16 @@ const STYLES = /* css */ `
     .chevron {
       transition-duration: 0.01ms !important;
     }
-    .menu {
-      transition-duration: 0.01ms !important;
-    }
   }
 `;
 
 // ─── Size mapping for menu items ─────────────────────────────────────────────
 
-const DROPDOWN_SPLIT_SIZE_TO_ITEM_SIZE: Record<DropdownSplitSize, "s" | "m"> = {
+const DROPDOWN_SPLIT_SIZE_TO_ITEM_SIZE: Record<DropdownSplitSize, "s" | "m" | "l"> = {
   s: "s",
   m: "m",
-  l: "m",
-  xl: "m",
+  l: "l",
+  xl: "l",
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -795,16 +786,6 @@ export class UiDropdownSplit extends HTMLElement {
   private _syncOpen(): void {
     const isOpen = this.open;
     this._rightBtn.setAttribute("aria-expanded", String(isOpen));
-
-    if (isOpen) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          this._menu.classList.add("visible");
-        });
-      });
-    } else {
-      this._menu.classList.remove("visible");
-    }
   }
 
   private _syncDisabled(): void {

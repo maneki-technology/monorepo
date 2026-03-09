@@ -36,7 +36,7 @@ maneki-monorepo/
 | Package | npm name | Description |
 |---|---|---|
 | `foundation` | `@maneki/foundation` | Design tokens: 131 colors, semantic tokens, typography, spacing, elevation, responsive breakpoints |
-| `ui-components` | `@maneki/ui-components` | 19 Web Components (button, accordion, alert, avatar, breadcrumb, card, checkbox, dropdown, modal, badge) with Storybook 10 |
+| `ui-components` | `@maneki/ui-components` | 21 Web Components (button, accordion, alert, avatar, breadcrumb, card, checkbox, dropdown, menu, modal, badge, side-panel-menu) with Storybook 10 |
 | `grid-layout` | `@maneki/grid-layout` | Zero-dep drag/resize grid layout (220 tests) |
 
 ---
