@@ -83,25 +83,15 @@ const STYLES = /* css */ `
     background-color: var(--ui-dd-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-dd-menu-shadow, ${ELEVATION_05});
     border-radius: 2px;
-    opacity: 0;
-    transform: translateY(-4px);
-    transition: opacity 0.15s ease, transform 0.15s ease;
+    overflow: visible;
   }
 
   :host([open]) .menu {
     display: block;
   }
 
-  .menu.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .chevron {
-      transition-duration: 0.01ms !important;
-    }
-    .menu {
       transition-duration: 0.01ms !important;
     }
   }
@@ -109,11 +99,11 @@ const STYLES = /* css */ `
 
 // ─── Size mapping for menu items ─────────────────────────────────────────────
 
-const DROPDOWN_SIZE_TO_ITEM_SIZE: Record<DropdownSize, "s" | "m"> = {
+const DROPDOWN_SIZE_TO_ITEM_SIZE: Record<DropdownSize, "s" | "m" | "l"> = {
   s: "s",
   m: "m",
-  l: "m",
-  xl: "m",
+  l: "l",
+  xl: "l",
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -380,17 +370,6 @@ export class UiDropdown extends HTMLElement {
   private _syncOpen(): void {
     const isOpen = this.open;
     this._trigger.setAttribute("aria-expanded", String(isOpen));
-
-    if (isOpen) {
-      // Delay adding .visible so the transition triggers after display: block
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          this._menu.classList.add("visible");
-        });
-      });
-    } else {
-      this._menu.classList.remove("visible");
-    }
 
     this.dispatchEvent(
       new CustomEvent("toggle", {

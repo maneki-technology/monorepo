@@ -730,15 +730,15 @@ describe("UiDropdownSplit — size propagation", () => {
     expect(heading.getAttribute("size")).toBe("s");
   });
 
-  it("should map l/xl sizes to 'm' for children", () => {
+  it("should map l/xl sizes to 'l' for children", () => {
     const item = document.createElement("ui-dropdown-item");
     el.appendChild(item);
 
     el.setAttribute("size", "l");
-    expect(item.getAttribute("size")).toBe("m");
+    expect(item.getAttribute("size")).toBe("l");
 
     el.setAttribute("size", "xl");
-    expect(item.getAttribute("size")).toBe("m");
+    expect(item.getAttribute("size")).toBe("l");
   });
 
   it("should propagate size to dynamically added children", () => {
