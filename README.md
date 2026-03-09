@@ -76,7 +76,7 @@ npm run storybook:build      # Static build → storybook-static/
 
 ## Storybook
 
-Published to Chromatic: https://www.chromatic.com/builds?appId=69ac56bb2124263f2f04fadc
+Published to Chromatic: https://www.chromatic.com/library?appId=69ac56bb2124263f2f04fadc
 
 ---
 

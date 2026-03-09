@@ -77,7 +77,7 @@ npx vite build               # Build
 
 ## NOTES
 - Git repo: `maneki-technology/monorepo` on GitHub
-- CI/CD: Chromatic for Storybook visual review (`.github/workflows/chromatic.yml`). Storybook: https://www.chromatic.com/builds?appId=69ac56bb2124263f2f04fadc
+- CI/CD: Chromatic for Storybook visual review (`.github/workflows/chromatic.yml`). Storybook: https://www.chromatic.com/library?appId=69ac56bb2124263f2f04fadc
 - `apps/` directory exists but is empty — reserved for future consumer apps
 - Root `package.json` has Storybook scripts (`storybook`, `storybook:build`) and devDependencies for the root-level Storybook
 - Node pinned at 22 because Storybook 10 requires Node 20.19+
