@@ -1,4 +1,4 @@
-import { semanticVar, elevationVar, spaceVar, colorVar, standardBreakpoints } from "@maneki/foundation";
+import { semanticVar, elevationVar, spaceVar, standardBreakpoints } from "@maneki/foundation";
 import { ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT } from "../assets/icons.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -16,7 +16,7 @@ const ICON_PRIMARY_TOKEN = semanticVar("icon", "primary");
 const BORDER_MINIMAL = semanticVar("border", "minimal");
 const BORDER_MODERATE = semanticVar("border", "moderate");
 const ELEVATION_03 = elevationVar("03");
-const BLUE_60 = colorVar("blue", 60);
+const BORDER_FOCUS = semanticVar("border", "focus");
 const SP_1 = spaceVar("1");       // 8px
 const SP_2 = spaceVar("2");       // 16px
 
@@ -120,7 +120,7 @@ const STYLES = /* css */ `
   }
 
   .header-toggle:focus-visible {
-    outline: 2px solid ${BLUE_60};
+    outline: 2px solid ${BORDER_FOCUS};
     outline-offset: -2px;
   }
 

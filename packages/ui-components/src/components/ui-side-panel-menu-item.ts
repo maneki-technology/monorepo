@@ -1,4 +1,4 @@
-import { colorVar, semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
 import { ICON_CHEVRON, ICON_CHEVRON_UP } from "../assets/icons.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -12,7 +12,7 @@ const SURFACE_SECONDARY = semanticVar("surface", "secondary");
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const ICON_PRIMARY_TOKEN = semanticVar("icon", "primary");
 const ICON_ACTION = semanticVar("icon", "action");
-const BLUE_60 = colorVar("blue", 60);
+const BORDER_FOCUS = semanticVar("border", "focus");
 const SP_1 = spaceVar("1");       // 8px
 const SP_125 = spaceVar("1.5");   // 12px
 
@@ -52,7 +52,7 @@ const STYLES = /* css */ `
   }
 
   .row:focus-visible {
-    outline: 2px solid ${BLUE_60};
+    outline: 2px solid ${BORDER_FOCUS};
     outline-offset: -2px;
   }
 
@@ -79,7 +79,7 @@ const STYLES = /* css */ `
     left: 0;
     bottom: 0;
     width: 2px;
-    background-color: var(--ui-spmi-indicator, ${BLUE_60});
+    background-color: var(--ui-spmi-indicator, ${BORDER_FOCUS});
   }
 
   /* ── Child/Parent Selected ───────────────────────────────────────────────── */
@@ -95,7 +95,7 @@ const STYLES = /* css */ `
     left: 0;
     bottom: 0;
     width: 2px;
-    background-color: var(--ui-spmi-indicator, ${BLUE_60});
+    background-color: var(--ui-spmi-indicator, ${BORDER_FOCUS});
   }
 
   :host([child-parent-selected][level="primary"]) .row {

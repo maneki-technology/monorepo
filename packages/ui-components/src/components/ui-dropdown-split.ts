@@ -1,4 +1,4 @@
-import { colorVar, semanticVar, spaceVar, elevationVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, elevationVar } from "@maneki/foundation";
 import { ICON_CHEVRON } from "../assets/icons.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -11,11 +11,12 @@ export type DropdownSplitIcon = "text-only" | "leading-icon" | "trailing-icon" |
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
-const BLUE_60 = colorVar("blue", 60);
-const GRAY_20 = colorVar("gray", 20);
-const GRAY_90 = colorVar("gray", 90);
-const RED_60 = colorVar("red", 60);
-const BLUE_100 = colorVar("blue", 100);
+const SURFACE_ACTION = semanticVar("surface", "action");
+const SURFACE_TERTIARY = semanticVar("surface", "tertiary");
+const TEXT_PRIMARY = semanticVar("text", "primary");
+const SURFACE_DESTRUCTIVE = semanticVar("surface", "destructive");
+const SURFACE_ACTION_CONTRAST = semanticVar("surface", "actionContrast");
+const BORDER_FOCUS = semanticVar("border", "focus");
 const SURFACE_PRIMARY = semanticVar("surface", "primary");
 const ELEVATION_05 = elevationVar("05");
 const SP_05 = spaceVar("0.5");
@@ -253,78 +254,78 @@ const STYLES = /* css */ `
   :host .base,
   :host([action="primary"]) .base,
   :host([action="primary"][emphasis="bold"]) .base {
-    background-color: var(--ui-dds-bg, ${BLUE_60});
+    background-color: var(--ui-dds-bg, ${SURFACE_ACTION});
     color: var(--ui-dds-color, #ffffff);
-    border-color: var(--ui-dds-border-color, ${BLUE_60});
+    border-color: var(--ui-dds-border-color, ${SURFACE_ACTION});
   }
   :host([emphasis="subtle"]) .base,
   :host([action="primary"][emphasis="subtle"]) .base {
     background-color: transparent;
-    color: var(--ui-dds-color, ${BLUE_60});
-    border-color: var(--ui-dds-border-color, ${BLUE_60});
+    color: var(--ui-dds-color, ${SURFACE_ACTION});
+    border-color: var(--ui-dds-border-color, ${SURFACE_ACTION});
   }
   :host([emphasis="minimal"]) .base,
   :host([action="primary"][emphasis="minimal"]) .base {
     background-color: transparent;
-    color: var(--ui-dds-color, ${BLUE_60});
+    color: var(--ui-dds-color, ${SURFACE_ACTION});
     border-color: transparent;
   }
   /* ── Action × Emphasis: SECONDARY ────────────────────────────────────── */
   :host([action="secondary"]) .base,
   :host([action="secondary"][emphasis="bold"]) .base {
-    background-color: var(--ui-dds-bg, ${GRAY_20});
-    color: var(--ui-dds-color, ${GRAY_90});
-    border-color: var(--ui-dds-border-color, ${GRAY_20});
+    background-color: var(--ui-dds-bg, ${SURFACE_TERTIARY});
+    color: var(--ui-dds-color, ${TEXT_PRIMARY});
+    border-color: var(--ui-dds-border-color, ${SURFACE_TERTIARY});
   }
   :host([action="secondary"][emphasis="subtle"]) .base {
     background-color: transparent;
-    color: var(--ui-dds-color, ${GRAY_90});
-    border-color: var(--ui-dds-border-color, ${GRAY_90});
+    color: var(--ui-dds-color, ${TEXT_PRIMARY});
+    border-color: var(--ui-dds-border-color, ${TEXT_PRIMARY});
   }
   :host([action="secondary"][emphasis="minimal"]) .base {
     background-color: transparent;
-    color: var(--ui-dds-color, ${GRAY_90});
+    color: var(--ui-dds-color, ${TEXT_PRIMARY});
     border-color: transparent;
   }
   /* ── Action × Emphasis: DESTRUCTIVE ───────────────────────────────────── */
   :host([action="destructive"]) .base,
   :host([action="destructive"][emphasis="bold"]) .base {
-    background-color: var(--ui-dds-bg, ${RED_60});
+    background-color: var(--ui-dds-bg, ${SURFACE_DESTRUCTIVE});
     color: var(--ui-dds-color, #ffffff);
-    border-color: var(--ui-dds-border-color, ${RED_60});
+    border-color: var(--ui-dds-border-color, ${SURFACE_DESTRUCTIVE});
   }
   :host([action="destructive"][emphasis="subtle"]) .base {
     background-color: transparent;
-    color: var(--ui-dds-color, ${RED_60});
-    border-color: var(--ui-dds-border-color, ${RED_60});
+    color: var(--ui-dds-color, ${SURFACE_DESTRUCTIVE});
+    border-color: var(--ui-dds-border-color, ${SURFACE_DESTRUCTIVE});
   }
   :host([action="destructive"][emphasis="minimal"]) .base {
     background-color: transparent;
-    color: var(--ui-dds-color, ${RED_60});
+    color: var(--ui-dds-color, ${SURFACE_DESTRUCTIVE});
     border-color: transparent;
   }
   /* ── Action × Emphasis: INFO ─────────────────────────────────────────── */
   :host([action="info"]) .base,
   :host([action="info"][emphasis="bold"]) .base {
-    background-color: var(--ui-dds-bg, ${BLUE_100});
+    background-color: var(--ui-dds-bg, ${SURFACE_ACTION_CONTRAST});
     color: var(--ui-dds-color, #ffffff);
-    border-color: var(--ui-dds-border-color, ${BLUE_100});
+    border-color: var(--ui-dds-border-color, ${SURFACE_ACTION_CONTRAST});
   }
   :host([action="info"][emphasis="subtle"]) .base {
     background-color: transparent;
-    color: var(--ui-dds-color, ${BLUE_100});
-    border-color: var(--ui-dds-border-color, ${BLUE_100});
+    color: var(--ui-dds-color, ${SURFACE_ACTION_CONTRAST});
+    border-color: var(--ui-dds-border-color, ${SURFACE_ACTION_CONTRAST});
   }
   :host([action="info"][emphasis="minimal"]) .base {
     background-color: transparent;
-    color: var(--ui-dds-color, ${BLUE_100});
+    color: var(--ui-dds-color, ${SURFACE_ACTION_CONTRAST});
     border-color: transparent;
   }
   /* ── Action × Emphasis: CONTRAST ──────────────────────────────────────── */
   :host([action="contrast"]) .base,
   :host([action="contrast"][emphasis="bold"]) .base {
     background-color: var(--ui-dds-bg, #ffffff);
-    color: var(--ui-dds-color, ${GRAY_90});
+    color: var(--ui-dds-color, ${TEXT_PRIMARY});
     border-color: var(--ui-dds-border-color, #ffffff);
   }
   :host([action="contrast"][emphasis="subtle"]) .base {
@@ -365,23 +366,23 @@ const STYLES = /* css */ `
   .left:focus-visible,
   .right:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${BLUE_60};
+    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${BORDER_FOCUS};
   }
   :host([action="secondary"]) .left:focus-visible,
   :host([action="secondary"]) .right:focus-visible {
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${GRAY_90};
+    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${TEXT_PRIMARY};
   }
   :host([action="destructive"]) .left:focus-visible,
   :host([action="destructive"]) .right:focus-visible {
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${RED_60};
+    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${SURFACE_DESTRUCTIVE};
   }
   :host([action="info"]) .left:focus-visible,
   :host([action="info"]) .right:focus-visible {
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${BLUE_100};
+    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${SURFACE_ACTION_CONTRAST};
   }
   :host([action="contrast"]) .left:focus-visible,
   :host([action="contrast"]) .right:focus-visible {
-    box-shadow: 0 0 0 1px ${GRAY_90}, 0 0 0 2px #ffffff;
+    box-shadow: 0 0 0 1px ${TEXT_PRIMARY}, 0 0 0 2px #ffffff;
   }
   /* ── Disabled ────────────────────────────────────────────────────────── */
   :host([disabled]) .base {
