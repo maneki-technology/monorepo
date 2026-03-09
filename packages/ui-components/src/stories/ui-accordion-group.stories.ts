@@ -68,16 +68,16 @@ export const AllSizes: Story = {
         <h3 style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">Small</h3>
         <ui-accordion-group size="s">
           <ui-accordion-item>
-            <span slot="label">Section One</span>
-            Content for section one.
+            <span slot="label">Small Item One</span>
+            Content for small item one.
           </ui-accordion-item>
           <ui-accordion-item>
-            <span slot="label">Section Two</span>
-            Content for section two.
+            <span slot="label">Small Item Two</span>
+            Content for small item two.
           </ui-accordion-item>
           <ui-accordion-item>
-            <span slot="label">Section Three</span>
-            Content for section three.
+            <span slot="label">Small Item Three</span>
+            Content for small item three.
           </ui-accordion-item>
         </ui-accordion-group>
       </div>
@@ -85,16 +85,16 @@ export const AllSizes: Story = {
         <h3 style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">Medium</h3>
         <ui-accordion-group size="m">
           <ui-accordion-item>
-            <span slot="label">Section One</span>
-            Content for section one.
+            <span slot="label">Medium Item One</span>
+            Content for medium item one.
           </ui-accordion-item>
           <ui-accordion-item>
-            <span slot="label">Section Two</span>
-            Content for section two.
+            <span slot="label">Medium Item Two</span>
+            Content for medium item two.
           </ui-accordion-item>
           <ui-accordion-item>
-            <span slot="label">Section Three</span>
-            Content for section three.
+            <span slot="label">Medium Item Three</span>
+            Content for medium item three.
           </ui-accordion-item>
         </ui-accordion-group>
       </div>
@@ -102,16 +102,16 @@ export const AllSizes: Story = {
         <h3 style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">Large</h3>
         <ui-accordion-group size="l">
           <ui-accordion-item>
-            <span slot="label">Section One</span>
-            Content for section one.
+            <span slot="label">Large Item One</span>
+            Content for large item one.
           </ui-accordion-item>
           <ui-accordion-item>
-            <span slot="label">Section Two</span>
-            Content for section two.
+            <span slot="label">Large Item Two</span>
+            Content for large item two.
           </ui-accordion-item>
           <ui-accordion-item>
-            <span slot="label">Section Three</span>
-            Content for section three.
+            <span slot="label">Large Item Three</span>
+            Content for large item three.
           </ui-accordion-item>
         </ui-accordion-group>
       </div>

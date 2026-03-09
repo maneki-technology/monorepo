@@ -72,7 +72,7 @@ export const CheckStates: Story = {
 export const LabelPositions: Story = {
   render: () => html`
     <div style="display: flex; gap: 24px; align-items: center;">
-      <ui-checkbox-item checked>No label</ui-checkbox-item>
+      <ui-checkbox-item checked aria-label="No label checkbox">No label</ui-checkbox-item>
       <ui-checkbox-item checked label="right"
         >Label right</ui-checkbox-item
       >

@@ -49,8 +49,8 @@ describe("ui-breadcrumb-group", () => {
 
   it("has ol.list element in shadow DOM", () => {
     const shadow = el.shadowRoot!;
-    const ol = shadow.querySelector("ol.list");
-    expect(ol).toBeTruthy();
+    const list = shadow.querySelector("div.list[role='list']");
+    expect(list).toBeTruthy();
   });
 
   it("nav has aria-label='Breadcrumb'", () => {

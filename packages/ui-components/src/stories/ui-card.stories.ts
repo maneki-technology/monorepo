@@ -176,8 +176,8 @@ export const ArticleCard: Story = {
         slot="footer"
         style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px 16px;"
       >
-        <span style="font-size: 12px; color: #6b7b8a;">5 min read</span>
-        <span class="material-symbols-outlined" style="font-size: 20px; color: #6b7b8a;">share</span>
+        <span style="font-size: 12px; color: #5b7282;">5 min read</span>
+        <span class="material-symbols-outlined" style="font-size: 20px; color: #5b7282;">share</span>
       </div>
     </ui-card>
   `,

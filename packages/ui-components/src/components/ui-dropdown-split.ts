@@ -589,6 +589,7 @@ export class UiDropdownSplit extends HTMLElement {
     right.setAttribute("type", "button");
     right.setAttribute("aria-haspopup", "true");
     right.setAttribute("aria-expanded", "false");
+    right.setAttribute("aria-label", "Toggle menu");
 
     const chevron = document.createElement("span");
     chevron.className = "chevron";

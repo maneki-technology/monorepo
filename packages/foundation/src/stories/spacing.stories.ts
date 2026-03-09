@@ -56,13 +56,13 @@ export const Scale: Story = {
         }
         .spacing-value {
           font-size: 11px;
-          color: #7a909e;
+          color: #5b7282;
           min-width: 56px;
           font-family: monospace;
         }
         .spacing-var {
           font-size: 10px;
-          color: #9fb1bd;
+          color: #5b7282;
           font-family: monospace;
           min-width: 130px;
         }

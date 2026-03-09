@@ -581,15 +581,19 @@ export class UiButton extends HTMLElement {
     switch (status) {
       case "error":
         this._statusIcon.innerHTML = ICON_ERROR;
+        this._button.setAttribute("aria-label", "Error");
         break;
       case "success":
         this._statusIcon.innerHTML = ICON_SUCCESS;
+        this._button.setAttribute("aria-label", "Success");
         break;
       case "loading":
         this._statusIcon.innerHTML = ICON_LOADING;
+        this._button.setAttribute("aria-label", "Loading");
         break;
       default:
         this._statusIcon.innerHTML = "";
+        this._button.removeAttribute("aria-label");
         break;
     }
   }

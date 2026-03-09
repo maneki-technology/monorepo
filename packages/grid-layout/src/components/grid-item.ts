@@ -124,7 +124,7 @@ export class GridItemElement extends HTMLElement {
   constructor() {
     super();
     this._shadow = this.attachShadow({ mode: "open" });
-    this.setAttribute("role", "gridcell");
+    this.setAttribute("role", "group");
     this.setAttribute("tabindex", "0");
     this.setAttribute("aria-grabbed", "false");
 

@@ -42,7 +42,7 @@ export const TypeScale: Story = {
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.08em;
-          color: #7a909e;
+          color: #5b7282;
           margin: 0 0 16px;
           padding-bottom: 8px;
           border-bottom: 1px solid #dce3e8;
@@ -65,7 +65,7 @@ export const TypeScale: Story = {
           gap: 16px;
           align-items: baseline;
           font-size: 11px;
-          color: #7a909e;
+          color: #5b7282;
           flex-shrink: 0;
         }
         .meta-key {
@@ -76,11 +76,11 @@ export const TypeScale: Story = {
         .meta-detail {
           font-family: monospace;
           font-size: 10px;
-          color: #9fb1bd;
+          color: #5b7282;
         }
         .meta-usage {
           font-size: 10px;
-          color: #9fb1bd;
+          color: #5b7282;
           margin-top: 4px;
           font-style: italic;
         }
