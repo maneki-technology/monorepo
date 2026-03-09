@@ -14,6 +14,8 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
 - `<ui-checkbox-item>` — checkbox component: 3 sizes (s/m/l), 3 check states (unchecked/checked/indeterminate), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error)
 - `<ui-checkbox-group>` — checkbox group wrapper: 3 sizes (s/m/l), 2 orientations (vertical/horizontal), size propagation to children
+- `<ui-radio-item>` — radio button component: 3 sizes (s/m/l), 2 check states (unchecked/checked), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error), value attribute
+- `<ui-radio-group>` — radio group wrapper: 3 sizes (s/m/l), 2 orientations (vertical/horizontal), size propagation to children, mutual exclusion (single selection), roving tabindex
 - `<ui-dropdown>` — dropdown button with floating menu: 4 sizes (s/m/l/xl), 5 actions, 3 emphases, 2 shapes, opt-in `selectable` attribute for single/multi-select, composes `<ui-button>` as trigger
 - `<ui-dropdown-item>` — menu item: 3 sizes (s/m/l), 4 leading elements (icon/checkbox/radio/avatar), secondary label, description, submenu arrow, 6 states (enabled/hover/active/focus/selected/disabled), select event, checkmark, value attribute
 - `<ui-dropdown-heading>` — section heading: 3 sizes (s/m/l), uppercase, non-interactive
@@ -47,6 +49,8 @@ ui-components/
 │   │   ├── ui-breadcrumb-group.ts
 │   │   ├── ui-checkbox-item.ts
 │   │   ├── ui-checkbox-group.ts
+│   │   ├── ui-radio-item.ts
+│   │   ├── ui-radio-group.ts
 │   │   ├── ui-dropdown.ts
 │   │   ├── ui-dropdown-item.ts
 │   │   ├── ui-dropdown-heading.ts
@@ -143,7 +147,7 @@ Property accessors use these types. Invalid values are compile errors.
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (767 tests)
+moon run ui-components:test            # vitest --run (834 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```
