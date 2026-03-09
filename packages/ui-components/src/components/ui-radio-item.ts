@@ -10,6 +10,7 @@ export type RadioLabel = "none" | "right" | "left";
 const SURFACE_ACTION = semanticVar("surface", "action");
 const BORDER_MODERATE = semanticVar("border", "moderate");
 const BORDER_BOLD = semanticVar("border", "bold");
+const BORDER_CONTRAST = semanticVar("border", "contrast");
 const BORDER_FOCUS = semanticVar("border", "focus");
 const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
 const TEXT_PRIMARY = semanticVar("text", "primary");
@@ -72,7 +73,7 @@ const STYLES = /* css */ `
   .dot {
     display: none;
     border-radius: 50%;
-    background-color: #ffffff;
+    background-color: var(--ui-radio-dot-color, ${SURFACE_ACTION});
   }
 
   :host([checked]) .dot {
@@ -192,8 +193,8 @@ const STYLES = /* css */ `
   /* ── Checked fill ───────────────────────────────────────────────────────── */
 
   :host([checked]) .radio {
-    background-color: var(--ui-radio-checked-bg, ${SURFACE_ACTION});
-    border-color: var(--ui-radio-checked-bg, ${SURFACE_ACTION});
+    border-color: var(--ui-radio-checked-border, ${BORDER_CONTRAST});
+    background-color: var(--ui-radio-bg, #ffffff);
   }
 
   /* ── Hover ──────────────────────────────────────────────────────────────── */
@@ -203,7 +204,7 @@ const STYLES = /* css */ `
   }
 
   :host([checked]:hover) .radio {
-    border-color: var(--ui-radio-checked-bg, ${SURFACE_ACTION});
+    border-color: var(--ui-radio-checked-border, ${BORDER_CONTRAST});
   }
 
   /* ── Focus ──────────────────────────────────────────────────────────────── */
@@ -224,8 +225,8 @@ const STYLES = /* css */ `
   }
 
   :host([disabled][checked]) .radio {
-    background-color: ${BORDER_BOLD};
     border-color: ${BORDER_BOLD};
+    background-color: #ffffff;
   }
 
   :host([disabled][checked]) .dot {
@@ -245,7 +246,7 @@ const STYLES = /* css */ `
 
   :host([error][checked]) .radio {
     border-color: var(--ui-radio-error-border, ${ERROR_BOLD});
-    background-color: var(--ui-radio-checked-bg, ${SURFACE_ACTION});
+    background-color: #ffffff;
   }
 
   /* ── Reduced motion ─────────────────────────────────────────────────────── */
