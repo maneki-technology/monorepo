@@ -1,4 +1,4 @@
-import { colorVar, semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -16,7 +16,7 @@ const ICON_PRIMARY = semanticVar("icon", "primary");
 const STATUS_ERROR = semanticVar("statusGeneral", "error");
 const STATUS_WARNING = semanticVar("statusGeneral", "warning");
 const STATUS_SUCCESS = semanticVar("statusGeneral", "success");
-const BLUE_60 = colorVar("blue", 60);
+const BORDER_FOCUS = semanticVar("border", "focus");
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -64,7 +64,7 @@ const STYLES = /* css */ `
   }
 
   .header:focus-visible {
-    outline: var(--ui-acc-focus-outline, 2px solid ${BLUE_60});
+    outline: var(--ui-acc-focus-outline, 2px solid ${BORDER_FOCUS});
     outline-offset: -2px;
   }
 

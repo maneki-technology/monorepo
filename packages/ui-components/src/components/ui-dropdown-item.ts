@@ -1,4 +1,4 @@
-import { colorVar, semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
 import { ICON_CHEVRON_RIGHT } from "../assets/icons.js";
 
 // ─── Type exports ────────────────────────────────────────────────────────────
@@ -9,9 +9,9 @@ export type DropdownItemLeading = "icon" | "checkbox" | "radio" | "avatar";
 // ─── Token constants ─────────────────────────────────────────────────────────
 
 const TEXT_PRIMARY = semanticVar("text", "primary");
-const BLUE_60 = colorVar("blue", 60);       // #186ade — selected text
-const GRAY_60 = colorVar("gray", 60);       // #3e5463 — secondary/description
-const GRAY_10 = colorVar("gray", 10);       // hover fallback (keep for compat)
+const TEXT_SELECTED = semanticVar("text", "selected");
+const TEXT_SECONDARY = semanticVar("text", "secondary");
+const SURFACE_SECONDARY = semanticVar("surface", "secondary");
 const SP_05 = spaceVar("0.5");   // 4px — description gap
 const SP_075 = spaceVar("0.75"); // 6px
 const SP_1 = spaceVar("1");      // 8px
@@ -236,14 +236,14 @@ const STYLES = /* css */ `
   /* ── Secondary label ────────────────────────────────────────────────────── */
 
   .secondary {
-    color: var(--ui-dd-item-secondary-color, ${GRAY_60});
+    color: var(--ui-dd-item-secondary-color, ${TEXT_SECONDARY});
     white-space: nowrap;
   }
 
   /* ── Description ────────────────────────────────────────────────────────── */
 
   .description {
-    color: var(--ui-dd-item-description-color, ${GRAY_60});
+    color: var(--ui-dd-item-description-color, ${TEXT_SECONDARY});
   }
 
   /* ── Submenu arrow ──────────────────────────────────────────────────────── */
@@ -265,23 +265,23 @@ const STYLES = /* css */ `
   /* ── Selected ───────────────────────────────────────────────────────────── */
 
   :host([selected]) .item {
-    color: var(--ui-dd-item-selected-color, ${BLUE_60});
+    color: var(--ui-dd-item-selected-color, ${TEXT_SELECTED});
     font-weight: 500;
   }
 
   /* ── Leading checkbox/radio selected colors ─────────────────────────────── */
 
   :host([selected]) .leading-checkbox rect {
-    fill: ${BLUE_60};
-    stroke: ${BLUE_60};
+    fill: ${TEXT_SELECTED};
+    stroke: ${TEXT_SELECTED};
   }
 
   :host([selected]) .leading-radio .radio-outer {
-    stroke: ${BLUE_60};
+    stroke: ${TEXT_SELECTED};
   }
 
   :host([selected]) .leading-radio .radio-inner {
-    fill: ${BLUE_60};
+    fill: ${TEXT_SELECTED};
   }
 `;
 

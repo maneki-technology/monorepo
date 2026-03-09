@@ -1,4 +1,4 @@
-import { semanticVar, elevationVar, spaceVar, colorVar } from "@maneki/foundation";
+import { semanticVar, elevationVar, spaceVar } from "@maneki/foundation";
 import { ICON_CLOSE } from "../assets/icons.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -97,7 +97,7 @@ const STYLES = /* css */ `
   }
 
   .body::-webkit-scrollbar-thumb {
-    background-color: var(--ui-modal-scrollbar, ${colorVar("gray", 40)});
+    background-color: var(--ui-modal-scrollbar, ${semanticVar("surface", "bold")});
     border-radius: 12px;
     border: 3.5px solid transparent;
     background-clip: padding-box;

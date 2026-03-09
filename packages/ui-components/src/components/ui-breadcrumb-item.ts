@@ -1,4 +1,4 @@
-import { colorVar, semanticVar } from "@maneki/foundation";
+import { semanticVar } from "@maneki/foundation";
 import { ICON_CHEVRON_RIGHT } from "../assets/icons.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -7,10 +7,10 @@ export type BreadcrumbSize = "s" | "m" | "l";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
-const BLUE_60 = colorVar("blue", 60);
-const BLUE_70 = colorVar("blue", 70);
-const BLUE_80 = colorVar("blue", 80);
-const PURPLE_60 = colorVar("purple", 60);
+const TEXT_LINK = semanticVar("text", "link");
+const TEXT_LINK_HOVER = semanticVar("text", "linkHover");
+const TEXT_LINK_ACTIVE = semanticVar("text", "linkActive");
+const TEXT_VISITED = semanticVar("text", "visited");
 const TEXT_DISABLED = semanticVar("text", "tertiary");
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const ICON_PRIMARY = semanticVar("icon", "primary");
@@ -38,7 +38,7 @@ const STYLES = /* css */ `
   /* ── Link ──────────────────────────────────────────────────────────────── */
 
   .link {
-    color: var(--ui-bc-link-color, ${BLUE_60});
+    color: var(--ui-bc-link-color, ${TEXT_LINK});
     text-decoration: none;
     cursor: pointer;
     font-family: inherit;
@@ -46,21 +46,21 @@ const STYLES = /* css */ `
   }
 
   .link:hover {
-    color: var(--ui-bc-link-hover, ${BLUE_70});
+    color: var(--ui-bc-link-hover, ${TEXT_LINK_HOVER});
   }
 
   .link:active {
-    color: var(--ui-bc-link-active, ${BLUE_80});
+    color: var(--ui-bc-link-active, ${TEXT_LINK_ACTIVE});
   }
 
   .link:focus-visible {
-    color: var(--ui-bc-link-focus, ${BLUE_60});
+    color: var(--ui-bc-link-focus, ${TEXT_LINK});
     text-decoration: underline;
     outline: none;
   }
 
   .link:visited {
-    color: var(--ui-bc-link-visited, ${PURPLE_60});
+    color: var(--ui-bc-link-visited, ${TEXT_VISITED});
   }
 
   /* ── Disabled ──────────────────────────────────────────────────────────── */
