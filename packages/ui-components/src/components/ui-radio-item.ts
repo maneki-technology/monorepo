@@ -8,12 +8,14 @@ export type RadioLabel = "none" | "right" | "left";
 // ─── Token constants ─────────────────────────────────────────────────────────
 
 const SURFACE_ACTION = semanticVar("surface", "action");
-const ICON_SECONDARY = semanticVar("icon", "secondary");
+const BORDER_MODERATE = semanticVar("border", "moderate");
+const BORDER_BOLD = semanticVar("border", "bold");
+const BORDER_FOCUS = semanticVar("border", "focus");
 const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const SP_075 = spaceVar("0.75");
 const SP_1 = spaceVar("1");
-
+const SP_15 = spaceVar("1.5");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -57,7 +59,7 @@ const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--ui-radio-border, ${ICON_SECONDARY});
+    border: 1px solid var(--ui-radio-border, ${BORDER_MODERATE});
     border-radius: 50%;
     background-color: var(--ui-radio-bg, #ffffff);
     transition:
@@ -157,8 +159,8 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .dot {
-    width: 5px;
-    height: 5px;
+    width: 6px;
+    height: 6px;
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
@@ -174,7 +176,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .base {
-    gap: var(--ui-radio-gap, ${SP_1});
+    gap: var(--ui-radio-gap, ${SP_15});
   }
 
   :host([size="l"]) .label {
@@ -183,8 +185,8 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .dot {
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
   }
 
   /* ── Checked fill ───────────────────────────────────────────────────────── */
@@ -197,7 +199,7 @@ const STYLES = /* css */ `
   /* ── Hover ──────────────────────────────────────────────────────────────── */
 
   :host(:hover) .radio {
-    border-color: var(--ui-radio-hover-border, ${ICON_SECONDARY});
+    border-color: var(--ui-radio-hover-border, ${BORDER_MODERATE});
   }
 
   :host([checked]:hover) .radio {
@@ -207,7 +209,7 @@ const STYLES = /* css */ `
   /* ── Focus ──────────────────────────────────────────────────────────────── */
 
   :host(:focus-visible) .outer {
-    border-color: var(--ui-radio-focus-border, ${SURFACE_ACTION});
+    border-color: var(--ui-radio-focus-border, ${BORDER_FOCUS});
   }
 
   /* ── Disabled ───────────────────────────────────────────────────────────── */
@@ -216,11 +218,22 @@ const STYLES = /* css */ `
     pointer-events: none;
   }
 
-  :host([disabled]) .base {
-    opacity: 0.4;
+  :host([disabled]) .radio {
+    border-color: ${BORDER_BOLD};
+    background-color: #ffffff;
+  }
+
+  :host([disabled][checked]) .radio {
+    background-color: ${BORDER_BOLD};
+    border-color: ${BORDER_BOLD};
+  }
+
+  :host([disabled][checked]) .dot {
+    background-color: ${BORDER_BOLD};
   }
 
   :host([disabled]) .label {
+    color: ${BORDER_BOLD};
     opacity: 0.5;
   }
 
@@ -231,7 +244,8 @@ const STYLES = /* css */ `
   }
 
   :host([error][checked]) .radio {
-    border-color: var(--ui-radio-checked-bg, ${SURFACE_ACTION});
+    border-color: var(--ui-radio-error-border, ${ERROR_BOLD});
+    background-color: var(--ui-radio-checked-bg, ${SURFACE_ACTION});
   }
 
   /* ── Reduced motion ─────────────────────────────────────────────────────── */
