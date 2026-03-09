@@ -24,6 +24,7 @@ export {
   statusText,
   statusIcon,
   statusGeneral,
+  stateDisabled,
   semanticTokens,
   resolveSemanticValue,
   type SemanticValue,

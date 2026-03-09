@@ -103,6 +103,13 @@ describe("semanticToCssProperties", () => {
     expect(css).toContain("--fd-status-general-none: #5b7282;");
     expect(css).toContain("--fd-status-general-warning: #e86427;");
   });
+
+  it("generates state disabled tokens", () => {
+    const css = semanticToCssProperties();
+    expect(css).toContain("--fd-state-disabled-border: rgba(91, 114, 130, 0.4);");
+    expect(css).toContain("--fd-state-disabled-minimal: rgba(91, 114, 130, 0.2);");
+    expect(css).toContain("--fd-state-disabled-text: rgba(91, 114, 130, 0.5);");
+  });
 });
 
 describe("elevationToCssProperties", () => {

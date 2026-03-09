@@ -9,11 +9,13 @@ export type RadioLabel = "none" | "right" | "left";
 
 const SURFACE_ACTION = semanticVar("surface", "action");
 const BORDER_MODERATE = semanticVar("border", "moderate");
-const BORDER_BOLD = semanticVar("border", "bold");
 const BORDER_CONTRAST = semanticVar("border", "contrast");
 const BORDER_FOCUS = semanticVar("border", "focus");
 const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
 const TEXT_PRIMARY = semanticVar("text", "primary");
+const DISABLED_BORDER = semanticVar("stateDisabled", "border");
+const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
+const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const SP_075 = spaceVar("0.75");
 const SP_1 = spaceVar("1");
 const SP_15 = spaceVar("1.5");
@@ -220,22 +222,18 @@ const STYLES = /* css */ `
   }
 
   :host([disabled]) .radio {
-    border-color: ${BORDER_BOLD};
+    border-color: ${DISABLED_BORDER};
     background-color: #ffffff;
   }
-
   :host([disabled][checked]) .radio {
-    border-color: ${BORDER_BOLD};
+    border-color: ${DISABLED_BORDER};
     background-color: #ffffff;
   }
-
   :host([disabled][checked]) .dot {
-    background-color: ${BORDER_BOLD};
+    background-color: ${DISABLED_MINIMAL};
   }
-
   :host([disabled]) .label {
-    color: ${BORDER_BOLD};
-    opacity: 0.5;
+    color: ${DISABLED_TEXT};
   }
 
   /* ── Error ──────────────────────────────────────────────────────────────── */

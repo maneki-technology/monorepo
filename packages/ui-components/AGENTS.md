@@ -149,8 +149,9 @@ Property accessors use these types. Invalid values are compile errors.
   - `Border/border-contrast` → `semanticVar("border", "contrast")` (`#1C2B36`)
   - `State/Selected/Surface/selected-bold` → `semanticVar("surface", "action")` (`#186ADE`)
   - `State/Focus/border-Focus` → `semanticVar("border", "focus")` (`#186ADE`)
-  - `State/Disabled/border-disabled` → `semanticVar("border", "bold")` (`#5B7282`)
-  - `State/Disabled/text-disabled` → `semanticVar("border", "bold")` with `opacity: 0.5` (`#5B7282`)
+  - `State/Disabled/border-disabled` → `semanticVar("stateDisabled", "border")` (`rgba(91,114,130,0.4)`) — outer ring in disabled state
+  - `State/Disabled/minimal-disabled` → `semanticVar("stateDisabled", "minimal")` (`rgba(91,114,130,0.2)`) — inner dot in disabled state
+  - `State/Disabled/text-disabled` → `semanticVar("stateDisabled", "text")` (`rgba(91,114,130,0.5)`) — label text in disabled state
   - `Status/Surface/status-error-bold` → `semanticVar("statusSurface", "errorBold")` (`#D91F11`)
 ## COMMANDS
 ```bash
