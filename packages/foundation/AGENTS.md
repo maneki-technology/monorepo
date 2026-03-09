@@ -66,7 +66,7 @@ var() helpers — colorVar(), semanticVar(), elevationVar(), typeVar(), spaceVar
 - **Figma is source of truth.** All values extracted from "Foundation UI Kit (Community)".
 - **Semantic tokens reference palette.** `SemanticValue` is either a hex string, rgba string, or `PaletteRef` (`{ family, step }`).
 - **`resolveSemanticValue()`** resolves `PaletteRef` → hex at CSS generation time (not runtime).
-- **Typography uses two font families.** "Goldman Sans" (primary), "Roboto Mono" (code).
+- **Typography uses two font families.** "Inter" (primary), "Roboto Mono" (code).
 - **Spacing base unit is 8px.** 17 steps: 0 (0px), 1px (1px), 0.25 (2px), 0.5 (4px), 0.75 (6px), 1 (8px) through 10 (80px). CSS property names use hyphens instead of dots (e.g., `--fd-space-0-75` not `--fd-space-0.75`).
 - **`toKebab()` helper** converts camelCase keys to kebab-case for CSS property names.
 - **`injectAllTokens()`** is idempotent — checks for existing `<style id="maneki-foundation-all">` before injecting.

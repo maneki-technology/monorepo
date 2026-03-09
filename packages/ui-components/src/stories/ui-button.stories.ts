@@ -108,15 +108,15 @@ export const WithIcons: Story = {
   render: () => html`
     <div style="display: flex; gap: 12px; align-items: center;">
       <ui-button icon="leading-icon">
-        <svg slot="icon-start" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="4"/></svg>
+        <span slot="icon-start" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">add_circle</span>
         Leading
       </ui-button>
       <ui-button icon="trailing-icon">
         Trailing
-        <svg slot="icon-end" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="4"/></svg>
+        <span slot="icon-end" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">add_circle</span>
       </ui-button>
       <ui-button icon="icon-only">
-        <svg slot="icon-start" width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="4"/></svg>
+        <span slot="icon-start" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">add_circle</span>
       </ui-button>
     </div>
   `,

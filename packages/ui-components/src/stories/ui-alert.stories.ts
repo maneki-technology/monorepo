@@ -94,9 +94,7 @@ export const WithDescription: Story = {
 export const WithLeadingIcon: Story = {
   render: () => html`
     <ui-alert status="information" leading-icon>
-      <svg slot="icon" viewBox="0 0 20 20" width="100%" height="100%">
-        <circle cx="10" cy="10" r="8" fill="currentColor" />
-      </svg>
+      <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">info</span>
       Alert with leading icon
     </ui-alert>
   `,
@@ -114,33 +112,23 @@ export const AllStatuses: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px;">
       <ui-alert status="none" leading-icon>
-        <svg slot="icon" viewBox="0 0 20 20" width="100%" height="100%">
-          <circle cx="10" cy="10" r="8" fill="currentColor" />
-        </svg>
+        <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">notifications</span>
         None status
       </ui-alert>
       <ui-alert status="information" leading-icon>
-        <svg slot="icon" viewBox="0 0 20 20" width="100%" height="100%">
-          <circle cx="10" cy="10" r="8" fill="currentColor" />
-        </svg>
+        <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">info</span>
         Information status
       </ui-alert>
       <ui-alert status="success" leading-icon>
-        <svg slot="icon" viewBox="0 0 20 20" width="100%" height="100%">
-          <circle cx="10" cy="10" r="8" fill="currentColor" />
-        </svg>
+        <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">check_circle</span>
         Success status
       </ui-alert>
       <ui-alert status="error" leading-icon>
-        <svg slot="icon" viewBox="0 0 20 20" width="100%" height="100%">
-          <circle cx="10" cy="10" r="8" fill="currentColor" />
-        </svg>
+        <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">error</span>
         Error status
       </ui-alert>
       <ui-alert status="warning" leading-icon>
-        <svg slot="icon" viewBox="0 0 20 20" width="100%" height="100%">
-          <circle cx="10" cy="10" r="8" fill="currentColor" />
-        </svg>
+        <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">warning</span>
         Warning status
       </ui-alert>
     </div>
@@ -150,9 +138,7 @@ export const AllStatuses: Story = {
 export const WithFooterButton: Story = {
   render: () => html`
     <ui-alert status="none" leading-icon dismissable>
-      <svg slot="icon" viewBox="0 0 20 20" width="100%" height="100%">
-        <circle cx="10" cy="10" r="8" fill="currentColor" />
-      </svg>
+      <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">notifications</span>
       Alert Title
       <span slot="description">Description text explaining the alert in more detail.</span>
       <div slot="footer">

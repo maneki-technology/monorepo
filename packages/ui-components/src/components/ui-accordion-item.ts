@@ -54,7 +54,7 @@ const STYLES = /* css */ `
     width: 100%;
     padding: 0;
     margin: 0;
-    font-family: "Goldman Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     color: var(--ui-acc-label-color, ${TEXT_PRIMARY});
     transition: background 0.15s ease;
   }
@@ -164,7 +164,7 @@ const STYLES = /* css */ `
     grid-template-rows: 0fr;
     transition: grid-template-rows 0.2s ease;
     color: var(--ui-acc-content-color, ${TEXT_PRIMARY});
-    font-family: "Goldman Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 400;
   }
   :host([expanded]) .content {

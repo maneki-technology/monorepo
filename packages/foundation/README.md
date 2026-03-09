@@ -61,7 +61,7 @@ elevationVar("03");                           // "var(--fd-elevation-03)"
 
 ### Typography
 
-Groups: display (xl/lg/md), heading (01–07), body (01–03), ui (01–02), caption (01), badge (01), code (01–02). Font families: Goldman Sans (primary), Roboto Mono (code).
+Groups: display (xl/lg/md), heading (01–07), body (01–03), ui (01–02), caption (01), badge (01), code (01–02). Font families: Inter (primary), Roboto Mono (code).
 
 ```ts
 import { typeVar, typography } from '@maneki/foundation';

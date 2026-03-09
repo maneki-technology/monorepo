@@ -66,7 +66,7 @@ const STYLES = /* css */ `
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    font-family: "Goldman Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     font-weight: 500;
     color: #ffffff;
   }

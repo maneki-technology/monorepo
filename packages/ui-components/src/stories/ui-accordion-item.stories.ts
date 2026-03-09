@@ -68,7 +68,7 @@ export const BoldEmphasis: Story = {
 export const WithLeadingIcon: Story = {
   render: () => html`
     <ui-accordion-item leading-icon expanded>
-      <svg slot="icon" viewBox="0 0 20 20" width="100%" height="100%"><circle cx="10" cy="10" r="8" fill="currentColor"/></svg>
+      <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">info</span>
       <span slot="label">With Leading Icon</span>
       Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
     </ui-accordion-item>

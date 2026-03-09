@@ -31,7 +31,7 @@ const STYLES = /* css */ `
     border: none;
     background-color: transparent;
     cursor: pointer;
-    font-family: var(--ui-dd-item-font-family, "Goldman Sans", sans-serif);
+    font-family: var(--ui-dd-item-font-family, "Inter", sans-serif);
     font-weight: var(--ui-dd-item-font-weight, 400);
     color: var(--ui-dd-item-color, ${TEXT_PRIMARY});
     text-align: start;
