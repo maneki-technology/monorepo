@@ -567,9 +567,45 @@ export class UiModal extends HTMLElement {
     }
   }
 
+  private _getFocusableElements(): HTMLElement[] {
+    const selector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const shadowEls = Array.from(this._dialog.querySelectorAll(selector)) as HTMLElement[];
+    const slotEls: HTMLElement[] = [];
+    for (const slot of Array.from(this._dialog.querySelectorAll('slot'))) {
+      for (const node of (slot as HTMLSlotElement).assignedElements({ flatten: true })) {
+        if (node instanceof HTMLElement && node.matches(selector)) {
+          slotEls.push(node);
+        }
+        if (node instanceof HTMLElement) {
+          slotEls.push(...Array.from(node.querySelectorAll(selector)) as HTMLElement[]);
+        }
+      }
+    }
+    return [...shadowEls, ...slotEls].filter((el) => el.offsetParent !== null || el.tagName === 'SUMMARY');
+  }
+
   private _handleKeydown = (e: KeyboardEvent): void => {
-    if (e.key === "Escape" && this.open && this.dismissible) {
+    if (!this.open) return;
+    if (e.key === "Escape" && this.dismissible) {
       this.close();
+      return;
+    }
+    // Focus trap: cycle Tab/Shift+Tab within the dialog
+    if (e.key === "Tab") {
+      const focusable = this._getFocusableElements();
+      if (focusable.length === 0) {
+        e.preventDefault();
+        return;
+      }
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     }
   };
 }
