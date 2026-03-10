@@ -17,7 +17,7 @@ export const Scale: Story = {
   render: () => {
     injectAllTokens();
 
-    const steps = Object.entries(spacing) as [string, number][];
+    const steps = (Object.entries(spacing) as [string, number][]).sort((a, b) => a[1] - b[1]);
 
     return html`
       <style>
