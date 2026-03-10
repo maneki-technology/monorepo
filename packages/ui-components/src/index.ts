@@ -31,6 +31,8 @@ export type {
 
 // ─── Form Controls ──────────────────────────────────────────────────────────
 
+export { UiLabel } from "./components/ui-label.js";
+export type { LabelSize, LabelEmphasis } from "./components/ui-label.js";
 export { UiCheckboxItem } from "./components/ui-checkbox-item.js";
 export type { CheckboxSize, CheckboxLabel } from "./components/ui-checkbox-item.js";
 export { UiCheckboxGroup } from "./components/ui-checkbox-group.js";
