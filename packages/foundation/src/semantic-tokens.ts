@@ -225,6 +225,41 @@ export const statusGeneral = {
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------
+// State — Disabled
+// ---------------------------------------------------------------------------
+
+export const stateDisabled = {
+  border: "rgba(91, 114, 130, 0.4)",   // gray-60 @40% — outer ring
+  minimal: "rgba(91, 114, 130, 0.2)",  // gray-60 @20% — inner fill/dot
+  text: "rgba(91, 114, 130, 0.5)",     // gray-60 @50% — label text
+} as const satisfies Record<string, SemanticValue>;
+
+// ---------------------------------------------------------------------------
+// Form — Input tokens
+// ---------------------------------------------------------------------------
+
+export const form = {
+  inputBorder: ref("gray", 40),        // #9FB1BD — same resolved value as border.moderate
+  inputBackground: "#ffffff",           // white
+} as const satisfies Record<string, SemanticValue>;
+
+// ---------------------------------------------------------------------------
+// State — Hover
+// ---------------------------------------------------------------------------
+
+export const stateHover = {
+  borderModerate: ref("gray", 50),      // #7A909E — darkened border on hover
+} as const satisfies Record<string, SemanticValue>;
+
+// ---------------------------------------------------------------------------
+// State — Selected
+// ---------------------------------------------------------------------------
+
+export const stateSelected = {
+  surfaceBold: ref("blue", 60),         // #186ADE — checked/selected fill
+} as const satisfies Record<string, SemanticValue>;
+
+// ---------------------------------------------------------------------------
 // Aggregate — all semantic color token groups
 // ---------------------------------------------------------------------------
 
@@ -238,6 +273,10 @@ export const semanticTokens = {
   statusText,
   statusIcon,
   statusGeneral,
+  stateDisabled,
+  form,
+  stateHover,
+  stateSelected,
 } as const;
 
 export type SemanticTokenGroup = keyof typeof semanticTokens;

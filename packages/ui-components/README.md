@@ -42,6 +42,8 @@ npm install @maneki/ui-components
 | `<ui-card>` | Slot-based container: 3 sizes, 4 elevations, bordered variant |
 | `<ui-checkbox-item>` | 3 sizes, 3 check states, 3 label positions, 5 states |
 | `<ui-checkbox-group>` | Group wrapper: 2 orientations, size propagation |
+| `<ui-radio-item>` | 3 sizes, 2 check states, 3 label positions, 5 states, value attribute |
+| `<ui-radio-group>` | Group wrapper: 2 orientations, size propagation, mutual exclusion |
 | `<ui-dropdown>` | Button + floating menu: 4 sizes, 5 actions, opt-in `selectable` |
 | `<ui-dropdown-item>` | Menu item with select event, checkmark, disabled support |
 | `<ui-dropdown-heading>` | Uppercase section heading |
@@ -72,7 +74,7 @@ moon run ui-components:storybook        # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build → storybook-static/
 ```
 
-21 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
+23 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
 
 ---
 
@@ -80,7 +82,7 @@ moon run ui-components:storybook-build  # Static build → storybook-static/
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (767 tests)
+moon run ui-components:test   # vitest --run (834 tests)
 ```
 
 ---

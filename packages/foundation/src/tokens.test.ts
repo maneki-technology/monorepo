@@ -103,6 +103,28 @@ describe("semanticToCssProperties", () => {
     expect(css).toContain("--fd-status-general-none: #5b7282;");
     expect(css).toContain("--fd-status-general-warning: #e86427;");
   });
+
+  it("generates state disabled tokens", () => {
+    const css = semanticToCssProperties();
+    expect(css).toContain("--fd-state-disabled-border: rgba(91, 114, 130, 0.4);");
+    expect(css).toContain("--fd-state-disabled-minimal: rgba(91, 114, 130, 0.2);");
+    expect(css).toContain("--fd-state-disabled-text: rgba(91, 114, 130, 0.5);");
+  });
+  it("generates form tokens", () => {
+    const css = semanticToCssProperties();
+    expect(css).toContain("--fd-form-input-border: #9fb1bd;");
+    expect(css).toContain("--fd-form-input-background: #ffffff;");
+  });
+
+  it("generates state hover tokens", () => {
+    const css = semanticToCssProperties();
+    expect(css).toContain("--fd-state-hover-border-moderate: #7a909e;");
+  });
+
+  it("generates state selected tokens", () => {
+    const css = semanticToCssProperties();
+    expect(css).toContain("--fd-state-selected-surface-bold: #186ade;");
+  });
 });
 
 describe("elevationToCssProperties", () => {
