@@ -68,8 +68,9 @@ const STYLES = /* css */ `
 const PROPAGATED_ATTRS = ["size"] as const;
 
 export class UiCheckboxGroup extends HTMLElement {
-  static readonly observedAttributes = ["size", "orientation"];
+  static readonly observedAttributes = ["size", "orientation", "aria-labelledby"];
 
+  private _group!: HTMLElement;
   constructor() {
     super();
     const shadow = this.attachShadow({ mode: "open" });
@@ -87,6 +88,7 @@ export class UiCheckboxGroup extends HTMLElement {
     group.appendChild(slot);
 
     shadow.appendChild(group);
+    this._group = group;
 
     // Listen for slotchange to propagate attributes to new children
     slot.addEventListener("slotchange", () => this._propagateAttributes());
@@ -97,10 +99,17 @@ export class UiCheckboxGroup extends HTMLElement {
   }
 
   attributeChangedCallback(
-    _name: string,
+    name: string,
     _oldValue: string | null,
-    _newValue: string | null,
+    newValue: string | null,
   ): void {
+    if (name === "aria-labelledby" && this._group) {
+      if (newValue) {
+        this._group.setAttribute("aria-labelledby", newValue);
+      } else {
+        this._group.removeAttribute("aria-labelledby");
+      }
+    }
     this._propagateAttributes();
   }
 

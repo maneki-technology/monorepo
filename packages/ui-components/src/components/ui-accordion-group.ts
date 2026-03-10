@@ -29,10 +29,12 @@ export class UiAccordionGroup extends HTMLElement {
     );
     this._propagateAttributes();
     this.addEventListener("toggle", this._handleToggle as EventListener);
+    this.addEventListener("keydown", this._handleKeydown);
   }
 
   disconnectedCallback(): void {
     this.removeEventListener("toggle", this._handleToggle as EventListener);
+    this.removeEventListener("keydown", this._handleKeydown);
   }
 
   attributeChangedCallback(
@@ -113,6 +115,37 @@ export class UiAccordionGroup extends HTMLElement {
         item.removeAttribute("expanded");
       }
     }
+  };
+  /** WAI-ARIA Accordion: Arrow keys move focus between headers, Home/End jump to first/last. */
+  private _handleKeydown = (e: KeyboardEvent): void => {
+    const items = this._getChildItems();
+    if (items.length === 0) return;
+    // Find which item currently has focus (header inside its shadow DOM)
+    const currentIndex = items.findIndex((item) => {
+      const header = item.shadowRoot?.querySelector(".header");
+      return header && header === item.shadowRoot?.activeElement;
+    });
+    if (currentIndex === -1) return;
+    let nextIndex: number | null = null;
+    switch (e.key) {
+      case "ArrowDown":
+        nextIndex = (currentIndex + 1) % items.length;
+        break;
+      case "ArrowUp":
+        nextIndex = (currentIndex - 1 + items.length) % items.length;
+        break;
+      case "Home":
+        nextIndex = 0;
+        break;
+      case "End":
+        nextIndex = items.length - 1;
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+    const nextHeader = items[nextIndex].shadowRoot?.querySelector(".header") as HTMLElement | null;
+    if (nextHeader) nextHeader.focus();
   };
 }
 

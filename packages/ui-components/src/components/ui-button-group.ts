@@ -42,6 +42,7 @@ export class UiButtonGroup extends HTMLElement {
     "action",
     "emphasis",
     "shape",
+    "aria-label",
   ];
 
   constructor() {
@@ -51,6 +52,9 @@ export class UiButtonGroup extends HTMLElement {
   }
 
   connectedCallback(): void {
+    if (!this.hasAttribute("role")) {
+      this.setAttribute("role", "toolbar");
+    }
     this.shadowRoot!.querySelector("slot")!.addEventListener(
       "slotchange",
       () => this._propagateAttributes(),

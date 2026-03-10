@@ -68,8 +68,9 @@ const STYLES = /* css */ `
 const PROPAGATED_ATTRS = ["size"] as const;
 
 export class UiRadioGroup extends HTMLElement {
-  static readonly observedAttributes = ["size", "orientation"];
+  static readonly observedAttributes = ["size", "orientation", "aria-labelledby"];
 
+  private _group!: HTMLElement;
   constructor() {
     super();
     const shadow = this.attachShadow({ mode: "open" });
@@ -87,6 +88,7 @@ export class UiRadioGroup extends HTMLElement {
     group.appendChild(slot);
 
     shadow.appendChild(group);
+    this._group = group;
 
     // Listen for slotchange to propagate attributes to new children
     slot.addEventListener("slotchange", () => {
@@ -101,13 +103,25 @@ export class UiRadioGroup extends HTMLElement {
   connectedCallback(): void {
     this._propagateAttributes();
     this._syncTabindex();
+    this.addEventListener("keydown", this._handleKeydown);
+  }
+
+  disconnectedCallback(): void {
+    this.removeEventListener("keydown", this._handleKeydown);
   }
 
   attributeChangedCallback(
-    _name: string,
+    name: string,
     _oldValue: string | null,
-    _newValue: string | null,
+    newValue: string | null,
   ): void {
+    if (name === "aria-labelledby" && this._group) {
+      if (newValue) {
+        this._group.setAttribute("aria-labelledby", newValue);
+      } else {
+        this._group.removeAttribute("aria-labelledby");
+      }
+    }
     this._propagateAttributes();
   }
 
@@ -175,6 +189,43 @@ export class UiRadioGroup extends HTMLElement {
       item.setAttribute("tabindex", item === focusable ? "0" : "-1");
     }
   }
+
+  /** WAI-ARIA: Arrow keys move focus + selection between radio items, Home/End jump to first/last. */
+  private _handleKeydown = (e: KeyboardEvent): void => {
+    const items = this._getChildItems().filter((el) => !el.hasAttribute("disabled"));
+    if (items.length === 0) return;
+
+    const currentIndex = items.indexOf(document.activeElement as Element);
+    if (currentIndex === -1) return;
+
+    let nextIndex: number | null = null;
+
+    switch (e.key) {
+      case "ArrowDown":
+      case "ArrowRight":
+        nextIndex = (currentIndex + 1) % items.length;
+        break;
+      case "ArrowUp":
+      case "ArrowLeft":
+        nextIndex = (currentIndex - 1 + items.length) % items.length;
+        break;
+      case "Home":
+        nextIndex = 0;
+        break;
+      case "End":
+        nextIndex = items.length - 1;
+        break;
+      default:
+        return;
+    }
+
+    e.preventDefault();
+    const next = items[nextIndex] as HTMLElement;
+    // Select + focus the target radio
+    next.setAttribute("checked", "");
+    next.focus();
+    next.dispatchEvent(new Event("change", { bubbles: true }));
+  };
 }
 
 customElements.define("ui-radio-group", UiRadioGroup);
