@@ -12,6 +12,9 @@ const TEXT_PRIMARY = semanticVar("text", "primary");
 const TEXT_SELECTED = semanticVar("text", "selected");
 const TEXT_SECONDARY = semanticVar("text", "secondary");
 const SURFACE_SECONDARY = semanticVar("surface", "secondary");
+const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
+const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
+const BORDER_CONTRAST = semanticVar("border", "contrast");
 const SP_05 = spaceVar("0.5");   // 4px — description gap
 const SP_075 = spaceVar("0.75"); // 6px
 const SP_1 = spaceVar("1");      // 8px
@@ -272,16 +275,16 @@ const STYLES = /* css */ `
   /* ── Leading checkbox/radio selected colors ─────────────────────────────── */
 
   :host([selected]) .leading-checkbox rect {
-    fill: ${TEXT_SELECTED};
-    stroke: ${TEXT_SELECTED};
+    fill: ${SELECTED_BOLD};
+    stroke: ${SELECTED_BOLD};
   }
 
   :host([selected]) .leading-radio .radio-outer {
-    stroke: ${TEXT_SELECTED};
+    stroke: ${BORDER_CONTRAST};
   }
 
   :host([selected]) .leading-radio .radio-inner {
-    fill: ${TEXT_SELECTED};
+    fill: ${SELECTED_BOLD};
   }
 `;
 
@@ -550,17 +553,17 @@ export class UiDropdownItem extends HTMLElement {
   private _renderCheckbox(): string {
     const checked = this.selected;
     if (checked) {
-      return `<svg class="leading-checkbox" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="14" height="14" rx="2" fill="currentColor" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 8L7 10.5L11.5 5.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      return `<svg class="leading-checkbox" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="14" height="14" fill="${SELECTED_BOLD}" stroke="${SELECTED_BOLD}" stroke-width="1.5"/><path d="M4.5 8L7 10.5L11.5 5.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     }
-    return `<svg class="leading-checkbox" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`;
+    return `<svg class="leading-checkbox" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="14" height="14" fill="none" stroke="${FORM_INPUT_BORDER}" stroke-width="1.5"/></svg>`;
   }
 
   private _renderRadio(): string {
     const selected = this.selected;
     if (selected) {
-      return `<svg class="leading-radio" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="radio-outer" cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/><circle class="radio-inner" cx="8" cy="8" r="4" fill="currentColor"/></svg>`;
+      return `<svg class="leading-radio" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="radio-outer" cx="8" cy="8" r="7" fill="none" stroke="${BORDER_CONTRAST}" stroke-width="1.5"/><circle class="radio-inner" cx="8" cy="8" r="4" fill="${SELECTED_BOLD}"/></svg>`;
     }
-    return `<svg class="leading-radio" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="radio-outer" cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>`;
+    return `<svg class="leading-radio" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="radio-outer" cx="8" cy="8" r="7" fill="none" stroke="${FORM_INPUT_BORDER}" stroke-width="1.5"/></svg>`;
   }
 
   private _syncSecondary(): void {

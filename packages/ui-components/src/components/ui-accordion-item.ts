@@ -17,6 +17,7 @@ const STATUS_ERROR = semanticVar("statusGeneral", "error");
 const STATUS_WARNING = semanticVar("statusGeneral", "warning");
 const STATUS_SUCCESS = semanticVar("statusGeneral", "success");
 const BORDER_FOCUS = semanticVar("border", "focus");
+const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -302,20 +303,17 @@ const STYLES = /* css */ `
   }
 
   :host([disabled]) .header {
-    color: var(--ui-acc-label-color, #636e75);
+    color: var(--ui-acc-label-color, ${DISABLED_TEXT});
+    cursor: default;
   }
 
   :host([disabled]) .chevron,
   :host([disabled]) .leading-icon {
-    opacity: 0.4;
+    color: ${DISABLED_TEXT};
   }
 
   :host([disabled]) .content {
-    opacity: 0.4;
-  }
-
-  :host([disabled]) .header {
-    cursor: default;
+    color: ${DISABLED_TEXT};
   }
 
   /* ── Reduced motion ─────────────────────────────────────────────────────── */
