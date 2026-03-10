@@ -1,13 +1,4 @@
 import { semanticVar, spaceVar } from "@maneki/foundation";
-import {
-  ICON_CLOSE,
-  ICON_ERROR,
-  ICON_WARNING,
-  ICON_SUCCESS,
-  ICON_LOADING,
-  ICON_CHEVRON,
-  ICON_CHEVRON_UP,
-} from "../assets/icons.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -25,9 +16,12 @@ const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
 const BORDER_FOCUS = semanticVar("border", "focus");
 const DISABLED_BORDER = semanticVar("stateDisabled", "border");
 const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
+const STATUS_ERROR = semanticVar("statusGeneral", "error");
 const STATUS_WARNING = semanticVar("statusGeneral", "warning");
 const STATUS_SUCCESS = semanticVar("statusGeneral", "success");
+const BORDER_MINIMAL = semanticVar("border", "minimal");
+const SURFACE_SECONDARY = semanticVar("surface", "secondary");
+const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
 const SP_05 = spaceVar("0.5");
 const SP_1 = spaceVar("1");
 const SP_15 = spaceVar("1.5");
@@ -35,6 +29,29 @@ const SP_15 = spaceVar("1.5");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
+  @font-face {
+    font-family: "Material Symbols Outlined";
+    font-style: normal;
+    src: local("Material Symbols Outlined");
+  }
+
+  .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    font-size: inherit;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "liga";
+  }
   *,
   *::before,
   *::after {
@@ -137,13 +154,13 @@ const STYLES = /* css */ `
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    line-height: 0;
+    font-size: var(--_status-icon-size);
+    line-height: 1;
+  }
+  .status-icon .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1;
   }
 
-  .status-icon svg {
-    width: 100%;
-    height: 100%;
-  }
 
   :host([status="warning"]) .status-icon {
     display: flex;
@@ -153,7 +170,7 @@ const STYLES = /* css */ `
   :host([status="error"]) .status-icon,
   :host([error]) .status-icon {
     display: flex;
-    color: ${ERROR_BOLD};
+    color: ${STATUS_ERROR};
   }
 
   :host([status="success"]) .status-icon {
@@ -166,7 +183,7 @@ const STYLES = /* css */ `
     color: ${TEXT_SECONDARY};
   }
 
-  :host([status="loading"]) .status-icon svg {
+  :host([status="loading"]) .status-icon .material-symbols-outlined {
     animation: spin 1s linear infinite;
   }
 
@@ -187,16 +204,15 @@ const STYLES = /* css */ `
     cursor: pointer;
     padding: 0;
     color: ${TEXT_SECONDARY};
-    line-height: 0;
+    line-height: 1;
   }
 
   .clear-btn:hover {
     color: ${TEXT_PRIMARY};
   }
 
-  .clear-btn svg {
-    width: 100%;
-    height: 100%;
+  .clear-btn .material-symbols-outlined {
+    font-size: var(--_clear-size);
   }
 
   :host([type="clearable"]) .clear-btn.has-value {
@@ -209,7 +225,7 @@ const STYLES = /* css */ `
     display: none;
     flex-direction: column;
     flex-shrink: 0;
-    border-left: 1px solid #DCE3E8;
+    border-left: 1px solid ${BORDER_MINIMAL};
     align-self: stretch;
   }
 
@@ -227,22 +243,21 @@ const STYLES = /* css */ `
     cursor: pointer;
     padding: 0;
     color: ${TEXT_SECONDARY};
-    line-height: 0;
+    line-height: 1;
   }
 
   .spinner-btn:hover {
-    background-color: #F3F5F7;
+    background-color: ${SURFACE_SECONDARY};
     color: ${TEXT_PRIMARY};
   }
 
   .spinner-divider {
     height: 1px;
-    background-color: #DCE3E8;
+    background-color: ${BORDER_MINIMAL};
   }
 
-  .spinner-btn svg {
-    width: 10px;
-    height: 10px;
+  .spinner-btn .material-symbols-outlined {
+    font-size: 16px;
   }
 
   /* ── Supportive text ───────────────────────────────────────────────────── */
@@ -264,7 +279,7 @@ const STYLES = /* css */ `
 
   :host([status="error"]) .supportive-text,
   :host([error]) .supportive-text {
-    color: ${ERROR_BOLD};
+    color: ${STATUS_ERROR};
   }
 
   :host([status="success"]) .supportive-text {
@@ -363,13 +378,35 @@ const STYLES = /* css */ `
 
   :host([status="error"]) .input-container,
   :host([error]) .input-container {
-    border-color: ${ERROR_BOLD};
+    border-color: ${STATUS_ERROR};
   }
 
   :host([status="error"]:focus-within) .input-container,
   :host([error]:focus-within) .input-container {
-    border-color: ${ERROR_BOLD};
-    box-shadow: 0 0 0 1px ${ERROR_BOLD};
+    border-color: ${STATUS_ERROR};
+    box-shadow: 0 0 0 1px ${STATUS_ERROR};
+  }
+
+  /* ── Warning state ─────────────────────────────────────────────────────── */
+
+  :host([status="warning"]) .input-container {
+    border-color: ${STATUS_WARNING};
+  }
+
+  :host([status="warning"]:focus-within) .input-container {
+    border-color: ${STATUS_WARNING};
+    box-shadow: 0 0 0 1px ${STATUS_WARNING};
+  }
+
+  /* ── Success state ─────────────────────────────────────────────────────── */
+
+  :host([status="success"]) .input-container {
+    border-color: ${STATUS_SUCCESS};
+  }
+
+  :host([status="success"]:focus-within) .input-container {
+    border-color: ${STATUS_SUCCESS};
+    box-shadow: 0 0 0 1px ${STATUS_SUCCESS};
   }
 
   /* ── Disabled ──────────────────────────────────────────────────────────── */
@@ -380,6 +417,7 @@ const STYLES = /* css */ `
 
   :host([disabled]) .input-container {
     border-color: ${DISABLED_BORDER};
+    background-color: ${SURFACE_SECONDARY};
   }
 
   :host([disabled]) .native-input {
@@ -399,15 +437,38 @@ const STYLES = /* css */ `
     color: ${DISABLED_TEXT};
   }
 
+  :host([disabled]) .leading-slot,
+  :host([disabled]) .trailing-slot {
+    color: ${DISABLED_TEXT};
+  }
+
+  :host([disabled]) .status-icon {
+    color: ${DISABLED_TEXT} !important;
+  }
+
+  :host([disabled]) .numeric-controls {
+    border-left-color: ${DISABLED_BORDER};
+  }
+
+  :host([disabled]) .spinner-btn {
+    color: ${DISABLED_TEXT};
+  }
+
   /* ── Readonly ──────────────────────────────────────────────────────────── */
 
   :host([readonly]) .input-container {
-    border-color: #DCE3E8;
-    background-color: #F8F9FA;
+    border-color: ${BORDER_MINIMAL};
+    background-color: ${SURFACE_SECONDARY};
   }
 
   :host([readonly]) .native-input {
     cursor: default;
+    color: ${TEXT_SECONDARY};
+  }
+
+  :host([readonly]) .label-text,
+  :host([readonly]) .secondary-label-text {
+    color: ${TEXT_SECONDARY};
   }
 
   /* ── Reduced motion ────────────────────────────────────────────────────── */
@@ -416,7 +477,7 @@ const STYLES = /* css */ `
     .input-container {
       transition-duration: 0.01ms !important;
     }
-    :host([status="loading"]) .status-icon svg {
+    :host([status="loading"]) .status-icon .material-symbols-outlined {
       animation-duration: 0.01ms !important;
     }
   }
@@ -425,10 +486,10 @@ const STYLES = /* css */ `
 // ─── Status icon map ─────────────────────────────────────────────────────────
 
 const STATUS_ICON_MAP: Record<string, string> = {
-  warning: ICON_WARNING,
-  error: ICON_ERROR,
-  success: ICON_SUCCESS,
-  loading: ICON_LOADING,
+  warning: "warning",
+  error: "error",
+  success: "check_circle",
+  loading: "progress_activity",
 };
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -451,6 +512,7 @@ export class UiInput extends HTMLElement {
 
   private _inputEl: HTMLInputElement;
   private _statusIconEl: HTMLSpanElement;
+  private _statusIconInner: HTMLSpanElement;
   private _clearBtnEl: HTMLButtonElement;
   private _labelTextEl: HTMLSpanElement;
   private _secondaryLabelEl: HTMLSpanElement;
@@ -501,6 +563,9 @@ export class UiInput extends HTMLElement {
     this._statusIconEl = document.createElement("span");
     this._statusIconEl.className = "status-icon";
     this._statusIconEl.setAttribute("aria-hidden", "true");
+    this._statusIconInner = document.createElement("span");
+    this._statusIconInner.className = "material-symbols-outlined";
+    this._statusIconEl.appendChild(this._statusIconInner);
     container.appendChild(this._statusIconEl);
 
     // Trailing slot
@@ -516,7 +581,10 @@ export class UiInput extends HTMLElement {
     this._clearBtnEl.className = "clear-btn";
     this._clearBtnEl.type = "button";
     this._clearBtnEl.setAttribute("aria-label", "Clear input");
-    this._clearBtnEl.innerHTML = ICON_CLOSE;
+    const clearIcon = document.createElement("span");
+    clearIcon.className = "material-symbols-outlined";
+    clearIcon.textContent = "close";
+    this._clearBtnEl.appendChild(clearIcon);
     container.appendChild(this._clearBtnEl);
 
     // Numeric controls
@@ -527,7 +595,10 @@ export class UiInput extends HTMLElement {
     upBtn.className = "spinner-btn spinner-up";
     upBtn.type = "button";
     upBtn.setAttribute("aria-label", "Increment");
-    upBtn.innerHTML = ICON_CHEVRON_UP;
+    const upIcon = document.createElement("span");
+    upIcon.className = "material-symbols-outlined";
+    upIcon.textContent = "arrow_drop_up";
+    upBtn.appendChild(upIcon);
     numericControls.appendChild(upBtn);
 
     const spinnerDivider = document.createElement("div");
@@ -538,7 +609,10 @@ export class UiInput extends HTMLElement {
     downBtn.className = "spinner-btn spinner-down";
     downBtn.type = "button";
     downBtn.setAttribute("aria-label", "Decrement");
-    downBtn.innerHTML = ICON_CHEVRON;
+    const downIcon = document.createElement("span");
+    downIcon.className = "material-symbols-outlined";
+    downIcon.textContent = "arrow_drop_down";
+    downBtn.appendChild(downIcon);
     numericControls.appendChild(downBtn);
 
     container.appendChild(numericControls);
@@ -789,11 +863,11 @@ export class UiInput extends HTMLElement {
 
   private _syncStatusIcon(): void {
     const effectiveStatus = this.error ? "error" : this.status;
-    const iconHtml = STATUS_ICON_MAP[effectiveStatus];
-    if (iconHtml) {
-      this._statusIconEl.innerHTML = iconHtml;
+    const iconName = STATUS_ICON_MAP[effectiveStatus];
+    if (iconName) {
+      this._statusIconInner.textContent = iconName;
     } else {
-      this._statusIconEl.innerHTML = "";
+      this._statusIconInner.textContent = "";
     }
   }
 

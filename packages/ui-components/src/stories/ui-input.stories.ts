@@ -113,10 +113,10 @@ export const LeadingElement: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
       <ui-input label="Search" placeholder="Search...">
-        <span slot="leading" style="font-size: 14px;">🔍</span>
+        <span slot="leading" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">search</span>
       </ui-input>
       <ui-input label="Amount" placeholder="0.00">
-        <span slot="leading" style="font-size: 14px; color: #3E5463;">$</span>
+        <span slot="leading" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">attach_money</span>
       </ui-input>
     </div>
   `,
@@ -249,7 +249,7 @@ export const FullFeatured: Story = {
         status="success"
         supportive="Email verified successfully"
       >
-        <span slot="leading" style="font-size: 14px;">✉️</span>
+        <span slot="leading" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">mail</span>
       </ui-input>
 
       <ui-input

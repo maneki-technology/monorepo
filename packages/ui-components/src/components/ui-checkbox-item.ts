@@ -13,6 +13,7 @@ const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
 const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
 const BORDER_FOCUS = semanticVar("border", "focus");
 const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
+const STATUS_ERROR = semanticVar("statusGeneral", "error");
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const DISABLED_BORDER = semanticVar("stateDisabled", "border");
 const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
@@ -274,7 +275,7 @@ const STYLES = /* css */ `
   /* ── Error ───────────────────────────────────────────────────────────────── */
 
   :host([error]) .checkbox {
-    border-color: var(--ui-cb-error-border, ${ERROR_BOLD});
+    border-color: var(--ui-cb-error-border, ${STATUS_ERROR});
   }
 
   :host([error][checked]) .checkbox,

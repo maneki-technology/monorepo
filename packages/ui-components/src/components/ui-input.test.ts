@@ -363,38 +363,38 @@ describe("ui-input", () => {
   it("shows status icon for warning", () => {
     (el as unknown as { status: string }).status = "warning";
     const icon = el.shadowRoot!.querySelector(".status-icon");
-    expect(icon!.innerHTML).toContain("svg");
+    expect(icon!.textContent).toContain("warning");
   });
 
   it("shows status icon for error", () => {
     (el as unknown as { status: string }).status = "error";
     const icon = el.shadowRoot!.querySelector(".status-icon");
-    expect(icon!.innerHTML).toContain("svg");
+    expect(icon!.textContent).toContain("error");
   });
 
   it("shows status icon for success", () => {
     (el as unknown as { status: string }).status = "success";
     const icon = el.shadowRoot!.querySelector(".status-icon");
-    expect(icon!.innerHTML).toContain("svg");
+    expect(icon!.textContent).toContain("check_circle");
   });
 
   it("shows status icon for loading", () => {
     (el as unknown as { status: string }).status = "loading";
     const icon = el.shadowRoot!.querySelector(".status-icon");
-    expect(icon!.innerHTML).toContain("svg");
+    expect(icon!.textContent).toContain("progress_activity");
   });
 
   it("clears status icon when status is none", () => {
     (el as unknown as { status: string }).status = "error";
     (el as unknown as { status: string }).status = "none";
     const icon = el.shadowRoot!.querySelector(".status-icon");
-    expect(icon!.innerHTML).toBe("");
+    expect(icon!.textContent?.trim()).toBe("");
   });
 
   it("shows error icon when error boolean is set", () => {
     (el as unknown as { error: boolean }).error = true;
     const icon = el.shadowRoot!.querySelector(".status-icon");
-    expect(icon!.innerHTML).toContain("svg");
+    expect(icon!.textContent).toContain("error");
   });
 
   // ── Input event ──────────────────────────────────────────────────────────
