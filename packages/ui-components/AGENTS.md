@@ -10,6 +10,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-avatar>` — avatar component: 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 5 statuses, 14 colors
 - `<ui-alert>` — dismissable alert/toast: 3 sizes, 2 emphases, 5 statuses, footer slot
 - `<ui-label>` — form field label: 3 sizes (s/m/l), 2 emphases (bold/subtle), disabled state, required indicator
+- `<ui-link>` — anchor/span link: 3 sizes (s/m/l), 7 states (enabled/hover/focus/active/visited/disabled/current), standalone/inline modes, external icon, keyboard accessible span mode
 
 **Form Controls:**
 - `<ui-checkbox-item>` — checkbox component: 3 sizes (s/m/l), 3 check states (unchecked/checked/indeterminate), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error)
@@ -19,7 +20,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-input>` — text input: 3 sizes (s/m/l), 4 types (text/numeric/clearable/password), 7 states (enabled/hover/focus/active/filled/disabled/readonly), 5 statuses (none/warning/error/success/loading), label, secondary label, supportive text, leading/trailing slots
 - `<ui-input-group>` — input group wrapper: 3 sizes (s/m/l), prefix/suffix slots with separators, composes `<ui-input>`
 - `<ui-file-upload>` — file upload input: 3 sizes (s/m/l), Browse button, accept/multiple attributes, disabled state
-
+- `<ui-select>` — select dropdown: 3 sizes (s/m/l), 7 states, 5 statuses, single/multi-select with tag pills, WAI-ARIA combobox pattern, leading slot, clearable, label/supportive text
 **Containers:**
 - `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
 - `<ui-button-group>` — segmented bar that wraps `<ui-button>` elements
@@ -63,26 +64,30 @@ ui-components/
 │   │   ├── ui-avatar.ts
 │   │   ├── ui-alert.ts
 │   │   ├── ui-label.ts
+│   │   ├── ui-link.ts
 │   │   ├── ui-checkbox-item.ts
 │   │   ├── ui-checkbox-group.ts
 │   │   ├── ui-radio-item.ts
 │   │   ├── ui-radio-group.ts
-│   │   ├── ui-input.ts
+│   │   ├── ui-input.ts          + ui-input.styles.ts
+│   │   ├── ui-input-group.ts
+│   │   ├── ui-file-upload.ts
+│   │   ├── ui-select.ts         + ui-select.styles.ts
 │   │   ├── ui-card.ts
 │   │   ├── ui-breadcrumb-item.ts
 │   │   ├── ui-breadcrumb-group.ts
-│   │   ├── ui-side-panel-menu.ts
+│   │   ├── ui-side-panel-menu.ts + ui-side-panel-menu.styles.ts
 │   │   ├── ui-side-panel-menu-item.ts
 │   │   ├── ui-accordion-item.ts
 │   │   ├── ui-accordion-group.ts
 │   │   ├── ui-dropdown.ts
-│   │   ├── ui-dropdown-item.ts
+│   │   ├── ui-dropdown-item.ts   + ui-dropdown-item.styles.ts
 │   │   ├── ui-dropdown-heading.ts
 │   │   ├── ui-dropdown-separator.ts
-│   │   ├── ui-dropdown-split.ts
+│   │   ├── ui-dropdown-split.ts  + ui-dropdown-split.styles.ts
 │   │   ├── ui-menu.ts
 │   │   ├── ui-modal.ts
-│   │   └── *.test.ts        # Co-located tests
+│   │   └── *.test.ts            # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
 └── storybook-static/        # Built Storybook output
@@ -106,6 +111,7 @@ Follow `ui-button.ts` or `ui-alert.ts` as reference implementations:
 5. CSS in `STYLES` template literal with token constants at module level
 6. CSS uses nested var pattern: `var(--ui-btn-bg, ${BLUE_60})` / `var(--ui-badge-bg, ${GRAY_60})` — consumer override → foundation token
 7. `customElements.define("ui-*", Class)` at module level
+8. For large components (700+ lines): extract `STYLES` + token constants into `ui-foo.styles.ts`, keep component logic in `ui-foo.ts`
 
 ## FOUNDATION TOKEN WIRING
 Components import token helpers from `@maneki/foundation`:
@@ -120,14 +126,21 @@ const SP_2 = spaceVar(2);
 
 Token constants are defined at module level and interpolated into the CSS template literal. Invalid token references are compile errors.
 
-## SHARED ICONS
-SVG icons are centralized in `src/assets/icons.ts`:
+## ICONS
+Use **Material Symbols font** (class `material-symbols-outlined`), NOT inline SVG icons from `icons.ts`.
 
-```ts
-import { ICON_CLOSE, ICON_CHEVRON } from '../assets/icons.js';
+Shadow DOM requires a local `@font-face` declaration to access the globally-loaded font:
+```css
+@font-face { font-family: "Material Symbols Outlined"; font-style: normal; src: local("Material Symbols Outlined"); }
+.material-symbols-outlined { font-family: "Material Symbols Outlined"; font-variation-settings: "FILL" 0; }
 ```
 
-All icons use `currentColor` for stroke/fill so they inherit the parent's `color`. Available: `ICON_CLOSE`, `ICON_CHEVRON`, `ICON_CHEVRON_RIGHT`, `ICON_ERROR`, `ICON_SUCCESS`, `ICON_WARNING`, `ICON_LOADING`, `ICON_USER`.
+Icon mapping: `warning`, `error`, `check_circle`, `progress_activity`, `close`, `expand_more`, `cancel`.
+Status icons use filled variant: `font-variation-settings: 'FILL' 1`.
+Chevron icon: `expand_more` (not `arrow_drop_down`). Clear button: `cancel` with filled variant.
+Chevron and clear button use `semanticVar("icon", "secondary")` token.
+
+Legacy SVG icons in `src/assets/icons.ts` exist for older components but should NOT be used in new components.
 
 ## TYPE SAFETY
 Exported union types cover every attribute:
@@ -146,6 +159,19 @@ Property accessors use these types. Invalid values are compile errors.
 - Render with lit `html` tagged template
 - One story file per component in `src/stories/`
 
+## PANEL TRANSITIONS
+Dropdown, menu, and select panels use smooth open/close animation:
+- Default: `opacity: 0; visibility: hidden; transform: translateY(-4px); pointer-events: none;`
+- Open: `opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto;`
+- Transition: `opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease`
+- Include `@media (prefers-reduced-motion: reduce)` fallback (instant transition)
+
+## STYLES EXTRACTION
+For components with 700+ lines, split into two files:
+- `ui-foo.ts` — component class, DOM construction, event handling
+- `ui-foo.styles.ts` — `STYLES` constant, token constants, shared maps (e.g., `STATUS_ICON_MAP`)
+
+Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, ui-side-panel-menu.
 ## CONVENTIONS
 - **Component prefix:** `ui-*` for element names
 - **Shadow DOM:** Always. No light DOM components.
@@ -163,7 +189,7 @@ Property accessors use these types. Invalid values are compile errors.
 - **No `as any`, `@ts-ignore`, `@ts-expect-error`** — never suppress types
 - **No light DOM components** — always Shadow DOM with `attachShadow({ mode: "open" })`
 - **No CSS var name mismatches** — component override vars must match exactly between parent and child (e.g., `--ui-btn-radius`, not `--ui-button-radius`)
-- **No inline SVG duplication** — add new icons to `src/assets/icons.ts` and import
+- **No inline SVG icons in new components** — use Material Symbols font instead (see ICONS section)
 - **Read Figma semantic tokens carefully.** Figma uses domain-specific token names (e.g., `Form/input-border`, `State/Selected/Surface/selected-bold`) that map to foundation tokens. Always check the Figma design context for the exact token names and map them to the closest foundation equivalent:
   - `Form/input-border` → `semanticVar("form", "inputBorder")` (`#9FB1BD`) — form control border
   - `Form/input-background` → `#ffffff` (white, no token needed)
@@ -179,7 +205,7 @@ Property accessors use these types. Invalid values are compile errors.
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (834 tests)
+moon run ui-components:test            # vitest --run (1157 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```
