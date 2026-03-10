@@ -165,11 +165,14 @@ const STYLES = /* css */ `
 
   /* ── Leading slot ──────────────────────────────────────────────────────── */
   .leading-slot {
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
     color: ${TEXT_SECONDARY};
+  }
+  .leading-slot.has-content {
+    display: flex;
   }
   .leading-slot ::slotted(*) {
     display: flex;
@@ -533,6 +536,10 @@ export class UiSelect extends HTMLElement {
     const leadingSlotEl = document.createElement("slot");
     leadingSlotEl.name = "leading";
     leadingSlot.appendChild(leadingSlotEl);
+    leadingSlotEl.addEventListener("slotchange", () => {
+      const hasContent = leadingSlotEl.assignedElements().length > 0;
+      leadingSlot.classList.toggle("has-content", hasContent);
+    });
     trigger.appendChild(leadingSlot);
 
     // Display value
