@@ -47,6 +47,8 @@ export { UiInputGroup } from "./components/ui-input-group.js";
 export type { InputGroupSize } from "./components/ui-input-group.js";
 export { UiFileUpload } from "./components/ui-file-upload.js";
 export type { FileUploadSize } from "./components/ui-file-upload.js";
+export { UiSelect } from "./components/ui-select.js";
+export type { SelectSize, SelectStatus } from "./components/ui-select.js";
 
 // ─── Containers ─────────────────────────────────────────────────────────────
 
