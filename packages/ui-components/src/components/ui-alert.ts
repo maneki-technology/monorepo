@@ -487,6 +487,10 @@ export class UiAlert extends HTMLElement {
     }
     this._syncDescription();
     this._syncFooter();
+    document.addEventListener("keydown", this._handleKeydown);
+  }
+  disconnectedCallback(): void {
+    document.removeEventListener("keydown", this._handleKeydown);
   }
 
   attributeChangedCallback(
@@ -585,6 +589,11 @@ export class UiAlert extends HTMLElement {
       this.removeAttribute("has-footer");
     }
   }
+  private _handleKeydown = (e: KeyboardEvent): void => {
+    if (e.key === "Escape" && this.dismissable && !this.hasAttribute("dismissed")) {
+      this._dismiss();
+    }
+  };
 }
 
 customElements.define("ui-alert", UiAlert);
