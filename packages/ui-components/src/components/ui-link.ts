@@ -39,7 +39,6 @@ const STYLES = /* css */ `
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    font-feature-settings: "liga";
   }
 
   *,

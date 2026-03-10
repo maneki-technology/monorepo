@@ -1,11 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
+import { ICON_CODEPOINTS } from "@maneki/foundation";
 import "../components/ui-side-panel-menu.js";
 import "../components/ui-side-panel-menu-item.js";
 
 // Material Symbols icon helper (font loaded in .storybook/preview.ts)
 const icon = (name: string) =>
-  html`<span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${name}</span>`;
+  html`<span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_CODEPOINTS[name] ?? name}</span>`;
 
 const meta: Meta = {
   title: "Components/Side Panel Menu",
