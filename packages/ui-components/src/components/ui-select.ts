@@ -70,9 +70,8 @@ const STYLES = /* css */ `
   :host {
     display: inline-flex;
     flex-direction: column;
-    gap: ${SP_05};
+    gap: 0;
     font-family: "Inter", sans-serif;
-    position: relative;
   }
 
   /* ── Label row ─────────────────────────────────────────────────────────── */
@@ -83,9 +82,15 @@ const STYLES = /* css */ `
   }
   :host([label]) .label-row {
     display: flex;
+    margin-bottom: ${SP_05};
   }
   .label-row ui-label {
     display: inline;
+  }
+
+  /* ── Trigger wrapper (positioning context for panel) ─────────────────── */
+  .trigger-wrapper {
+    position: relative;
   }
 
   /* ── Trigger ───────────────────────────────────────────────────────────── */
@@ -262,7 +267,6 @@ const STYLES = /* css */ `
 
   /* ── Panel ─────────────────────────────────────────────────────────────── */
   .panel {
-    display: none;
     position: absolute;
     top: 100%;
     left: 0;
@@ -274,9 +278,17 @@ const STYLES = /* css */ `
     border-radius: 2px;
     overflow: visible;
     margin-top: 2px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+    pointer-events: none;
   }
   :host([open]) .panel {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
   }
 
   /* ── Supportive text ───────────────────────────────────────────────────── */
@@ -288,6 +300,7 @@ const STYLES = /* css */ `
   }
   :host([supportive]) .supportive-text {
     display: block;
+    margin-top: ${SP_05};
   }
   :host([status="warning"]) .supportive-text {
     color: ${STATUS_WARNING};
@@ -459,6 +472,9 @@ const STYLES = /* css */ `
     .chevron {
       transition-duration: 0.01ms !important;
     }
+    .panel {
+      transition-duration: 0.01ms !important;
+    }
     :host([status="loading"]) .status-icon .material-symbols-outlined {
       animation-duration: 0.01ms !important;
     }
@@ -585,7 +601,11 @@ export class UiSelect extends HTMLElement {
     contentRight.appendChild(this._chevron);
 
     trigger.appendChild(contentRight);
-    shadow.appendChild(trigger);
+
+    // Trigger wrapper (positioning context for panel)
+    const triggerWrapper = document.createElement("div");
+    triggerWrapper.className = "trigger-wrapper";
+    triggerWrapper.appendChild(trigger);
     this._trigger = trigger;
 
     // ── Panel ──────────────────────────────────────────────────────────
@@ -596,7 +616,8 @@ export class UiSelect extends HTMLElement {
 
     this._slot = document.createElement("slot");
     panel.appendChild(this._slot);
-    shadow.appendChild(panel);
+    triggerWrapper.appendChild(panel);
+    shadow.appendChild(triggerWrapper);
     this._panel = panel;
 
     // ── Supportive text ────────────────────────────────────────────────
