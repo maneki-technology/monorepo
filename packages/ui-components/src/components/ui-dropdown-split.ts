@@ -474,7 +474,6 @@ const STYLES = /* css */ `
   }
   /* ── Menu panel ─────────────────────────────────────────────────────── */
   .menu {
-    display: none;
     position: absolute;
     top: 100%;
     left: 0;
@@ -485,17 +484,27 @@ const STYLES = /* css */ `
     box-shadow: var(--ui-dds-menu-shadow, ${ELEVATION_05});
     border-radius: 2px;
     overflow: visible;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+    pointer-events: none;
   }
   :host([open]) .menu {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
   }
-  /* ── Reduced motion ──────────────────────────────────────────────────── */
   @media (prefers-reduced-motion: reduce) {
     .left,
     .right {
       transition-duration: 0.01ms !important;
     }
     .chevron {
+      transition-duration: 0.01ms !important;
+    }
+    .menu {
       transition-duration: 0.01ms !important;
     }
   }
