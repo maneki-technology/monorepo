@@ -17,7 +17,7 @@ maneki-monorepo/
 ├── packages/
 │   ├── grid-layout/         # <grid-layout> Web Component library (@maneki/grid-layout)
 │   ├── ui-components/       # UI components + Storybook (@maneki/ui-components)
-│   │                        # Primitives: badge, image, button, avatar, alert
+│   │                        # Primitives: badge, image, button, avatar, alert, label
 │   │                        # Form Controls: checkbox-item/group, radio-item/group, input, input-group, file-upload
 │   │                        # Containers: card, button-group
 │   │                        # Navigation: breadcrumb-item/group, side-panel-menu/item

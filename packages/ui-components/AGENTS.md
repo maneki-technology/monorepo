@@ -9,6 +9,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-button>` — full Figma spec: 5 actions, 3 emphases, 4 sizes, 2 shapes, 4 icon modes, 3 statuses
 - `<ui-avatar>` — avatar component: 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 5 statuses, 14 colors
 - `<ui-alert>` — dismissable alert/toast: 3 sizes, 2 emphases, 5 statuses, footer slot
+- `<ui-label>` — form field label: 3 sizes (s/m/l), 2 emphases (bold/subtle), disabled state, required indicator
 
 **Form Controls:**
 - `<ui-checkbox-item>` — checkbox component: 3 sizes (s/m/l), 3 check states (unchecked/checked/indeterminate), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error)
@@ -61,6 +62,7 @@ ui-components/
 │   │   ├── ui-button-group.ts
 │   │   ├── ui-avatar.ts
 │   │   ├── ui-alert.ts
+│   │   ├── ui-label.ts
 │   │   ├── ui-checkbox-item.ts
 │   │   ├── ui-checkbox-group.ts
 │   │   ├── ui-radio-item.ts

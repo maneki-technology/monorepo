@@ -200,7 +200,7 @@ describe("ui-input", () => {
   it("sets label attribute and shows label text", () => {
     (el as unknown as { label: string }).label = "Email";
     expect(el.getAttribute("label")).toBe("Email");
-    const labelEl = el.shadowRoot!.querySelector(".label-text");
+    const labelEl = el.shadowRoot!.querySelector("ui-label[emphasis='bold']");
     expect(labelEl!.textContent).toBe("Email");
   });
 
@@ -215,7 +215,7 @@ describe("ui-input", () => {
   it("sets secondary-label attribute", () => {
     (el as unknown as { secondaryLabel: string }).secondaryLabel = "Optional";
     expect(el.getAttribute("secondary-label")).toBe("Optional");
-    const secEl = el.shadowRoot!.querySelector(".secondary-label-text");
+    const secEl = el.shadowRoot!.querySelector("ui-label[emphasis='subtle']");
     expect(secEl!.textContent).toBe("Optional");
   });
 
