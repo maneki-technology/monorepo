@@ -22,6 +22,7 @@ const STATUS_SUCCESS = semanticVar("statusGeneral", "success");
 const BORDER_MINIMAL = semanticVar("border", "minimal");
 const SURFACE_SECONDARY = semanticVar("surface", "secondary");
 const SURFACE_PRIMARY = semanticVar("surface", "primary");
+const ICON_SECONDARY = semanticVar("icon", "secondary");
 const ELEVATION_05 = elevationVar("05");
 const SP_05 = spaceVar("0.5");
 const SP_1 = spaceVar("1");
@@ -249,7 +250,7 @@ const STYLES = /* css */ `
     flex-shrink: 0;
     transition: transform 0.15s ease;
     line-height: 0;
-    color: ${TEXT_SECONDARY};
+    color: ${ICON_SECONDARY};
   }
   .chevron .material-symbols-outlined {
     font-size: var(--_chevron-size);
