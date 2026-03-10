@@ -20,7 +20,7 @@ const STYLES = /* css */ `
   }
 
   :host {
-    display: none;
+    display: block;
     position: absolute;
     z-index: 1000;
     min-width: var(--ui-menu-min-width, 240px);
@@ -28,10 +28,24 @@ const STYLES = /* css */ `
     background-color: var(--ui-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-menu-shadow, ${ELEVATION_05});
     border-radius: var(--ui-menu-radius, 2px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
+    pointer-events: none;
   }
 
   :host([open]) {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :host {
+      transition-duration: 0.01ms !important;
+    }
   }
 `;
 
