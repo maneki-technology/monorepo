@@ -338,7 +338,7 @@ const STYLES = /* css */ `
   .trigger {
     height: var(--_select-height);
     padding-left: var(--_select-padding-left);
-    padding-right: var(--_select-padding-right);
+
     gap: var(--_select-gap);
     font-size: var(--_select-font-size);
     line-height: var(--_select-line-height);
@@ -348,6 +348,9 @@ const STYLES = /* css */ `
     height: var(--_leading-size);
   }
   .content-right {
+    height: var(--_select-line-height);
+    padding-right: var(--_select-padding-right);
+  }
     height: var(--_select-line-height);
   }
 
@@ -568,7 +571,7 @@ export class UiSelect extends HTMLElement {
     this._chevron.setAttribute("aria-hidden", "true");
     const chevronIcon = document.createElement("span");
     chevronIcon.className = "material-symbols-outlined";
-    chevronIcon.textContent = "arrow_drop_down";
+    chevronIcon.textContent = "expand_more";
     this._chevron.appendChild(chevronIcon);
     contentRight.appendChild(this._chevron);
 

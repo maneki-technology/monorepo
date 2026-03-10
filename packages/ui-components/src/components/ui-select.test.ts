@@ -434,7 +434,7 @@ describe("ui-select", () => {
   it("renders chevron icon", () => {
     el = createSelect();
     const chevron = el.shadowRoot!.querySelector(".chevron .material-symbols-outlined");
-    expect(chevron?.textContent).toBe("arrow_drop_down");
+    expect(chevron?.textContent).toBe("expand_more");
   });
 
   // ── Display value ────────────────────────────────────────────────────────
