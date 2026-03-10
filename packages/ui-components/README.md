@@ -54,6 +54,7 @@ npm install @maneki/ui-components
 | `<ui-side-panel-menu-item>` | Sidebar menu item: 3 levels, expandable parent, leading icon, selected/disabled |
 | `<ui-modal>` | Dialog with backdrop, header, scrollable body, footer: 3 sizes, 2 layouts |
 | `<ui-badge>` | Label/tag: 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses |
+| `<ui-image>` | Image container: 5 aspect ratios, 4 object-fit modes, placeholder, fallback slot |
 
 ```html
 <ui-button action="primary" emphasis="bold" size="m">Save</ui-button>

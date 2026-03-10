@@ -26,6 +26,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-menu>` — standalone floating menu panel: 3 sizes (s/m/l), open/close animation, outside-click + Escape dismiss, opt-in `selectable` for single/multi-select, size propagation to children, composes `<ui-dropdown-item>` / `<ui-dropdown-heading>` / `<ui-dropdown-separator>`
 - `<ui-side-panel-menu>` — collapsible sidebar navigation: expanded/collapsed states, mobile responsive (auto-collapse), flyout submenu in collapsed mode, overlay mode, selection management with parent highlighting
 - `<ui-side-panel-menu-item>` — sidebar menu item: 3 levels (primary/secondary/tertiary), expandable parent with inline children, leading icon slot, selected/disabled states, keyboard navigation
+- `<ui-image>` — image container: 5 aspect ratios (16:9/3:2/1:1/3:1/21:9), 4 object-fit modes (cover/contain/fill/none), placeholder background, fallback slot
 
 ## STRUCTURE
 ```
@@ -45,6 +46,7 @@ ui-components/
 │   │   ├── ui-alert.ts
 │   │   ├── ui-avatar.ts
 │   │   ├── ui-card.ts
+│   │   ├── ui-image.ts
 │   │   ├── ui-breadcrumb-item.ts
 │   │   ├── ui-breadcrumb-group.ts
 │   │   ├── ui-checkbox-item.ts
