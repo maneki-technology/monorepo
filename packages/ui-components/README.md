@@ -38,6 +38,7 @@ npm install @maneki/ui-components
 | `<ui-avatar>` | 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 14 colors |
 | `<ui-alert>` | Dismissable alert: 3 sizes, 2 emphases, 5 statuses, footer slot |
 | `<ui-label>` | Form field label: 3 sizes, 2 emphases, disabled, required indicator |
+| `<ui-link>` | Anchor/span link: 3 sizes, 7 states, standalone/inline, external icon |
 | | **Form Controls** |
 | `<ui-checkbox-item>` | 3 sizes, 3 check states, 3 label positions, 5 states |
 | `<ui-checkbox-group>` | Group wrapper: 2 orientations, size propagation |
@@ -46,6 +47,7 @@ npm install @maneki/ui-components
 | `<ui-input>` | Text input: 3 sizes, 4 types (text/numeric/clearable/password), 7 states, 5 statuses, label/supportive |
 | `<ui-input-group>` | Input group wrapper: 3 sizes, prefix/suffix slots with separators |
 | `<ui-file-upload>` | File upload: 3 sizes, Browse button, accept/multiple, disabled |
+| `<ui-select>` | Select dropdown: 3 sizes, 7 states, 5 statuses, single/multi-select, tag pills, combobox ARIA |
 | | **Containers** |
 | `<ui-card>` | Slot-based container: 3 sizes, 4 elevations, bordered variant |
 | `<ui-button-group>` | Segmented bar wrapping `<ui-button>` elements |
@@ -86,7 +88,7 @@ moon run ui-components:storybook        # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build → storybook-static/
 ```
 
-23 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
+30 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
 
 ---
 
@@ -94,7 +96,7 @@ moon run ui-components:storybook-build  # Static build → storybook-static/
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (834 tests)
+moon run ui-components:test   # vitest --run (1157 tests)
 ```
 
 ---
