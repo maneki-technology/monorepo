@@ -1,4 +1,5 @@
 import { semanticVar, spaceVar } from "@maneki/foundation";
+import "./ui-label.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -78,14 +79,8 @@ const STYLES = /* css */ `
     display: flex;
   }
 
-  .label-text {
-    font-weight: 500;
-    color: var(--ui-input-label-color, ${TEXT_SECONDARY});
-  }
-
-  .secondary-label-text {
-    font-weight: 400;
-    color: var(--ui-input-label-color, ${TEXT_SECONDARY});
+  .label-row ui-label {
+    display: inline;
   }
 
   /* ── Input container ───────────────────────────────────────────────────── */
@@ -323,8 +318,6 @@ const STYLES = /* css */ `
     --_input-font-size: 14px;
     --_input-line-height: 20px;
     --_status-icon-size: 18px;
-    --_label-font-size: 14px;
-    --_label-line-height: 20px;
     --_clear-size: 16px;
     --_numeric-width: 24px;
   }
@@ -337,8 +330,6 @@ const STYLES = /* css */ `
     --_input-font-size: 12px;
     --_input-line-height: 16px;
     --_status-icon-size: 14px;
-    --_label-font-size: 12px;
-    --_label-line-height: 16px;
     --_clear-size: 12px;
     --_numeric-width: 20px;
   }
@@ -351,8 +342,6 @@ const STYLES = /* css */ `
     --_input-font-size: 16px;
     --_input-line-height: 24px;
     --_status-icon-size: 20px;
-    --_label-font-size: 14px;
-    --_label-line-height: 20px;
     --_clear-size: 18px;
     --_numeric-width: 28px;
   }
@@ -369,11 +358,6 @@ const STYLES = /* css */ `
     line-height: var(--_input-line-height);
   }
 
-  .label-text,
-  .secondary-label-text {
-    font-size: var(--_label-font-size);
-    line-height: var(--_label-line-height);
-  }
 
   .status-icon {
     width: var(--_status-icon-size);
@@ -456,10 +440,6 @@ const STYLES = /* css */ `
     color: ${DISABLED_TEXT};
   }
 
-  :host([disabled]) .label-text,
-  :host([disabled]) .secondary-label-text {
-    color: ${DISABLED_TEXT};
-  }
 
   :host([disabled]) .supportive-text {
     color: ${DISABLED_TEXT};
@@ -494,10 +474,6 @@ const STYLES = /* css */ `
     color: ${TEXT_SECONDARY};
   }
 
-  :host([readonly]) .label-text,
-  :host([readonly]) .secondary-label-text {
-    color: ${TEXT_SECONDARY};
-  }
 
   /* ── Reduced motion ────────────────────────────────────────────────────── */
 
@@ -545,8 +521,8 @@ export class UiInput extends HTMLElement {
   private _passwordToggleEl: HTMLButtonElement;
   private _passwordIconEl: HTMLSpanElement;
   private _passwordVisible: boolean;
-  private _labelTextEl: HTMLSpanElement;
-  private _secondaryLabelEl: HTMLSpanElement;
+  private _labelTextEl: HTMLElement;
+  private _secondaryLabelEl: HTMLElement;
   private _supportiveTextEl: HTMLSpanElement;
   private _supportiveId: string;
 
@@ -562,12 +538,12 @@ export class UiInput extends HTMLElement {
     const labelRow = document.createElement("div");
     labelRow.className = "label-row";
 
-    this._labelTextEl = document.createElement("span");
-    this._labelTextEl.className = "label-text";
+    this._labelTextEl = document.createElement("ui-label");
+    this._labelTextEl.setAttribute("emphasis", "bold");
     labelRow.appendChild(this._labelTextEl);
 
-    this._secondaryLabelEl = document.createElement("span");
-    this._secondaryLabelEl.className = "secondary-label-text";
+    this._secondaryLabelEl = document.createElement("ui-label");
+    this._secondaryLabelEl.setAttribute("emphasis", "subtle");
     labelRow.appendChild(this._secondaryLabelEl);
 
     shadow.appendChild(labelRow);
@@ -709,6 +685,7 @@ export class UiInput extends HTMLElement {
         break;
       case "disabled":
         this._syncDisabled();
+        this._syncLabels();
         this._syncAria();
         break;
       case "readonly":
@@ -717,6 +694,9 @@ export class UiInput extends HTMLElement {
         break;
       case "type":
         this._syncInputType();
+        break;
+      case "size":
+        this._syncLabels();
         break;
       case "status":
       case "error":
@@ -922,6 +902,17 @@ export class UiInput extends HTMLElement {
   private _syncLabels(): void {
     this._labelTextEl.textContent = this.label;
     this._secondaryLabelEl.textContent = this.secondaryLabel;
+    // Sync size and disabled to ui-label children
+    const size = this.getAttribute("size") || "m";
+    this._labelTextEl.setAttribute("size", size);
+    this._secondaryLabelEl.setAttribute("size", size);
+    if (this.disabled) {
+      this._labelTextEl.setAttribute("disabled", "");
+      this._secondaryLabelEl.setAttribute("disabled", "");
+    } else {
+      this._labelTextEl.removeAttribute("disabled");
+      this._secondaryLabelEl.removeAttribute("disabled");
+    }
   }
 
   private _syncSupportive(): void {

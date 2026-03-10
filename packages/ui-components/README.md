@@ -37,6 +37,7 @@ npm install @maneki/ui-components
 | `<ui-button>` | 5 actions, 3 emphases, 4 sizes, 2 shapes, 4 icon modes, 3 statuses |
 | `<ui-avatar>` | 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 14 colors |
 | `<ui-alert>` | Dismissable alert: 3 sizes, 2 emphases, 5 statuses, footer slot |
+| `<ui-label>` | Form field label: 3 sizes, 2 emphases, disabled, required indicator |
 | | **Form Controls** |
 | `<ui-checkbox-item>` | 3 sizes, 3 check states, 3 label positions, 5 states |
 | `<ui-checkbox-group>` | Group wrapper: 2 orientations, size propagation |
