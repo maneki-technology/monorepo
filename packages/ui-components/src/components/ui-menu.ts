@@ -233,9 +233,34 @@ export class UiMenu extends HTMLElement {
   };
 
   private _handleKeydown = (e: Event): void => {
-    if ((e as KeyboardEvent).key === "Escape" && this.open) {
+    const ke = e as KeyboardEvent;
+    if (ke.key === "Escape" && this.open) {
       this.open = false;
+      return;
     }
+    if (!this.open) return;
+    const items = this._getSlottedItems().filter((el) => !el.hasAttribute("disabled")) as HTMLElement[];
+    if (items.length === 0) return;
+    const active = items.findIndex((el) => el === document.activeElement || el.shadowRoot?.activeElement);
+    let next: number | null = null;
+    switch (ke.key) {
+      case "ArrowDown":
+        next = active < 0 ? 0 : (active + 1) % items.length;
+        break;
+      case "ArrowUp":
+        next = active < 0 ? items.length - 1 : (active - 1 + items.length) % items.length;
+        break;
+      case "Home":
+        next = 0;
+        break;
+      case "End":
+        next = items.length - 1;
+        break;
+      default:
+        return;
+    }
+    ke.preventDefault();
+    items[next].focus();
   };
 }
 

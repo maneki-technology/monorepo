@@ -591,6 +591,8 @@ export class UiDropdownSplit extends HTMLElement {
     right.setAttribute("aria-haspopup", "true");
     right.setAttribute("aria-expanded", "false");
     right.setAttribute("aria-label", "Toggle menu");
+    const rightId = "dds-trigger-" + Math.random().toString(36).slice(2, 8);
+    right.id = rightId;
 
     const chevron = document.createElement("span");
     chevron.className = "chevron";
@@ -604,6 +606,7 @@ export class UiDropdownSplit extends HTMLElement {
     const menu = document.createElement("div");
     menu.className = "menu";
     menu.setAttribute("role", "menu");
+    menu.setAttribute("aria-labelledby", rightId);
 
     const menuSlot = document.createElement("slot");
     menu.appendChild(menuSlot);
@@ -862,10 +865,51 @@ export class UiDropdownSplit extends HTMLElement {
   };
 
   private _handleKeydown = (e: Event): void => {
-    if ((e as KeyboardEvent).key === "Escape" && this.open) {
+    const ke = e as KeyboardEvent;
+    if (ke.key === "Escape" && this.open) {
       this.open = false;
+      this._rightBtn.focus();
+      return;
     }
+    if (!this.open) {
+      if (ke.key === "ArrowDown" && document.activeElement === this._rightBtn) {
+        ke.preventDefault();
+        this.open = true;
+        this._focusMenuItem(0);
+      }
+      return;
+    }
+    const items = this._getSlottedItems().filter((el) => !el.hasAttribute("disabled")) as HTMLElement[];
+    if (items.length === 0) return;
+    const active = items.findIndex((el) => el === document.activeElement || el.shadowRoot?.activeElement);
+    let next: number | null = null;
+    switch (ke.key) {
+      case "ArrowDown":
+        next = active < 0 ? 0 : (active + 1) % items.length;
+        break;
+      case "ArrowUp":
+        next = active < 0 ? items.length - 1 : (active - 1 + items.length) % items.length;
+        break;
+      case "Home":
+        next = 0;
+        break;
+      case "End":
+        next = items.length - 1;
+        break;
+      default:
+        return;
+    }
+    ke.preventDefault();
+    items[next].focus();
   };
+  private _focusMenuItem(index: number): void {
+    requestAnimationFrame(() => {
+      const items = this._getSlottedItems().filter((el) => !el.hasAttribute("disabled")) as HTMLElement[];
+      if (items.length > 0 && index < items.length) {
+        items[index].focus();
+      }
+    });
+  }
 }
 
 customElements.define("ui-dropdown-split", UiDropdownSplit);
