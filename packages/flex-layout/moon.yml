@@ -1,0 +1,30 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: 'typescript'
+
+tasks:
+  build:
+    script: 'tsc && vite build'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'
+      - 'vite.config.ts'
+    outputs:
+      - 'dist'
+
+  test:
+    command: 'vitest --run'
+    inputs:
+      - 'src/**/*'
+      - 'tsconfig.json'
+      - 'vite.config.ts'
+
+  test-watch:
+    command: 'vitest'
+    inputs:
+      - 'src/**/*'
+    preset: 'server'
+
+  dev:
+    command: 'vite'
+    preset: 'server'

@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar, ICON_EXPAND_MORE } from "@maneki/foundation";
+import { semanticVar, spaceVar, ICON_EXPAND_MORE, ICON_CLOSE } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -13,6 +13,8 @@ const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
 const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const ICON_PRIMARY = semanticVar("icon", "primary");
 const ICON_SECONDARY = semanticVar("icon", "secondary");
+const ICON_ACTION = semanticVar("icon", "action");
+const BORDER_MINIMAL = semanticVar("border", "minimal");
 const SP_1 = spaceVar("1");
 const SP_0_5 = spaceVar("0.5");
 const SP_1_5 = spaceVar("1.5");
@@ -109,6 +111,9 @@ const STYLES = /* css */ `
 
   :host([orientation="vertical"]) {
     flex-direction: row;
+  }
+  :host([orientation="vertical"]) .base {
+    justify-content: flex-start;
   }
 
   :host([orientation="vertical"]) .highlight {
@@ -216,6 +221,13 @@ const STYLES = /* css */ `
     --ui-tab-highlight-color: transparent;
   }
 
+  /* ── State: hover ─────────────────────────────────────────────────────── */
+
+  :host(:hover:not([selected]):not([disabled])) {
+    --ui-tab-text-color: ${TEXT_PRIMARY};
+    --ui-tab-highlight-color: ${BORDER_MINIMAL};
+  }
+
   /* ── State: selected ────────────────────────────────────────────────────── */
 
   :host([selected]) {
@@ -225,8 +237,9 @@ const STYLES = /* css */ `
   }
 
   :host([selected]) .leading-icon,
-  :host([selected]) .trailing-icon {
-    color: var(--ui-tab-icon-color, ${TEXT_LINK});
+  :host([selected]) .trailing-icon,
+  :host([selected]) .close-btn {
+    color: var(--ui-tab-icon-color, ${ICON_ACTION});
   }
 
   /* ── State: disabled ────────────────────────────────────────────────────── */
@@ -243,6 +256,62 @@ const STYLES = /* css */ `
   :host([disabled]) .trailing-icon,
   :host([disabled]) .chevron {
     color: ${DISABLED_TEXT};
+  }
+
+  /* ── Close button ──────────────────────────────────────────────────────── */
+
+  .close-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: var(--ui-tab-icon-color, ${ICON_PRIMARY});
+    border-radius: 2px;
+    transition: color 0.15s ease;
+  }
+
+  :host([closable]) .close-btn {
+    display: inline-flex;
+  }
+
+  .close-btn:hover {
+    color: var(--ui-tab-text-color, ${TEXT_PRIMARY});
+    background: rgba(0, 0, 0, 0.08);
+  }
+
+  .close-btn:focus-visible {
+    outline: 2px solid ${semanticVar("border", "focus")};
+    outline-offset: -1px;
+  }
+
+  :host([disabled]) .close-btn {
+    color: ${DISABLED_TEXT};
+    pointer-events: none;
+  }
+
+  /* Close button sizes */
+  :host .close-btn,
+  :host([size="m"]) .close-btn {
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+  }
+
+  :host([size="s"]) .close-btn {
+    width: 12px;
+    height: 12px;
+    font-size: 12px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .close-btn {
+      transition: none;
+    }
   }
 
   /* ── Reduced motion ─────────────────────────────────────────────────────── */
@@ -268,6 +337,7 @@ export class UiTabItem extends HTMLElement {
     "label",
     "sub-menu",
     "value",
+    "closable",
   ];
 
   private _labelEl!: HTMLSpanElement;
@@ -328,6 +398,22 @@ export class UiTabItem extends HTMLElement {
     labelContainer.appendChild(labelSpan);
     labelContainer.appendChild(trailingIcon);
     labelContainer.appendChild(chevron);
+
+    // Close button
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "close-btn material-symbols-outlined";
+    closeBtn.setAttribute("type", "button");
+    closeBtn.setAttribute("aria-label", "Close tab");
+    closeBtn.setAttribute("tabindex", "-1");
+    closeBtn.textContent = ICON_CLOSE;
+    closeBtn.addEventListener("click", (e: Event) => {
+      e.stopPropagation();
+      if (this.disabled) return;
+      this.dispatchEvent(
+        new CustomEvent("tab-close", { bubbles: true, composed: true, detail: { value: this.value } }),
+      );
+    });
+    labelContainer.appendChild(closeBtn);
 
     base.appendChild(labelContainer);
     base.appendChild(highlight);
@@ -431,6 +517,18 @@ export class UiTabItem extends HTMLElement {
 
   set value(v: string) {
     this.setAttribute("value", v);
+  }
+
+  get closable(): boolean {
+    return this.hasAttribute("closable");
+  }
+
+  set closable(value: boolean) {
+    if (value) {
+      this.setAttribute("closable", "");
+    } else {
+      this.removeAttribute("closable");
+    }
   }
 
   // ── Private ─────────────────────────────────────────────────────────────
