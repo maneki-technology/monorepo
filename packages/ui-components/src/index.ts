@@ -39,6 +39,8 @@ export { UiRadioItem } from "./components/ui-radio-item.js";
 export type { RadioSize, RadioLabel } from "./components/ui-radio-item.js";
 export { UiRadioGroup } from "./components/ui-radio-group.js";
 export type { RadioGroupOrientation } from "./components/ui-radio-group.js";
+export { UiInput } from "./components/ui-input.js";
+export type { InputSize, InputType, InputStatus } from "./components/ui-input.js";
 
 // ─── Containers ─────────────────────────────────────────────────────────────
 
