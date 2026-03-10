@@ -1,4 +1,5 @@
 import { STYLES, STATUS_ICON_MAP } from "./ui-select.styles.js";
+import { ICON_CANCEL, ICON_EXPAND_MORE, ICON_CLOSE } from "@maneki/foundation";
 import "./ui-label.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -103,7 +104,7 @@ export class UiSelect extends HTMLElement {
     this._clearBtn.setAttribute("tabindex", "-1");
     const clearIcon = document.createElement("span");
     clearIcon.className = "material-symbols-outlined";
-    clearIcon.textContent = "cancel";
+    clearIcon.textContent = ICON_CANCEL;
     this._clearBtn.appendChild(clearIcon);
     contentRight.appendChild(this._clearBtn);
 
@@ -122,7 +123,7 @@ export class UiSelect extends HTMLElement {
     this._chevron.setAttribute("aria-hidden", "true");
     const chevronIcon = document.createElement("span");
     chevronIcon.className = "material-symbols-outlined";
-    chevronIcon.textContent = "expand_more";
+    chevronIcon.textContent = ICON_EXPAND_MORE;
     this._chevron.appendChild(chevronIcon);
     contentRight.appendChild(this._chevron);
 
@@ -538,7 +539,7 @@ export class UiSelect extends HTMLElement {
         dismiss.setAttribute("tabindex", "-1");
         const dismissIcon = document.createElement("span");
         dismissIcon.className = "material-symbols-outlined";
-        dismissIcon.textContent = "close";
+        dismissIcon.textContent = ICON_CLOSE;
         dismiss.appendChild(dismissIcon);
         tag.appendChild(dismiss);
 

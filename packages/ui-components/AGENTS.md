@@ -127,7 +127,15 @@ const SP_2 = spaceVar(2);
 Token constants are defined at module level and interpolated into the CSS template literal. Invalid token references are compile errors.
 
 ## ICONS
-Use **Material Symbols font** (class `material-symbols-outlined`), NOT inline SVG icons from `icons.ts`.
+Components use a **subsetted Material Symbols Outlined font** (~24 KB) shipped in `@maneki/foundation/assets/`. The font is registered globally via `registerIconFont()` in Storybook preview; components access it through `@font-face { src: local("Material Symbols Outlined") }` in Shadow DOM.
+
+Icons are referenced by **Unicode codepoint constants** (not ligature text) imported from `@maneki/foundation`:
+```ts
+import { ICON_CLOSE, ICON_EXPAND_MORE, ICON_CHECK_CIRCLE } from "@maneki/foundation";
+
+clearIcon.textContent = ICON_CLOSE;       // "\uE5CD"
+chevronIcon.textContent = ICON_EXPAND_MORE; // "\uE5CF"
+```
 
 Shadow DOM requires a local `@font-face` declaration to access the globally-loaded font:
 ```css
@@ -135,10 +143,15 @@ Shadow DOM requires a local `@font-face` declaration to access the globally-load
 .material-symbols-outlined { font-family: "Material Symbols Outlined"; font-variation-settings: "FILL" 0; }
 ```
 
-Icon mapping: `warning`, `error`, `check_circle`, `progress_activity`, `close`, `expand_more`, `cancel`.
+Available icon constants: `ICON_WARNING`, `ICON_ERROR`, `ICON_CHECK_CIRCLE`, `ICON_PROGRESS_ACTIVITY`, `ICON_CLOSE`, `ICON_CANCEL`, `ICON_EXPAND_MORE`, `ICON_VISIBILITY`, `ICON_VISIBILITY_OFF`, `ICON_ARROW_DROP_UP`, `ICON_ARROW_DROP_DOWN`, `ICON_INFO`, `ICON_NOTIFICATIONS`, `ICON_SEARCH`, `ICON_ATTACH_MONEY`, `ICON_MAIL`, `ICON_ACCOUNT_CIRCLE`, `ICON_ADD_CIRCLE`, `ICON_SHARE`, `ICON_DOWNLOAD`, `ICON_UPLOAD`, `ICON_MORE_VERT`, `ICON_HOME`, `ICON_PERSON`, `ICON_BAR_CHART`, `ICON_SETTINGS`, `ICON_GROUP`.
+For stories, use `ICON_CODEPOINTS` record for dynamic lookup: `ICON_CODEPOINTS["home"]`.
 Status icons use filled variant: `font-variation-settings: 'FILL' 1`.
-Chevron icon: `expand_more` (not `arrow_drop_down`). Clear button: `cancel` with filled variant.
+Chevron icon: `ICON_EXPAND_MORE` (not `ICON_ARROW_DROP_DOWN`). Clear button: `ICON_CANCEL` with filled variant.
 Chevron and clear button use `semanticVar("icon", "secondary")` token.
+
+To add a new icon, see the SOP in `packages/foundation/AGENTS.md`.
+
+Legacy SVG icons in `src/assets/icons.ts` exist for older components but should NOT be used in new components.
 
 Legacy SVG icons in `src/assets/icons.ts` exist for older components but should NOT be used in new components.
 
