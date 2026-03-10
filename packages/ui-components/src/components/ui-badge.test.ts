@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import "./ui-badge.js";
+import { STYLES } from "./ui-badge.js";
 
 describe("ui-badge", () => {
   let el: HTMLElement;
@@ -211,7 +212,7 @@ describe("ui-badge", () => {
 
   it("has a <style> element in shadow DOM", () => {
     const shadow = el.shadowRoot!;
-    expect(shadow.querySelector("style")).toBeTruthy();
+    expect(shadow.adoptedStyleSheets.length).toBeGreaterThan(0);
   });
 
   // ── Property accessors ────────────────────────────────────────────────
@@ -354,46 +355,40 @@ describe("ui-badge", () => {
 
   it("is an inline-flex element via :host", () => {
     const shadow = el.shadowRoot!;
-    const style = shadow.querySelector("style");
-    expect(style!.textContent).toContain("display: inline-flex");
+    const styles = shadow.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    expect(styles).toContain("display: inline-flex");
   });
 
   // ── CSS contains expected token references ────────────────────────────
 
   it("CSS contains --ui-badge-bg custom property", () => {
-    const shadow = el.shadowRoot!;
-    const style = shadow.querySelector("style");
-    expect(style!.textContent).toContain("--ui-badge-bg");
+    expect(STYLES).toContain("--ui-badge-bg");
   });
 
   it("CSS contains --ui-badge-color custom property", () => {
-    const shadow = el.shadowRoot!;
-    const style = shadow.querySelector("style");
-    expect(style!.textContent).toContain("--ui-badge-color");
+    expect(STYLES).toContain("--ui-badge-color");
   });
 
   it("CSS contains --ui-badge-border custom property", () => {
-    const shadow = el.shadowRoot!;
-    const style = shadow.querySelector("style");
-    expect(style!.textContent).toContain("--ui-badge-border");
+    expect(STYLES).toContain("--ui-badge-border");
   });
 
   it("CSS contains text-transform: uppercase", () => {
     const shadow = el.shadowRoot!;
-    const style = shadow.querySelector("style");
-    expect(style!.textContent).toContain("text-transform: uppercase");
+    const styles = shadow.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    expect(styles).toContain("text-transform: uppercase");
   });
 
   it("CSS contains font-weight: 500", () => {
     const shadow = el.shadowRoot!;
-    const style = shadow.querySelector("style");
-    expect(style!.textContent).toContain("font-weight: 500");
+    const styles = shadow.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    expect(styles).toContain("font-weight: 500");
   });
 
   it("CSS contains white-space: nowrap", () => {
     const shadow = el.shadowRoot!;
-    const style = shadow.querySelector("style");
-    expect(style!.textContent).toContain("white-space: nowrap");
+    const styles = shadow.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    expect(styles).toContain("white-space: nowrap");
   });
 
   // ── Multiple instances ────────────────────────────────────────────────

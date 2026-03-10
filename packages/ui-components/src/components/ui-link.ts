@@ -175,6 +175,9 @@ const OBSERVED = [
   "disabled",
 ] as const;
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 class UiLink extends HTMLElement {
   static observedAttributes = [...OBSERVED];
 
@@ -189,9 +192,7 @@ class UiLink extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
 
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     // Start with <span> — will swap to <a> when href is set
     this._linkEl = document.createElement("span");

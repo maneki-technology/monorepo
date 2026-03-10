@@ -13,7 +13,7 @@ const STATUS_ERROR = semanticVar("statusGeneral", "error");
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
-const STYLES = /* css */ `
+export const STYLES = /* css */ `
   *,
   *::before,
   *::after {
@@ -92,6 +92,9 @@ const STYLES = /* css */ `
 
 const OBSERVED = ["size", "emphasis", "disabled", "required"] as const;
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 class UiLabel extends HTMLElement {
   static observedAttributes = [...OBSERVED];
 
@@ -102,9 +105,7 @@ class UiLabel extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
 
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     this._textEl = document.createElement("span");
     this._textEl.className = "text";

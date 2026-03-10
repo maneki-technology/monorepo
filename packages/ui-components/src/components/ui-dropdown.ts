@@ -21,7 +21,7 @@ const SP_2 = spaceVar("2");     // 16px
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
-const STYLES = /* css */ `
+export const STYLES = /* css */ `
   *,
   *::before,
   *::after {
@@ -120,6 +120,9 @@ const DROPDOWN_SIZE_TO_ITEM_SIZE: Record<DropdownSize, "s" | "m" | "l"> = {
 
 const PROPAGATED_CHILD_TAGS = ["UI-DROPDOWN-ITEM", "UI-DROPDOWN-HEADING"];
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 export class UiDropdown extends HTMLElement {
   static readonly observedAttributes = [
     "size",
@@ -141,9 +144,7 @@ export class UiDropdown extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
 
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     // Trigger button (reuse ui-button)
     const trigger = document.createElement("ui-button");

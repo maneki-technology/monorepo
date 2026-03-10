@@ -157,6 +157,9 @@ const STYLES = /* css */ `
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 export class UiBreadcrumbItem extends HTMLElement {
   static readonly observedAttributes = ["size", "href", "disabled"];
 
@@ -169,9 +172,7 @@ export class UiBreadcrumbItem extends HTMLElement {
     const shadow = this.attachShadow({ mode: "open" });
 
     // role="listitem" only when inside a breadcrumb-group (role="list" parent)
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     // .base
     this._base = document.createElement("span");

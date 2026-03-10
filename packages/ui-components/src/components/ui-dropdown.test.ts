@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import "./ui-dropdown.js";
+import { STYLES as DROPDOWN_STYLES } from "./ui-dropdown.js";
 import "./ui-dropdown-item.js";
+import { STYLES as ITEM_STYLES } from "./ui-dropdown-item.styles.js";
 import "./ui-dropdown-heading.js";
 import "./ui-dropdown-separator.js";
 
@@ -60,7 +62,7 @@ describe("UiDropdownHeading", () => {
   });
 
   it("should have uppercase text-transform in styles", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain("text-transform: uppercase");
   });
 
@@ -184,7 +186,7 @@ describe("UiDropdownItem", () => {
   });
 
   it("should have hover background style", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain(".item:hover");
   });
   it("should default selected to false", () => {
@@ -201,8 +203,7 @@ describe("UiDropdownItem", () => {
   it("should apply selected styling when selected", () => {
     el.setAttribute("selected", "");
     expect(el.hasAttribute("selected")).toBe(true);
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
-    expect(styles).toContain("--ui-dd-item-selected-color");
+    expect(ITEM_STYLES).toContain("--ui-dd-item-selected-color");
   });
 
   it("should include selected state in select event detail", () => {
@@ -336,13 +337,10 @@ describe("UiDropdownItem", () => {
   });
 
   it("should have selected color style in CSS", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
-    expect(styles).toContain("--ui-dd-item-selected-color");
+    expect(ITEM_STYLES).toContain("--ui-dd-item-selected-color");
   });
-
   it("should have disabled color style in CSS", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
-    expect(styles).toContain("--ui-dd-item-disabled-color");
+    expect(ITEM_STYLES).toContain("--ui-dd-item-disabled-color");
   });
 
   // ── Submenu behavior ────────────────────────────────────────────────────

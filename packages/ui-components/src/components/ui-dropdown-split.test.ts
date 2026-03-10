@@ -771,7 +771,7 @@ describe("UiDropdownSplit — chevron", () => {
   });
 
   it("should have chevron rotation styles when open", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain(":host([open]) .chevron");
     expect(styles).toContain("rotate(180deg)");
   });
@@ -792,51 +792,51 @@ describe("UiDropdownSplit — styles", () => {
   });
 
   it("should include hover styles for left button", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain(".left:hover");
   });
 
   it("should include hover styles for right button", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain(".right:hover");
   });
 
   it("should include active styles", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain(".left:active");
     expect(styles).toContain(".right:active");
   });
 
   it("should include focus-visible styles", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain(".left:focus-visible");
     expect(styles).toContain(".right:focus-visible");
   });
 
   it("should include reduced motion media query", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain("prefers-reduced-motion: reduce");
   });
 
   it("should include menu panel styles", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain(".menu");
     expect(styles).toContain("min-width: 240px");
   });
 
   it("should include divider styles", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain(".divider");
     expect(styles).toContain(".divider-inner");
   });
 
   it("should include disabled styles", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain(":host([disabled])");
   });
 
   it("should include subtle/minimal hover override", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain(':host([emphasis="subtle"]) .left:hover');
     expect(styles).toContain(':host([emphasis="minimal"]) .right:hover');
   });

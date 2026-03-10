@@ -672,7 +672,7 @@ describe("ui-input", () => {
   });
 
   it("password toggle is hidden by default via CSS", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain(".password-toggle");
     expect(styles).toContain(":host([type=\"password\"]) .password-toggle");
   });

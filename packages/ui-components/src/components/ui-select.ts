@@ -8,6 +8,9 @@ export type SelectStatus = "none" | "warning" | "error" | "success" | "loading";
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 export class UiSelect extends HTMLElement {
   static readonly observedAttributes = [
     "size",
@@ -44,9 +47,7 @@ export class UiSelect extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
 
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     // ── Label row ──────────────────────────────────────────────────────
     const labelRow = document.createElement("div");

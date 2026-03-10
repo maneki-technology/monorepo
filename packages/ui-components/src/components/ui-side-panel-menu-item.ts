@@ -251,6 +251,9 @@ const STYLES = /* css */ `
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 export class UiSidePanelMenuItem extends HTMLElement {
   static readonly observedAttributes = [
     "level",
@@ -271,9 +274,7 @@ export class UiSidePanelMenuItem extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
 
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     // Row (the clickable item)
     const row = document.createElement("div");

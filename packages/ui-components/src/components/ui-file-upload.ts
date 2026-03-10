@@ -191,6 +191,9 @@ const STYLES = /* css */ `
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 export class UiFileUpload extends HTMLElement {
   static readonly observedAttributes = [
     "size",
@@ -212,9 +215,7 @@ export class UiFileUpload extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
 
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     // Hidden file input
     this._hiddenInput = document.createElement("input");

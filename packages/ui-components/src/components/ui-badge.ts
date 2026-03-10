@@ -49,7 +49,7 @@ const BORDER_MODERATE = semanticVar("border", "moderate");
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
-const STYLES = /* css */ `
+export const STYLES = /* css */ `
   *,
   *::before,
   *::after {
@@ -245,6 +245,9 @@ const STYLES = /* css */ `
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 export class UiBadge extends HTMLElement {
   static readonly observedAttributes = [
     "size",
@@ -258,9 +261,7 @@ export class UiBadge extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
 
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     // .base
     const base = document.createElement("span");
