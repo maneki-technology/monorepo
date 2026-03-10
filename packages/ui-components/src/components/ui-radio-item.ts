@@ -13,6 +13,7 @@ const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
 const BORDER_CONTRAST = semanticVar("border", "contrast");
 const BORDER_FOCUS = semanticVar("border", "focus");
 const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
+const STATUS_ERROR = semanticVar("statusGeneral", "error");
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const DISABLED_BORDER = semanticVar("stateDisabled", "border");
 const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
@@ -240,11 +241,11 @@ const STYLES = /* css */ `
   /* ── Error ──────────────────────────────────────────────────────────────── */
 
   :host([error]) .radio {
-    border-color: var(--ui-radio-error-border, ${ERROR_BOLD});
+    border-color: var(--ui-radio-error-border, ${STATUS_ERROR});
   }
 
   :host([error][checked]) .radio {
-    border-color: var(--ui-radio-error-border, ${ERROR_BOLD});
+    border-color: var(--ui-radio-error-border, ${STATUS_ERROR});
     background-color: #ffffff;
   }
   :host([error][checked]) .dot {

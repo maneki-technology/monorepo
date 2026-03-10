@@ -42,6 +42,7 @@ npm install @maneki/ui-components
 | `<ui-checkbox-group>` | Group wrapper: 2 orientations, size propagation |
 | `<ui-radio-item>` | 3 sizes, 2 check states, 3 label positions, 5 states, value attribute |
 | `<ui-radio-group>` | Group wrapper: 2 orientations, size propagation, mutual exclusion |
+| `<ui-input>` | Text input: 3 sizes, 3 types (text/numeric/clearable), 7 states, 5 statuses, label/supportive |
 | | **Containers** |
 | `<ui-card>` | Slot-based container: 3 sizes, 4 elevations, bordered variant |
 | `<ui-button-group>` | Segmented bar wrapping `<ui-button>` elements |
