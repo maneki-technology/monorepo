@@ -7,7 +7,7 @@ const meta: Meta = {
   component: "ui-input",
   argTypes: {
     size: { control: { type: "select" }, options: ["s", "m", "l"] },
-    type: { control: { type: "select" }, options: ["text", "numeric", "clearable"] },
+    type: { control: { type: "select" }, options: ["text", "numeric", "clearable", "password"] },
     status: {
       control: { type: "select" },
       options: ["none", "warning", "error", "success", "loading"],
@@ -274,3 +274,31 @@ export const FullFeatured: Story = {
     </div>
   `,
 };
+export const PasswordType: Story = {
+  render: () => html`
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
+      <ui-input
+        type="password"
+        size="s"
+        label="Password (S)"
+        placeholder="Enter password"
+        value="secret123"
+      ></ui-input>
+      <ui-input
+        type="password"
+        size="m"
+        label="Password (M)"
+        placeholder="Enter password"
+        value="secret123"
+      ></ui-input>
+      <ui-input
+        type="password"
+        size="l"
+        label="Password (L)"
+        placeholder="Enter password"
+        value="secret123"
+      ></ui-input>
+    </div>
+  `,
+};
+
