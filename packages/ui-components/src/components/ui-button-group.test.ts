@@ -29,6 +29,7 @@ describe("ui-button-group", () => {
       "action",
       "emphasis",
       "shape",
+      "aria-label",
     ]);
   });
 

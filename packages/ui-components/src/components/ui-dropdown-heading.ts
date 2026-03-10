@@ -78,6 +78,9 @@ export class UiDropdownHeading extends HTMLElement {
 
     shadow.appendChild(heading);
   }
+  connectedCallback(): void {
+    this.setAttribute("role", "presentation");
+  }
 
   // ── Property accessors ──────────────────────────────────────────────────
 
