@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "../components/ui-card.js";
 import "../components/ui-button.js";
+import "../components/ui-image.js";
 
 const meta: Meta = {
   title: "Components/Card",
@@ -49,10 +50,7 @@ export const Default: Story = {
 export const WithImage: Story = {
   render: () => html`
     <ui-card style="max-width: 320px;">
-      <div
-        slot="image"
-        style="height: 160px; background-color: #c1ccd6;"
-      ></div>
+      <ui-image slot="image" ratio="16:9"></ui-image>
       <h3 style="margin: 0; font-size: 16px; font-weight: 500;">Card Title</h3>
       <p style="margin: 0; font-size: 14px;">
         Card content below the image area.
@@ -140,10 +138,12 @@ export const WithFooter: Story = {
 export const ImageCard: Story = {
   render: () => html`
     <ui-card style="max-width: 320px;">
-      <div
+      <ui-image
         slot="image"
-        style="height: 180px; background-color: #c1ccd6;"
-      ></div>
+        src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=640&h=360&fit=crop"
+        alt="Featured article"
+        ratio="16:9"
+      ></ui-image>
       <h3 style="margin: 0; font-size: 16px; font-weight: 500;">
         Featured Article
       </h3>
@@ -161,10 +161,12 @@ export const ImageCard: Story = {
 export const ArticleCard: Story = {
   render: () => html`
     <ui-card style="max-width: 320px;">
-      <div
+      <ui-image
         slot="image"
-        style="height: 160px; background-color: #c1ccd6;"
-      ></div>
+        src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=640&h=360&fit=crop"
+        alt="Article headline"
+        ratio="16:9"
+      ></ui-image>
       <h3 style="margin: 0; font-size: 16px; font-weight: 500;">
         Article Headline
       </h3>
