@@ -3,30 +3,43 @@
 ## OVERVIEW
 Web Component library for the Maneki design system. Shadow DOM, CSS custom properties, TypeScript, Storybook 10. Currently ships:
 
+**Primitives:**
+- `<ui-badge>` — label/tag with 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses, uppercase text
+- `<ui-image>` — image container: 5 aspect ratios (16:9/3:2/1:1/3:1/21:9), 4 object-fit modes (cover/contain/fill/none), placeholder background, fallback slot
 - `<ui-button>` — full Figma spec: 5 actions, 3 emphases, 4 sizes, 2 shapes, 4 icon modes, 3 statuses
-- `<ui-button-group>` — segmented bar that wraps `<ui-button>` elements
-- `<ui-accordion-item>` — expandable panel: 3 sizes, 2 emphases, 4 statuses, smooth CSS transition
-- `<ui-accordion-group>` — wrapper with size/emphasis propagation + exclusive mode
-- `<ui-alert>` — dismissable alert/toast: 3 sizes, 2 emphases, 5 statuses, footer slot
 - `<ui-avatar>` — avatar component: 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 5 statuses, 14 colors
-- `<ui-breadcrumb-item>` — breadcrumb link item: 3 sizes, 7 states (enabled/hover/focus/active/visited/disabled/current), chevron separator
-- `<ui-breadcrumb-group>` — breadcrumb nav wrapper with size propagation
-- `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
+- `<ui-alert>` — dismissable alert/toast: 3 sizes, 2 emphases, 5 statuses, footer slot
+
+**Form Controls:**
 - `<ui-checkbox-item>` — checkbox component: 3 sizes (s/m/l), 3 check states (unchecked/checked/indeterminate), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error)
 - `<ui-checkbox-group>` — checkbox group wrapper: 3 sizes (s/m/l), 2 orientations (vertical/horizontal), size propagation to children
 - `<ui-radio-item>` — radio button component: 3 sizes (s/m/l), 2 check states (unchecked/checked), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error), value attribute
 - `<ui-radio-group>` — radio group wrapper: 3 sizes (s/m/l), 2 orientations (vertical/horizontal), size propagation to children, mutual exclusion (single selection), roving tabindex
+
+**Containers:**
+- `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
+- `<ui-button-group>` — segmented bar that wraps `<ui-button>` elements
+
+**Navigation:**
+- `<ui-breadcrumb-item>` — breadcrumb link item: 3 sizes, 7 states (enabled/hover/focus/active/visited/disabled/current), chevron separator
+- `<ui-breadcrumb-group>` — breadcrumb nav wrapper with size propagation
+- `<ui-side-panel-menu>` — collapsible sidebar navigation: expanded/collapsed states, mobile responsive (auto-collapse), flyout submenu in collapsed mode, overlay mode, selection management with parent highlighting
+- `<ui-side-panel-menu-item>` — sidebar menu item: 3 levels (primary/secondary/tertiary), expandable parent with inline children, leading icon slot, selected/disabled states, keyboard navigation
+
+**Disclosure:**
+- `<ui-accordion-item>` — expandable panel: 3 sizes, 2 emphases, 4 statuses, smooth CSS transition
+- `<ui-accordion-group>` — wrapper with size/emphasis propagation + exclusive mode
+
+**Menus & Dropdowns:**
 - `<ui-dropdown>` — dropdown button with floating menu: 4 sizes (s/m/l/xl), 5 actions, 3 emphases, 2 shapes, opt-in `selectable` attribute for single/multi-select, composes `<ui-button>` as trigger
 - `<ui-dropdown-item>` — menu item: 3 sizes (s/m/l), 4 leading elements (icon/checkbox/radio/avatar), secondary label, description, submenu arrow, 6 states (enabled/hover/active/focus/selected/disabled), select event, checkmark, value attribute
 - `<ui-dropdown-heading>` — section heading: 3 sizes (s/m/l), uppercase, non-interactive
 - `<ui-dropdown-separator>` — horizontal divider line
-- `<ui-modal>` — modal dialog with backdrop, header (title+subtitle+close), scrollable body, footer button slots, 3 sizes, 2 layouts (auto/fluid), dismiss behavior
-- `<ui-badge>` — label/tag with 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses, uppercase text
 - `<ui-dropdown-split>` — split button with action (left) + chevron trigger (right) + floating menu: 4 sizes (s/m/l/xl), 5 actions, 3 emphases, 2 shapes, 4 icon modes, opt-in `selectable` for single/multi-select, independent hover/active/focus per button half, full-height divider (hidden for minimal/contrast)
 - `<ui-menu>` — standalone floating menu panel: 3 sizes (s/m/l), open/close animation, outside-click + Escape dismiss, opt-in `selectable` for single/multi-select, size propagation to children, composes `<ui-dropdown-item>` / `<ui-dropdown-heading>` / `<ui-dropdown-separator>`
-- `<ui-side-panel-menu>` — collapsible sidebar navigation: expanded/collapsed states, mobile responsive (auto-collapse), flyout submenu in collapsed mode, overlay mode, selection management with parent highlighting
-- `<ui-side-panel-menu-item>` — sidebar menu item: 3 levels (primary/secondary/tertiary), expandable parent with inline children, leading icon slot, selected/disabled states, keyboard navigation
-- `<ui-image>` — image container: 5 aspect ratios (16:9/3:2/1:1/3:1/21:9), 4 object-fit modes (cover/contain/fill/none), placeholder background, fallback slot
+
+**Overlays:**
+- `<ui-modal>` — modal dialog with backdrop, header (title+subtitle+close), scrollable body, footer button slots, 3 sizes, 2 layouts (auto/fluid), dismiss behavior
 
 ## STRUCTURE
 ```
@@ -39,30 +52,30 @@ ui-components/
 │   ├── assets/
 │   │   └── icons.ts         # Shared SVG icon constants (ICON_CLOSE, ICON_CHEVRON, ICON_USER, etc.)
 │   ├── components/
+│   │   ├── ui-badge.ts
+│   │   ├── ui-image.ts
 │   │   ├── ui-button.ts
 │   │   ├── ui-button-group.ts
-│   │   ├── ui-accordion-item.ts
-│   │   ├── ui-accordion-group.ts
-│   │   ├── ui-alert.ts
 │   │   ├── ui-avatar.ts
-│   │   ├── ui-card.ts
-│   │   ├── ui-image.ts
-│   │   ├── ui-breadcrumb-item.ts
-│   │   ├── ui-breadcrumb-group.ts
+│   │   ├── ui-alert.ts
 │   │   ├── ui-checkbox-item.ts
 │   │   ├── ui-checkbox-group.ts
 │   │   ├── ui-radio-item.ts
 │   │   ├── ui-radio-group.ts
+│   │   ├── ui-card.ts
+│   │   ├── ui-breadcrumb-item.ts
+│   │   ├── ui-breadcrumb-group.ts
+│   │   ├── ui-side-panel-menu.ts
+│   │   ├── ui-side-panel-menu-item.ts
+│   │   ├── ui-accordion-item.ts
+│   │   ├── ui-accordion-group.ts
 │   │   ├── ui-dropdown.ts
 │   │   ├── ui-dropdown-item.ts
 │   │   ├── ui-dropdown-heading.ts
 │   │   ├── ui-dropdown-separator.ts
-│   │   ├── ui-modal.ts
-│   │   ├── ui-badge.ts
 │   │   ├── ui-dropdown-split.ts
 │   │   ├── ui-menu.ts
-│   │   ├── ui-side-panel-menu.ts
-│   │   ├── ui-side-panel-menu-item.ts
+│   │   ├── ui-modal.ts
 │   │   └── *.test.ts        # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html

@@ -31,30 +31,37 @@ npm install @maneki/ui-components
 
 | Component | Description |
 |---|---|
+| | **Primitives** |
+| `<ui-badge>` | Label/tag: 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses |
+| `<ui-image>` | Image container: 5 aspect ratios, 4 object-fit modes, placeholder, fallback slot |
 | `<ui-button>` | 5 actions, 3 emphases, 4 sizes, 2 shapes, 4 icon modes, 3 statuses |
-| `<ui-button-group>` | Segmented bar wrapping `<ui-button>` elements |
-| `<ui-accordion-item>` | Expandable panel: 3 sizes, 2 emphases, 4 statuses |
-| `<ui-accordion-group>` | Wrapper with size/emphasis propagation + exclusive mode |
-| `<ui-alert>` | Dismissable alert: 3 sizes, 2 emphases, 5 statuses, footer slot |
 | `<ui-avatar>` | 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 14 colors |
-| `<ui-breadcrumb-item>` | Breadcrumb link: 3 sizes, 7 states |
-| `<ui-breadcrumb-group>` | Nav wrapper with size propagation |
-| `<ui-card>` | Slot-based container: 3 sizes, 4 elevations, bordered variant |
+| `<ui-alert>` | Dismissable alert: 3 sizes, 2 emphases, 5 statuses, footer slot |
+| | **Form Controls** |
 | `<ui-checkbox-item>` | 3 sizes, 3 check states, 3 label positions, 5 states |
 | `<ui-checkbox-group>` | Group wrapper: 2 orientations, size propagation |
 | `<ui-radio-item>` | 3 sizes, 2 check states, 3 label positions, 5 states, value attribute |
 | `<ui-radio-group>` | Group wrapper: 2 orientations, size propagation, mutual exclusion |
+| | **Containers** |
+| `<ui-card>` | Slot-based container: 3 sizes, 4 elevations, bordered variant |
+| `<ui-button-group>` | Segmented bar wrapping `<ui-button>` elements |
+| | **Navigation** |
+| `<ui-breadcrumb-item>` | Breadcrumb link: 3 sizes, 7 states |
+| `<ui-breadcrumb-group>` | Nav wrapper with size propagation |
+| `<ui-side-panel-menu>` | Collapsible sidebar nav: expanded/collapsed, mobile responsive, flyout submenu, overlay |
+| `<ui-side-panel-menu-item>` | Sidebar menu item: 3 levels, expandable parent, leading icon, selected/disabled |
+| | **Disclosure** |
+| `<ui-accordion-item>` | Expandable panel: 3 sizes, 2 emphases, 4 statuses |
+| `<ui-accordion-group>` | Wrapper with size/emphasis propagation + exclusive mode |
+| | **Menus & Dropdowns** |
 | `<ui-dropdown>` | Button + floating menu: 4 sizes, 5 actions, opt-in `selectable` |
 | `<ui-dropdown-item>` | Menu item with select event, checkmark, disabled support |
 | `<ui-dropdown-heading>` | Uppercase section heading |
 | `<ui-dropdown-separator>` | Horizontal divider line |
 | `<ui-dropdown-split>` | Split button (action + chevron trigger): 4 sizes, 5 actions, opt-in `selectable` |
 | `<ui-menu>` | Standalone floating menu panel: 2 sizes, open/close animation, dismiss, single/multi-select |
-| `<ui-side-panel-menu>` | Collapsible sidebar nav: expanded/collapsed, mobile responsive, flyout submenu, overlay |
-| `<ui-side-panel-menu-item>` | Sidebar menu item: 3 levels, expandable parent, leading icon, selected/disabled |
+| | **Overlays** |
 | `<ui-modal>` | Dialog with backdrop, header, scrollable body, footer: 3 sizes, 2 layouts |
-| `<ui-badge>` | Label/tag: 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses |
-| `<ui-image>` | Image container: 5 aspect ratios, 4 object-fit modes, placeholder, fallback slot |
 
 ```html
 <ui-button action="primary" emphasis="bold" size="m">Save</ui-button>
