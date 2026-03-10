@@ -200,6 +200,7 @@ const STYLES = /* css */ `
   }
   .clear-btn .material-symbols-outlined {
     font-size: 14px;
+    font-variation-settings: 'FILL' 1;
   }
   .clear-btn.visible {
     display: flex;
