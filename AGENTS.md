@@ -17,7 +17,13 @@ maneki-monorepo/
 ├── packages/
 │   ├── grid-layout/         # <grid-layout> Web Component library (@maneki/grid-layout)
 │   ├── ui-components/       # UI components + Storybook (@maneki/ui-components)
-│   │                        # button, button-group, accordion-item, accordion-group, alert, avatar, breadcrumb-item, breadcrumb-group, card, checkbox-item, checkbox-group, radio-item, radio-group, dropdown, dropdown-item, dropdown-heading, dropdown-separator, dropdown-split, menu, modal, badge, side-panel-menu, side-panel-menu-item
+│   │                        # Primitives: badge, image, button, avatar, alert
+│   │                        # Form Controls: checkbox-item/group, radio-item/group
+│   │                        # Containers: card, button-group
+│   │                        # Navigation: breadcrumb-item/group, side-panel-menu/item
+│   │                        # Disclosure: accordion-item/group
+│   │                        # Menus & Dropdowns: dropdown, dropdown-item/heading/separator/split, menu
+│   │                        # Overlays: modal
 │   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints (@maneki/foundation)
 └── apps/                    # (empty — future apps)
 ```
