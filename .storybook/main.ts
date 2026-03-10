@@ -6,7 +6,7 @@ const config: StorybookConfig = {
     "../packages/ui-components/src/**/*.stories.ts",
     "../packages/grid-layout/src/**/*.stories.ts",
   ],
-  addons: ["@storybook/addon-a11y"],
+  addons: ["@storybook/addon-a11y", "@storybook/addon-vitest", "@storybook/addon-docs"],
   framework: {
     name: "@storybook/web-components-vite",
     options: {},
