@@ -591,10 +591,12 @@ export class UiButton extends HTMLElement {
       case "loading":
         this._statusIcon.innerHTML = ICON_LOADING;
         this._button.setAttribute("aria-label", "Loading");
+        this._button.setAttribute("aria-busy", "true");
         break;
       default:
         this._statusIcon.innerHTML = "";
         this._button.removeAttribute("aria-label");
+        this._button.removeAttribute("aria-busy");
         break;
     }
   }
