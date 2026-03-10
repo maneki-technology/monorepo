@@ -15,7 +15,9 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-checkbox-group>` — checkbox group wrapper: 3 sizes (s/m/l), 2 orientations (vertical/horizontal), size propagation to children
 - `<ui-radio-item>` — radio button component: 3 sizes (s/m/l), 2 check states (unchecked/checked), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error), value attribute
 - `<ui-radio-group>` — radio group wrapper: 3 sizes (s/m/l), 2 orientations (vertical/horizontal), size propagation to children, mutual exclusion (single selection), roving tabindex
-- `<ui-input>` — text input: 3 sizes (s/m/l), 3 types (text/numeric/clearable), 7 states (enabled/hover/focus/active/filled/disabled/readonly), 5 statuses (none/warning/error/success/loading), label, secondary label, supportive text, leading/trailing slots
+- `<ui-input>` — text input: 3 sizes (s/m/l), 4 types (text/numeric/clearable/password), 7 states (enabled/hover/focus/active/filled/disabled/readonly), 5 statuses (none/warning/error/success/loading), label, secondary label, supportive text, leading/trailing slots
+- `<ui-input-group>` — input group wrapper: 3 sizes (s/m/l), prefix/suffix slots with separators, composes `<ui-input>`
+- `<ui-file-upload>` — file upload input: 3 sizes (s/m/l), Browse button, accept/multiple attributes, disabled state
 
 **Containers:**
 - `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots

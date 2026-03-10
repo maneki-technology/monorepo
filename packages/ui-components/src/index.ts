@@ -41,6 +41,10 @@ export { UiRadioGroup } from "./components/ui-radio-group.js";
 export type { RadioGroupOrientation } from "./components/ui-radio-group.js";
 export { UiInput } from "./components/ui-input.js";
 export type { InputSize, InputType, InputStatus } from "./components/ui-input.js";
+export { UiInputGroup } from "./components/ui-input-group.js";
+export type { InputGroupSize } from "./components/ui-input-group.js";
+export { UiFileUpload } from "./components/ui-file-upload.js";
+export type { FileUploadSize } from "./components/ui-file-upload.js";
 
 // ─── Containers ─────────────────────────────────────────────────────────────
 

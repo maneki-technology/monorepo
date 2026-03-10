@@ -657,4 +657,85 @@ describe("ui-input", () => {
     const downBtn = el.shadowRoot!.querySelector(".spinner-down");
     expect(downBtn!.getAttribute("aria-label")).toBe("Decrement");
   });
+
+  // ── Password type ──────────────────────────────────────────────────────
+
+  it("has .password-toggle element", () => {
+    const toggle = el.shadowRoot!.querySelector(".password-toggle");
+    expect(toggle).toBeTruthy();
+  });
+
+  it("sets native input type to password when type is password", () => {
+    (el as unknown as { type: string }).type = "password";
+    const input = el.shadowRoot!.querySelector(".native-input") as HTMLInputElement;
+    expect(input.type).toBe("password");
+  });
+
+  it("password toggle is hidden by default via CSS", () => {
+    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    expect(styles).toContain(".password-toggle");
+    expect(styles).toContain(":host([type=\"password\"]) .password-toggle");
+  });
+
+  it("password toggle has aria-label", () => {
+    const toggle = el.shadowRoot!.querySelector(".password-toggle");
+    expect(toggle!.getAttribute("aria-label")).toBe("Toggle password visibility");
+  });
+
+  it("toggles native input type on password toggle click", () => {
+    (el as unknown as { type: string }).type = "password";
+    const input = el.shadowRoot!.querySelector(".native-input") as HTMLInputElement;
+    const toggle = el.shadowRoot!.querySelector(".password-toggle") as HTMLButtonElement;
+    expect(input.type).toBe("password");
+    toggle.click();
+    expect(input.type).toBe("text");
+    toggle.click();
+    expect(input.type).toBe("password");
+  });
+
+  it("updates password toggle icon on click", () => {
+    (el as unknown as { type: string }).type = "password";
+    const toggle = el.shadowRoot!.querySelector(".password-toggle") as HTMLButtonElement;
+    const icon = toggle.querySelector(".material-symbols-outlined")!;
+    expect(icon.textContent).toBe("visibility");
+    toggle.click();
+    expect(icon.textContent).toBe("visibility_off");
+    toggle.click();
+    expect(icon.textContent).toBe("visibility");
+  });
+
+  it("updates aria-label on password toggle click", () => {
+    (el as unknown as { type: string }).type = "password";
+    const toggle = el.shadowRoot!.querySelector(".password-toggle") as HTMLButtonElement;
+    toggle.click();
+    expect(toggle.getAttribute("aria-label")).toBe("Hide password");
+    toggle.click();
+    expect(toggle.getAttribute("aria-label")).toBe("Show password");
+  });
+
+  it("resets to password type when switching back from another type", () => {
+    (el as unknown as { type: string }).type = "password";
+    const input = el.shadowRoot!.querySelector(".native-input") as HTMLInputElement;
+    const toggle = el.shadowRoot!.querySelector(".password-toggle") as HTMLButtonElement;
+    toggle.click();
+    expect(input.type).toBe("text");
+    (el as unknown as { type: string }).type = "text";
+    expect(input.type).toBe("text");
+    (el as unknown as { type: string }).type = "password";
+    expect(input.type).toBe("text");
+  });
+
+  it("reflects type='password' to attribute", () => {
+    (el as unknown as { type: string }).type = "password";
+    expect(el.getAttribute("type")).toBe("password");
+  });
+
+  it("password toggle focuses input after click", () => {
+    (el as unknown as { type: string }).type = "password";
+    const input = el.shadowRoot!.querySelector(".native-input") as HTMLInputElement;
+    const toggle = el.shadowRoot!.querySelector(".password-toggle") as HTMLButtonElement;
+    const focusSpy = vi.spyOn(input, "focus");
+    toggle.click();
+    expect(focusSpy).toHaveBeenCalled();
+  });
 });
