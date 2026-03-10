@@ -561,7 +561,7 @@ export class UiSelect extends HTMLElement {
     this._clearBtn.setAttribute("tabindex", "-1");
     const clearIcon = document.createElement("span");
     clearIcon.className = "material-symbols-outlined";
-    clearIcon.textContent = "close";
+    clearIcon.textContent = "cancel";
     this._clearBtn.appendChild(clearIcon);
     contentRight.appendChild(this._clearBtn);
 
