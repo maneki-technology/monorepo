@@ -3,7 +3,7 @@ import { semanticVar, spaceVar } from "@maneki/foundation";
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type InputSize = "s" | "m" | "l";
-export type InputType = "text" | "numeric" | "clearable";
+export type InputType = "text" | "numeric" | "clearable" | "password";
 export type InputStatus = "none" | "warning" | "error" | "success" | "loading";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
@@ -22,6 +22,7 @@ const STATUS_SUCCESS = semanticVar("statusGeneral", "success");
 const BORDER_MINIMAL = semanticVar("border", "minimal");
 const SURFACE_SECONDARY = semanticVar("surface", "secondary");
 const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
+const ICON_PRIMARY = semanticVar("icon", "primary");
 const SP_05 = spaceVar("0.5");
 const SP_1 = spaceVar("1");
 const SP_15 = spaceVar("1.5");
@@ -216,6 +217,33 @@ const STYLES = /* css */ `
   }
 
   :host([type="clearable"]) .clear-btn.has-value {
+    display: flex;
+  }
+
+  /* ── Password toggle ──────────────────────────────────────────────────── */
+
+  .password-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    color: ${ICON_PRIMARY};
+    line-height: 1;
+  }
+
+  .password-toggle:hover {
+    color: ${TEXT_PRIMARY};
+  }
+
+  .password-toggle .material-symbols-outlined {
+    font-size: var(--_clear-size);
+  }
+
+  :host([type="password"]) .password-toggle {
     display: flex;
   }
 
@@ -514,6 +542,9 @@ export class UiInput extends HTMLElement {
   private _statusIconEl: HTMLSpanElement;
   private _statusIconInner: HTMLSpanElement;
   private _clearBtnEl: HTMLButtonElement;
+  private _passwordToggleEl: HTMLButtonElement;
+  private _passwordIconEl: HTMLSpanElement;
+  private _passwordVisible: boolean;
   private _labelTextEl: HTMLSpanElement;
   private _secondaryLabelEl: HTMLSpanElement;
   private _supportiveTextEl: HTMLSpanElement;
@@ -587,6 +618,18 @@ export class UiInput extends HTMLElement {
     this._clearBtnEl.appendChild(clearIcon);
     container.appendChild(this._clearBtnEl);
 
+    // Password toggle
+    this._passwordVisible = false;
+    this._passwordToggleEl = document.createElement("button");
+    this._passwordToggleEl.className = "password-toggle";
+    this._passwordToggleEl.type = "button";
+    this._passwordToggleEl.setAttribute("aria-label", "Toggle password visibility");
+    this._passwordIconEl = document.createElement("span");
+    this._passwordIconEl.className = "material-symbols-outlined";
+    this._passwordIconEl.textContent = "visibility";
+    this._passwordToggleEl.appendChild(this._passwordIconEl);
+    container.appendChild(this._passwordToggleEl);
+
     // Numeric controls
     const numericControls = document.createElement("div");
     numericControls.className = "numeric-controls";
@@ -630,6 +673,7 @@ export class UiInput extends HTMLElement {
     this._inputEl.addEventListener("input", this._handleInput.bind(this));
     this._inputEl.addEventListener("change", this._handleChange.bind(this));
     this._clearBtnEl.addEventListener("click", this._handleClear.bind(this));
+    this._passwordToggleEl.addEventListener("click", this._handlePasswordToggle.bind(this));
     upBtn.addEventListener("click", this._handleIncrement.bind(this));
     downBtn.addEventListener("click", this._handleDecrement.bind(this));
   }
@@ -854,6 +898,10 @@ export class UiInput extends HTMLElement {
       this._inputEl.type = "text";
       this._inputEl.inputMode = "numeric";
       this._inputEl.pattern = "[0-9]*";
+    } else if (this.type === "password") {
+      this._inputEl.type = this._passwordVisible ? "text" : "password";
+      this._inputEl.removeAttribute("inputmode");
+      this._inputEl.removeAttribute("pattern");
     } else {
       this._inputEl.type = "text";
       this._inputEl.removeAttribute("inputmode");
@@ -970,6 +1018,16 @@ export class UiInput extends HTMLElement {
         detail: { value: "" },
       }),
     );
+  }
+  private _handlePasswordToggle(): void {
+    this._passwordVisible = !this._passwordVisible;
+    this._inputEl.type = this._passwordVisible ? "text" : "password";
+    this._passwordIconEl.textContent = this._passwordVisible ? "visibility_off" : "visibility";
+    this._passwordToggleEl.setAttribute(
+      "aria-label",
+      this._passwordVisible ? "Hide password" : "Show password",
+    );
+    this._inputEl.focus();
   }
 
   private _handleIncrement(): void {
