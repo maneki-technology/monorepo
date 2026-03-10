@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, ICON_WARNING, ICON_ERROR, ICON_CHECK_CIRCLE, ICON_PROGRESS_ACTIVITY } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -24,10 +24,10 @@ const SP_15 = spaceVar("1.5");
 // ─── Status icon map ─────────────────────────────────────────────────────────
 
 export const STATUS_ICON_MAP: Record<string, string> = {
-  warning: "warning",
-  error: "error",
-  success: "check_circle",
-  loading: "progress_activity",
+  warning: ICON_WARNING,
+  error: ICON_ERROR,
+  success: ICON_CHECK_CIRCLE,
+  loading: ICON_PROGRESS_ACTIVITY,
 };
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -54,7 +54,6 @@ export const STYLES = /* css */ `
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    font-feature-settings: "liga";
   }
   *,
   *::before,

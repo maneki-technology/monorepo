@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
+import { ICON_ADD_CIRCLE } from "@maneki/foundation";
 import "../components/ui-button.js";
 
 const meta: Meta = {
@@ -108,15 +109,15 @@ export const WithIcons: Story = {
   render: () => html`
     <div style="display: flex; gap: 12px; align-items: center;">
       <ui-button icon="leading-icon">
-        <span slot="icon-start" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">add_circle</span>
+        <span slot="icon-start" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_ADD_CIRCLE}</span>
         Leading
       </ui-button>
       <ui-button icon="trailing-icon">
         Trailing
-        <span slot="icon-end" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">add_circle</span>
+        <span slot="icon-end" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_ADD_CIRCLE}</span>
       </ui-button>
       <ui-button icon="icon-only">
-        <span slot="icon-start" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">add_circle</span>
+        <span slot="icon-start" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_ADD_CIRCLE}</span>
       </ui-button>
     </div>
   `,

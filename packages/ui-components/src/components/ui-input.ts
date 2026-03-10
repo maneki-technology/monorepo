@@ -1,4 +1,5 @@
 import { STYLES, STATUS_ICON_MAP } from "./ui-input.styles.js";
+import { ICON_CLOSE, ICON_VISIBILITY, ICON_VISIBILITY_OFF, ICON_ARROW_DROP_UP, ICON_ARROW_DROP_DOWN } from "@maneki/foundation";
 import "./ui-label.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -103,7 +104,7 @@ export class UiInput extends HTMLElement {
     this._clearBtnEl.setAttribute("aria-label", "Clear input");
     const clearIcon = document.createElement("span");
     clearIcon.className = "material-symbols-outlined";
-    clearIcon.textContent = "close";
+    clearIcon.textContent = ICON_CLOSE;
     this._clearBtnEl.appendChild(clearIcon);
     container.appendChild(this._clearBtnEl);
 
@@ -115,7 +116,7 @@ export class UiInput extends HTMLElement {
     this._passwordToggleEl.setAttribute("aria-label", "Toggle password visibility");
     this._passwordIconEl = document.createElement("span");
     this._passwordIconEl.className = "material-symbols-outlined";
-    this._passwordIconEl.textContent = "visibility";
+    this._passwordIconEl.textContent = ICON_VISIBILITY;
     this._passwordToggleEl.appendChild(this._passwordIconEl);
     container.appendChild(this._passwordToggleEl);
 
@@ -129,7 +130,7 @@ export class UiInput extends HTMLElement {
     upBtn.setAttribute("aria-label", "Increment");
     const upIcon = document.createElement("span");
     upIcon.className = "material-symbols-outlined";
-    upIcon.textContent = "arrow_drop_up";
+    upIcon.textContent = ICON_ARROW_DROP_UP;
     upBtn.appendChild(upIcon);
     numericControls.appendChild(upBtn);
 
@@ -143,7 +144,7 @@ export class UiInput extends HTMLElement {
     downBtn.setAttribute("aria-label", "Decrement");
     const downIcon = document.createElement("span");
     downIcon.className = "material-symbols-outlined";
-    downIcon.textContent = "arrow_drop_down";
+    downIcon.textContent = ICON_ARROW_DROP_DOWN;
     downBtn.appendChild(downIcon);
     numericControls.appendChild(downBtn);
 
@@ -526,7 +527,7 @@ export class UiInput extends HTMLElement {
   private _handlePasswordToggle(): void {
     this._passwordVisible = !this._passwordVisible;
     this._inputEl.type = this._passwordVisible ? "text" : "password";
-    this._passwordIconEl.textContent = this._passwordVisible ? "visibility_off" : "visibility";
+    this._passwordIconEl.textContent = this._passwordVisible ? ICON_VISIBILITY_OFF : ICON_VISIBILITY;
     this._passwordToggleEl.setAttribute(
       "aria-label",
       this._passwordVisible ? "Hide password" : "Show password",

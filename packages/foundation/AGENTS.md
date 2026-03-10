@@ -6,11 +6,16 @@ Design tokens extracted from the "Foundation UI Kit (Community)" Figma file. Gen
 ## STRUCTURE
 ```
 foundation/
+├── assets/
+│   ├── material-symbols-outlined-subset.woff2  # Subsetted icon font (~24 KB)
+│   ├── icon-manifest.txt                       # Icon names included in subset
+│   └── subset-icons.py                         # Script to regenerate subset font
 ├── .storybook/
 │   ├── main.ts              # @storybook/web-components-vite
 │   └── preview.ts           # imports injectAllTokens()
 └── src/
     ├── index.ts              # Barrel export (all modules)
+    ├── icons.ts              # Icon codepoint constants + registerIconFont()
     ├── colors.ts             # 131 palette tokens (13 families × 10 steps + gray-110)
     ├── semantic-tokens.ts    # Surface, elevation, border, text, icon, global, status tokens
     ├── typography.ts         # 19 type tokens across 7 groups (display, heading, body, ui, caption, badge, code)
@@ -36,6 +41,7 @@ foundation/
 | Add spacing step | `spacing.ts` | Add to `spacing` object |
 | Wire new token type to CSS | `tokens.ts` | Add `*ToCssProperties()` + `*Var()` + add to `injectAllTokens()` |
 | Update barrel exports | `index.ts` | Re-export new functions/types |
+| Add new icon | `assets/icon-manifest.txt` | See SOP below |
 
 ## TOKEN ARCHITECTURE
 ```
@@ -110,3 +116,25 @@ moon run foundation:storybook-build  # Static build
 moon run foundation:test            # vitest --run (55 tests)
 moon run foundation:build           # vite build + tsc --emitDeclarationOnly
 ```
+
+## SOP: Adding a New Icon
+
+When a component needs a Material Symbols icon not yet in the subset font:
+
+1. **Find the icon name** on [Material Symbols](https://fonts.google.com/icons?icon.set=Material+Symbols).
+2. **Find its Unicode codepoint** in the [official codepoints file](https://github.com/google/material-design-icons/blob/master/variablefont/MaterialSymbolsOutlined%5BFILL%2CGRAD%2Copsz%2Cwght%5D.codepoints).
+3. **Add the icon name** to `assets/icon-manifest.txt` (one name per line, alphabetical).
+4. **Add the codepoint** to the `CODEPOINTS` dict in `assets/subset-icons.py`.
+5. **Add the constant** to `src/icons.ts`:
+   - Add `export const ICON_FOO = "\uXXXX";` with the codepoint
+   - Add `foo: ICON_FOO` to the `ICON_CODEPOINTS` record
+6. **Re-export** from `src/index.ts`.
+7. **Regenerate the subset font**:
+   ```bash
+   # Requires: pip install fonttools brotli
+   # Also requires the full font file — either keep material-symbols installed
+   # as a devDependency or download MaterialSymbolsOutlined[FILL,GRAD,opsz,wght].woff2
+   # from Google Fonts and pass the path as argument.
+   python3 packages/foundation/assets/subset-icons.py [path-to-full-font.woff2]
+   ```
+8. **Commit** the updated `icon-manifest.txt`, `subset-icons.py`, `icons.ts`, `index.ts`, and the regenerated `.woff2`.

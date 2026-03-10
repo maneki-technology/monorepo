@@ -1,0 +1,32 @@
+# Icon Manifest
+# Each line is a Material Symbols Outlined icon name included in the subset font.
+# To add a new icon, append its name here and run the subset script.
+# See SOP in packages/foundation/AGENTS.md for details.
+
+account_circle
+add_circle
+arrow_drop_down
+arrow_drop_up
+attach_money
+bar_chart
+cancel
+check_circle
+close
+download
+error
+expand_more
+group
+home
+info
+mail
+more_vert
+notifications
+person
+progress_activity
+search
+settings
+share
+upload
+visibility
+visibility_off
+warning

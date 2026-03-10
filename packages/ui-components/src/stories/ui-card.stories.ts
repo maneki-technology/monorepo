@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
+import { ICON_SHARE } from "@maneki/foundation";
 import "../components/ui-card.js";
 import "../components/ui-button.js";
 import "../components/ui-image.js";
@@ -179,7 +180,7 @@ export const ArticleCard: Story = {
         style="display: flex; justify-content: space-between; align-items: center; padding: 0 16px 16px;"
       >
         <span style="font-size: 12px; color: #5b7282;">5 min read</span>
-        <span class="material-symbols-outlined" style="font-size: 20px; color: #5b7282;">share</span>
+        <span class="material-symbols-outlined" style="font-size: 20px; color: #5b7282;">${ICON_SHARE}</span>
       </div>
     </ui-card>
   `,
