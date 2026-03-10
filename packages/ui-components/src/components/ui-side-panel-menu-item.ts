@@ -13,6 +13,7 @@ const TEXT_PRIMARY = semanticVar("text", "primary");
 const ICON_PRIMARY_TOKEN = semanticVar("icon", "primary");
 const ICON_ACTION = semanticVar("icon", "action");
 const BORDER_FOCUS = semanticVar("border", "focus");
+const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const SP_1 = spaceVar("1");       // 8px
 const SP_125 = spaceVar("1.5");   // 12px
 
@@ -123,12 +124,16 @@ const STYLES = /* css */ `
   /* ── Disabled ────────────────────────────────────────────────────────────── */
 
   :host([disabled]) {
-    opacity: 0.4;
     pointer-events: none;
   }
 
   :host([disabled]) .row {
+    color: var(--ui-spmi-text, ${DISABLED_TEXT});
     cursor: default;
+  }
+
+  :host([disabled]) .leading-icon {
+    color: ${DISABLED_TEXT};
   }
 
   /* ── Leading icon ────────────────────────────────────────────────────────── */
