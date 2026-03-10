@@ -190,7 +190,7 @@ const STYLES = /* css */ `
     background: transparent;
     cursor: pointer;
     padding: 0;
-    color: ${TEXT_SECONDARY};
+    color: ${ICON_SECONDARY};
     line-height: 1;
     width: 14px;
     height: 14px;
