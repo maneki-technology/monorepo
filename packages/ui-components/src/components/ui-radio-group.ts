@@ -67,6 +67,9 @@ const STYLES = /* css */ `
 
 const PROPAGATED_ATTRS = ["size"] as const;
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 export class UiRadioGroup extends HTMLElement {
   static readonly observedAttributes = ["size", "orientation", "aria-labelledby"];
 
@@ -75,9 +78,7 @@ export class UiRadioGroup extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
 
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     const group = document.createElement("div");
     group.className = "group";

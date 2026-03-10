@@ -15,6 +15,9 @@ export type DropdownItemLeading = "icon" | "checkbox" | "radio" | "avatar";
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 export class UiDropdownItem extends HTMLElement {
   static readonly observedAttributes = [
     "size", "disabled", "selected", "value",
@@ -35,9 +38,7 @@ export class UiDropdownItem extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
 
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     const button = document.createElement("button");
     button.className = "item";

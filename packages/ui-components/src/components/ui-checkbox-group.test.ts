@@ -134,40 +134,40 @@ describe("UiCheckboxGroup", () => {
 
   describe("CSS layout", () => {
     it("should have display: flex on host", () => {
-      const styles = group.shadowRoot!.querySelector("style")!.textContent!;
+      const styles = group.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
       expect(styles).toContain(":host {");
       expect(styles).toContain("display: flex;");
     });
 
     it("should have flex-direction: column for vertical orientation", () => {
-      const styles = group.shadowRoot!.querySelector("style")!.textContent!;
+      const styles = group.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
       expect(styles).toContain("flex-direction: column;");
     });
 
     it("should have flex-direction: row for horizontal orientation", () => {
-      const styles = group.shadowRoot!.querySelector("style")!.textContent!;
+      const styles = group.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
       expect(styles).toContain("flex-direction: row;");
     });
   });
 
   describe("gap values", () => {
     it("should have correct gap for size='s' (8px)", () => {
-      const styles = group.shadowRoot!.querySelector("style")!.textContent!;
+      const styles = group.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
       expect(styles).toContain(':host([size="s"]) .group');
     });
 
     it("should have correct gap for size='m' (12px)", () => {
-      const styles = group.shadowRoot!.querySelector("style")!.textContent!;
+      const styles = group.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
       expect(styles).toContain(':host([size="m"]) .group');
     });
 
     it("should have correct gap for size='l' (20px)", () => {
-      const styles = group.shadowRoot!.querySelector("style")!.textContent!;
+      const styles = group.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
       expect(styles).toContain(':host([size="l"]) .group');
     });
 
     it("should have horizontal gap (24px) for horizontal orientation", () => {
-      const styles = group.shadowRoot!.querySelector("style")!.textContent!;
+      const styles = group.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
       expect(styles).toContain(':host([orientation="horizontal"]) .group');
     });
   });

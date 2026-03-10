@@ -329,6 +329,9 @@ const STYLES = /* css */ `
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 export class UiAccordionItem extends HTMLElement {
   static readonly observedAttributes = [
     "size",
@@ -355,9 +358,7 @@ export class UiAccordionItem extends HTMLElement {
     this._headerId = `${uid}_header`;
     this._contentId = `${uid}_content`;
 
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     // Separator
     const separator = document.createElement("div");
