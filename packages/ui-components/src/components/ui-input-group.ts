@@ -141,7 +141,7 @@ const STYLES = /* css */ `
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export class UiInputGroup extends HTMLElement {
-  static readonly observedAttributes = ["size"];
+  static readonly observedAttributes = ["size", "aria-labelledby"];
 
   private _prefixEl: HTMLDivElement;
   private _suffixEl: HTMLDivElement;
@@ -207,11 +207,18 @@ export class UiInputGroup extends HTMLElement {
   }
 
   attributeChangedCallback(
-    _name: string,
+    name: string,
     _oldValue: string | null,
-    _newValue: string | null,
+    newValue: string | null,
   ): void {
-    // size is purely CSS-driven via :host([size="..."]) selectors
+    if (name === "aria-labelledby") {
+      const wrapper = this.shadowRoot!.querySelector(".wrapper")!;
+      if (newValue) {
+        wrapper.setAttribute("aria-labelledby", newValue);
+      } else {
+        wrapper.removeAttribute("aria-labelledby");
+      }
+    }
   }
 
   // ── Property accessors ──────────────────────────────────────────────────
