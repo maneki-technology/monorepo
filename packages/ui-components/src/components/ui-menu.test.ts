@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import "./ui-menu.js";
+import { STYLES as MENU_STYLES } from "./ui-menu.js";
 import "./ui-dropdown-item.js";
 import "./ui-dropdown-heading.js";
 import "./ui-dropdown-separator.js";
@@ -329,11 +330,10 @@ describe("UiMenu", () => {
   // ── CSS custom properties ───────────────────────────────────────────────
 
   it("should include menu styling in shadow DOM", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
-    expect(styles).toContain("--ui-menu-bg");
-    expect(styles).toContain("--ui-menu-shadow");
-    expect(styles).toContain("--ui-menu-radius");
-    expect(styles).toContain("--ui-menu-min-width");
+    expect(MENU_STYLES).toContain("--ui-menu-bg");
+    expect(MENU_STYLES).toContain("--ui-menu-shadow");
+    expect(MENU_STYLES).toContain("--ui-menu-radius");
+    expect(MENU_STYLES).toContain("--ui-menu-min-width");
   });
 
 });

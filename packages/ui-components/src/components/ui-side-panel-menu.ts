@@ -11,6 +11,9 @@ const MOBILE_MAX_WIDTH = standardBreakpoints.s.maxWidth;
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 export class UiSidePanelMenu extends HTMLElement {
   static readonly observedAttributes = ["state", "overlay", "title", "mobile"];
 
@@ -30,9 +33,7 @@ export class UiSidePanelMenu extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
 
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     // Container
     const container = document.createElement("div");

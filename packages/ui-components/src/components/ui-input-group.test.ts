@@ -180,13 +180,13 @@ describe("ui-input-group", () => {
   // ── Styles ───────────────────────────────────────────────────────────────
 
   it("contains size CSS rules in styles", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain(':host([size="s"])');
     expect(styles).toContain(':host([size="l"])');
   });
 
   it("contains ::slotted(ui-input) rule to remove border", () => {
-    const styles = el.shadowRoot!.querySelector("style")!.textContent!;
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     expect(styles).toContain("::slotted(ui-input)");
   });
 

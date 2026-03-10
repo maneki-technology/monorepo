@@ -12,7 +12,7 @@ const SP_05 = spaceVar("0.5"); // 4px
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
-const STYLES = /* css */ `
+export const STYLES = /* css */ `
   *,
   *::before,
   *::after {
@@ -55,6 +55,9 @@ const PROPAGATED_CHILD_TAGS = ["UI-DROPDOWN-ITEM", "UI-DROPDOWN-HEADING"];
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+const sheet = new CSSStyleSheet();
+sheet.replaceSync(STYLES);
+
 export class UiMenu extends HTMLElement {
   static readonly observedAttributes = [
     "open",
@@ -67,9 +70,7 @@ export class UiMenu extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
 
-    const style = document.createElement("style");
-    style.textContent = STYLES;
-    shadow.appendChild(style);
+    shadow.adoptedStyleSheets = [sheet];
 
     const slot = document.createElement("slot");
     shadow.appendChild(slot);

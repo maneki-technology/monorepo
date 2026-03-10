@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import "./ui-label.js";
+import { STYLES } from "./ui-label.js";
 
 describe("ui-label", () => {
   let el: HTMLElement;
@@ -153,51 +154,49 @@ describe("ui-label", () => {
   // ── CSS custom property overrides ────────────────────────────────────────
 
   it("supports --ui-label-color override", () => {
-    // Verify the CSS contains the override var
-    const style = el.shadowRoot!.querySelector("style");
-    expect(style!.textContent).toContain("--ui-label-color");
+    expect(STYLES).toContain("--ui-label-color");
   });
 
   // ── Size CSS variables ───────────────────────────────────────────────────
 
   it("size s sets 12px font-size via CSS var", () => {
-    const style = el.shadowRoot!.querySelector("style");
-    expect(style!.textContent).toContain(":host([size=\"s\"])");
-    expect(style!.textContent).toContain("--_font-size: 12px");
-    expect(style!.textContent).toContain("--_line-height: 16px");
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    expect(styles).toContain(":host([size=\"s\"])");
+    expect(styles).toContain("--_font-size: 12px");
+    expect(styles).toContain("--_line-height: 16px");
   });
 
   it("size m sets 14px font-size via CSS var", () => {
-    const style = el.shadowRoot!.querySelector("style");
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
     // m is the default, defined on :host
-    expect(style!.textContent).toContain("--_font-size: 14px");
-    expect(style!.textContent).toContain("--_line-height: 20px");
+    expect(styles).toContain("--_font-size: 14px");
+    expect(styles).toContain("--_line-height: 20px");
   });
 
   it("size l sets 16px font-size via CSS var", () => {
-    const style = el.shadowRoot!.querySelector("style");
-    expect(style!.textContent).toContain(":host([size=\"l\"])");
-    expect(style!.textContent).toContain("--_font-size: 16px");
-    expect(style!.textContent).toContain("--_line-height: 24px");
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    expect(styles).toContain(":host([size=\"l\"])");
+    expect(styles).toContain("--_font-size: 16px");
+    expect(styles).toContain("--_line-height: 24px");
   });
 
   // ── Emphasis CSS variables ───────────────────────────────────────────────
 
   it("bold emphasis sets font-weight 500", () => {
-    const style = el.shadowRoot!.querySelector("style");
-    expect(style!.textContent).toContain("--_font-weight: 500");
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    expect(styles).toContain("--_font-weight: 500");
   });
 
   it("subtle emphasis sets font-weight 400", () => {
-    const style = el.shadowRoot!.querySelector("style");
-    expect(style!.textContent).toContain(":host([emphasis=\"subtle\"])");
-    expect(style!.textContent).toContain("--_font-weight: 400");
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    expect(styles).toContain(":host([emphasis=\"subtle\"])");
+    expect(styles).toContain("--_font-weight: 400");
   });
 
   // ── Display ──────────────────────────────────────────────────────────────
 
   it("host displays as inline-flex", () => {
-    const style = el.shadowRoot!.querySelector("style");
-    expect(style!.textContent).toContain("display: inline-flex");
+    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    expect(styles).toContain("display: inline-flex");
   });
 });
