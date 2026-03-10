@@ -78,6 +78,31 @@ var() helpers — colorVar(), semanticVar(), elevationVar(), typeVar(), spaceVar
 - **Don't add tokens not in Figma** — this is a faithful extraction, not a creative exercise. Exception: interactive state tokens (e.g., `text.linkHover`, `text.linkActive`) may be added when needed by components, even if not explicitly defined in Figma.
 - **Don't forget to update `injectAllTokens()`** when adding a new token category
 
+## SOP: Adding New Semantic Tokens
+
+When a Figma design uses a token that doesn't exist in foundation:
+
+1. **Check Figma variable defs** — use `figma_get_variable_defs` or `figma_get_design_context` for the exact token name, value, and opacity.
+2. **Check existing foundation tokens** — does an existing token resolve to the same color?
+3. **Same color, different semantic group in Figma → create new group.** Don't alias. Figma's `Form/input-border` and `Border/border-moderate` may resolve to the same hex today but serve different semantic purposes. They may diverge in the future.
+4. **Watch for opacity!** Figma tokens often use rgba with specific opacity levels (e.g., `rgba(91,114,130,0.4)` = gray-60 @40%). Use literal rgba strings as `SemanticValue`, not palette refs. Double-check the opacity value in Figma — don't guess.
+5. **Add group to `semantic-tokens.ts`** — define the group object + add to `semanticTokens` aggregate.
+6. **Wire CSS generation in `tokens.ts`** — the `semanticToCssProperties()` function auto-iterates `semanticTokens`, so no changes needed there. Just ensure the group is in the aggregate.
+7. **Add tests in `tokens.test.ts`** — verify the generated CSS properties include the new tokens.
+8. **Update `index.ts` barrel export** — re-export the new group.
+9. **Rebuild foundation** — `npx vite build && npx tsc --emitDeclarationOnly` in `packages/foundation/`.
+10. **Update AGENTS.md** — add the new Figma→foundation token mapping to both `packages/foundation/AGENTS.md` and `packages/ui-components/AGENTS.md`.
+
+### Naming Convention
+
+| Figma group | Foundation group name | CSS prefix | Example |
+|---|---|---|---|
+| `Form/*` | `form` | `--fd-form-*` | `--fd-form-input-border` |
+| `State/Hover/*` | `stateHover` | `--fd-state-hover-*` | `--fd-state-hover-border-moderate` |
+| `State/Selected/*` | `stateSelected` | `--fd-state-selected-*` | `--fd-state-selected-surface-bold` |
+| `State/Disabled/*` | `stateDisabled` | `--fd-state-disabled-*` | `--fd-state-disabled-border` |
+| `State/Focus/*` | (use `border.focus`) | `--fd-border-focus` | already exists |
+
 ## COMMANDS
 ```bash
 moon run foundation:storybook       # Dev server on port 6007

@@ -1,16 +1,16 @@
 import { semanticVar, spaceVar } from "@maneki/foundation";
-import { ICON_CHECK } from "../assets/icons.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
-export type CheckboxSize = "s" | "m" | "l";
-export type CheckboxLabel = "none" | "right" | "left";
+export type RadioSize = "s" | "m" | "l";
+export type RadioLabel = "none" | "right" | "left";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
 const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
 const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
 const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
+const BORDER_CONTRAST = semanticVar("border", "contrast");
 const BORDER_FOCUS = semanticVar("border", "focus");
 const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
 const TEXT_PRIMARY = semanticVar("text", "primary");
@@ -19,8 +19,7 @@ const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
 const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const SP_075 = spaceVar("0.75");
 const SP_1 = spaceVar("1");
-
-
+const SP_15 = spaceVar("1.5");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -54,55 +53,34 @@ const STYLES = /* css */ `
     justify-content: center;
     flex-shrink: 0;
     border: 1px solid transparent;
+    border-radius: 50%;
   }
 
-  /* ── Inner box (visible checkbox square) ─────────────────────────────────── */
+  /* ── Inner circle (visible radio) ───────────────────────────────────────── */
 
-  .checkbox {
+  .radio {
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--ui-cb-border, ${FORM_INPUT_BORDER});
-    background-color: var(--ui-cb-bg, #ffffff);
-    color: #ffffff;
+    border: 1px solid var(--ui-radio-border, ${FORM_INPUT_BORDER});
+    border-radius: 50%;
+    background-color: var(--ui-radio-bg, #ffffff);
     transition:
       background-color 0.15s ease,
       border-color 0.15s ease;
   }
 
-  .checkbox svg {
-    width: 100%;
-    height: 100%;
-  }
+  /* ── Dot indicator ──────────────────────────────────────────────────────── */
 
-  /* ── Check / indeterminate icons ─────────────────────────────────────────── */
-
-  .check-icon,
-  .indeterminate-icon {
+  .dot {
     display: none;
-    align-items: center;
-    justify-content: center;
-    line-height: 0;
+    border-radius: 50%;
+    background-color: var(--ui-radio-dot-color, ${SELECTED_BOLD});
   }
 
-  :host([checked]) .check-icon {
-    display: inline-flex;
-  }
-
-  :host([indeterminate]) .check-icon {
-    display: none;
-  }
-
-  :host([indeterminate]) .indeterminate-icon {
-    display: inline-flex;
-  }
-
-  .indeterminate-bar {
+  :host([checked]) .dot {
     display: block;
-    background-color: #ffffff;
-    border-radius: 1px;
-    height: 1.5px;
   }
 
   /* ── Label slot ──────────────────────────────────────────────────────────── */
@@ -111,7 +89,7 @@ const STYLES = /* css */ `
     display: none;
     font-family: "Inter", sans-serif;
     font-weight: 400;
-    color: var(--ui-cb-label-color, ${TEXT_PRIMARY});
+    color: var(--ui-radio-label-color, ${TEXT_PRIMARY});
   }
 
   :host([label="right"]) .label {
@@ -136,19 +114,19 @@ const STYLES = /* css */ `
 
   :host .outer,
   :host([size="m"]) .outer {
-    width: var(--ui-cb-outer-size, 18px);
-    height: var(--ui-cb-outer-size, 18px);
+    width: var(--ui-radio-outer-size, 18px);
+    height: var(--ui-radio-outer-size, 18px);
   }
 
-  :host .checkbox,
-  :host([size="m"]) .checkbox {
-    width: var(--ui-cb-inner-size, 14px);
-    height: var(--ui-cb-inner-size, 14px);
+  :host .radio,
+  :host([size="m"]) .radio {
+    width: var(--ui-radio-inner-size, 14px);
+    height: var(--ui-radio-inner-size, 14px);
   }
 
   :host .base,
   :host([size="m"]) .base {
-    gap: var(--ui-cb-gap, ${SP_1});
+    gap: var(--ui-radio-gap, ${SP_1});
   }
 
   :host .label,
@@ -157,31 +135,26 @@ const STYLES = /* css */ `
     line-height: 20px;
   }
 
-  :host .indeterminate-bar,
-  :host([size="m"]) .indeterminate-bar {
-    width: 8px;
-  }
-
-  :host .check-icon,
-  :host([size="m"]) .check-icon {
-    width: 10px;
-    height: 10px;
+  :host .dot,
+  :host([size="m"]) .dot {
+    width: 6px;
+    height: 6px;
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .outer {
-    width: var(--ui-cb-outer-size, 16px);
-    height: var(--ui-cb-outer-size, 16px);
+    width: var(--ui-radio-outer-size, 16px);
+    height: var(--ui-radio-outer-size, 16px);
   }
 
-  :host([size="s"]) .checkbox {
-    width: var(--ui-cb-inner-size, 12px);
-    height: var(--ui-cb-inner-size, 12px);
+  :host([size="s"]) .radio {
+    width: var(--ui-radio-inner-size, 12px);
+    height: var(--ui-radio-inner-size, 12px);
   }
 
   :host([size="s"]) .base {
-    gap: var(--ui-cb-gap, ${SP_075});
+    gap: var(--ui-radio-gap, ${SP_075});
   }
 
   :host([size="s"]) .label {
@@ -189,29 +162,25 @@ const STYLES = /* css */ `
     line-height: 16px;
   }
 
-  :host([size="s"]) .indeterminate-bar {
-    width: 7px;
-  }
-
-  :host([size="s"]) .check-icon {
-    width: 8px;
-    height: 8px;
+  :host([size="s"]) .dot {
+    width: 6px;
+    height: 6px;
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .outer {
-    width: var(--ui-cb-outer-size, 20px);
-    height: var(--ui-cb-outer-size, 20px);
+    width: var(--ui-radio-outer-size, 20px);
+    height: var(--ui-radio-outer-size, 20px);
   }
 
-  :host([size="l"]) .checkbox {
-    width: var(--ui-cb-inner-size, 16px);
-    height: var(--ui-cb-inner-size, 16px);
+  :host([size="l"]) .radio {
+    width: var(--ui-radio-inner-size, 16px);
+    height: var(--ui-radio-inner-size, 16px);
   }
 
   :host([size="l"]) .base {
-    gap: var(--ui-cb-gap, ${SP_1});
+    gap: var(--ui-radio-gap, ${SP_15});
   }
 
   :host([size="l"]) .label {
@@ -219,74 +188,73 @@ const STYLES = /* css */ `
     line-height: 24px;
   }
 
-  :host([size="l"]) .indeterminate-bar {
-    width: 9px;
+  :host([size="l"]) .dot {
+    width: 8px;
+    height: 8px;
   }
 
-  :host([size="l"]) .check-icon {
-    width: 12px;
-    height: 12px;
+  /* ── Checked fill ───────────────────────────────────────────────────────── */
+
+  :host([checked]) .radio {
+    border-color: var(--ui-radio-checked-border, ${BORDER_CONTRAST});
+    background-color: var(--ui-radio-bg, #ffffff);
   }
 
-  /* ── Checked / Indeterminate fill ────────────────────────────────────────── */
+  /* ── Hover ──────────────────────────────────────────────────────────────── */
 
-  :host([checked]) .checkbox,
-  :host([indeterminate]) .checkbox {
-    background-color: var(--ui-cb-checked-bg, ${SELECTED_BOLD});
-    border-color: var(--ui-cb-checked-bg, ${SELECTED_BOLD});
+  :host(:hover) .radio {
+    border-color: var(--ui-radio-hover-border, ${HOVER_BORDER});
   }
 
-  /* ── Hover ───────────────────────────────────────────────────────────────── */
-
-  :host(:hover) .checkbox {
-    border-color: var(--ui-cb-hover-border, ${HOVER_BORDER});
+  :host([checked]:hover) .radio {
+    border-color: var(--ui-radio-checked-border, ${BORDER_CONTRAST});
   }
 
-  :host([checked]:hover) .checkbox,
-  :host([indeterminate]:hover) .checkbox {
-    border-color: var(--ui-cb-checked-bg, ${SELECTED_BOLD});
-  }
-
-  /* ── Focus ───────────────────────────────────────────────────────────────── */
+  /* ── Focus ──────────────────────────────────────────────────────────────── */
 
   :host(:focus-visible) .outer {
-    border-color: var(--ui-cb-focus-border, ${BORDER_FOCUS});
+    border-color: var(--ui-radio-focus-border, ${BORDER_FOCUS});
   }
 
-  /* ── Disabled ────────────────────────────────────────────────────────────── */
+  /* ── Disabled ───────────────────────────────────────────────────────────── */
 
   :host([disabled]) {
     pointer-events: none;
   }
 
-  :host([disabled]) .checkbox {
-    border-color: var(--ui-cb-disabled-border, ${DISABLED_BORDER});
+  :host([disabled]) .radio {
+    border-color: ${DISABLED_BORDER};
+    background-color: #ffffff;
   }
-  :host([disabled][checked]) .checkbox,
-  :host([disabled][indeterminate]) .checkbox {
-    background-color: var(--ui-cb-disabled-bg, ${DISABLED_MINIMAL});
-    border-color: var(--ui-cb-disabled-border, ${DISABLED_BORDER});
+  :host([disabled][checked]) .radio {
+    border-color: ${DISABLED_BORDER};
+    background-color: #ffffff;
+  }
+  :host([disabled][checked]) .dot {
+    background-color: ${DISABLED_MINIMAL};
   }
   :host([disabled]) .label {
-    color: var(--ui-cb-disabled-label, ${DISABLED_TEXT});
+    color: ${DISABLED_TEXT};
   }
 
-  /* ── Error ───────────────────────────────────────────────────────────────── */
+  /* ── Error ──────────────────────────────────────────────────────────────── */
 
-  :host([error]) .checkbox {
-    border-color: var(--ui-cb-error-border, ${ERROR_BOLD});
+  :host([error]) .radio {
+    border-color: var(--ui-radio-error-border, ${ERROR_BOLD});
   }
 
-  :host([error][checked]) .checkbox,
-  :host([error][indeterminate]) .checkbox {
-    background-color: var(--ui-cb-error-checked-bg, ${ERROR_BOLD});
-    border-color: var(--ui-cb-error-checked-bg, ${ERROR_BOLD});
+  :host([error][checked]) .radio {
+    border-color: var(--ui-radio-error-border, ${ERROR_BOLD});
+    background-color: #ffffff;
+  }
+  :host([error][checked]) .dot {
+    background-color: var(--ui-radio-error-dot, ${ERROR_BOLD});
   }
 
-  /* ── Reduced motion ──────────────────────────────────────────────────────── */
+  /* ── Reduced motion ─────────────────────────────────────────────────────── */
 
   @media (prefers-reduced-motion: reduce) {
-    .checkbox {
+    .radio {
       transition-duration: 0.01ms !important;
     }
   }
@@ -294,12 +262,11 @@ const STYLES = /* css */ `
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export class UiCheckboxItem extends HTMLElement {
+export class UiRadioItem extends HTMLElement {
   static readonly observedAttributes = [
     "size",
     "label",
     "checked",
-    "indeterminate",
     "disabled",
     "error",
   ];
@@ -320,25 +287,16 @@ export class UiCheckboxItem extends HTMLElement {
     const outer = document.createElement("div");
     outer.className = "outer";
 
-    // .checkbox (visible square)
-    const checkbox = document.createElement("div");
-    checkbox.className = "checkbox";
+    // .radio (visible circle)
+    const radio = document.createElement("div");
+    radio.className = "radio";
 
-    // Check icon
-    const checkIcon = document.createElement("span");
-    checkIcon.className = "check-icon";
-    checkIcon.innerHTML = ICON_CHECK;
-    checkbox.appendChild(checkIcon);
+    // Dot indicator
+    const dot = document.createElement("span");
+    dot.className = "dot";
+    radio.appendChild(dot);
 
-    // Indeterminate icon
-    const indeterminateIcon = document.createElement("span");
-    indeterminateIcon.className = "indeterminate-icon";
-    const indeterminateBar = document.createElement("span");
-    indeterminateBar.className = "indeterminate-bar";
-    indeterminateIcon.appendChild(indeterminateBar);
-    checkbox.appendChild(indeterminateIcon);
-
-    outer.appendChild(checkbox);
+    outer.appendChild(radio);
     base.appendChild(outer);
 
     // Label slot
@@ -357,7 +315,7 @@ export class UiCheckboxItem extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.hasAttribute("role")) {
-      this.setAttribute("role", "checkbox");
+      this.setAttribute("role", "radio");
     }
     if (!this.hasAttribute("tabindex")) {
       this.setAttribute("tabindex", "0");
@@ -370,7 +328,7 @@ export class UiCheckboxItem extends HTMLElement {
     _oldValue: string | null,
     _newValue: string | null,
   ): void {
-    if (name === "checked" || name === "indeterminate") {
+    if (name === "checked") {
       this._syncAriaChecked();
     }
     if (name === "disabled") {
@@ -383,19 +341,19 @@ export class UiCheckboxItem extends HTMLElement {
 
   // ── Property accessors ──────────────────────────────────────────────────
 
-  get size(): CheckboxSize {
-    return (this.getAttribute("size") as CheckboxSize) ?? "m";
+  get size(): RadioSize {
+    return (this.getAttribute("size") as RadioSize) ?? "m";
   }
 
-  set size(value: CheckboxSize) {
+  set size(value: RadioSize) {
     this.setAttribute("size", value);
   }
 
-  get label(): CheckboxLabel {
-    return (this.getAttribute("label") as CheckboxLabel) ?? "none";
+  get label(): RadioLabel {
+    return (this.getAttribute("label") as RadioLabel) ?? "none";
   }
 
-  set label(value: CheckboxLabel) {
+  set label(value: RadioLabel) {
     this.setAttribute("label", value);
   }
 
@@ -408,18 +366,6 @@ export class UiCheckboxItem extends HTMLElement {
       this.setAttribute("checked", "");
     } else {
       this.removeAttribute("checked");
-    }
-  }
-
-  get indeterminate(): boolean {
-    return this.hasAttribute("indeterminate");
-  }
-
-  set indeterminate(value: boolean) {
-    if (value) {
-      this.setAttribute("indeterminate", "");
-    } else {
-      this.removeAttribute("indeterminate");
     }
   }
 
@@ -447,40 +393,40 @@ export class UiCheckboxItem extends HTMLElement {
     }
   }
 
+  get value(): string {
+    return this.getAttribute("value") ?? "";
+  }
+
+  set value(v: string) {
+    this.setAttribute("value", v);
+  }
+
   // ── Private ─────────────────────────────────────────────────────────────
 
   private _handleClick(): void {
     if (this.disabled) return;
-    this._toggle();
+    this._select();
   }
 
   private _handleKeydown(e: KeyboardEvent): void {
     if (this.disabled) return;
     if (e.key === " " || e.key === "Enter") {
       e.preventDefault();
-      this._toggle();
+      this._select();
     }
   }
 
-  private _toggle(): void {
-    if (this.indeterminate) {
-      this.indeterminate = false;
-      this.checked = true;
-    } else {
-      this.checked = !this.checked;
-    }
+  private _select(): void {
+    if (this.checked) return; // Radio cannot be unchecked by clicking again
+    this.checked = true;
     this.dispatchEvent(
       new CustomEvent("change", { bubbles: true, composed: true }),
     );
   }
 
   private _syncAriaChecked(): void {
-    if (this.indeterminate) {
-      this.setAttribute("aria-checked", "mixed");
-    } else {
-      this.setAttribute("aria-checked", this.checked ? "true" : "false");
-    }
+    this.setAttribute("aria-checked", this.checked ? "true" : "false");
   }
 }
 
-customElements.define("ui-checkbox-item", UiCheckboxItem);
+customElements.define("ui-radio-item", UiRadioItem);
