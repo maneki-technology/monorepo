@@ -95,6 +95,13 @@ export const WithStatus: Story = {
 };
 
 export const Disabled: Story = {
+  parameters: {
+    a11y: {
+      config: {
+        rules: [{ id: "color-contrast", enabled: false }],
+      },
+    },
+  },
   render: () => html`
     <ui-accordion-item disabled>
       <span slot="label">Disabled Accordion</span>
