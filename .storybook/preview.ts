@@ -45,6 +45,7 @@ document.head.appendChild(globalIconStyles);
 injectAllTokens();
 
 const preview: Preview = {
+  tags: ["autodocs"],
   parameters: {
     a11y: {
       test: "error",
