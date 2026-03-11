@@ -46,6 +46,10 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 **Overlays:**
 - `<ui-modal>` — modal dialog with backdrop, header (title+subtitle+close), scrollable body, footer button slots, 3 sizes, 2 layouts (auto/fluid), dismiss behavior
 
+**Tabs:**
+- `<ui-tab-item>` — tab item: 2 sizes (s/m), 3 states (enabled/selected/disabled), 2 orientations (horizontal/vertical), leading/trailing icon slots, sub-menu chevron, smooth transition
+- `<ui-tab-group>` — tab group wrapper: size/orientation propagation, single selection, roving tabindex, arrow key navigation
+
 ## STRUCTURE
 ```
 ui-components/

@@ -19,6 +19,7 @@ group
 home
 info
 mail
+more_horiz
 more_vert
 notifications
 person

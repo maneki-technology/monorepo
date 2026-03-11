@@ -46,6 +46,7 @@ CODEPOINTS: dict[str, int] = {
     "home": 0xE88A,
     "info": 0xE88E,
     "mail": 0xE158,
+    "more_horiz": 0xE5D3,
     "more_vert": 0xE5D4,
     "notifications": 0xE7F4,
     "person": 0xE7FD,

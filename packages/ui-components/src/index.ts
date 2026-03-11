@@ -93,3 +93,10 @@ export type { MenuSize } from "./components/ui-menu.js";
 
 export { UiModal } from "./components/ui-modal.js";
 export type { ModalSize, ModalLayout } from "./components/ui-modal.js";
+
+// ─── Tabs ──────────────────────────────────────────────────────────────────
+
+export { UiTabItem } from "./components/ui-tab-item.js";
+export type { TabItemSize, TabItemOrientation } from "./components/ui-tab-item.js";
+export { UiTabGroup } from "./components/ui-tab-group.js";
+export type { TabGroupOverflow } from "./components/ui-tab-group.js";
