@@ -22,7 +22,7 @@ foundation/
     ├── spacing.ts            # 17-step spacing scale based on 8px base unit (0 through 10, plus 1px and fractional)
     ├── breakpoints.ts        # 3 density variants (compact/standard/spacious) × 7 breakpoints + helpers
     ├── tokens.ts             # CSS custom property generators + var() helpers
-    ├── tokens.test.ts        # 28 tests
+    ├── tokens.test.ts        # 32 tests
     ├── breakpoints.test.ts   # 27 tests
     └── stories/
         ├── colors.stories.ts           # Color palette grid (13 families × 10-11 steps)
@@ -113,7 +113,7 @@ When a Figma design uses a token that doesn't exist in foundation:
 ```bash
 moon run foundation:storybook       # Dev server on port 6007
 moon run foundation:storybook-build  # Static build
-moon run foundation:test            # vitest --run (55 tests)
+moon run foundation:test            # vitest --run (59 tests)
 moon run foundation:build           # vite build + tsc --emitDeclarationOnly
 ```
 
