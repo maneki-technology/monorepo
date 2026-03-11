@@ -91,6 +91,8 @@ ui-components/
 │   │   ├── ui-dropdown-split.ts  + ui-dropdown-split.styles.ts
 │   │   ├── ui-menu.ts
 │   │   ├── ui-modal.ts
+│   │   ├── ui-tab-item.ts
+│   │   ├── ui-tab-group.ts
 │   │   └── *.test.ts            # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
@@ -222,7 +224,7 @@ Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, u
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (1157 tests)
+moon run ui-components:test            # vitest --run (1252 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```
