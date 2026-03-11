@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
-import { ICON_CODEPOINTS } from "@maneki/foundation";
+import "../components/ui-icon.js";
 import "../components/ui-tab-item.js";
 import "../components/ui-tab-group.js";
 
@@ -98,8 +98,7 @@ export const Orientation: Story = {
 // ---------------------------------------------------------------------------
 
 function iconSpan(name: string): string {
-  const cp = ICON_CODEPOINTS[name as keyof typeof ICON_CODEPOINTS] || "";
-  return `<span class="material-symbols-outlined" slot="leading-icon">${cp}</span>`;
+  return `<ui-icon name="${name}" size="m" slot="leading-icon"></ui-icon>`;
 }
 
 export const LeadingIcon: Story = {
@@ -109,13 +108,13 @@ export const LeadingIcon: Story = {
         <div style="margin-bottom: 8px; font-family: Inter, sans-serif; font-size: 13px; color: #5b7282;">Leading Icon — On</div>
         <ui-tab-group>
           <ui-tab-item label="Data Grid" selected>
-            <span class="material-symbols-outlined" slot="leading-icon">${ICON_CODEPOINTS["bar_chart"]}</span>
+            <ui-icon name="bar_chart" size="m" slot="leading-icon"></ui-icon>
           </ui-tab-item>
           <ui-tab-item label="Table">
-            <span class="material-symbols-outlined" slot="leading-icon">${ICON_CODEPOINTS["bar_chart"]}</span>
+            <ui-icon name="bar_chart" size="m" slot="leading-icon"></ui-icon>
           </ui-tab-item>
           <ui-tab-item label="Pie Chart">
-            <span class="material-symbols-outlined" slot="leading-icon">${ICON_CODEPOINTS["bar_chart"]}</span>
+            <ui-icon name="bar_chart" size="m" slot="leading-icon"></ui-icon>
           </ui-tab-item>
         </ui-tab-group>
       </div>
@@ -142,10 +141,10 @@ export const TrailingIcon: Story = {
         <div style="margin-bottom: 8px; font-family: Inter, sans-serif; font-size: 13px; color: #5b7282;">Trailing Icon — On</div>
         <ui-tab-group>
           <ui-tab-item label="Data Grid" selected>
-            <span class="material-symbols-outlined" slot="trailing-icon">${ICON_CODEPOINTS["bar_chart"]}</span>
+            <ui-icon name="bar_chart" size="m" slot="trailing-icon"></ui-icon>
           </ui-tab-item>
           <ui-tab-item label="Table">
-            <span class="material-symbols-outlined" slot="trailing-icon">${ICON_CODEPOINTS["bar_chart"]}</span>
+            <ui-icon name="bar_chart" size="m" slot="trailing-icon"></ui-icon>
           </ui-tab-item>
         </ui-tab-group>
       </div>
@@ -180,13 +179,13 @@ export const LabelOnly: Story = {
         <div style="margin-bottom: 8px; font-family: Inter, sans-serif; font-size: 13px; color: #5b7282;">Label — Off (icon only)</div>
         <ui-tab-group>
           <ui-tab-item selected>
-            <span class="material-symbols-outlined" slot="leading-icon">${ICON_CODEPOINTS["bar_chart"]}</span>
+            <ui-icon name="bar_chart" size="m" slot="leading-icon"></ui-icon>
           </ui-tab-item>
           <ui-tab-item>
-            <span class="material-symbols-outlined" slot="leading-icon">${ICON_CODEPOINTS["home"]}</span>
+            <ui-icon name="home" size="m" slot="leading-icon"></ui-icon>
           </ui-tab-item>
           <ui-tab-item>
-            <span class="material-symbols-outlined" slot="leading-icon">${ICON_CODEPOINTS["settings"]}</span>
+            <ui-icon name="settings" size="m" slot="leading-icon"></ui-icon>
           </ui-tab-item>
         </ui-tab-group>
       </div>

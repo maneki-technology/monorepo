@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
-import { ICON_ACCOUNT_CIRCLE } from "@maneki/foundation";
+import "../components/ui-icon.js";
 import "../components/ui-select.js";
 import "../components/ui-dropdown-item.js";
 import "../components/ui-dropdown-heading.js";
@@ -198,7 +198,7 @@ export const LeadingIcon: Story = {
   render: () => html`
     <div style="display: flex; gap: 32px; align-items: flex-start;">
       <ui-select label="With Leading Icon" supportive="Supportive Text" placeholder="Select an option">
-        <span slot="leading" class="material-symbols-outlined" style="font-size: 20px;">${ICON_ACCOUNT_CIRCLE}</span>
+        <ui-icon name="account_circle" size="m" slot="leading"></ui-icon>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         <ui-dropdown-item value="c">Option C</ui-dropdown-item>

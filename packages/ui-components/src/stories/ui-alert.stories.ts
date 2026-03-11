@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
-import { ICON_INFO, ICON_NOTIFICATIONS, ICON_CHECK_CIRCLE, ICON_ERROR, ICON_WARNING } from "@maneki/foundation";
+import "../components/ui-icon.js";
 import "../components/ui-alert.js";
 import "../components/ui-button.js";
 
@@ -95,7 +95,7 @@ export const WithDescription: Story = {
 export const WithLeadingIcon: Story = {
   render: () => html`
     <ui-alert status="information" leading-icon>
-      <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_INFO}</span>
+      <ui-icon name="info" size="m" slot="icon"></ui-icon>
       Alert with leading icon
     </ui-alert>
   `,
@@ -113,23 +113,23 @@ export const AllStatuses: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px;">
       <ui-alert status="none" leading-icon>
-        <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_NOTIFICATIONS}</span>
+        <ui-icon name="notifications" size="m" slot="icon"></ui-icon>
         None status
       </ui-alert>
       <ui-alert status="information" leading-icon>
-        <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_INFO}</span>
+        <ui-icon name="info" size="m" slot="icon"></ui-icon>
         Information status
       </ui-alert>
       <ui-alert status="success" leading-icon>
-        <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_CHECK_CIRCLE}</span>
+        <ui-icon name="check_circle" size="m" slot="icon"></ui-icon>
         Success status
       </ui-alert>
       <ui-alert status="error" leading-icon>
-        <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_ERROR}</span>
+        <ui-icon name="error" size="m" slot="icon"></ui-icon>
         Error status
       </ui-alert>
       <ui-alert status="warning" leading-icon>
-        <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_WARNING}</span>
+        <ui-icon name="warning" size="m" slot="icon"></ui-icon>
         Warning status
       </ui-alert>
     </div>
@@ -139,7 +139,7 @@ export const AllStatuses: Story = {
 export const WithFooterButton: Story = {
   render: () => html`
     <ui-alert status="none" leading-icon dismissable>
-      <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_NOTIFICATIONS}</span>
+      <ui-icon name="notifications" size="m" slot="icon"></ui-icon>
       Alert Title
       <span slot="description">Description text explaining the alert in more detail.</span>
       <div slot="footer">
