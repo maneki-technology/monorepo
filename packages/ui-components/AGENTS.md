@@ -50,6 +50,9 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-tab-item>` — tab item: 2 sizes (s/m), 3 states (enabled/selected/disabled), 2 orientations (horizontal/vertical), leading/trailing icon slots, sub-menu chevron, smooth transition
 - `<ui-tab-group>` — tab group wrapper: size/orientation propagation, single selection, roving tabindex, arrow key navigation
 
+**Icons:**
+- `<ui-icon>` — Material Symbols icon: 5 sizes (xxs/xs/s/m/l), 10 states (enabled/hover/active/focus/disabled + inverse variants), filled variant, ICON_CODEPOINTS lookup with ligature fallback, accessible label
+
 ## STRUCTURE
 ```
 ui-components/
@@ -93,6 +96,7 @@ ui-components/
 │   │   ├── ui-modal.ts
 │   │   ├── ui-tab-item.ts
 │   │   ├── ui-tab-group.ts
+│   │   ├── ui-icon.ts
 │   │   └── *.test.ts            # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html

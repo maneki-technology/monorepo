@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
-import { ICON_INFO } from "@maneki/foundation";
+import "../components/ui-icon.js";
 import "../components/ui-accordion-item.js";
 
 const meta: Meta = {
@@ -69,7 +69,7 @@ export const BoldEmphasis: Story = {
 export const WithLeadingIcon: Story = {
   render: () => html`
     <ui-accordion-item leading-icon expanded>
-      <span slot="icon" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_INFO}</span>
+      <ui-icon name="info" size="m" slot="icon"></ui-icon>
       <span slot="label">With Leading Icon</span>
       Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
     </ui-accordion-item>
