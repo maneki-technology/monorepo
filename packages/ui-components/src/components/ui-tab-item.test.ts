@@ -332,4 +332,66 @@ describe("ui-tab-item", () => {
     component.value = "test-val";
     expect(component.value).toBe("test-val");
   });
+
+  // ── Closable ──────────────────────────────────────────────────────────
+
+  it("defaults closable to false", () => {
+    expect((el as unknown as { closable: boolean }).closable).toBe(false);
+  });
+
+  it("reflects closable attribute", () => {
+    el.setAttribute("closable", "");
+    expect((el as unknown as { closable: boolean }).closable).toBe(true);
+    el.removeAttribute("closable");
+    expect((el as unknown as { closable: boolean }).closable).toBe(false);
+  });
+
+  it("has close button element in shadow DOM", () => {
+    const closeBtn = el.shadowRoot!.querySelector(".close-btn");
+    expect(closeBtn).toBeTruthy();
+    expect(closeBtn?.getAttribute("aria-label")).toBe("Close tab");
+  });
+
+  it("has CSS rule to show close button when closable", () => {
+    const styles = el.shadowRoot!.adoptedStyleSheets
+      .map((s: CSSStyleSheet) =>
+        Array.from(s.cssRules)
+          .map((r: CSSRule) => r.cssText)
+          .join("")
+      )
+      .join("");
+    expect(styles).toContain("closable");
+    expect(styles).toContain("close-btn");
+  });
+
+  it("dispatches tab-close event on close button click", () => {
+    el.setAttribute("closable", "");
+    el.setAttribute("value", "my-tab");
+    let detail: { value: string } | null = null;
+    el.addEventListener("tab-close", ((e: CustomEvent) => {
+      detail = e.detail;
+    }) as EventListener);
+    const closeBtn = el.shadowRoot!.querySelector(".close-btn") as HTMLElement;
+    closeBtn.click();
+    expect(detail).toEqual({ value: "my-tab" });
+  });
+
+  it("does not dispatch tab-close when disabled", () => {
+    el.setAttribute("closable", "");
+    el.setAttribute("disabled", "");
+    let fired = false;
+    el.addEventListener("tab-close", () => { fired = true; });
+    const closeBtn = el.shadowRoot!.querySelector(".close-btn") as HTMLElement;
+    closeBtn.click();
+    expect(fired).toBe(false);
+  });
+
+  it("close button click does not trigger tab-select", () => {
+    el.setAttribute("closable", "");
+    let selectFired = false;
+    el.addEventListener("tab-select", () => { selectFired = true; });
+    const closeBtn = el.shadowRoot!.querySelector(".close-btn") as HTMLElement;
+    closeBtn.click();
+    expect(selectFired).toBe(false);
+  });
 });

@@ -59,7 +59,8 @@ const STYLES = /* css */ `
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
-    border-bottom: 1px solid ${BORDER_MINIMAL};
+    border-bottom: var(--ui-tab-group-border, none);
+    box-shadow: var(--ui-tab-group-border-shadow, inset 0 -1px 0 ${BORDER_MINIMAL});
     flex: 1 1 0%;
     min-width: 0;
   }
@@ -91,7 +92,8 @@ const STYLES = /* css */ `
     overflow-x: hidden;
     scrollbar-width: none;
     border-bottom: none;
-    border-left: 1px solid ${BORDER_MINIMAL};
+    border-left: none;
+    box-shadow: var(--ui-tab-group-border-shadow, inset 1px 0 0 ${BORDER_MINIMAL});
     flex: 1 1 0%;
     min-height: 0;
   }
@@ -147,6 +149,10 @@ const STYLES = /* css */ `
     font-size: 20px;
   }
 
+  .more-btn.has-selected {
+    color: ${semanticVar("icon", "action")};
+  }
+
   :host([orientation="vertical"]) .more-btn {
     padding: 4px 0;
   }
@@ -191,12 +197,11 @@ const STYLES = /* css */ `
     flex-shrink: 0;
     display: flex;
     align-items: stretch;
-    border-bottom: 1px solid ${BORDER_MINIMAL};
+    box-shadow: var(--ui-tab-group-border-shadow, inset 0 -1px 0 ${BORDER_MINIMAL});
   }
 
   :host([orientation="vertical"]) .more-container {
-    border-bottom: none;
-    border-left: 1px solid ${BORDER_MINIMAL};
+    box-shadow: var(--ui-tab-group-border-shadow, inset 1px 0 0 ${BORDER_MINIMAL});
   }
 
   .overflow-menu.open.horizontal {
@@ -244,19 +249,20 @@ const STYLES = /* css */ `
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-const PROPAGATED_ATTRS = ["size", "orientation"] as const;
+const PROPAGATED_ATTRS = ["size", "orientation", "closable"] as const;
 
 const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiTabGroup extends HTMLElement {
-  static readonly observedAttributes = ["size", "orientation", "overflow"];
+  static readonly observedAttributes = ["size", "orientation", "overflow", "closable"];
 
   private _tablist!: HTMLDivElement;
   private _moreBtn!: HTMLButtonElement;
   private _overflowMenu!: HTMLDivElement;
   private _resizeObserver: ResizeObserver | null = null;
   private _hiddenItems: Element[] = [];
+  private _childObserver: MutationObserver | null = null;
 
   constructor() {
     super();
@@ -318,6 +324,9 @@ export class UiTabGroup extends HTMLElement {
     // Listen for tab-select events for mutual exclusion
     this.addEventListener("tab-select", this._handleTabSelect.bind(this));
 
+    // Listen for tab-close events to remove tabs
+    this.addEventListener("tab-close", this._handleTabClose.bind(this));
+
     // More button click
     moreBtn.addEventListener("click", this._toggleOverflowMenu.bind(this));
   }
@@ -329,6 +338,22 @@ export class UiTabGroup extends HTMLElement {
     this.addEventListener("keydown", this._handleKeydown);
     document.addEventListener("click", this._handleOutsideClick);
 
+    // Watch for children added after connection (e.g., lit rendering)
+    this._childObserver = new MutationObserver(() => {
+      this._propagateAttributes();
+      this._syncTabindex();
+    });
+    this._childObserver.observe(this, { childList: true });
+
+    // Re-propagate after render — handles nested slot scenarios
+    // where assignedElements() is empty and children exist but
+    // connectedCallback fires before layout is complete
+    requestAnimationFrame(() => {
+      this._propagateAttributes();
+      this._syncTabindex();
+      this._updateOverflow();
+    });
+
     if (this.overflow === "menu") {
       this._startObserving();
     }
@@ -338,6 +363,10 @@ export class UiTabGroup extends HTMLElement {
     this.removeEventListener("keydown", this._handleKeydown);
     document.removeEventListener("click", this._handleOutsideClick);
     this._stopObserving();
+    if (this._childObserver) {
+      this._childObserver.disconnect();
+      this._childObserver = null;
+    }
   }
 
   attributeChangedCallback(
@@ -388,9 +417,26 @@ export class UiTabGroup extends HTMLElement {
     this.setAttribute("overflow", value);
   }
 
+  get closable(): boolean {
+    return this.hasAttribute("closable");
+  }
+
+  set closable(value: boolean) {
+    if (value) {
+      this.setAttribute("closable", "");
+    } else {
+      this.removeAttribute("closable");
+    }
+  }
+
   // ── Private ─────────────────────────────────────────────────────────────
 
   private _getChildItems(): Element[] {
+    // Use direct children as primary source — assignedElements() is unreliable
+    // in nested shadow DOM slot scenarios (e.g., tab-group slotted into flex-panel-header)
+    const directItems = Array.from(this.children).filter((el) => el.tagName === "UI-TAB-ITEM");
+    if (directItems.length > 0) return directItems;
+    // Fallback to slot assignment for non-nested usage
     const slot = this.shadowRoot!.querySelector("slot")!;
     return slot
       .assignedElements({ flatten: true })
@@ -402,7 +448,7 @@ export class UiTabGroup extends HTMLElement {
     for (const attr of PROPAGATED_ATTRS) {
       const value = this.getAttribute(attr);
       for (const item of items) {
-        if (value) {
+        if (value !== null) {
           item.setAttribute(attr, value);
         } else {
           item.removeAttribute(attr);
@@ -434,6 +480,30 @@ export class UiTabGroup extends HTMLElement {
     );
 
     this._closeOverflowMenu();
+    this._updateOverflow();
+  }
+
+  /** Handle tab-close: remove the tab and select a neighbor if it was selected. */
+  private _handleTabClose(e: Event): void {
+    const target = e.target as HTMLElement;
+    if (target.tagName !== "UI-TAB-ITEM") return;
+
+    const items = this._getChildItems();
+    const index = items.indexOf(target);
+    const wasSelected = target.hasAttribute("selected");
+
+    target.remove();
+
+    // If the closed tab was selected, select the nearest sibling
+    if (wasSelected) {
+      const remaining = this._getChildItems();
+      if (remaining.length > 0) {
+        const next = remaining[Math.min(index, remaining.length - 1)];
+        next.setAttribute("selected", "");
+      }
+    }
+
+    this._syncTabindex();
     this._updateOverflow();
   }
 
@@ -505,8 +575,11 @@ export class UiTabGroup extends HTMLElement {
     if (this._hiddenItems.length > 0) {
       this._moreBtn.classList.add("visible");
       this._moreBtn.setAttribute("tabindex", "0");
+      // Highlight more button if a hidden tab is selected
+      const hasSelected = this._hiddenItems.some((item) => item.hasAttribute("selected"));
+      this._moreBtn.classList.toggle("has-selected", hasSelected);
     } else {
-      this._moreBtn.classList.remove("visible");
+      this._moreBtn.classList.remove("visible", "has-selected");
       this._moreBtn.setAttribute("tabindex", "-1");
       this._closeOverflowMenu();
     }
