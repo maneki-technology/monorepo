@@ -56,6 +56,8 @@ export const ICON_DOWNLOAD = "\uF090";
 export const ICON_UPLOAD = "\uF09B";
 /** more_vert — U+E5D4 */
 export const ICON_MORE_VERT = "\uE5D4";
+/** more_horiz — U+E5D3 */
+export const ICON_MORE_HORIZ = "\uE5D3";
 /** home — U+E88A */
 export const ICON_HOME = "\uE88A";
 /** person — U+E7FD */
@@ -93,6 +95,7 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   download: ICON_DOWNLOAD,
   upload: ICON_UPLOAD,
   more_vert: ICON_MORE_VERT,
+  more_horiz: ICON_MORE_HORIZ,
   home: ICON_HOME,
   person: ICON_PERSON,
   bar_chart: ICON_BAR_CHART,
