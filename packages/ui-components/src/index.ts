@@ -100,3 +100,8 @@ export { UiTabItem } from "./components/ui-tab-item.js";
 export type { TabItemSize, TabItemOrientation } from "./components/ui-tab-item.js";
 export { UiTabGroup } from "./components/ui-tab-group.js";
 export type { TabGroupOverflow } from "./components/ui-tab-group.js";
+
+// ─── Icons ──────────────────────────────────────────────────────────────────
+
+export { UiIcon } from "./components/ui-icon.js";
+export type { IconSize, IconState } from "./components/ui-icon.js";

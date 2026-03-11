@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
-import { ICON_SEARCH, ICON_ATTACH_MONEY, ICON_MAIL } from "@maneki/foundation";
+import "../components/ui-icon.js";
 import "../components/ui-input.js";
 
 const meta: Meta = {
@@ -114,10 +114,10 @@ export const LeadingElement: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
       <ui-input label="Search" placeholder="Search...">
-        <span slot="leading" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_SEARCH}</span>
+        <ui-icon name="search" size="m" slot="leading"></ui-icon>
       </ui-input>
       <ui-input label="Amount" placeholder="0.00">
-        <span slot="leading" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_ATTACH_MONEY}</span>
+        <ui-icon name="attach_money" size="m" slot="leading"></ui-icon>
       </ui-input>
     </div>
   `,
@@ -250,7 +250,7 @@ export const FullFeatured: Story = {
         status="success"
         supportive="Email verified successfully"
       >
-        <span slot="leading" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_MAIL}</span>
+        <ui-icon name="mail" size="m" slot="leading"></ui-icon>
       </ui-input>
 
       <ui-input

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
-import { ICON_DOWNLOAD, ICON_UPLOAD, ICON_MORE_VERT } from "@maneki/foundation";
+import "../components/ui-icon.js";
+import "../components/ui-icon.js";
 import "../components/ui-dropdown-split.js";
 import "../components/ui-dropdown-item.js";
 import "../components/ui-dropdown-heading.js";
@@ -157,18 +158,18 @@ export const WithIcons: Story = {
   render: () => html`
     <div style="display: flex; gap: 12px; align-items: flex-start;">
       <ui-dropdown-split icon="leading-icon" label="Download">
-        <span slot="icon-start" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_DOWNLOAD}</span>
+        <ui-icon name="download" size="m" slot="icon-start"></ui-icon>
         <ui-dropdown-item>Download as PDF</ui-dropdown-item>
         <ui-dropdown-item>Download as CSV</ui-dropdown-item>
         <ui-dropdown-item>Download as XLSX</ui-dropdown-item>
       </ui-dropdown-split>
       <ui-dropdown-split icon="trailing-icon" label="Export">
-        <span slot="icon-end" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_UPLOAD}</span>
+        <ui-icon name="upload" size="m" slot="icon-end"></ui-icon>
         <ui-dropdown-item>Export JSON</ui-dropdown-item>
         <ui-dropdown-item>Export XML</ui-dropdown-item>
       </ui-dropdown-split>
       <ui-dropdown-split icon="icon-only">
-        <span slot="icon-start" class="material-symbols-outlined" style="font-size: 20px; font-variation-settings: 'wght' 500;">${ICON_MORE_VERT}</span>
+        <ui-icon name="more_vert" size="m" slot="icon-start"></ui-icon>
         <ui-dropdown-item>Edit</ui-dropdown-item>
         <ui-dropdown-item>Delete</ui-dropdown-item>
       </ui-dropdown-split>
