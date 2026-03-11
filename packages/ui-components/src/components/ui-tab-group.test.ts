@@ -395,4 +395,39 @@ describe("ui-tab-group", () => {
     expect(wrapper?.querySelector(".more-btn")).toBeTruthy();
     expect(wrapper?.querySelector(".overflow-menu")).toBeTruthy();
   });
+
+  // ── Closable propagation ─────────────────────────────────────────────────
+
+  it("defaults closable to false", () => {
+    expect((group as unknown as { closable: boolean }).closable).toBe(false);
+  });
+
+  it("propagates closable to children", async () => {
+    const tab1 = document.createElement("ui-tab-item");
+    tab1.setAttribute("label", "Tab 1");
+    group.appendChild(tab1);
+    await new Promise((r) => requestAnimationFrame(r));
+
+    expect(tab1.hasAttribute("closable")).toBe(false);
+
+    group.setAttribute("closable", "");
+    await new Promise((r) => requestAnimationFrame(r));
+
+    expect(tab1.hasAttribute("closable")).toBe(true);
+  });
+
+  it("removes closable from children when removed from group", async () => {
+    group.setAttribute("closable", "");
+    const tab1 = document.createElement("ui-tab-item");
+    tab1.setAttribute("label", "Tab 1");
+    group.appendChild(tab1);
+    await new Promise((r) => requestAnimationFrame(r));
+
+    expect(tab1.hasAttribute("closable")).toBe(true);
+
+    group.removeAttribute("closable");
+    await new Promise((r) => requestAnimationFrame(r));
+
+    expect(tab1.hasAttribute("closable")).toBe(false);
+  });
 });
