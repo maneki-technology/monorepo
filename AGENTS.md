@@ -16,6 +16,7 @@ maneki-monorepo/
 ├── package.json             # npm workspaces root + Storybook scripts
 ├── packages/
 │   ├── grid-layout/         # <grid-layout> Web Component library (@maneki/grid-layout)
+│   ├── flex-layout/         # Panel-based flex layout Web Components (@maneki/flex-layout)
 │   ├── ui-components/       # UI components + Storybook (@maneki/ui-components)
 │   │                        # Primitives: badge, image, button, avatar, alert, label, link
 │   │                        # Form Controls: checkbox-item/group, radio-item/group, input, input-group, file-upload, select
@@ -24,8 +25,8 @@ maneki-monorepo/
 │   │                        # Disclosure: accordion-item/group
 │   │                        # Menus & Dropdowns: dropdown, dropdown-item/heading/separator/split, menu
 │   │                        # Overlays: modal
+│   │                        # Tabs: tab-item, tab-group
 │   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints (@maneki/foundation)
-└── apps/                    # (empty — future apps)
 ```
 
 ## WHERE TO LOOK
@@ -39,13 +40,14 @@ maneki-monorepo/
 | Design tokens (colors, spacing, type) | `packages/foundation/` | Extracted from Figma |
 | UI components + Storybook | `packages/ui-components/` | Web Components with stories |
 | Grid layout library | `packages/grid-layout/` | Has its own detailed AGENTS.md |
-| Storybook (all packages) | `.storybook/` | Root-level, aggregates foundation + ui-components + grid-layout |
+| Flex layout library | `packages/flex-layout/` | Panel-based flex layout, has its own AGENTS.md |
+| Storybook (all packages) | `.storybook/` | Root-level, aggregates foundation + ui-components + grid-layout + flex-layout |
 
 ## CONVENTIONS
-- **Zero runtime deps** (except `ui-components` and `grid-layout` → `@maneki/foundation`). Foundation has zero production dependencies.
+- **Zero runtime deps** (except `ui-components`, `grid-layout`, and `flex-layout` → `@maneki/foundation`). Foundation has zero production dependencies.
 - **Web Components + Shadow DOM.** All UI is custom elements with `attachShadow({ mode: "open" })`.
-- **CSS custom properties.** Each package has its own prefix: `--grid-*` (grid-layout), `--fd-*` (foundation), `--ui-*` (ui-components).
-- **Package naming.** npm: `@maneki/*` scope (e.g., `@maneki/foundation`, `@maneki/ui-components`, `@maneki/grid-layout`).
+- **CSS custom properties.** Each package has its own prefix: `--grid-*` (grid-layout), `--flex-*` (flex-layout), `--fd-*` (foundation), `--ui-*` (ui-components).
+- **Package naming.** npm: `@maneki/*` scope (e.g., `@maneki/foundation`, `@maneki/ui-components`, `@maneki/grid-layout`, `@maneki/flex-layout`).
 - **Moon tasks.** kebab-case: `build`, `test`, `test-watch`, `dev`, `storybook`, `storybook-build`, `test-visual`.
 - **Build pipeline.** `vite build && tsc --emitDeclarationOnly` → `dist/`. Vite builds JS first, then tsc generates `.d.ts` files.
 - **Testing.** Vitest with happy-dom. Tests co-located: `foo.ts` → `foo.test.ts`. Visual tests via Playwright in `e2e/`.
