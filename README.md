@@ -25,8 +25,8 @@ maneki-monorepo/
 ├── packages/
 │   ├── foundation/          # Design tokens (@maneki/foundation)
 │   ├── ui-components/       # Web Components + Storybook (@maneki/ui-components)
-│   └── grid-layout/         # Grid layout library (@maneki/grid-layout)
-└── apps/                    # Future consumer apps
+│   ├── grid-layout/         # Grid layout library (@maneki/grid-layout)
+│   └── flex-layout/         # Panel-based flex layout (@maneki/flex-layout)
 ```
 
 ---
@@ -36,8 +36,9 @@ maneki-monorepo/
 | Package | npm name | Description |
 |---|---|---|
 | `foundation` | `@maneki/foundation` | Design tokens: 131 colors, semantic tokens, typography, spacing, elevation, responsive breakpoints |
-| `ui-components` | `@maneki/ui-components` | 30 Web Components (button, badge, image, avatar, alert, label, link, checkbox, radio, input, file-upload, select, card, breadcrumb, accordion, dropdown, menu, modal, side-panel-menu) with Storybook 10 |
+| `ui-components` | `@maneki/ui-components` | 32 Web Components (button, badge, image, avatar, alert, label, link, checkbox, radio, input, file-upload, select, card, breadcrumb, accordion, dropdown, menu, modal, side-panel-menu, tabs) with Storybook 10 |
 | `grid-layout` | `@maneki/grid-layout` | Zero-dep drag/resize grid layout (220 tests) |
+| `flex-layout` | `@maneki/flex-layout` | Panel-based flex layout for dashboard-style interfaces (3 components, 50 tests) |
 
 ---
 
@@ -57,6 +58,7 @@ moon check --all
 moon run foundation:test
 moon run ui-components:test
 moon run grid-layout:test
+moon run flex-layout:test
 
 # Storybook (all packages)
 npm run storybook            # Dev server on port 6006
@@ -69,7 +71,7 @@ npm run storybook:build      # Static build → storybook-static/
 
 - Zero runtime dependencies (except ui-components depends on foundation)
 - Web Components with Shadow DOM
-- CSS custom properties, prefixed per package: `--fd-*`, `--ui-*`, `--grid-*`
+- CSS custom properties, prefixed per package: `--fd-*`, `--ui-*`, `--grid-*`, `--flex-*`
 - TypeScript strict mode, ES2022 target
 - Tests co-located: `foo.ts` → `foo.test.ts`
 - Moon tasks in kebab-case: `build`, `test`, `test-watch`, `dev`, `storybook`

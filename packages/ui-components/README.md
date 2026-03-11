@@ -68,6 +68,9 @@ npm install @maneki/ui-components
 | `<ui-menu>` | Standalone floating menu panel: 2 sizes, open/close animation, dismiss, single/multi-select |
 | | **Overlays** |
 | `<ui-modal>` | Dialog with backdrop, header, scrollable body, footer: 3 sizes, 2 layouts |
+| | **Tabs** |
+| `<ui-tab-item>` | Tab item: 2 sizes, 3 states, 2 orientations, leading/trailing icon slots |
+| `<ui-tab-group>` | Tab group wrapper: size/orientation propagation, roving tabindex, arrow key navigation |
 
 ```html
 <ui-button action="primary" emphasis="bold" size="m">Save</ui-button>
@@ -88,7 +91,7 @@ moon run ui-components:storybook        # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build → storybook-static/
 ```
 
-30 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
+32 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
 
 ---
 
@@ -96,7 +99,7 @@ moon run ui-components:storybook-build  # Static build → storybook-static/
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (1157 tests)
+moon run ui-components:test   # vitest --run (1252 tests)
 ```
 
 ---
