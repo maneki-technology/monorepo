@@ -1,4 +1,5 @@
 # Icon Manifest
+add
 # Each line is a Material Symbols Outlined icon name included in the subset font.
 # To add a new icon, append its name here and run the subset script.
 # See SOP in packages/foundation/AGENTS.md for details.
