@@ -153,7 +153,7 @@ Shadow DOM requires a local `@font-face` declaration to access the globally-load
 .material-symbols-outlined { font-family: "Material Symbols Outlined"; font-variation-settings: "FILL" 0; }
 ```
 
-Available icon constants: `ICON_WARNING`, `ICON_ERROR`, `ICON_CHECK_CIRCLE`, `ICON_PROGRESS_ACTIVITY`, `ICON_CLOSE`, `ICON_CANCEL`, `ICON_EXPAND_MORE`, `ICON_VISIBILITY`, `ICON_VISIBILITY_OFF`, `ICON_ARROW_DROP_UP`, `ICON_ARROW_DROP_DOWN`, `ICON_INFO`, `ICON_NOTIFICATIONS`, `ICON_SEARCH`, `ICON_ATTACH_MONEY`, `ICON_MAIL`, `ICON_ACCOUNT_CIRCLE`, `ICON_ADD_CIRCLE`, `ICON_SHARE`, `ICON_DOWNLOAD`, `ICON_UPLOAD`, `ICON_MORE_VERT`, `ICON_HOME`, `ICON_PERSON`, `ICON_BAR_CHART`, `ICON_SETTINGS`, `ICON_GROUP`.
+Available icon constants: `ICON_WARNING`, `ICON_ERROR`, `ICON_CHECK_CIRCLE`, `ICON_PROGRESS_ACTIVITY`, `ICON_CLOSE`, `ICON_CANCEL`, `ICON_EXPAND_MORE`, `ICON_EXPAND_LESS`, `ICON_VISIBILITY`, `ICON_VISIBILITY_OFF`, `ICON_ARROW_DROP_UP`, `ICON_ARROW_DROP_DOWN`, `ICON_INFO`, `ICON_NOTIFICATIONS`, `ICON_SEARCH`, `ICON_ATTACH_MONEY`, `ICON_MAIL`, `ICON_ACCOUNT_CIRCLE`, `ICON_ADD_CIRCLE`, `ICON_SHARE`, `ICON_DOWNLOAD`, `ICON_UPLOAD`, `ICON_MORE_VERT`, `ICON_HOME`, `ICON_PERSON`, `ICON_BAR_CHART`, `ICON_SETTINGS`, `ICON_GROUP`, `ICON_CHEVRON_RIGHT`, `ICON_CHEVRON_LEFT`.
 For stories, use `ICON_CODEPOINTS` record for dynamic lookup: `ICON_CODEPOINTS["home"]`.
 Status icons use filled variant: `font-variation-settings: 'FILL' 1`.
 Chevron icon: `ICON_EXPAND_MORE` (not `ICON_ARROW_DROP_DOWN`). Clear button: `ICON_CANCEL` with filled variant.
@@ -161,9 +161,7 @@ Chevron and clear button use `semanticVar("icon", "secondary")` token.
 
 To add a new icon, see the SOP in `packages/foundation/AGENTS.md`.
 
-Legacy SVG icons in `src/assets/icons.ts` exist for older components but should NOT be used in new components.
-
-Legacy SVG icons in `src/assets/icons.ts` exist for older components but should NOT be used in new components.
+Legacy SVG icons in `src/assets/icons.ts` are deprecated. Only `ICON_CHECK` remains (used by `ui-checkbox-item`). All other components use `<ui-icon>` or direct Material Symbols codepoints.
 
 ## TYPE SAFETY
 Exported union types cover every attribute:
@@ -224,11 +222,73 @@ Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, u
   - `State/Disabled/minimal-disabled` → `semanticVar("stateDisabled", "minimal")` (`rgba(91,114,130,0.2)`) — inner fill/dot in disabled state
   - `State/Disabled/text-disabled` → `semanticVar("stateDisabled", "text")` (`rgba(91,114,130,0.5)`) — label text in disabled state
   - `Status/Surface/status-error-bold` → `semanticVar("statusSurface", "errorBold")` (`#D91F11`)
+## SOP: Using `<ui-icon>` in Components
+
+When a component needs to render a Material Symbols icon internally:
+
+1. **Import the icon codepoint** from `@maneki/foundation`:
+   ```ts
+   import { ICON_CLOSE, ICON_EXPAND_MORE } from "@maneki/foundation";
+   ```
+2. **Create `<ui-icon>` in `connectedCallback()`**, NOT in the constructor. Creating custom elements with attributes in the constructor violates the Web Components spec and throws `NotSupportedError` when the parent is parsed from HTML.
+   ```ts
+   connectedCallback() {
+     const icon = document.createElement("ui-icon") as UIIcon;
+     icon.setAttribute("name", "close");
+     icon.setAttribute("size", "s");
+     this.shadowRoot!.querySelector(".icon-slot")!.appendChild(icon);
+   }
+   ```
+3. **Do NOT set a color on `<ui-icon>`** unless you need to override the parent's text color. `<ui-icon>` defaults to `currentColor`, which inherits semantic colors from wrapper elements (status icons, links, etc.).
+4. **Set `--ui-icon-size` in CSS** for every size variant. Since `<ui-icon>` uses Shadow DOM, parent `font-size` does NOT control icon size. You must set the custom property explicitly:
+   ```css
+   :host([size="s"]) .icon-wrapper { --ui-icon-size: 16px; }
+   :host([size="m"]) .icon-wrapper { --ui-icon-size: 20px; }
+   :host([size="l"]) .icon-wrapper { --ui-icon-size: 24px; }
+   ```
+5. **Use `name` attribute** (not codepoint text) when creating `<ui-icon>` — it handles `ICON_CODEPOINTS` lookup and ligature fallback automatically.
+6. **For rotation/animation** (e.g., accordion chevron), apply `transform` on the `<ui-icon>` element itself, not a wrapper. Ensure `transform-origin: center` for centered rotation.
+7. **Verify visually** that icons inherit correct semantic colors in all states (enabled, hover, disabled, error, etc.).
+
+### Common Pitfalls
+- **Missing `}`** — when adding `--ui-icon-size` lines to size-variant CSS blocks, double-check that every block's closing brace is intact. A missing `}` silently breaks the entire stylesheet.
+- **Missing icon in subset font** — if the icon shows literal text (e.g., "chevron_right"), the icon is not in the subset. Follow the "Adding a New Icon" SOP in `packages/foundation/AGENTS.md`.
+- **Constructor `setAttribute`** — will crash at runtime when the element is created inside another component's Shadow DOM. Always defer to `connectedCallback()`.
+
+## SOP: Updating Documentation After Changes
+
+After merging a PR that adds/modifies components, icons, or tests, update these files:
+
+1. **Test counts** — update in all locations where test counts appear:
+   - `packages/ui-components/AGENTS.md` → COMMANDS section
+   - `packages/ui-components/README.md` → Development section
+   - `packages/foundation/AGENTS.md` → COMMANDS section (if foundation tests changed)
+   - `packages/foundation/README.md` → Development section (if foundation tests changed)
+   - `README.md` (root) — no test counts currently, but verify package descriptions
+2. **Component count** — if a new component was added:
+   - `README.md` (root) → Packages table ("N Web Components")
+   - `packages/ui-components/README.md` → Components table + story count
+   - `packages/ui-components/AGENTS.md` → OVERVIEW component list
+3. **Icon constants** — if new icons were added to foundation:
+   - `packages/ui-components/AGENTS.md` → ICONS section → "Available icon constants" list
+   - `packages/foundation/AGENTS.md` — no icon list (covered by SOP)
+4. **AGENTS.md structure trees** — if new files were added (components, styles, stories)
+5. **Storybook config** — if a new package was added to root `.storybook/main.ts`
+
+### Quick Checklist
+```
+[ ] Test counts match `npx vitest --run` output
+[ ] Component count matches actual registered elements
+[ ] Icon constants list matches `ICON_CODEPOINTS` keys in foundation
+[ ] AGENTS.md file trees reflect actual directory structure
+[ ] No duplicate lines or stale references
+```
+
 ## COMMANDS
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (1252 tests)
+moon run ui-components:test            # vitest --run (1314 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```
