@@ -1,5 +1,5 @@
 import { semanticVar } from "@maneki/foundation";
-import { ICON_CHEVRON_RIGHT } from "../assets/icons.js";
+import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -88,10 +88,6 @@ const STYLES = /* css */ `
     line-height: 0;
   }
 
-  .separator svg {
-    width: 100%;
-    height: 100%;
-  }
 
   .separator.hidden {
     display: none;
@@ -111,6 +107,7 @@ const STYLES = /* css */ `
   :host([size="m"]) .separator {
     width: 16px;
     height: 16px;
+    --ui-icon-size: 16px;
   }
 
   :host .base,
@@ -130,6 +127,7 @@ const STYLES = /* css */ `
   :host([size="s"]) .separator {
     width: 16px;
     height: 16px;
+    --ui-icon-size: 16px;
   }
 
   :host([size="s"]) .base {
@@ -148,6 +146,7 @@ const STYLES = /* css */ `
   :host([size="l"]) .separator {
     width: 18px;
     height: 18px;
+    --ui-icon-size: 18px;
   }
 
   :host([size="l"]) .base {
@@ -189,7 +188,9 @@ export class UiBreadcrumbItem extends HTMLElement {
     this._separator = document.createElement("span");
     this._separator.className = "separator hidden";
     this._separator.setAttribute("aria-hidden", "true");
-    this._separator.innerHTML = ICON_CHEVRON_RIGHT;
+    const sepIcon = document.createElement("ui-icon") as HTMLElement;
+    sepIcon.setAttribute("name", "chevron_right");
+    this._separator.appendChild(sepIcon);
     this._base.appendChild(this._separator);
 
     shadow.appendChild(this._base);

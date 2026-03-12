@@ -26,6 +26,12 @@ export const ICON_CLOSE = "\uE5CD";
 export const ICON_CANCEL = "\uE5C9";
 /** expand_more (chevron down) — U+E5CF */
 export const ICON_EXPAND_MORE = "\uE5CF";
+/** expand_less (chevron up) — U+E5CE */
+export const ICON_EXPAND_LESS = "\uE5CE";
+/** chevron_right — U+E5CC */
+export const ICON_CHEVRON_RIGHT = "\uE5CC";
+/** chevron_left — U+E5CB */
+export const ICON_CHEVRON_LEFT = "\uE5CB";
 /** visibility — U+E8F4 */
 export const ICON_VISIBILITY = "\uE8F4";
 /** visibility_off — U+E8F5 */
@@ -80,6 +86,9 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   close: ICON_CLOSE,
   cancel: ICON_CANCEL,
   expand_more: ICON_EXPAND_MORE,
+  expand_less: ICON_EXPAND_LESS,
+  chevron_right: ICON_CHEVRON_RIGHT,
+  chevron_left: ICON_CHEVRON_LEFT,
   visibility: ICON_VISIBILITY,
   visibility_off: ICON_VISIBILITY_OFF,
   arrow_drop_up: ICON_ARROW_DROP_UP,

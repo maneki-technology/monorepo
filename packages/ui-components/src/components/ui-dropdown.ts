@@ -1,6 +1,6 @@
 import { colorVar, semanticVar, spaceVar, elevationVar } from "@maneki/foundation";
 import "./ui-button.js";
-import { ICON_CHEVRON } from "../assets/icons.js";
+import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -59,11 +59,7 @@ export const STYLES = /* css */ `
     height: 20px;
     transition: transform 0.15s ease;
     line-height: 0;
-  }
-
-  .chevron svg {
-    width: 100%;
-    height: 100%;
+    --ui-icon-size: 20px;
   }
 
   :host([open]) .chevron {
@@ -158,7 +154,9 @@ export class UiDropdown extends HTMLElement {
     const chevron = document.createElement("span");
     chevron.className = "chevron";
     chevron.setAttribute("slot", "icon-end");
-    chevron.innerHTML = ICON_CHEVRON;
+    const chevronIcon = document.createElement("ui-icon") as HTMLElement;
+    chevronIcon.setAttribute("name", "expand_more");
+    chevron.appendChild(chevronIcon);
     trigger.appendChild(chevron);
 
     shadow.appendChild(trigger);

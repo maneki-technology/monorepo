@@ -1,5 +1,5 @@
 import { standardBreakpoints } from "@maneki/foundation";
-import { ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT } from "../assets/icons.js";
+import "./ui-icon.js";
 import { STYLES } from "./ui-side-panel-menu.styles.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -178,8 +178,16 @@ export class UiSidePanelMenu extends HTMLElement {
   }
 
   private _syncToggleIcon(): void {
-    this._toggleBtn.innerHTML =
-      this.state === "expanded" ? ICON_CHEVRON_LEFT : ICON_CHEVRON_RIGHT;
+    this._toggleBtn.innerHTML = "";
+    if (this.state === "expanded") {
+      const icon = document.createElement("ui-icon") as HTMLElement;
+      icon.setAttribute("name", "chevron_left");
+      this._toggleBtn.appendChild(icon);
+    } else {
+      const icon = document.createElement("ui-icon") as HTMLElement;
+      icon.setAttribute("name", "chevron_right");
+      this._toggleBtn.appendChild(icon);
+    }
     this._toggleBtn.setAttribute(
       "aria-label",
       this.state === "expanded" ? "Collapse panel" : "Expand panel",

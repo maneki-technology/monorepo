@@ -270,7 +270,7 @@ describe("ui-avatar", () => {
     const shadow = el.shadowRoot!;
     const defaultIcon = shadow.querySelector(".default-icon");
     expect(defaultIcon).toBeTruthy();
-    expect(defaultIcon!.querySelector("svg")).toBeTruthy();
+    expect(defaultIcon!.tagName.toLowerCase()).toBe("ui-icon");
   });
 
   // ── Property accessors ────────────────────────────────────────────────

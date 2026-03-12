@@ -109,6 +109,8 @@ export const STYLES = /* css */ `
     margin: 0;
     flex-shrink: 0;
     border-radius: 2px;
+    --ui-icon-size: 20px;
+  }
   }
 
   .header-toggle:focus-visible {
@@ -116,10 +118,6 @@ export const STYLES = /* css */ `
     outline-offset: -2px;
   }
 
-  .header-toggle svg {
-    width: 100%;
-    height: 100%;
-  }
 
   /* ── Collapsed header ────────────────────────────────────────────────────── */
 

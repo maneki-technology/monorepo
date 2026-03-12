@@ -1,5 +1,5 @@
 import { semanticVar } from "@maneki/foundation";
-import { ICON_CHEVRON_RIGHT } from "../assets/icons.js";
+import "./ui-icon.js";
 import { STYLES } from "./ui-dropdown-item.styles.js";
 
 // ─── Token constants (used in SVG generation) ────────────────────────────────
@@ -347,7 +347,9 @@ export class UiDropdownItem extends HTMLElement {
     if (!this._submenuEl) {
       this._submenuEl = document.createElement("span");
       this._submenuEl.className = "submenu";
-      this._submenuEl.innerHTML = ICON_CHEVRON_RIGHT;
+      const submenuIcon = document.createElement("ui-icon") as HTMLElement;
+      submenuIcon.setAttribute("name", "chevron_right");
+      this._submenuEl.appendChild(submenuIcon);
       // Insert at end of right section
       this._rightEl.appendChild(this._submenuEl);
     }

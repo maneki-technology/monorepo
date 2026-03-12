@@ -1,5 +1,5 @@
 import { colorVar } from "@maneki/foundation";
-import { ICON_USER } from "../assets/icons.js";
+import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -118,11 +118,6 @@ const STYLES = /* css */ `
     line-height: 0;
   }
 
-  .icon svg,
-  .icon ::slotted(*) {
-    width: 100%;
-    height: 100%;
-  }
 
   .image {
     width: 100%;
@@ -164,6 +159,7 @@ const STYLES = /* css */ `
   :host([size="m"]) .icon {
     width: 24px;
     height: 24px;
+    --ui-icon-size: 24px;
   }
 
   /* ── Size: xs ────────────────────────────────────────────────────────────── */
@@ -181,6 +177,7 @@ const STYLES = /* css */ `
   :host([size="xs"]) .icon {
     width: 12px;
     height: 12px;
+    --ui-icon-size: 12px;
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
@@ -198,6 +195,7 @@ const STYLES = /* css */ `
   :host([size="s"]) .icon {
     width: 18px;
     height: 18px;
+    --ui-icon-size: 18px;
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
@@ -215,6 +213,7 @@ const STYLES = /* css */ `
   :host([size="l"]) .icon {
     width: 30px;
     height: 30px;
+    --ui-icon-size: 30px;
   }
 
   /* ── Size: xl ────────────────────────────────────────────────────────────── */
@@ -232,6 +231,7 @@ const STYLES = /* css */ `
   :host([size="xl"]) .icon {
     width: 36px;
     height: 36px;
+    --ui-icon-size: 36px;
   }
 
   /* ── Emphasis: bold (default) + color: none (default) ────────────────────── */
@@ -408,9 +408,10 @@ export class UiAvatar extends HTMLElement {
     const icon = document.createElement("span");
     icon.className = "icon";
 
-    const defaultIcon = document.createElement("span");
+    const defaultIcon = document.createElement("ui-icon") as HTMLElement;
     defaultIcon.className = "default-icon";
-    defaultIcon.innerHTML = ICON_USER;
+    defaultIcon.setAttribute("name", "person");
+
     icon.appendChild(defaultIcon);
 
     const iconSlot = document.createElement("slot");

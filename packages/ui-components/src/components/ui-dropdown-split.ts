@@ -1,4 +1,4 @@
-import { ICON_CHEVRON } from "../assets/icons.js";
+import "./ui-icon.js";
 import { STYLES } from "./ui-dropdown-split.styles.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -105,7 +105,9 @@ export class UiDropdownSplit extends HTMLElement {
 
     const chevron = document.createElement("span");
     chevron.className = "chevron";
-    chevron.innerHTML = ICON_CHEVRON;
+    const chevronIcon = document.createElement("ui-icon") as HTMLElement;
+    chevronIcon.setAttribute("name", "expand_more");
+    chevron.appendChild(chevronIcon);
     right.appendChild(chevron);
     base.appendChild(right);
 

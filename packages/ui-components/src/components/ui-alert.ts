@@ -11,7 +11,7 @@ export type AlertStatus =
   | "error"
   | "warning";
 
-import { ICON_CLOSE } from "../assets/icons.js";
+import "./ui-icon.js";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -177,10 +177,6 @@ const STYLES = /* css */ `
     line-height: 0;
   }
 
-  .close-btn svg {
-    width: 100%;
-    height: 100%;
-  }
 
   :host([dismissable]) .close-btn {
     display: inline-flex;
@@ -215,6 +211,7 @@ const STYLES = /* css */ `
   :host([size="m"]) .close-btn {
     width: 20px;
     height: 20px;
+    --ui-icon-size: 20px;
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
@@ -241,6 +238,7 @@ const STYLES = /* css */ `
   :host([size="s"]) .close-btn {
     width: 16px;
     height: 16px;
+    --ui-icon-size: 16px;
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
@@ -443,7 +441,9 @@ export class UiAlert extends HTMLElement {
     const closeBtn = document.createElement("button");
     closeBtn.className = "close-btn";
     closeBtn.setAttribute("aria-label", "Dismiss");
-    closeBtn.innerHTML = ICON_CLOSE;
+    const closeIcon = document.createElement("ui-icon") as HTMLElement;
+    closeIcon.setAttribute("name", "close");
+    closeBtn.appendChild(closeIcon);
     closeBtn.addEventListener("click", () => this._dismiss());
     topRight.appendChild(closeBtn);
 
