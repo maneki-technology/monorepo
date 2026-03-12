@@ -101,6 +101,8 @@ export {
   ICON_BAR_CHART,
   ICON_SETTINGS,
   ICON_GROUP,
+  ICON_CHECK,
+  ICON_REMOVE,
   ICON_CODEPOINTS,
   registerIconFont,
 } from "./icons.js";

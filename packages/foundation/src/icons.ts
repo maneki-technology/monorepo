@@ -74,6 +74,10 @@ export const ICON_BAR_CHART = "\uE26B";
 export const ICON_SETTINGS = "\uE8B8";
 /** group — U+E7EF */
 export const ICON_GROUP = "\uE7EF";
+/** check — U+E5CA */
+export const ICON_CHECK = "\uE5CA";
+/** remove (minus) — U+E15B */
+export const ICON_REMOVE = "\uE15B";
 
 // ── Reverse lookup (name → codepoint) ───────────────────────────────
 
@@ -110,6 +114,8 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   bar_chart: ICON_BAR_CHART,
   settings: ICON_SETTINGS,
   group: ICON_GROUP,
+  remove: ICON_REMOVE,
+  check: ICON_CHECK,
 };
 
 // ── Font registration ───────────────────────────────────────────────
