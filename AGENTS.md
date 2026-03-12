@@ -82,10 +82,11 @@ Every change — component, fix, refactor, docs — follows this workflow:
    - AGENTS.md structure trees if new files
    - ALWAYS update docs BEFORE the first `jj git push`. Never push code without docs in the same commit.
 7. **Ask user to verify visually** — share Storybook screenshots or point to the running Storybook. Wait for user confirmation before pushing. Never push without user sign-off on visual changes.
-8. **Push** — `jj bookmark set <name> -r @ --allow-backwards && jj git push --bookmark <name>`
-9. **Create PR** — `gh pr create --base main --head <name>`
-10. **Chromatic review** — wait for visual regression tests to pass
-11. **Never push directly to `main`**
+8. **Wait for explicit push request** — NEVER push code unless the user explicitly asks. Present the completed work and wait for the user to say "push", "let's push", "push it", etc.
+9. **Push** — `jj bookmark set <name> -r @ --allow-backwards && jj git push --bookmark <name>`
+10. **Create PR** — `gh pr create --base main --head <name>`
+11. **Chromatic review** — wait for visual regression tests to pass
+12. **Never push directly to `main`**
 
 ## COMMANDS
 ```bash

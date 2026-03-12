@@ -281,6 +281,16 @@ export const button = {
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------
+// Grid / Row — Table row tokens
+// ---------------------------------------------------------------------------
+
+export const gridRow = {
+  rowDefault: "#ffffff",                  // white — default row background
+  rowAlt: ref("gray", 10),                // #EEF1F4 — zebra stripe alternate row
+  rowSelected: ref("blue", 10),           // #E8F1FC — selected row background
+} as const satisfies Record<string, SemanticValue>;
+
+// ---------------------------------------------------------------------------
 // Aggregate — all semantic color token groups
 // ---------------------------------------------------------------------------
 
@@ -300,6 +310,7 @@ export const semanticTokens = {
   stateSelected,
   tag,
   button,
+  gridRow,
 } as const;
 
 export type SemanticTokenGroup = keyof typeof semanticTokens;

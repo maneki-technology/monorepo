@@ -23,6 +23,11 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-file-upload>` — file upload input: 3 sizes (s/m/l), Browse button, accept/multiple attributes, disabled state
 - `<ui-select>` — select dropdown: 3 sizes (s/m/l), 7 states, 5 statuses, single/multi-select with tag pills, WAI-ARIA combobox pattern, leading slot, clearable, label/supportive text
 - `<ui-textarea>` — textarea: 3 sizes (s/m/l), 7 states (enabled/hover/focus/active/filled/disabled/readonly), 5 statuses (none/warning/error/success/loading), label with char count, secondary label, resize handle
+
+**Data Display:**
+- `<ui-table>` — table container: 3 sizes (s/m/l), 2 separators (minimal/moderate), zebra striping, bordered, size propagation to children
+- `<ui-table-row>` — table row: header, selected, disabled states, hover highlight
+- `<ui-table-cell>` — table cell: header (columnheader ARIA), 3 alignments (left/center/right), size-dependent typography
 **Containers:**
 - `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
 - `<ui-button-group>` — segmented bar that wraps `<ui-button>` elements
@@ -99,6 +104,9 @@ ui-components/
 │   │   ├── ui-tab-group.ts
 │   │   ├── ui-icon.ts
 │   │   ├── ui-tag.ts
+│   │   ├── ui-table.ts
+│   │   ├── ui-table-row.ts
+│   │   ├── ui-table-cell.ts
 │   │   └── *.test.ts            # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
@@ -297,7 +305,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (1561 tests)
+moon run ui-components:test            # vitest --run (1647 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```
