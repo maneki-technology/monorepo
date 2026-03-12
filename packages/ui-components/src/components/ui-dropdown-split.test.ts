@@ -59,10 +59,10 @@ describe("UiDropdownSplit — DOM structure", () => {
     expect(inner).toBeTruthy();
   });
 
-  it("should render a chevron icon in the right button", () => {
+  it("should render a chevron ui-icon in the right button", () => {
     const chevron = el.shadowRoot!.querySelector(".chevron");
     expect(chevron).toBeTruthy();
-    expect(chevron?.querySelector("svg")).toBeTruthy();
+    expect(chevron?.querySelector("ui-icon")).toBeTruthy();
   });
 
   it("should render a menu panel with role='menu'", () => {

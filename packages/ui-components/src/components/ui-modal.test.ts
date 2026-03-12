@@ -555,7 +555,7 @@ describe("ui-modal", () => {
   it("close button contains SVG icon", () => {
     const shadow = el.shadowRoot!;
     const closeBtn = shadow.querySelector(".close-btn") as HTMLElement;
-    expect(closeBtn.querySelector("svg")).toBeTruthy();
+    expect(closeBtn.querySelector("ui-icon")).toBeTruthy();
   });
 
   // ── Title ID ────────────────────────────────────────────────────────────

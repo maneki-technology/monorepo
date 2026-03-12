@@ -6,7 +6,7 @@ export type AccordionSize = "s" | "m" | "l";
 export type AccordionEmphasis = "bold" | "subtle";
 export type AccordionStatus = "none" | "error" | "warning" | "success";
 
-import { ICON_CHEVRON, ICON_ERROR, ICON_WARNING, ICON_SUCCESS } from "../assets/icons.js";
+import "./ui-icon.js";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -118,10 +118,6 @@ const STYLES = /* css */ `
     line-height: 0;
   }
 
-  .status-icon svg {
-    width: 100%;
-    height: 100%;
-  }
 
   :host([status="error"]) .status-icon {
     display: inline-flex;
@@ -149,10 +145,6 @@ const STYLES = /* css */ `
     transition: transform 0.2s ease;
   }
 
-  .chevron svg {
-    width: 100%;
-    height: 100%;
-  }
 
   :host([expanded]) .chevron {
     transform: rotate(180deg);
@@ -206,12 +198,14 @@ const STYLES = /* css */ `
   :host([size="m"]) .chevron {
     width: 20px;
     height: 20px;
+    --ui-icon-size: 20px;
   }
 
   :host .status-icon,
   :host([size="m"]) .status-icon {
     width: 18px;
     height: 18px;
+    --ui-icon-size: 18px;
   }
 
   :host .content-body,
@@ -245,11 +239,13 @@ const STYLES = /* css */ `
   :host([size="s"]) .chevron {
     width: 16px;
     height: 16px;
+    --ui-icon-size: 16px;
   }
 
   :host([size="s"]) .status-icon {
     width: 14px;
     height: 14px;
+    --ui-icon-size: 14px;
   }
 
   :host([size="s"]) .content-body {
@@ -282,11 +278,13 @@ const STYLES = /* css */ `
   :host([size="l"]) .chevron {
     width: 24px;
     height: 24px;
+    --ui-icon-size: 24px;
   }
 
   :host([size="l"]) .status-icon {
     width: 20px;
     height: 20px;
+    --ui-icon-size: 20px;
   }
 
   :host([size="l"]) .content-body {
@@ -410,7 +408,9 @@ export class UiAccordionItem extends HTMLElement {
     const chevron = document.createElement("span");
     chevron.className = "chevron";
     chevron.setAttribute("aria-hidden", "true");
-    chevron.innerHTML = ICON_CHEVRON;
+    const chevronIcon = document.createElement("ui-icon") as HTMLElement;
+    chevronIcon.setAttribute("name", "expand_more");
+    chevron.appendChild(chevronIcon);
     contentRight.appendChild(chevron);
 
     header.appendChild(contentRight);
@@ -548,15 +548,30 @@ export class UiAccordionItem extends HTMLElement {
   private _syncStatus(): void {
     const status = this.status;
     switch (status) {
-      case "error":
-        this._statusIcon.innerHTML = ICON_ERROR;
+      case "error": {
+        this._statusIcon.innerHTML = "";
+        const icon = document.createElement("ui-icon") as HTMLElement;
+        icon.setAttribute("name", "error");
+        icon.setAttribute("filled", "");
+        this._statusIcon.appendChild(icon);
         break;
-      case "warning":
-        this._statusIcon.innerHTML = ICON_WARNING;
+      }
+      case "warning": {
+        this._statusIcon.innerHTML = "";
+        const icon = document.createElement("ui-icon") as HTMLElement;
+        icon.setAttribute("name", "warning");
+        icon.setAttribute("filled", "");
+        this._statusIcon.appendChild(icon);
         break;
-      case "success":
-        this._statusIcon.innerHTML = ICON_SUCCESS;
+      }
+      case "success": {
+        this._statusIcon.innerHTML = "";
+        const icon = document.createElement("ui-icon") as HTMLElement;
+        icon.setAttribute("name", "check_circle");
+        icon.setAttribute("filled", "");
+        this._statusIcon.appendChild(icon);
         break;
+      }
       default:
         this._statusIcon.innerHTML = "";
         break;

@@ -131,29 +131,29 @@ describe("ui-button", () => {
 
   // ── Status icon rendering ───────────────────────────────────────────────
 
-  it("renders error SVG when status is 'error'", () => {
+  it("renders error icon when status is 'error'", () => {
     el.setAttribute("status", "error");
-    const svg = el.shadowRoot?.querySelector(".status-icon svg");
-    expect(svg).toBeTruthy();
+    const icon = el.shadowRoot?.querySelector(".status-icon ui-icon");
+    expect(icon).toBeTruthy();
   });
 
-  it("renders success SVG when status is 'success'", () => {
+  it("renders success icon when status is 'success'", () => {
     el.setAttribute("status", "success");
-    const svg = el.shadowRoot?.querySelector(".status-icon svg");
-    expect(svg).toBeTruthy();
+    const icon = el.shadowRoot?.querySelector(".status-icon ui-icon");
+    expect(icon).toBeTruthy();
   });
 
-  it("renders loading SVG when status is 'loading'", () => {
+  it("renders loading icon when status is 'loading'", () => {
     el.setAttribute("status", "loading");
-    const svg = el.shadowRoot?.querySelector(".status-icon svg");
-    expect(svg).toBeTruthy();
+    const icon = el.shadowRoot?.querySelector(".status-icon ui-icon");
+    expect(icon).toBeTruthy();
   });
 
   it("clears status icon when status returns to 'none'", () => {
     el.setAttribute("status", "error");
     el.setAttribute("status", "none");
-    const svg = el.shadowRoot?.querySelector(".status-icon svg");
-    expect(svg).toBeNull();
+    const icon = el.shadowRoot?.querySelector(".status-icon ui-icon");
+    expect(icon).toBeNull();
   });
 
   // ── Slots ───────────────────────────────────────────────────────────────

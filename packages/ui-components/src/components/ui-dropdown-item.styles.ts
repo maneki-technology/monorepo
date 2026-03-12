@@ -253,10 +253,6 @@ export const STYLES = /* css */ `
     line-height: 0;
   }
 
-  .submenu svg {
-    width: 100%;
-    height: 100%;
-  }
 
 
   /* ── Selected ───────────────────────────────────────────────────────────── */

@@ -1,5 +1,5 @@
 import { semanticVar, elevationVar, spaceVar } from "@maneki/foundation";
-import { ICON_CLOSE } from "../assets/icons.js";
+import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -156,10 +156,6 @@ const STYLES = /* css */ `
     flex-shrink: 0;
   }
 
-  .close-btn svg {
-    width: 100%;
-    height: 100%;
-  }
 
   :host([dismissible]) .close-btn {
     display: inline-flex;
@@ -370,8 +366,10 @@ export class UiModal extends HTMLElement {
     const closeBtn = document.createElement("button");
     closeBtn.className = "close-btn";
     closeBtn.setAttribute("aria-label", "Close");
-    closeBtn.innerHTML = ICON_CLOSE;
+    const closeIcon = document.createElement("ui-icon") as HTMLElement;
+    closeIcon.setAttribute("name", "close");
     closeBtn.addEventListener("click", () => this.close());
+    closeBtn.appendChild(closeIcon);
     header.appendChild(closeBtn);
 
     // Body

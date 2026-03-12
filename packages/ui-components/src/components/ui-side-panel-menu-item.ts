@@ -1,5 +1,5 @@
 import { semanticVar, spaceVar } from "@maneki/foundation";
-import { ICON_CHEVRON, ICON_CHEVRON_UP } from "../assets/icons.js";
+import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -192,11 +192,7 @@ const STYLES = /* css */ `
     color: var(--ui-spmi-expand-icon, ${ICON_PRIMARY_TOKEN});
     flex-shrink: 0;
     transition: transform 0.15s ease;
-  }
-
-  .expand-icon svg {
-    width: 100%;
-    height: 100%;
+    --ui-icon-size: 20px;
   }
 
   :host([expandable]) .expand-icon {
@@ -456,9 +452,10 @@ export class UiSidePanelMenuItem extends HTMLElement {
 
   private _syncExpandIcon(): void {
     if (this.expandable) {
-      this._expandIcon.innerHTML = this.expanded
-        ? ICON_CHEVRON_UP
-        : ICON_CHEVRON;
+      this._expandIcon.innerHTML = "";
+      const icon = document.createElement("ui-icon") as HTMLElement;
+      icon.setAttribute("name", this.expanded ? "expand_less" : "expand_more");
+      this._expandIcon.appendChild(icon);
     } else {
       this._expandIcon.innerHTML = "";
     }

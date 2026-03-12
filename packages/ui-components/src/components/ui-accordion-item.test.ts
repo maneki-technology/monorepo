@@ -131,24 +131,24 @@ describe("ui-accordion-item", () => {
     el.setAttribute("status", "error");
     const shadow = el.shadowRoot!;
     const statusIcon = shadow.querySelector(".status-icon");
-    const svg = statusIcon?.querySelector("svg");
-    expect(svg).toBeTruthy();
+    const icon = statusIcon?.querySelector("ui-icon");
+    expect(icon).toBeTruthy();
   });
 
   it("renders warning SVG when status='warning'", () => {
     el.setAttribute("status", "warning");
     const shadow = el.shadowRoot!;
     const statusIcon = shadow.querySelector(".status-icon");
-    const svg = statusIcon?.querySelector("svg");
-    expect(svg).toBeTruthy();
+    const icon = statusIcon?.querySelector("ui-icon");
+    expect(icon).toBeTruthy();
   });
 
   it("renders success SVG when status='success'", () => {
     el.setAttribute("status", "success");
     const shadow = el.shadowRoot!;
     const statusIcon = shadow.querySelector(".status-icon");
-    const svg = statusIcon?.querySelector("svg");
-    expect(svg).toBeTruthy();
+    const icon = statusIcon?.querySelector("ui-icon");
+    expect(icon).toBeTruthy();
   });
 
   it("clears status icon when status='none'", () => {
@@ -156,8 +156,8 @@ describe("ui-accordion-item", () => {
     el.setAttribute("status", "none");
     const shadow = el.shadowRoot!;
     const statusIcon = shadow.querySelector(".status-icon");
-    const svg = statusIcon?.querySelector("svg");
-    expect(svg).toBeNull();
+    const icon = statusIcon?.querySelector("ui-icon");
+    expect(icon).toBeNull();
   });
 
   // ── Leading icon attribute ──────────────────────────────────────────────
@@ -286,12 +286,12 @@ describe("ui-accordion-item", () => {
     expect(separator).toBeTruthy();
   });
 
-  it("has chevron element with SVG in shadow DOM", () => {
+  it("has chevron element with ui-icon in shadow DOM", () => {
     const shadow = el.shadowRoot!;
     const chevron = shadow.querySelector(".chevron");
-    const svg = chevron?.querySelector("svg");
+    const icon = chevron?.querySelector("ui-icon");
     expect(chevron).toBeTruthy();
-    expect(svg).toBeTruthy();
+    expect(icon).toBeTruthy();
   });
 
   it("has content panel in shadow DOM", () => {

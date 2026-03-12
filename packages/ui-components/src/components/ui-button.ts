@@ -9,7 +9,7 @@ export type ButtonShape = "basic" | "rounded";
 export type ButtonIcon = "text-only" | "leading-icon" | "trailing-icon" | "icon-only";
 export type ButtonStatus = "none" | "error" | "loading" | "success";
 
-import { ICON_ERROR, ICON_SUCCESS, ICON_LOADING } from "../assets/icons.js";
+import "./ui-icon.js";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -354,16 +354,14 @@ const STYLES = /* css */ `
     width: 20px;
     height: 20px;
     line-height: 0;
+    --ui-icon-size: 20px;
   }
 
-  .status-icon svg {
-    width: 100%;
-    height: 100%;
-  }
 
   :host([size="s"]) .status-icon {
     width: 16px;
     height: 16px;
+    --ui-icon-size: 16px;
   }
 
   :host([size="l"]) .status-icon,
@@ -403,7 +401,7 @@ const STYLES = /* css */ `
     to { transform: rotate(360deg); }
   }
 
-  :host([status="loading"]) .status-icon svg {
+  :host([status="loading"]) .status-icon ui-icon {
     animation: ui-btn-spin 0.7s linear infinite;
   }
 
@@ -414,7 +412,7 @@ const STYLES = /* css */ `
       transition-duration: 0.01ms !important;
     }
 
-    :host([status="loading"]) .status-icon svg {
+    :host([status="loading"]) .status-icon ui-icon {
       animation-duration: 2s;
     }
   }
@@ -581,19 +579,33 @@ export class UiButton extends HTMLElement {
   private _syncStatus(): void {
     const status = this.status;
     switch (status) {
-      case "error":
-        this._statusIcon.innerHTML = ICON_ERROR;
+      case "error": {
+        this._statusIcon.innerHTML = "";
+        const icon = document.createElement("ui-icon") as HTMLElement;
+        icon.setAttribute("name", "error");
+        icon.setAttribute("filled", "");
+        this._statusIcon.appendChild(icon);
         this._button.setAttribute("aria-label", "Error");
         break;
-      case "success":
-        this._statusIcon.innerHTML = ICON_SUCCESS;
+      }
+      case "success": {
+        this._statusIcon.innerHTML = "";
+        const icon = document.createElement("ui-icon") as HTMLElement;
+        icon.setAttribute("name", "check_circle");
+        icon.setAttribute("filled", "");
+        this._statusIcon.appendChild(icon);
         this._button.setAttribute("aria-label", "Success");
         break;
-      case "loading":
-        this._statusIcon.innerHTML = ICON_LOADING;
+      }
+      case "loading": {
+        this._statusIcon.innerHTML = "";
+        const icon = document.createElement("ui-icon") as HTMLElement;
+        icon.setAttribute("name", "progress_activity");
+        this._statusIcon.appendChild(icon);
         this._button.setAttribute("aria-label", "Loading");
         this._button.setAttribute("aria-busy", "true");
         break;
+      }
       default:
         this._statusIcon.innerHTML = "";
         this._button.removeAttribute("aria-label");

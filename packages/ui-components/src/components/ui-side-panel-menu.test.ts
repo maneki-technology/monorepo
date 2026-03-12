@@ -182,17 +182,17 @@ describe("ui-side-panel-menu", () => {
 
   it("shows chevron-left icon when expanded", () => {
     const toggle = el.shadowRoot!.querySelector(".header-toggle");
-    expect(toggle!.innerHTML).toContain("svg");
-    // Chevron-left: path goes from 12.5 to 7.5
-    expect(toggle!.innerHTML).toContain("12.5 15");
+    const icon = toggle!.querySelector("ui-icon");
+    expect(icon).toBeTruthy();
+    expect(icon!.getAttribute("name")).toBe("chevron_left");
   });
 
   it("shows chevron-right icon when collapsed", () => {
     (el as any).state = "collapsed";
     const toggle = el.shadowRoot!.querySelector(".header-toggle");
-    expect(toggle!.innerHTML).toContain("svg");
-    // Chevron-right: path goes from 7.5 to 12.5
-    expect(toggle!.innerHTML).toContain("7.5 5");
+    const icon = toggle!.querySelector("ui-icon");
+    expect(icon).toBeTruthy();
+    expect(icon!.getAttribute("name")).toBe("chevron_right");
   });
 
   // ── Toggle aria-label ────────────────────────────────────────────────────
