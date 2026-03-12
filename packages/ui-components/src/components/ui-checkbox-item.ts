@@ -1,5 +1,5 @@
 import { semanticVar, spaceVar } from "@maneki/foundation";
-import { ICON_CHECK } from "../assets/icons.js";
+import type { UIIcon } from "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -72,10 +72,6 @@ const STYLES = /* css */ `
       border-color 0.15s ease;
   }
 
-  .checkbox svg {
-    width: 100%;
-    height: 100%;
-  }
 
   /* ── Check / indeterminate icons ─────────────────────────────────────────── */
 
@@ -99,12 +95,6 @@ const STYLES = /* css */ `
     display: inline-flex;
   }
 
-  .indeterminate-bar {
-    display: block;
-    background-color: #ffffff;
-    border-radius: 1px;
-    height: 1.5px;
-  }
 
   /* ── Label slot ──────────────────────────────────────────────────────────── */
 
@@ -158,15 +148,14 @@ const STYLES = /* css */ `
     line-height: 20px;
   }
 
-  :host .indeterminate-bar,
-  :host([size="m"]) .indeterminate-bar {
-    width: 8px;
+  :host .indeterminate-icon,
+  :host([size="m"]) .indeterminate-icon {
+    --ui-icon-size: 14px;
   }
 
   :host .check-icon,
   :host([size="m"]) .check-icon {
-    width: 10px;
-    height: 10px;
+    --ui-icon-size: 14px;
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
@@ -190,13 +179,12 @@ const STYLES = /* css */ `
     line-height: 16px;
   }
 
-  :host([size="s"]) .indeterminate-bar {
-    width: 7px;
+  :host([size="s"]) .indeterminate-icon {
+    --ui-icon-size: 12px;
   }
 
   :host([size="s"]) .check-icon {
-    width: 8px;
-    height: 8px;
+    --ui-icon-size: 12px;
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
@@ -220,13 +208,12 @@ const STYLES = /* css */ `
     line-height: 24px;
   }
 
-  :host([size="l"]) .indeterminate-bar {
-    width: 9px;
+  :host([size="l"]) .indeterminate-icon {
+    --ui-icon-size: 16px;
   }
 
   :host([size="l"]) .check-icon {
-    width: 12px;
-    height: 12px;
+    --ui-icon-size: 16px;
   }
 
   /* ── Checked / Indeterminate fill ────────────────────────────────────────── */
@@ -327,17 +314,15 @@ export class UiCheckboxItem extends HTMLElement {
     checkbox.className = "checkbox";
 
     // Check icon
-    const checkIcon = document.createElement("span");
+    const checkIcon = document.createElement("ui-icon") as UIIcon;
     checkIcon.className = "check-icon";
-    checkIcon.innerHTML = ICON_CHECK;
+    checkIcon.setAttribute("name", "check");
     checkbox.appendChild(checkIcon);
 
     // Indeterminate icon
-    const indeterminateIcon = document.createElement("span");
+    const indeterminateIcon = document.createElement("ui-icon") as UIIcon;
     indeterminateIcon.className = "indeterminate-icon";
-    const indeterminateBar = document.createElement("span");
-    indeterminateBar.className = "indeterminate-bar";
-    indeterminateIcon.appendChild(indeterminateBar);
+    indeterminateIcon.setAttribute("name", "remove");
     checkbox.appendChild(indeterminateIcon);
 
     outer.appendChild(checkbox);
