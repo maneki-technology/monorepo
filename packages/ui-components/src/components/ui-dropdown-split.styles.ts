@@ -449,19 +449,17 @@ export const STYLES = /* css */ `
   :host([size="m"]) .chevron {
     width: 20px;
     height: 20px;
+    --ui-icon-size: 20px;
   }
   :host([size="s"]) .chevron {
     width: 16px;
     height: 16px;
+    --ui-icon-size: 16px;
   }
   :host([size="l"]) .chevron,
   :host([size="xl"]) .chevron {
     width: 24px;
     height: 24px;
-  }
-  .chevron svg {
-    width: 100%;
-    height: 100%;
   }
   /* ── Menu panel ─────────────────────────────────────────────────────── */
   .menu {

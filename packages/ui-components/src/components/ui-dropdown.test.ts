@@ -440,11 +440,11 @@ describe("UiDropdown", () => {
     expect(trigger.getAttribute("icon")).toBe("trailing-icon");
   });
 
-  it("should render chevron icon in icon-end slot", () => {
+  it("should render chevron ui-icon in icon-end slot", () => {
     const chevron = el.shadowRoot!.querySelector(".chevron");
     expect(chevron).toBeTruthy();
     expect(chevron?.getAttribute("slot")).toBe("icon-end");
-    expect(chevron?.querySelector("svg")).toBeTruthy();
+    expect(chevron?.querySelector("ui-icon")).toBeTruthy();
   });
 
   // ── Open/close behavior ────────────────────────────────────────────────

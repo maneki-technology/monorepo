@@ -11,9 +11,12 @@ attach_money
 bar_chart
 cancel
 check_circle
+chevron_left
+chevron_right
 close
 download
 error
+expand_less
 expand_more
 group
 home

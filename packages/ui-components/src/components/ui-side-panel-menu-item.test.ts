@@ -285,21 +285,21 @@ describe("ui-side-panel-menu-item", () => {
     expect(events).toEqual(["toggle", "select"]);
   });
 
-  it("shows chevron-down icon when expandable and collapsed", () => {
+  it("shows expand_more icon when expandable and collapsed", () => {
     (el as any).expandable = true;
     const expandIcon = el.shadowRoot!.querySelector(".expand-icon");
-    expect(expandIcon!.innerHTML).toContain("svg");
-    // Chevron down has path going from 5,7.5 to 10,12.5 to 15,7.5
-    expect(expandIcon!.innerHTML).toContain("7.5");
+    const icon = expandIcon!.querySelector("ui-icon");
+    expect(icon).toBeTruthy();
+    expect(icon!.getAttribute("name")).toBe("expand_more");
   });
 
-  it("shows chevron-up icon when expandable and expanded", () => {
+  it("shows expand_less icon when expandable and expanded", () => {
     (el as any).expandable = true;
     (el as any).expanded = true;
     const expandIcon = el.shadowRoot!.querySelector(".expand-icon");
-    expect(expandIcon!.innerHTML).toContain("svg");
-    // Chevron up has path going from 15,12.5 to 10,7.5 to 5,12.5
-    expect(expandIcon!.innerHTML).toContain("12.5");
+    const icon = expandIcon!.querySelector("ui-icon");
+    expect(icon).toBeTruthy();
+    expect(icon!.getAttribute("name")).toBe("expand_less");
   });
 
   // ── ARIA ─────────────────────────────────────────────────────────────────
