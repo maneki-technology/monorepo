@@ -31,6 +31,7 @@ OUTPUT = os.path.join(SCRIPT_DIR, "material-symbols-outlined-subset.woff2")
 # Source: https://github.com/google/material-design-icons variablefont codepoints
 CODEPOINTS: dict[str, int] = {
     "account_circle": 0xE853,
+    "add": 0xE145,
     "add_circle": 0xE147,
     "arrow_drop_down": 0xE5C5,
     "arrow_drop_up": 0xE5C7,

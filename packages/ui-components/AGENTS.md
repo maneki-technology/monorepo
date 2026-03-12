@@ -11,6 +11,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-alert>` — dismissable alert/toast: 3 sizes, 2 emphases, 5 statuses, footer slot
 - `<ui-label>` — form field label: 3 sizes (s/m/l), 2 emphases (bold/subtle), disabled state, required indicator
 - `<ui-link>` — anchor/span link: 3 sizes (s/m/l), 7 states (enabled/hover/focus/active/visited/disabled/current), standalone/inline modes, external icon, keyboard accessible span mode
+- `<ui-tag>` — tag pill/toggle: 4 sizes (xs/s/m/l), 3 types (basic/selectable/toggle), 3 emphases (bold/subtle/minimal), 3 states (enabled/selected/disabled), dismissible + check icon
 
 **Form Controls:**
 - `<ui-checkbox-item>` — checkbox component: 3 sizes (s/m/l), 3 check states (unchecked/checked/indeterminate), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error)
@@ -95,6 +96,7 @@ ui-components/
 │   │   ├── ui-tab-item.ts
 │   │   ├── ui-tab-group.ts
 │   │   ├── ui-icon.ts
+│   │   ├── ui-tag.ts
 │   │   └── *.test.ts            # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
@@ -220,6 +222,13 @@ Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, u
   - `State/Disabled/minimal-disabled` → `semanticVar("stateDisabled", "minimal")` (`rgba(91,114,130,0.2)`) — inner fill/dot in disabled state
   - `State/Disabled/text-disabled` → `semanticVar("stateDisabled", "text")` (`rgba(91,114,130,0.5)`) — label text in disabled state
   - `Status/Surface/status-error-bold` → `semanticVar("statusSurface", "errorBold")` (`#D91F11`)
+  - `Tag/tag-bold` → `semanticVar("tag", "bold")` (`#186ADE`) — tag bold background
+  - `Tag/tag-subtle` → `semanticVar("tag", "subtle")` (`#D4E4FA`) — tag subtle background
+  - `Tag/tag-minimal` → `semanticVar("tag", "minimal")` (`#FFFFFF`) — tag minimal background
+  - `Tag/Text/tag-text-bold` → `semanticVar("tag", "textBold")` (`#FFFFFF`) — tag bold text
+  - `Tag/Text/tag-text-subtle` → `semanticVar("tag", "textSubtle")` (`#0D4EA6`) — tag subtle text
+  - `Tag/Text/tag-text-minimal` → `semanticVar("tag", "textMinimal")` (`#3E5463`) — tag minimal text
+  - `Button/button-secondary` → `semanticVar("button", "secondary")` (`#DCE3E8`) — selectable/toggle tag background
 ## SOP: Using `<ui-icon>` in Components
 
 When a component needs to render a Material Symbols icon internally:
@@ -286,7 +295,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (1314 tests)
+moon run ui-components:test            # vitest --run (1405 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```

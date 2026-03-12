@@ -1,4 +1,5 @@
 import { semanticVar, spaceVar } from "@maneki/foundation";
+import "./ui-icon.js";
 import type { UIIcon } from "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────

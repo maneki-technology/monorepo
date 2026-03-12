@@ -28,6 +28,8 @@ export type {
   AlertEmphasis,
   AlertStatus,
 } from "./components/ui-alert.js";
+export { UiTag } from "./components/ui-tag.js";
+export type { TagSize, TagType, TagEmphasis, TagState, TagColor } from "./components/ui-tag.js";
 
 // ─── Form Controls ──────────────────────────────────────────────────────────
 
