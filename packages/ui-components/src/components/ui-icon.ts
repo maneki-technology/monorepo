@@ -114,7 +114,7 @@ export const STYLES = /* css */ `
 
   :host .icon,
   :host([state="enabled"]) .icon {
-    color: var(--ui-icon-color, ${ICON_PRIMARY});
+    color: var(--ui-icon-color, currentColor);
     background: var(--ui-icon-bg, none);
   }
 
@@ -209,11 +209,14 @@ export class UiIcon extends HTMLElement {
     iconEl.className = "icon";
     this.#iconEl = iconEl;
 
-    // default accessibility: presentational
-    this.setAttribute("role", "presentation");
-    this.setAttribute("aria-hidden", "true");
-
     shadow.appendChild(iconEl);
+  }
+
+  connectedCallback(): void {
+    if (!this.hasAttribute("role")) {
+      this.setAttribute("role", "presentation");
+      this.setAttribute("aria-hidden", "true");
+    }
   }
 
   attributeChangedCallback(

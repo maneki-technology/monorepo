@@ -1,5 +1,5 @@
 import { STYLES, STATUS_ICON_MAP } from "./ui-select.styles.js";
-import { ICON_CANCEL, ICON_EXPAND_MORE, ICON_CLOSE } from "@maneki/foundation";
+import "./ui-icon.js";
 import "./ui-label.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -33,7 +33,7 @@ export class UiSelect extends HTMLElement {
   private _displayValue: HTMLSpanElement;
   private _clearBtn: HTMLButtonElement;
   private _statusIconEl: HTMLSpanElement;
-  private _statusIconInner: HTMLSpanElement;
+  private _statusIconInner: HTMLElement;
   private _chevron: HTMLSpanElement;
   private _panel: HTMLDivElement;
   private _slot: HTMLSlotElement;
@@ -102,9 +102,9 @@ export class UiSelect extends HTMLElement {
     this._clearBtn.type = "button";
     this._clearBtn.setAttribute("aria-label", "Clear selection");
     this._clearBtn.setAttribute("tabindex", "-1");
-    const clearIcon = document.createElement("span");
-    clearIcon.className = "material-symbols-outlined";
-    clearIcon.textContent = ICON_CANCEL;
+    const clearIcon = document.createElement("ui-icon") as HTMLElement;
+    clearIcon.setAttribute("name", "cancel");
+    clearIcon.setAttribute("filled", "");
     this._clearBtn.appendChild(clearIcon);
     contentRight.appendChild(this._clearBtn);
 
@@ -112,8 +112,8 @@ export class UiSelect extends HTMLElement {
     this._statusIconEl = document.createElement("span");
     this._statusIconEl.className = "status-icon";
     this._statusIconEl.setAttribute("aria-hidden", "true");
-    this._statusIconInner = document.createElement("span");
-    this._statusIconInner.className = "material-symbols-outlined";
+    this._statusIconInner = document.createElement("ui-icon") as HTMLElement;
+    this._statusIconInner.setAttribute("filled", "");
     this._statusIconEl.appendChild(this._statusIconInner);
     contentRight.appendChild(this._statusIconEl);
 
@@ -121,9 +121,8 @@ export class UiSelect extends HTMLElement {
     this._chevron = document.createElement("span");
     this._chevron.className = "chevron";
     this._chevron.setAttribute("aria-hidden", "true");
-    const chevronIcon = document.createElement("span");
-    chevronIcon.className = "material-symbols-outlined";
-    chevronIcon.textContent = ICON_EXPAND_MORE;
+    const chevronIcon = document.createElement("ui-icon") as HTMLElement;
+    chevronIcon.setAttribute("name", "expand_more");
     this._chevron.appendChild(chevronIcon);
     contentRight.appendChild(this._chevron);
 
@@ -390,9 +389,9 @@ export class UiSelect extends HTMLElement {
     const effectiveStatus = this.error ? "error" : this.status;
     const iconName = STATUS_ICON_MAP[effectiveStatus];
     if (iconName) {
-      this._statusIconInner.textContent = iconName;
+      this._statusIconInner.setAttribute("name", iconName);
     } else {
-      this._statusIconInner.textContent = "";
+      this._statusIconInner.setAttribute("name", "");
     }
   }
 
@@ -537,9 +536,9 @@ export class UiSelect extends HTMLElement {
         dismiss.type = "button";
         dismiss.setAttribute("aria-label", "Remove " + displayText);
         dismiss.setAttribute("tabindex", "-1");
-        const dismissIcon = document.createElement("span");
-        dismissIcon.className = "material-symbols-outlined";
-        dismissIcon.textContent = ICON_CLOSE;
+        const dismissIcon = document.createElement("ui-icon") as HTMLElement;
+        dismissIcon.setAttribute("name", "close");
+        dismissIcon.setAttribute("size", "xxs");
         dismiss.appendChild(dismissIcon);
         tag.appendChild(dismiss);
 

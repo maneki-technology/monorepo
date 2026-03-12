@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ICON_WARNING, ICON_ERROR, ICON_CHECK_CIRCLE, ICON_PROGRESS_ACTIVITY, ICON_EXPAND_MORE } from "@maneki/foundation";
 import "./ui-select.js";
 import "./ui-dropdown-item.js";
 
@@ -249,32 +248,32 @@ describe("ui-select", () => {
 
   it("shows status icon for warning", () => {
     el = createSelect({ status: "warning" });
-    const icon = el.shadowRoot!.querySelector(".status-icon .material-symbols-outlined");
-    expect(icon?.textContent).toBe(ICON_WARNING);
+    const icon = el.shadowRoot!.querySelector(".status-icon ui-icon");
+    expect(icon?.getAttribute("name")).toBe("warning");
   });
 
   it("shows status icon for error", () => {
     el = createSelect({ status: "error" });
-    const icon = el.shadowRoot!.querySelector(".status-icon .material-symbols-outlined");
-    expect(icon?.textContent).toBe(ICON_ERROR);
+    const icon = el.shadowRoot!.querySelector(".status-icon ui-icon");
+    expect(icon?.getAttribute("name")).toBe("error");
   });
 
   it("shows status icon for success", () => {
     el = createSelect({ status: "success" });
-    const icon = el.shadowRoot!.querySelector(".status-icon .material-symbols-outlined");
-    expect(icon?.textContent).toBe(ICON_CHECK_CIRCLE);
+    const icon = el.shadowRoot!.querySelector(".status-icon ui-icon");
+    expect(icon?.getAttribute("name")).toBe("check_circle");
   });
 
   it("shows status icon for loading", () => {
     el = createSelect({ status: "loading" });
-    const icon = el.shadowRoot!.querySelector(".status-icon .material-symbols-outlined");
-    expect(icon?.textContent).toBe(ICON_PROGRESS_ACTIVITY);
+    const icon = el.shadowRoot!.querySelector(".status-icon ui-icon");
+    expect(icon?.getAttribute("name")).toBe("progress_activity");
   });
 
   it("error attribute overrides status for icon", () => {
     el = createSelect({ status: "warning", error: "" });
-    const icon = el.shadowRoot!.querySelector(".status-icon .material-symbols-outlined");
-    expect(icon?.textContent).toBe(ICON_ERROR);
+    const icon = el.shadowRoot!.querySelector(".status-icon ui-icon");
+    expect(icon?.getAttribute("name")).toBe("error");
   });
 
   // ── Error ────────────────────────────────────────────────────────────────
@@ -434,8 +433,8 @@ describe("ui-select", () => {
 
   it("renders chevron icon", () => {
     el = createSelect();
-    const chevron = el.shadowRoot!.querySelector(".chevron .material-symbols-outlined");
-    expect(chevron?.textContent).toBe(ICON_EXPAND_MORE);
+    const chevron = el.shadowRoot!.querySelector(".chevron ui-icon");
+    expect(chevron?.getAttribute("name")).toBe("expand_more");
   });
 
   // ── Display value ────────────────────────────────────────────────────────

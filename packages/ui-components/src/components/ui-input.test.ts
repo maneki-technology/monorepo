@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ICON_WARNING, ICON_ERROR, ICON_CHECK_CIRCLE, ICON_PROGRESS_ACTIVITY, ICON_VISIBILITY, ICON_VISIBILITY_OFF } from "@maneki/foundation";
+import "./ui-input.js";
 import "./ui-input.js";
 
 describe("ui-input", () => {
@@ -363,39 +363,39 @@ describe("ui-input", () => {
 
   it("shows status icon for warning", () => {
     (el as unknown as { status: string }).status = "warning";
-    const icon = el.shadowRoot!.querySelector(".status-icon");
-    expect(icon!.textContent).toContain(ICON_WARNING);
+    const icon = el.shadowRoot!.querySelector(".status-icon ui-icon");
+    expect(icon!.getAttribute("name")).toBe("warning");
   });
 
   it("shows status icon for error", () => {
     (el as unknown as { status: string }).status = "error";
-    const icon = el.shadowRoot!.querySelector(".status-icon");
-    expect(icon!.textContent).toContain(ICON_ERROR);
+    const icon = el.shadowRoot!.querySelector(".status-icon ui-icon");
+    expect(icon!.getAttribute("name")).toBe("error");
   });
 
   it("shows status icon for success", () => {
     (el as unknown as { status: string }).status = "success";
-    const icon = el.shadowRoot!.querySelector(".status-icon");
-    expect(icon!.textContent).toContain(ICON_CHECK_CIRCLE);
+    const icon = el.shadowRoot!.querySelector(".status-icon ui-icon");
+    expect(icon!.getAttribute("name")).toBe("check_circle");
   });
 
   it("shows status icon for loading", () => {
     (el as unknown as { status: string }).status = "loading";
-    const icon = el.shadowRoot!.querySelector(".status-icon");
-    expect(icon!.textContent).toContain(ICON_PROGRESS_ACTIVITY);
+    const icon = el.shadowRoot!.querySelector(".status-icon ui-icon");
+    expect(icon!.getAttribute("name")).toBe("progress_activity");
   });
 
   it("clears status icon when status is none", () => {
     (el as unknown as { status: string }).status = "error";
     (el as unknown as { status: string }).status = "none";
-    const icon = el.shadowRoot!.querySelector(".status-icon");
-    expect(icon!.textContent?.trim()).toBe("");
+    const icon = el.shadowRoot!.querySelector(".status-icon ui-icon");
+    expect(icon!.getAttribute("name") ?? "").toBe("");
   });
 
   it("shows error icon when error boolean is set", () => {
     (el as unknown as { error: boolean }).error = true;
-    const icon = el.shadowRoot!.querySelector(".status-icon");
-    expect(icon!.textContent).toContain(ICON_ERROR);
+    const icon = el.shadowRoot!.querySelector(".status-icon ui-icon");
+    expect(icon!.getAttribute("name")).toBe("error");
   });
 
   // ── Input event ──────────────────────────────────────────────────────────
@@ -697,12 +697,12 @@ describe("ui-input", () => {
   it("updates password toggle icon on click", () => {
     (el as unknown as { type: string }).type = "password";
     const toggle = el.shadowRoot!.querySelector(".password-toggle") as HTMLButtonElement;
-    const icon = toggle.querySelector(".material-symbols-outlined")!;
-    expect(icon.textContent).toBe(ICON_VISIBILITY);
+    const icon = toggle.querySelector("ui-icon")!;
+    expect(icon.getAttribute("name")).toBe("visibility");
     toggle.click();
-    expect(icon.textContent).toBe(ICON_VISIBILITY_OFF);
+    expect(icon.getAttribute("name")).toBe("visibility_off");
     toggle.click();
-    expect(icon.textContent).toBe(ICON_VISIBILITY);
+    expect(icon.getAttribute("name")).toBe("visibility");
   });
 
   it("updates aria-label on password toggle click", () => {
