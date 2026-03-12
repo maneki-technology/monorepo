@@ -287,16 +287,6 @@ describe("ui-tab-item", () => {
     expect(styles).toContain("Inter");
   });
 
-  it("includes Material Symbols font-face in styles", () => {
-    const styles = el.shadowRoot!.adoptedStyleSheets
-      .map((s: CSSStyleSheet) =>
-        Array.from(s.cssRules)
-          .map((r: CSSRule) => r.cssText)
-          .join(""),
-      )
-      .join("");
-    expect(styles).toContain("Material Symbols Outlined");
-  });
 
   // ── Property accessors ────────────────────────────────────────────────
 

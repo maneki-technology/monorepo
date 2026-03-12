@@ -1,5 +1,5 @@
 import { STYLES, STATUS_ICON_MAP } from "./ui-input.styles.js";
-import { ICON_CLOSE, ICON_VISIBILITY, ICON_VISIBILITY_OFF, ICON_ARROW_DROP_UP, ICON_ARROW_DROP_DOWN } from "@maneki/foundation";
+import "./ui-icon.js";
 import "./ui-label.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -32,10 +32,10 @@ export class UiInput extends HTMLElement {
 
   private _inputEl: HTMLInputElement;
   private _statusIconEl: HTMLSpanElement;
-  private _statusIconInner: HTMLSpanElement;
+  private _statusIconInner: HTMLElement;
   private _clearBtnEl: HTMLButtonElement;
   private _passwordToggleEl: HTMLButtonElement;
-  private _passwordIconEl: HTMLSpanElement;
+  private _passwordIconEl: HTMLElement;
   private _passwordVisible: boolean;
   private _labelTextEl: HTMLElement;
   private _secondaryLabelEl: HTMLElement;
@@ -84,8 +84,8 @@ export class UiInput extends HTMLElement {
     this._statusIconEl = document.createElement("span");
     this._statusIconEl.className = "status-icon";
     this._statusIconEl.setAttribute("aria-hidden", "true");
-    this._statusIconInner = document.createElement("span");
-    this._statusIconInner.className = "material-symbols-outlined";
+    this._statusIconInner = document.createElement("ui-icon") as HTMLElement;
+    this._statusIconInner.setAttribute("filled", "");
     this._statusIconEl.appendChild(this._statusIconInner);
     container.appendChild(this._statusIconEl);
 
@@ -102,9 +102,8 @@ export class UiInput extends HTMLElement {
     this._clearBtnEl.className = "clear-btn";
     this._clearBtnEl.type = "button";
     this._clearBtnEl.setAttribute("aria-label", "Clear input");
-    const clearIcon = document.createElement("span");
-    clearIcon.className = "material-symbols-outlined";
-    clearIcon.textContent = ICON_CLOSE;
+    const clearIcon = document.createElement("ui-icon") as HTMLElement;
+    clearIcon.setAttribute("name", "close");
     this._clearBtnEl.appendChild(clearIcon);
     container.appendChild(this._clearBtnEl);
 
@@ -114,9 +113,8 @@ export class UiInput extends HTMLElement {
     this._passwordToggleEl.className = "password-toggle";
     this._passwordToggleEl.type = "button";
     this._passwordToggleEl.setAttribute("aria-label", "Toggle password visibility");
-    this._passwordIconEl = document.createElement("span");
-    this._passwordIconEl.className = "material-symbols-outlined";
-    this._passwordIconEl.textContent = ICON_VISIBILITY;
+    this._passwordIconEl = document.createElement("ui-icon") as HTMLElement;
+    this._passwordIconEl.setAttribute("name", "visibility");
     this._passwordToggleEl.appendChild(this._passwordIconEl);
     container.appendChild(this._passwordToggleEl);
 
@@ -128,9 +126,8 @@ export class UiInput extends HTMLElement {
     upBtn.className = "spinner-btn spinner-up";
     upBtn.type = "button";
     upBtn.setAttribute("aria-label", "Increment");
-    const upIcon = document.createElement("span");
-    upIcon.className = "material-symbols-outlined";
-    upIcon.textContent = ICON_ARROW_DROP_UP;
+    const upIcon = document.createElement("ui-icon") as HTMLElement;
+    upIcon.setAttribute("name", "arrow_drop_up");
     upBtn.appendChild(upIcon);
     numericControls.appendChild(upBtn);
 
@@ -142,9 +139,8 @@ export class UiInput extends HTMLElement {
     downBtn.className = "spinner-btn spinner-down";
     downBtn.type = "button";
     downBtn.setAttribute("aria-label", "Decrement");
-    const downIcon = document.createElement("span");
-    downIcon.className = "material-symbols-outlined";
-    downIcon.textContent = ICON_ARROW_DROP_DOWN;
+    const downIcon = document.createElement("ui-icon") as HTMLElement;
+    downIcon.setAttribute("name", "arrow_drop_down");
     downBtn.appendChild(downIcon);
     numericControls.appendChild(downBtn);
 
@@ -407,9 +403,9 @@ export class UiInput extends HTMLElement {
     const effectiveStatus = this.error ? "error" : this.status;
     const iconName = STATUS_ICON_MAP[effectiveStatus];
     if (iconName) {
-      this._statusIconInner.textContent = iconName;
+      this._statusIconInner.setAttribute("name", iconName);
     } else {
-      this._statusIconInner.textContent = "";
+      this._statusIconInner.setAttribute("name", "");
     }
   }
 
@@ -527,7 +523,7 @@ export class UiInput extends HTMLElement {
   private _handlePasswordToggle(): void {
     this._passwordVisible = !this._passwordVisible;
     this._inputEl.type = this._passwordVisible ? "text" : "password";
-    this._passwordIconEl.textContent = this._passwordVisible ? ICON_VISIBILITY_OFF : ICON_VISIBILITY;
+    this._passwordIconEl.setAttribute("name", this._passwordVisible ? "visibility_off" : "visibility");
     this._passwordToggleEl.setAttribute(
       "aria-label",
       this._passwordVisible ? "Hide password" : "Show password",

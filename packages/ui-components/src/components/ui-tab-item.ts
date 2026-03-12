@@ -1,4 +1,5 @@
-import { semanticVar, spaceVar, ICON_EXPAND_MORE, ICON_CLOSE } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
+import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -23,22 +24,6 @@ const SP_2 = spaceVar("2");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
-  @font-face {
-    font-family: "Material Symbols Outlined";
-    font-style: normal;
-    src: local("Material Symbols Outlined");
-  }
-
-  .material-symbols-outlined {
-    font-family: "Material Symbols Outlined";
-    font-variation-settings: "FILL" 0;
-    font-size: inherit;
-    line-height: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   *,
   *::before,
   *::after {
@@ -186,6 +171,7 @@ const STYLES = /* css */ `
     width: 20px;
     height: 20px;
     font-size: 20px;
+    --ui-icon-size: 20px;
   }
 
   /* ── Size: s ────────────────────────────────────────────────────────────── */
@@ -211,6 +197,7 @@ const STYLES = /* css */ `
     width: 16px;
     height: 16px;
     font-size: 16px;
+    --ui-icon-size: 16px;
   }
 
   /* ── State: enabled (default) ───────────────────────────────────────────── */
@@ -300,12 +287,14 @@ const STYLES = /* css */ `
     width: 16px;
     height: 16px;
     font-size: 16px;
+    --ui-icon-size: 16px;
   }
 
   :host([size="s"]) .close-btn {
     width: 12px;
     height: 12px;
     font-size: 12px;
+    --ui-icon-size: 12px;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -381,8 +370,10 @@ export class UiTabItem extends HTMLElement {
 
     // Chevron (sub-menu)
     const chevron = document.createElement("span");
-    chevron.className = "chevron material-symbols-outlined";
-    chevron.textContent = ICON_EXPAND_MORE;
+    chevron.className = "chevron";
+    const chevronIcon = document.createElement("ui-icon") as HTMLElement;
+    chevronIcon.setAttribute("name", "expand_more");
+    chevron.appendChild(chevronIcon);
 
     // Slot change listeners to toggle icon visibility
     leadingSlot.addEventListener("slotchange", () => {
@@ -399,13 +390,14 @@ export class UiTabItem extends HTMLElement {
     labelContainer.appendChild(trailingIcon);
     labelContainer.appendChild(chevron);
 
-    // Close button
     const closeBtn = document.createElement("button");
-    closeBtn.className = "close-btn material-symbols-outlined";
+    closeBtn.className = "close-btn";
     closeBtn.setAttribute("type", "button");
     closeBtn.setAttribute("aria-label", "Close tab");
     closeBtn.setAttribute("tabindex", "-1");
-    closeBtn.textContent = ICON_CLOSE;
+    const closeBtnIcon = document.createElement("ui-icon") as HTMLElement;
+    closeBtnIcon.setAttribute("name", "close");
+    closeBtn.appendChild(closeBtnIcon);
     closeBtn.addEventListener("click", (e: Event) => {
       e.stopPropagation();
       if (this.disabled) return;
