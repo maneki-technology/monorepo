@@ -1,8 +1,8 @@
 import {
   semanticVar,
   spaceVar,
-  ICON_MORE_HORIZ,
-} from "@maneki/foundation";
+  } from "@maneki/foundation";
+import "./ui-icon.js";
 import type { TabItemSize, TabItemOrientation } from "./ui-tab-item.js";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
@@ -115,27 +115,6 @@ const STYLES = /* css */ `
 
   /* ── More button ───────────────────────────────────────────────────────── */
 
-  @font-face {
-    font-family: "Material Symbols Outlined";
-    font-style: normal;
-    src: local("Material Symbols Outlined");
-  }
-
-  .material-symbols-outlined {
-    font-family: "Material Symbols Outlined";
-    font-weight: normal;
-    font-style: normal;
-    font-variation-settings: "FILL" 0;
-    display: inline-block;
-    line-height: 1;
-    text-transform: none;
-    letter-spacing: normal;
-    word-wrap: normal;
-    white-space: nowrap;
-    direction: ltr;
-    -webkit-font-smoothing: antialiased;
-  }
-
   .more-btn {
     display: none;
     align-items: center;
@@ -147,6 +126,7 @@ const STYLES = /* css */ `
     padding: 0 4px;
     color: ${ICON_PRIMARY};
     font-size: 20px;
+    --ui-icon-size: 20px;
   }
 
   .more-btn.has-selected {
@@ -195,9 +175,13 @@ const STYLES = /* css */ `
   .more-container {
     position: relative;
     flex-shrink: 0;
-    display: flex;
+    display: none;
     align-items: stretch;
     box-shadow: var(--ui-tab-group-border-shadow, inset 0 -1px 0 ${BORDER_MINIMAL});
+  }
+
+  .more-container.visible {
+    display: flex;
   }
 
   :host([orientation="vertical"]) .more-container {
@@ -259,6 +243,7 @@ export class UiTabGroup extends HTMLElement {
 
   private _tablist!: HTMLDivElement;
   private _moreBtn!: HTMLButtonElement;
+  private _moreContainer!: HTMLDivElement;
   private _overflowMenu!: HTMLDivElement;
   private _resizeObserver: ResizeObserver | null = null;
   private _hiddenItems: Element[] = [];
@@ -291,9 +276,9 @@ export class UiTabGroup extends HTMLElement {
     moreBtn.setAttribute("aria-expanded", "false");
     moreBtn.setAttribute("tabindex", "-1");
     moreBtn.setAttribute("type", "button");
-    const moreIcon = document.createElement("span");
-    moreIcon.className = "material-symbols-outlined";
-    moreIcon.textContent = ICON_MORE_HORIZ;
+    const moreIcon = document.createElement("ui-icon") as HTMLElement;
+    moreIcon.setAttribute("name", "more_horiz");
+    moreIcon.setAttribute("size", "m");
     moreBtn.appendChild(moreIcon);
     this._moreBtn = moreBtn;
 
@@ -308,6 +293,7 @@ export class UiTabGroup extends HTMLElement {
     moreContainer.className = "more-container";
     moreContainer.appendChild(moreBtn);
     moreContainer.appendChild(overflowMenu);
+    this._moreContainer = moreContainer;
 
     wrapper.appendChild(tablist);
     wrapper.appendChild(moreContainer);
@@ -386,6 +372,7 @@ export class UiTabGroup extends HTMLElement {
         this._stopObserving();
         this._showAllItems();
         this._moreBtn.classList.remove("visible");
+        this._moreContainer.classList.remove("visible");
         this._closeOverflowMenu();
       }
     }
@@ -574,12 +561,14 @@ export class UiTabGroup extends HTMLElement {
 
     if (this._hiddenItems.length > 0) {
       this._moreBtn.classList.add("visible");
+      this._moreContainer.classList.add("visible");
       this._moreBtn.setAttribute("tabindex", "0");
       // Highlight more button if a hidden tab is selected
       const hasSelected = this._hiddenItems.some((item) => item.hasAttribute("selected"));
       this._moreBtn.classList.toggle("has-selected", hasSelected);
     } else {
       this._moreBtn.classList.remove("visible", "has-selected");
+      this._moreContainer.classList.remove("visible");
       this._moreBtn.setAttribute("tabindex", "-1");
       this._closeOverflowMenu();
     }

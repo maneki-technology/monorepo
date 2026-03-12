@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar, elevationVar, ICON_WARNING, ICON_ERROR, ICON_CHECK_CIRCLE, ICON_PROGRESS_ACTIVITY } from "@maneki/foundation";
+import { semanticVar, spaceVar, elevationVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -25,36 +25,15 @@ const SP_15 = spaceVar("1.5");
 // ─── Status icon map ─────────────────────────────────────────────────────────
 
 export const STATUS_ICON_MAP: Record<string, string> = {
-  warning: ICON_WARNING,
-  error: ICON_ERROR,
-  success: ICON_CHECK_CIRCLE,
-  loading: ICON_PROGRESS_ACTIVITY,
+  warning: "warning",
+  error: "error",
+  success: "check_circle",
+  loading: "progress_activity",
 };
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
-  @font-face {
-    font-family: "Material Symbols Outlined";
-    font-style: normal;
-    src: local("Material Symbols Outlined");
-  }
-  .material-symbols-outlined {
-    font-family: "Material Symbols Outlined";
-    font-weight: normal;
-    font-style: normal;
-    font-size: inherit;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
   *,
   *::before,
   *::after {
@@ -148,9 +127,6 @@ export const STYLES = /* css */ `
     height: 12px;
     line-height: 0;
   }
-  .tag-dismiss .material-symbols-outlined {
-    font-size: 12px;
-  }
 
   /* ── Content right ─────────────────────────────────────────────────────── */
   .content-right {
@@ -196,9 +172,8 @@ export const STYLES = /* css */ `
   .clear-btn:hover {
     color: ${TEXT_PRIMARY};
   }
-  .clear-btn .material-symbols-outlined {
+  .clear-btn ui-icon {
     font-size: 14px;
-    font-variation-settings: 'FILL' 1;
   }
   .clear-btn.visible {
     display: flex;
@@ -212,9 +187,6 @@ export const STYLES = /* css */ `
     flex-shrink: 0;
     font-size: var(--_status-icon-size);
     line-height: 1;
-  }
-  .status-icon .material-symbols-outlined {
-    font-variation-settings: 'FILL' 1;
   }
   :host([status="warning"]) .status-icon {
     display: flex;
@@ -233,7 +205,7 @@ export const STYLES = /* css */ `
     display: flex;
     color: ${TEXT_SECONDARY};
   }
-  :host([status="loading"]) .status-icon .material-symbols-outlined {
+  :host([status="loading"]) .status-icon ui-icon {
     animation: spin 1s linear infinite;
   }
   @keyframes spin {
@@ -250,9 +222,6 @@ export const STYLES = /* css */ `
     transition: transform 0.15s ease;
     line-height: 0;
     color: ${ICON_SECONDARY};
-  }
-  .chevron .material-symbols-outlined {
-    font-size: var(--_chevron-size);
   }
   :host([open]) .chevron {
     transform: rotate(180deg);
@@ -466,7 +435,7 @@ export const STYLES = /* css */ `
     .panel {
       transition-duration: 0.01ms !important;
     }
-    :host([status="loading"]) .status-icon .material-symbols-outlined {
+    :host([status="loading"]) .status-icon ui-icon {
       animation-duration: 0.01ms !important;
     }
   }

@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar, ICON_WARNING, ICON_ERROR, ICON_CHECK_CIRCLE, ICON_PROGRESS_ACTIVITY } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -15,7 +15,6 @@ const STATUS_WARNING = semanticVar("statusGeneral", "warning");
 const STATUS_SUCCESS = semanticVar("statusGeneral", "success");
 const BORDER_MINIMAL = semanticVar("border", "minimal");
 const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
 const ICON_PRIMARY = semanticVar("icon", "primary");
 const SP_05 = spaceVar("0.5");
 const SP_1 = spaceVar("1");
@@ -24,37 +23,15 @@ const SP_15 = spaceVar("1.5");
 // ─── Status icon map ─────────────────────────────────────────────────────────
 
 export const STATUS_ICON_MAP: Record<string, string> = {
-  warning: ICON_WARNING,
-  error: ICON_ERROR,
-  success: ICON_CHECK_CIRCLE,
-  loading: ICON_PROGRESS_ACTIVITY,
+  warning: "warning",
+  error: "error",
+  success: "check_circle",
+  loading: "progress_activity",
 };
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
-  @font-face {
-    font-family: "Material Symbols Outlined";
-    font-style: normal;
-    src: local("Material Symbols Outlined");
-  }
-
-  .material-symbols-outlined {
-    font-family: "Material Symbols Outlined";
-    font-weight: normal;
-    font-style: normal;
-    font-size: inherit;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-rendering: optimizeLegibility;
-  }
   *,
   *::before,
   *::after {
@@ -154,10 +131,6 @@ export const STYLES = /* css */ `
     font-size: var(--_status-icon-size);
     line-height: 1;
   }
-  .status-icon .material-symbols-outlined {
-    font-variation-settings: 'FILL' 1;
-  }
-
 
   :host([status="warning"]) .status-icon {
     display: flex;
@@ -180,7 +153,7 @@ export const STYLES = /* css */ `
     color: ${TEXT_SECONDARY};
   }
 
-  :host([status="loading"]) .status-icon .material-symbols-outlined {
+  :host([status="loading"]) .status-icon ui-icon {
     animation: spin 1s linear infinite;
   }
 
@@ -208,10 +181,6 @@ export const STYLES = /* css */ `
     color: ${TEXT_PRIMARY};
   }
 
-  .clear-btn .material-symbols-outlined {
-    font-size: var(--_clear-size);
-  }
-
   :host([type="clearable"]) .clear-btn.has-value {
     display: flex;
   }
@@ -233,10 +202,6 @@ export const STYLES = /* css */ `
 
   .password-toggle:hover {
     color: ${TEXT_PRIMARY};
-  }
-
-  .password-toggle .material-symbols-outlined {
-    font-size: var(--_clear-size);
   }
 
   :host([type="password"]) .password-toggle {
@@ -268,6 +233,7 @@ export const STYLES = /* css */ `
     padding: 0;
     color: ${TEXT_SECONDARY};
     line-height: 1;
+    --ui-icon-size: var(--_numeric-icon-size, 20px);
   }
 
   .spinner-btn:hover {
@@ -278,10 +244,6 @@ export const STYLES = /* css */ `
   .spinner-divider {
     height: 1px;
     background-color: ${BORDER_MINIMAL};
-  }
-
-  .spinner-btn .material-symbols-outlined {
-    font-size: 16px;
   }
 
   /* ── Supportive text ───────────────────────────────────────────────────── */
@@ -321,6 +283,7 @@ export const STYLES = /* css */ `
     --_status-icon-size: 18px;
     --_clear-size: 16px;
     --_numeric-width: 24px;
+    --_numeric-icon-size: 14px;
   }
 
   /* ── Size: s ───────────────────────────────────────────────────────────── */
@@ -333,6 +296,7 @@ export const STYLES = /* css */ `
     --_status-icon-size: 14px;
     --_clear-size: 12px;
     --_numeric-width: 20px;
+    --_numeric-icon-size: 10px;
   }
 
   /* ── Size: l ───────────────────────────────────────────────────────────── */
@@ -345,6 +309,7 @@ export const STYLES = /* css */ `
     --_status-icon-size: 20px;
     --_clear-size: 18px;
     --_numeric-width: 28px;
+    --_numeric-icon-size: 18px;
   }
 
   .input-container {
@@ -354,11 +319,14 @@ export const STYLES = /* css */ `
     gap: ${SP_05};
   }
 
+  :host([type="numeric"]) .input-container {
+    padding-right: 0;
+  }
+
   .native-input {
     font-size: var(--_input-font-size);
     line-height: var(--_input-line-height);
   }
-
 
   .status-icon {
     width: var(--_status-icon-size);
@@ -441,7 +409,6 @@ export const STYLES = /* css */ `
     color: ${DISABLED_TEXT};
   }
 
-
   :host([disabled]) .supportive-text {
     color: ${DISABLED_TEXT};
   }
@@ -475,14 +442,13 @@ export const STYLES = /* css */ `
     color: ${TEXT_SECONDARY};
   }
 
-
   /* ── Reduced motion ────────────────────────────────────────────────────── */
 
   @media (prefers-reduced-motion: reduce) {
     .input-container {
       transition-duration: 0.01ms !important;
     }
-    :host([status="loading"]) .status-icon .material-symbols-outlined {
+    :host([status="loading"]) .status-icon ui-icon {
       animation-duration: 0.01ms !important;
     }
   }
