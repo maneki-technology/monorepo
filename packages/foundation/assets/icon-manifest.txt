@@ -11,6 +11,7 @@ attach_money
 bar_chart
 cancel
 check_circle
+check
 chevron_left
 chevron_right
 close
@@ -26,6 +27,7 @@ more_horiz
 more_vert
 notifications
 person
+remove
 progress_activity
 search
 settings

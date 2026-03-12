@@ -61,8 +61,6 @@ ui-components/
 │   └── preview.ts           # imports injectAllTokens() from @maneki/foundation
 ├── src/
 │   ├── index.ts             # Barrel export + custom element registration
-│   ├── assets/
-│   │   └── icons.ts         # Shared SVG icon constants (ICON_CLOSE, ICON_CHEVRON, ICON_USER, etc.)
 │   ├── components/
 │   │   ├── ui-badge.ts
 │   │   ├── ui-image.ts
@@ -109,7 +107,7 @@ ui-components/
 | Add new component | `src/components/` | Create `ui-foo.ts` + `ui-foo.test.ts` |
 | Add stories | `src/stories/` | CSF3 format with `@storybook/web-components` |
 | Register element | `src/index.ts` | `customElements.define()` + re-export |
-| Add shared icon | `src/assets/icons.ts` | SVG string constant with `currentColor` |
+| Add new icon | See foundation SOP | Add to foundation, use `<ui-icon>` in components |
 | Storybook config | `.storybook/main.ts` | Framework: `@storybook/web-components-vite` |
 
 ## COMPONENT PATTERN
@@ -161,7 +159,7 @@ Chevron and clear button use `semanticVar("icon", "secondary")` token.
 
 To add a new icon, see the SOP in `packages/foundation/AGENTS.md`.
 
-Legacy SVG icons in `src/assets/icons.ts` are deprecated. Only `ICON_CHECK` remains (used by `ui-checkbox-item`). All other components use `<ui-icon>` or direct Material Symbols codepoints.
+The legacy `src/assets/icons.ts` file has been removed. All components now use `<ui-icon>` or direct Material Symbols codepoints from `@maneki/foundation`.
 
 ## TYPE SAFETY
 Exported union types cover every attribute:
