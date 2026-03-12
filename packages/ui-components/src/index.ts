@@ -51,6 +51,8 @@ export { UiFileUpload } from "./components/ui-file-upload.js";
 export type { FileUploadSize } from "./components/ui-file-upload.js";
 export { UiSelect } from "./components/ui-select.js";
 export type { SelectSize, SelectStatus } from "./components/ui-select.js";
+export { UiTextarea } from "./components/ui-textarea.js";
+export type { TextareaSize, TextareaStatus } from "./components/ui-textarea.js";
 
 // ─── Containers ─────────────────────────────────────────────────────────────
 

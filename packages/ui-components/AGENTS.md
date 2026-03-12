@@ -22,6 +22,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-input-group>` — input group wrapper: 3 sizes (s/m/l), prefix/suffix slots with separators, composes `<ui-input>`
 - `<ui-file-upload>` — file upload input: 3 sizes (s/m/l), Browse button, accept/multiple attributes, disabled state
 - `<ui-select>` — select dropdown: 3 sizes (s/m/l), 7 states, 5 statuses, single/multi-select with tag pills, WAI-ARIA combobox pattern, leading slot, clearable, label/supportive text
+- `<ui-textarea>` — textarea: 3 sizes (s/m/l), 7 states (enabled/hover/focus/active/filled/disabled/readonly), 5 statuses (none/warning/error/success/loading), label with char count, secondary label, resize handle
 **Containers:**
 - `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
 - `<ui-button-group>` — segmented bar that wraps `<ui-button>` elements
@@ -79,6 +80,7 @@ ui-components/
 │   │   ├── ui-input-group.ts
 │   │   ├── ui-file-upload.ts
 │   │   ├── ui-select.ts         + ui-select.styles.ts
+│   │   ├── ui-textarea.ts        + ui-textarea.styles.ts
 │   │   ├── ui-card.ts
 │   │   ├── ui-breadcrumb-item.ts
 │   │   ├── ui-breadcrumb-group.ts
@@ -295,7 +297,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (1405 tests)
+moon run ui-components:test            # vitest --run (1561 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```
