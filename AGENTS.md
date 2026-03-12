@@ -74,12 +74,13 @@ Every change — component, fix, refactor, docs — follows this workflow:
 3. **Implement** the change
 4. **Run tests** — `npx vitest --run` in affected packages
 5. **Verify visually** in Storybook against Figma (for UI changes) — use Playwright to screenshot and compare
-6. **Update docs in the same PR** — follow the "Updating Documentation After Changes" SOP in `packages/ui-components/AGENTS.md`:
+6. **Update docs before pushing** — follow the "Updating Documentation After Changes" SOP in `packages/ui-components/AGENTS.md`:
    - Test counts in AGENTS.md + README.md
    - Component count if new component
    - Icon constants list if new icons
    - Token mappings if new tokens
    - AGENTS.md structure trees if new files
+   - ALWAYS update docs BEFORE the first `jj git push`. Never push code without docs in the same commit.
 7. **Ask user to verify visually** — share Storybook screenshots or point to the running Storybook. Wait for user confirmation before pushing. Never push without user sign-off on visual changes.
 8. **Push** — `jj bookmark set <name> -r @ --allow-backwards && jj git push --bookmark <name>`
 9. **Create PR** — `gh pr create --base main --head <name>`

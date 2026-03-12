@@ -48,6 +48,7 @@ npm install @maneki/ui-components
 | `<ui-input-group>` | Input group wrapper: 3 sizes, prefix/suffix slots with separators |
 | `<ui-file-upload>` | File upload: 3 sizes, Browse button, accept/multiple, disabled |
 | `<ui-select>` | Select dropdown: 3 sizes, 7 states, 5 statuses, single/multi-select, tag pills, combobox ARIA |
+| `<ui-textarea>` | Textarea: 3 sizes, 7 states, 5 statuses, label with char count, secondary label, resize |
 | | **Containers** |
 | `<ui-card>` | Slot-based container: 3 sizes, 4 elevations, bordered variant |
 | `<ui-button-group>` | Segmented bar wrapping `<ui-button>` elements |
@@ -93,7 +94,7 @@ moon run ui-components:storybook        # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build → storybook-static/
 ```
 
-34 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
+35 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
 
 ---
 
@@ -101,7 +102,7 @@ moon run ui-components:storybook-build  # Static build → storybook-static/
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (1405 tests)
+moon run ui-components:test   # vitest --run (1524 tests)
 ```
 
 ---
