@@ -72,6 +72,7 @@ npm install @maneki/ui-components
 | `<ui-tab-item>` | Tab item: 2 sizes, 3 states, 2 orientations, leading/trailing icon slots |
 | `<ui-tab-group>` | Tab group wrapper: size/orientation propagation, roving tabindex, arrow key navigation |
 | `<ui-icon>` | Material Symbols icon: 5 sizes, 10 states, filled variant, codepoint lookup |
+| `<ui-tag>` | Tag pill/toggle: 4 sizes, 3 types (basic/selectable/toggle), 3 emphases, 3 states, dismissible, check |
 
 ```html
 <ui-button action="primary" emphasis="bold" size="m">Save</ui-button>
@@ -92,7 +93,7 @@ moon run ui-components:storybook        # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build → storybook-static/
 ```
 
-33 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
+34 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
 
 ---
 
@@ -100,7 +101,7 @@ moon run ui-components:storybook-build  # Static build → storybook-static/
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (1314 tests)
+moon run ui-components:test   # vitest --run (1405 tests)
 ```
 
 ---

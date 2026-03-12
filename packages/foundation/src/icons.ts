@@ -80,6 +80,8 @@ export const ICON_CHECK = "\uE5CA";
 export const ICON_REMOVE = "\uE15B";
 
 // ── Reverse lookup (name → codepoint) ───────────────────────────────
+/** add (plus) — U+E145 */
+export const ICON_ADD = "\uE145";
 
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
@@ -116,6 +118,7 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   group: ICON_GROUP,
   remove: ICON_REMOVE,
   check: ICON_CHECK,
+  add: ICON_ADD,
 };
 
 // ── Font registration ───────────────────────────────────────────────

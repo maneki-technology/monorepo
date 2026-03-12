@@ -260,6 +260,27 @@ export const stateSelected = {
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------
+// Tag
+// ---------------------------------------------------------------------------
+
+export const tag = {
+  bold: ref("blue", 60),              // #186ADE
+  subtle: ref("blue", 20),            // #D4E4FA
+  minimal: "#ffffff",                  // #FFFFFF
+  textBold: "#ffffff",                 // #FFFFFF
+  textSubtle: ref("blue", 70),        // #0D4EA6
+  textMinimal: ref("gray", 70),       // #3E5463
+} as const satisfies Record<string, SemanticValue>;
+
+// ---------------------------------------------------------------------------
+// Button
+// ---------------------------------------------------------------------------
+
+export const button = {
+  secondary: ref("gray", 20),          // #DCE3E8
+} as const satisfies Record<string, SemanticValue>;
+
+// ---------------------------------------------------------------------------
 // Aggregate — all semantic color token groups
 // ---------------------------------------------------------------------------
 
@@ -277,6 +298,8 @@ export const semanticTokens = {
   form,
   stateHover,
   stateSelected,
+  tag,
+  button,
 } as const;
 
 export type SemanticTokenGroup = keyof typeof semanticTokens;

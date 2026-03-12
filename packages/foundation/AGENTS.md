@@ -67,6 +67,8 @@ var() helpers — colorVar(), semanticVar(), elevationVar(), typeVar(), spaceVar
 | Elevation | `--fd-elevation-{level}` | `--fd-elevation-03` |
 | Typography | `--fd-type-{group}-{key}-{prop}` | `--fd-type-heading-01-font-size` |
 | Spacing | `--fd-space-{step}` | `--fd-space-2-5` |
+| Tag | `--fd-tag-{name}` | `--fd-tag-bold` |
+| Button | `--fd-button-{name}` | `--fd-button-secondary` |
 
 ## CONVENTIONS
 - **Figma is source of truth.** All values extracted from "Foundation UI Kit (Community)".

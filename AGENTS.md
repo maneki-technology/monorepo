@@ -65,6 +65,27 @@ maneki-monorepo/
 - **Reuse existing primitives** — when adding a new component, review existing components and stories to check if they should consume the new component instead of duplicating markup. Applies to both component implementations and Storybook stories.
 - **No direct pushes to `main`** — all changes go through feature branches and PRs. Use `jj bookmark set <name> -r @` + `jj git push --bookmark <name>` then `gh pr create`.
 
+## SOP: Making Changes
+
+Every change — component, fix, refactor, docs — follows this workflow:
+
+1. **Fetch + rebase** — `jj git fetch && jj rebase -d main`
+2. **Branch per change** — `jj bookmark set feat/ui-* -r @` (or `fix/`, `refactor/`, `docs/`)
+3. **Implement** the change
+4. **Run tests** — `npx vitest --run` in affected packages
+5. **Verify visually** in Storybook against Figma (for UI changes) — use Playwright to screenshot and compare
+6. **Update docs in the same PR** — follow the "Updating Documentation After Changes" SOP in `packages/ui-components/AGENTS.md`:
+   - Test counts in AGENTS.md + README.md
+   - Component count if new component
+   - Icon constants list if new icons
+   - Token mappings if new tokens
+   - AGENTS.md structure trees if new files
+7. **Ask user to verify visually** — share Storybook screenshots or point to the running Storybook. Wait for user confirmation before pushing. Never push without user sign-off on visual changes.
+8. **Push** — `jj bookmark set <name> -r @ --allow-backwards && jj git push --bookmark <name>`
+9. **Create PR** — `gh pr create --base main --head <name>`
+10. **Chromatic review** — wait for visual regression tests to pass
+11. **Never push directly to `main`**
+
 ## COMMANDS
 ```bash
 # Proto / Moon (run from repo root)
