@@ -109,3 +109,11 @@ export type { TabGroupOverflow } from "./components/ui-tab-group.js";
 
 export { UiIcon } from "./components/ui-icon.js";
 export type { IconSize, IconState } from "./components/ui-icon.js";
+
+// ─── Data Display ────────────────────────────────────────────────────────────
+
+export { UiTable } from "./components/ui-table.js";
+export type { TableSize, TableSeparator } from "./components/ui-table.js";
+export { UiTableRow } from "./components/ui-table-row.js";
+export { UiTableCell } from "./components/ui-table-cell.js";
+export type { TableCellAlign } from "./components/ui-table-cell.js";

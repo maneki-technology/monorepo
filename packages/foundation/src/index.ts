@@ -30,6 +30,7 @@ export {
   stateSelected,
   tag,
   button,
+  gridRow,
   semanticTokens,
   resolveSemanticValue,
   type SemanticValue,
