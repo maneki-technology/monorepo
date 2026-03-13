@@ -42,6 +42,9 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-datetime-picker-input>` — date/time input trigger: 4 types (single-date/range-date/time/datetime), 3 sizes, 7 states, 5 statuses, label, supportive text, spin controls for time
 - `<ui-datetime-picker>` — datetime picker orchestrator: input + floating dropdown, 4 types (single-date/range-date/time/datetime), calendar or clock panel, min/max, actions bar (Cancel/OK)
 - `<ui-clock>` — standalone clock: analog face + 24-hour digital mode, 3 sizes, hour/minute toggle selection
+
+**Toolbar:**
+- `<ui-data-toolbar>` — data toolbar container: 3 sizes (xs/s/m), 3 densities (ultra-compact/compact/standard), two slots (default fields + named actions), size propagation to children
 **Containers:**
 - `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
 - `<ui-button-group>` — segmented bar that wraps `<ui-button>` elements
@@ -129,6 +132,7 @@ ui-components/
 │   │   ├── ui-datetime-picker-input.ts + ui-datetime-picker-input.styles.ts
 │   │   ├── ui-datetime-picker.ts      + ui-datetime-picker.styles.ts
 │   │   ├── ui-clock.ts            + ui-clock.styles.ts
+│   │   ├── ui-data-toolbar.ts
 │   │   └── *.test.ts            # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
@@ -327,7 +331,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (2098 tests)
+moon run ui-components:test            # vitest --run (2150 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```
