@@ -117,3 +117,8 @@ export type { TableSize, TableSeparator } from "./components/ui-table.js";
 export { UiTableRow } from "./components/ui-table-row.js";
 export { UiTableCell } from "./components/ui-table-cell.js";
 export type { TableCellAlign } from "./components/ui-table-cell.js";
+
+// ─── Carousel ────────────────────────────────────────────────────────────────
+
+export { UiCarousel } from "./components/ui-carousel.js";
+export { UiCarouselItem } from "./components/ui-carousel-item.js";

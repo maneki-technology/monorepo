@@ -8,6 +8,8 @@ account_circle
 add_circle
 arrow_drop_down
 arrow_drop_up
+arrow_back_ios
+arrow_forward_ios
 attach_money
 bar_chart
 cancel
