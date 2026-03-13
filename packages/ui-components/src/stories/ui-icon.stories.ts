@@ -66,23 +66,23 @@ export const AllSizes: Story = {
     <div style="display: flex; gap: 12px; align-items: center;">
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="xxs"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">xxs (12)</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">xxs (12)</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="xs"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">xs (14)</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">xs (14)</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="s"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">s (16)</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">s (16)</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">m (20)</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">m (20)</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="l"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">l (24)</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">l (24)</span>
       </div>
     </div>
   `,
@@ -93,23 +93,23 @@ export const AllStates: Story = {
     <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m" state="enabled"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">enabled</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">enabled</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m" state="hover"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">hover</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">hover</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m" state="active"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">active</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">active</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m" state="focus"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">focus</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">focus</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m" state="disabled"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">disabled</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">disabled</span>
       </div>
     </div>
   `,
@@ -122,23 +122,23 @@ export const AllStatesInverse: Story = {
     >
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m" state="enabled-inverse"></ui-icon>
-        <span style="font-size: 11px; color: rgba(255,255,255,0.6);">enabled</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: rgba(255,255,255,0.6);">enabled</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m" state="hover-inverse"></ui-icon>
-        <span style="font-size: 11px; color: rgba(255,255,255,0.6);">hover</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: rgba(255,255,255,0.6);">hover</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m" state="active-inverse"></ui-icon>
-        <span style="font-size: 11px; color: rgba(255,255,255,0.6);">active</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: rgba(255,255,255,0.6);">active</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m" state="focus-inverse"></ui-icon>
-        <span style="font-size: 11px; color: rgba(255,255,255,0.6);">focus</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: rgba(255,255,255,0.6);">focus</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m" state="disabled-inverse"></ui-icon>
-        <span style="font-size: 11px; color: rgba(255,255,255,0.6);">disabled</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: rgba(255,255,255,0.6);">disabled</span>
       </div>
     </div>
   `,
@@ -149,27 +149,27 @@ export const Filled: Story = {
     <div style="display: flex; gap: 16px; align-items: center;">
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">outlined</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">outlined</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="home" size="m" filled></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">filled</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">filled</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="settings" size="m"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">outlined</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">outlined</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="settings" size="m" filled></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">filled</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">filled</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="check_circle" size="m"></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">outlined</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">outlined</span>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
         <ui-icon name="check_circle" size="m" filled></ui-icon>
-        <span style="font-size: 11px; color: #6b7280;">filled</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #6b7280;">filled</span>
       </div>
     </div>
   `,

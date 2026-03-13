@@ -132,7 +132,7 @@ export const Colors: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px;">
       <div>
-        <div style="margin-bottom: 4px; font-size: 12px; color: #666;">Bold emphasis</div>
+        <div style="margin-bottom: 4px; font-family: Inter, sans-serif; font-size: 12px; color: #666;">Bold emphasis</div>
         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
           <ui-tag color="red">Red</ui-tag>
           <ui-tag color="yellow">Yellow</ui-tag>
@@ -150,7 +150,7 @@ export const Colors: Story = {
         </div>
       </div>
       <div>
-        <div style="margin-bottom: 4px; font-size: 12px; color: #666;">Subtle emphasis</div>
+        <div style="margin-bottom: 4px; font-family: Inter, sans-serif; font-size: 12px; color: #666;">Subtle emphasis</div>
         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
           <ui-tag color="red" emphasis="subtle">Red</ui-tag>
           <ui-tag color="yellow" emphasis="subtle">Yellow</ui-tag>
@@ -168,7 +168,7 @@ export const Colors: Story = {
         </div>
       </div>
       <div>
-        <div style="margin-bottom: 4px; font-size: 12px; color: #666;">Minimal emphasis</div>
+        <div style="margin-bottom: 4px; font-family: Inter, sans-serif; font-size: 12px; color: #666;">Minimal emphasis</div>
         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
           <ui-tag color="red" emphasis="minimal">Red</ui-tag>
           <ui-tag color="yellow" emphasis="minimal">Yellow</ui-tag>
@@ -193,7 +193,7 @@ export const Interaction: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px;">
       <div>
-        <div style="margin-bottom: 4px; font-size: 12px; color: #666;">Selectable — click to toggle</div>
+        <div style="margin-bottom: 4px; font-family: Inter, sans-serif; font-size: 12px; color: #666;">Selectable — click to toggle</div>
         <div style="display: flex; gap: 8px; align-items: center;">
           <ui-tag type="selectable">Click me</ui-tag>
           <ui-tag type="selectable" check>With check</ui-tag>
@@ -202,7 +202,7 @@ export const Interaction: Story = {
         </div>
       </div>
       <div>
-        <div style="margin-bottom: 4px; font-size: 12px; color: #666;">Dismissible — click close icon</div>
+        <div style="margin-bottom: 4px; font-family: Inter, sans-serif; font-size: 12px; color: #666;">Dismissible — click close icon</div>
         <div style="display: flex; gap: 8px; align-items: center;">
           <ui-tag dismissible>Dismiss me</ui-tag>
           <ui-tag emphasis="subtle" dismissible>Subtle</ui-tag>
@@ -210,7 +210,7 @@ export const Interaction: Story = {
         </div>
       </div>
       <div>
-        <div style="margin-bottom: 4px; font-size: 12px; color: #666;">Check + Dismissible</div>
+        <div style="margin-bottom: 4px; font-family: Inter, sans-serif; font-size: 12px; color: #666;">Check + Dismissible</div>
         <div style="display: flex; gap: 8px; align-items: center;">
           <ui-tag check dismissible>Bold</ui-tag>
           <ui-tag emphasis="subtle" check dismissible>Subtle</ui-tag>
@@ -218,7 +218,7 @@ export const Interaction: Story = {
         </div>
       </div>
       <div>
-        <div style="margin-bottom: 4px; font-size: 12px; color: #666;">Disabled selectable — non-interactive</div>
+        <div style="margin-bottom: 4px; font-family: Inter, sans-serif; font-size: 12px; color: #666;">Disabled selectable — non-interactive</div>
         <div style="display: flex; gap: 8px; align-items: center;">
           <ui-tag type="selectable" state="disabled">Disabled</ui-tag>
           <ui-tag type="selectable" state="disabled" check>Disabled check</ui-tag>

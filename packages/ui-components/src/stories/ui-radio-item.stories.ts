@@ -135,7 +135,7 @@ export const GroupSizes: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 32px;">
       <div>
-        <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">Size: S</p>
+        <p style="margin: 0 0 8px 0; font-family: Inter, sans-serif; font-size: 12px; font-weight: 600;">Size: S</p>
         <ui-radio-group size="s" orientation="vertical">
           <ui-radio-item label="right" value="1">Option 1</ui-radio-item>
           <ui-radio-item label="right" value="2">Option 2</ui-radio-item>
@@ -143,7 +143,7 @@ export const GroupSizes: Story = {
         </ui-radio-group>
       </div>
       <div>
-        <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">Size: M</p>
+        <p style="margin: 0 0 8px 0; font-family: Inter, sans-serif; font-size: 12px; font-weight: 600;">Size: M</p>
         <ui-radio-group size="m" orientation="vertical">
           <ui-radio-item label="right" value="1">Option 1</ui-radio-item>
           <ui-radio-item label="right" value="2">Option 2</ui-radio-item>
@@ -151,7 +151,7 @@ export const GroupSizes: Story = {
         </ui-radio-group>
       </div>
       <div>
-        <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">Size: L</p>
+        <p style="margin: 0 0 8px 0; font-family: Inter, sans-serif; font-size: 12px; font-weight: 600;">Size: L</p>
         <ui-radio-group size="l" orientation="vertical">
           <ui-radio-item label="right" value="1">Option 1</ui-radio-item>
           <ui-radio-item label="right" value="2">Option 2</ui-radio-item>
