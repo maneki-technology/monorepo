@@ -35,6 +35,8 @@ CODEPOINTS: dict[str, int] = {
     "add_circle": 0xE147,
     "arrow_drop_down": 0xE5C5,
     "arrow_drop_up": 0xE5C7,
+    "arrow_back_ios": 0xE5E0,
+    "arrow_forward_ios": 0xE5E1,
     "attach_money": 0xE227,
     "bar_chart": 0xE26B,
     "cancel": 0xE5C9,

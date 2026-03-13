@@ -98,7 +98,7 @@ moon run ui-components:storybook        # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build → storybook-static/
 ```
 
-38 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
+40 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
 
 ---
 
@@ -106,7 +106,7 @@ moon run ui-components:storybook-build  # Static build → storybook-static/
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (1647 tests)
+moon run ui-components:test   # vitest --run (1744 tests)
 ```
 
 ---

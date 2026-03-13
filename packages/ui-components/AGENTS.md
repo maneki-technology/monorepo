@@ -28,6 +28,10 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-table>` — table container: 3 sizes (s/m/l), 2 separators (minimal/moderate), zebra striping, bordered, size propagation to children
 - `<ui-table-row>` — table row: header, selected, disabled states, hover highlight
 - `<ui-table-cell>` — table cell: header (columnheader ARIA), 3 alignments (left/center/right), size-dependent typography
+
+**Carousel:**
+- `<ui-carousel>` — horizontal scroll carousel: snap scrolling, prev/next arrows, dot indicators, auto-play, loop, gap control
+- `<ui-carousel-item>` — carousel slide wrapper
 **Containers:**
 - `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
 - `<ui-button-group>` — segmented bar that wraps `<ui-button>` elements
@@ -107,6 +111,8 @@ ui-components/
 │   │   ├── ui-table.ts
 │   │   ├── ui-table-row.ts
 │   │   ├── ui-table-cell.ts
+│   │   ├── ui-carousel.ts
+│   │   ├── ui-carousel-item.ts
 │   │   └── *.test.ts            # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
@@ -305,7 +311,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (1647 tests)
+moon run ui-components:test            # vitest --run (1744 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```

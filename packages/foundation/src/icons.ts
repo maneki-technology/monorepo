@@ -82,6 +82,10 @@ export const ICON_REMOVE = "\uE15B";
 // ── Reverse lookup (name → codepoint) ───────────────────────────────
 /** add (plus) — U+E145 */
 export const ICON_ADD = "\uE145";
+/** arrow_back_ios — U+E5E0 */
+export const ICON_ARROW_BACK_IOS = "\uE5E0";
+/** arrow_forward_ios — U+E5E1 */
+export const ICON_ARROW_FORWARD_IOS = "\uE5E1";
 
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
@@ -119,6 +123,8 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   remove: ICON_REMOVE,
   check: ICON_CHECK,
   add: ICON_ADD,
+  arrow_back_ios: ICON_ARROW_BACK_IOS,
+  arrow_forward_ios: ICON_ARROW_FORWARD_IOS,
 };
 
 // ── Font registration ───────────────────────────────────────────────
