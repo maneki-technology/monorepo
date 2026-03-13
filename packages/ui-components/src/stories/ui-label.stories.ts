@@ -38,35 +38,35 @@ export const Variants: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 24px;">
       <div>
-        <h3 style="margin: 0 0 12px; font-size: 14px; color: #5b7282;">Bold (default)</h3>
+        <h3 style="margin: 0 0 12px; font-family: Inter, sans-serif; font-size: 14px; color: #5b7282;">Bold (default)</h3>
         <div style="display: flex; align-items: baseline; gap: 32px;">
           <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-            <span style="font-size: 11px; color: #9fb1bd;">S</span>
+            <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">S</span>
             <ui-label size="s">Label</ui-label>
           </div>
           <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-            <span style="font-size: 11px; color: #9fb1bd;">M</span>
+            <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">M</span>
             <ui-label size="m">Label</ui-label>
           </div>
           <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-            <span style="font-size: 11px; color: #9fb1bd;">L</span>
+            <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">L</span>
             <ui-label size="l">Label</ui-label>
           </div>
         </div>
       </div>
       <div>
-        <h3 style="margin: 0 0 12px; font-size: 14px; color: #5b7282;">Subtle</h3>
+        <h3 style="margin: 0 0 12px; font-family: Inter, sans-serif; font-size: 14px; color: #5b7282;">Subtle</h3>
         <div style="display: flex; align-items: baseline; gap: 32px;">
           <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-            <span style="font-size: 11px; color: #9fb1bd;">S</span>
+            <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">S</span>
             <ui-label size="s" emphasis="subtle">Label</ui-label>
           </div>
           <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-            <span style="font-size: 11px; color: #9fb1bd;">M</span>
+            <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">M</span>
             <ui-label size="m" emphasis="subtle">Label</ui-label>
           </div>
           <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-            <span style="font-size: 11px; color: #9fb1bd;">L</span>
+            <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">L</span>
             <ui-label size="l" emphasis="subtle">Label</ui-label>
           </div>
         </div>
@@ -81,11 +81,11 @@ export const States: Story = {
   render: () => html`
     <div style="display: flex; align-items: baseline; gap: 32px;">
       <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-        <span style="font-size: 11px; color: #9fb1bd;">Enabled</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">Enabled</span>
         <ui-label>Label</ui-label>
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-        <span style="font-size: 11px; color: #9fb1bd;">Disabled</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">Disabled</span>
         <ui-label disabled>Label</ui-label>
       </div>
     </div>
@@ -98,15 +98,15 @@ export const Required: Story = {
   render: () => html`
     <div style="display: flex; align-items: baseline; gap: 32px;">
       <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-        <span style="font-size: 11px; color: #9fb1bd;">Not required</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">Not required</span>
         <ui-label>Username</ui-label>
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-        <span style="font-size: 11px; color: #9fb1bd;">Required</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">Required</span>
         <ui-label required>Username</ui-label>
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-        <span style="font-size: 11px; color: #9fb1bd;">Required + Disabled</span>
+        <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">Required + Disabled</span>
         <ui-label required disabled>Username</ui-label>
       </div>
     </div>
@@ -120,21 +120,21 @@ export const Emphasis: Story = {
     <div style="display: flex; flex-direction: column; gap: 16px;">
       <div style="display: flex; align-items: baseline; gap: 32px;">
         <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-          <span style="font-size: 11px; color: #9fb1bd;">Bold</span>
+          <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">Bold</span>
           <ui-label emphasis="bold">Label</ui-label>
         </div>
         <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-          <span style="font-size: 11px; color: #9fb1bd;">Subtle</span>
+          <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">Subtle</span>
           <ui-label emphasis="subtle">Label</ui-label>
         </div>
       </div>
       <div style="display: flex; align-items: baseline; gap: 32px;">
         <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-          <span style="font-size: 11px; color: #9fb1bd;">Bold + Disabled</span>
+          <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">Bold + Disabled</span>
           <ui-label emphasis="bold" disabled>Label</ui-label>
         </div>
         <div style="display: flex; flex-direction: column; gap: 4px; align-items: flex-start;">
-          <span style="font-size: 11px; color: #9fb1bd;">Subtle + Disabled</span>
+          <span style="font-family: Inter, sans-serif; font-size: 11px; color: #9fb1bd;">Subtle + Disabled</span>
           <ui-label emphasis="subtle" disabled>Label</ui-label>
         </div>
       </div>

@@ -114,7 +114,7 @@ export const AllSizes: Story = {
   render: () => html`
     <div style="display: flex; gap: 32px;">
       <div style="position: relative; height: 250px;">
-        <p style="margin: 0 0 8px; font-size: 12px; color: #666;">Size: s</p>
+        <p style="margin: 0 0 8px; font-family: Inter, sans-serif; font-size: 12px; color: #666;">Size: s</p>
         <ui-menu open size="s">
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
@@ -122,7 +122,7 @@ export const AllSizes: Story = {
         </ui-menu>
       </div>
       <div style="position: relative; height: 250px;">
-        <p style="margin: 0 0 8px; font-size: 12px; color: #666;">Size: m</p>
+        <p style="margin: 0 0 8px; font-family: Inter, sans-serif; font-size: 12px; color: #666;">Size: m</p>
         <ui-menu open size="m">
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
@@ -130,7 +130,7 @@ export const AllSizes: Story = {
         </ui-menu>
       </div>
       <div style="position: relative; height: 250px;">
-        <p style="margin: 0 0 8px; font-size: 12px; color: #666;">Size: l</p>
+        <p style="margin: 0 0 8px; font-family: Inter, sans-serif; font-size: 12px; color: #666;">Size: l</p>
         <ui-menu open size="l">
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>

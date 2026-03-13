@@ -65,7 +65,7 @@ export const AllSizes: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 24px;">
       <div>
-        <h3 style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">Small</h3>
+        <h3 style="margin: 0 0 8px 0; font-family: Inter, sans-serif; font-size: 12px; font-weight: 600;">Small</h3>
         <ui-accordion-group size="s">
           <ui-accordion-item>
             <span slot="label">Small Item One</span>
@@ -82,7 +82,7 @@ export const AllSizes: Story = {
         </ui-accordion-group>
       </div>
       <div>
-        <h3 style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">Medium</h3>
+        <h3 style="margin: 0 0 8px 0; font-family: Inter, sans-serif; font-size: 12px; font-weight: 600;">Medium</h3>
         <ui-accordion-group size="m">
           <ui-accordion-item>
             <span slot="label">Medium Item One</span>
@@ -99,7 +99,7 @@ export const AllSizes: Story = {
         </ui-accordion-group>
       </div>
       <div>
-        <h3 style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">Large</h3>
+        <h3 style="margin: 0 0 8px 0; font-family: Inter, sans-serif; font-size: 12px; font-weight: 600;">Large</h3>
         <ui-accordion-group size="l">
           <ui-accordion-item>
             <span slot="label">Large Item One</span>

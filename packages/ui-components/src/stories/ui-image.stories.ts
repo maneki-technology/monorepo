@@ -147,7 +147,7 @@ export const InCard: Story = {
         alt="Card image"
         ratio="16:9"
       ></ui-image>
-      <h3 style="margin: 0; font-size: 16px; font-weight: 500;">Card with Image</h3>
+      <h3 style="margin: 0; font-family: Inter, sans-serif; font-size: 16px; font-weight: 500;">Card with Image</h3>
       <p style="margin: 0; font-size: 14px;">
         Using ui-image inside a card's image slot.
       </p>

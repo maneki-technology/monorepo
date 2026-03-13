@@ -139,7 +139,7 @@ export const GroupSizes: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 32px;">
       <div>
-        <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">Size: S</p>
+        <p style="margin: 0 0 8px 0; font-family: Inter, sans-serif; font-size: 12px; font-weight: 600;">Size: S</p>
         <ui-checkbox-group size="s" orientation="vertical">
           <ui-checkbox-item label="right">Option 1</ui-checkbox-item>
           <ui-checkbox-item label="right">Option 2</ui-checkbox-item>
@@ -147,7 +147,7 @@ export const GroupSizes: Story = {
         </ui-checkbox-group>
       </div>
       <div>
-        <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">Size: M</p>
+        <p style="margin: 0 0 8px 0; font-family: Inter, sans-serif; font-size: 12px; font-weight: 600;">Size: M</p>
         <ui-checkbox-group size="m" orientation="vertical">
           <ui-checkbox-item label="right">Option 1</ui-checkbox-item>
           <ui-checkbox-item label="right">Option 2</ui-checkbox-item>
@@ -155,7 +155,7 @@ export const GroupSizes: Story = {
         </ui-checkbox-group>
       </div>
       <div>
-        <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 600;">Size: L</p>
+        <p style="margin: 0 0 8px 0; font-family: Inter, sans-serif; font-size: 12px; font-weight: 600;">Size: L</p>
         <ui-checkbox-group size="l" orientation="vertical">
           <ui-checkbox-item label="right">Option 1</ui-checkbox-item>
           <ui-checkbox-item label="right">Option 2</ui-checkbox-item>
