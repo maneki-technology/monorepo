@@ -67,6 +67,8 @@ CODEPOINTS: dict[str, int] = {
     "visibility": 0xE8F4,
     "visibility_off": 0xE8F5,
     "warning": 0xE002,
+    "calendar_today": 0xE935,
+    "schedule": 0xEFD6,
 }
 
 

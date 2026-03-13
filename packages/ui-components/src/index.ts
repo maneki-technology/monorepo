@@ -122,3 +122,30 @@ export type { TableCellAlign } from "./components/ui-table-cell.js";
 
 export { UiCarousel } from "./components/ui-carousel.js";
 export { UiCarouselItem } from "./components/ui-carousel-item.js";
+
+// ─── Calendar ────────────────────────────────────────────────────────────────
+
+export { UiCalendar } from "./components/ui-calendar.js";
+export type { CalendarSize, CalendarMode, CalendarView, CalendarEvent } from "./components/ui-calendar.js";
+
+// ─── Date Picker Input ───────────────────────────────────────────────────────
+
+export { UiDatetimePickerInput } from "./components/ui-datetime-picker-input.js";
+export type { DatetimePickerInputSize, DatetimePickerInputType, DatetimePickerInputStatus } from "./components/ui-datetime-picker-input.js";
+
+// ─── Date Picker ───────────────────────────────────────────────────────────
+
+export { UiDatetimePicker } from "./components/ui-datetime-picker.js";
+export type { DatetimePickerSize, DatetimePickerType } from "./components/ui-datetime-picker.js";
+
+// ─── Clock ─────────────────────────────────────────────────────────────────
+
+export { UiClock } from "./components/ui-clock.js";
+export type { ClockSize, ClockMode } from "./components/ui-clock.js";
+
+// ─── Calendar Composables ────────────────────────────────────────────────────
+
+export { UiCalendarQuicklinks } from "./components/ui-calendar-quicklinks.js";
+export type { QuicklinksSize, QuicklinksOrientation, QuicklinkItem } from "./components/ui-calendar-quicklinks.js";
+export { UiCalendarTime } from "./components/ui-calendar-time.js";
+export type { CalendarTimeSize } from "./components/ui-calendar-time.js";

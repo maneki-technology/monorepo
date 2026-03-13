@@ -86,6 +86,10 @@ export const ICON_ADD = "\uE145";
 export const ICON_ARROW_BACK_IOS = "\uE5E0";
 /** arrow_forward_ios — U+E5E1 */
 export const ICON_ARROW_FORWARD_IOS = "\uE5E1";
+/** calendar_today — U+E935 */
+export const ICON_CALENDAR_TODAY = "\uE935";
+/** schedule — U+EFD6 */
+export const ICON_SCHEDULE = "\uEFD6";
 
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
@@ -125,6 +129,8 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   add: ICON_ADD,
   arrow_back_ios: ICON_ARROW_BACK_IOS,
   arrow_forward_ios: ICON_ARROW_FORWARD_IOS,
+  calendar_today: ICON_CALENDAR_TODAY,
+  schedule: ICON_SCHEDULE,
 };
 
 // ── Font registration ───────────────────────────────────────────────

@@ -32,6 +32,16 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 **Carousel:**
 - `<ui-carousel>` — horizontal scroll carousel: snap scrolling, prev/next arrows, dot indicators, auto-play, loop, gap control
 - `<ui-carousel-item>` — carousel slide wrapper
+
+**Calendar:**
+- `<ui-calendar>` — standalone calendar: 3 sizes (s/m/l), daily + monthly views, single/range selection, today highlight, outside-month, min/max, event dots + legend, hover/focus states
+- `<ui-calendar-quicklinks>` — composable quicklinks panel: 3 sizes (s/m/l), 2 orientations (side/bottom), section headings, selected state, click events
+- `<ui-calendar-time>` — composable inline time panel: 3 sizes (s/m/l), hour/minute inputs, AM/PM toggle switch, separator line, 12h/24h conversion
+
+**Datetime Picker:**
+- `<ui-datetime-picker-input>` — date/time input trigger: 4 types (single-date/range-date/time/datetime), 3 sizes, 7 states, 5 statuses, label, supportive text, spin controls for time
+- `<ui-datetime-picker>` — datetime picker orchestrator: input + floating dropdown, 4 types (single-date/range-date/time/datetime), calendar or clock panel, min/max, actions bar (Cancel/OK)
+- `<ui-clock>` — standalone clock: analog face + 24-hour digital mode, 3 sizes, hour/minute toggle selection
 **Containers:**
 - `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
 - `<ui-button-group>` — segmented bar that wraps `<ui-button>` elements
@@ -113,6 +123,12 @@ ui-components/
 │   │   ├── ui-table-cell.ts
 │   │   ├── ui-carousel.ts
 │   │   ├── ui-carousel-item.ts
+│   │   ├── ui-calendar.ts        + ui-calendar.styles.ts
+│   │   ├── ui-calendar-quicklinks.ts + ui-calendar-quicklinks.styles.ts
+│   │   ├── ui-calendar-time.ts    + ui-calendar-time.styles.ts
+│   │   ├── ui-datetime-picker-input.ts + ui-datetime-picker-input.styles.ts
+│   │   ├── ui-datetime-picker.ts      + ui-datetime-picker.styles.ts
+│   │   ├── ui-clock.ts            + ui-clock.styles.ts
 │   │   └── *.test.ts            # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
@@ -311,7 +327,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (1744 tests)
+moon run ui-components:test            # vitest --run (2098 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```
