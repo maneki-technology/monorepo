@@ -27,6 +27,12 @@ maneki-monorepo/
 │   │                        # Overlays: modal
 │   │                        # Tabs: tab-item, tab-group
 │   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints (@maneki/foundation)
+├── apps/
+│   └── catalog/             # Visual catalog app + Playwright regression tests (@maneki/catalog)
+│       ├── src/pages/        # 34 pages (5 foundation + 29 component)
+│       ├── e2e/             # Playwright visual specs + baseline snapshots
+│       └── playwright.config.ts
+```
 ```
 
 ## WHERE TO LOOK
@@ -42,6 +48,7 @@ maneki-monorepo/
 | Grid layout library | `packages/grid-layout/` | Has its own detailed AGENTS.md |
 | Flex layout library | `packages/flex-layout/` | Panel-based flex layout, has its own AGENTS.md |
 | Storybook (all packages) | `.storybook/` | Root-level, aggregates foundation + ui-components + grid-layout + flex-layout |
+| Visual catalog + Playwright tests | `apps/catalog/` | 34 pages, 36 visual regression tests |
 
 ## CONVENTIONS
 - **Zero runtime deps** (except `ui-components`, `grid-layout`, and `flex-layout` → `@maneki/foundation`). Foundation has zero production dependencies.

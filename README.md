@@ -40,6 +40,13 @@ maneki-monorepo/
 | `grid-layout` | `@maneki/grid-layout` | Zero-dep drag/resize grid layout (220 tests) |
 | `flex-layout` | `@maneki/flex-layout` | Panel-based flex layout for dashboard-style interfaces (3 components, 50 tests) |
 
+### Apps
+
+| App | Description |
+|---|---|
+| `catalog` | Visual catalog for all foundation tokens + 50 components. Used for Playwright visual regression tests (36 screenshot tests). |
+| `flex-layout` | `@maneki/flex-layout` | Panel-based flex layout for dashboard-style interfaces (3 components, 50 tests) |
+
 ---
 
 ## Getting Started

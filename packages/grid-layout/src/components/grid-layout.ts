@@ -245,7 +245,7 @@ export class GridLayoutElement extends HTMLElement {
 
   set resizeConfig(value: Partial<ResizeConfig>) {
     this._resizeConfig = { ...DEFAULT_RESIZE_CONFIG, ...value };
-    this.syncResizeHandlesToItems();
+    this.deferredSyncResize();
   }
 
   get compactType(): CompactType {
@@ -323,7 +323,7 @@ export class GridLayoutElement extends HTMLElement {
       this.buildLayoutFromChildren();
     }
 
-    this.syncResizeHandlesToItems();
+    this.deferredSyncResize();
   }
 
   disconnectedCallback(): void {
@@ -380,11 +380,22 @@ export class GridLayoutElement extends HTMLElement {
     }
   }
 
+  private _resizeSyncPending = false;
+
   private syncResizeHandlesToItems(): void {
     const items = this.getGridItems();
     items.forEach((el) => {
       el.resizeHandleAxes = this._resizeConfig.handles;
     });
+  }
+
+  private deferredSyncResize(): void {
+    if (this._resizeSyncPending) return;
+    this._resizeSyncPending = true;
+    setTimeout(() => {
+      this._resizeSyncPending = false;
+      this.syncResizeHandlesToItems();
+    }, 0);
   }
 
   // --- Position rendering ---
