@@ -78,6 +78,14 @@ npm install @maneki/ui-components
 | `<ui-table>` | Table container: 3 sizes, 2 separators (minimal/moderate), zebra striping, bordered |
 | `<ui-table-row>` | Table row: header, selected, disabled states |
 | `<ui-table-cell>` | Table cell: header, 3 alignments (left/center/right) |
+| | **Calendar** |
+| `<ui-calendar>` | Standalone calendar: 3 sizes, daily + monthly views, single/range select, events, min/max |
+| `<ui-calendar-quicklinks>` | Composable quicklinks panel: 3 sizes, 2 orientations (side/bottom), sections, selected state |
+| `<ui-calendar-time>` | Composable inline time: 3 sizes, hour/minute inputs, AM/PM toggle, separator |
+| | **Datetime Picker** |
+| `<ui-datetime-picker-input>` | Date/time input trigger: 3 types, 3 sizes, 7 states, 5 statuses |
+| `<ui-datetime-picker>` | Datetime picker: input + floating dropdown, 3 types (single-date/range-date/time), actions bar |
+| `<ui-clock>` | Standalone clock: analog face + 24-hour digital, 3 sizes |
 
 ```html
 <ui-button action="primary" emphasis="bold" size="m">Save</ui-button>
@@ -98,7 +106,7 @@ moon run ui-components:storybook        # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build → storybook-static/
 ```
 
-40 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
+47 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
 
 ---
 
@@ -106,7 +114,7 @@ moon run ui-components:storybook-build  # Static build → storybook-static/
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (1744 tests)
+moon run ui-components:test   # vitest --run (2098 tests)
 ```
 
 ---
