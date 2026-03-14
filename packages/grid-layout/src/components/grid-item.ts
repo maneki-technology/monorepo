@@ -108,6 +108,80 @@ const GRID_ITEM_STYLES = `
   border-right: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
   border-bottom: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
 }
+.resize-handle-sw::after {
+  content: "";
+  position: absolute;
+  left: var(--grid-handle-indicator-offset, 3px);
+  bottom: var(--grid-handle-indicator-offset, 3px);
+  width: var(--grid-handle-indicator-size, 5px);
+  height: var(--grid-handle-indicator-size, 5px);
+  border-left: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
+  border-bottom: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
+}
+.resize-handle-ne::after {
+  content: "";
+  position: absolute;
+  right: var(--grid-handle-indicator-offset, 3px);
+  top: var(--grid-handle-indicator-offset, 3px);
+  width: var(--grid-handle-indicator-size, 5px);
+  height: var(--grid-handle-indicator-size, 5px);
+  border-right: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
+  border-top: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
+}
+.resize-handle-nw::after {
+  content: "";
+  position: absolute;
+  left: var(--grid-handle-indicator-offset, 3px);
+  top: var(--grid-handle-indicator-offset, 3px);
+  width: var(--grid-handle-indicator-size, 5px);
+  height: var(--grid-handle-indicator-size, 5px);
+  border-left: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
+  border-top: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
+}
+.resize-handle-s::after {
+  content: "";
+  position: absolute;
+  bottom: var(--grid-handle-indicator-offset, 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 2px;
+  background: var(--grid-handle-color, ${BORDER_BOLD});
+  border-radius: 1px;
+}
+.resize-handle-n::after {
+  content: "";
+  position: absolute;
+  top: var(--grid-handle-indicator-offset, 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 2px;
+  background: var(--grid-handle-color, ${BORDER_BOLD});
+  border-radius: 1px;
+}
+.resize-handle-e::after {
+  content: "";
+  position: absolute;
+  right: var(--grid-handle-indicator-offset, 3px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 16px;
+  background: var(--grid-handle-color, ${BORDER_BOLD});
+  border-radius: 1px;
+}
+.resize-handle-w::after {
+  content: "";
+  position: absolute;
+  left: var(--grid-handle-indicator-offset, 3px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 16px;
+  background: var(--grid-handle-color, ${BORDER_BOLD});
+  border-radius: 1px;
+}
 `;
 
 export class GridItemElement extends HTMLElement {

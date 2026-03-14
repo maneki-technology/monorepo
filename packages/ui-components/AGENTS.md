@@ -130,8 +130,11 @@ ui-components/
 │   │   ├── ui-carousel.ts
 │   │   ├── ui-carousel-item.ts
 │   │   ├── ui-calendar.ts        + ui-calendar.styles.ts
-│   │   ├── ui-calendar-quicklinks.ts + ui-calendar-quicklinks.styles.ts
+- `<ui-calendar-quicklinks>` — composable quicklinks panel: 3 sizes (s/m/l), 2 orientations (side/bottom), section headings, selected state, click events
+- `<ui-calendar-time>` — composable inline time panel: 3 sizes (s/m/l), hour/minute inputs, AM/PM toggle switch, separator line, 12h/24h conversion
+- `<ui-calendar-panel>` — composable wrapper: elevation, slots (default/side/bottom), size propagation, optional actions bar (Cancel/OK)
 │   │   ├── ui-calendar-time.ts    + ui-calendar-time.styles.ts
+│   │   ├── ui-calendar-panel.ts    + ui-calendar-panel.styles.ts
 │   │   ├── ui-datetime-picker-input.ts + ui-datetime-picker-input.styles.ts
 │   │   ├── ui-datetime-picker.ts      + ui-datetime-picker.styles.ts
 │   │   ├── ui-clock.ts            + ui-clock.styles.ts
@@ -336,7 +339,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (2216 tests)
+moon run ui-components:test            # vitest --run (2235 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run ui-components:chromatic       # Publish to Chromatic
 ```

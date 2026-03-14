@@ -30,6 +30,8 @@ export type {
 } from "./components/ui-alert.js";
 export { UiTag } from "./components/ui-tag.js";
 export type { TagSize, TagType, TagEmphasis, TagState, TagColor } from "./components/ui-tag.js";
+export { UiLink } from "./components/ui-link.js";
+export type { LinkSize } from "./components/ui-link.js";
 
 // ─── Form Controls ──────────────────────────────────────────────────────────
 
@@ -126,6 +128,9 @@ export { UiCarouselItem } from "./components/ui-carousel-item.js";
 // ─── Calendar ────────────────────────────────────────────────────────────────
 
 export { UiCalendar } from "./components/ui-calendar.js";
+export type { CalendarSize, CalendarMode, CalendarView, CalendarEvent } from "./components/ui-calendar.js";
+export { UiCalendarPanel } from "./components/ui-calendar-panel.js";
+export type { CalendarPanelSize } from "./components/ui-calendar-panel.js";
 export type { CalendarSize, CalendarMode, CalendarView, CalendarEvent } from "./components/ui-calendar.js";
 
 // ─── Date Picker Input ───────────────────────────────────────────────────────
