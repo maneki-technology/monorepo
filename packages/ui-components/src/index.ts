@@ -149,3 +149,12 @@ export { UiCalendarQuicklinks } from "./components/ui-calendar-quicklinks.js";
 export type { QuicklinksSize, QuicklinksOrientation, QuicklinkItem } from "./components/ui-calendar-quicklinks.js";
 export { UiCalendarTime } from "./components/ui-calendar-time.js";
 export type { CalendarTimeSize } from "./components/ui-calendar-time.js";
+
+// ─── List ────────────────────────────────────────────────────────────────────
+
+export { UiListItem } from "./components/ui-list-item.js";
+export type { ListItemSize, ListItemPadding, ListItemLeading } from "./components/ui-list-item.js";
+export { UiListHeader } from "./components/ui-list-header.js";
+export type { ListHeaderSize } from "./components/ui-list-header.js";
+export { UiListGroup } from "./components/ui-list-group.js";
+export type { ListGroupSize } from "./components/ui-list-group.js";

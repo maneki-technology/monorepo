@@ -86,6 +86,10 @@ npm install @maneki/ui-components
 | `<ui-datetime-picker-input>` | Date/time input trigger: 3 types, 3 sizes, 7 states, 5 statuses |
 | `<ui-datetime-picker>` | Datetime picker: input + floating dropdown, 3 types (single-date/range-date/time), actions bar |
 | `<ui-clock>` | Standalone clock: analog face + 24-hour digital, 3 sizes |
+| | **List** |
+| `<ui-list-item>` | List item: 3 sizes, 5 leading elements, 3 paddings, 4 states, trailing icon, description |
+| `<ui-list-header>` | List section header: 3 sizes, collapse button |
+| `<ui-list-group>` | List group wrapper: size propagation, collapsible |
 
 ```html
 <ui-button action="primary" emphasis="bold" size="m">Save</ui-button>
@@ -106,7 +110,7 @@ moon run ui-components:storybook        # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build → storybook-static/
 ```
 
-47 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
+50 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
 
 ---
 
@@ -114,7 +118,7 @@ moon run ui-components:storybook-build  # Static build → storybook-static/
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (2098 tests)
+moon run ui-components:test   # vitest --run (2216 tests)
 ```
 
 ---

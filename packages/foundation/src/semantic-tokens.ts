@@ -249,6 +249,7 @@ export const form = {
 
 export const stateHover = {
   borderModerate: ref("gray", 50),      // #7A909E — darkened border on hover
+  surfaceMinimal: ref("gray", 10),      // #F2F5F7 — hover-minimal surface
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------
@@ -257,6 +258,7 @@ export const stateHover = {
 
 export const stateSelected = {
   surfaceBold: ref("blue", 60),         // #186ADE — checked/selected fill
+  surfaceMinimal: ref("blue", 10),      // #EBF3FE — selected-minimal surface
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------
