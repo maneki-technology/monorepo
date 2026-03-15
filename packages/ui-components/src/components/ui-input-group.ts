@@ -13,6 +13,8 @@ const TEXT_SECONDARY = semanticVar("text", "secondary");
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const SP_1 = spaceVar("1");
 const SP_15 = spaceVar("1.5");
+const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
+const FOCUS_BORDER = semanticVar("border", "focus");
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -35,6 +37,15 @@ const STYLES = /* css */ `
     border-radius: 2px;
     overflow: hidden;
     width: 100%;
+    transition: border-color 0.15s ease;
+  }
+
+  :host(:hover:not([disabled]):not([readonly])) .wrapper {
+    border-color: var(--ui-ig-hover-border, ${HOVER_BORDER});
+  }
+
+  :host(:focus-within:not([disabled]):not([readonly])) .wrapper {
+    border-color: var(--ui-ig-focus-border, ${FOCUS_BORDER});
   }
 
   /* ── Prefix / Suffix sections ─────────────────────────────────────────── */
@@ -73,10 +84,19 @@ const STYLES = /* css */ `
     align-self: stretch;
     background-color: var(--ui-ig-separator, ${FORM_INPUT_BORDER});
     flex-shrink: 0;
+    transition: background-color 0.15s ease;
   }
 
   .separator.visible {
     display: block;
+  }
+
+  :host(:hover:not([disabled]):not([readonly])) .separator {
+    background-color: var(--ui-ig-hover-border, ${HOVER_BORDER});
+  }
+
+  :host(:focus-within:not([disabled]):not([readonly])) .separator {
+    background-color: var(--ui-ig-focus-border, ${FOCUS_BORDER});
   }
 
   /* ── Default slot (for ui-input) ──────────────────────────────────────── */
@@ -92,6 +112,8 @@ const STYLES = /* css */ `
     flex: 1;
     min-width: 0;
     --ui-input-border: transparent;
+    --ui-input-hover-border: transparent;
+    --ui-input-focus-border: transparent;
     border: none !important;
     border-radius: 0 !important;
   }
