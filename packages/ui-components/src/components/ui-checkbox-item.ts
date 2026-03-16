@@ -1,6 +1,6 @@
 import { semanticVar, spaceVar } from "@maneki/foundation";
 import "./ui-icon.js";
-import type { UIIcon } from "./ui-icon.js";
+import type { UiIcon } from "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -315,13 +315,13 @@ export class UiCheckboxItem extends HTMLElement {
     checkbox.className = "checkbox";
 
     // Check icon
-    const checkIcon = document.createElement("ui-icon") as UIIcon;
+    const checkIcon = document.createElement("ui-icon") as UiIcon;
     checkIcon.className = "check-icon";
     checkIcon.setAttribute("name", "check");
     checkbox.appendChild(checkIcon);
 
     // Indeterminate icon
-    const indeterminateIcon = document.createElement("ui-icon") as UIIcon;
+    const indeterminateIcon = document.createElement("ui-icon") as UiIcon;
     indeterminateIcon.className = "indeterminate-icon";
     indeterminateIcon.setAttribute("name", "remove");
     checkbox.appendChild(indeterminateIcon);

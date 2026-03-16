@@ -1,6 +1,6 @@
 import { colorVar, semanticVar, spaceVar } from "@maneki/foundation";
 import "./ui-icon.js";
-import type { UIIcon } from "./ui-icon.js";
+import type { UiIcon } from "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -598,21 +598,21 @@ export class UiTag extends HTMLElement {
 
     // Create check icon
     const checkWrap = shadow.querySelector(".check-icon")!;
-    const checkIcon = document.createElement("ui-icon") as UIIcon;
+    const checkIcon = document.createElement("ui-icon") as UiIcon;
     checkIcon.setAttribute("name", "check");
     checkWrap.appendChild(checkIcon);
     this._checkIcon = checkIcon as unknown as HTMLElement;
 
     // Create dismiss icon
     const dismissWrap = shadow.querySelector(".dismiss-icon")!;
-    const dismissIcon = document.createElement("ui-icon") as UIIcon;
+    const dismissIcon = document.createElement("ui-icon") as UiIcon;
     dismissIcon.setAttribute("name", "close");
     dismissWrap.appendChild(dismissIcon);
     this._dismissIcon = dismissIcon as unknown as HTMLElement;
 
     // Create add icon (for editable mode)
     const addWrap = shadow.querySelector(".add-icon")!;
-    const addIcon = document.createElement("ui-icon") as UIIcon;
+    const addIcon = document.createElement("ui-icon") as UiIcon;
     addIcon.setAttribute("name", "add");
     addWrap.appendChild(addIcon);
   }

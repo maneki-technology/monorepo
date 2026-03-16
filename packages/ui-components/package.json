@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Design system Web Components for the Maneki monorepo",
   "type": "module",
+  "sideEffects": true,
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
