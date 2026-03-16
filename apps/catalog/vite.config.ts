@@ -1,9 +1,26 @@
 import { defineConfig } from "vite";
 import { ViteMinifyPlugin } from "vite-plugin-minify";
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   root: ".",
   plugins: [
+    VitePWA({
+      registerType: "prompt",
+      workbox: {
+        // Precache all built assets (JS chunks, CSS, fonts, HTML)
+        globPatterns: ["**/*.{js,css,html,woff2}"],
+      },
+      manifest: {
+        name: "Maneki Design System Catalog",
+        short_name: "Maneki Catalog",
+        description:
+          "Visual catalog for the Maneki design system — foundation tokens, 50 Web Components, and layout primitives.",
+        theme_color: "#186ade",
+        background_color: "#f8f9fa",
+        display: "standalone",
+      },
+    }),
     ViteMinifyPlugin({
       collapseWhitespace: true,
       removeComments: true,

@@ -154,3 +154,8 @@ function onHashChange(): void {
 buildSidebar();
 window.addEventListener("hashchange", onHashChange);
 onHashChange();
+
+// ─── PWA ─────────────────────────────────────────────────────────────────────
+
+import { initPWA } from "./pwa.js";
+initPWA();

@@ -251,12 +251,53 @@
     .panel-content { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--fd-text-secondary, #5b7282); font-family: Inter, sans-serif; font-size: 16px; font-weight: 500; }
     .grid-item-cell { border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: Inter, sans-serif; font-size: 14px; font-weight: 600; height: 100%; user-select: none; }
     .grid-item-static { background: var(--fd-surface-strong, #5B7282); border: 1px solid var(--fd-border-minimal, #DCE3E8); color: var(--fd-surface-primary, #fff); }
+
+    /* Update notification banner */
+    #update-banner {
+      display: none;
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: var(--fd-surface-action, #186ade);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: Inter, sans-serif;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 9999;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #update-banner.visible {
+      display: flex;
+    }
+
+    #update-banner button {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      border: none;
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: Inter, sans-serif;
+      cursor: pointer;
+    }
+
+    #update-banner button:hover {
+      background: rgba(255,255,255,0.3);
+    }
   </style>
 </head>
 <body>
   <div id="app">
     <nav id="sidebar"></nav>
     <main id="content"></main>
+  </div>
+  <div id="update-banner">
+    <span>A new version is available.</span>
+    <button id="update-btn">Refresh</button>
   </div>
   <script type="module" src="/src/main.ts"></script>
 </body>
