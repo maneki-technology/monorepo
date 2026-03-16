@@ -48,6 +48,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "side-panel-menu": () => import("./pages/side-panel-menu.js"),
   "tabs": () => import("./pages/tabs.js"),
   "table": () => import("./pages/table.js"),
+  "metric": () => import("./pages/metric.js"),
   "carousel": () => import("./pages/carousel.js"),
   "calendar": () => import("./pages/calendar.js"),
   "datetime-picker": () => import("./pages/datetime-picker.js"),

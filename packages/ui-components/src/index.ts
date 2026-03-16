@@ -162,3 +162,9 @@ export { UiListHeader } from "./components/ui-list-header.js";
 export type { ListHeaderSize } from "./components/ui-list-header.js";
 export { UiListGroup } from "./components/ui-list-group.js";
 export type { ListGroupSize } from "./components/ui-list-group.js";
+
+// ─── Metric ─────────────────────────────────────────────────────────────────
+
+export { UiMetric } from "./components/ui-metric.js";
+export type { MetricSize, MetricOrientation, MetricDelta } from "./components/ui-metric.js";
+export { UiMetricGroup } from "./components/ui-metric-group.js";
