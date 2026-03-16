@@ -41,3 +41,4 @@ playwright-report/
 # Screenshots (non-snapshot)
 *.png
 !e2e/snapshots/**/*.png
+!apps/catalog/public/favicon.png
