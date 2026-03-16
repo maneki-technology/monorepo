@@ -26,7 +26,7 @@ export const STYLES = /* css */ `
     width: 300px;
     height: 100%;
     background-color: var(--ui-spm-bg, ${SURFACE_SECONDARY});
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     position: relative;
     transition: width 0.2s ease;
   }
@@ -160,7 +160,7 @@ export const STYLES = /* css */ `
     box-shadow: var(--ui-spm-flyout-shadow, ${ELEVATION_03});
     flex-direction: column;
     z-index: 10;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
   }
 
   .flyout[open] {

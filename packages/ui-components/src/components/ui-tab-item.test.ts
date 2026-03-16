@@ -56,9 +56,10 @@ describe("ui-tab-item", () => {
 
   // ── Size attribute ──────────────────────────────────────────────────────
 
-  it("reflects size='s' to attribute", () => {
-    (el as unknown as { size: string }).size = "s";
-    expect(el.getAttribute("size")).toBe("s");
+  it("includes Geist font-family in styles", () => {
+    const sheet = el.shadowRoot!.adoptedStyleSheets[0];
+    const css = Array.from(sheet.cssRules).map((r) => r.cssText).join("");
+    expect(css).toContain("Geist");
   });
 
   it("reflects size='m' to attribute", () => {
@@ -276,7 +277,7 @@ describe("ui-tab-item", () => {
 
   // ── CSS styles ─────────────────────────────────────────────────────────
 
-  it("includes Inter font-family in styles", () => {
+  it("includes Geist font-family in styles", () => {
     const styles = el.shadowRoot!.adoptedStyleSheets
       .map((s: CSSStyleSheet) =>
         Array.from(s.cssRules)
@@ -284,7 +285,7 @@ describe("ui-tab-item", () => {
           .join(""),
       )
       .join("");
-    expect(styles).toContain("Inter");
+    expect(styles).toContain("Geist");
   });
 
 

@@ -54,7 +54,7 @@ const STYLES = /* css */ `
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
-    font-family: var(--ui-btn-font-family, "Inter", sans-serif);
+    font-family: var(--ui-btn-font-family, "Geist", sans-serif);
     font-weight: var(--ui-btn-font-weight, 500);
     transition:
       background var(--ui-btn-transition-duration, 0.15s) ease,

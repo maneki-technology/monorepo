@@ -1,8 +1,11 @@
-// Self-hosted Inter font (eliminates Google Fonts critical chain)
-import "@fontsource/inter/latin-400.css";
-import "@fontsource/inter/latin-500.css";
-import "@fontsource/inter/latin-600.css";
-import "@fontsource/inter/latin-700.css";
+// Self-hosted Geist font (MIT license, variable weight)
+// Copied to public/ because geist package lacks proper exports for bundlers
+
+const geistFace = new FontFace("Geist", `url(/Geist-Variable.woff2) format('woff2')`, {
+  weight: "100 900",
+  style: "normal",
+});
+geistFace.load().then((f) => document.fonts.add(f));
 
 import { injectAllTokens, registerIconFont } from "@maneki/foundation";
 import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";

@@ -21,7 +21,7 @@ const STYLES = /* css */ `
   :host {
     display: table-cell;
     vertical-align: middle;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     color: var(--ui-table-cell-color, ${TEXT_PRIMARY});
     font-weight: 400;
     text-align: left;

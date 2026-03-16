@@ -23,7 +23,7 @@ export const STYLES = /* css */ `
   :host {
     display: inline-flex;
     align-items: baseline;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     color: var(--ui-label-color, ${TEXT_SECONDARY});
   }
 

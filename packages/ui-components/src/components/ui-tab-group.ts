@@ -204,7 +204,7 @@ const STYLES = /* css */ `
     display: flex;
     align-items: center;
     padding: 6px 12px;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     font-size: 13px;
     line-height: 20px;
     color: ${TEXT_PRIMARY};

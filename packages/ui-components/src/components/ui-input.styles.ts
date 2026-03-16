@@ -42,7 +42,7 @@ export const STYLES = /* css */ `
     display: inline-flex;
     flex-direction: column;
     gap: ${SP_05};
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
   }
 
   /* ── Label row ─────────────────────────────────────────────────────────── */

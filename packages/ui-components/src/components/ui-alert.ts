@@ -82,7 +82,7 @@ const STYLES = /* css */ `
     display: flex;
     flex-direction: column;
     border-radius: 2px;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
   }
 
   /* ── Top content ─────────────────────────────────────────────────────────── */

@@ -27,7 +27,7 @@ const STYLES = /* css */ `
 
   :host {
     display: inline-flex;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
   }
 
   .wrapper {
