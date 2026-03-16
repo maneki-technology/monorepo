@@ -46,6 +46,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "menu": () => import("./pages/menu.js"),
   "modal": () => import("./pages/modal.js"),
   "side-panel-menu": () => import("./pages/side-panel-menu.js"),
+  "pagination": () => import("./pages/pagination.js"),
   "tabs": () => import("./pages/tabs.js"),
   "table": () => import("./pages/table.js"),
   "metric": () => import("./pages/metric.js"),

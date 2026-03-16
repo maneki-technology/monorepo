@@ -26,8 +26,12 @@ error
 expand_less
 expand_more
 group
+first_page
 home
 info
+keyboard_double_arrow_left
+keyboard_double_arrow_right
+last_page
 mail
 more_horiz
 more_vert
