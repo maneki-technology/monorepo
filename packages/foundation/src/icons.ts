@@ -98,6 +98,10 @@ export const ICON_LAST_PAGE = "\uE5DD";
 export const ICON_KEYBOARD_DOUBLE_ARROW_LEFT = "\uEAC3";
 /** keyboard_double_arrow_right — U+EAC9 */
 export const ICON_KEYBOARD_DOUBLE_ARROW_RIGHT = "\uEAC9";
+/** message — U+E0C9 */
+export const ICON_MESSAGE = "\uE0C9";
+/** phone — U+F0D4 */
+export const ICON_PHONE = "\uF0D4";
 
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
@@ -143,6 +147,8 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   last_page: ICON_LAST_PAGE,
   keyboard_double_arrow_left: ICON_KEYBOARD_DOUBLE_ARROW_LEFT,
   keyboard_double_arrow_right: ICON_KEYBOARD_DOUBLE_ARROW_RIGHT,
+  message: ICON_MESSAGE,
+  phone: ICON_PHONE,
 };
 
 // ── Font registration ───────────────────────────────────────────────

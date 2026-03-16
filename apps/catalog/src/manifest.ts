@@ -67,6 +67,7 @@ export const manifest: PageMeta[] = [
   // Data Display
   { id: "table", title: "Table", section: "Data Display" },
   { id: "metric", title: "Metric", section: "Data Display" },
+  { id: "person", title: "Person", section: "Data Display" },
   // Calendar & Date
   { id: "calendar", title: "Calendar", section: "Calendar & Date" },
   { id: "datetime-picker", title: "Datetime Picker", section: "Calendar & Date" },
