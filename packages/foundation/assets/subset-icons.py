@@ -73,6 +73,8 @@ CODEPOINTS: dict[str, int] = {
     "keyboard_double_arrow_left": 0xEAC3,
     "keyboard_double_arrow_right": 0xEAC9,
     "last_page": 0xE5DD,
+    "message": 0xE0C9,
+    "phone": 0xF0D4,
 }
 
 

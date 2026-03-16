@@ -173,3 +173,9 @@ export { UiMetricGroup } from "./components/ui-metric-group.js";
 
 export { UiPagination } from "./components/ui-pagination.js";
 export type { PaginationSize, PaginationType } from "./components/ui-pagination.js";
+
+// ─── Person ──────────────────────────────────────────────────────────────────
+
+export { UiPersonItem } from "./components/ui-person-item.js";
+export type { PersonItemSize } from "./components/ui-person-item.js";
+export { UiPersonGroup } from "./components/ui-person-group.js";
