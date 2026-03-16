@@ -94,7 +94,7 @@ export const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     white-space: nowrap;
     border: 1px solid transparent;
     cursor: default;

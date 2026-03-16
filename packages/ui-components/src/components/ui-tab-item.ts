@@ -49,7 +49,7 @@ const STYLES = /* css */ `
     justify-content: center;
     width: 100%;
     flex: 1 1 0%;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     font-weight: var(--ui-tab-font-weight, 400);
     color: var(--ui-tab-text-color, ${TEXT_PRIMARY});
     position: relative;

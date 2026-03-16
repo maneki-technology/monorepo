@@ -28,7 +28,7 @@ export const STYLES = /* css */ `
     display: flex;
     align-items: flex-start;
     border-radius: 2px;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
   }
 
   /* Vertical orientation (default) */

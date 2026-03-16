@@ -88,7 +88,7 @@ const STYLES = /* css */ `
 
   .label {
     display: none;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     font-weight: 400;
     color: var(--ui-radio-label-color, ${TEXT_PRIMARY});
   }

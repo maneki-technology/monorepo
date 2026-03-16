@@ -50,7 +50,7 @@ const STYLES = /* css */ `
 
   .title {
     display: none;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     font-size: 12px;
     line-height: 16px;
     font-weight: 500;

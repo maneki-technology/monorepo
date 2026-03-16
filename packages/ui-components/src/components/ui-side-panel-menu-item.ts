@@ -41,7 +41,7 @@ const STYLES = /* css */ `
     border: none;
     margin: 0;
     background-color: var(--ui-spmi-bg, ${SURFACE_SECONDARY});
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     font-size: 14px;
     font-weight: 500;
     line-height: 20px;

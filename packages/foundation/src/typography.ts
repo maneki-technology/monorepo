@@ -3,7 +3,7 @@
  * of the Foundation UI Kit (Community) Figma file.
  *
  * Three sections: Display Headings, Component/Layout Headings, Body/Supporting.
- * Two font families: "Inter" (primary) and "Roboto Mono" (code).
+ * Two font families: "Geist" (primary) and "Roboto Mono" (code).
  */
 
 // ---------------------------------------------------------------------------
@@ -23,7 +23,7 @@ export interface TypeToken {
 // ---------------------------------------------------------------------------
 
 export const fontFamilies = {
-  primary: "'Inter', sans-serif",
+  primary: "'Geist', sans-serif",
   code: "'Roboto Mono', monospace",
 } as const;
 

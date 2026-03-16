@@ -33,7 +33,7 @@ const STYLES = /* css */ `
 
   :host {
     display: block;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
   }
 
   /* ── Base ─────────────────────────────────────────────────────────────────── */

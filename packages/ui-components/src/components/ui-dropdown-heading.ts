@@ -22,7 +22,7 @@ const STYLES = /* css */ `
   }
 
   .heading {
-    font-family: var(--ui-dd-heading-font-family, "Inter", sans-serif);
+    font-family: var(--ui-dd-heading-font-family, "Geist", sans-serif);
     font-weight: var(--ui-dd-heading-font-weight, 500);
     color: var(--ui-dd-heading-color, ${TEXT_SECONDARY});
     text-transform: uppercase;

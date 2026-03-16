@@ -21,7 +21,7 @@ const STYLES = /* css */ `
 
   :host {
     display: block;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     /* Default size: m */
     --_table-cell-padding: 6px 12px;
     --_table-cell-font-size: 14px;

@@ -1,19 +1,13 @@
 import type { Preview } from "@storybook/web-components";
 import { injectAllTokens } from "@maneki/foundation";
 import { registerIconFont } from "@maneki/foundation";
-import "@fontsource-variable/inter";
-import interLatinWoff2 from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
-import interLatinExtWoff2 from "@fontsource-variable/inter/files/inter-latin-ext-wght-normal.woff2?url";
 
-// @fontsource-variable/inter registers as "Inter Variable" — alias to "Inter"
-// so components using font-family: 'Inter' pick up the variable font
-for (const src of [interLatinWoff2, interLatinExtWoff2]) {
-  const face = new FontFace("Inter", `url(${src}) format('woff2')`, {
-    weight: "100 900",
-    style: "normal",
-  });
-  face.load().then((f) => document.fonts.add(f));
-}
+// Register Geist variable font (served from .storybook/public/)
+const geistFace = new FontFace("Geist", `url(/Geist-Variable.woff2) format('woff2')`, {
+  weight: "100 900",
+  style: "normal",
+});
+geistFace.load().then((f) => document.fonts.add(f));
 
 // Register subset Material Symbols Outlined font (~24 KB vs 3.7 MB full)
 import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";

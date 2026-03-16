@@ -50,7 +50,7 @@ const STYLES = /* css */ `
   :host {
     display: inline-flex;
     align-items: center;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
   }
 
   /* ── Link element ─────────────────────────────────────────────────────────── */

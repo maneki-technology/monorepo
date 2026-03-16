@@ -29,7 +29,7 @@ export const STYLES = /* css */ `
   :host {
     display: flex;
     align-items: center;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
   }
 
   /* ── Layout ──────────────────────────────────────────────────────────────── */
@@ -64,7 +64,7 @@ export const STYLES = /* css */ `
     border: none;
     background: transparent;
     cursor: pointer;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     font-weight: 400;
     color: ${TEXT_PRIMARY};
     padding: 0;
@@ -140,7 +140,7 @@ export const STYLES = /* css */ `
     border: 1px solid ${BORDER_MODERATE};
     border-radius: 2px;
     background: ${SURFACE_PRIMARY};
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     color: ${TEXT_PRIMARY};
     text-align: left;
   }
@@ -154,7 +154,7 @@ export const STYLES = /* css */ `
     border: 1px solid ${BORDER_MODERATE};
     border-radius: 2px;
     background: ${SURFACE_PRIMARY};
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     color: ${TEXT_PRIMARY};
     cursor: pointer;
     appearance: none;

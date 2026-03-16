@@ -67,7 +67,7 @@ const STYLES = /* css */ `
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    font-family: "Inter", sans-serif;
+    font-family: "Geist", sans-serif;
     font-weight: 500;
     color: #ffffff;
   }
