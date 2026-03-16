@@ -24,7 +24,7 @@ function minifyCssLiterals(): Plugin {
             // Collapse whitespace (but preserve content inside quotes)
             .replace(/\s+/g, " ")
             // Remove space around CSS punctuation
-            .replace(/\s*([{}:;,>~+])\s*/g, "$1")
+            .replace(/\s*([{};,>~+]|:(?!:))\s*/g, "$1")
             // Remove trailing semicolons before }
             .replace(/;}/g, "}")
             // Remove leading/trailing whitespace

@@ -69,7 +69,7 @@ const STYLES = /* css */ `
   /* ── Zebra ────────────────────────────────────────────────────────────── */
 
   :host([zebra]) ::slotted(ui-table-row:nth-child(even)) {
-    background-color: ${semanticVar("gridRow", "rowAlt")};
+    --ui-table-row-bg: ${semanticVar("gridRow", "rowAlt")};
   }
 
   .table-wrapper {
@@ -119,7 +119,7 @@ export class UiTable extends HTMLElement {
     if (!this.hasAttribute("role")) {
       this.setAttribute("role", "table");
     }
-    // Consume pre-upgrade properties FIRST (lit sets properties before CE upgrades)
+    // Consume pre-upgrade properties FIRST
     this._upgradeProperty("size");
     this._upgradeProperty("separator");
     this._upgradeProperty("zebra");
@@ -180,6 +180,7 @@ export class UiTable extends HTMLElement {
       this.removeAttribute("bordered");
     }
   }
+
 }
 
 customElements.define("ui-table", UiTable);
