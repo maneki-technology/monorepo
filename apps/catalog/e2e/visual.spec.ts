@@ -36,6 +36,7 @@ const pages = [
   "table",
   "metric",
   "person",
+  "popover",
   "carousel",
   "calendar",
   "datetime-picker",

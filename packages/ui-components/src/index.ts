@@ -179,3 +179,8 @@ export type { PaginationSize, PaginationType } from "./components/ui-pagination.
 export { UiPersonItem } from "./components/ui-person-item.js";
 export type { PersonItemSize } from "./components/ui-person-item.js";
 export { UiPersonGroup } from "./components/ui-person-group.js";
+
+// ─── Popover ─────────────────────────────────────────────────────────────────
+
+export { UiPopover } from "./components/ui-popover.js";
+export type { PopoverSize, PopoverPlacement } from "./components/ui-popover.js";
