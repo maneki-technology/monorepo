@@ -69,6 +69,10 @@ CODEPOINTS: dict[str, int] = {
     "warning": 0xE002,
     "calendar_today": 0xE935,
     "schedule": 0xEFD6,
+    "first_page": 0xE5DC,
+    "keyboard_double_arrow_left": 0xEAC3,
+    "keyboard_double_arrow_right": 0xEAC9,
+    "last_page": 0xE5DD,
 }
 
 

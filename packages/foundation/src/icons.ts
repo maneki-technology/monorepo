@@ -90,6 +90,14 @@ export const ICON_ARROW_FORWARD_IOS = "\uE5E1";
 export const ICON_CALENDAR_TODAY = "\uE935";
 /** schedule — U+EFD6 */
 export const ICON_SCHEDULE = "\uEFD6";
+/** first_page — U+E5DC */
+export const ICON_FIRST_PAGE = "\uE5DC";
+/** last_page — U+E5DD */
+export const ICON_LAST_PAGE = "\uE5DD";
+/** keyboard_double_arrow_left — U+EAC3 */
+export const ICON_KEYBOARD_DOUBLE_ARROW_LEFT = "\uEAC3";
+/** keyboard_double_arrow_right — U+EAC9 */
+export const ICON_KEYBOARD_DOUBLE_ARROW_RIGHT = "\uEAC9";
 
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
@@ -131,6 +139,10 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   arrow_forward_ios: ICON_ARROW_FORWARD_IOS,
   calendar_today: ICON_CALENDAR_TODAY,
   schedule: ICON_SCHEDULE,
+  first_page: ICON_FIRST_PAGE,
+  last_page: ICON_LAST_PAGE,
+  keyboard_double_arrow_left: ICON_KEYBOARD_DOUBLE_ARROW_LEFT,
+  keyboard_double_arrow_right: ICON_KEYBOARD_DOUBLE_ARROW_RIGHT,
 };
 
 // ── Font registration ───────────────────────────────────────────────

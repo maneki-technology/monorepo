@@ -31,6 +31,7 @@ const pages = [
   "menu",
   "modal",
   "side-panel-menu",
+  "pagination",
   "tabs",
   "table",
   "metric",
