@@ -33,6 +33,7 @@ const pages = [
   "side-panel-menu",
   "tabs",
   "table",
+  "metric",
   "carousel",
   "calendar",
   "datetime-picker",
