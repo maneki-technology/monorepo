@@ -149,7 +149,7 @@ export function registerIconFont(fontUrl: string): Promise<FontFace> {
   const face = new FontFace(
     "Material Symbols Outlined",
     `url(${fontUrl}) format('woff2')`,
-    { style: "normal", weight: "100 700" },
+    { style: "normal", weight: "100 700", display: "swap" },
   );
   document.fonts.add(face);
   return face.load();

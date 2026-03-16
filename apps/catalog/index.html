@@ -4,16 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Maneki Design System Catalog</title>
+  <meta name="description" content="Visual catalog for the Maneki design system — foundation tokens, 50 Web Components, and layout primitives." />
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; }
 
     html, body {
       height: 100%;
       font-family: Inter, sans-serif;
-      color: #1c2b36;
-      background: #f8f9fa;
+      color: var(--fd-text-primary, #1c2b36);
+      background: var(--fd-surface-secondary, #f8f9fa);
     }
 
     #app {
@@ -27,8 +27,8 @@
       min-width: 240px;
       height: 100vh;
       overflow-y: auto;
-      background: #fff;
-      border-right: 1px solid #dce3e8;
+      background: var(--fd-surface-primary, #fff);
+      border-right: 1px solid var(--fd-border-minimal, #dce3e8);
       padding: 16px 0;
       scrollbar-width: thin;
     }
@@ -37,7 +37,7 @@
       font-size: 16px;
       font-weight: 700;
       padding: 0 16px 12px;
-      color: #1c2b36;
+      color: var(--fd-text-primary, #1c2b36);
     }
 
     #sidebar .section-title {
@@ -45,7 +45,7 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: #7a909e;
+      color: var(--fd-text-tertiary, #7a909e);
       padding: 12px 16px 4px;
     }
 
@@ -53,19 +53,19 @@
       display: block;
       padding: 6px 16px 6px 24px;
       font-size: 13px;
-      color: #3e5463;
+      color: var(--fd-text-secondary, #3e5463);
       text-decoration: none;
       line-height: 20px;
       transition: background 0.1s;
     }
 
     #sidebar a:hover {
-      background: #f2f5f7;
+      background: var(--fd-surface-secondary, #f2f5f7);
     }
 
     #sidebar a.active {
-      background: #ebf3fe;
-      color: #186ade;
+      background: var(--fd-state-selected-surface-minimal, #ebf3fe);
+      color: var(--fd-text-action, #186ade);
       font-weight: 500;
     }
 
@@ -74,20 +74,25 @@
       flex: 1;
       overflow-y: auto;
       padding: 32px 40px;
+      transition: opacity 0.15s ease;
+    }
+
+    #content.loading {
+      opacity: 0.4;
     }
 
     #content h2 {
       font-size: 24px;
       font-weight: 700;
       margin-bottom: 24px;
-      color: #1c2b36;
+      color: var(--fd-text-primary, #1c2b36);
     }
 
     #content h3 {
       font-size: 16px;
       font-weight: 600;
       margin: 24px 0 12px;
-      color: #3e5463;
+      color: var(--fd-text-secondary, #3e5463);
     }
 
     .variant-row {
@@ -108,23 +113,23 @@
     .variant-label {
       font-size: 11px;
       font-weight: 500;
-      color: #7a909e;
+      color: var(--fd-text-tertiary, #7a909e);
       text-transform: uppercase;
       letter-spacing: 0.3px;
     }
 
     .variant-group {
-      border: 1px solid #dce3e8;
+      border: 1px solid var(--fd-border-minimal, #dce3e8);
       border-radius: 4px;
       padding: 16px;
-      background: #fff;
+      background: var(--fd-surface-primary, #fff);
       margin-bottom: 16px;
     }
 
     .variant-group-title {
       font-size: 13px;
       font-weight: 600;
-      color: #3e5463;
+      color: var(--fd-text-secondary, #3e5463);
       margin-bottom: 12px;
     }
 
@@ -139,12 +144,12 @@
       width: 64px;
       height: 40px;
       border-radius: 4px;
-      border: 1px solid rgba(0,0,0,0.08);
+      border: 1px solid var(--fd-border-minimal, rgba(0,0,0,0.08));
     }
 
     .swatch-label {
       font-size: 10px;
-      color: #7a909e;
+      color: var(--fd-text-tertiary, #7a909e);
       text-align: center;
       margin-top: 2px;
     }
@@ -152,7 +157,7 @@
     /* Page-specific: spacing */
     .spacing-bar {
       height: 24px;
-      background: #186ade;
+      background: var(--fd-surface-action, #186ade);
       border-radius: 2px;
       opacity: 0.6;
     }
@@ -166,13 +171,13 @@
     .elevation-card {
       width: 120px;
       height: 80px;
-      background: #fff;
+      background: var(--fd-surface-primary, #fff);
       border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 12px;
-      color: #7a909e;
+      color: var(--fd-text-tertiary, #7a909e);
     }
 
     /* List container for component demos */
@@ -205,7 +210,7 @@
     .row-wrap { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .row-start { align-items: flex-start; }
 
-    .panel-border { max-width: 280px; border: 1px solid #dce3e8; border-radius: 8px; overflow: hidden; }
+    .panel-border { max-width: 280px; border: 1px solid var(--fd-border-minimal, #dce3e8); border-radius: 8px; overflow: hidden; }
     .pos-relative { position: relative; }
 
     .card-content { display: flex; flex-direction: column; gap: 4px; }
@@ -215,20 +220,20 @@
     .full { width: 100%; height: 100%; }
     .row-gap-8 { display: flex; gap: 8px; }
     .row-start-wrap { display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
-    .text-secondary { font-size: 12px; color: #9FB1BD; }
+    .text-secondary { font-size: 12px; color: var(--fd-text-tertiary, #9FB1BD); }
 
     .gap-24 { gap: 24px; }
     .gap-32 { gap: 32px; }
     .gap-48 { gap: 48px; }
     .items-center { align-items: center; }
 
-    .section-label { margin: 0 0 12px; font-size: 14px; color: #5b7282; }
+    .section-label { margin: 0 0 12px; font-size: 14px; color: var(--fd-text-secondary, #5b7282); }
     .mono-label { margin: 0 0 8px; font-size: 13px; font-family: monospace; }
-    .hint { margin: 0 0 4px; font-size: 12px; color: #5b7282; }
-    .main-content { flex: 1; padding: 24px; background: #fff; }
-    .main-content p { margin: 0; color: #1c2b36; font-size: 14px; }
+    .hint { margin: 0 0 4px; font-size: 12px; color: var(--fd-text-secondary, #5b7282); }
+    .main-content { flex: 1; padding: 24px; background: var(--fd-surface-primary, #fff); }
+    .main-content p { margin: 0; color: var(--fd-text-primary, #1c2b36); font-size: 14px; }
 
-    .layout-frame { display: flex; border: 1px solid #dce3e8; border-radius: 8px; overflow: hidden; }
+    .layout-frame { display: flex; border: 1px solid var(--fd-border-minimal, #dce3e8); border-radius: 8px; overflow: hidden; }
     .layout-frame-400 { height: 400px; }
     .layout-frame-500 { height: 500px; }
     .w-200 { max-width: 200px; }
@@ -243,9 +248,9 @@
     .demo-frame-500 { height: 500px; }
     .demo-frame-600 { height: 600px; }
     .flex-fill { flex: 1; padding: 0; }
-    .panel-content { display: flex; align-items: center; justify-content: center; height: 100%; color: #5b7282; font-family: Inter, sans-serif; font-size: 16px; font-weight: 500; }
+    .panel-content { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--fd-text-secondary, #5b7282); font-family: Inter, sans-serif; font-size: 16px; font-weight: 500; }
     .grid-item-cell { border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: Inter, sans-serif; font-size: 14px; font-weight: 600; height: 100%; user-select: none; }
-    .grid-item-static { background: #5B7282; border: 1px solid #DCE3E8; color: #fff; }
+    .grid-item-static { background: var(--fd-surface-strong, #5B7282); border: 1px solid var(--fd-border-minimal, #DCE3E8); color: var(--fd-surface-primary, #fff); }
   </style>
 </head>
 <body>

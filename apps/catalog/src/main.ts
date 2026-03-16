@@ -1,3 +1,9 @@
+// Self-hosted Inter font (eliminates Google Fonts critical chain)
+import "@fontsource/inter/latin-400.css";
+import "@fontsource/inter/latin-500.css";
+import "@fontsource/inter/latin-600.css";
+import "@fontsource/inter/latin-700.css";
+
 import { injectAllTokens, registerIconFont } from "@maneki/foundation";
 import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";
 import "@maneki/ui-components";
@@ -7,45 +13,61 @@ injectAllTokens();
 registerIconFont(materialSymbolsWoff2);
 
 import { pages } from "./registry.js";
+import { manifest, sectionOrder } from "./manifest.js";
 
-// ─── Import all pages ────────────────────────────────────────────────────────
+// ─── Lazy page loaders ──────────────────────────────────────────────────────
+// Maps page ID → dynamic import function. Vite code-splits each into its own chunk.
 
-import "./pages/colors.js";
-import "./pages/spacing.js";
-import "./pages/typography.js";
-import "./pages/elevation.js";
-import "./pages/semantic-tokens.js";
-import "./pages/badge.js";
-import "./pages/button.js";
-import "./pages/avatar.js";
-import "./pages/alert.js";
-import "./pages/icon.js";
-import "./pages/image.js";
-import "./pages/label.js";
-import "./pages/link.js";
-import "./pages/tag.js";
-import "./pages/checkbox.js";
-import "./pages/radio.js";
-import "./pages/input.js";
-import "./pages/textarea.js";
-import "./pages/file-upload.js";
-import "./pages/select.js";
-import "./pages/card.js";
-import "./pages/breadcrumb.js";
-import "./pages/accordion.js";
-import "./pages/dropdown.js";
-import "./pages/menu.js";
-import "./pages/modal.js";
-import "./pages/side-panel-menu.js";
-import "./pages/tabs.js";
-import "./pages/table.js";
-import "./pages/carousel.js";
-import "./pages/calendar.js";
-import "./pages/datetime-picker.js";
-import "./pages/clock.js";
-import "./pages/list.js";
-import "./pages/grid-layout.js";
-import "./pages/flex-layout.js";
+const pageLoaders: Record<string, () => Promise<unknown>> = {
+  "colors": () => import("./pages/colors.js"),
+  "spacing": () => import("./pages/spacing.js"),
+  "typography": () => import("./pages/typography.js"),
+  "elevation": () => import("./pages/elevation.js"),
+  "semantic-tokens": () => import("./pages/semantic-tokens.js"),
+  "badge": () => import("./pages/badge.js"),
+  "button": () => import("./pages/button.js"),
+  "avatar": () => import("./pages/avatar.js"),
+  "alert": () => import("./pages/alert.js"),
+  "icon": () => import("./pages/icon.js"),
+  "image": () => import("./pages/image.js"),
+  "label": () => import("./pages/label.js"),
+  "link": () => import("./pages/link.js"),
+  "tag": () => import("./pages/tag.js"),
+  "checkbox": () => import("./pages/checkbox.js"),
+  "radio": () => import("./pages/radio.js"),
+  "input": () => import("./pages/input.js"),
+  "textarea": () => import("./pages/textarea.js"),
+  "file-upload": () => import("./pages/file-upload.js"),
+  "select": () => import("./pages/select.js"),
+  "card": () => import("./pages/card.js"),
+  "breadcrumb": () => import("./pages/breadcrumb.js"),
+  "accordion": () => import("./pages/accordion.js"),
+  "dropdown": () => import("./pages/dropdown.js"),
+  "menu": () => import("./pages/menu.js"),
+  "modal": () => import("./pages/modal.js"),
+  "side-panel-menu": () => import("./pages/side-panel-menu.js"),
+  "tabs": () => import("./pages/tabs.js"),
+  "table": () => import("./pages/table.js"),
+  "carousel": () => import("./pages/carousel.js"),
+  "calendar": () => import("./pages/calendar.js"),
+  "datetime-picker": () => import("./pages/datetime-picker.js"),
+  "clock": () => import("./pages/clock.js"),
+  "list": () => import("./pages/list.js"),
+  "grid-layout": () => import("./pages/grid-layout.js"),
+  "flex-layout": () => import("./pages/flex-layout.js"),
+};
+
+// Track which pages have been loaded
+const loadedPages = new Set<string>();
+
+async function ensurePageLoaded(pageId: string): Promise<boolean> {
+  if (loadedPages.has(pageId)) return true;
+  const loader = pageLoaders[pageId];
+  if (!loader) return false;
+  await loader(); // Side-effect: calls registerPage() which populates `pages`
+  loadedPages.add(pageId);
+  return true;
+}
 
 // ─── Router ──────────────────────────────────────────────────────────────────
 
@@ -53,11 +75,9 @@ function buildSidebar(): void {
   const sidebar = document.getElementById("sidebar")!;
   const sections: Record<string, { id: string; title: string }[]> = {};
 
-  const sectionOrder = ["Foundation", "Primitives", "Form Controls", "Containers", "Navigation", "Disclosure", "Menus & Dropdowns", "Overlays", "Tabs", "Data Display", "Calendar & Date", "List", "Layouts"];
-
-  for (const [id, page] of Object.entries(pages)) {
-    if (!sections[page.section]) sections[page.section] = [];
-    sections[page.section].push({ id, title: page.title });
+  for (const entry of manifest) {
+    if (!sections[entry.section]) sections[entry.section] = [];
+    sections[entry.section].push({ id: entry.id, title: entry.title });
   }
 
   let html = `<h1>Maneki</h1>`;
@@ -85,21 +105,38 @@ function navigate(pageId: string): void {
   renderPage(pageId);
 }
 
-function renderPage(pageId: string): void {
-  const page = pages[pageId];
+async function renderPage(pageId: string): Promise<void> {
   const content = document.getElementById("content")!;
 
-  if (!page) {
+  if (!pageId) {
+    content.innerHTML = `<h2>Welcome</h2><p>Select a page from the sidebar.</p>`;
+    return;
+  }
+
+  // Update active link immediately (no waiting for lazy load)
+  document.querySelectorAll("#sidebar a").forEach((a) => {
+    a.classList.toggle("active", (a as HTMLElement).dataset.page === pageId);
+  });
+
+  // Show subtle loading state if not already cached
+  const meta = manifest.find((m) => m.id === pageId);
+  if (!loadedPages.has(pageId)) {
+    content.innerHTML = `<h2>${meta?.title ?? ""}</h2>`;
+    content.classList.add("loading");
+  }
+
+  // Lazy-load the page module
+  const loaded = await ensurePageLoaded(pageId);
+  const page = pages[pageId];
+
+  content.classList.remove("loading");
+
+  if (!loaded || !page) {
     content.innerHTML = `<h2>Welcome</h2><p>Select a page from the sidebar.</p>`;
     return;
   }
 
   content.innerHTML = `<h2>${page.title}</h2>${page.render()}`;
-
-  // Update active link
-  document.querySelectorAll("#sidebar a").forEach((a) => {
-    a.classList.toggle("active", (a as HTMLElement).dataset.page === pageId);
-  });
 
   // Run page setup (imperative DOM manipulation)
   if (page.setup) {
@@ -109,7 +146,7 @@ function renderPage(pageId: string): void {
 
 function onHashChange(): void {
   const hash = window.location.hash.slice(1);
-  renderPage(hash || Object.keys(pages)[0]);
+  renderPage(hash || manifest[0].id);
 }
 
 // ─── Init ────────────────────────────────────────────────────────────────────
