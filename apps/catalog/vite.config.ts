@@ -1,7 +1,16 @@
 import { defineConfig } from "vite";
+import { ViteMinifyPlugin } from "vite-plugin-minify";
 
 export default defineConfig({
   root: ".",
+  plugins: [
+    ViteMinifyPlugin({
+      collapseWhitespace: true,
+      removeComments: true,
+      minifyCSS: true,
+      minifyJS: true,
+    }),
+  ],
   build: {
     outDir: "dist",
     emptyOutDir: true,
