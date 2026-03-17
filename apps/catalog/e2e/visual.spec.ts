@@ -24,6 +24,7 @@ const pages = [
   "textarea",
   "file-upload",
   "select",
+  "queryfield",
   "card",
   "breadcrumb",
   "accordion",
