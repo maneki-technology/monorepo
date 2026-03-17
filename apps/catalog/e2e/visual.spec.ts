@@ -37,6 +37,7 @@ const pages = [
   "metric",
   "person",
   "progress",
+  "pull-to-refresh",
   "popover",
   "carousel",
   "calendar",

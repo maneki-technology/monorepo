@@ -55,6 +55,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "metric": () => import("./pages/metric.js"),
   "person": () => import("./pages/person.js"),
   "progress": () => import("./pages/progress.js"),
+  "pull-to-refresh": () => import("./pages/pull-to-refresh.js"),
   "popover": () => import("./pages/popover.js"),
   "carousel": () => import("./pages/carousel.js"),
   "calendar": () => import("./pages/calendar.js"),
