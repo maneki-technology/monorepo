@@ -184,3 +184,10 @@ export { UiPersonGroup } from "./components/ui-person-group.js";
 
 export { UiPopover } from "./components/ui-popover.js";
 export type { PopoverSize, PopoverPlacement } from "./components/ui-popover.js";
+
+// ─── Progress ────────────────────────────────────────────────────────────────
+
+export { UiProgressBar } from "./components/ui-progress-bar.js";
+export type { ProgressBarSize, ProgressBarLabel, ProgressStatus } from "./components/ui-progress-bar.js";
+export { UiProgressCircle } from "./components/ui-progress-circle.js";
+export type { ProgressCircleSize, ProgressCircleLabelPosition } from "./components/ui-progress-circle.js";
