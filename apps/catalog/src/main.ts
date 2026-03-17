@@ -54,6 +54,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "table": () => import("./pages/table.js"),
   "metric": () => import("./pages/metric.js"),
   "person": () => import("./pages/person.js"),
+  "popover": () => import("./pages/popover.js"),
   "carousel": () => import("./pages/carousel.js"),
   "calendar": () => import("./pages/calendar.js"),
   "datetime-picker": () => import("./pages/datetime-picker.js"),
