@@ -191,3 +191,8 @@ export { UiProgressBar } from "./components/ui-progress-bar.js";
 export type { ProgressBarSize, ProgressBarLabel, ProgressStatus } from "./components/ui-progress-bar.js";
 export { UiProgressCircle } from "./components/ui-progress-circle.js";
 export type { ProgressCircleSize, ProgressCircleLabelPosition } from "./components/ui-progress-circle.js";
+
+// ─── Pull to Refresh ──────────────────────────────────────────────────────────
+
+export { UiPullToRefresh } from "./components/ui-pull-to-refresh.js";
+export type { PullToRefreshVariant, PullToRefreshSize } from "./components/ui-pull-to-refresh.js";

@@ -70,6 +70,7 @@ export const manifest: PageMeta[] = [
   { id: "metric", title: "Metric", section: "Data Display" },
   { id: "person", title: "Person", section: "Data Display" },
   { id: "progress", title: "Progress", section: "Data Display" },
+  { id: "pull-to-refresh", title: "Pull to Refresh", section: "Data Display" },
   // Calendar & Date
   { id: "calendar", title: "Calendar", section: "Calendar & Date" },
   { id: "datetime-picker", title: "Datetime Picker", section: "Calendar & Date" },
