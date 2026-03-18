@@ -46,6 +46,7 @@ const pages = [
   "scrollbar",
   "skeleton",
   "popover",
+  "tooltip",
   "carousel",
   "calendar",
   "datetime-picker",

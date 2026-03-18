@@ -64,6 +64,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "scrollbar": () => import("./pages/scrollbar.js"),
   "skeleton": () => import("./pages/skeleton.js"),
   "popover": () => import("./pages/popover.js"),
+  "tooltip": () => import("./pages/tooltip.js"),
   "carousel": () => import("./pages/carousel.js"),
   "calendar": () => import("./pages/calendar.js"),
   "datetime-picker": () => import("./pages/datetime-picker.js"),
