@@ -1,0 +1,176 @@
+import { semanticVar, elevationVar, spaceVar } from "@maneki/foundation";
+
+// ─── Token constants ─────────────────────────────────────────────────────────
+
+const SURFACE_SECONDARY = semanticVar("surface", "secondary");
+const TEXT_PRIMARY = semanticVar("text", "primary");
+const ICON_PRIMARY_TOKEN = semanticVar("icon", "primary");
+const BORDER_MINIMAL = semanticVar("border", "minimal");
+const BORDER_SUBTLE = semanticVar("border", "subtle");
+const ELEVATION_03 = elevationVar("03");
+const BORDER_FOCUS = semanticVar("border", "focus");
+const SP_1 = spaceVar("1");       // 8px
+const SP_2 = spaceVar("2");       // 16px
+
+// ─── Styles ──────────────────────────────────────────────────────────────────
+
+export const STYLES = /* css */ `
+  @font-face {
+    font-family: "Material Symbols Outlined";
+    font-style: normal;
+    src: local("Material Symbols Outlined");
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  :host {
+    display: block;
+    width: var(--ui-sp-width, 300px);
+    height: 100%;
+    background-color: var(--ui-sp-bg, ${SURFACE_SECONDARY});
+    font-family: "Geist", sans-serif;
+    position: relative;
+    transition: width 0.2s ease;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+  }
+
+  /* ── Right border (inset shadow) ─────────────────────────────────────────── */
+
+  :host(:not([overlay])) .container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset -1px 0 0 0 var(--ui-sp-border, ${BORDER_SUBTLE});
+  }
+
+  /* ── Overlay mode ────────────────────────────────────────────────────────── */
+
+  :host([overlay]) {
+    box-shadow: var(--ui-sp-shadow, ${ELEVATION_03});
+  }
+
+  /* ── Collapsed mode ──────────────────────────────────────────────────────── */
+
+  :host([state="collapsed"]) {
+    width: var(--ui-sp-collapsed-width, 40px);
+  }
+
+  /* ── Mobile full-width overlay ───────────────────────────────────────────── */
+
+  :host([mobile][state="expanded"]) {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    z-index: 100;
+  }
+
+  /* ── Header ──────────────────────────────────────────────────────────────── */
+
+  .header {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    padding: ${SP_1};
+    padding-left: ${SP_2};
+    gap: ${SP_1};
+    background-color: var(--ui-sp-header-bg, ${SURFACE_SECONDARY});
+    flex-shrink: 0;
+  }
+
+  .header-title {
+    flex: 1 0 0;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    color: var(--ui-sp-header-text, ${TEXT_PRIMARY});
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .header-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    line-height: 0;
+    color: var(--ui-sp-toggle-icon, ${ICON_PRIMARY_TOKEN});
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+    border-radius: 2px;
+  }
+
+  .header-toggle .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: "FILL" 0;
+  }
+
+  .header-toggle:focus-visible {
+    outline: 2px solid ${BORDER_FOCUS};
+    outline-offset: -2px;
+  }
+
+  /* ── Collapsed header ────────────────────────────────────────────────────── */
+
+  :host([state="collapsed"]) .header {
+    justify-content: center;
+    padding: ${SP_1};
+  }
+
+  :host([state="collapsed"]) .header-title {
+    display: none;
+  }
+
+  /* ── Separator ───────────────────────────────────────────────────────────── */
+
+  .separator {
+    height: 1px;
+    background-color: var(--ui-sp-separator, ${BORDER_MINIMAL});
+    flex-shrink: 0;
+  }
+
+  /* ── Body ─────────────────────────────────────────────────────────────────── */
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+  }
+
+  /* ── Reduced motion ──────────────────────────────────────────────────────── */
+
+  @media (prefers-reduced-motion: reduce) {
+    :host {
+      transition-duration: 0.01ms !important;
+    }
+  }
+`;

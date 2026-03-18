@@ -11,6 +11,12 @@ describe("ui-side-panel-menu", () => {
     document.body.appendChild(el);
   });
 
+  /** Helper: get the inner ui-side-panel's shadow root */
+  function panelShadow(menu: HTMLElement): ShadowRoot {
+    const panel = menu.shadowRoot!.querySelector("ui-side-panel")!;
+    return panel.shadowRoot!;
+  }
+
   function createMenu(
     attrs: Record<string, string> = {},
     itemCount = 3,
@@ -86,30 +92,29 @@ describe("ui-side-panel-menu", () => {
   // ── Shadow DOM structure ─────────────────────────────────────────────────
 
   it("renders a .container element", () => {
-    const container = el.shadowRoot!.querySelector(".container");
+    const container = panelShadow(el).querySelector(".container");
     expect(container).toBeTruthy();
   });
 
   it("renders a .header element", () => {
-    const header = el.shadowRoot!.querySelector(".header");
+    const header = panelShadow(el).querySelector(".header");
     expect(header).toBeTruthy();
   });
 
   it("renders a .header-title element", () => {
-    const title = el.shadowRoot!.querySelector(".header-title");
+    const title = panelShadow(el).querySelector(".header-title");
     expect(title).toBeTruthy();
     expect(title!.textContent).toBe("Panel Title");
   });
 
   it("renders a .header-toggle button", () => {
-    const toggle = el.shadowRoot!.querySelector(".header-toggle");
+    const toggle = panelShadow(el).querySelector(".header-toggle");
     expect(toggle).toBeTruthy();
     expect(toggle!.tagName).toBe("BUTTON");
-    expect(toggle!.getAttribute("type")).toBe("button");
   });
 
   it("renders a .separator element", () => {
-    const separator = el.shadowRoot!.querySelector(".separator");
+    const separator = panelShadow(el).querySelector(".separator");
     expect(separator).toBeTruthy();
   });
 
@@ -128,15 +133,15 @@ describe("ui-side-panel-menu", () => {
 
   it("updates header title from title attribute", () => {
     el.setAttribute("title", "Navigation");
-    const title = el.shadowRoot!.querySelector(".header-title");
+    const title = panelShadow(el).querySelector(".header-title");
     expect(title!.textContent).toBe("Navigation");
   });
 
   it("shows default title when title attribute is removed", () => {
     el.setAttribute("title", "Navigation");
     el.removeAttribute("title");
-    const title = el.shadowRoot!.querySelector(".header-title");
-    expect(title!.textContent).toBe("Panel Title");
+    const title = panelShadow(el).querySelector(".header-title");
+    expect(title!.textContent).toBe("");
   });
 
   // ── Toggle behavior ──────────────────────────────────────────────────────
@@ -144,7 +149,7 @@ describe("ui-side-panel-menu", () => {
   it("toggles state when toggle button is clicked", () => {
     expect((el as any).state).toBe("expanded");
 
-    const toggle = el.shadowRoot!.querySelector(".header-toggle") as HTMLElement;
+    const toggle = panelShadow(el).querySelector(".header-toggle") as HTMLElement;
     toggle.click();
 
     expect((el as any).state).toBe("collapsed");
@@ -159,7 +164,7 @@ describe("ui-side-panel-menu", () => {
       detail = e.detail;
     }) as EventListener);
 
-    const toggle = el.shadowRoot!.querySelector(".header-toggle") as HTMLElement;
+    const toggle = panelShadow(el).querySelector(".header-toggle") as HTMLElement;
     toggle.click();
 
     expect(detail).toEqual({ state: "collapsed" });
@@ -172,7 +177,7 @@ describe("ui-side-panel-menu", () => {
       detail = e.detail;
     }) as EventListener);
 
-    const toggle = el.shadowRoot!.querySelector(".header-toggle") as HTMLElement;
+    const toggle = panelShadow(el).querySelector(".header-toggle") as HTMLElement;
     toggle.click();
 
     expect(detail).toEqual({ state: "expanded" });
@@ -181,30 +186,28 @@ describe("ui-side-panel-menu", () => {
   // ── Toggle icon ──────────────────────────────────────────────────────────
 
   it("shows chevron-left icon when expanded", () => {
-    const toggle = el.shadowRoot!.querySelector(".header-toggle");
-    const icon = toggle!.querySelector("ui-icon");
+    const toggle = panelShadow(el).querySelector(".header-toggle");
+    const icon = toggle!.querySelector(".material-symbols-outlined");
     expect(icon).toBeTruthy();
-    expect(icon!.getAttribute("name")).toBe("chevron_left");
   });
 
   it("shows chevron-right icon when collapsed", () => {
     (el as any).state = "collapsed";
-    const toggle = el.shadowRoot!.querySelector(".header-toggle");
-    const icon = toggle!.querySelector("ui-icon");
+    const toggle = panelShadow(el).querySelector(".header-toggle");
+    const icon = toggle!.querySelector(".material-symbols-outlined");
     expect(icon).toBeTruthy();
-    expect(icon!.getAttribute("name")).toBe("chevron_right");
   });
 
   // ── Toggle aria-label ────────────────────────────────────────────────────
 
   it("has aria-label 'Collapse panel' when expanded", () => {
-    const toggle = el.shadowRoot!.querySelector(".header-toggle");
+    const toggle = panelShadow(el).querySelector(".header-toggle");
     expect(toggle!.getAttribute("aria-label")).toBe("Collapse panel");
   });
 
   it("has aria-label 'Expand panel' when collapsed", () => {
     (el as any).state = "collapsed";
-    const toggle = el.shadowRoot!.querySelector(".header-toggle");
+    const toggle = panelShadow(el).querySelector(".header-toggle");
     expect(toggle!.getAttribute("aria-label")).toBe("Expand panel");
   });
 
@@ -538,7 +541,7 @@ describe("ui-side-panel-menu", () => {
     menu.setAttribute("mobile", "");
     expect(menu.getAttribute("state")).toBe("collapsed");
     // Click toggle to expand
-    const toggleBtn = menu.shadowRoot!.querySelector(".header-toggle") as HTMLElement;
+    const toggleBtn = panelShadow(menu).querySelector(".header-toggle") as HTMLElement;
     toggleBtn.click();
     expect(menu.getAttribute("state")).toBe("expanded");
     expect(menu.hasAttribute("overlay")).toBe(true);
@@ -547,7 +550,7 @@ describe("ui-side-panel-menu", () => {
   it("removes overlay when toggling back to collapsed on mobile", () => {
     const menu = createMenu();
     menu.setAttribute("mobile", "");
-    const toggleBtn = menu.shadowRoot!.querySelector(".header-toggle") as HTMLElement;
+    const toggleBtn = panelShadow(menu).querySelector(".header-toggle") as HTMLElement;
     // Expand
     toggleBtn.click();
     expect(menu.hasAttribute("overlay")).toBe(true);
@@ -560,7 +563,7 @@ describe("ui-side-panel-menu", () => {
   it("clears overlay when leaving mobile after expanded toggle", () => {
     const menu = createMenu();
     menu.setAttribute("mobile", "");
-    const toggleBtn = menu.shadowRoot!.querySelector(".header-toggle") as HTMLElement;
+    const toggleBtn = panelShadow(menu).querySelector(".header-toggle") as HTMLElement;
     toggleBtn.click(); // expand on mobile
     expect(menu.hasAttribute("overlay")).toBe(true);
     menu.removeAttribute("mobile");

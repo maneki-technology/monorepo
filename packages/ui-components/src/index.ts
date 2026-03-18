@@ -231,3 +231,8 @@ export type {
 
 export { UiSeparator } from "./components/ui-separator.js";
 export type { SeparatorOrientation, SeparatorEmphasis, SeparatorLength } from "./components/ui-separator.js";
+
+// ─── Side Panel ──────────────────────────────────────────────────────────────
+
+export { UiSidePanel } from "./components/ui-side-panel.js";
+export type { SidePanelState } from "./components/ui-side-panel.js";
