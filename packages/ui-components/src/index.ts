@@ -196,3 +196,17 @@ export type { ProgressCircleSize, ProgressCircleLabelPosition } from "./componen
 
 export { UiPullToRefresh } from "./components/ui-pull-to-refresh.js";
 export type { PullToRefreshVariant, PullToRefreshSize } from "./components/ui-pull-to-refresh.js";
+
+// ─── Queryfield ─────────────────────────────────────────────────────────────
+
+export { UiQueryfieldTag } from "./components/ui-queryfield-tag.js";
+export type { QueryfieldTagSize } from "./components/ui-queryfield-tag.js";
+export { UiQueryfield } from "./components/ui-queryfield.js";
+export type {
+  QueryfieldSize,
+  QueryfieldFilter,
+  QueryfieldFilterAddDetail,
+  QueryfieldFilterUpdateDetail,
+  QueryfieldSubmitDetail,
+  QueryfieldInputDetail,
+} from "./components/ui-queryfield.js";
