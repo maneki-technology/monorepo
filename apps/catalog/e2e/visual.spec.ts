@@ -27,6 +27,7 @@ const pages = [
   "select",
   "queryfield",
   "search",
+  "slider",
   "card",
   "breadcrumb",
   "accordion",
