@@ -52,6 +52,7 @@ export const manifest: PageMeta[] = [
   { id: "queryfield", title: "Queryfield", section: "Form Controls" },
   { id: "search", title: "Search", section: "Form Controls" },
   { id: "slider", title: "Slider", section: "Form Controls" },
+  { id: "switch", title: "Switch", section: "Form Controls" },
   // Containers
   { id: "card", title: "Card", section: "Containers" },
   { id: "carousel", title: "Carousel", section: "Containers" },

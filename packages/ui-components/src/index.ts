@@ -257,3 +257,8 @@ export type { TooltipSize, TooltipPlacement } from "./components/ui-tooltip.js";
 export { UiStepItem } from "./components/ui-step-item.js";
 export type { StepSize, StepStatus, StepOrientation } from "./components/ui-step-item.styles.js";
 export { UiStepGroup } from "./components/ui-step-group.js";
+
+// ─── Switch ───────────────────────────────────────────────────────────────────
+
+export { UiSwitch } from "./components/ui-switch.js";
+export type { SwitchSize, SwitchLabelPosition, SwitchStatus } from "./components/ui-switch.js";
