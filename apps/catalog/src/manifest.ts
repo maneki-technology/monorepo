@@ -76,6 +76,7 @@ export const manifest: PageMeta[] = [
   { id: "progress", title: "Progress", section: "Data Display" },
   { id: "pull-to-refresh", title: "Pull to Refresh", section: "Data Display" },
   { id: "scrollbar", title: "Scrollbar", section: "Data Display" },
+  { id: "skeleton", title: "Skeleton", section: "Data Display" },
   // Calendar & Date
   { id: "calendar", title: "Calendar", section: "Calendar & Date" },
   { id: "datetime-picker", title: "Datetime Picker", section: "Calendar & Date" },
