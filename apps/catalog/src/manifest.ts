@@ -41,6 +41,7 @@ export const manifest: PageMeta[] = [
   { id: "label", title: "Label", section: "Primitives" },
   { id: "link", title: "Link", section: "Primitives" },
   { id: "tag", title: "Tag", section: "Primitives" },
+  { id: "separator", title: "Separator", section: "Primitives" },
   // Form Controls
   { id: "checkbox", title: "Checkbox", section: "Form Controls" },
   { id: "radio", title: "Radio", section: "Form Controls" },

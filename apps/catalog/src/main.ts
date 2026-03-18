@@ -36,6 +36,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "label": () => import("./pages/label.js"),
   "link": () => import("./pages/link.js"),
   "tag": () => import("./pages/tag.js"),
+  "separator": () => import("./pages/separator.js"),
   "checkbox": () => import("./pages/checkbox.js"),
   "radio": () => import("./pages/radio.js"),
   "input": () => import("./pages/input.js"),

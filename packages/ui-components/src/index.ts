@@ -226,3 +226,8 @@ export type {
   SearchSelectDetail,
   SearchShowAllDetail,
 } from "./components/ui-search.js";
+
+// ─── Separator ────────────────────────────────────────────────────────────────
+
+export { UiSeparator } from "./components/ui-separator.js";
+export type { SeparatorOrientation, SeparatorEmphasis, SeparatorLength } from "./components/ui-separator.js";
