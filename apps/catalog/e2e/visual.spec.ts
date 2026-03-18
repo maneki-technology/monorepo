@@ -34,6 +34,7 @@ const pages = [
   "menu",
   "modal",
   "side-panel-menu",
+  "side-panel",
   "pagination",
   "tabs",
   "table",

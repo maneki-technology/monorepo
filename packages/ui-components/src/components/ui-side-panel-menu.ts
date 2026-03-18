@@ -1,13 +1,10 @@
-import { standardBreakpoints } from "@maneki/foundation";
+import "./ui-side-panel.js";
 import "./ui-icon.js";
 import { STYLES } from "./ui-side-panel-menu.styles.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type SidePanelMenuState = "expanded" | "collapsed";
-
-/** Mobile breakpoint threshold — foundation "s" maxWidth (767px). */
-const MOBILE_MAX_WIDTH = standardBreakpoints.s.maxWidth;
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -17,61 +14,33 @@ sheet.replaceSync(STYLES);
 export class UiSidePanelMenu extends HTMLElement {
   static readonly observedAttributes = ["state", "overlay", "title", "mobile"];
 
-  private _headerTitle: HTMLSpanElement;
-  private _toggleBtn: HTMLButtonElement;
+  private _panel: HTMLElement;
   private _menu: HTMLDivElement;
   private _flyout: HTMLDivElement;
   private _flyoutTitle: HTMLDivElement;
   private _flyoutBody: HTMLDivElement;
   private _activeFlyoutItem: Element | null = null;
   private _dismissFlyout: (() => void) | null = null;
-  private _mobileQuery: MediaQueryList | null = null;
-  private _mobileHandler: ((e: MediaQueryListEvent) => void) | null = null;
-  private _userExplicitState = false;
 
   constructor() {
     super();
     const shadow = this.attachShadow({ mode: "open" });
-
     shadow.adoptedStyleSheets = [sheet];
 
-    // Container
-    const container = document.createElement("div");
-    container.className = "container";
+    // Compose ui-side-panel as the container
+    this._panel = document.createElement("ui-side-panel");
 
-    // Header
-    const header = document.createElement("div");
-    header.className = "header";
-
-    const headerTitle = document.createElement("span");
-    headerTitle.className = "header-title";
-    headerTitle.textContent = "Panel Title";
-    header.appendChild(headerTitle);
-
-    const toggleBtn = document.createElement("button");
-    toggleBtn.className = "header-toggle";
-    toggleBtn.setAttribute("type", "button");
-    toggleBtn.setAttribute("aria-label", "Toggle panel");
-    header.appendChild(toggleBtn);
-
-    container.appendChild(header);
-
-    // Separator
-    const separator = document.createElement("div");
-    separator.className = "separator";
-    container.appendChild(separator);
-
-    // Menu area
+    // Menu area (slotted into the panel)
     const menu = document.createElement("div");
     menu.className = "menu";
     menu.setAttribute("role", "tree");
     const menuSlot = document.createElement("slot");
     menu.appendChild(menuSlot);
-    container.appendChild(menu);
+    this._panel.appendChild(menu);
 
-    shadow.appendChild(container);
+    shadow.appendChild(this._panel);
 
-    // Flyout submenu (for collapsed mode)
+    // Flyout submenu (for collapsed mode) — lives outside the panel
     const flyout = document.createElement("div");
     flyout.className = "flyout";
     const flyoutTitle = document.createElement("div");
@@ -82,15 +51,10 @@ export class UiSidePanelMenu extends HTMLElement {
     flyout.appendChild(flyoutBody);
     shadow.appendChild(flyout);
 
-    this._headerTitle = headerTitle;
-    this._toggleBtn = toggleBtn;
     this._menu = menu;
     this._flyout = flyout;
     this._flyoutTitle = flyoutTitle;
     this._flyoutBody = flyoutBody;
-
-    // Toggle handler
-    toggleBtn.addEventListener("click", () => this._toggle());
 
     // Keyboard navigation in menu
     menu.addEventListener("keydown", (e: KeyboardEvent) =>
@@ -101,19 +65,29 @@ export class UiSidePanelMenu extends HTMLElement {
       this._handleItemSelect(e as CustomEvent),
     );
     // Intercept expandable item toggles in collapsed mode
-    this.addEventListener("toggle", (e: Event) =>
-      this._handleItemToggle(e as CustomEvent),
-    );
+    this.addEventListener("toggle", (e: Event) => {
+      // Only handle toggle from menu items, not from the panel itself
+      const target = (e as CustomEvent).composedPath().find(
+        (el) => (el as Element).tagName === "UI-SIDE-PANEL-MENU-ITEM",
+      );
+      if (target) this._handleItemToggle(e as CustomEvent);
+    });
+
+    // Listen for panel toggle to sync item types
+    this._panel.addEventListener("toggle", (e: Event) => {
+      const ce = e as CustomEvent;
+      // Sync state + overlay from panel back to menu
+      this.setAttribute("state", ce.detail.state);
+      if (this._panel.hasAttribute("overlay")) this.setAttribute("overlay", "");
+      else this.removeAttribute("overlay");
+    });
   }
 
   connectedCallback(): void {
-    this._syncToggleIcon();
-    this._syncTitle();
-    this._setupMobileDetection();
+    this._syncPanelAttributes();
   }
 
   disconnectedCallback(): void {
-    this._teardownMobileDetection();
     this._closeFlyout();
   }
 
@@ -123,17 +97,32 @@ export class UiSidePanelMenu extends HTMLElement {
     _newValue: string | null,
   ): void {
     if (name === "state") {
-      this._syncToggleIcon();
+      this._panel.setAttribute("state", this.state);
       this._syncItemTypes();
       this._closeFlyout();
     }
     if (name === "title") {
-      this._syncTitle();
+      this._panel.setAttribute("title", this.getAttribute("title") ?? "");
+    }
+    if (name === "overlay") {
+      if (this.hasAttribute("overlay")) this._panel.setAttribute("overlay", "");
+      else this._panel.removeAttribute("overlay");
     }
     if (name === "mobile") {
-      this._syncMobileState();
+      if (this.hasAttribute("mobile")) {
+        this._panel.setAttribute("mobile", "");
+        // Auto-collapse on mobile
+        this.setAttribute("state", "collapsed");
+      } else {
+        this._panel.removeAttribute("mobile");
+        // Leaving mobile: clear overlay, restore expanded
+        this.removeAttribute("overlay");
+        this._panel.removeAttribute("overlay");
+        this.setAttribute("state", "expanded");
+      }
     }
   }
+
   // ── Property accessors ──────────────────────────────────────────────────
 
   get state(): SidePanelMenuState {
@@ -157,47 +146,16 @@ export class UiSidePanelMenu extends HTMLElement {
     return this.hasAttribute("mobile");
   }
 
-  // ── Private ─────────────────────────────────────────────────────────────
+  // ── Private: sync panel ─────────────────────────────────────────────────
 
-  private _toggle(): void {
-    this._userExplicitState = true;
-    const newState =
-      this.state === "expanded" ? "collapsed" : "expanded";
-    this.state = newState;
-    // On mobile, expanded = overlay
-    if (this.mobile) {
-      this.overlay = newState === "expanded";
-    }
-    this.dispatchEvent(
-      new CustomEvent("toggle", {
-        detail: { state: newState },
-        bubbles: true,
-        composed: true,
-      }),
-    );
+  private _syncPanelAttributes(): void {
+    this._panel.setAttribute("state", this.state);
+    this._panel.setAttribute("title", this.getAttribute("title") ?? "Panel Title");
+    if (this.hasAttribute("overlay")) this._panel.setAttribute("overlay", "");
+    if (this.hasAttribute("mobile")) this._panel.setAttribute("mobile", "");
   }
 
-  private _syncToggleIcon(): void {
-    this._toggleBtn.innerHTML = "";
-    if (this.state === "expanded") {
-      const icon = document.createElement("ui-icon") as HTMLElement;
-      icon.setAttribute("name", "chevron_left");
-      this._toggleBtn.appendChild(icon);
-    } else {
-      const icon = document.createElement("ui-icon") as HTMLElement;
-      icon.setAttribute("name", "chevron_right");
-      this._toggleBtn.appendChild(icon);
-    }
-    this._toggleBtn.setAttribute(
-      "aria-label",
-      this.state === "expanded" ? "Collapse panel" : "Expand panel",
-    );
-  }
-
-  private _syncTitle(): void {
-    this._headerTitle.textContent =
-      this.getAttribute("title") ?? "Panel Title";
-  }
+  // ── Private: item type sync ─────────────────────────────────────────────
 
   private _syncItemTypes(): void {
     const isCollapsed = this.state === "collapsed";
@@ -211,7 +169,6 @@ export class UiSidePanelMenu extends HTMLElement {
     for (const item of items) {
       if (isCollapsed) {
         item.setAttribute("type", "icon-only");
-        // Collapse any expanded parents — collapsed mode uses flyout instead
         if (item.hasAttribute("expanded")) {
           item.removeAttribute("expanded");
         }
@@ -220,6 +177,8 @@ export class UiSidePanelMenu extends HTMLElement {
       }
     }
   }
+
+  // ── Private: keyboard navigation ────────────────────────────────────────
 
   private _getNavigableItems(): HTMLElement[] {
     const slot = this._menu.querySelector("slot");
@@ -232,7 +191,6 @@ export class UiSidePanelMenu extends HTMLElement {
           !el.hasAttribute("disabled")
         ) {
           allItems.push(el as HTMLElement);
-          // If expanded, also collect children
           const childSlot = el.shadowRoot?.querySelector(
             'slot[name="children"]',
           );
@@ -255,7 +213,6 @@ export class UiSidePanelMenu extends HTMLElement {
     const items = this._getNavigableItems();
     if (items.length === 0) return;
 
-    // Find the currently focused item
     const activeEl = this.shadowRoot?.activeElement ?? document.activeElement;
     let currentItem: HTMLElement | null = null;
     for (const item of items) {
@@ -265,7 +222,6 @@ export class UiSidePanelMenu extends HTMLElement {
       }
     }
 
-    // Also check if focus is inside a child item's shadow
     if (!currentItem) {
       const composed = e.composedPath();
       for (const item of items) {
@@ -342,6 +298,7 @@ export class UiSidePanelMenu extends HTMLElement {
     }
   }
 
+  // ── Private: selection management ───────────────────────────────────────
 
   private _getAllItems(): Element[] {
     const slot = this._menu.querySelector("slot");
@@ -375,21 +332,16 @@ export class UiSidePanelMenu extends HTMLElement {
     ) as Element | undefined;
     if (!target) return;
 
-    // If the item is expandable and not a leaf, don't select — just toggle
     if (target.hasAttribute("expandable")) return;
 
     const allItems = this._getAllItems();
 
-    // Clear all selected and child-parent-selected
     for (const item of allItems) {
       item.removeAttribute("selected");
       item.removeAttribute("child-parent-selected");
     }
 
-    // Select the clicked item
     target.setAttribute("selected", "");
-
-    // Walk up to mark parent expandable items as child-parent-selected
     this._markParentSelected(target, allItems);
   }
 
@@ -397,8 +349,6 @@ export class UiSidePanelMenu extends HTMLElement {
     selectedItem: Element,
     _allItems: Element[],
   ): void {
-    // Find the parent expandable item that contains this selected item
-    // by checking which expandable items have this item in their children slot
     const slot = this._menu.querySelector("slot");
     if (!slot) return;
     const topLevel = (slot as HTMLSlotElement).assignedElements({
@@ -430,6 +380,7 @@ export class UiSidePanelMenu extends HTMLElement {
     }
     return false;
   }
+
   // ── Flyout submenu ──────────────────────────────────────────────────
 
   private _handleItemToggle(e: CustomEvent): void {
@@ -439,12 +390,10 @@ export class UiSidePanelMenu extends HTMLElement {
     ) as HTMLElement | undefined;
     if (!target || !target.hasAttribute("expandable")) return;
 
-    // Revert inline expansion — collapsed mode uses flyout instead
     if (target.hasAttribute("expanded")) {
       target.removeAttribute("expanded");
     }
 
-    // If clicking the same item that's already open, close flyout
     if (this._activeFlyoutItem === target) {
       this._closeFlyout();
       return;
@@ -457,12 +406,10 @@ export class UiSidePanelMenu extends HTMLElement {
     this._closeFlyout();
     this._activeFlyoutItem = item;
 
-    // Position flyout at the item's vertical offset
     const menuRect = this._menu.getBoundingClientRect();
     const itemRect = item.getBoundingClientRect();
     this._flyout.style.top = `${itemRect.top - menuRect.top + this._menu.offsetTop}px`;
 
-    // Set title from item's light DOM text (exclude slotted children)
     const itemText = Array.from(item.childNodes)
       .filter((n) => n.nodeType === Node.TEXT_NODE)
       .map((n) => n.textContent?.trim())
@@ -470,7 +417,6 @@ export class UiSidePanelMenu extends HTMLElement {
       .join(" ");
     this._flyoutTitle.textContent = itemText || item.textContent?.trim()?.split("\n")[0] || "";
 
-    // Clone children into flyout
     this._flyoutBody.innerHTML = "";
     const childSlot = item.shadowRoot?.querySelector(
       'slot[name="children"]',
@@ -480,7 +426,6 @@ export class UiSidePanelMenu extends HTMLElement {
       for (const child of children) {
         if (child.tagName !== "UI-SIDE-PANEL-MENU-ITEM") continue;
         const clone = document.createElement("ui-side-panel-menu-item");
-        // Copy relevant attributes
         const level = child.getAttribute("level");
         if (level) clone.setAttribute("level", level);
         if (child.hasAttribute("selected")) clone.setAttribute("selected", "");
@@ -495,14 +440,11 @@ export class UiSidePanelMenu extends HTMLElement {
           if (iconSlot) clone.appendChild(iconSlot.cloneNode(true));
         }
         clone.textContent = child.textContent?.trim() ?? "";
-        // Flyout items use secondary level styling but no extra indent
         if (!level) clone.setAttribute("level", "secondary");
-        // Store reference to original for selection sync
         (clone as any)._originalItem = child;
         clone.addEventListener("select", (ev: Event) => {
           ev.stopPropagation();
           const ce = ev as CustomEvent;
-          // Dispatch select from the original child so container handles it
           child.dispatchEvent(
             new CustomEvent("select", {
               detail: ce.detail,
@@ -518,7 +460,6 @@ export class UiSidePanelMenu extends HTMLElement {
 
     this._flyout.setAttribute("open", "");
 
-    // Dismiss handlers
     const onDocClick = (ev: MouseEvent) => {
       const path = ev.composedPath();
       if (!path.includes(this._flyout) && !path.includes(item)) {
@@ -554,49 +495,6 @@ export class UiSidePanelMenu extends HTMLElement {
       row.focus();
     } else {
       item.focus();
-    }
-  }
-
-  // ── Mobile responsive ────────────────────────────────────────────────
-
-  private _setupMobileDetection(): void {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mq = window.matchMedia(`(max-width: ${MOBILE_MAX_WIDTH}px)`);
-    this._mobileQuery = mq;
-    this._mobileHandler = (e: MediaQueryListEvent) => {
-      if (e.matches) {
-        this.setAttribute("mobile", "");
-      } else {
-        this.removeAttribute("mobile");
-      }
-    };
-    mq.addEventListener("change", this._mobileHandler);
-    // Initial check
-    if (mq.matches) {
-      this.setAttribute("mobile", "");
-    }
-  }
-
-  private _teardownMobileDetection(): void {
-    if (this._mobileQuery && this._mobileHandler) {
-      this._mobileQuery.removeEventListener("change", this._mobileHandler);
-      this._mobileQuery = null;
-      this._mobileHandler = null;
-    }
-  }
-
-  private _syncMobileState(): void {
-    if (this.mobile) {
-      // Entering mobile: auto-collapse unless user explicitly expanded
-      if (!this._userExplicitState) {
-        this.state = "collapsed";
-        this.overlay = false;
-      }
-    } else {
-      // Leaving mobile: restore expanded, remove overlay
-      this._userExplicitState = false;
-      this.state = "expanded";
-      this.overlay = false;
     }
   }
 }
