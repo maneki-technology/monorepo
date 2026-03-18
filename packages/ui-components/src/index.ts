@@ -215,3 +215,14 @@ export type {
 
 export { UiScrollbar } from "./components/ui-scrollbar.js";
 export type { ScrollbarEmphasis, ScrollbarOrientation } from "./components/ui-scrollbar.js";
+
+// ─── Search ───────────────────────────────────────────────────────────────────
+
+export { UiSearch } from "./components/ui-search.js";
+export type {
+  SearchSize,
+  SearchResultItem,
+  SearchCategory,
+  SearchSelectDetail,
+  SearchShowAllDetail,
+} from "./components/ui-search.js";

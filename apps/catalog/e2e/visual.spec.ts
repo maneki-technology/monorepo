@@ -25,6 +25,7 @@ const pages = [
   "file-upload",
   "select",
   "queryfield",
+  "search",
   "card",
   "breadcrumb",
   "accordion",

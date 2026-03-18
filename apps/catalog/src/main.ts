@@ -43,6 +43,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "file-upload": () => import("./pages/file-upload.js"),
   "select": () => import("./pages/select.js"),
   "queryfield": () => import("./pages/queryfield.js"),
+  "search": () => import("./pages/search.js"),
   "card": () => import("./pages/card.js"),
   "breadcrumb": () => import("./pages/breadcrumb.js"),
   "accordion": () => import("./pages/accordion.js"),
