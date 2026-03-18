@@ -43,6 +43,7 @@ const pages = [
   "progress",
   "pull-to-refresh",
   "scrollbar",
+  "skeleton",
   "popover",
   "carousel",
   "calendar",

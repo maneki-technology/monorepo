@@ -236,3 +236,8 @@ export type { SeparatorOrientation, SeparatorEmphasis, SeparatorLength } from ".
 
 export { UiSidePanel } from "./components/ui-side-panel.js";
 export type { SidePanelState } from "./components/ui-side-panel.js";
+
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+export { UiSkeleton } from "./components/ui-skeleton.js";
+export type { SkeletonVariant } from "./components/ui-skeleton.js";
