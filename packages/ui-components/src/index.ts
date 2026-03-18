@@ -241,3 +241,8 @@ export type { SidePanelState } from "./components/ui-side-panel.js";
 
 export { UiSkeleton } from "./components/ui-skeleton.js";
 export type { SkeletonVariant } from "./components/ui-skeleton.js";
+
+// ─── Slider ───────────────────────────────────────────────────────────────────
+
+export { UiSlider } from "./components/ui-slider.js";
+export type { SliderSize } from "./components/ui-slider.js";
