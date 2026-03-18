@@ -75,6 +75,7 @@ CODEPOINTS: dict[str, int] = {
     "last_page": 0xE5DD,
     "message": 0xE0C9,
     "phone": 0xF0D4,
+    "priority_high": 0xE645,
 }
 
 

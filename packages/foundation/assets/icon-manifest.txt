@@ -39,6 +39,9 @@ more_vert
 notifications
 person
 phone
+priority_high
+progress_activity
+phone
 progress_activity
 remove
 search
