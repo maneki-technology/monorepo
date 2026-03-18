@@ -246,3 +246,8 @@ export type { SkeletonVariant } from "./components/ui-skeleton.js";
 
 export { UiSlider } from "./components/ui-slider.js";
 export type { SliderSize } from "./components/ui-slider.js";
+
+// ─── Tooltip ──────────────────────────────────────────────────────────────────
+
+export { UiTooltip } from "./components/ui-tooltip.js";
+export type { TooltipSize, TooltipPlacement } from "./components/ui-tooltip.js";

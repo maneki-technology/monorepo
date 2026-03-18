@@ -68,6 +68,7 @@ export const manifest: PageMeta[] = [
   // Overlays
   { id: "modal", title: "Modal", section: "Overlays" },
   { id: "popover", title: "Popover", section: "Overlays" },
+  { id: "tooltip", title: "Tooltip", section: "Overlays" },
   // Tabs
   { id: "tabs", title: "Tabs", section: "Tabs" },
   // Data Display
