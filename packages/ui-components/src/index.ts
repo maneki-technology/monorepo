@@ -210,3 +210,8 @@ export type {
   QueryfieldSubmitDetail,
   QueryfieldInputDetail,
 } from "./components/ui-queryfield.js";
+
+// ─── Scrollbar ───────────────────────────────────────────────────────────────
+
+export { UiScrollbar } from "./components/ui-scrollbar.js";
+export type { ScrollbarEmphasis, ScrollbarOrientation } from "./components/ui-scrollbar.js";
