@@ -18,6 +18,7 @@ const pages = [
   "label",
   "link",
   "tag",
+  "separator",
   "checkbox",
   "radio",
   "input",
