@@ -117,6 +117,7 @@ export {
   ICON_KEYBOARD_DOUBLE_ARROW_RIGHT,
   ICON_MESSAGE,
   ICON_PHONE,
+  ICON_PRIORITY_HIGH,
   ICON_CODEPOINTS,
   registerIconFont,
 } from "./icons.js";

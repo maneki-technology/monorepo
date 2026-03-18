@@ -251,3 +251,9 @@ export type { SliderSize } from "./components/ui-slider.js";
 
 export { UiTooltip } from "./components/ui-tooltip.js";
 export type { TooltipSize, TooltipPlacement } from "./components/ui-tooltip.js";
+
+// ─── Steps ────────────────────────────────────────────────────────────────────
+
+export { UiStepItem } from "./components/ui-step-item.js";
+export type { StepSize, StepStatus, StepOrientation } from "./components/ui-step-item.styles.js";
+export { UiStepGroup } from "./components/ui-step-group.js";

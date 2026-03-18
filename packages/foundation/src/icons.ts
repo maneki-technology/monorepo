@@ -102,7 +102,8 @@ export const ICON_KEYBOARD_DOUBLE_ARROW_RIGHT = "\uEAC9";
 export const ICON_MESSAGE = "\uE0C9";
 /** phone — U+F0D4 */
 export const ICON_PHONE = "\uF0D4";
-
+/** priority_high — U+E645 */
+export const ICON_PRIORITY_HIGH = "\uE645";
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
   warning: ICON_WARNING,
@@ -149,6 +150,7 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   keyboard_double_arrow_right: ICON_KEYBOARD_DOUBLE_ARROW_RIGHT,
   message: ICON_MESSAGE,
   phone: ICON_PHONE,
+  priority_high: ICON_PRIORITY_HIGH,
 };
 
 // ── Font registration ───────────────────────────────────────────────
