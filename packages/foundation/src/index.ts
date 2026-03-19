@@ -118,6 +118,7 @@ export {
   ICON_MESSAGE,
   ICON_PHONE,
   ICON_PRIORITY_HIGH,
+  ICON_REFRESH,
   ICON_CODEPOINTS,
   registerIconFont,
 } from "./icons.js";

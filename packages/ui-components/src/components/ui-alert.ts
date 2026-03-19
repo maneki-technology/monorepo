@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -57,6 +57,12 @@ const ICON_SUCCESS_SUBTLE = semanticVar("statusIcon", "successSubtleIcon");
 const ICON_ERROR_SUBTLE = semanticVar("statusIcon", "errorSubtleIcon");
 const ICON_WARNING_SUBTLE = semanticVar("statusIcon", "warningSubtleIcon");
 
+const SP_1 = spaceVar("1");       // 8px
+const SP_1_5 = spaceVar("1.5");   // 12px
+const SP_2 = spaceVar("2");       // 16px
+const SP_2_5 = spaceVar("2.5");   // 20px
+const SP_3 = spaceVar("3");       // 24px
+
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -90,7 +96,7 @@ const STYLES = /* css */ `
   .top-content {
     display: flex;
     flex-direction: row;
-    gap: 16px;
+    gap: ${SP_2};
     align-items: start;
   }
 
@@ -99,7 +105,7 @@ const STYLES = /* css */ `
     flex-direction: row;
     flex: 1;
     align-items: center;
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   .top-right {
@@ -149,7 +155,7 @@ const STYLES = /* css */ `
   }
 
   :host([has-description]) .base {
-    gap: 12px;
+    gap: ${SP_1_5};
   }
 
   /* ── Footer ──────────────────────────────────────────────────────────────── */
@@ -159,7 +165,15 @@ const STYLES = /* css */ `
   }
 
   :host([has-footer]) .footer {
-    display: block;
+    display: flex;
+    padding-top: ${SP_1};
+  }
+
+  .footer ::slotted(ui-button) {
+    --ui-btn-bg: rgba(255, 255, 255, 0.15);
+    --ui-btn-color: #ffffff;
+    --ui-btn-border-color: transparent;
+    --ui-btn-radius: 2px;
   }
 
   /* ── Close button ────────────────────────────────────────────────────────── */
@@ -186,7 +200,7 @@ const STYLES = /* css */ `
 
   :host .base,
   :host([size="m"]) .base {
-    padding: 12px;
+    padding: ${SP_1_5};
   }
 
   :host .title,
@@ -203,21 +217,21 @@ const STYLES = /* css */ `
 
   :host .leading-icon,
   :host([size="m"]) .leading-icon {
-    width: 20px;
-    height: 20px;
+    width: ${SP_2_5};
+    height: ${SP_2_5};
   }
 
   :host .close-btn,
   :host([size="m"]) .close-btn {
-    width: 20px;
-    height: 20px;
+    width: ${SP_2_5};
+    height: ${SP_2_5};
     --ui-icon-size: 20px;
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .base {
-    padding: 8px;
+    padding: ${SP_1};
   }
 
   :host([size="s"]) .title {
@@ -231,20 +245,20 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .leading-icon {
-    width: 16px;
-    height: 16px;
+    width: ${SP_2};
+    height: ${SP_2};
   }
 
   :host([size="s"]) .close-btn {
-    width: 16px;
-    height: 16px;
+    width: ${SP_2};
+    height: ${SP_2};
     --ui-icon-size: 16px;
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .base {
-    padding: 16px;
+    padding: ${SP_2};
   }
 
   :host([size="l"]) .title {
@@ -258,13 +272,13 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .leading-icon {
-    width: 24px;
-    height: 24px;
+    width: ${SP_3};
+    height: ${SP_3};
   }
 
   :host([size="l"]) .close-btn {
-    width: 24px;
-    height: 24px;
+    width: ${SP_3};
+    height: ${SP_3};
   }
 
   /* ── Status + Emphasis: bold (default) ───────────────────────────────────── */
