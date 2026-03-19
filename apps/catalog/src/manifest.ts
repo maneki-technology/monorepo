@@ -62,6 +62,7 @@ export const manifest: PageMeta[] = [
   { id: "side-panel", title: "Side Panel", section: "Navigation" },
   { id: "pagination", title: "Pagination", section: "Navigation" },
   { id: "steps", title: "Steps", section: "Navigation" },
+  { id: "tree", title: "Tree", section: "Navigation" },
   // Disclosure
   { id: "accordion", title: "Accordion", section: "Disclosure" },
   // Menus & Dropdowns

@@ -262,3 +262,9 @@ export { UiStepGroup } from "./components/ui-step-group.js";
 
 export { UiSwitch } from "./components/ui-switch.js";
 export type { SwitchSize, SwitchLabelPosition, SwitchStatus } from "./components/ui-switch.js";
+
+// ─── Tree ─────────────────────────────────────────────────────────────────────
+
+export { UiTreeItem } from "./components/ui-tree-item.js";
+export type { TreeItemSize, TreeItemLevel, TreeItemArrow, TreeItemState } from "./components/ui-tree-item.styles.js";
+export { UiTreeGroup } from "./components/ui-tree-group.js";

@@ -57,6 +57,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "side-panel": () => import("./pages/side-panel.js"),
   "pagination": () => import("./pages/pagination.js"),
   "steps": () => import("./pages/steps.js"),
+  "tree": () => import("./pages/tree.js"),
   "tabs": () => import("./pages/tabs.js"),
   "table": () => import("./pages/table.js"),
   "metric": () => import("./pages/metric.js"),
