@@ -254,6 +254,7 @@ Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, u
 - **No `as any`, `@ts-ignore`, `@ts-expect-error`** — never suppress types
 - **No light DOM components** — always Shadow DOM with `attachShadow({ mode: "open" })`
 - **No CSS var name mismatches** — component override vars must match exactly between parent and child (e.g., `--ui-btn-radius`, not `--ui-button-radius`)
+- **No duplicate consecutive CSS properties** — when replacing hardcoded values with tokens, always use range replace (`pos` + `end`) to cover multi-line blocks (e.g., width + height). Single-line replace leaves the original line intact, creating a duplicate that silently overrides the token. Enforced by `css-lint.test.ts`.
 - **No inline SVG icons in new components** — use Material Symbols font instead (see ICONS section)
 - **Read Figma semantic tokens carefully.** Figma uses domain-specific token names (e.g., `Form/input-border`, `State/Selected/Surface/selected-bold`) that map to foundation tokens. Always check the Figma design context for the exact token names and map them to the closest foundation equivalent:
   - `Form/input-border` → `semanticVar("form", "inputBorder")` (`#9FB1BD`) — form control border
