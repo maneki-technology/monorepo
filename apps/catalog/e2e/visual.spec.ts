@@ -40,6 +40,7 @@ const pages = [
   "pagination",
   "steps",
   "tree",
+  "wizard",
   "tabs",
   "table",
   "metric",

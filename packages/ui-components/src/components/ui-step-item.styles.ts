@@ -138,7 +138,7 @@ export const STEP_ITEM_STYLES = /* css */ `
 
   :host([status="incomplete"]) .dot {
     background: transparent;
-    border: 2px solid ${BLUE_60};
+    border: 2px solid ${SURFACE_BOLD};
   }
 
   :host([status="disabled"]) .dot {

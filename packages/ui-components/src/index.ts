@@ -268,3 +268,8 @@ export type { SwitchSize, SwitchLabelPosition, SwitchStatus } from "./components
 export { UiTreeItem } from "./components/ui-tree-item.js";
 export type { TreeItemSize, TreeItemLevel, TreeItemArrow, TreeItemState } from "./components/ui-tree-item.styles.js";
 export { UiTreeGroup } from "./components/ui-tree-group.js";
+
+// ─── Wizard ────────────────────────────────────────────────────────────────────
+
+export { UiWizard } from "./components/ui-wizard.js";
+export type { WizardLayout } from "./components/ui-wizard.js";
