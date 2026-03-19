@@ -1,0 +1,362 @@
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import "./ui-switch.js";
+import type { SwitchSize, SwitchLabelPosition } from "./ui-switch.js";
+
+describe("ui-switch", () => {
+  let el: HTMLElement;
+
+  beforeEach(() => {
+    el = document.createElement("ui-switch");
+    document.body.appendChild(el);
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
+
+  // ── Registration ──────────────────────────────────────────────────────────
+
+  it("registers as a custom element", () => {
+    expect(customElements.get("ui-switch")).toBeDefined();
+  });
+
+  it("creates a shadow root", () => {
+    expect(el.shadowRoot).not.toBeNull();
+  });
+
+  it("applies adoptedStyleSheets", () => {
+    expect(el.shadowRoot!.adoptedStyleSheets.length).toBe(1);
+  });
+
+  // ── Default rendering ─────────────────────────────────────────────────────
+
+  it("renders a .switch element", () => {
+    expect(el.shadowRoot!.querySelector(".switch")).not.toBeNull();
+  });
+
+  it("renders a .handle element inside .switch", () => {
+    const track = el.shadowRoot!.querySelector(".switch");
+    expect(track!.querySelector(".handle")).not.toBeNull();
+  });
+
+  it("renders a .label element", () => {
+    expect(el.shadowRoot!.querySelector(".label")).not.toBeNull();
+  });
+
+  // ── Default attributes ────────────────────────────────────────────────────
+
+  it("defaults size to m", () => {
+    expect(el.getAttribute("size")).toBe("m");
+  });
+
+  it("defaults label-position to none", () => {
+    expect(el.getAttribute("label-position")).toBe("none");
+  });
+
+  it("is not checked by default", () => {
+    expect(el.hasAttribute("checked")).toBe(false);
+  });
+
+  it("is not disabled by default", () => {
+    expect(el.hasAttribute("disabled")).toBe(false);
+  });
+
+  // ── Size attribute ────────────────────────────────────────────────────────
+
+  it.each(["s", "m", "l"] as SwitchSize[])("accepts size=%s", (size) => {
+    el.setAttribute("size", size);
+    expect(el.getAttribute("size")).toBe(size);
+  });
+
+  // ── Checked attribute ─────────────────────────────────────────────────────
+
+  it("reflects checked attribute when set", () => {
+    el.setAttribute("checked", "");
+    expect(el.hasAttribute("checked")).toBe(true);
+  });
+
+  it("removes checked attribute when removed", () => {
+    el.setAttribute("checked", "");
+    el.removeAttribute("checked");
+    expect(el.hasAttribute("checked")).toBe(false);
+  });
+
+  // ── Disabled attribute ────────────────────────────────────────────────────
+
+  it("reflects disabled attribute when set", () => {
+    el.setAttribute("disabled", "");
+    expect(el.hasAttribute("disabled")).toBe(true);
+  });
+
+  // ── Label attribute ───────────────────────────────────────────────────────
+
+  it("renders label text from attribute", () => {
+    el.setAttribute("label", "Dark mode");
+    const label = el.shadowRoot!.querySelector(".label");
+    expect(label!.textContent).toBe("Dark mode");
+  });
+
+  it("updates label text when attribute changes", () => {
+    el.setAttribute("label", "First");
+    el.setAttribute("label", "Second");
+    const label = el.shadowRoot!.querySelector(".label");
+    expect(label!.textContent).toBe("Second");
+  });
+
+  // ── Label position attribute ──────────────────────────────────────────────
+
+  it.each(["none", "left", "right"] as SwitchLabelPosition[])(
+    "accepts label-position=%s",
+    (pos) => {
+      el.setAttribute("label-position", pos);
+      expect(el.getAttribute("label-position")).toBe(pos);
+    },
+  );
+
+  it("places label before track when label-position=left", () => {
+    el.setAttribute("label", "Toggle");
+    el.setAttribute("label-position", "left");
+    const children = Array.from(el.shadowRoot!.children);
+    const labelIdx = children.indexOf(
+      el.shadowRoot!.querySelector(".label") as Element,
+    );
+    const trackIdx = children.indexOf(
+      el.shadowRoot!.querySelector(".switch") as Element,
+    );
+    expect(labelIdx).toBeLessThan(trackIdx);
+  });
+
+  it("places label after track when label-position=right", () => {
+    el.setAttribute("label", "Toggle");
+    el.setAttribute("label-position", "right");
+    const children = Array.from(el.shadowRoot!.children);
+    const labelIdx = children.indexOf(
+      el.shadowRoot!.querySelector(".label") as Element,
+    );
+    const trackIdx = children.indexOf(
+      el.shadowRoot!.querySelector(".switch") as Element,
+    );
+    expect(labelIdx).toBeGreaterThan(trackIdx);
+  });
+
+  // ── Property accessors ────────────────────────────────────────────────────
+
+  it("size getter returns current size", () => {
+    el.setAttribute("size", "l");
+    expect((el as any).size).toBe("l");
+  });
+
+  it("size setter updates attribute", () => {
+    (el as any).size = "s";
+    expect(el.getAttribute("size")).toBe("s");
+  });
+
+  it("checked getter returns false by default", () => {
+    expect((el as any).checked).toBe(false);
+  });
+
+  it("checked setter adds attribute when true", () => {
+    (el as any).checked = true;
+    expect(el.hasAttribute("checked")).toBe(true);
+  });
+
+  it("checked setter removes attribute when false", () => {
+    (el as any).checked = true;
+    (el as any).checked = false;
+    expect(el.hasAttribute("checked")).toBe(false);
+  });
+
+  it("disabled getter returns false by default", () => {
+    expect((el as any).disabled).toBe(false);
+  });
+
+  it("disabled setter adds attribute when true", () => {
+    (el as any).disabled = true;
+    expect(el.hasAttribute("disabled")).toBe(true);
+  });
+
+  it("disabled setter removes attribute when false", () => {
+    (el as any).disabled = true;
+    (el as any).disabled = false;
+    expect(el.hasAttribute("disabled")).toBe(false);
+  });
+
+  it("label getter returns empty string by default", () => {
+    expect((el as any).label).toBe("");
+  });
+
+  it("label setter updates attribute", () => {
+    (el as any).label = "Notifications";
+    expect(el.getAttribute("label")).toBe("Notifications");
+  });
+
+  it("labelPosition getter returns none by default", () => {
+    expect((el as any).labelPosition).toBe("none");
+  });
+
+  it("labelPosition setter updates attribute", () => {
+    (el as any).labelPosition = "right";
+    expect(el.getAttribute("label-position")).toBe("right");
+  });
+
+  // ── Toggle (click) ───────────────────────────────────────────────────────
+
+  it("click toggles checked from false to true", () => {
+    el.click();
+    expect(el.hasAttribute("checked")).toBe(true);
+  });
+
+  it("click toggles checked from true to false", () => {
+    el.setAttribute("checked", "");
+    el.click();
+    expect(el.hasAttribute("checked")).toBe(false);
+  });
+
+  it("click dispatches switch-change event", () => {
+    let detail: { checked: boolean } | null = null;
+    el.addEventListener("switch-change", ((e: CustomEvent) => {
+      detail = e.detail;
+    }) as EventListener);
+    el.click();
+    expect(detail).not.toBeNull();
+    expect(detail!.checked).toBe(true);
+  });
+
+  it("switch-change event bubbles", () => {
+    let bubbled = false;
+    document.body.addEventListener("switch-change", () => {
+      bubbled = true;
+    });
+    el.click();
+    expect(bubbled).toBe(true);
+  });
+
+  it("switch-change event is composed", () => {
+    let composed = false;
+    el.addEventListener("switch-change", ((e: CustomEvent) => {
+      composed = e.composed;
+    }) as EventListener);
+    el.click();
+    expect(composed).toBe(true);
+  });
+
+  // ── Keyboard ──────────────────────────────────────────────────────────────
+
+  it("Space key toggles checked", () => {
+    const track = el.shadowRoot!.querySelector(".switch") as HTMLElement;
+    track.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
+    expect(el.hasAttribute("checked")).toBe(true);
+  });
+
+  it("Enter key toggles checked", () => {
+    const track = el.shadowRoot!.querySelector(".switch") as HTMLElement;
+    track.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
+    );
+    expect(el.hasAttribute("checked")).toBe(true);
+  });
+
+  it("other keys do not toggle", () => {
+    const track = el.shadowRoot!.querySelector(".switch") as HTMLElement;
+    track.dispatchEvent(new KeyboardEvent("keydown", { key: "a", bubbles: true }));
+    expect(el.hasAttribute("checked")).toBe(false);
+  });
+
+  it("Space dispatches switch-change event", () => {
+    let fired = false;
+    el.addEventListener("switch-change", () => {
+      fired = true;
+    });
+    const track = el.shadowRoot!.querySelector(".switch") as HTMLElement;
+    track.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
+    expect(fired).toBe(true);
+  });
+
+  // ── Disabled ──────────────────────────────────────────────────────────────
+
+  it("click does not toggle when disabled", () => {
+    el.setAttribute("disabled", "");
+    el.click();
+    expect(el.hasAttribute("checked")).toBe(false);
+  });
+
+  it("Space does not toggle when disabled", () => {
+    el.setAttribute("disabled", "");
+    const track = el.shadowRoot!.querySelector(".switch") as HTMLElement;
+    track.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
+    expect(el.hasAttribute("checked")).toBe(false);
+  });
+
+  it("does not dispatch switch-change when disabled", () => {
+    el.setAttribute("disabled", "");
+    let fired = false;
+    el.addEventListener("switch-change", () => {
+      fired = true;
+    });
+    el.click();
+    expect(fired).toBe(false);
+  });
+
+  // ── ARIA ──────────────────────────────────────────────────────────────────
+
+  it("track has role=switch", () => {
+    const track = el.shadowRoot!.querySelector(".switch");
+    expect(track!.getAttribute("role")).toBe("switch");
+  });
+
+  it("track has tabindex=0", () => {
+    const track = el.shadowRoot!.querySelector(".switch");
+    expect(track!.getAttribute("tabindex")).toBe("0");
+  });
+
+  it("aria-checked is false by default", () => {
+    const track = el.shadowRoot!.querySelector(".switch");
+    expect(track!.getAttribute("aria-checked")).toBe("false");
+  });
+
+  it("aria-checked updates to true when checked", () => {
+    el.setAttribute("checked", "");
+    const track = el.shadowRoot!.querySelector(".switch");
+    expect(track!.getAttribute("aria-checked")).toBe("true");
+  });
+
+  it("aria-checked updates back to false when unchecked", () => {
+    el.setAttribute("checked", "");
+    el.removeAttribute("checked");
+    const track = el.shadowRoot!.querySelector(".switch");
+    expect(track!.getAttribute("aria-checked")).toBe("false");
+  });
+
+  it("sets aria-label from label attribute", () => {
+    el.setAttribute("label", "Dark mode");
+    const track = el.shadowRoot!.querySelector(".switch");
+    expect(track!.getAttribute("aria-label")).toBe("Dark mode");
+  });
+
+  // ── observedAttributes ────────────────────────────────────────────────────
+
+  it("observedAttributes includes size", () => {
+    const observed = (customElements.get("ui-switch") as any).observedAttributes;
+    expect(observed).toContain("size");
+  });
+
+  it("observedAttributes includes checked", () => {
+    const observed = (customElements.get("ui-switch") as any).observedAttributes;
+    expect(observed).toContain("checked");
+  });
+
+  it("observedAttributes includes disabled", () => {
+    const observed = (customElements.get("ui-switch") as any).observedAttributes;
+    expect(observed).toContain("disabled");
+  });
+
+  it("observedAttributes includes label", () => {
+    const observed = (customElements.get("ui-switch") as any).observedAttributes;
+    expect(observed).toContain("label");
+  });
+
+  it("observedAttributes includes label-position", () => {
+    const observed = (customElements.get("ui-switch") as any).observedAttributes;
+    expect(observed).toContain("label-position");
+  });
+});

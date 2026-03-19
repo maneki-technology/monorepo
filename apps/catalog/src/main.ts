@@ -46,6 +46,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "queryfield": () => import("./pages/queryfield.js"),
   "search": () => import("./pages/search.js"),
   "slider": () => import("./pages/slider.js"),
+  "switch": () => import("./pages/switch.js"),
   "card": () => import("./pages/card.js"),
   "breadcrumb": () => import("./pages/breadcrumb.js"),
   "accordion": () => import("./pages/accordion.js"),
