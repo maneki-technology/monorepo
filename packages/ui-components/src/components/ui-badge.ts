@@ -1,4 +1,4 @@
-import { colorVar, semanticVar } from "@maneki/foundation";
+import { colorVar, semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -47,6 +47,12 @@ const TEXT_SECONDARY = semanticVar("text", "secondary");
 const SURFACE_TERTIARY = semanticVar("surface", "tertiary");
 const BORDER_MODERATE = semanticVar("border", "moderate");
 
+const SP_025 = spaceVar("0.25");   // 2px
+const SP_05 = spaceVar("0.5");     // 4px
+const SP_075 = spaceVar("0.75");   // 6px
+const SP_1 = spaceVar("1");         // 8px
+const RADIUS_SM = radiusVar("sm");   // 2px
+const RADIUS_PILL = radiusVar("pill"); // 999px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -78,7 +84,7 @@ export const STYLES = /* css */ `
   :host([size="m"]) .base {
     font-size: 12px;
     line-height: 16px;
-    padding: 2px 8px;
+    padding: ${SP_025} ${SP_1};
   }
 
   /* ── Size: xs ────────────────────────────────────────────────────────────── */
@@ -86,7 +92,7 @@ export const STYLES = /* css */ `
   :host([size="xs"]) .base {
     font-size: 9px;
     line-height: 12px;
-    padding: 0 4px;
+    padding: 0 ${SP_05};
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
@@ -94,7 +100,7 @@ export const STYLES = /* css */ `
   :host([size="s"]) .base {
     font-size: 11px;
     line-height: 16px;
-    padding: 0 6px;
+    padding: 0 ${SP_075};
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
@@ -102,20 +108,20 @@ export const STYLES = /* css */ `
   :host([size="l"]) .base {
     font-size: 14px;
     line-height: 20px;
-    padding: 4px 10px;
+    padding: ${SP_05} 10px;
   }
 
   /* ── Shape: square (default) ─────────────────────────────────────────────── */
 
   :host .base,
   :host([shape="square"]) .base {
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
   }
 
   /* ── Shape: rounded ──────────────────────────────────────────────────────── */
 
   :host([shape="rounded"]) .base {
-    border-radius: 20px;
+    border-radius: ${RADIUS_PILL};
   }
 
   /* ── Emphasis: bold (default) + color: none (default) ────────────────────── */
