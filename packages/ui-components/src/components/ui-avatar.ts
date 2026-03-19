@@ -1,4 +1,4 @@
-import { colorVar } from "@maneki/foundation";
+import { colorVar, spaceVar } from "@maneki/foundation";
 import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -46,7 +46,14 @@ const AQUA_60 = colorVar("aqua", 60);
 const ULTRAMARINE_60 = colorVar("ultramarine", 60);
 const PURPLE_60 = colorVar("purple", 60);
 const PINK_60 = colorVar("pink", 60);
+const GRAY_90 = colorVar("gray", 90);
 
+const SP_1_5 = spaceVar("1.5");   // 12px
+const SP_2 = spaceVar("2");       // 16px
+const SP_3 = spaceVar("3");       // 24px
+const SP_4 = spaceVar("4");       // 32px
+const SP_5 = spaceVar("5");       // 40px
+const SP_6 = spaceVar("6");       // 48px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -145,8 +152,8 @@ const STYLES = /* css */ `
 
   :host .base,
   :host([size="m"]) .base {
-    width: var(--ui-avatar-size, 32px);
-    height: var(--ui-avatar-size, 32px);
+    width: var(--ui-avatar-size, ${SP_4});
+    height: var(--ui-avatar-size, ${SP_4});
   }
 
   :host .text,
@@ -157,16 +164,16 @@ const STYLES = /* css */ `
 
   :host .icon,
   :host([size="m"]) .icon {
-    width: 24px;
-    height: 24px;
+    width: ${SP_3};
+    height: ${SP_3};
     --ui-icon-size: 24px;
   }
 
   /* ── Size: xs ────────────────────────────────────────────────────────────── */
 
   :host([size="xs"]) .base {
-    width: var(--ui-avatar-size, 16px);
-    height: var(--ui-avatar-size, 16px);
+    width: var(--ui-avatar-size, ${SP_2});
+    height: var(--ui-avatar-size, ${SP_2});
   }
 
   :host([size="xs"]) .text {
@@ -175,16 +182,16 @@ const STYLES = /* css */ `
   }
 
   :host([size="xs"]) .icon {
-    width: 12px;
-    height: 12px;
+    width: ${SP_1_5};
+    height: ${SP_1_5};
     --ui-icon-size: 12px;
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .base {
-    width: var(--ui-avatar-size, 24px);
-    height: var(--ui-avatar-size, 24px);
+    width: var(--ui-avatar-size, ${SP_3});
+    height: var(--ui-avatar-size, ${SP_3});
   }
 
   :host([size="s"]) .text {
@@ -201,8 +208,8 @@ const STYLES = /* css */ `
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .base {
-    width: var(--ui-avatar-size, 40px);
-    height: var(--ui-avatar-size, 40px);
+    width: var(--ui-avatar-size, ${SP_5});
+    height: var(--ui-avatar-size, ${SP_5});
   }
 
   :host([size="l"]) .text {
@@ -219,8 +226,8 @@ const STYLES = /* css */ `
   /* ── Size: xl ────────────────────────────────────────────────────────────── */
 
   :host([size="xl"]) .base {
-    width: var(--ui-avatar-size, 48px);
-    height: var(--ui-avatar-size, 48px);
+    width: var(--ui-avatar-size, ${SP_6});
+    height: var(--ui-avatar-size, ${SP_6});
   }
 
   :host([size="xl"]) .text {
@@ -264,7 +271,7 @@ const STYLES = /* css */ `
   :host([color="yellow"]) .base,
   :host([color="yellow"][emphasis="bold"]) .base {
     background-color: var(--ui-avatar-bg, ${YELLOW_30});
-    color: var(--ui-avatar-text, #1c2b36);
+    color: var(--ui-avatar-text, ${GRAY_90});
   }
 
   :host([color="green"]) .base,
@@ -323,7 +330,7 @@ const STYLES = /* css */ `
   :host([status="warning"]) .base,
   :host([status="warning"][emphasis="bold"]) .base {
     background-color: var(--ui-avatar-bg, ${YELLOW_30});
-    color: var(--ui-avatar-text, #1c2b36);
+    color: var(--ui-avatar-text, ${GRAY_90});
   }
 
   :host([status="success"]) .base,
@@ -347,21 +354,9 @@ const STYLES = /* css */ `
 
   /* ── Status overrides (subtle) ───────────────────────────────────────────── */
 
-  :host([status="error"][emphasis="subtle"]) .base {
-    background-color: var(--ui-avatar-bg, ${GRAY_20});
-    color: var(--ui-avatar-text, ${GRAY_80});
-  }
-
-  :host([status="warning"][emphasis="subtle"]) .base {
-    background-color: var(--ui-avatar-bg, ${GRAY_20});
-    color: var(--ui-avatar-text, ${GRAY_80});
-  }
-
-  :host([status="success"][emphasis="subtle"]) .base {
-    background-color: var(--ui-avatar-bg, ${GRAY_20});
-    color: var(--ui-avatar-text, ${GRAY_80});
-  }
-
+  :host([status="error"][emphasis="subtle"]) .base,
+  :host([status="warning"][emphasis="subtle"]) .base,
+  :host([status="success"][emphasis="subtle"]) .base,
   :host([status="information"][emphasis="subtle"]) .base {
     background-color: var(--ui-avatar-bg, ${GRAY_20});
     color: var(--ui-avatar-text, ${GRAY_80});
