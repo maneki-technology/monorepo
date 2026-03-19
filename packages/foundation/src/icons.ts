@@ -104,6 +104,8 @@ export const ICON_MESSAGE = "\uE0C9";
 export const ICON_PHONE = "\uF0D4";
 /** priority_high — U+E645 */
 export const ICON_PRIORITY_HIGH = "\uE645";
+/** refresh — U+E5D5 */
+export const ICON_REFRESH = "\uE5D5";
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
   warning: ICON_WARNING,
@@ -151,6 +153,7 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   message: ICON_MESSAGE,
   phone: ICON_PHONE,
   priority_high: ICON_PRIORITY_HIGH,
+  refresh: ICON_REFRESH,
 };
 
 // ── Font registration ───────────────────────────────────────────────

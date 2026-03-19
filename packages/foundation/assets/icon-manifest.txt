@@ -1,23 +1,21 @@
 # Icon Manifest
-add
 # Each line is a Material Symbols Outlined icon name included in the subset font.
 # To add a new icon, append its name here and run the subset script.
 # See SOP in packages/foundation/AGENTS.md for details.
 
 account_circle
+add
 add_circle
+arrow_back_ios
 arrow_drop_down
 arrow_drop_up
-arrow_back_ios
 arrow_forward_ios
 attach_money
 bar_chart
 calendar_today
-attach_money
-bar_chart
 cancel
-check_circle
 check
+check_circle
 chevron_left
 chevron_right
 close
@@ -25,8 +23,8 @@ download
 error
 expand_less
 expand_more
-group
 first_page
+group
 home
 info
 keyboard_double_arrow_left
@@ -41,11 +39,10 @@ person
 phone
 priority_high
 progress_activity
-phone
-progress_activity
+refresh
 remove
-search
 schedule
+search
 settings
 share
 upload

@@ -7,7 +7,7 @@ registerPage("alert", {
     <h3>All Statuses (with icons)</h3>
     <div class="variant-group stack-s">
       <ui-alert status="none" leading-icon>
-        <ui-icon name="notifications" size="m" slot="icon"></ui-icon>
+        <ui-icon name="info" size="m" slot="icon"></ui-icon>
         None status
       </ui-alert>
       <ui-alert status="information" leading-icon>
@@ -67,12 +67,10 @@ registerPage("alert", {
     <h3>With Footer Button</h3>
     <div class="variant-group stack-s">
       <ui-alert status="none" leading-icon dismissable>
-        <ui-icon name="notifications" size="m" slot="icon"></ui-icon>
+        <ui-icon name="info" size="m" slot="icon"></ui-icon>
         Alert Title
         <span slot="description">Description text explaining the alert in more detail.</span>
-        <div slot="footer">
-          <ui-button action="contrast" emphasis="subtle" size="s">Refresh</ui-button>
-        </div>
+        <ui-button slot="footer" size="s" icon-mode="leading"><ui-icon name="refresh" size="s" slot="icon-start"></ui-icon>Refresh</ui-button>
       </ui-alert>
     </div>
   `,
