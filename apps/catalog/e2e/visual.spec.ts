@@ -39,6 +39,7 @@ const pages = [
   "side-panel",
   "pagination",
   "steps",
+  "tree",
   "tabs",
   "table",
   "metric",
