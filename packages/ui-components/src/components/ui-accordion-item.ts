@@ -18,6 +18,13 @@ const STATUS_WARNING = semanticVar("statusGeneral", "warning");
 const STATUS_SUCCESS = semanticVar("statusGeneral", "success");
 const BORDER_FOCUS = semanticVar("border", "focus");
 const DISABLED_TEXT = semanticVar("stateDisabled", "text");
+const HOVER_SURFACE = semanticVar("stateHover", "surfaceMinimal");
+
+const SP_1 = spaceVar("1");       // 8px
+const SP_1_5 = spaceVar("1.5");   // 12px
+const SP_2 = spaceVar("2");       // 16px
+const SP_2_5 = spaceVar("2.5");   // 20px
+const SP_3 = spaceVar("3");       // 24px
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -61,7 +68,7 @@ const STYLES = /* css */ `
   }
 
   .header:hover {
-    background: var(--ui-acc-hover-bg, rgba(0, 0, 0, 0.04));
+    background: var(--ui-acc-hover-bg, ${HOVER_SURFACE});
   }
 
   .header:focus-visible {
@@ -105,8 +112,9 @@ const STYLES = /* css */ `
   .content-right {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding-right: 8px;
+    gap: ${SP_1};
+    padding-right: ${SP_1};
+    padding-right: ${SP_1};
   }
 
   /* ── Status icon ────────────────────────────────────────────────────────── */
@@ -179,7 +187,7 @@ const STYLES = /* css */ `
 
   :host .content-left,
   :host([size="m"]) .content-left {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   :host .label,
@@ -210,8 +218,8 @@ const STYLES = /* css */ `
 
   :host .content-body,
   :host([size="m"]) .content-body {
-    padding-top: 12px;
-    padding-bottom: 20px;
+    padding-top: ${SP_1_5};
+    padding-bottom: ${SP_2_5};
     font-size: 14px;
     line-height: 20px;
   }
@@ -219,11 +227,11 @@ const STYLES = /* css */ `
 
   :host([size="s"]) .header {
     padding-top: 7px;
-    padding-bottom: 8px;
+    padding-bottom: ${SP_1};
   }
 
   :host([size="s"]) .content-left {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   :host([size="s"]) .label {
@@ -249,8 +257,8 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .content-body {
-    padding-top: 8px;
-    padding-bottom: 16px;
+    padding-top: ${SP_1};
+    padding-bottom: ${SP_2};
     font-size: 12px;
     line-height: 16px;
   }
@@ -262,7 +270,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .content-left {
-    gap: 12px;
+    gap: ${SP_1_5};
   }
 
   :host([size="l"]) .label {
@@ -288,8 +296,8 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .content-body {
-    padding-top: 12px;
-    padding-bottom: 24px;
+    padding-top: ${SP_1_5};
+    padding-bottom: ${SP_3};
     font-size: 16px;
     line-height: 24px;
   }

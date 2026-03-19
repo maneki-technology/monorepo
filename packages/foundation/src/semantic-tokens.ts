@@ -249,7 +249,7 @@ export const form = {
 
 export const stateHover = {
   borderModerate: ref("gray", 50),      // #7A909E — darkened border on hover
-  surfaceMinimal: ref("gray", 10),      // #F2F5F7 — hover-minimal surface
+  surfaceMinimal: "rgba(159, 177, 189, 0.10)",  // gray-60 @10% — hover-minimal surface (translucent overlay)
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------
