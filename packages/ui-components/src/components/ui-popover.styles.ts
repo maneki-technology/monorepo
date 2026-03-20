@@ -1,10 +1,16 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
+// ─── Token constants ─────────────────────────────────────────────────────────────
 
 const SURFACE_CONTRAST = semanticVar("surface", "contrast");
 const ICON_REVERSED = semanticVar("icon", "reversed");
+const TEXT_REVERSED = semanticVar("text", "reversed");
 
+const SP_1 = spaceVar("1");         // 8px
+const SP_15 = spaceVar("1.5");     // 12px
+const SP_2 = spaceVar("2");         // 16px
+const SP_25 = spaceVar("2.5");     // 20px
+const RADIUS_SM = radiusVar("sm");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -47,8 +53,8 @@ export const STYLES = /* css */ `
     display: flex;
     align-items: flex-start;
     background: ${SURFACE_CONTRAST};
-    border-radius: 2px;
-    color: #ffffff;
+    border-radius: ${RADIUS_SM};
+    color: ${TEXT_REVERSED};
   }
 
   .content {
@@ -60,12 +66,10 @@ export const STYLES = /* css */ `
 
   .title-text {
     font-weight: 500;
-    color: #ffffff;
   }
 
   .description-text {
     font-weight: 400;
-    color: #ffffff;
   }
 
   /* ── Close button ────────────────────────────────────────────────────────── */
@@ -119,13 +123,13 @@ export const STYLES = /* css */ `
 
   :host .base,
   :host([size="m"]) .base {
-    padding: 20px 16px;
-    gap: 8px;
+    padding: ${SP_25} ${SP_2};
+    gap: ${SP_1};
   }
 
   :host .content,
   :host([size="m"]) .content {
-    gap: 12px;
+    gap: ${SP_15};
   }
 
   :host .title-text,
@@ -147,17 +151,14 @@ export const STYLES = /* css */ `
 
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
-  :host([size="s"]) {
-    --_popover-width: 320px;
-  }
 
   :host([size="s"]) .base {
-    padding: 16px;
-    gap: 8px;
+    padding: ${SP_2};
+    gap: ${SP_1};
   }
 
   :host([size="s"]) .content {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   :host([size="s"]) .title-text {
@@ -181,7 +182,7 @@ export const STYLES = /* css */ `
   :host([placement="top-center"]) .panel,
   :host([placement="top-right"]) .panel {
     bottom: 100%;
-    margin-bottom: 8px;
+    margin-bottom: ${SP_1};
   }
 
   :host([placement="top-left"]) .panel {
@@ -202,7 +203,7 @@ export const STYLES = /* css */ `
   :host([placement="bottom-center"]) .panel,
   :host([placement="bottom-right"]) .panel {
     top: 100%;
-    margin-top: 8px;
+    margin-top: ${SP_1};
   }
 
   :host([placement="bottom-left"]) .panel {
@@ -223,7 +224,7 @@ export const STYLES = /* css */ `
   :host([placement="left-center"]) .panel,
   :host([placement="left-bottom"]) .panel {
     right: 100%;
-    margin-right: 8px;
+    margin-right: ${SP_1};
   }
 
   :host([placement="left-top"]) .panel {
@@ -244,7 +245,7 @@ export const STYLES = /* css */ `
   :host([placement="right-center"]) .panel,
   :host([placement="right-bottom"]) .panel {
     left: 100%;
-    margin-left: 8px;
+    margin-left: ${SP_1};
   }
 
   :host([placement="right-top"]) .panel {
