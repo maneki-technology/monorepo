@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
 import "./ui-icon.js";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
@@ -6,7 +6,14 @@ import "./ui-icon.js";
 const ICON_PRIMARY = semanticVar("icon", "primary");
 const ICON_SECONDARY = semanticVar("icon", "secondary");
 const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
+const HOVER_SURFACE = semanticVar("stateHover", "surfaceBold");
 
+const SP_1 = spaceVar("1");         // 8px
+const SP_2 = spaceVar("2");         // 16px
+const SP_25 = spaceVar("2.5");     // 20px
+const SP_5 = spaceVar("5");         // 40px
+const RADIUS_PILL = radiusVar("pill"); // 999px
+const BORDER_MD = borderWidthVar("md"); // 2px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -27,27 +34,42 @@ const STYLES = /* css */ `
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    margin-bottom: 8px;
+    margin-bottom: ${SP_1};
   }
   .arrow-group[hidden] {
     display: none;
   }
 
   .arrow-btn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
+    width: ${SP_5};
+    height: ${SP_5};
+    padding: 0;
     border: none;
     background: transparent;
+    border-radius: ${RADIUS_PILL};
     cursor: pointer;
     color: ${ICON_PRIMARY};
-    --ui-icon-size: 20px;
+    --ui-icon-size: ${SP_25};
+    transition: background 0.15s ease;
   }
 
   .arrow-btn:disabled {
     color: ${ICON_SECONDARY};
     cursor: default;
+  }
+
+  .arrow-btn:hover:not(:disabled) {
+    background: ${HOVER_SURFACE};
+  }
+
+  .arrow-btn:focus-visible {
+    outline-width: ${BORDER_MD};
+    outline-style: solid;
+    outline-color: #ffffff;
+    outline-offset: ${BORDER_MD};
   }
 
   /* ── Track ──────────────────────────────────────────────────────────── */
@@ -70,18 +92,18 @@ const STYLES = /* css */ `
   .indicators {
     display: flex;
     justify-content: center;
-    gap: 8px;
+    gap: ${SP_1};
     align-items: center;
-    margin-top: 16px;
+    margin-top: ${SP_2};
   }
   .indicators[hidden] {
     display: none;
   }
 
   .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
+    width: ${SP_1};
+    height: ${SP_1};
+    border-radius: ${RADIUS_PILL};
     border: none;
     padding: 0;
     cursor: pointer;
@@ -91,6 +113,17 @@ const STYLES = /* css */ `
 
   .dot[aria-selected="true"] {
     background: ${SELECTED_BOLD};
+  }
+
+  .dot:hover {
+    opacity: 0.7;
+  }
+
+  .dot:focus-visible {
+    outline-width: ${BORDER_MD};
+    outline-style: solid;
+    outline-color: ${SELECTED_BOLD};
+    outline-offset: ${BORDER_MD};
   }
   @media (prefers-reduced-motion: reduce) {
     .track {
@@ -160,7 +193,7 @@ export class UiCarousel extends HTMLElement {
     prevBtn.setAttribute("aria-label", "Previous slide");
     prevBtn.type = "button";
     const prevIcon = document.createElement("ui-icon");
-    prevIcon.setAttribute("name", "arrow_back_ios");
+    prevIcon.setAttribute("name", "chevron_left");
     prevBtn.appendChild(prevIcon);
     this.#prevBtn = prevBtn;
 
@@ -170,7 +203,7 @@ export class UiCarousel extends HTMLElement {
     nextBtn.setAttribute("aria-label", "Next slide");
     nextBtn.type = "button";
     const nextIcon = document.createElement("ui-icon");
-    nextIcon.setAttribute("name", "arrow_forward_ios");
+    nextIcon.setAttribute("name", "chevron_right");
     nextBtn.appendChild(nextIcon);
     this.#nextBtn = nextBtn;
 

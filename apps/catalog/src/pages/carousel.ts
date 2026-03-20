@@ -89,5 +89,20 @@ registerPage("carousel", {
         </ui-carousel-item>
       </ui-carousel>
     </div>
+    <h3>Auto Play (3s interval)</h3>
+    <div class="w-600">
+      <ui-carousel auto-play loop>
+        ${[
+          { bg: "#D4E4FA", label: "Slide 1" },
+          { bg: "#DCE3E8", label: "Slide 2" },
+          { bg: "#FDDDB3", label: "Slide 3" },
+          { bg: "#C4DFD2", label: "Slide 4" },
+        ].map(s => `
+          <ui-carousel-item style="width:280px">
+            <div style="height:200px;background:${s.bg};border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;color:#1C2B36">${s.label}</div>
+          </ui-carousel-item>
+        `).join("")}
+      </ui-carousel>
+    </div>
   `,
 });
