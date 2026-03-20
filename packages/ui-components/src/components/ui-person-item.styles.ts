@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -33,11 +33,11 @@ export const STYLES = /* css */ `
   .wrapper {
     display: flex;
     flex-direction: column;
-    padding-top: 8px;
+    padding-top: ${spaceVar("1")};
   }
   .contents {
     display: grid;
-    column-gap: 12px;
+    column-gap: ${spaceVar("1.5")};
   }
 
   .avatar-slot {
@@ -75,7 +75,7 @@ export const STYLES = /* css */ `
   .actions {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: ${spaceVar("2")};
     flex-shrink: 0;
   }
 
@@ -112,7 +112,7 @@ export const STYLES = /* css */ `
 
   .separator {
     width: 100%;
-    height: 1px;
+    height: ${borderWidthVar("sm")};
     background: ${BORDER_SUBTLE};
     flex-shrink: 0;
   }
@@ -124,7 +124,7 @@ export const STYLES = /* css */ `
   }
 
   :host([name-only]) .wrapper {
-    gap: 8px;
+    gap: ${spaceVar("1")};
   }
 
   :host([name-only]) .contents {
@@ -134,7 +134,7 @@ export const STYLES = /* css */ `
   /* ── XS: [avatar] [name] [icons] — single row ───────────────────────────── */
 
   :host([size="xs"]) .wrapper {
-    gap: 8px;
+    gap: ${spaceVar("1")};
   }
 
   :host([size="xs"]) .contents {
@@ -168,7 +168,7 @@ export const STYLES = /* css */ `
   /* ── S: [avatar] [name+title] [icons] — single row ──────────────────────── */
 
   :host([size="s"]) .wrapper {
-    gap: 12px;
+    gap: ${spaceVar("1.5")};
   }
 
   :host([size="s"]) .contents {
@@ -199,7 +199,7 @@ export const STYLES = /* css */ `
   /* ── M: [avatar] [name+title+location] / [icons below text] ──────────── */
 
   :host([size="m"]) .wrapper {
-    gap: 16px;
+    gap: ${spaceVar("2")};
   }
 
   :host([size="m"]) .contents {
@@ -231,13 +231,13 @@ export const STYLES = /* css */ `
   :host([size="m"]) .actions {
     grid-column: 2;
     grid-row: 2;
-    padding-top: 8px;
+    padding-top: ${spaceVar("1")};
   }
 
   /* ── L: [avatar] [name+title+location] / [icons below text] ──────────── */
 
   :host([size="l"]) .wrapper {
-    gap: 16px;
+    gap: ${spaceVar("2")};
   }
 
   :host([size="l"]) .contents {
@@ -269,6 +269,6 @@ export const STYLES = /* css */ `
   :host([size="l"]) .actions {
     grid-column: 2;
     grid-row: 2;
-    padding-top: 8px;
+    padding-top: ${spaceVar("1")};
   }
 `;
