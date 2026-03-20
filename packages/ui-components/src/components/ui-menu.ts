@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar, elevationVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, elevationVar, radiusVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -27,7 +27,7 @@ export const STYLES = /* css */ `
     padding: ${SP_05} 0;
     background-color: var(--ui-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-menu-shadow, ${ELEVATION_05});
-    border-radius: var(--ui-menu-radius, 2px);
+    border-radius: var(--ui-menu-radius, ${radiusVar("sm")});
     opacity: 0;
     visibility: hidden;
     transform: translateY(-4px);

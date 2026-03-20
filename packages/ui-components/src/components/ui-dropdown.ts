@@ -1,4 +1,4 @@
-import { colorVar, semanticVar, spaceVar, elevationVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, elevationVar, radiusVar } from "@maneki/foundation";
 import "./ui-button.js";
 import "./ui-icon.js";
 
@@ -77,7 +77,7 @@ export const STYLES = /* css */ `
     padding: ${SP_05} 0;
     background-color: var(--ui-dd-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-dd-menu-shadow, ${ELEVATION_05});
-    border-radius: 2px;
+    border-radius: ${radiusVar("sm")};
     overflow: visible;
     opacity: 0;
     visibility: hidden;
