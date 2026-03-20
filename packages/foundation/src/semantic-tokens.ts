@@ -250,6 +250,17 @@ export const form = {
 export const stateHover = {
   borderModerate: ref("gray", 50),      // #7A909E — darkened border on hover
   surfaceMinimal: "rgba(159, 177, 189, 0.10)",  // gray-60 @10% — hover-minimal surface (translucent overlay)
+  surfaceBold: "rgba(14, 23, 31, 0.1)",          // gray-90 @10% — bold interactive hover overlay (buttons, dropdowns)
+  surfaceSubtle: "rgba(14, 23, 31, 0.06)",       // gray-90 @6% — subtle/minimal interactive hover fill
+} as const satisfies Record<string, SemanticValue>;
+
+// ---------------------------------------------------------------------------
+// State — Active
+// ---------------------------------------------------------------------------
+
+export const stateActive = {
+  surfaceBold: "rgba(14, 23, 31, 0.2)",          // gray-90 @20% — bold interactive active overlay (buttons, dropdowns)
+  surfaceSubtle: "rgba(14, 23, 31, 0.12)",       // gray-90 @12% — subtle/minimal interactive active fill
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------
@@ -309,6 +320,7 @@ export const semanticTokens = {
   stateDisabled,
   form,
   stateHover,
+  stateActive,
   stateSelected,
   tag,
   button,

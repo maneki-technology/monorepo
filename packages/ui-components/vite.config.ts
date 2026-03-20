@@ -1,6 +1,7 @@
 import { defineConfig, type Plugin } from "vitest/config";
 import { resolve } from "path";
 
+import { minifyCss } from "./src/css-minify.js";
 /**
  * Vite plugin that minifies CSS inside template literals tagged with `/* css *​/`.
  * Strips comments, collapses whitespace, removes trailing semicolons before `}`.
@@ -14,22 +15,13 @@ function minifyCssLiterals(): Plugin {
       if (!id.endsWith(".ts") && !id.endsWith(".js")) return null;
       if (!code.includes("/* css */")) return null;
 
-      // Match: /* css */ `...` (the STYLES pattern used across all components)
       const result = code.replace(
-        /(\/\* css \*\/\s*`)([\s\S]*?)(`)/g,
-        (_match, prefix, css, suffix) => {
-          const minified = css
-            // Remove CSS comments
-            .replace(/\/\*[\s\S]*?\*\//g, "")
-            // Collapse whitespace (but preserve content inside quotes)
-            .replace(/\s+/g, " ")
-            // Remove space around CSS punctuation
-            .replace(/\s*([{};,>~+]|:(?!:))\s*/g, "$1")
-            // Remove trailing semicolons before }
-            .replace(/;}/g, "}")
-            // Remove leading/trailing whitespace
-            .trim();
-          return prefix + minified + suffix;
+        /(\/\* css \*\/\s*`)[\s\S]*?(`)/g,
+        (_match, prefix, suffix) => {
+          const cssStart = _match.indexOf("`") + 1;
+          const cssEnd = _match.lastIndexOf("`");
+          const css = _match.slice(cssStart, cssEnd);
+          return prefix + minifyCss(css) + suffix;
         },
       );
 

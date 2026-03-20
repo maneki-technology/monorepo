@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -30,6 +30,15 @@ const SP_25 = spaceVar("2.5");
 const SP_3 = spaceVar("3");
 const SP_4 = spaceVar("4");
 
+const RADIUS_SM = radiusVar("sm");
+const RADIUS_PILL = radiusVar("pill");
+const BORDER_SM = borderWidthVar("sm");
+
+const WHITE = "#ffffff";
+const HOVER_OVERLAY = semanticVar("stateHover", "surfaceBold");
+const HOVER_FILL = semanticVar("stateHover", "surfaceSubtle");
+const ACTIVE_OVERLAY = semanticVar("stateActive", "surfaceBold");
+const ACTIVE_FILL = semanticVar("stateActive", "surfaceSubtle");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -50,7 +59,9 @@ const STYLES = /* css */ `
     align-items: center;
     justify-content: center;
     gap: ${SP_1};
-    border: 1px solid transparent;
+    border-width: ${BORDER_SM};
+    border-style: solid;
+    border-color: transparent;
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
@@ -135,11 +146,11 @@ const STYLES = /* css */ `
   /* ── Shape ───────────────────────────────────────────────────────────────── */
 
   :host button {
-    border-radius: var(--ui-btn-radius, 2px);
+    border-radius: var(--ui-btn-radius, ${RADIUS_SM});
   }
 
   :host([shape="rounded"]) button {
-    border-radius: var(--ui-btn-radius, 999px);
+    border-radius: var(--ui-btn-radius, ${RADIUS_PILL});
   }
 
   /* ── Action × Emphasis: PRIMARY ──────────────────────────────────────────── */
@@ -149,7 +160,7 @@ const STYLES = /* css */ `
   :host([action="primary"]) button,
   :host([action="primary"][emphasis="bold"]) button {
     background-color: var(--ui-btn-bg, ${SURFACE_ACTION});
-    color: var(--ui-btn-color, #ffffff);
+    color: var(--ui-btn-color, ${WHITE});
     border-color: var(--ui-btn-border-color, ${SURFACE_ACTION});
   }
 
@@ -195,7 +206,7 @@ const STYLES = /* css */ `
   :host([action="destructive"]) button,
   :host([action="destructive"][emphasis="bold"]) button {
     background-color: var(--ui-btn-bg, ${SURFACE_DESTRUCTIVE});
-    color: var(--ui-btn-color, #ffffff);
+    color: var(--ui-btn-color, ${WHITE});
     border-color: var(--ui-btn-border-color, ${SURFACE_DESTRUCTIVE});
   }
 
@@ -216,7 +227,7 @@ const STYLES = /* css */ `
   :host([action="info"]) button,
   :host([action="info"][emphasis="bold"]) button {
     background-color: var(--ui-btn-bg, ${SURFACE_ACTION_CONTRAST});
-    color: var(--ui-btn-color, #ffffff);
+    color: var(--ui-btn-color, ${WHITE});
     border-color: var(--ui-btn-border-color, ${SURFACE_ACTION_CONTRAST});
   }
 
@@ -236,69 +247,69 @@ const STYLES = /* css */ `
 
   :host([action="contrast"]) button,
   :host([action="contrast"][emphasis="bold"]) button {
-    background-color: var(--ui-btn-bg, #ffffff);
+    background-color: var(--ui-btn-bg, ${WHITE});
     color: var(--ui-btn-color, ${TEXT_PRIMARY});
-    border-color: var(--ui-btn-border-color, #ffffff);
+    border-color: var(--ui-btn-border-color, ${WHITE});
   }
 
   :host([action="contrast"][emphasis="subtle"]) button {
     background-color: transparent;
-    color: var(--ui-btn-color, #ffffff);
-    border-color: var(--ui-btn-border-color, #ffffff);
+    color: var(--ui-btn-color, ${WHITE});
+    border-color: var(--ui-btn-border-color, ${WHITE});
   }
 
   :host([action="contrast"][emphasis="minimal"]) button {
     background-color: transparent;
-    color: var(--ui-btn-color, #ffffff);
+    color: var(--ui-btn-color, ${WHITE});
     border-color: transparent;
   }
 
   /* ── Hover state ─────────────────────────────────────────────────────────── */
 
   button:hover {
-    background-image: linear-gradient(rgba(14, 23, 31, 0.1), rgba(14, 23, 31, 0.1));
+    background-image: linear-gradient(${HOVER_OVERLAY}, ${HOVER_OVERLAY});
   }
 
   /* subtle/minimal hover — add a light fill */
   :host([emphasis="subtle"]) button:hover,
   :host([emphasis="minimal"]) button:hover {
     background-image: none;
-    background-color: rgba(14, 23, 31, 0.06);
+    background-color: ${HOVER_FILL};
   }
 
   /* ── Active state ────────────────────────────────────────────────────────── */
 
   button:active {
-    background-image: linear-gradient(rgba(14, 23, 31, 0.2), rgba(14, 23, 31, 0.2));
+    background-image: linear-gradient(${ACTIVE_OVERLAY}, ${ACTIVE_OVERLAY});
   }
 
   :host([emphasis="subtle"]) button:active,
   :host([emphasis="minimal"]) button:active {
     background-image: none;
-    background-color: rgba(14, 23, 31, 0.12);
+    background-color: ${ACTIVE_FILL};
   }
 
   /* ── Focus-visible (double ring) ─────────────────────────────────────────── */
 
   button:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${BORDER_FOCUS};
+    box-shadow: 0 0 0 ${BORDER_SM} ${WHITE}, 0 0 0 ${borderWidthVar("md")} ${BORDER_FOCUS};
   }
 
   :host([action="secondary"]) button:focus-visible {
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${TEXT_PRIMARY};
+    box-shadow: 0 0 0 ${BORDER_SM} ${WHITE}, 0 0 0 ${borderWidthVar("md")} ${TEXT_PRIMARY};
   }
 
   :host([action="destructive"]) button:focus-visible {
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${SURFACE_DESTRUCTIVE};
+    box-shadow: 0 0 0 ${BORDER_SM} ${WHITE}, 0 0 0 ${borderWidthVar("md")} ${SURFACE_DESTRUCTIVE};
   }
 
   :host([action="info"]) button:focus-visible {
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${SURFACE_ACTION_CONTRAST};
+    box-shadow: 0 0 0 ${BORDER_SM} ${WHITE}, 0 0 0 ${borderWidthVar("md")} ${SURFACE_ACTION_CONTRAST};
   }
 
   :host([action="contrast"]) button:focus-visible {
-    box-shadow: 0 0 0 1px ${TEXT_PRIMARY}, 0 0 0 2px #ffffff;
+    box-shadow: 0 0 0 ${BORDER_SM} ${TEXT_PRIMARY}, 0 0 0 ${borderWidthVar("md")} ${WHITE};
   }
 
   /* ── Disabled ────────────────────────────────────────────────────────────── */
@@ -306,9 +317,6 @@ const STYLES = /* css */ `
   :host([disabled]) button {
     cursor: not-allowed;
     pointer-events: none;
-  }
-
-  :host([disabled]) button {
     opacity: 0.3;
   }
 
@@ -368,6 +376,7 @@ const STYLES = /* css */ `
   :host([size="xl"]) .status-icon {
     width: 24px;
     height: 24px;
+    --ui-icon-size: 24px;
   }
 
   /* When status is active, hide content and show status icon */
