@@ -1,4 +1,4 @@
-import { semanticVar, elevationVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, elevationVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -42,7 +42,7 @@ const STYLES = /* css */ `
     display: flex;
     flex-direction: column;
     width: 100%;
-    border-radius: var(--ui-card-radius, 2px);
+    border-radius: var(--ui-card-radius, ${radiusVar("sm")});
     background-color: var(--ui-card-bg, ${SURFACE_PRIMARY});
     color: var(--ui-card-color, ${TEXT_PRIMARY});
     overflow: hidden;
@@ -70,14 +70,16 @@ const STYLES = /* css */ `
   /* ── Bordered ────────────────────────────────────────────────────────────── */
 
   :host([bordered]) .base {
-    border: 1px solid var(--ui-card-border-color, ${BORDER_MINIMAL});
+    border-width: ${borderWidthVar("sm")};
+    border-style: solid;
+    border-color: var(--ui-card-border-color, ${BORDER_MINIMAL});
   }
 
   /* ── Image slot ──────────────────────────────────────────────────────────── */
 
   .image-slot {
     overflow: hidden;
-    border-radius: var(--ui-card-radius, 2px) var(--ui-card-radius, 2px) 0 0;
+    border-radius: var(--ui-card-radius, ${radiusVar("sm")}) var(--ui-card-radius, ${radiusVar("sm")}) ${radiusVar("none")} ${radiusVar("none")};
   }
 
   .image-slot ::slotted(*) {
