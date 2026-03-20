@@ -17,7 +17,6 @@ export type IconState =
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
-const ICON_PRIMARY = semanticVar("icon", "primary");
 const ICON_REVERSED = semanticVar("icon", "reversed");
 const ICON_ACTION = semanticVar("icon", "action");
 const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
