@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
 import "./ui-icon.js";
 import type { UiIcon } from "./ui-icon.js";
 
@@ -55,7 +55,9 @@ const STYLES = /* css */ `
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    border: 1px solid transparent;
+    border-width: ${borderWidthVar("sm")};
+    border-style: solid;
+    border-color: transparent;
   }
 
   /* ── Inner box (visible checkbox square) ─────────────────────────────────── */
@@ -65,7 +67,10 @@ const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid var(--ui-cb-border, ${FORM_INPUT_BORDER});
+    border-width: ${borderWidthVar("sm")};
+    border-style: solid;
+    border-color: var(--ui-cb-border, ${FORM_INPUT_BORDER});
+    border-radius: ${radiusVar("sm")};
     background-color: var(--ui-cb-bg, #ffffff);
     color: #ffffff;
     transition:
