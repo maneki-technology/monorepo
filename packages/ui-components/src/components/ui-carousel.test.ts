@@ -300,20 +300,20 @@ describe("ui-carousel", () => {
     expect(btn!.querySelector("ui-icon")).toBeTruthy();
   });
 
-  it("prev button icon has name arrow_back_ios", () => {
+  it("prev button icon has name chevron_left", () => {
     const btn = el.shadowRoot!.querySelector(
       '.arrow-btn[aria-label="Previous slide"]',
     );
     const icon = btn!.querySelector("ui-icon");
-    expect(icon!.getAttribute("name")).toBe("arrow_back_ios");
+    expect(icon!.getAttribute("name")).toBe("chevron_left");
   });
 
-  it("next button icon has name arrow_forward_ios", () => {
+  it("next button icon has name chevron_right", () => {
     const btn = el.shadowRoot!.querySelector(
       '.arrow-btn[aria-label="Next slide"]',
     );
     const icon = btn!.querySelector("ui-icon");
-    expect(icon!.getAttribute("name")).toBe("arrow_forward_ios");
+    expect(icon!.getAttribute("name")).toBe("chevron_right");
   });
 
   it("arrow buttons have type='button'", () => {
