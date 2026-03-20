@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar, elevationVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, elevationVar, radiusVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -26,7 +26,7 @@ export const STYLES = /* css */ `
     display: inline-block;
     background: ${SURFACE_PRIMARY};
     box-shadow: var(--ui-clock-elevation, ${ELEVATION_05});
-    border-radius: 2px;
+    border-radius: ${radiusVar("sm")};
     font-family: Inter, sans-serif;
   }
 
@@ -51,7 +51,7 @@ export const STYLES = /* css */ `
     opacity: 0.4;
     cursor: pointer;
     padding: 4px 8px;
-    border-radius: 4px;
+    border-radius: ${radiusVar("md")};
     transition: opacity 0.15s ease, background 0.15s ease;
   }
 
@@ -69,9 +69,6 @@ export const STYLES = /* css */ `
     color: ${TEXT_PRIMARY};
     opacity: 0.4;
   }
-    display: flex;
-    flex-direction: column;
-  }
 
   /* ─── Analog clock ─── */
 
@@ -84,7 +81,7 @@ export const STYLES = /* css */ `
 
   .clock-face {
     position: relative;
-    border-radius: 50%;
+    border-radius: ${radiusVar("circle")};
     background: ${SURFACE_SECONDARY};
   }
 
@@ -96,7 +93,7 @@ export const STYLES = /* css */ `
     color: ${TEXT_PRIMARY};
     cursor: pointer;
     user-select: none;
-    border-radius: 50%;
+    border-radius: ${radiusVar("circle")};
   }
 
   .clock-number:hover {
@@ -125,7 +122,7 @@ export const STYLES = /* css */ `
     width: 6px;
     height: 6px;
     margin: -3px 0 0 -3px;
-    border-radius: 50%;
+    border-radius: ${radiusVar("circle")};
     background: ${BORDER_FOCUS};
     pointer-events: none;
   }
@@ -155,7 +152,7 @@ export const STYLES = /* css */ `
     justify-content: center;
     border: none;
     background: ${BUTTON_SECONDARY};
-    border-radius: 2px;
+    border-radius: ${radiusVar("sm")};
     cursor: pointer;
     color: ${ICON_PRIMARY};
     flex-shrink: 0;
@@ -167,7 +164,7 @@ export const STYLES = /* css */ `
 
   .digital-input {
     border: 1px solid ${FORM_INPUT_BORDER};
-    border-radius: 2px;
+    border-radius: ${radiusVar("sm")};
     background: ${SURFACE_PRIMARY};
     text-align: center;
     font-family: Inter, sans-serif;

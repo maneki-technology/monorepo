@@ -1,6 +1,6 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, elevationVar, radiusVar, spaceVar } from "@maneki/foundation";
 
-const ELEVATION_05 = "0px 8px 10px 0px rgba(0,0,0,0.14), 0px 3px 14px 0px rgba(0,0,0,0.12), 0px 5px 5px 0px rgba(0,0,0,0.2)";
+const ELEVATION_05 = elevationVar("05");
 const BORDER_MINIMAL = semanticVar("border", "minimal");
 const SURFACE_PRIMARY = semanticVar("surface", "primary");
 
@@ -14,7 +14,7 @@ export const STYLES = /* css */ `
   :host {
     display: inline-flex;
     flex-direction: column;
-    border-radius: 2px;
+    border-radius: ${radiusVar("sm")};
     box-shadow: var(--ui-calendar-panel-elevation, ${ELEVATION_05});
     overflow: hidden;
   }

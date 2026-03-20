@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -52,7 +52,7 @@ export const STYLES = /* css */ `
 
   .time-input {
     border: 1px solid ${FORM_INPUT_BORDER};
-    border-radius: 2px;
+    border-radius: ${radiusVar("sm")};
     background: ${SURFACE_PRIMARY};
     color: ${TEXT_PRIMARY};
     font-family: Inter, sans-serif;
@@ -110,7 +110,7 @@ export const STYLES = /* css */ `
     left: 0;
     right: 0;
     transform: translateY(-50%);
-    border-radius: 999px;
+    border-radius: ${radiusVar("pill")};
     background: ${SELECTED_SUBTLE};
   }
 
@@ -118,7 +118,7 @@ export const STYLES = /* css */ `
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    border-radius: 999px;
+    border-radius: ${radiusVar("pill")};
     background: ${SELECTED_BOLD};
     transition: left 0.15s ease, right 0.15s ease;
   }

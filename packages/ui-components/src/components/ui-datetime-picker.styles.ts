@@ -1,4 +1,4 @@
-import { semanticVar, elevationVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, elevationVar, spaceVar, radiusVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -6,7 +6,9 @@ const SURFACE_PRIMARY = semanticVar("surface", "primary");
 const ELEVATION_05 = elevationVar("05");
 const BORDER_MINIMAL = semanticVar("border", "minimal");
 const TEXT_PRIMARY = semanticVar("text", "primary");
+const BORDER_FOCUS = semanticVar("border", "focus");
 const SP_1 = spaceVar("1");
+const RADIUS_SM = radiusVar("sm");
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -69,7 +71,7 @@ export const STYLES = /* css */ `
     margin-top: 4px;
     background: ${SURFACE_PRIMARY};
     box-shadow: ${ELEVATION_05};
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
     opacity: 0;
     visibility: hidden;
     transform: translateY(-4px);
@@ -122,7 +124,7 @@ export const STYLES = /* css */ `
     font-weight: 500;
     line-height: 20px;
     padding: 6px 16px;
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
   }
 
   .action-btn:hover {
@@ -134,6 +136,6 @@ export const STYLES = /* css */ `
   }
 
   .ok-btn {
-    color: var(--fd-border-focus, #186ADE);
+    color: ${BORDER_FOCUS};
   }
 `;
