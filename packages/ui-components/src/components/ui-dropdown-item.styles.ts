@@ -9,6 +9,8 @@ const SURFACE_SECONDARY = semanticVar("surface", "secondary");
 const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
 const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
 const BORDER_CONTRAST = semanticVar("border", "contrast");
+const HOVER_SURFACE = semanticVar("stateHover", "surfaceMinimal");
+const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const SP_05 = spaceVar("0.5");   // 4px — description gap
 const SP_075 = spaceVar("0.75"); // 6px
 const SP_1 = spaceVar("1");      // 8px
@@ -62,7 +64,7 @@ export const STYLES = /* css */ `
   }
 
   .item:hover {
-    background-color: var(--ui-dd-item-hover-bg, rgba(159, 177, 189, 0.1));
+    background-color: var(--ui-dd-item-hover-bg, ${HOVER_SURFACE});
   }
 
   .item:active {
@@ -172,7 +174,7 @@ export const STYLES = /* css */ `
   /* ── Disabled ───────────────────────────────────────────────────────────── */
 
   :host([disabled]) .item {
-    color: var(--ui-dd-item-disabled-color, rgba(91, 114, 130, 0.5));
+    color: var(--ui-dd-item-disabled-color, ${DISABLED_TEXT});
     cursor: not-allowed;
     pointer-events: none;
   }

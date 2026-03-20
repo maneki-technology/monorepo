@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar, elevationVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, elevationVar, radiusVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -19,6 +19,14 @@ const SP_25 = spaceVar("2.5");
 const SP_3 = spaceVar("3");
 const SP_4 = spaceVar("4");
 
+const RADIUS_SM = radiusVar("sm");
+const RADIUS_PILL = radiusVar("pill");
+const RADIUS_NONE = radiusVar("none");
+const BORDER_SM = borderWidthVar("sm");
+const HOVER_BOLD = semanticVar("stateHover", "surfaceBold");
+const HOVER_SUBTLE = semanticVar("stateHover", "surfaceSubtle");
+const ACTIVE_BOLD = semanticVar("stateActive", "surfaceBold");
+const ACTIVE_SUBTLE = semanticVar("stateActive", "surfaceSubtle");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -39,7 +47,9 @@ export const STYLES = /* css */ `
     display: inline-flex;
     flex-direction: row;
     align-items: stretch;
-    border: 1px solid transparent;
+    border-width: ${BORDER_SM};
+    border-style: solid;
+    border-color: transparent;
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
@@ -48,11 +58,11 @@ export const STYLES = /* css */ `
   /* ── Shape ─────────────────────────────────────────────────────────────── */
 
   :host .base {
-    border-radius: var(--ui-dds-radius, 2px);
+    border-radius: var(--ui-dds-radius, ${RADIUS_SM});
   }
 
   :host([shape="rounded"]) .base {
-    border-radius: var(--ui-dds-radius, 999px);
+    border-radius: var(--ui-dds-radius, ${RADIUS_PILL});
   }
 
   /* ── Shared button reset ────────────────────────────────────────────────── */
@@ -83,19 +93,19 @@ export const STYLES = /* css */ `
   /* ── Border-radius on outer corners only ────────────────────────────────── */
 
   :host .left {
-    border-radius: 2px 0 0 2px;
+    border-radius: ${RADIUS_SM} ${RADIUS_NONE} ${RADIUS_NONE} ${RADIUS_SM};
   }
 
   :host .right {
-    border-radius: 0 2px 2px 0;
+    border-radius: ${RADIUS_NONE} ${RADIUS_SM} ${RADIUS_SM} ${RADIUS_NONE};
   }
 
   :host([shape="rounded"]) .left {
-    border-radius: 999px 0 0 999px;
+    border-radius: ${RADIUS_PILL} ${RADIUS_NONE} ${RADIUS_NONE} ${RADIUS_PILL};
   }
 
   :host([shape="rounded"]) .right {
-    border-radius: 0 999px 999px 0;
+    border-radius: ${RADIUS_NONE} ${RADIUS_PILL} ${RADIUS_PILL} ${RADIUS_NONE};
   }
 
   /* ── Size: m (default) ──────────────────────────────────────────────────── */
@@ -332,26 +342,26 @@ export const STYLES = /* css */ `
   /* ── Hover state (independent per button) ─────────────────────────────── */
   .left:hover,
   .right:hover {
-    background-image: linear-gradient(rgba(14, 23, 31, 0.1), rgba(14, 23, 31, 0.1));
+    background-image: linear-gradient(${HOVER_BOLD}, ${HOVER_BOLD});
   }
   :host([emphasis="subtle"]) .left:hover,
   :host([emphasis="subtle"]) .right:hover,
   :host([emphasis="minimal"]) .left:hover,
   :host([emphasis="minimal"]) .right:hover {
     background-image: none;
-    background-color: rgba(14, 23, 31, 0.06);
+    background-color: ${HOVER_SUBTLE};
   }
   /* ── Active state ────────────────────────────────────────────────────── */
   .left:active,
   .right:active {
-    background-image: linear-gradient(rgba(14, 23, 31, 0.2), rgba(14, 23, 31, 0.2));
+    background-image: linear-gradient(${ACTIVE_BOLD}, ${ACTIVE_BOLD});
   }
   :host([emphasis="subtle"]) .left:active,
   :host([emphasis="subtle"]) .right:active,
   :host([emphasis="minimal"]) .left:active,
   :host([emphasis="minimal"]) .right:active {
     background-image: none;
-    background-color: rgba(14, 23, 31, 0.12);
+    background-color: ${ACTIVE_SUBTLE};
   }
   /* ── Focus-visible (double ring) ─────────────────────────────────────── */
   .left:focus-visible,
@@ -471,7 +481,7 @@ export const STYLES = /* css */ `
     padding: ${SP_05} 0;
     background-color: var(--ui-dds-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-dds-menu-shadow, ${ELEVATION_05});
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
     overflow: visible;
     opacity: 0;
     visibility: hidden;
