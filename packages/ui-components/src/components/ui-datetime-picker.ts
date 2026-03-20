@@ -350,7 +350,7 @@ export class UiDatetimePicker extends HTMLElement {
         this.#datetimeStep = "date";
         this.#syncPanelVisibility();
       }
-      (this.#clockEl as any).resetSelection?.();
+      (this.#clockEl as HTMLElement & { resetSelection?: () => void }).resetSelection?.();
     }
     this.open = !this.open;
   };

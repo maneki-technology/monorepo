@@ -3,6 +3,7 @@ import {
   spaceVar,
   elevationVar,
   colorVar,
+  radiusVar,
 } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
@@ -41,7 +42,7 @@ export const STYLES = /* css */ `
     display: inline-block;
     background: ${SURFACE_PRIMARY};
     box-shadow: var(--ui-calendar-elevation, ${ELEVATION_05});
-    border-radius: 2px;
+    border-radius: ${radiusVar("sm")};
     font-family: Inter, sans-serif;
   }
 
@@ -229,7 +230,7 @@ export const STYLES = /* css */ `
   }
 
   .event-dot {
-    border-radius: 999px;
+    border-radius: ${radiusVar("pill")};
   }
 
   /* ─── Legend ─── */
@@ -264,7 +265,7 @@ export const STYLES = /* css */ `
   .legend-dot {
     width: 6px;
     height: 6px;
-    border-radius: 4px;
+    border-radius: ${radiusVar("md")};
     flex-shrink: 0;
   }
 

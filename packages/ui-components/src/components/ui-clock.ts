@@ -87,7 +87,6 @@ export class UiClock extends HTMLElement {
     this.#digitalContainer.style.display = "none";
 
     picker.append(toggleRow, this.#clockContainer, this.#digitalContainer);
-    picker.append(toggleRow, this.#clockContainer, this.#digitalContainer);
 
     shadow.appendChild(picker);
   }

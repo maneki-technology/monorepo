@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -27,12 +27,12 @@ export const STYLES = /* css */ `
   /* ─── Vertical (side) layout ─── */
 
   :host([orientation="side"]) {
-    border-radius: 2px 0 0 2px;
+    border-radius: ${radiusVar("sm")} ${radiusVar("none")} ${radiusVar("none")} ${radiusVar("sm")};
   }
 
   :host([orientation="bottom"]) {
     position: relative;
-    border-radius: 0 0 2px 2px;
+    border-radius: ${radiusVar("none")} ${radiusVar("none")} ${radiusVar("sm")} ${radiusVar("sm")};
     overflow: hidden;
     min-width: 0;
   }
@@ -77,13 +77,13 @@ export const STYLES = /* css */ `
   .fade-left {
     left: 0;
     background: linear-gradient(to left, transparent, ${SURFACE_SECONDARY});
-    border-radius: 0 0 0 2px;
+    border-radius: ${radiusVar("none")} ${radiusVar("none")} ${radiusVar("none")} ${radiusVar("sm")};
   }
 
   .fade-right {
     right: 0;
     background: linear-gradient(to right, transparent, ${SURFACE_SECONDARY});
-    border-radius: 0 0 2px 0;
+    border-radius: ${radiusVar("none")} ${radiusVar("none")} ${radiusVar("sm")} ${radiusVar("none")};
   }
 
   :host(:not([orientation="bottom"])) .fade {

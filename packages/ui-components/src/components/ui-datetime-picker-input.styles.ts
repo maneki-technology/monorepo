@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -56,7 +56,7 @@ export const STYLES = /* css */ `
     display: flex;
     align-items: center;
     border: 1px solid var(--ui-dpi-border, ${FORM_INPUT_BORDER});
-    border-radius: 2px;
+    border-radius: ${radiusVar("sm")};
     background-color: var(--ui-dpi-bg, #ffffff);
     cursor: pointer;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -167,14 +167,11 @@ export const STYLES = /* css */ `
   .segment-clickable {
     cursor: pointer;
     padding: 2px 4px;
-    border-radius: 2px;
+    border-radius: ${radiusVar("sm")};
   }
 
   .segment-clickable:hover {
     background: rgba(159, 177, 189, 0.15);
-  }
-    color: ${TEXT_PRIMARY};
-    white-space: nowrap;
   }
 
   .segment[data-placeholder] {
@@ -259,10 +256,6 @@ export const STYLES = /* css */ `
   :host([size="s"][type="time"]) .input-container {
     padding-right: 0;
   }
-    height: 24px;
-    padding-left: ${SP_05};
-    gap: 4px;
-  }
 
   :host([size="s"]) .icon {
     --ui-icon-size: 16px;
@@ -289,11 +282,6 @@ export const STYLES = /* css */ `
   :host([size="m"][type="time"]) .input-container,
   :host(:not([size])[type="time"]) .input-container {
     padding-right: 0;
-  }
-  :host(:not([size])) .input-container {
-    height: 32px;
-    padding-left: ${SP_1};
-    gap: 8px;
   }
 
   :host([size="m"]) .icon,
@@ -322,10 +310,6 @@ export const STYLES = /* css */ `
 
   :host([size="l"][type="time"]) .input-container {
     padding-right: 0;
-  }
-    height: 40px;
-    padding-left: 12px;
-    gap: 8px;
   }
 
   :host([size="l"]) .icon {
