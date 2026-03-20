@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -79,8 +79,10 @@ export const STYLES = /* css */ `
   .textarea-container {
     display: flex;
     position: relative;
-    border: 1px solid var(--ui-textarea-border, ${FORM_INPUT_BORDER});
-    border-radius: 2px;
+    border-width: ${borderWidthVar("sm")};
+    border-style: solid;
+    border-color: var(--ui-textarea-border, ${FORM_INPUT_BORDER});
+    border-radius: ${radiusVar("sm")};
     background-color: var(--ui-textarea-bg, #ffffff);
     transition:
       border-color 0.15s ease,
@@ -229,12 +231,12 @@ export const STYLES = /* css */ `
   /* ── Warning state ─────────────────────────────────────────────────────── */
 
   :host([status="warning"]) .textarea-container {
-    border-color: ${BORDER_FOCUS};
+    border-color: ${STATUS_WARNING};
   }
 
   :host([status="warning"]:focus-within) .textarea-container {
-    border-color: ${BORDER_FOCUS};
-    box-shadow: 0 0 0 1px ${BORDER_FOCUS};
+    border-color: ${STATUS_WARNING};
+    box-shadow: 0 0 0 1px ${STATUS_WARNING};
   }
 
   /* ── Success state ─────────────────────────────────────────────────────── */

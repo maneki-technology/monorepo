@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -66,8 +66,10 @@ export const STYLES = /* css */ `
   .input-container {
     display: flex;
     align-items: center;
-    border: 1px solid var(--ui-input-border, ${FORM_INPUT_BORDER});
-    border-radius: 2px;
+    border-width: ${borderWidthVar("sm")};
+    border-style: solid;
+    border-color: var(--ui-input-border, ${FORM_INPUT_BORDER});
+    border-radius: ${radiusVar("sm")};
     background-color: var(--ui-input-bg, #ffffff);
     transition:
       border-color 0.15s ease,
