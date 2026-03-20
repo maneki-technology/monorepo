@@ -1,4 +1,4 @@
-import { semanticVar, elevationVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, elevationVar, spaceVar, radiusVar } from "@maneki/foundation";
 import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -62,7 +62,7 @@ const STYLES = /* css */ `
     flex-direction: column;
     background-color: var(--ui-modal-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-modal-shadow, ${ELEVATION_06});
-    border-radius: 2px;
+    border-radius: ${radiusVar("sm")};
     font-family: "Geist", sans-serif;
     color: ${TEXT_PRIMARY};
     width: var(--ui-modal-width, 441px);
@@ -81,8 +81,6 @@ const STYLES = /* css */ `
   :host([layout="fluid"]) .dialog {
     width: var(--ui-modal-width, 630px);
     height: var(--ui-modal-height, 405px);
-    display: flex;
-    flex-direction: column;
   }
 
   :host([layout="fluid"]) .body {
@@ -218,8 +216,7 @@ const STYLES = /* css */ `
 
   :host .close-btn,
   :host([size="m"]) .close-btn {
-    width: 20px;
-    height: 20px;
+    --ui-icon-size: 20px;
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
@@ -244,8 +241,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .close-btn {
-    width: 16px;
-    height: 16px;
+    --ui-icon-size: 16px;
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
@@ -270,26 +266,9 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .close-btn {
-    width: 20px;
-    height: 20px;
+    --ui-icon-size: 20px;
   }
 
-  /* ── Fluid layout overrides ──────────────────────────────────────────────── */
-
-  :host([layout="fluid"]) .dialog {
-    width: var(--ui-modal-width, 630px);
-    height: var(--ui-modal-height, 405px);
-  }
-
-  :host([layout="fluid"]) .content {
-    flex: 1;
-    min-height: 0;
-  }
-
-  :host([layout="fluid"]) .body {
-    flex: 1;
-    overflow-y: auto;
-  }
   /* ── Reduced motion ──────────────────────────────────────────────────────── */
 
   @media (prefers-reduced-motion: reduce) {
