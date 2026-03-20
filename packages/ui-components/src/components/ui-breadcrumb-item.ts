@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
 import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -14,6 +14,9 @@ const TEXT_VISITED = semanticVar("text", "visited");
 const TEXT_DISABLED = semanticVar("text", "tertiary");
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const ICON_PRIMARY = semanticVar("icon", "primary");
+
+const SP_025 = spaceVar("0.25");   // 2px
+const SP_05 = spaceVar("0.5");     // 4px
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -66,7 +69,7 @@ const STYLES = /* css */ `
   /* ── Disabled ──────────────────────────────────────────────────────────── */
 
   :host([disabled]) .link {
-    color: var(--ui-bc-link-disabled, #636e75);
+    color: var(--ui-bc-link-disabled, ${TEXT_DISABLED});
     pointer-events: none;
     cursor: default;
   }
@@ -99,8 +102,8 @@ const STYLES = /* css */ `
   :host([size="m"]) .link {
     font-size: 14px;
     line-height: 20px;
-    padding-left: 2px;
-    padding-right: 2px;
+    padding-left: ${SP_025};
+    padding-right: ${SP_025};
   }
 
   :host .separator,
@@ -112,7 +115,7 @@ const STYLES = /* css */ `
 
   :host .base,
   :host([size="m"]) .base {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   /* ── Size: s ────────────────────────────────────────────────────────────── */
@@ -120,8 +123,8 @@ const STYLES = /* css */ `
   :host([size="s"]) .link {
     font-size: 12px;
     line-height: 16px;
-    padding-left: 2px;
-    padding-right: 2px;
+    padding-left: ${SP_025};
+    padding-right: ${SP_025};
   }
 
   :host([size="s"]) .separator {
@@ -131,7 +134,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .base {
-    gap: 2px;
+    gap: ${SP_025};
   }
 
   /* ── Size: l ────────────────────────────────────────────────────────────── */
@@ -139,8 +142,8 @@ const STYLES = /* css */ `
   :host([size="l"]) .link {
     font-size: 16px;
     line-height: 24px;
-    padding-left: 2px;
-    padding-right: 2px;
+    padding-left: ${SP_025};
+    padding-right: ${SP_025};
   }
 
   :host([size="l"]) .separator {

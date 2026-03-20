@@ -1,4 +1,8 @@
 import type { BreadcrumbSize } from "./ui-breadcrumb-item.js";
+import { spaceVar } from "@maneki/foundation";
+
+const SP_05 = spaceVar("0.5");     // 4px
+const SP_1 = spaceVar("1");         // 8px
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -30,19 +34,19 @@ const STYLES = /* css */ `
 
   :host .list,
   :host([size="m"]) .list {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   /* ── Gap: s ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .list {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   /* ── Gap: l ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .list {
-    gap: 8px;
+    gap: ${SP_1};
   }
 `;
 
