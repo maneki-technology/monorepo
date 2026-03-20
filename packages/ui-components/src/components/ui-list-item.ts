@@ -1,6 +1,5 @@
 import { STYLES } from "./ui-list-item.styles.js";
 import "./ui-icon.js";
-import "./ui-icon.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

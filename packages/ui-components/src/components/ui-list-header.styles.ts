@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -23,7 +23,7 @@ export const STYLES = /* css */ `
   }
 
   .top-border {
-    height: 1px;
+    height: ${borderWidthVar("sm")};
     width: 100%;
     background: ${BORDER_MINIMAL};
     flex-shrink: 0;
@@ -68,7 +68,7 @@ export const STYLES = /* css */ `
   }
 
   .bottom-border {
-    height: 1px;
+    height: ${borderWidthVar("sm")};
     width: 100%;
     background: ${BORDER_MINIMAL};
     flex-shrink: 0;

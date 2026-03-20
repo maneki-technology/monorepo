@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -8,9 +8,12 @@ const TEXT_SECONDARY = semanticVar("text", "secondary");
 const ICON_PRIMARY = semanticVar("icon", "primary");
 const HOVER_BG = semanticVar("stateHover", "surfaceMinimal");
 const ACTIVE_BG = semanticVar("stateSelected", "surfaceMinimal");
+const SP_05 = spaceVar("0.5");
+const SP_075 = spaceVar("0.75");
 const SP_1 = spaceVar("1");
+const SP_15 = spaceVar("1.5");
 const SP_2 = spaceVar("2");
-
+const BW_SM = borderWidthVar("sm");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -38,7 +41,7 @@ export const STYLES = /* css */ `
 
   .top-border,
   .bottom-border {
-    height: 1px;
+    height: ${BW_SM};
     width: 100%;
     background: ${BORDER_MINIMAL};
     flex-shrink: 0;
@@ -57,7 +60,7 @@ export const STYLES = /* css */ `
   }
 
   :host([bottom-border]) .bottom-border {
-    height: 1px;
+    height: ${BW_SM};
   }
 
   /* ─── Content row ─── */
@@ -98,7 +101,7 @@ export const STYLES = /* css */ `
   .top-row {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: ${SP_2};
     width: 100%;
   }
 
@@ -181,7 +184,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .text-area {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   :host([size="s"]) .primary-text {
@@ -197,7 +200,7 @@ export const STYLES = /* css */ `
   :host([size="s"]) .leading {
     width: 24px;
     height: 24px;
-    margin-right: 8px;
+    margin-right: ${SP_1};
   }
 
   :host([size="s"]) .trailing {
@@ -237,7 +240,7 @@ export const STYLES = /* css */ `
 
   :host([size="m"]) .text-area,
   :host(:not([size])) .text-area {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   :host([size="m"]) .primary-text,
@@ -256,7 +259,7 @@ export const STYLES = /* css */ `
   :host(:not([size])) .leading {
     width: 24px;
     height: 24px;
-    margin-right: 8px;
+    margin-right: ${SP_1};
   }
 
   :host([size="m"]) .trailing,
@@ -297,7 +300,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .text-area {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   :host([size="l"]) .primary-text {
@@ -313,7 +316,7 @@ export const STYLES = /* css */ `
   :host([size="l"]) .leading {
     width: 32px;
     height: 32px;
-    margin-right: 12px;
+    margin-right: ${SP_15};
   }
 
   :host([size="l"]) .trailing {
@@ -326,8 +329,8 @@ export const STYLES = /* css */ `
 
   /* Padding */
   :host([size="l"][padding="s"]) .content {
-    padding-left: 12px;
-    padding-right: 12px;
+    padding-left: ${SP_15};
+    padding-right: ${SP_15};
   }
 
   :host([size="l"][padding="m"]) .content {
