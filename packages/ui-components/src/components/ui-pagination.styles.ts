@@ -1,15 +1,23 @@
-import { semanticVar, colorVar } from "@maneki/foundation";
+import { semanticVar, colorVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
+// ─── Token constants ─────────────────────────────────────────────────────────────
 
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const BORDER_MODERATE = semanticVar("border", "moderate");
 const BLUE_60 = colorVar("blue", 60);
 const BLUE_70 = colorVar("blue", 70);
 const SELECTED_MINIMAL = semanticVar("stateSelected", "surfaceMinimal");
-const HOVER_SURFACE = semanticVar("surface", "tertiary");
+const HOVER_SURFACE = semanticVar("stateHover", "surfaceBold");
+const ACTIVE_SURFACE = semanticVar("stateActive", "surfaceSubtle");
 const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const SURFACE_PRIMARY = semanticVar("surface", "primary");
+
+const SP_025 = spaceVar("0.25");   // 2px
+const SP_05 = spaceVar("0.5");     // 4px
+const SP_1 = spaceVar("1");         // 8px
+const SP_2 = spaceVar("2");         // 16px
+const RADIUS_SM = radiusVar("sm");
+const BW_SM = borderWidthVar("sm");
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -37,20 +45,20 @@ export const STYLES = /* css */ `
   .wrapper {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: ${SP_2};
     width: 100%;
   }
 
   .nav {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: ${SP_025};
   }
 
   .addon {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: ${SP_2};
     margin-left: auto;
   }
 
@@ -60,7 +68,7 @@ export const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
     border: none;
     background: transparent;
     cursor: pointer;
@@ -78,7 +86,7 @@ export const STYLES = /* css */ `
   }
 
   .item:active {
-    background: ${SELECTED_MINIMAL};
+    background: ${ACTIVE_SURFACE};
   }
 
   .item:focus-visible {
@@ -130,15 +138,17 @@ export const STYLES = /* css */ `
   .page-status {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: ${SP_1};
     font-weight: 400;
     color: ${TEXT_PRIMARY};
     white-space: nowrap;
   }
 
   .goto-input {
-    border: 1px solid ${BORDER_MODERATE};
-    border-radius: 2px;
+    border-width: ${BW_SM};
+    border-style: solid;
+    border-color: ${BORDER_MODERATE};
+    border-radius: ${RADIUS_SM};
     background: ${SURFACE_PRIMARY};
     font-family: "Geist", sans-serif;
     color: ${TEXT_PRIMARY};
@@ -151,8 +161,10 @@ export const STYLES = /* css */ `
   }
 
   .page-size-select {
-    border: 1px solid ${BORDER_MODERATE};
-    border-radius: 2px;
+    border-width: ${BW_SM};
+    border-style: solid;
+    border-color: ${BORDER_MODERATE};
+    border-radius: ${RADIUS_SM};
     background: ${SURFACE_PRIMARY};
     font-family: "Geist", sans-serif;
     color: ${TEXT_PRIMARY};
@@ -171,7 +183,7 @@ export const STYLES = /* css */ `
   /* ── Minimal layout ──────────────────────────────────────────────────────── */
 
   :host([type="minimal"]) .wrapper {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   /* ── Size: m (default) ───────────────────────────────────────────────────── */
@@ -187,7 +199,7 @@ export const STYLES = /* css */ `
   :host .item.nav-btn,
   :host([size="m"]) .item.nav-btn {
     padding: 0 12px 0 8px;
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   :host .item.nav-btn.nav-next,
@@ -251,7 +263,7 @@ export const STYLES = /* css */ `
 
   :host([size="s"]) .item.nav-btn {
     padding: 0 8px 0 4px;
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   :host([size="s"]) .item.nav-btn.nav-next,
@@ -306,7 +318,7 @@ export const STYLES = /* css */ `
 
   :host([size="xs"]) .item.nav-btn {
     padding: 0 4px 0 2px;
-    gap: 2px;
+    gap: ${SP_025};
   }
 
   :host([size="xs"]) .item.nav-btn.nav-next,
