@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 import type { MetricSize } from "./ui-metric.js";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
@@ -22,7 +22,7 @@ const STYLES = /* css */ `
 
   .wrapper {
     display: flex;
-    gap: 8px;
+    gap: ${spaceVar("1")};
     align-items: stretch;
     height: 100%;
   }
@@ -30,7 +30,7 @@ const STYLES = /* css */ `
   /* ── Separator ───────────────────────────────────────────────────────────── */
 
   .separator {
-    width: 1px;
+    width: ${borderWidthVar("sm")};
     align-self: stretch;
     background: ${BORDER_MODERATE};
     flex-shrink: 0;
@@ -41,9 +41,9 @@ const STYLES = /* css */ `
   .group {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: ${spaceVar("0.5")};
     align-items: flex-start;
-    padding-top: 8px;
+    padding-top: ${spaceVar("1")};
   }
 
   /* ── Title ───────────────────────────────────────────────────────────────── */
@@ -74,36 +74,36 @@ const STYLES = /* css */ `
 
   :host .metrics,
   :host([size="s"]) .metrics {
-    gap: 20px;
+    gap: ${spaceVar("2.5")};
   }
 
   :host .title,
   :host([size="s"]) .title {
-    padding-left: 8px;
+    padding-left: ${spaceVar("1")};
   }
 
   :host([size="xs"]) .metrics {
-    gap: 16px;
+    gap: ${spaceVar("2")};
   }
 
   :host([size="xs"]) .title {
-    padding-left: 8px;
+    padding-left: ${spaceVar("1")};
   }
 
   :host([size="m"]) .metrics {
-    gap: 24px;
+    gap: ${spaceVar("3")};
   }
 
   :host([size="m"]) .title {
-    padding-left: 12px;
+    padding-left: ${spaceVar("1.5")};
   }
 
   :host([size="l"]) .metrics {
-    gap: 32px;
+    gap: ${spaceVar("4")};
   }
 
   :host([size="l"]) .title {
-    padding-left: 16px;
+    padding-left: ${spaceVar("2")};
   }
 `;
 

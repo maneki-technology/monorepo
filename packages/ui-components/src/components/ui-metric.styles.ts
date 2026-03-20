@@ -1,4 +1,4 @@
-import { semanticVar, colorVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, colorVar, spaceVar, radiusVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -6,9 +6,16 @@ const TEXT_PRIMARY = semanticVar("text", "primary");
 const TEXT_SECONDARY = semanticVar("text", "secondary");
 const GREEN_60 = colorVar("green", 60);
 const RED_60 = colorVar("red", 60);
-const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
+const ACTIVE_SURFACE = semanticVar("stateActive", "surfaceSubtle");
 const HOVER_SURFACE = semanticVar("stateHover", "surfaceMinimal");
 
+const SP_025 = spaceVar("0.25");   // 2px
+const SP_05 = spaceVar("0.5");     // 4px
+const SP_075 = spaceVar("0.75");   // 6px
+const SP_1 = spaceVar("1");         // 8px
+const SP_15 = spaceVar("1.5");     // 12px
+const SP_2 = spaceVar("2");         // 16px
+const RADIUS_SM = radiusVar("sm");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -27,7 +34,7 @@ export const STYLES = /* css */ `
   .base {
     display: flex;
     align-items: flex-start;
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
     font-family: "Geist", sans-serif;
   }
 
@@ -40,14 +47,14 @@ export const STYLES = /* css */ `
   :host([orientation="horizontal"]) .base {
     flex-direction: row;
     align-items: center;
-    gap: 8px;
+    gap: ${SP_1};
     white-space: nowrap;
   }
 
   :host([orientation="horizontal"]) .content {
     flex-direction: row;
     align-items: center;
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   :host([orientation="horizontal"]) .value-container {
@@ -69,7 +76,7 @@ export const STYLES = /* css */ `
   }
 
   :host([legend-color]) .base {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   /* ── Content ─────────────────────────────────────────────────────────────── */
@@ -78,7 +85,7 @@ export const STYLES = /* css */ `
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 2px;
+    gap: ${SP_025};
   }
 
   .label {
@@ -140,7 +147,7 @@ export const STYLES = /* css */ `
   .delta-content {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: ${SP_05};
     font-size: 12px;
     line-height: 16px;
     font-weight: 400;
@@ -191,17 +198,17 @@ export const STYLES = /* css */ `
   }
 
   :host([clickable]) .base:active {
-    background: ${DISABLED_MINIMAL};
+    background: ${ACTIVE_SURFACE};
   }
 
   /* ── Size: xs ────────────────────────────────────────────────────────────── */
 
   :host([size="xs"]) .base {
-    padding: 4px 8px;
+    padding: ${SP_05} ${SP_1};
   }
 
   :host([size="xs"][legend-color]) .base {
-    padding: 4px 8px 4px 6px;
+    padding: ${SP_05} ${SP_1} ${SP_05} ${SP_075};
   }
 
   :host([size="xs"]) .content {
@@ -225,24 +232,24 @@ export const STYLES = /* css */ `
   }
 
   :host([size="xs"]) .value-container {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   /* ── Size: s (default) ───────────────────────────────────────────────────── */
 
   :host .base,
   :host([size="s"]) .base {
-    padding: 4px 8px;
+    padding: ${SP_05} ${SP_1};
   }
 
   :host([legend-color]) .base,
   :host([size="s"][legend-color]) .base {
-    padding: 4px 8px 4px 6px;
+    padding: ${SP_05} ${SP_1} ${SP_05} ${SP_075};
   }
 
   :host .content,
   :host([size="s"]) .content {
-    gap: 2px;
+    gap: ${SP_025};
   }
 
   :host .value,
@@ -266,21 +273,21 @@ export const STYLES = /* css */ `
 
   :host .value-container,
   :host([size="s"]) .value-container {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   /* ── Size: m ─────────────────────────────────────────────────────────────── */
 
   :host([size="m"]) .base {
-    padding: 6px 12px;
+    padding: ${SP_075} ${SP_15};
   }
 
   :host([size="m"][legend-color]) .base {
-    padding: 6px 12px 6px 8px;
+    padding: ${SP_075} ${SP_15} ${SP_075} ${SP_1};
   }
 
   :host([size="m"]) .content {
-    gap: 2px;
+    gap: ${SP_025};
   }
 
   :host([size="m"]) .value {
@@ -300,7 +307,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="m"]) .value-container {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   :host([size="m"][orientation="horizontal"]) .base {
@@ -315,15 +322,15 @@ export const STYLES = /* css */ `
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .base {
-    padding: 8px 16px;
+    padding: ${SP_1} ${SP_2};
   }
 
   :host([size="l"][legend-color]) .base {
-    padding: 8px 16px 8px 8px;
+    padding: ${SP_1} ${SP_2} ${SP_1} ${SP_1};
   }
 
   :host([size="l"]) .content {
-    gap: 2px;
+    gap: ${SP_025};
   }
 
   :host([size="l"]) .value {
@@ -343,13 +350,13 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .value-container {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   /* ── Clickable hover bg for m size ───────────────────────────────────────── */
 
   :host([size="m"][clickable]) .base {
-    background: ${DISABLED_MINIMAL};
+    background: ${ACTIVE_SURFACE};
   }
 
   :host([size="m"][clickable]) .base:hover {
