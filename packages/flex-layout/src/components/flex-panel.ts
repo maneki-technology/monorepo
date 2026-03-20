@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 
 // ---------------------------------------------------------------------------
 // Token constants
@@ -49,7 +49,7 @@ const STYLES = `
    flex-panel-header provides its own bottom border in all variants
    (title → .divider, tabs/title-tabs → tab-group border-bottom). */
 .divider {
-  height: 1px;
+  height: ${borderWidthVar("sm")};
   background: var(--flex-panel-divider, ${BORDER_MINIMAL});
   flex-shrink: 0;
   display: none;

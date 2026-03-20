@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 
 // ---------------------------------------------------------------------------
 // Token constants
@@ -29,37 +29,37 @@ interface SizePreset {
 
 const SIZE_PRESETS: Record<FlexPanelHeaderSize, SizePreset> = {
   large: {
-    height: "32px",
+    height: spaceVar("4"),        // 32px
     fontSize: "12px",
     fontWeight: "500",
     lineHeight: "16px",
-    paddingLeft: "16px",
-    paddingRight: "8px",
-    paddingTop: "8px",
-    paddingBottom: "8px",
-    iconSize: "16px",
+    paddingLeft: spaceVar("2"),    // 16px
+    paddingRight: spaceVar("1"),   // 8px
+    paddingTop: spaceVar("1"),     // 8px
+    paddingBottom: spaceVar("1"),  // 8px
+    iconSize: spaceVar("2"),       // 16px
   },
   medium: {
-    height: "24px",
+    height: spaceVar("3"),        // 24px
     fontSize: "12px",
     fontWeight: "500",
     lineHeight: "16px",
-    paddingLeft: "16px",
-    paddingRight: "8px",
-    paddingTop: "4px",
-    paddingBottom: "3px",
-    iconSize: "12px",
+    paddingLeft: spaceVar("2"),    // 16px
+    paddingRight: spaceVar("1"),   // 8px
+    paddingTop: spaceVar("0.5"),   // 4px
+    paddingBottom: "3px",          // no exact token
+    iconSize: spaceVar("1.5"),    // 12px
   },
   small: {
-    height: "20px",
+    height: spaceVar("2.5"),      // 20px
     fontSize: "11px",
     fontWeight: "500",
     lineHeight: "16px",
-    paddingLeft: "16px",
-    paddingRight: "8px",
-    paddingTop: "2px",
-    paddingBottom: "2px",
-    iconSize: "12px",
+    paddingLeft: spaceVar("2"),    // 16px
+    paddingRight: spaceVar("1"),   // 8px
+    paddingTop: spaceVar("0.25"),  // 2px
+    paddingBottom: spaceVar("0.25"), // 2px
+    iconSize: spaceVar("1.5"),    // 12px
   },
 };
 
@@ -81,19 +81,19 @@ const STYLES = `
 .title-bar {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: ${spaceVar("1")};
   box-sizing: border-box;
-  min-height: var(--flex-header-height, 24px);
-  padding-left: var(--flex-header-padding-left, 16px);
-  padding-right: var(--flex-header-padding-right, 8px);
-  padding-top: var(--flex-header-padding-top, 4px);
+  min-height: var(--flex-header-height, ${spaceVar("3")});
+  padding-left: var(--flex-header-padding-left, ${spaceVar("2")});
+  padding-right: var(--flex-header-padding-right, ${spaceVar("1")});
+  padding-top: var(--flex-header-padding-top, ${spaceVar("0.5")});
   padding-bottom: var(--flex-header-padding-bottom, 3px);
 }
 
 .title-text {
   flex: 1 1 0%;
   min-width: 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Geist", sans-serif;
   font-size: var(--flex-header-font-size, 12px);
   font-weight: var(--flex-header-font-weight, 500);
   line-height: var(--flex-header-line-height, 16px);
@@ -106,8 +106,8 @@ const STYLES = `
 
 .action-icon {
   flex-shrink: 0;
-  width: var(--flex-header-icon-size, 12px);
-  height: var(--flex-header-icon-size, 12px);
+  width: var(--flex-header-icon-size, ${spaceVar("1.5")});
+  height: var(--flex-header-icon-size, ${spaceVar("1.5")});
   color: var(--flex-header-icon-color, ${ICON_ACTION});
   display: flex;
   align-items: center;
@@ -121,7 +121,7 @@ const STYLES = `
 }
 
 .divider {
-  height: 1px;
+  height: ${borderWidthVar("sm")};
   background: var(--flex-header-divider, ${BORDER_MINIMAL});
   flex-shrink: 0;
 }
@@ -133,8 +133,8 @@ const STYLES = `
   width: 100%;
   overflow: visible;
   align-items: flex-end;
-  padding-left: 16px;
-  padding-right: 8px;
+  padding-left: ${spaceVar("2")};
+  padding-right: ${spaceVar("1")};
   box-sizing: border-box;
   margin-bottom: -1px;
   position: relative;
@@ -160,7 +160,7 @@ const STYLES = `
    Tab-group's internal border is suppressed via --ui-tab-group-border: none. */
 /* Title-tabs: stacked column layout (title above tabs) */
 :host([variant="title-tabs"]) .title-bar {
-  border-bottom: 1px solid ${BORDER_MINIMAL};
+  border-bottom: ${borderWidthVar("sm")} solid ${BORDER_MINIMAL};
 }
 
 :host([variant="title-tabs"]) .tabs-bar {
@@ -169,12 +169,11 @@ const STYLES = `
 
 /* Size: large */
 :host([size="large"]) .title-bar {
-  min-height: 32px;
-  padding-left: 16px;
-  padding-right: 8px;
-  padding-top: 8px;
-  padding-bottom: 8px;
-  font-size: 12px;
+  min-height: ${spaceVar("4")};
+  padding-left: ${spaceVar("2")};
+  padding-right: ${spaceVar("1")};
+  padding-top: ${spaceVar("1")};
+  padding-bottom: ${spaceVar("1")};
 }
 
 :host([size="large"]) .title-text {
@@ -183,20 +182,20 @@ const STYLES = `
 }
 
 :host([size="large"]) .action-icon {
-  width: 16px;
-  height: 16px;
+  width: ${spaceVar("2")};
+  height: ${spaceVar("2")};
 }
 
 :host([size="large"]) .tabs-bar {
-  min-height: 32px;
+  min-height: ${spaceVar("4")};
 }
 
 /* Size: medium (default) */
 :host([size="medium"]) .title-bar {
-  min-height: 24px;
-  padding-left: 16px;
-  padding-right: 8px;
-  padding-top: 4px;
+  min-height: ${spaceVar("3")};
+  padding-left: ${spaceVar("2")};
+  padding-right: ${spaceVar("1")};
+  padding-top: ${spaceVar("0.5")};
   padding-bottom: 3px;
 }
 
@@ -206,21 +205,21 @@ const STYLES = `
 }
 
 :host([size="medium"]) .action-icon {
-  width: 12px;
-  height: 12px;
+  width: ${spaceVar("1.5")};
+  height: ${spaceVar("1.5")};
 }
 
 :host([size="medium"]) .tabs-bar {
-  min-height: 24px;
+  min-height: ${spaceVar("3")};
 }
 
 /* Size: small */
 :host([size="small"]) .title-bar {
-  min-height: 20px;
-  padding-left: 16px;
-  padding-right: 8px;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  min-height: ${spaceVar("2.5")};
+  padding-left: ${spaceVar("2")};
+  padding-right: ${spaceVar("1")};
+  padding-top: ${spaceVar("0.25")};
+  padding-bottom: ${spaceVar("0.25")};
 }
 
 :host([size="small"]) .title-text {
@@ -229,12 +228,12 @@ const STYLES = `
 }
 
 :host([size="small"]) .action-icon {
-  width: 12px;
-  height: 12px;
+  width: ${spaceVar("1.5")};
+  height: ${spaceVar("1.5")};
 }
 
 :host([size="small"]) .tabs-bar {
-  min-height: 20px;
+  min-height: ${spaceVar("2.5")};
 }
 `;
 
