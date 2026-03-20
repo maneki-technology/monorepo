@@ -1,4 +1,4 @@
-import { colorVar, spaceVar } from "@maneki/foundation";
+import { colorVar, spaceVar, radiusVar } from "@maneki/foundation";
 import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -141,11 +141,11 @@ const STYLES = /* css */ `
 
   :host .base,
   :host([shape="circle"]) .base {
-    border-radius: 999px;
+    border-radius: ${radiusVar("pill")};
   }
 
   :host([shape="square"]) .base {
-    border-radius: 2px;
+    border-radius: ${radiusVar("sm")};
   }
 
   /* ── Size: m (default) ───────────────────────────────────────────────────── */

@@ -12,6 +12,8 @@ export {
   typeVar,
   spacingToCssProperties,
   spaceVar,
+  radiusVar,
+  borderWidthVar,
 } from "./tokens.js";
 export {
   surface,
@@ -57,6 +59,12 @@ export {
   spacing,
   type SpacingStep,
 } from "./spacing.js";
+export {
+  radius,
+  borderWidth,
+  type RadiusStep,
+  type BorderWidthStep,
+} from "./shape.js";
 export {
   compactBreakpoints,
   standardBreakpoints,

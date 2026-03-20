@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -87,7 +87,7 @@ const STYLES = /* css */ `
   .base {
     display: flex;
     flex-direction: column;
-    border-radius: 2px;
+    border-radius: ${radiusVar("sm")};
     font-family: "Geist", sans-serif;
   }
 

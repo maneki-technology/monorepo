@@ -219,3 +219,21 @@ export function spacingToCssProperties(): string {
 export function spaceVar(step: SpacingStep): string {
   return `var(--fd-space-${spaceKey(String(step))})`;
 }
+
+// ─── Shape tokens ────────────────────────────────────────────────────────────
+
+import { radius, type RadiusStep, borderWidth, type BorderWidthStep } from "./shape.js";
+
+/**
+ * Returns the raw value for a border-radius token.
+ */
+export function radiusVar(step: RadiusStep): string {
+  return radius[step];
+}
+
+/**
+ * Returns the raw value for a border-width token.
+ */
+export function borderWidthVar(step: BorderWidthStep): string {
+  return borderWidth[step];
+}
