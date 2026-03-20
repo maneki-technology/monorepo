@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -37,7 +37,7 @@ export const STYLES = /* css */ `
     color: ${STATUS_ERROR};
     font-size: var(--_font-size);
     line-height: var(--_line-height);
-    margin-left: 2px;
+    margin-left: ${spaceVar("0.25")};
   }
 
   :host(:not([required])) .required {
