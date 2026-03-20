@@ -171,11 +171,19 @@ export const statusSurface = {
   successBold: ref("green", 60),
   errorBold: ref("red", 60),
   warningBold: ref("yellow", 30),
+  openBold: ref("green", 40),
+  completeBold: ref("green", 60),
+  suspendedBold: ref("yellow", 20),
+  cancelledBold: ref("red", 20),
   noneSubtle: ref("gray", 20),
   informationSubtle: ref("blue", 20),
   successSubtle: ref("green", 20),
   errorSubtle: ref("red", 20),
   warningSubtle: ref("yellow", 10),
+  openSubtle: ref("green", 20),
+  completeSubtle: ref("gray", 20),
+  suspendedSubtle: ref("yellow", 10),
+  cancelledSubtle: ref("red", 10),
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------
@@ -250,6 +258,7 @@ export const form = {
 export const stateHover = {
   borderModerate: ref("gray", 50),      // #7A909E — darkened border on hover
   surfaceMinimal: "rgba(159, 177, 189, 0.10)",  // gray-60 @10% — hover-minimal surface (translucent overlay)
+  surfaceModerate: "rgba(159, 177, 189, 0.20)", // gray-60 @20% — hover-moderate surface (active/pressed)
   surfaceBold: "rgba(14, 23, 31, 0.1)",          // gray-90 @10% — bold interactive hover overlay (buttons, dropdowns)
   surfaceSubtle: "rgba(14, 23, 31, 0.06)",       // gray-90 @6% — subtle/minimal interactive hover fill
 } as const satisfies Record<string, SemanticValue>;
@@ -270,6 +279,7 @@ export const stateActive = {
 export const stateSelected = {
   surfaceBold: ref("blue", 60),         // #186ADE — checked/selected fill
   surfaceMinimal: ref("blue", 10),      // #EBF3FE — selected-minimal surface
+  surfaceOverlay: "rgba(24, 106, 222, 0.2)",    // blue-60 @20% — selected range/background overlay
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------

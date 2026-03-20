@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -21,6 +21,8 @@ const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const HOVER_SURFACE = semanticVar("stateHover", "surfaceMinimal");
 
 const SP_1 = spaceVar("1");       // 8px
+const SP_125 = spaceVar("1.25"); // 10px
+const BW_MD = borderWidthVar("md"); // 2px
 const SP_1_5 = spaceVar("1.5");   // 12px
 const SP_2 = spaceVar("2");       // 16px
 const SP_2_5 = spaceVar("2.5");   // 20px
@@ -73,7 +75,7 @@ const STYLES = /* css */ `
 
   .header:focus-visible {
     outline: var(--ui-acc-focus-outline, 2px solid ${BORDER_FOCUS});
-    outline-offset: -2px;
+    outline-offset: calc(-1 * ${BW_MD});
   }
 
   /* ── Content Left ───────────────────────────────────────────────────────── */
@@ -182,7 +184,7 @@ const STYLES = /* css */ `
   :host .header,
   :host([size="m"]) .header {
     padding-top: 9px;
-    padding-bottom: 10px;
+    padding-bottom: ${SP_125};
   }
 
   :host .content-left,
@@ -266,7 +268,7 @@ const STYLES = /* css */ `
 
   :host([size="l"]) .header {
     padding-top: 9px;
-    padding-bottom: 10px;
+    padding-bottom: ${SP_125};
   }
 
   :host([size="l"]) .content-left {

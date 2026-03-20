@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar, elevationVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -10,7 +10,19 @@ const SURFACE_PRIMARY = semanticVar("surface", "primary");
 const ICON_SECONDARY = semanticVar("icon", "secondary");
 const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
 const FOCUS_BORDER = semanticVar("border", "focus");
+const HOVER_MINIMAL = semanticVar("stateHover", "surfaceMinimal");
 
+const RADIUS_SM = radiusVar("sm");         // 2px
+const ELEV_03 = elevationVar("03");
+const SP_025 = spaceVar("0.25");           // 2px
+const SP_05 = spaceVar("0.5");             // 4px
+const SP_075 = spaceVar("0.75");           // 6px
+const SP_1 = spaceVar("1");                 // 8px
+const SP_15 = spaceVar("1.5");             // 12px
+const SP_2 = spaceVar("2");                 // 16px
+const SP_3 = spaceVar("3");                 // 24px
+const SP_4 = spaceVar("4");                 // 32px
+const SP_5 = spaceVar("5");                 // 40px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const FIELD_STYLES = /* css */ `
@@ -36,7 +48,7 @@ export const FIELD_STYLES = /* css */ `
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 4px 8px;
+    gap: ${SP_05} ${SP_1};
     border: 1px solid ${BORDER_MODERATE};
     background: ${SURFACE_PRIMARY};
     transition: border-color 0.15s ease;
@@ -78,7 +90,7 @@ export const FIELD_STYLES = /* css */ `
   .tags {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: ${SP_05};
     flex-wrap: wrap;
   }
 
@@ -99,9 +111,9 @@ export const FIELD_STYLES = /* css */ `
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .wrapper {
-    padding: 2px 8px;
-    min-height: 24px;
-    border-radius: 2px;
+    padding: ${SP_025} ${SP_1};
+    min-height: ${SP_3};
+    border-radius: ${RADIUS_SM};
   }
 
   :host([size="s"]) .search-icon {
@@ -122,9 +134,9 @@ export const FIELD_STYLES = /* css */ `
 
   :host .wrapper,
   :host([size="m"]) .wrapper {
-    padding: 4px 12px;
-    min-height: 32px;
-    border-radius: 2px;
+    padding: ${SP_05} ${SP_15};
+    min-height: ${SP_4};
+    border-radius: ${RADIUS_SM};
   }
 
   :host .search-icon,
@@ -147,9 +159,9 @@ export const FIELD_STYLES = /* css */ `
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .wrapper {
-    padding: 6px 12px;
-    min-height: 40px;
-    border-radius: 2px;
+    padding: ${SP_075} ${SP_15};
+    min-height: ${SP_5};
+    border-radius: ${RADIUS_SM};
   }
 
   :host([size="l"]) .search-icon {
@@ -185,10 +197,10 @@ export const FIELD_STYLES = /* css */ `
     min-width: 168px;
     max-width: 280px;
     background: ${SURFACE_PRIMARY};
-    border-radius: 2px;
-    box-shadow: 0px 8px 10px 0px rgba(0,0,0,0.14), 0px 3px 14px 0px rgba(0,0,0,0.12), 0px 5px 5px 0px rgba(0,0,0,0.2);
-    padding: 4px 0;
-    margin-top: 2px;
+    border-radius: ${RADIUS_SM};
+    box-shadow: ${ELEV_03};
+    padding: ${SP_05} 0;
+    margin-top: ${SP_025};
     opacity: 0;
     transform: translateY(-4px);
     transition: opacity 0.15s ease, transform 0.15s ease;
@@ -205,7 +217,7 @@ export const FIELD_STYLES = /* css */ `
   }
 
   .menu-heading {
-    padding: 4px 16px;
+    padding: ${SP_05} ${SP_2};
     font-size: 12px;
     line-height: 16px;
     font-weight: 500;
@@ -217,8 +229,8 @@ export const FIELD_STYLES = /* css */ `
   .menu-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 16px;
+    gap: ${SP_1};
+    padding: ${SP_075} ${SP_2};
     font-size: 14px;
     line-height: 20px;
     font-weight: 400;
@@ -233,7 +245,7 @@ export const FIELD_STYLES = /* css */ `
   }
 
   .menu-item:hover {
-    background: rgba(159, 177, 189, 0.1);
+    background: ${HOVER_MINIMAL};
   }
 
   .menu-item.selected {

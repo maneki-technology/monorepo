@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -21,6 +21,7 @@ const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const SP_075 = spaceVar("0.75");
 const SP_1 = spaceVar("1");
 const SP_15 = spaceVar("1.5");
+const RADIUS_CIRCLE = radiusVar("circle");  // 50%
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -54,7 +55,7 @@ const STYLES = /* css */ `
     justify-content: center;
     flex-shrink: 0;
     border: 1px solid transparent;
-    border-radius: 50%;
+    border-radius: ${RADIUS_CIRCLE};
   }
 
   /* ── Inner circle (visible radio) ───────────────────────────────────────── */
@@ -65,7 +66,7 @@ const STYLES = /* css */ `
     align-items: center;
     justify-content: center;
     border: 1px solid var(--ui-radio-border, ${FORM_INPUT_BORDER});
-    border-radius: 50%;
+    border-radius: ${RADIUS_CIRCLE};
     background-color: var(--ui-radio-bg, #ffffff);
     transition:
       background-color 0.15s ease,
@@ -76,7 +77,7 @@ const STYLES = /* css */ `
 
   .dot {
     display: none;
-    border-radius: 50%;
+    border-radius: ${RADIUS_CIRCLE};
     background-color: var(--ui-radio-dot-color, ${SELECTED_BOLD});
   }
 

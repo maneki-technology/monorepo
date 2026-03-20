@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -7,6 +7,11 @@ const BORDER_SUBTLE = semanticVar("border", "subtle");
 const BORDER_MODERATE = semanticVar("border", "moderate");
 const BORDER_BOLD = semanticVar("border", "bold");
 const BORDER_CONTRAST = semanticVar("border", "contrast");
+
+const SP_05 = spaceVar("0.5");   // 4px
+const SP_1 = spaceVar("1");       // 8px
+const SP_2 = spaceVar("2");       // 16px
+const SP_3 = spaceVar("3");       // 24px
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -78,45 +83,45 @@ const STYLES = /* css */ `
   /* ── Length: horizontal insets ────────────────────────────────────────────── */
 
   :host([length="inset-04"]:not([orientation="vertical"])) .line {
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: ${SP_05};
+    margin-right: ${SP_05};
   }
 
   :host([length="inset-08"]:not([orientation="vertical"])) .line {
-    margin-left: 8px;
-    margin-right: 8px;
+    margin-left: ${SP_1};
+    margin-right: ${SP_1};
   }
 
   :host([length="inset-16"]:not([orientation="vertical"])) .line {
-    margin-left: 16px;
-    margin-right: 16px;
+    margin-left: ${SP_2};
+    margin-right: ${SP_2};
   }
 
   :host([length="inset-24"]:not([orientation="vertical"])) .line {
-    margin-left: 24px;
-    margin-right: 24px;
+    margin-left: ${SP_3};
+    margin-right: ${SP_3};
   }
 
   /* ── Length: vertical insets ─────────────────────────────────────────────── */
 
   :host([orientation="vertical"][length="inset-04"]) .line {
-    margin-top: 4px;
-    margin-bottom: 4px;
+    margin-top: ${SP_05};
+    margin-bottom: ${SP_05};
   }
 
   :host([orientation="vertical"][length="inset-08"]) .line {
-    margin-top: 8px;
-    margin-bottom: 8px;
+    margin-top: ${SP_1};
+    margin-bottom: ${SP_1};
   }
 
   :host([orientation="vertical"][length="inset-16"]) .line {
-    margin-top: 16px;
-    margin-bottom: 16px;
+    margin-top: ${SP_2};
+    margin-bottom: ${SP_2};
   }
 
   :host([orientation="vertical"][length="inset-24"]) .line {
-    margin-top: 24px;
-    margin-bottom: 24px;
+    margin-top: ${SP_3};
+    margin-bottom: ${SP_3};
   }
 `;
 

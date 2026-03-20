@@ -51,6 +51,7 @@ const SP_025 = spaceVar("0.25");   // 2px
 const SP_05 = spaceVar("0.5");     // 4px
 const SP_075 = spaceVar("0.75");   // 6px
 const SP_1 = spaceVar("1");         // 8px
+const SP_125 = spaceVar("1.25");   // 10px
 const RADIUS_SM = radiusVar("sm");   // 2px
 const RADIUS_PILL = radiusVar("pill"); // 999px
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -108,7 +109,7 @@ export const STYLES = /* css */ `
   :host([size="l"]) .base {
     font-size: 14px;
     line-height: 20px;
-    padding: ${SP_05} 10px;
+    padding: ${SP_05} ${SP_125};
   }
 
   /* ── Shape: square (default) ─────────────────────────────────────────────── */

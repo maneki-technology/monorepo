@@ -1,7 +1,9 @@
 import {
   semanticVar,
   spaceVar,
-  } from "@maneki/foundation";
+  borderWidthVar,
+  radiusVar,
+} from "@maneki/foundation";
 import "./ui-icon.js";
 import type { TabItemSize, TabItemOrientation } from "./ui-tab-item.js";
 
@@ -11,8 +13,14 @@ const BORDER_MINIMAL = semanticVar("border", "minimal");
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const ICON_PRIMARY = semanticVar("icon", "primary");
 const ICON_SECONDARY = semanticVar("icon", "secondary");
-const SP_1_5 = spaceVar("1.5");
-const SP_2 = spaceVar("2");
+const SP_025 = spaceVar("0.25");               // 2px
+const SP_05 = spaceVar("0.5");                 // 4px
+const SP_075 = spaceVar("0.75");               // 6px
+const SP_1_5 = spaceVar("1.5");               // 12px
+const SP_2 = spaceVar("2");                     // 16px
+const BW_SM = borderWidthVar("sm");             // 1px
+const BW_MD = borderWidthVar("md");             // 2px
+const RADIUS_MD = radiusVar("md");             // 4px
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -123,7 +131,7 @@ const STYLES = /* css */ `
     cursor: pointer;
     background: none;
     border: none;
-    padding: 0 4px;
+    padding: 0 ${SP_05};
     color: ${ICON_PRIMARY};
     font-size: 20px;
     --ui-icon-size: 20px;
@@ -134,7 +142,7 @@ const STYLES = /* css */ `
   }
 
   :host([orientation="vertical"]) .more-btn {
-    padding: 4px 0;
+    padding: ${SP_05} 0;
   }
 
   :host([overflow="menu"]) .more-btn.visible {
@@ -146,8 +154,8 @@ const STYLES = /* css */ `
   }
 
   .more-btn:focus-visible {
-    outline: 2px solid ${semanticVar("border", "focus")};
-    outline-offset: -2px;
+    outline: ${BW_MD} solid ${semanticVar("border", "focus")};
+    outline-offset: calc(-1 * ${BW_MD});
   }
 
   /* ── Overflow menu (popover) ───────────────────────────────────────────── */
@@ -157,10 +165,10 @@ const STYLES = /* css */ `
     position: absolute;
     z-index: 100;
     background: #ffffff;
-    border: 1px solid ${BORDER_MINIMAL};
-    border-radius: 4px;
+    border: ${BW_SM} solid ${BORDER_MINIMAL};
+    border-radius: ${RADIUS_MD};
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    padding: 4px 0;
+    padding: ${SP_05} 0;
     min-width: 120px;
     max-height: 240px;
     overflow-y: auto;
@@ -191,19 +199,19 @@ const STYLES = /* css */ `
   .overflow-menu.open.horizontal {
     top: 100%;
     right: 0;
-    margin-top: 2px;
+    margin-top: ${SP_025};
   }
 
   .overflow-menu.open.vertical {
     left: 100%;
     top: 0;
-    margin-left: 2px;
+    margin-left: ${SP_025};
   }
 
   .overflow-menu-item {
     display: flex;
     align-items: center;
-    padding: 6px 12px;
+    padding: ${SP_075} ${SP_1_5};
     font-family: "Geist", sans-serif;
     font-size: 13px;
     line-height: 20px;
@@ -226,8 +234,8 @@ const STYLES = /* css */ `
   }
 
   .overflow-menu-item:focus-visible {
-    outline: 2px solid ${semanticVar("border", "focus")};
-    outline-offset: -2px;
+    outline: ${BW_MD} solid ${semanticVar("border", "focus")};
+    outline-offset: calc(-1 * ${BW_MD});
   }
 `;
 

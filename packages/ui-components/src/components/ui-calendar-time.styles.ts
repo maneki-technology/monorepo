@@ -1,4 +1,5 @@
 import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
+const SP_125 = spaceVar("1.25");   // 10px
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -248,7 +249,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .time-group {
-    gap: 10px;
+    gap: ${SP_125};
   }
 
   :host([size="l"]) .time-input {
@@ -264,7 +265,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .toggle-group {
-    gap: 10px;
+    gap: ${SP_125};
   }
 
   :host([size="l"]) .toggle-label {

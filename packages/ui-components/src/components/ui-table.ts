@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -9,6 +9,11 @@ export type TableSeparator = "minimal" | "moderate";
 
 const BORDER_MODERATE = semanticVar("border", "moderate");
 const BORDER_MINIMAL = semanticVar("border", "minimal");
+const BW_SM = borderWidthVar("sm");             // 1px
+const SP_075 = spaceVar("0.75");               // 6px
+const SP_1 = spaceVar("1");                     // 8px
+const SP_15 = spaceVar("1.5");                 // 12px
+const SP_2 = spaceVar("2");                     // 16px
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -23,7 +28,7 @@ const STYLES = /* css */ `
     display: block;
     font-family: "Geist", sans-serif;
     /* Default size: m */
-    --_table-cell-padding: 6px 12px;
+    --_table-cell-padding: ${SP_075} ${SP_15};
     --_table-cell-font-size: 14px;
     --_table-cell-line-height: 20px;
     --_table-header-font-size: 14px;
@@ -36,7 +41,7 @@ const STYLES = /* css */ `
   /* ── Size: s ──────────────────────────────────────────────────────────── */
 
   :host([size="s"]) {
-    --_table-cell-padding: 6px 8px;
+    --_table-cell-padding: ${SP_075} ${SP_1};
     --_table-cell-font-size: 12px;
     --_table-cell-line-height: 16px;
     --_table-header-font-size: 12px;
@@ -46,7 +51,7 @@ const STYLES = /* css */ `
   /* ── Size: l ──────────────────────────────────────────────────────────── */
 
   :host([size="l"]) {
-    --_table-cell-padding: 12px 16px;
+    --_table-cell-padding: ${SP_15} ${SP_2};
     --_table-cell-font-size: 16px;
     --_table-cell-line-height: 24px;
     --_table-header-font-size: 16px;
@@ -56,13 +61,13 @@ const STYLES = /* css */ `
   /* ── Separator ────────────────────────────────────────────────────────── */
 
   :host([separator="minimal"]) {
-    --_table-column-separator-width: 1px;
+    --_table-column-separator-width: ${BW_SM};
     --_table-column-separator-color: ${BORDER_MINIMAL};
   }
 
   :host([separator="moderate"]) {
     --_table-separator-color: ${BORDER_MODERATE};
-    --_table-column-separator-width: 1px;
+    --_table-column-separator-width: ${BW_SM};
     --_table-column-separator-color: ${BORDER_MODERATE};
   }
 
@@ -79,7 +84,7 @@ const STYLES = /* css */ `
   }
 
   :host([bordered]) .table-wrapper {
-    border: 1px solid ${BORDER_MODERATE};
+    border: ${BW_SM} solid ${BORDER_MODERATE};
   }
 
   /* Tell last row's cells to hide bottom border when bordered */

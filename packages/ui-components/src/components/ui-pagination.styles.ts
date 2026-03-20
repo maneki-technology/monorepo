@@ -18,6 +18,7 @@ const SP_1 = spaceVar("1");         // 8px
 const SP_2 = spaceVar("2");         // 16px
 const RADIUS_SM = radiusVar("sm");
 const BW_SM = borderWidthVar("sm");
+const BW_MD = borderWidthVar("md");
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -90,8 +91,8 @@ export const STYLES = /* css */ `
   }
 
   .item:focus-visible {
-    outline: 2px solid ${BLUE_60};
-    outline-offset: -2px;
+    outline: ${BW_MD} solid ${BLUE_60};
+    outline-offset: calc(-1 * ${BW_MD});
   }
 
   .item[aria-current="page"] {
@@ -156,8 +157,8 @@ export const STYLES = /* css */ `
   }
 
   .goto-input:focus {
-    outline: 2px solid ${BLUE_60};
-    outline-offset: -2px;
+    outline: ${BW_MD} solid ${BLUE_60};
+    outline-offset: calc(-1 * ${BW_MD});
   }
 
   .page-size-select {
@@ -176,8 +177,8 @@ export const STYLES = /* css */ `
   }
 
   .page-size-select:focus {
-    outline: 2px solid ${BLUE_60};
-    outline-offset: -2px;
+    outline: ${BW_MD} solid ${BLUE_60};
+    outline-offset: calc(-1 * ${BW_MD});
   }
 
   /* ── Minimal layout ──────────────────────────────────────────────────────── */

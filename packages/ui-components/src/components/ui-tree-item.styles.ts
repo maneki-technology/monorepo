@@ -1,4 +1,4 @@
-import { semanticVar, colorVar } from "@maneki/foundation";
+import { semanticVar, colorVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -6,7 +6,17 @@ const TEXT_PRIMARY = semanticVar("text", "primary");
 const TEXT_SECONDARY = semanticVar("text", "secondary");
 const ICON_PRIMARY = semanticVar("icon", "primary");
 const BORDER_FOCUS = semanticVar("border", "focus");
-
+const HOVER_MINIMAL = semanticVar("stateHover", "surfaceMinimal");
+const HOVER_MODERATE = semanticVar("stateHover", "surfaceModerate");
+const SELECTED_OVERLAY = semanticVar("stateSelected", "surfaceOverlay");
+const BW_MD = borderWidthVar("md");             // 2px
+const SP_05 = spaceVar("0.5");                 // 4px
+const SP_075 = spaceVar("0.75");               // 6px
+const SP_1 = spaceVar("1");                     // 8px
+const SP_3 = spaceVar("3");                     // 24px
+const SP_4 = spaceVar("4");                     // 32px
+const SP_7 = spaceVar("7");                     // 56px
+const SP_10 = spaceVar("10");                   // 80px
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type TreeItemSize = "s" | "m" | "l";
@@ -51,7 +61,7 @@ export const TREE_ITEM_STYLES = /* css */ `
   .base {
     display: flex;
     flex: 1 0 0;
-    gap: 4px;
+    gap: ${SP_05};
     align-items: center;
     min-width: 0;
     transition: background 0.15s ease;
@@ -98,7 +108,7 @@ export const TREE_ITEM_STYLES = /* css */ `
   .content {
     display: flex;
     flex: 1 0 0;
-    gap: 4px;
+    gap: ${SP_05};
     align-items: center;
     min-width: 0;
   }
@@ -159,22 +169,22 @@ export const TREE_ITEM_STYLES = /* css */ `
   /* ── States ──────────────────────────────────────────────────────────────── */
 
   :host(:hover) .base {
-    background: rgba(159, 177, 189, 0.1);
+    background: ${HOVER_MINIMAL};
   }
 
   :host([selected]) .base {
-    background: rgba(24, 106, 222, 0.2);
+    background: ${SELECTED_OVERLAY};
   }
 
   :host(:focus-visible) {
-    outline: 2px solid ${BORDER_FOCUS};
-    outline-offset: -2px;
+    outline: ${BW_MD} solid ${BORDER_FOCUS};
+    outline-offset: calc(-1 * ${BW_MD});
   }
 
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .base {
-    padding: 4px 6px;
+    padding: ${SP_05} ${SP_075};
   }
 
   :host([size="s"]) .chevron {
@@ -206,8 +216,8 @@ export const TREE_ITEM_STYLES = /* css */ `
   }
 
   /* Level indents for S */
-  :host([size="s"][level="parent"]) .base { padding-left: 6px }
-  :host([size="s"][level="child-1"]) .base { padding-left: 24px }
+  :host([size="s"][level="parent"]) .base { padding-left: ${SP_075} }
+  :host([size="s"][level="child-1"]) .base { padding-left: ${SP_3} }
   :host([size="s"][level="child-2"]) .base { padding-left: 42px }
   :host([size="s"][level="child-3"]) .base { padding-left: 60px }
 
@@ -215,7 +225,7 @@ export const TREE_ITEM_STYLES = /* css */ `
 
   :host .base,
   :host([size="m"]) .base {
-    padding: 4px 8px;
+    padding: ${SP_05} ${SP_1};
   }
 
   :host .chevron,
@@ -254,18 +264,18 @@ export const TREE_ITEM_STYLES = /* css */ `
 
   /* Level indents for M */
   :host([size="m"][level="parent"]) .base,
-  :host([level="parent"]) .base { padding-left: 8px }
+  :host([level="parent"]) .base { padding-left: ${SP_1} }
   :host([size="m"][level="child-1"]) .base,
-  :host([level="child-1"]) .base { padding-left: 32px }
+  :host([level="child-1"]) .base { padding-left: ${SP_4} }
   :host([size="m"][level="child-2"]) .base,
-  :host([level="child-2"]) .base { padding-left: 56px }
+  :host([level="child-2"]) .base { padding-left: ${SP_7} }
   :host([size="m"][level="child-3"]) .base,
-  :host([level="child-3"]) .base { padding-left: 80px }
+  :host([level="child-3"]) .base { padding-left: ${SP_10} }
 
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .base {
-    padding: 8px;
+    padding: ${SP_1};
   }
 
   :host([size="l"]) .chevron {
@@ -287,7 +297,7 @@ export const TREE_ITEM_STYLES = /* css */ `
   }
 
   :host([size="l"]) .content {
-    gap: 6px;
+    gap: ${SP_075};
   }
 
   :host([size="l"]) .label {
@@ -301,10 +311,10 @@ export const TREE_ITEM_STYLES = /* css */ `
   }
 
   /* Level indents for L */
-  :host([size="l"][level="parent"]) .base { padding-left: 8px }
-  :host([size="l"][level="child-1"]) .base { padding-left: 32px }
-  :host([size="l"][level="child-2"]) .base { padding-left: 56px }
-  :host([size="l"][level="child-3"]) .base { padding-left: 80px }
+  :host([size="l"][level="parent"]) .base { padding-left: ${SP_1} }
+  :host([size="l"][level="child-1"]) .base { padding-left: ${SP_4} }
+  :host([size="l"][level="child-2"]) .base { padding-left: ${SP_7} }
+  :host([size="l"][level="child-3"]) .base { padding-left: ${SP_10} }
 
   @media (prefers-reduced-motion: reduce) {
     :host,

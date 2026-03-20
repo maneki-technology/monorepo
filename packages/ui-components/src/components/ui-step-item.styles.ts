@@ -1,4 +1,4 @@
-import { semanticVar, colorVar } from "@maneki/foundation";
+import { semanticVar, colorVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -8,7 +8,13 @@ const BLUE_60 = colorVar("blue", 60);
 const SURFACE_BOLD = semanticVar("surface", "bold");
 const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
-
+const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
+const WARNING_GENERAL = semanticVar("statusGeneral", "warning");
+const RADIUS_PILL = radiusVar("pill");         // 999px
+const BW_MD = borderWidthVar("md");             // 2px
+const SP_05 = spaceVar("0.5");                 // 4px
+const SP_1 = spaceVar("1");                     // 8px
+const SP_15 = spaceVar("1.5");                 // 12px
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type StepSize = "s" | "m";
@@ -73,7 +79,7 @@ export const STEP_ITEM_STYLES = /* css */ `
   }
 
   .dot {
-    border-radius: 999px;
+    border-radius: ${RADIUS_PILL};
     flex-shrink: 0;
   }
 
@@ -133,17 +139,17 @@ export const STEP_ITEM_STYLES = /* css */ `
 
   :host([status="active"]) .dot {
     background: transparent;
-    border: 2px solid ${BLUE_60};
+    border: ${BW_MD} solid ${BLUE_60};
   }
 
   :host([status="incomplete"]) .dot {
     background: transparent;
-    border: 2px solid ${SURFACE_BOLD};
+    border: ${BW_MD} solid ${SURFACE_BOLD};
   }
 
   :host([status="disabled"]) .dot {
     background: transparent;
-    border: 2px solid ${DISABLED_MINIMAL};
+    border: ${BW_MD} solid ${DISABLED_MINIMAL};
   }
 
   :host([status="disabled"]) .label,
@@ -152,26 +158,26 @@ export const STEP_ITEM_STYLES = /* css */ `
   }
 
   :host([status="error"]) .dot {
-    background: #D91F11;
+    background: ${ERROR_BOLD};
   }
 
   :host([status="warning"]) .dot {
-    background: #E86427;
+    background: ${WARNING_GENERAL};
   }
 
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .dot {
-    width: 8px;
-    height: 8px;
+    width: ${SP_1};
+    height: ${SP_1};
   }
 
   :host([size="s"]) .line {
-    height: 8px;
+    height: ${SP_1};
   }
 
   :host([size="s"]) .line-inner {
-    height: 2px;
+    height: ${BW_MD};
     left: 0;
     right: 0;
     top: 3px;
@@ -192,20 +198,20 @@ export const STEP_ITEM_STYLES = /* css */ `
   }
 
   :host([size="s"][orientation="horizontal"]) {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   :host([size="s"][orientation="vertical"]) {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   :host([size="s"][orientation="vertical"]) .line {
-    width: 8px;
+    width: ${SP_1};
     height: auto;
   }
 
   :host([size="s"][orientation="vertical"]) .line-inner {
-    width: 2px;
+    width: ${BW_MD};
     height: auto;
     left: 3px;
     top: 0;
@@ -214,7 +220,7 @@ export const STEP_ITEM_STYLES = /* css */ `
   }
 
   :host([size="s"][orientation="vertical"]) .labels {
-    padding: 8px 0;
+    padding: ${SP_1} 0;
   }
 
   /* ── Size: M (default) ───────────────────────────────────────────────────── */
@@ -233,10 +239,10 @@ export const STEP_ITEM_STYLES = /* css */ `
 
   :host .line-inner,
   :host([size="m"]) .line-inner {
-    height: 2px;
+    height: ${BW_MD};
     left: 0;
     right: 0;
-    top: 8px;
+    top: ${SP_1};
   }
 
   :host .labels,
@@ -258,11 +264,11 @@ export const STEP_ITEM_STYLES = /* css */ `
 
   :host([orientation="horizontal"]),
   :host([size="m"][orientation="horizontal"]) {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   :host([size="m"][orientation="vertical"]) {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   :host([size="m"][orientation="vertical"]) .line {
@@ -271,16 +277,16 @@ export const STEP_ITEM_STYLES = /* css */ `
   }
 
   :host([size="m"][orientation="vertical"]) .line-inner {
-    width: 2px;
+    width: ${BW_MD};
     height: auto;
-    left: 8px;
+    left: ${SP_1};
     top: 0;
     bottom: 0;
     right: auto;
   }
 
   :host([size="m"][orientation="vertical"]) .labels {
-    padding: 12px 0;
+    padding: ${SP_15} 0;
   }
 
   /* ── Dot icon (M size only) ──────────────────────────────────────────────── */

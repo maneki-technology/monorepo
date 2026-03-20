@@ -12,7 +12,9 @@ export {
   typeVar,
   spacingToCssProperties,
   spaceVar,
+  radiusToCssProperties,
   radiusVar,
+  borderWidthToCssProperties,
   borderWidthVar,
 } from "./tokens.js";
 export {

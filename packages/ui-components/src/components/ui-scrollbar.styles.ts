@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -6,6 +6,9 @@ const SURFACE_SECONDARY = semanticVar("surface", "secondary");
 const BORDER_MINIMAL = semanticVar("border", "minimal");
 const SURFACE_BOLD = semanticVar("surface", "bold");
 
+const SP_1 = spaceVar("1");               // 8px
+const SP_15 = spaceVar("1.5");           // 12px
+const BW_MD = borderWidthVar("md");       // 2px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -32,9 +35,9 @@ export const STYLES = /* css */ `
   :host([emphasis="bold"]) {
     --_track-bg: ${SURFACE_SECONDARY};
     --_thumb-bg: ${SURFACE_BOLD};
-    --_thumb-radius: 12px;
+    --_thumb-radius: ${SP_15};
     --_thumb-size: 5px;
-    --_track-size: 12px;
+    --_track-size: ${SP_15};
     --_border-color: ${BORDER_MINIMAL};
   }
 
@@ -43,9 +46,9 @@ export const STYLES = /* css */ `
   :host([emphasis="minimal"]) {
     --_track-bg: transparent;
     --_thumb-bg: ${SURFACE_BOLD};
-    --_thumb-radius: 12px;
+    --_thumb-radius: ${SP_15};
     --_thumb-size: 5px;
-    --_track-size: 8px;
+    --_track-size: ${SP_1};
     --_border-color: transparent;
   }
 
@@ -105,7 +108,7 @@ export const STYLES = /* css */ `
 
   /* Minimal: thinner thumb, no border */
   :host([emphasis="minimal"]) .container::-webkit-scrollbar-thumb {
-    border: 2px solid transparent;
+    border: ${BW_MD} solid transparent;
     background-clip: content-box;
   }
 

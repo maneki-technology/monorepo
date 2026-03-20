@@ -107,8 +107,9 @@ export function injectAllTokens(): void {
     elevationToCssProperties(),
     typographyToCssProperties(),
     spacingToCssProperties(),
+    radiusToCssProperties(),
+    borderWidthToCssProperties(),
   ].join("\n");
-
   const style = document.createElement("style");
   style.id = id;
   style.textContent = `:root {\n${css}\n}`;
@@ -224,16 +225,30 @@ export function spaceVar(step: SpacingStep): string {
 
 import { radius, type RadiusStep, borderWidth, type BorderWidthStep } from "./shape.js";
 
-/**
- * Returns the raw value for a border-radius token.
- */
-export function radiusVar(step: RadiusStep): string {
-  return radius[step];
+/** Generates CSS custom properties for border-radius tokens. */
+export function radiusToCssProperties(): string {
+  return Object.entries(radius)
+    .map(([step, value]) => `--fd-radius-${step}: ${value};`)
+    .join("\n");
+}
+
+/** Generates CSS custom properties for border-width tokens. */
+export function borderWidthToCssProperties(): string {
+  return Object.entries(borderWidth)
+    .map(([step, value]) => `--fd-border-width-${step}: ${value};`)
+    .join("\n");
 }
 
 /**
- * Returns the raw value for a border-width token.
+ * Returns a CSS `var()` reference for a border-radius token.
+ */
+export function radiusVar(step: RadiusStep): string {
+  return `var(--fd-radius-${step})`;
+}
+
+/**
+ * Returns a CSS `var()` reference for a border-width token.
  */
 export function borderWidthVar(step: BorderWidthStep): string {
-  return borderWidth[step];
+  return `var(--fd-border-width-${step})`;
 }

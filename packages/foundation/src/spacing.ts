@@ -33,6 +33,8 @@ export const spacing = {
   "0.75": spacingBase * 0.75,
   /** 8px — tight gaps (heading-06/body, heading-05/body) */
   "1": spacingBase * 1,
+  /** 10px — medium component padding */
+  "1.25": spacingBase * 1.25,
   /** 12px — paragraph-to-heading gaps */
   "1.5": spacingBase * 1.5,
   /** 16px — heading-01 to body gap */

@@ -215,7 +215,7 @@ describe("spacingToCssProperties", () => {
   it("generates 17 spacing properties", () => {
     const css = spacingToCssProperties();
     const lines = css.split("\n").filter(Boolean);
-    expect(lines).toHaveLength(17);
+    expect(lines).toHaveLength(18);
   });
 });
 describe("spaceVar", () => {
