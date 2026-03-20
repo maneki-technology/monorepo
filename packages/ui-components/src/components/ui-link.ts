@@ -11,7 +11,6 @@ const TEXT_LINK = semanticVar("text", "link");
 const TEXT_LINK_HOVER = semanticVar("text", "linkHover");
 const TEXT_LINK_ACTIVE = semanticVar("text", "linkActive");
 const TEXT_VISITED = semanticVar("text", "visited");
-const ICON_ACTION = semanticVar("icon", "action");
 const SP_025 = spaceVar("0.25");
 const SP_05 = spaceVar("0.5");
 
