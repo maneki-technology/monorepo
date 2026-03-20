@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -33,8 +33,10 @@ const STYLES = /* css */ `
   .wrapper {
     display: flex;
     align-items: stretch;
-    border: 1px solid var(--ui-ig-border, ${FORM_INPUT_BORDER});
-    border-radius: 2px;
+    border-width: ${borderWidthVar("sm")};
+    border-style: solid;
+    border-color: var(--ui-ig-border, ${FORM_INPUT_BORDER});
+    border-radius: ${radiusVar("sm")};
     overflow: hidden;
     width: 100%;
     transition: border-color 0.15s ease;
@@ -80,7 +82,7 @@ const STYLES = /* css */ `
 
   .separator {
     display: none;
-    width: 1px;
+    width: ${borderWidthVar("sm")};
     align-self: stretch;
     background-color: var(--ui-ig-separator, ${FORM_INPUT_BORDER});
     flex-shrink: 0;
@@ -105,7 +107,7 @@ const STYLES = /* css */ `
     display: flex;
     flex: 1;
     min-width: 0;
-    background-color: #ffffff;
+    background-color: var(--ui-ig-input-bg, #ffffff);
   }
 
   ::slotted(ui-input) {
