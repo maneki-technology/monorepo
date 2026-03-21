@@ -47,9 +47,3 @@ tasks:
       - '.storybook/**/*'
     outputs:
       - 'storybook-static'
-
-  chromatic:
-    command: 'chromatic'
-    deps:
-      - '^:build'
-      - '~:storybook-build'
