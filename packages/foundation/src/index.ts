@@ -32,6 +32,7 @@ export {
   stateDisabled,
   form,
   stateHover,
+  stateActive,
   stateSelected,
   tag,
   button,
