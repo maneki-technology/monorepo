@@ -1,9 +1,12 @@
 import {
-  FONT_PRIMARY,
+  BORDER_MINIMAL,
+  BW_SM,
   SP_0_5,
+  SP_1,
   SP_1_5,
   SP_2,
-  TEXT_TERTIARY,
+  TEXT_SECONDARY,
+  TYPE_HEADING_07,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -20,15 +23,20 @@ const STYLES = /* css */ `
   }
 
   .section {
-    font-family: ${FONT_PRIMARY};
-    font-size: 11px;
-    font-weight: 600;
+    ${TYPE_HEADING_07}
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    color: var(--ui-spm-section-color, ${TEXT_TERTIARY});
-    padding: ${SP_2} ${SP_2} ${SP_0_5} ${SP_2};
+    color: var(--ui-spm-section-color, ${TEXT_SECONDARY});
+    padding: ${SP_1_5} ${SP_2} ${SP_0_5} ${SP_2};
     user-select: none;
     -webkit-user-select: none;
+  }
+
+  /* Subsequent sections get a separator + spacing */
+  :host([separator]) .section {
+    padding-top: ${SP_1};
+    margin-top: ${SP_0_5};
+    border-top: ${BW_SM} solid var(--ui-spm-section-border, ${BORDER_MINIMAL});
   }
 `;
 

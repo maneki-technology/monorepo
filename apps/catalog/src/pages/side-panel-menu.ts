@@ -173,11 +173,11 @@ registerPage("side-panel-menu", {
         <ui-side-panel-menu-item selected>Spacing</ui-side-panel-menu-item>
         <ui-side-panel-menu-item>Typography</ui-side-panel-menu-item>
         <ui-side-panel-menu-item>Elevation</ui-side-panel-menu-item>
-        <ui-side-panel-menu-section>Primitives</ui-side-panel-menu-section>
+        <ui-side-panel-menu-section separator>Primitives</ui-side-panel-menu-section>
         <ui-side-panel-menu-item>Badge</ui-side-panel-menu-item>
         <ui-side-panel-menu-item>Button</ui-side-panel-menu-item>
         <ui-side-panel-menu-item>Avatar</ui-side-panel-menu-item>
-        <ui-side-panel-menu-section>Form Controls</ui-side-panel-menu-section>
+        <ui-side-panel-menu-section separator>Form Controls</ui-side-panel-menu-section>
         <ui-side-panel-menu-item>Input</ui-side-panel-menu-item>
         <ui-side-panel-menu-item>Select</ui-side-panel-menu-item>
         <ui-side-panel-menu-item>Checkbox</ui-side-panel-menu-item>

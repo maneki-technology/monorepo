@@ -14,13 +14,10 @@ export const sectionOrder = [
   "Form Controls",
   "Containers",
   "Navigation",
-  "Disclosure",
   "Menus & Dropdowns",
   "Overlays",
-  "Tabs",
   "Data Display",
   "Calendar & Date",
-  "List",
   "Layouts",
 ];
 
@@ -56,16 +53,7 @@ export const manifest: PageMeta[] = [
   // Containers
   { id: "card", title: "Card", section: "Containers" },
   { id: "carousel", title: "Carousel", section: "Containers" },
-  // Navigation
-  { id: "breadcrumb", title: "Breadcrumb", section: "Navigation" },
-  { id: "side-panel-menu", title: "Side Panel Menu", section: "Navigation" },
-  { id: "side-panel", title: "Side Panel", section: "Navigation" },
-  { id: "pagination", title: "Pagination", section: "Navigation" },
-  { id: "steps", title: "Steps", section: "Navigation" },
-  { id: "tree", title: "Tree", section: "Navigation" },
-  { id: "wizard", title: "Wizard", section: "Navigation" },
-  // Disclosure
-  { id: "accordion", title: "Accordion", section: "Disclosure" },
+  { id: "accordion", title: "Accordion", section: "Containers" },
   // Menus & Dropdowns
   { id: "dropdown", title: "Dropdown", section: "Menus & Dropdowns" },
   { id: "menu", title: "Menu", section: "Menus & Dropdowns" },
@@ -73,8 +61,15 @@ export const manifest: PageMeta[] = [
   { id: "modal", title: "Modal", section: "Overlays" },
   { id: "popover", title: "Popover", section: "Overlays" },
   { id: "tooltip", title: "Tooltip", section: "Overlays" },
-  // Tabs
-  { id: "tabs", title: "Tabs", section: "Tabs" },
+  // Navigation
+  { id: "breadcrumb", title: "Breadcrumb", section: "Navigation" },
+  { id: "side-panel-menu", title: "Side Panel Menu", section: "Navigation" },
+  { id: "side-panel", title: "Side Panel", section: "Navigation" },
+  { id: "pagination", title: "Pagination", section: "Navigation" },
+  { id: "steps", title: "Steps", section: "Navigation" },
+  { id: "tabs", title: "Tabs", section: "Navigation" },
+  { id: "tree", title: "Tree", section: "Navigation" },
+  { id: "wizard", title: "Wizard", section: "Navigation" },
   // Data Display
   { id: "table", title: "Table", section: "Data Display" },
   { id: "metric", title: "Metric", section: "Data Display" },
@@ -87,8 +82,7 @@ export const manifest: PageMeta[] = [
   { id: "calendar", title: "Calendar", section: "Calendar & Date" },
   { id: "datetime-picker", title: "Datetime Picker", section: "Calendar & Date" },
   { id: "clock", title: "Clock", section: "Calendar & Date" },
-  // List
-  { id: "list", title: "List", section: "List" },
+  { id: "list", title: "List", section: "Data Display" },
   // Layouts
   { id: "grid-layout", title: "Grid Layout", section: "Layouts" },
   { id: "flex-layout", title: "Flex Layout", section: "Layouts" },
