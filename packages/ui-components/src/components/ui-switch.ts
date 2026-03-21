@@ -377,7 +377,9 @@ export class UiSwitch extends HTMLElement {
     // ARIA
     this.#switchEl.setAttribute("aria-checked", String(this.checked));
     if (this.label) this.#switchEl.setAttribute("aria-label", this.label);
+    else if (!this.#switchEl.hasAttribute("aria-label")) this.#switchEl.setAttribute("aria-label", "Toggle");
   }
 }
+
 
 customElements.define("ui-switch", UiSwitch);

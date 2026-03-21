@@ -45,7 +45,7 @@ registerPage("button", {
     <div class="variant-row">
       <ui-button icon="leading-icon"><ui-icon name="add_circle" size="m" slot="icon-start"></ui-icon>Leading</ui-button>
       <ui-button icon="trailing-icon">Trailing<ui-icon name="add_circle" size="m" slot="icon-end"></ui-icon></ui-button>
-      <ui-button icon="icon-only"><ui-icon name="add_circle" size="m" slot="icon-start"></ui-icon></ui-button>
+      <ui-button icon="icon-only" aria-label="Add"><ui-icon name="add_circle" size="m" slot="icon-start"></ui-icon></ui-button>
     </div>
     <h3>Status Indicators</h3>
     <div class="variant-row">

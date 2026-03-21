@@ -15,7 +15,7 @@ registerPage("shape", {
         .shape-preview { display: flex; align-items: center; justify-content: center; }
         .shape-name { font-size: 13px; font-weight: 500; color: var(--fd-text-primary, #1c2b36); }
         .shape-value { font-size: 11px; font-family: monospace; color: #5b7282; }
-        .shape-var { font-size: 10px; font-family: monospace; color: #9fb1bd; }
+        .shape-var { font-size: 10px; font-family: monospace; color: #5b7282; }
       </style>
 
       <h3>Border Radius</h3>

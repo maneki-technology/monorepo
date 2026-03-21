@@ -181,6 +181,7 @@ export class UiCard extends HTMLElement {
   }
 
   connectedCallback(): void {
+    if (!this.hasAttribute("role")) this.setAttribute("role", "group");
     this._syncFooter();
   }
 

@@ -167,6 +167,8 @@ export class UiProgressBar extends HTMLElement {
     // ARIA
     this.#bar.setAttribute("aria-valuenow", String(val));
     if (text) this.#bar.setAttribute("aria-label", text);
+    else if (!this.#bar.hasAttribute("aria-label")) this.#bar.setAttribute("aria-label", "Progress");
+    if (text) this.#bar.setAttribute("aria-label", text);
 
     // Colors
     if (labelMode === "inner-label") {

@@ -50,6 +50,7 @@ export class UiPopover extends HTMLElement {
     // Panel
     this.#panel = document.createElement("div");
     this.#panel.className = "panel";
+    this.#panel.setAttribute("role", "dialog");
 
     // Arrow
     const arrow = document.createElement("div");
@@ -93,6 +94,13 @@ export class UiPopover extends HTMLElement {
   connectedCallback(): void {
     if (!this.hasAttribute("placement")) {
       this.setAttribute("placement", "top-center");
+    }
+    // Link panel to title for screen readers
+    const panelId = `popover-${Math.random().toString(36).slice(2, 8)}`;
+    this.#panel.id = panelId;
+    if (this.titleText) {
+      this.#titleEl.id = `${panelId}-title`;
+      this.#panel.setAttribute("aria-labelledby", `${panelId}-title`);
     }
 
     this.#closeBtn.addEventListener("click", (e) => { e.stopPropagation(); this._close(); });
@@ -190,6 +198,12 @@ export class UiPopover extends HTMLElement {
 
   private _open(): void {
     this.setAttribute("open", "");
+    // Move focus into the panel
+    requestAnimationFrame(() => {
+      const firstFocusable = this.#panel.querySelector<HTMLElement>('button, [tabindex="0"]');
+      if (firstFocusable) firstFocusable.focus();
+      else this.#panel.setAttribute("tabindex", "-1"), this.#panel.focus();
+    });
     this.dispatchEvent(
       new CustomEvent("popover-open", { bubbles: true, composed: true }),
     );
@@ -197,6 +211,9 @@ export class UiPopover extends HTMLElement {
 
   private _close(): void {
     this.removeAttribute("open");
+    // Return focus to trigger
+    const trigger = this.querySelector<HTMLElement>('[slot="trigger"]');
+    if (trigger) trigger.focus();
     this.dispatchEvent(
       new CustomEvent("popover-close", { bubbles: true, composed: true }),
     );

@@ -14,9 +14,9 @@ registerPage("colors", {
       .color-row { display: flex; gap: 8px; }
       .color-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 72px; }
       .color-swatch { width: 64px; height: 40px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.06); }
-      .color-label { font-size: 9px; color: #7a909e; font-family: monospace; }
+      .color-label { font-size: 9px; color: #3e5463; font-family: monospace; }
       .color-var { display: none; font-size: 9px; font-family: monospace; color: #3e5463; text-align: center; user-select: all; cursor: text; white-space: nowrap; }
-      .color-hex { display: none; font-size: 8px; font-family: monospace; color: #9fb1bd; text-align: center; user-select: none; white-space: nowrap; }
+      .color-hex { display: none; font-size: 8px; font-family: monospace; color: #5b7282; text-align: center; user-select: none; white-space: nowrap; }
       .color-cell:hover .color-var, .color-cell:hover .color-hex { display: block; }
     </style>`;
 

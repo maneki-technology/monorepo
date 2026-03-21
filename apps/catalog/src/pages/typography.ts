@@ -28,7 +28,7 @@ registerPage("typography", {
         .type-meta { display: flex; gap: 16px; align-items: baseline; font-size: 11px; color: #5b7282; }
         .meta-key { font-weight: 500; color: #3e5463; min-width: 70px; }
         .meta-detail { font-family: monospace; font-size: 10px; color: #5b7282; }
-        .meta-var { font-family: monospace; font-size: 10px; color: #7a909e; margin-top: 2px; }
+        .meta-var { font-family: monospace; font-size: 10px; color: #3e5463; margin-top: 2px; }
         .meta-usage { font-size: 10px; color: #5b7282; margin-top: 4px; font-style: italic; }
       </style>
     `;

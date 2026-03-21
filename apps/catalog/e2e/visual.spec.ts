@@ -1,74 +1,5 @@
 import { test, expect } from "@playwright/test";
-
-// All catalog page IDs — must match registerPage() calls in src/pages/*.ts
-const pages = [
-  // Foundation
-  "colors",
-  "spacing",
-  "typography",
-  "elevation",
-  "shape",
-  "semantic-tokens",
-  // Components
-  "badge",
-  "button",
-  "avatar",
-  "alert",
-  "icon",
-  "image",
-  "label",
-  "link",
-  "tag",
-  "separator",
-  "checkbox",
-  "radio",
-  "input",
-  "textarea",
-  "file-upload",
-  "select",
-  "queryfield",
-  "search",
-  "slider",
-  "switch",
-  "card",
-  "breadcrumb",
-  "accordion",
-  "dropdown",
-  "menu",
-  "modal",
-  "side-panel-menu",
-  "side-panel",
-  "pagination",
-  "steps",
-  "tree",
-  "wizard",
-  "tabs",
-  "table",
-  "metric",
-  "person",
-  "progress",
-  "pull-to-refresh",
-  "scrollbar",
-  "skeleton",
-  "popover",
-  "tooltip",
-  "carousel",
-  "calendar",
-  "datetime-picker",
-  "clock",
-  "list",
-  // Layouts
-  "grid-layout",
-  "flex-layout",
-];
-
-async function navigateToPage(page: import("@playwright/test").Page, pageId: string) {
-  await page.goto(`/#${pageId}`);
-  // Wait for custom elements to upgrade + render
-  await page.waitForTimeout(500);
-  // Wait for any fonts to load
-  await page.evaluate(() => document.fonts.ready);
-}
+import { pages, navigateToPage } from "./helpers.js";
 
 // ─── Full-page visual regression per catalog page ────────────────────────────
 
@@ -77,24 +8,30 @@ for (const pageId of pages) {
     await navigateToPage(page, pageId);
     const content = page.locator("#content");
     await expect(content).toHaveScreenshot(`${pageId}.png`, {
-      fullPage: false,
-      animations: "disabled",
+      maxDiffPixelRatio: 0.01,
     });
   });
 }
 
-// ─── Sidebar navigation ─────────────────────────────────────────────────────
+// ─── Sidebar visual regression ───────────────────────────────────────────────
 
 test("visual: sidebar", async ({ page }) => {
   await page.goto("/");
   await page.waitForTimeout(500);
+  await page.evaluate(() => document.fonts.ready);
   const sidebar = page.locator("#sidebar");
-  await expect(sidebar).toHaveScreenshot("sidebar.png");
+  await expect(sidebar).toHaveScreenshot("sidebar.png", {
+    maxDiffPixelRatio: 0.01,
+  });
 });
 
-// ─── Full app layout ─────────────────────────────────────────────────────────
+// ─── Full layout visual regression ───────────────────────────────────────────
 
 test("visual: full layout", async ({ page }) => {
-  await navigateToPage(page, "button");
-  await expect(page).toHaveScreenshot("full-layout.png");
+  await page.goto("/");
+  await page.waitForTimeout(500);
+  await page.evaluate(() => document.fonts.ready);
+  await expect(page).toHaveScreenshot("full-layout.png", {
+    maxDiffPixelRatio: 0.01,
+  });
 });

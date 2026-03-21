@@ -307,6 +307,8 @@ export class UiDropdownSplit extends HTMLElement {
   private _syncDisabled(): void {
     this._leftBtn.disabled = this.disabled;
     this._rightBtn.disabled = this.disabled;
+    if (this.disabled) this.setAttribute("aria-disabled", "true");
+    else this.removeAttribute("aria-disabled");
   }
 
   private _syncLabel(): void {

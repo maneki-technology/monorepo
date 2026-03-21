@@ -482,7 +482,10 @@ export class UiAlert extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.hasAttribute("role")) {
-      this.setAttribute("role", "alert");
+      // Use role="status" (polite) for info/success, role="alert" (assertive) for error/warning
+      const status = this.getAttribute("status") ?? "none";
+      const role = (status === "error" || status === "warning") ? "alert" : "status";
+      this.setAttribute("role", role);
     }
     this._syncDescription();
     this._syncFooter();

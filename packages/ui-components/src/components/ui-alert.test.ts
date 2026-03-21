@@ -169,8 +169,24 @@ describe("ui-alert", () => {
 
   // ── ARIA role="alert" ──────────────────────────────────────────────────
 
-  it("has role='alert' on the host element", () => {
-    expect(el.getAttribute("role")).toBe("alert");
+  it("has role='status' on the host element by default", () => {
+    expect(el.getAttribute("role")).toBe("status");
+  });
+
+  it("has role='alert' when status is error", () => {
+    document.body.innerHTML = "";
+    const alertEl = document.createElement("ui-alert");
+    alertEl.setAttribute("status", "error");
+    document.body.appendChild(alertEl);
+    expect(alertEl.getAttribute("role")).toBe("alert");
+  });
+
+  it("has role='alert' when status is warning", () => {
+    document.body.innerHTML = "";
+    const alertEl = document.createElement("ui-alert");
+    alertEl.setAttribute("status", "warning");
+    document.body.appendChild(alertEl);
+    expect(alertEl.getAttribute("role")).toBe("alert");
   });
 
   it("does not override existing role attribute", () => {

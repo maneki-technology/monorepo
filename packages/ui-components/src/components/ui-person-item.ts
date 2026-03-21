@@ -195,18 +195,25 @@ export class UiPersonItem extends HTMLElement {
       phone: ICON_PHONE,
       message: ICON_MESSAGE,
     };
+    const labelMap: Record<string, string> = {
+      mail: "Send email",
+      phone: "Call",
+      message: "Send message",
+    };
     const iconNames = ["mail", "phone", "message"];
     for (const iconName of iconNames) {
       let existing = this.#actionsEl.querySelector(`[data-action="${iconName}"]`);
       if (!existing) {
-        const iconEl = document.createElement("span");
-        iconEl.className = "action-icon";
-        iconEl.dataset.action = iconName;
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "action-icon";
+        btn.dataset.action = iconName;
+        btn.setAttribute("aria-label", labelMap[iconName]);
         const i = document.createElement("span");
         i.className = "material-symbols-outlined";
         i.textContent = iconMap[iconName];
-        iconEl.appendChild(i);
-        this.#actionsEl.appendChild(iconEl);
+        btn.appendChild(i);
+        this.#actionsEl.appendChild(btn);
       }
     }
   }

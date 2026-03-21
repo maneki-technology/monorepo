@@ -402,6 +402,9 @@ export class UiTooltip extends HTMLElement {
     if (!this.hasAttribute("size")) this.setAttribute("size", "m");
     if (!this.hasAttribute("placement")) this.setAttribute("placement", "top");
     if (!this.hasAttribute("trigger")) this.setAttribute("trigger", "hover");
+    // Generate unique ID for aria-describedby linkage
+    const tooltipId = `tooltip-${Math.random().toString(36).slice(2, 8)}`;
+    this.#panel.id = tooltipId;
 
     this.#closeBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -487,11 +490,17 @@ export class UiTooltip extends HTMLElement {
 
   private _open(): void {
     this.setAttribute("open", "");
+    // Link trigger to tooltip for screen readers
+    const trigger = this.querySelector('[slot="trigger"]') as HTMLElement;
+    if (trigger) trigger.setAttribute("aria-describedby", this.#panel.id);
   }
 
   private _close(): void {
     this.removeAttribute("open");
+    const trigger = this.querySelector('[slot="trigger"]') as HTMLElement;
+    if (trigger) trigger.removeAttribute("aria-describedby");
   }
 }
+
 
 customElements.define("ui-tooltip", UiTooltip);

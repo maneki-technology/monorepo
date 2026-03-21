@@ -11,7 +11,7 @@ registerPage("icon", {
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:16px">
           ${icons.map(name => `<div class="variant-col" style="align-items:center;padding:12px 4px">
             <ui-icon name="${name}" size="m"></ui-icon>
-            <span style="font-size:10px;color:#7a909e;text-align:center;word-break:break-all">${name}</span>
+            <span style="font-size:10px;color:#3e5463;text-align:center;word-break:break-all">${name}</span>
           </div>`).join("")}
         </div>
       </div>
