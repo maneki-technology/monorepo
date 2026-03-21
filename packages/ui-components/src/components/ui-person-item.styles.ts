@@ -1,4 +1,5 @@
 import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
+const SP_125 = spaceVar("1.25");   // 10px
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -189,7 +190,7 @@ export const STYLES = /* css */ `
   :host([size="s"]) .actions {
     grid-column: 3;
     grid-row: 1;
-    padding-top: 10px;
+    padding-top: ${SP_125};
   }
 
   :host([size="s"]) .location {

@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -6,6 +6,12 @@ const TAG_SUBTLE_BG = semanticVar("tag", "subtle");
 const TAG_TEXT_SUBTLE = semanticVar("tag", "textSubtle");
 const TEXT_SECONDARY = semanticVar("text", "secondary");
 
+const RADIUS_PILL = radiusVar("pill");  // 999px
+const SP_025 = spaceVar("0.25");       // 2px
+const SP_05 = spaceVar("0.5");         // 4px
+const SP_075 = spaceVar("0.75");       // 6px
+const SP_1 = spaceVar("1");             // 8px
+const SP_15 = spaceVar("1.5");         // 12px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const TAG_STYLES = /* css */ `
@@ -33,7 +39,7 @@ export const TAG_STYLES = /* css */ `
     background: ${TAG_SUBTLE_BG};
     border: 1px solid ${TAG_SUBTLE_BG};
     border-right: none;
-    border-radius: 200px 0 0 200px;
+    border-radius: ${RADIUS_PILL} 0 0 ${RADIUS_PILL};
     color: ${TAG_TEXT_SUBTLE};
     text-transform: uppercase;
     white-space: nowrap;
@@ -46,7 +52,7 @@ export const TAG_STYLES = /* css */ `
     background: transparent;
     border: 1px solid ${TAG_SUBTLE_BG};
     border-left: none;
-    border-radius: 0 200px 200px 0;
+    border-radius: 0 ${RADIUS_PILL} ${RADIUS_PILL} 0;
     white-space: nowrap;
     cursor: pointer;
   }
@@ -114,14 +120,14 @@ export const TAG_STYLES = /* css */ `
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .category {
-    padding: 0 8px;
+    padding: 0 ${SP_1};
     font-size: 11px;
     line-height: 16px;
   }
 
   :host([size="s"]) .value {
-    padding: 0 6px;
-    gap: 2px;
+    padding: 0 ${SP_075};
+    gap: ${SP_025};
   }
 
   :host([size="s"]) .value-text {
@@ -142,15 +148,15 @@ export const TAG_STYLES = /* css */ `
 
   :host .category,
   :host([size="m"]) .category {
-    padding: 2px 12px;
+    padding: ${SP_025} ${SP_15};
     font-size: 12px;
     line-height: 16px;
   }
 
   :host .value,
   :host([size="m"]) .value {
-    padding: 2px 8px;
-    gap: 4px;
+    padding: ${SP_025} ${SP_1};
+    gap: ${SP_05};
   }
 
   :host .value-text,
@@ -173,14 +179,14 @@ export const TAG_STYLES = /* css */ `
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .category {
-    padding: 2px 12px;
+    padding: ${SP_025} ${SP_15};
     font-size: 14px;
     line-height: 20px;
   }
 
   :host([size="l"]) .value {
-    padding: 2px 8px;
-    gap: 4px;
+    padding: ${SP_025} ${SP_1};
+    gap: ${SP_05};
   }
 
   :host([size="l"]) .value-text {

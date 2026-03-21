@@ -1,4 +1,4 @@
-import { colorVar, semanticVar, spaceVar } from "@maneki/foundation";
+import { colorVar, semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
 import "./ui-icon.js";
 import type { UiIcon } from "./ui-icon.js";
 
@@ -36,7 +36,6 @@ const BORDER_FOCUS = semanticVar("border", "focus");
 const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
 const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const TEXT_PRIMARY = semanticVar("text", "primary");
-
 // Color tokens (60 = bold bg, 20 = subtle bg, 70 = subtle/minimal text)
 const RED_60 = colorVar("red", 60);
 const YELLOW_30 = colorVar("yellow", 30);
@@ -75,6 +74,16 @@ const ULTRAMARINE_70 = colorVar("ultramarine", 70);
 const PINK_70 = colorVar("pink", 70);
 const PURPLE_70 = colorVar("purple", 70);
 const ORANGE_70 = colorVar("orange", 70);
+
+const RADIUS_PILL = radiusVar("pill");         // 999px
+const RADIUS_SM = radiusVar("sm");             // 2px
+const BW_SM = borderWidthVar("sm");             // 1px
+const BW_MD = borderWidthVar("md");             // 2px
+const SP_025 = spaceVar("0.25");               // 2px
+const SP_05 = spaceVar("0.5");                 // 4px
+const SP_075 = spaceVar("0.75");               // 6px
+const SP_1 = spaceVar("1");                     // 8px
+const SP_125 = spaceVar("1.25");               // 10px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -96,7 +105,7 @@ export const STYLES = /* css */ `
     justify-content: center;
     font-family: "Geist", sans-serif;
     white-space: nowrap;
-    border: 1px solid transparent;
+    border: ${BW_SM} solid transparent;
     cursor: default;
     user-select: none;
     -webkit-user-select: none;
@@ -108,13 +117,13 @@ export const STYLES = /* css */ `
   :host([size="m"]) .base {
     font-size: 14px;
     line-height: 20px;
-    padding: 2px 8px;
-    border-radius: 200px;
+    padding: ${SP_025} ${SP_1};
+    border-radius: ${RADIUS_PILL};
   }
 
   :host .base .content,
   :host([size="m"]) .base .content {
-    padding: 0 4px;
+    padding: 0 ${SP_05};
   }
 
   /* ── Size: xs ────────────────────────────────────────────────────────────── */
@@ -122,12 +131,12 @@ export const STYLES = /* css */ `
   :host([size="xs"]) .base {
     font-size: 11px;
     line-height: 16px;
-    padding: 0 6px;
-    border-radius: 200px;
+    padding: 0 ${SP_075};
+    border-radius: ${RADIUS_PILL};
   }
 
   :host([size="xs"]) .base .content {
-    padding: 0 2px;
+    padding: 0 ${SP_025};
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
@@ -135,12 +144,12 @@ export const STYLES = /* css */ `
   :host([size="s"]) .base {
     font-size: 12px;
     line-height: 16px;
-    padding: 2px 8px;
-    border-radius: 200px;
+    padding: ${SP_025} ${SP_1};
+    border-radius: ${RADIUS_PILL};
   }
 
   :host([size="s"]) .base .content {
-    padding: 0 4px;
+    padding: 0 ${SP_05};
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
@@ -148,12 +157,12 @@ export const STYLES = /* css */ `
   :host([size="l"]) .base {
     font-size: 14px;
     line-height: 20px;
-    padding: 6px 10px;
-    border-radius: 200px;
+    padding: ${SP_075} ${SP_125};
+    border-radius: ${RADIUS_PILL};
   }
 
   :host([size="l"]) .base .content {
-    padding: 0 6px;
+    padding: 0 ${SP_075};
   }
 
   /* ── Emphasis: bold (default) — basic type only ─────────────────────────── */
@@ -417,7 +426,7 @@ export const STYLES = /* css */ `
   :host([type="toggle"]) .base {
     background-color: var(--ui-tag-bg, ${BUTTON_SECONDARY});
     color: var(--ui-tag-color, ${TAG_TEXT_MINIMAL});
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
     text-transform: uppercase;
     font-weight: 500;
     cursor: pointer;
@@ -480,7 +489,7 @@ export const STYLES = /* css */ `
 
   :host([editable]) .base.editing {
     background-color: #ffffff;
-    border: 2px solid var(--ui-tag-border, ${BORDER_FOCUS});
+    border: ${BW_MD} solid var(--ui-tag-border, ${BORDER_FOCUS});
     cursor: text;
   }
 

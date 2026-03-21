@@ -10,11 +10,12 @@ const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
 const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
 const BORDER_CONTRAST = semanticVar("border", "contrast");
 const HOVER_SURFACE = semanticVar("stateHover", "surfaceMinimal");
+const HOVER_MODERATE = semanticVar("stateHover", "surfaceModerate");
 const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const SP_05 = spaceVar("0.5");   // 4px — description gap
 const SP_075 = spaceVar("0.75"); // 6px
 const SP_1 = spaceVar("1");      // 8px
-// SP_125 (10px) has no foundation token — inlined in CSS
+const SP_125 = spaceVar("1.25"); // 10px
 const SP_15 = spaceVar("1.5");   // 12px
 const SP_2 = spaceVar("2");      // 16px
 const SP_3 = spaceVar("3");      // 24px
@@ -68,7 +69,7 @@ export const STYLES = /* css */ `
   }
 
   .item:active {
-    background-color: var(--ui-dd-item-active-bg, rgba(159, 177, 189, 0.2));
+    background-color: var(--ui-dd-item-active-bg, ${HOVER_MODERATE});
   }
 
   .item:focus-visible {
@@ -146,7 +147,7 @@ export const STYLES = /* css */ `
   :host([size="l"]) .item {
     font-size: 16px;
     line-height: 24px;
-    padding: 10px ${SP_2} 10px ${SP_3};
+    padding: ${SP_125} ${SP_2} ${SP_125} ${SP_3};
     gap: ${SP_15};
   }
 

@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar, elevationVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, elevationVar, radiusVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -17,11 +17,15 @@ const BORDER_MINIMAL = semanticVar("border", "minimal");
 const SURFACE_SECONDARY = semanticVar("surface", "secondary");
 const SURFACE_PRIMARY = semanticVar("surface", "primary");
 const ICON_SECONDARY = semanticVar("icon", "secondary");
+const TAG_SUBTLE = semanticVar("tag", "subtle");
+const TAG_TEXT_SUBTLE = semanticVar("tag", "textSubtle");
 const ELEVATION_05 = elevationVar("05");
-const SP_05 = spaceVar("0.5");
-const SP_1 = spaceVar("1");
-const SP_15 = spaceVar("1.5");
-
+const RADIUS_SM = radiusVar("sm");           // 2px
+const RADIUS_PILL = radiusVar("pill");       // 999px
+const SP_025 = spaceVar("0.25");             // 2px
+const SP_05 = spaceVar("0.5");               // 4px
+const SP_1 = spaceVar("1");                   // 8px
+const SP_15 = spaceVar("1.5");               // 12px
 // ─── Status icon map ─────────────────────────────────────────────────────────
 
 export const STATUS_ICON_MAP: Record<string, string> = {
@@ -70,7 +74,7 @@ export const STYLES = /* css */ `
     display: flex;
     align-items: center;
     border: 1px solid var(--ui-select-border, ${FORM_INPUT_BORDER});
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
     background-color: var(--ui-select-bg, #ffffff);
     transition:
       border-color 0.15s ease,
@@ -102,16 +106,16 @@ export const STYLES = /* css */ `
   .tag {
     display: inline-flex;
     align-items: center;
-    background: #D4E4FA;
-    border-radius: 200px;
-    padding: 2px 8px;
-    gap: 4px;
+    background: ${TAG_SUBTLE};
+    border-radius: ${RADIUS_PILL};
+    padding: ${SP_025} ${SP_1};
+    gap: ${SP_05};
     flex-shrink: 0;
   }
   .tag-label {
     font-size: 12px;
     line-height: 16px;
-    color: #0D4EA6;
+    color: ${TAG_TEXT_SUBTLE};
     white-space: nowrap;
   }
   .tag-dismiss {
@@ -122,7 +126,7 @@ export const STYLES = /* css */ `
     background: transparent;
     padding: 0;
     cursor: pointer;
-    color: #0D4EA6;
+    color: ${TAG_TEXT_SUBTLE};
     width: 12px;
     height: 12px;
     line-height: 0;
@@ -237,9 +241,9 @@ export const STYLES = /* css */ `
     padding: ${SP_05} 0;
     background-color: var(--ui-select-panel-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-select-panel-shadow, ${ELEVATION_05});
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
     overflow: visible;
-    margin-top: 2px;
+    margin-top: ${SP_025};
     opacity: 0;
     visibility: hidden;
     transform: translateY(-4px);
@@ -419,8 +423,8 @@ export const STYLES = /* css */ `
   :host([multiple]) .trigger {
     height: auto;
     min-height: var(--_select-height);
-    padding-top: 2px;
-    padding-bottom: 2px;
+    padding-top: ${SP_025};
+    padding-bottom: ${SP_025};
     flex-wrap: wrap;
   }
 

@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, borderWidthVar, radiusVar } from "@maneki/foundation";
 import type {
   LayoutItem,
   Layout,
@@ -41,6 +41,8 @@ import { GridItemElement } from "./grid-item";
 // ─── Token constants ─────────────────────────────────────────────────────────
 const SURFACE_SECONDARY = semanticVar("surface", "secondary");
 const BORDER_MINIMAL = semanticVar("border", "minimal");
+const BW_MD = borderWidthVar("md");             // 2px
+const RADIUS_MD = radiusVar("md");             // 4px
 
 const GRID_LAYOUT_STYLES = `
 :host {
@@ -54,8 +56,8 @@ const GRID_LAYOUT_STYLES = `
 .placeholder {
   position: absolute;
   background: var(--grid-placeholder-bg, ${SURFACE_SECONDARY});
-  border: var(--grid-placeholder-border, 2px dashed ${BORDER_MINIMAL});
-  border-radius: var(--grid-placeholder-radius, 4px);
+  border: var(--grid-placeholder-border, ${BW_MD} dashed ${BORDER_MINIMAL});
+  border-radius: var(--grid-placeholder-radius, ${RADIUS_MD});
   transition:
     transform var(--grid-placeholder-transition-duration, 0.15s) var(--grid-placeholder-transition-easing, ease),
     width var(--grid-placeholder-transition-duration, 0.15s) var(--grid-placeholder-transition-easing, ease),

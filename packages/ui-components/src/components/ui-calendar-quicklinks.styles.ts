@@ -8,6 +8,8 @@ export const TEXT_SECONDARY = semanticVar("text", "secondary");
 export const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
 export const SP_1 = spaceVar("1");
 export const SP_0_5 = spaceVar("0.5");
+export const SP_125 = spaceVar("1.25");
+export const SP_15 = spaceVar("1.5");
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -188,7 +190,7 @@ export const STYLES = /* css */ `
 
   :host([size="m"][orientation="bottom"]) .menu,
   :host(:not([size])[orientation="bottom"]) .menu {
-    padding: 10px 12px;
+    padding: ${SP_125} ${SP_15};
     gap: 16px;
   }
 

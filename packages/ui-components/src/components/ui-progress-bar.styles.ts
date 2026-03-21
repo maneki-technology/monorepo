@@ -1,66 +1,68 @@
-import { semanticVar, colorVar } from "@maneki/foundation";
+import { semanticVar, colorVar, spaceVar } from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
+// ─── Token constants ─────────────────────────────────────────────────────────────
 
 const TEXT_PRIMARY = semanticVar("text", "primary");
-const SURFACE_TERTIARY = semanticVar("surface", "tertiary");
 
-// ─── Status color maps ───────────────────────────────────────────────────────
+const SP_05 = spaceVar("0.5");     // 4px
+const SP_1 = spaceVar("1");         // 8px
+const SP_3 = spaceVar("3");         // 24px
+
+// ─── Status color maps ─────────────────────────────────────────────────────────
 
 // Fill colors (the progress indicator)
 const STATUS_FILL: Record<string, string> = {
-  none: "#5B7282",
-  information: "#186ADE",
-  success: "#077D55",
-  warning: "#F5C518",
-  error: "#D91F11",
-  open: "#43C478",
-  complete: "#077D55",
-  suspended: "#F7E379",
-  cancelled: "#FABBB4",
+  none: semanticVar("statusSurface", "noneBold"),
+  information: semanticVar("statusSurface", "informationBold"),
+  success: semanticVar("statusSurface", "successBold"),
+  warning: semanticVar("statusSurface", "warningBold"),
+  error: semanticVar("statusSurface", "errorBold"),
+  open: semanticVar("statusSurface", "openBold"),
+  complete: semanticVar("statusSurface", "completeBold"),
+  suspended: semanticVar("statusSurface", "suspendedBold"),
+  cancelled: semanticVar("statusSurface", "cancelledBold"),
 };
 
 // Track colors (the background)
 const STATUS_TRACK: Record<string, string> = {
-  none: "#DCE3E8",
-  information: "#DCE3E8",
-  success: "#DCE3E8",
-  warning: "#DCE3E8",
-  error: "#DCE3E8",
-  open: "#C7EBD1",
-  complete: "#DCE3E8",
-  suspended: "#FAF6CF",
-  cancelled: "#FADCD9",
+  none: semanticVar("statusSurface", "noneSubtle"),
+  information: semanticVar("statusSurface", "noneSubtle"),
+  success: semanticVar("statusSurface", "noneSubtle"),
+  warning: semanticVar("statusSurface", "noneSubtle"),
+  error: semanticVar("statusSurface", "noneSubtle"),
+  open: semanticVar("statusSurface", "openSubtle"),
+  complete: semanticVar("statusSurface", "completeSubtle"),
+  suspended: semanticVar("statusSurface", "suspendedSubtle"),
+  cancelled: semanticVar("statusSurface", "cancelledSubtle"),
 };
 
 // Inner label fill (lighter shades for inner-label mode)
 const STATUS_INNER_FILL: Record<string, string> = {
-  none: "#9FB1BD",
-  information: "#75B1FF",
-  success: "#077D55",
-  warning: "#F5C518",
-  error: "#D91F11",
-  open: "#43C478",
-  complete: "#077D55",
-  suspended: "#F7E379",
-  cancelled: "#FABBB4",
+  none: colorVar("gray", 50),
+  information: colorVar("blue", 40),
+  success: semanticVar("statusSurface", "successBold"),
+  warning: semanticVar("statusSurface", "warningBold"),
+  error: semanticVar("statusSurface", "errorBold"),
+  open: semanticVar("statusSurface", "openBold"),
+  complete: semanticVar("statusSurface", "completeBold"),
+  suspended: semanticVar("statusSurface", "suspendedBold"),
+  cancelled: semanticVar("statusSurface", "cancelledBold"),
 };
 
 const STATUS_INNER_TRACK: Record<string, string> = {
-  none: "#DCE3E8",
-  information: "#D4E4FA",
-  success: "#DCE3E8",
-  warning: "#DCE3E8",
-  error: "#DCE3E8",
-  open: "#C7EBD1",
-  complete: "#DCE3E8",
-  suspended: "#FAF6CF",
-  cancelled: "#FADCD9",
-};
+  none: semanticVar("statusSurface", "noneSubtle"),
+  information: semanticVar("statusSurface", "informationSubtle"),
+  success: semanticVar("statusSurface", "noneSubtle"),
+  warning: semanticVar("statusSurface", "noneSubtle"),
+  error: semanticVar("statusSurface", "noneSubtle"),
+  open: semanticVar("statusSurface", "openSubtle"),
+  complete: semanticVar("statusSurface", "completeSubtle"),
+  suspended: semanticVar("statusSurface", "suspendedSubtle"),
+  cancelled: semanticVar("statusSurface", "cancelledSubtle"),
+}
 
 export {
   TEXT_PRIMARY,
-  SURFACE_TERTIARY,
   STATUS_FILL,
   STATUS_TRACK,
   STATUS_INNER_FILL,
@@ -93,7 +95,7 @@ export const BAR_STYLES = /* css */ `
   .top-label {
     display: none;
     align-items: center;
-    gap: 8px;
+    gap: ${SP_1};
     overflow: hidden;
     color: ${TEXT_PRIMARY};
   }
@@ -141,7 +143,7 @@ export const BAR_STYLES = /* css */ `
     position: absolute;
     inset: 0;
     align-items: center;
-    gap: 8px;
+    gap: ${SP_1};
     overflow: hidden;
     color: ${TEXT_PRIMARY};
   }
@@ -168,7 +170,7 @@ export const BAR_STYLES = /* css */ `
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .wrapper {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   :host([size="s"]) .top-label {
@@ -186,7 +188,7 @@ export const BAR_STYLES = /* css */ `
 
   :host .wrapper,
   :host([size="m"]) .wrapper {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   :host .top-label,
@@ -202,25 +204,25 @@ export const BAR_STYLES = /* css */ `
 
   :host([size="m"][label="inner-label"]) .bar,
   :host([label="inner-label"]) .bar {
-    height: 24px;
+    height: ${SP_3};
   }
 
   :host .inner-label,
   :host([size="m"]) .inner-label {
     font-size: 12px;
     line-height: 16px;
-    padding: 4px 8px;
+    padding: ${SP_05} ${SP_1};
   }
 
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .wrapper {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   :host([size="l"]) .top-label {
     font-size: 16px;
-    line-height: 24px;
+    line-height: ${SP_3};
   }
 
   :host([size="l"]) .bar {
@@ -234,7 +236,7 @@ export const BAR_STYLES = /* css */ `
   :host([size="l"]) .inner-label {
     font-size: 14px;
     line-height: 20px;
-    padding: 4px 8px;
+    padding: ${SP_05} ${SP_1};
   }
 
   @media (prefers-reduced-motion: reduce) {

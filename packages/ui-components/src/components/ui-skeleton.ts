@@ -1,9 +1,12 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar, colorVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
 const SURFACE_TERTIARY = semanticVar("surface", "tertiary");
-
+const ICON_SECONDARY = semanticVar("icon", "secondary");
+const RADIUS_SM = radiusVar("sm");           // 2px
+const RADIUS_PILL = radiusVar("pill");       // 999px
+const SP_15 = spaceVar("1.5");               // 12px
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type SkeletonVariant = "text" | "circle" | "rect";
@@ -24,8 +27,8 @@ const STYLES = /* css */ `
 
   :host,
   :host([variant="text"]) {
-    --_skeleton-h: 12px;
-    --_skeleton-r: 2px;
+    --_skeleton-h: ${SP_15};
+    --_skeleton-r: ${RADIUS_SM};
   }
 
   :host .bone,
@@ -44,7 +47,7 @@ const STYLES = /* css */ `
   :host([variant="circle"]) .bone {
     width: var(--ui-skeleton-width, 48px);
     height: var(--ui-skeleton-height, 48px);
-    border-radius: 999px;
+    border-radius: ${RADIUS_PILL};
   }
 
   /* ── Rect variant ────────────────────────────────────────────────────────── */
@@ -56,11 +59,11 @@ const STYLES = /* css */ `
   :host([variant="rect"]) .bone {
     width: var(--ui-skeleton-width, 100%);
     height: var(--ui-skeleton-height, 192px);
-    border-radius: var(--ui-skeleton-radius, 2px);
+    border-radius: var(--ui-skeleton-radius, ${RADIUS_SM});
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #9FB1BD;
+    color: ${ICON_SECONDARY};
   }
 
   @keyframes pulse {

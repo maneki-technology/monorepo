@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -14,8 +14,16 @@ const ICON_PRIMARY_TOKEN = semanticVar("icon", "primary");
 const ICON_ACTION = semanticVar("icon", "action");
 const BORDER_FOCUS = semanticVar("border", "focus");
 const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const SP_1 = spaceVar("1");       // 8px
-const SP_125 = spaceVar("1.5");   // 12px
+const HOVER_MINIMAL = semanticVar("stateHover", "surfaceMinimal");
+const HOVER_MODERATE = semanticVar("stateHover", "surfaceModerate");
+const SELECTED_OVERLAY = semanticVar("stateSelected", "surfaceOverlay");
+const SP_1 = spaceVar("1");                     // 8px
+const SP_125 = spaceVar("1.25");               // 10px
+const SP_15 = spaceVar("1.5");                 // 12px
+const SP_2 = spaceVar("2");                     // 16px
+const SP_25 = spaceVar("2.5");                 // 20px
+const SP_5 = spaceVar("5");                     // 40px
+const BW_MD = borderWidthVar("md");             // 2px
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -37,7 +45,7 @@ const STYLES = /* css */ `
     align-items: center;
     gap: ${SP_1};
     width: 100%;
-    padding: 10px 8px 10px 16px;
+    padding: ${SP_125} ${SP_1} ${SP_125} ${SP_2};
     border: none;
     margin: 0;
     background-color: var(--ui-spmi-bg, ${SURFACE_SECONDARY});
@@ -53,24 +61,24 @@ const STYLES = /* css */ `
   }
 
   .row:focus-visible {
-    outline: 2px solid ${BORDER_FOCUS};
-    outline-offset: -2px;
+    outline: ${BW_MD} solid ${BORDER_FOCUS};
+    outline-offset: calc(-1 * ${BW_MD});
   }
 
   /* ── Hover ───────────────────────────────────────────────────────────────── */
 
   :host(:not([disabled]):not([selected]):not([child-parent-selected])) .row:hover {
-    background-color: var(--ui-spmi-hover-bg, rgba(159, 177, 189, 0.1));
+    background-color: var(--ui-spmi-hover-bg, ${HOVER_MINIMAL});
   }
 
   :host(:not([disabled]):not([selected]):not([child-parent-selected])) .row:active {
-    background-color: var(--ui-spmi-active-bg, rgba(159, 177, 189, 0.2));
+    background-color: var(--ui-spmi-active-bg, ${HOVER_MODERATE});
   }
 
   /* ── Selected ────────────────────────────────────────────────────────────── */
 
   :host([selected]) .row {
-    background-color: var(--ui-spmi-selected-bg, rgba(24, 106, 222, 0.2));
+    background-color: var(--ui-spmi-selected-bg, ${SELECTED_OVERLAY});
   }
 
   :host([selected]) .row::before {
@@ -79,14 +87,14 @@ const STYLES = /* css */ `
     top: 0;
     left: 0;
     bottom: 0;
-    width: 2px;
+    width: ${BW_MD};
     background-color: var(--ui-spmi-indicator, ${BORDER_FOCUS});
   }
 
   /* ── Child/Parent Selected ───────────────────────────────────────────────── */
 
   :host([child-parent-selected]) .row {
-    background-color: var(--ui-spmi-child-selected-bg, rgba(159, 177, 189, 0.1));
+    background-color: var(--ui-spmi-child-selected-bg, ${HOVER_MINIMAL});
   }
 
   :host([child-parent-selected]) .row::before {
@@ -95,7 +103,7 @@ const STYLES = /* css */ `
     top: 0;
     left: 0;
     bottom: 0;
-    width: 2px;
+    width: ${BW_MD};
     background-color: var(--ui-spmi-indicator, ${BORDER_FOCUS});
   }
 
@@ -142,16 +150,16 @@ const STYLES = /* css */ `
     display: none;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: ${SP_25};
+    height: ${SP_25};
     line-height: 0;
     color: var(--ui-spmi-icon, ${ICON_PRIMARY_TOKEN});
     flex-shrink: 0;
   }
 
   ::slotted(svg) {
-    width: 20px;
-    height: 20px;
+    width: ${SP_25};
+    height: ${SP_25};
   }
 
   :host([leading-icon]) .leading-icon {
@@ -186,13 +194,13 @@ const STYLES = /* css */ `
     display: none;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: ${SP_25};
+    height: ${SP_25};
     line-height: 0;
     color: var(--ui-spmi-expand-icon, ${ICON_PRIMARY_TOKEN});
     flex-shrink: 0;
     transition: transform 0.15s ease;
-    --ui-icon-size: 20px;
+    --ui-icon-size: ${SP_25};
   }
 
   :host([expandable]) .expand-icon {
@@ -202,9 +210,9 @@ const STYLES = /* css */ `
   /* ── Icon-only mode ──────────────────────────────────────────────────────── */
 
   :host([type="icon-only"]) .row {
-    width: 40px;
-    height: 40px;
-    padding: 10px;
+    width: ${SP_5};
+    height: ${SP_5};
+    padding: ${SP_125};
     justify-content: center;
   }
 

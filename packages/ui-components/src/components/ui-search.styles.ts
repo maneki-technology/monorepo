@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar, elevationVar, colorVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -10,7 +10,19 @@ const BORDER_MODERATE = semanticVar("border", "moderate");
 const BORDER_FOCUS = semanticVar("border", "focus");
 const SURFACE_PRIMARY = semanticVar("surface", "primary");
 const SURFACE_SECONDARY = semanticVar("surface", "secondary");
+const SURFACE_BOLD = semanticVar("surface", "bold");
+const HOVER_MINIMAL = semanticVar("stateHover", "surfaceMinimal");
 
+const RADIUS_SM = radiusVar("sm");         // 2px
+const RADIUS_PILL = radiusVar("pill");     // 999px
+const ELEV_03 = elevationVar("03");
+const SP_05 = spaceVar("0.5");             // 4px
+const SP_075 = spaceVar("0.75");           // 6px
+const SP_1 = spaceVar("1");                 // 8px
+const SP_125 = spaceVar("1.25");           // 10px
+const SP_15 = spaceVar("1.5");             // 12px
+const SP_2 = spaceVar("2");                 // 16px
+const SP_3 = spaceVar("3");                 // 24px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -40,7 +52,7 @@ export const STYLES = /* css */ `
     align-items: center;
     border: 1px solid ${BORDER_MODERATE};
     background: ${SURFACE_PRIMARY};
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
     transition: border-color 0.15s ease;
   }
 
@@ -124,9 +136,9 @@ export const STYLES = /* css */ `
     display: none;
     flex-direction: column;
     background: ${SURFACE_PRIMARY};
-    border-radius: 2px;
-    box-shadow: 0px 8px 10px 0px rgba(0,0,0,0.14), 0px 3px 14px 0px rgba(0,0,0,0.12), 0px 5px 5px 0px rgba(0,0,0,0.2);
-    padding: 4px 0;
+    border-radius: ${RADIUS_SM};
+    box-shadow: ${ELEV_03};
+    padding: ${SP_05} 0;
     max-height: 400px;
     overflow-y: auto;
     opacity: 0;
@@ -179,7 +191,7 @@ export const STYLES = /* css */ `
   }
 
   .result-item:hover {
-    background: rgba(159, 177, 189, 0.1);
+    background: ${HOVER_MINIMAL};
   }
 
   .result-leading {
@@ -195,8 +207,8 @@ export const STYLES = /* css */ `
     justify-content: center;
     width: 100%;
     height: 100%;
-    border-radius: 999px;
-    background: #5B7282;
+    border-radius: ${RADIUS_PILL};
+    background: ${SURFACE_BOLD};
     color: #ffffff;
     font-family: "Geist", sans-serif;
     font-weight: 500;
@@ -225,7 +237,7 @@ export const STYLES = /* css */ `
   .result-head {
     display: flex;
     align-items: flex-start;
-    gap: 8px;
+    gap: ${SP_1};
     width: 100%;
   }
 
@@ -263,8 +275,8 @@ export const STYLES = /* css */ `
 
   :host([size="s"]) .input-wrapper {
     height: 24px;
-    padding: 0 8px;
-    gap: 4px;
+    padding: 0 ${SP_1};
+    gap: ${SP_05};
   }
 
   :host([size="s"]) .search-icon {
@@ -292,7 +304,7 @@ export const STYLES = /* css */ `
 
   :host([size="s"]) .category-heading {
     height: 24px;
-    padding: 4px 12px;
+    padding: ${SP_05} ${SP_15};
     font-size: 11px;
     line-height: 16px;
   }
@@ -303,12 +315,12 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .result-item {
-    padding: 6px 12px;
-    gap: 8px;
+    padding: ${SP_075} ${SP_15};
+    gap: ${SP_1};
   }
 
   :host([size="s"]) .result-item.has-leading {
-    padding-left: 8px;
+    padding-left: ${SP_1};
   }
 
   :host([size="s"]) .result-leading {
@@ -336,7 +348,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .result-content {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   /* ── Size: M (default) ───────────────────────────────────────────────────── */
@@ -349,8 +361,8 @@ export const STYLES = /* css */ `
   :host .input-wrapper,
   :host([size="m"]) .input-wrapper {
     height: 32px;
-    padding: 0 8px;
-    gap: 8px;
+    padding: 0 ${SP_1};
+    gap: ${SP_1};
   }
 
   :host .search-icon,
@@ -384,7 +396,7 @@ export const STYLES = /* css */ `
   :host .category-heading,
   :host([size="m"]) .category-heading {
     height: 24px;
-    padding: 4px 16px;
+    padding: ${SP_05} ${SP_2};
     font-size: 12px;
     line-height: 16px;
   }
@@ -397,13 +409,13 @@ export const STYLES = /* css */ `
 
   :host .result-item,
   :host([size="m"]) .result-item {
-    padding: 6px 16px;
-    gap: 8px;
+    padding: ${SP_075} ${SP_2};
+    gap: ${SP_1};
   }
 
   :host .result-item.has-leading,
   :host([size="m"]) .result-item.has-leading {
-    padding-left: 8px;
+    padding-left: ${SP_1};
   }
 
   :host .result-leading,
@@ -437,15 +449,15 @@ export const STYLES = /* css */ `
 
   :host .result-content,
   :host([size="m"]) .result-content {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .input-wrapper {
     height: 40px;
-    padding: 0 12px;
-    gap: 8px;
+    padding: 0 ${SP_15};
+    gap: ${SP_1};
   }
 
   :host([size="l"]) .search-icon {
@@ -473,7 +485,7 @@ export const STYLES = /* css */ `
 
   :host([size="l"]) .category-heading {
     height: 36px;
-    padding: 8px 24px;
+    padding: ${SP_1} ${SP_3};
     font-size: 14px;
     line-height: 20px;
   }
@@ -484,12 +496,12 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .result-item {
-    padding: 10px 16px;
-    gap: 12px;
+    padding: ${SP_125} ${SP_2};
+    gap: ${SP_15};
   }
 
   :host([size="l"]) .result-item.has-leading {
-    padding-left: 24px;
+    padding-left: ${SP_3};
   }
 
   :host([size="l"]) .result-leading {
@@ -517,7 +529,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .result-content {
-    gap: 4px;
+    gap: ${SP_05};
   }
 
   @media (prefers-reduced-motion: reduce) {

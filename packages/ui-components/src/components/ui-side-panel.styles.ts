@@ -1,4 +1,4 @@
-import { semanticVar, elevationVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, elevationVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -9,6 +9,7 @@ const BORDER_MINIMAL = semanticVar("border", "minimal");
 const BORDER_SUBTLE = semanticVar("border", "subtle");
 const ELEVATION_03 = elevationVar("03");
 const BORDER_FOCUS = semanticVar("border", "focus");
+const BW_MD = borderWidthVar("md");
 const SP_1 = spaceVar("1");       // 8px
 const SP_2 = spaceVar("2");       // 16px
 
@@ -134,8 +135,8 @@ export const STYLES = /* css */ `
   }
 
   .header-toggle:focus-visible {
-    outline: 2px solid ${BORDER_FOCUS};
-    outline-offset: -2px;
+    outline: ${BW_MD} solid ${BORDER_FOCUS};
+    outline-offset: calc(-1 * ${BW_MD});
   }
 
   /* ── Collapsed header ────────────────────────────────────────────────────── */

@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -8,7 +8,11 @@ export type TableCellAlign = "left" | "center" | "right";
 
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const TEXT_SECONDARY = semanticVar("text", "secondary");
-
+const BORDER_MINIMAL = semanticVar("border", "minimal");
+const BORDER_MODERATE = semanticVar("border", "moderate");
+const BW_SM = borderWidthVar("sm");             // 1px
+const SP_075 = spaceVar("0.75");               // 6px
+const SP_15 = spaceVar("1.5");                 // 12px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -26,15 +30,15 @@ const STYLES = /* css */ `
     font-weight: 400;
     text-align: left;
     /* Inherit size from parent ui-table via CSS custom properties */
-    padding: var(--_table-cell-padding, 6px 12px);
+    padding: var(--_table-cell-padding, ${SP_075} ${SP_15});
     font-size: var(--_table-cell-font-size, 14px);
     line-height: var(--_table-cell-line-height, 20px);
     /* Vertical separator - only when table sets the variable */
     border-right: var(--_table-column-separator-width, 0) solid var(--_table-column-separator-color, transparent);
     /* Horizontal separator - bottom border on each cell for continuous lines */
     border-bottom-style: solid;
-    border-bottom-color: var(--_table-separator-color, ${semanticVar("border", "minimal")});
-    border-bottom-width: var(--_table-last-row-border, 1px);
+    border-bottom-color: var(--_table-separator-color, ${BORDER_MINIMAL});
+    border-bottom-width: var(--_table-last-row-border, ${BW_SM});
   }
 
   :host(:last-child) {
@@ -48,7 +52,7 @@ const STYLES = /* css */ `
     font-weight: 500;
     font-size: var(--_table-header-font-size, 14px);
     line-height: var(--_table-header-line-height, 20px);
-    border-bottom-color: ${semanticVar("border", "moderate")};
+    border-bottom-color: ${BORDER_MODERATE};
   }
 
   /* ── Alignment ────────────────────────────────────────────────────────── */

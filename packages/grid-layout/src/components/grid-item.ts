@@ -1,10 +1,13 @@
 import type { ResizeHandleAxis } from "../core/types";
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, borderWidthVar, spaceVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
 const BORDER_FOCUS = semanticVar("border", "focus");
 const BORDER_BOLD = semanticVar("border", "bold");
+const BW_MD = borderWidthVar("md");             // 2px
+const SP_2 = spaceVar("2");                     // 16px
+const SP_25 = spaceVar("2.5");                 // 20px
 
 const GRID_ITEM_STYLES = `
 :host {
@@ -17,8 +20,8 @@ const GRID_ITEM_STYLES = `
   contain: layout style;
 }
 :host(:focus-visible) {
-  outline: 2px solid var(--grid-focus-ring-color, ${BORDER_FOCUS});
-  outline-offset: -2px;
+  outline: ${BW_MD} solid var(--grid-focus-ring-color, ${BORDER_FOCUS});
+  outline-offset: calc(-1 * ${BW_MD});
   z-index: 2;
 }
 :host([dragging]),
@@ -47,8 +50,8 @@ const GRID_ITEM_STYLES = `
 /* Resize handles */
 .resize-handle {
   position: absolute;
-  width: var(--grid-handle-size, 20px);
-  height: var(--grid-handle-size, 20px);
+  width: var(--grid-handle-size, ${SP_25});
+  height: var(--grid-handle-size, ${SP_25});
   z-index: 2;
 }
 
@@ -105,8 +108,8 @@ const GRID_ITEM_STYLES = `
   bottom: var(--grid-handle-indicator-offset, 3px);
   width: var(--grid-handle-indicator-size, 5px);
   height: var(--grid-handle-indicator-size, 5px);
-  border-right: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
-  border-bottom: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
+  border-right: ${BW_MD} solid var(--grid-handle-color, ${BORDER_BOLD});
+  border-bottom: ${BW_MD} solid var(--grid-handle-color, ${BORDER_BOLD});
 }
 .resize-handle-sw::after {
   content: "";
@@ -115,8 +118,8 @@ const GRID_ITEM_STYLES = `
   bottom: var(--grid-handle-indicator-offset, 3px);
   width: var(--grid-handle-indicator-size, 5px);
   height: var(--grid-handle-indicator-size, 5px);
-  border-left: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
-  border-bottom: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
+  border-left: ${BW_MD} solid var(--grid-handle-color, ${BORDER_BOLD});
+  border-bottom: ${BW_MD} solid var(--grid-handle-color, ${BORDER_BOLD});
 }
 .resize-handle-ne::after {
   content: "";
@@ -125,8 +128,8 @@ const GRID_ITEM_STYLES = `
   top: var(--grid-handle-indicator-offset, 3px);
   width: var(--grid-handle-indicator-size, 5px);
   height: var(--grid-handle-indicator-size, 5px);
-  border-right: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
-  border-top: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
+  border-right: ${BW_MD} solid var(--grid-handle-color, ${BORDER_BOLD});
+  border-top: ${BW_MD} solid var(--grid-handle-color, ${BORDER_BOLD});
 }
 .resize-handle-nw::after {
   content: "";
@@ -135,8 +138,8 @@ const GRID_ITEM_STYLES = `
   top: var(--grid-handle-indicator-offset, 3px);
   width: var(--grid-handle-indicator-size, 5px);
   height: var(--grid-handle-indicator-size, 5px);
-  border-left: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
-  border-top: 2px solid var(--grid-handle-color, ${BORDER_BOLD});
+  border-left: ${BW_MD} solid var(--grid-handle-color, ${BORDER_BOLD});
+  border-top: ${BW_MD} solid var(--grid-handle-color, ${BORDER_BOLD});
 }
 .resize-handle-s::after {
   content: "";
@@ -144,8 +147,8 @@ const GRID_ITEM_STYLES = `
   bottom: var(--grid-handle-indicator-offset, 3px);
   left: 50%;
   transform: translateX(-50%);
-  width: 16px;
-  height: 2px;
+  width: ${SP_2};
+  height: ${BW_MD};
   background: var(--grid-handle-color, ${BORDER_BOLD});
   border-radius: 1px;
 }
@@ -155,8 +158,8 @@ const GRID_ITEM_STYLES = `
   top: var(--grid-handle-indicator-offset, 3px);
   left: 50%;
   transform: translateX(-50%);
-  width: 16px;
-  height: 2px;
+  width: ${SP_2};
+  height: ${BW_MD};
   background: var(--grid-handle-color, ${BORDER_BOLD});
   border-radius: 1px;
 }
@@ -166,8 +169,8 @@ const GRID_ITEM_STYLES = `
   right: var(--grid-handle-indicator-offset, 3px);
   top: 50%;
   transform: translateY(-50%);
-  width: 2px;
-  height: 16px;
+  width: ${BW_MD};
+  height: ${SP_2};
   background: var(--grid-handle-color, ${BORDER_BOLD});
   border-radius: 1px;
 }
@@ -177,8 +180,8 @@ const GRID_ITEM_STYLES = `
   left: var(--grid-handle-indicator-offset, 3px);
   top: 50%;
   transform: translateY(-50%);
-  width: 2px;
-  height: 16px;
+  width: ${BW_MD};
+  height: ${SP_2};
   background: var(--grid-handle-color, ${BORDER_BOLD});
   border-radius: 1px;
 }

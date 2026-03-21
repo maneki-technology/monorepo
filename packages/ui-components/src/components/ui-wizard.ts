@@ -1,4 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 import "./ui-step-group.js";
 import "./ui-step-item.js";
 import "./ui-button.js";
@@ -10,6 +10,16 @@ const TEXT_PRIMARY = semanticVar("text", "primary");
 const SURFACE_PRIMARY = semanticVar("surface", "primary");
 const SURFACE_SECONDARY = semanticVar("surface", "secondary");
 const BORDER_MINIMAL = semanticVar("border", "minimal");
+const BW_SM = borderWidthVar("sm");             // 1px
+const SP_1 = spaceVar("1");                     // 8px
+const SP_15 = spaceVar("1.5");                 // 12px
+const SP_2 = spaceVar("2");                     // 16px
+const SP_25 = spaceVar("2.5");                 // 20px
+const SP_3 = spaceVar("3");                     // 24px
+const SP_4 = spaceVar("4");                     // 32px
+const SP_5 = spaceVar("5");                     // 40px
+const SP_7 = spaceVar("7");                     // 56px
+const SP_8 = spaceVar("8");                     // 64px
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -95,7 +105,7 @@ const STYLES = /* css */ `
     justify-content: center;
     background: ${SURFACE_PRIMARY};
     flex-shrink: 0;
-    border-bottom: 1px solid ${BORDER_MINIMAL};
+    border-bottom: ${BW_SM} solid ${BORDER_MINIMAL};
   }
 
   :host([layout="horizontal"]) .steps-bar {
@@ -121,7 +131,7 @@ const STYLES = /* css */ `
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 8px;
+    gap: ${SP_1};
     flex-shrink: 0;
     background: ${SURFACE_PRIMARY};
   }
@@ -129,8 +139,8 @@ const STYLES = /* css */ `
   /* ── Horizontal layout ───────────────────────────────────────────────────── */
 
   :host([layout="horizontal"]) .header {
-    height: 32px;
-    padding: 0 16px;
+    height: ${SP_4};
+    padding: 0 ${SP_2};
   }
 
   :host([layout="horizontal"]) .header-title {
@@ -139,20 +149,20 @@ const STYLES = /* css */ `
   }
 
   :host([layout="horizontal"]) .steps-bar {
-    height: 64px;
-    padding: 20px 40px;
+    height: ${SP_8};
+    padding: ${SP_25} ${SP_5};
   }
 
   :host([layout="horizontal"]) .footer {
-    height: 56px;
-    padding: 0 12px;
+    height: ${SP_7};
+    padding: 0 ${SP_15};
   }
 
   /* ── Vertical layout ─────────────────────────────────────────────────────── */
 
   :host([layout="vertical"]) .header {
-    height: 56px;
-    padding: 0 24px;
+    height: ${SP_7};
+    padding: 0 ${SP_3};
   }
 
   :host([layout="vertical"]) .header-title {
@@ -162,12 +172,12 @@ const STYLES = /* css */ `
 
   :host([layout="vertical"]) .steps-sidebar {
     width: 220px;
-    padding: 16px 24px;
+    padding: ${SP_2} ${SP_3};
   }
 
   :host([layout="vertical"]) .footer {
-    height: 56px;
-    padding: 0 12px;
+    height: ${SP_7};
+    padding: 0 ${SP_15};
   }
 `;
 

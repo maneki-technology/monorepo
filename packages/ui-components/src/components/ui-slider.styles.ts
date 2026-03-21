@@ -1,13 +1,22 @@
-import { semanticVar, colorVar } from "@maneki/foundation";
+import { semanticVar, colorVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const BLUE_60 = colorVar("blue", 60);
+const GRAY_110 = colorVar("gray", 110);
 const SURFACE_BOLD = semanticVar("surface", "bold");
 const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 const BORDER_FOCUS = semanticVar("border", "focus");
-
+const RADIUS_SM = radiusVar("sm");             // 2px
+const RADIUS_PILL = radiusVar("pill");         // 999px
+const BW_MD = borderWidthVar("md");             // 2px
+const SP_025 = spaceVar("0.25");               // 2px
+const SP_05 = spaceVar("0.5");                 // 4px
+const SP_1 = spaceVar("1");                     // 8px
+const SP_15 = spaceVar("1.5");                 // 12px
+const SP_2 = spaceVar("2");                     // 16px
+const SP_3 = spaceVar("3");                     // 24px
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type SliderSize = "s" | "m" | "l";
@@ -48,13 +57,13 @@ export const STYLES = /* css */ `
     position: absolute;
     left: 0;
     right: 0;
-    height: 2px;
+    height: ${BW_MD};
     background: ${SURFACE_BOLD};
   }
 
   .fill {
     position: absolute;
-    height: 2px;
+    height: ${BW_MD};
     background: ${BLUE_60};
   }
 
@@ -64,7 +73,7 @@ export const STYLES = /* css */ `
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    border-radius: 999px;
+    border-radius: ${RADIUS_PILL};
     background: ${BLUE_60};
     cursor: grab;
     z-index: 1;
@@ -77,8 +86,8 @@ export const STYLES = /* css */ `
 
   .handle-inner {
     position: absolute;
-    inset: 2px;
-    border-radius: 999px;
+    inset: ${BW_MD};
+    border-radius: ${RADIUS_PILL};
     background: #ffffff;
     transition: background 0.1s ease;
   }
@@ -114,13 +123,13 @@ export const STYLES = /* css */ `
     left: 50%;
     bottom: 100%;
     transform: translateX(-50%);
-    margin-bottom: 8px;
-    background: #090F14;
+    margin-bottom: ${SP_1};
+    background: ${GRAY_110};
     color: #ffffff;
     font-size: 12px;
     line-height: 16px;
-    padding: 4px 8px;
-    border-radius: 2px;
+    padding: ${SP_05} ${SP_1};
+    border-radius: ${RADIUS_SM};
     white-space: nowrap;
     pointer-events: none;
     z-index: 2;
@@ -136,7 +145,7 @@ export const STYLES = /* css */ `
     height: 0;
     border-left: 4px solid transparent;
     border-right: 4px solid transparent;
-    border-top: 4px solid #090F14;
+    border-top: 4px solid ${GRAY_110};
   }
 
   .handle.active .tooltip {
@@ -157,7 +166,7 @@ export const STYLES = /* css */ `
   /* ── Size: S ────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .track-area {
-    height: 12px;
+    height: ${SP_15};
   }
 
   :host([size="s"]) .track,
@@ -166,12 +175,12 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .handle {
-    width: 12px;
-    height: 12px;
+    width: ${SP_15};
+    height: ${SP_15};
   }
 
   :host([size="s"]) .labels {
-    margin-top: 2px;
+    margin-top: ${SP_025};
   }
 
 
@@ -179,7 +188,7 @@ export const STYLES = /* css */ `
 
   :host .track-area,
   :host([size="m"]) .track-area {
-    height: 16px;
+    height: ${SP_2};
   }
 
   :host .track,
@@ -191,20 +200,20 @@ export const STYLES = /* css */ `
 
   :host .handle,
   :host([size="m"]) .handle {
-    width: 16px;
-    height: 16px;
+    width: ${SP_2};
+    height: ${SP_2};
   }
 
   :host .labels,
   :host([size="m"]) .labels {
-    margin-top: 4px;
+    margin-top: ${SP_05};
   }
 
 
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .track-area {
-    height: 24px;
+    height: ${SP_3};
   }
 
   :host([size="l"]) .track,
@@ -213,12 +222,12 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .handle {
-    width: 24px;
-    height: 24px;
+    width: ${SP_3};
+    height: ${SP_3};
   }
 
   :host([size="l"]) .labels {
-    margin-top: 4px;
+    margin-top: ${SP_05};
   }
 
 

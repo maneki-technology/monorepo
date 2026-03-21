@@ -1,9 +1,16 @@
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
 const TEXT_PRIMARY = semanticVar("text", "primary");
 
+const SP_075 = spaceVar("0.75");   // 6px
+const SP_1 = spaceVar("1");         // 8px
+const SP_15 = spaceVar("1.5");     // 12px
+const SP_2 = spaceVar("2");         // 16px
+const SP_25 = spaceVar("2.5");     // 20px
+const SP_3 = spaceVar("3");         // 24px
+const SP_125 = spaceVar("1.25");   // 10px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -24,7 +31,7 @@ export const STYLES = /* css */ `
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 12px;
+    padding: ${SP_15};
     font-family: "Geist", sans-serif;
     width: 100%;
   }
@@ -36,15 +43,15 @@ export const STYLES = /* css */ `
   .loading-info {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   .spinner {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 20px;
-    height: 20px;
+    width: ${SP_25};
+    height: ${SP_25};
     animation: spin 1s linear infinite;
   }
 
@@ -52,7 +59,7 @@ export const STYLES = /* css */ `
     font-family: "Material Symbols Outlined";
     font-weight: normal;
     font-style: normal;
-    font-size: 20px;
+    font-size: ${SP_25};
     line-height: 1;
     letter-spacing: normal;
     text-transform: none;
@@ -67,20 +74,20 @@ export const STYLES = /* css */ `
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) {
-    padding: 8px;
+    padding: ${SP_1};
   }
 
   :host([size="s"]) .loading-info {
-    gap: 6px;
+    gap: ${SP_075};
   }
 
   :host([size="s"]) .spinner {
-    width: 16px;
-    height: 16px;
+    width: ${SP_2};
+    height: ${SP_2};
   }
 
   :host([size="s"]) .spinner .material-symbols-outlined {
-    font-size: 16px;
+    font-size: ${SP_2};
   }
 
   :host([size="s"]) .text {
@@ -92,23 +99,23 @@ export const STYLES = /* css */ `
 
   :host,
   :host([size="m"]) {
-    padding: 12px;
+    padding: ${SP_15};
   }
 
   :host .loading-info,
   :host([size="m"]) .loading-info {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   :host .spinner,
   :host([size="m"]) .spinner {
-    width: 20px;
-    height: 20px;
+    width: ${SP_25};
+    height: ${SP_25};
   }
 
   :host .spinner .material-symbols-outlined,
   :host([size="m"]) .spinner .material-symbols-outlined {
-    font-size: 20px;
+    font-size: ${SP_25};
   }
 
   :host .text,
@@ -121,20 +128,20 @@ export const STYLES = /* css */ `
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) {
-    padding: 16px;
+    padding: ${SP_2};
   }
 
   :host([size="l"]) .loading-info {
-    gap: 10px;
+    gap: ${SP_125};
   }
 
   :host([size="l"]) .spinner {
-    width: 24px;
-    height: 24px;
+    width: ${SP_3};
+    height: ${SP_3};
   }
 
   :host([size="l"]) .spinner .material-symbols-outlined {
-    font-size: 24px;
+    font-size: ${SP_3};
   }
 
   :host([size="l"]) .text {

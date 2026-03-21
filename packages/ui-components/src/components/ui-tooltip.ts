@@ -1,6 +1,19 @@
-import { ICON_CLOSE } from "@maneki/foundation";
+import { ICON_CLOSE, colorVar } from "@maneki/foundation";
+import { spaceVar, radiusVar } from "@maneki/foundation";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Token constants ─────────────────────────────────────────────────────────
+
+const GRAY_110 = colorVar("gray", 110);
+const RADIUS_SM = radiusVar("sm");           // 2px
+const SP_025 = spaceVar("0.25");             // 2px
+const SP_05 = spaceVar("0.5");               // 4px
+const SP_075 = spaceVar("0.75");             // 6px
+const SP_1 = spaceVar("1");                   // 8px
+const SP_15 = spaceVar("1.5");               // 12px
+const SP_125 = spaceVar("1.25");             // 10px
+const SP_2 = spaceVar("2");                   // 16px
+
+// ─── Types ───────────────────────────────────────────────────────────────
 
 export type TooltipSize = "xs" | "s" | "m" | "l";
 export type TooltipPlacement =
@@ -13,7 +26,7 @@ export type TooltipPlacement =
   | "bottom-left"
   | "bottom-right";
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
+// ─── Styles ──────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
   @font-face {
@@ -41,9 +54,9 @@ const STYLES = /* css */ `
     position: absolute;
     z-index: 1000;
     display: none;
-    background: #090F14;
+    background: ${GRAY_110};
     color: #ffffff;
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
     white-space: nowrap;
     pointer-events: none;
   }
@@ -100,7 +113,7 @@ const STYLES = /* css */ `
     position: absolute;
     width: 6px;
     height: 6px;
-    background: #090F14;
+    background: ${GRAY_110};
     transform: rotate(45deg);
   }
 
@@ -193,7 +206,7 @@ const STYLES = /* css */ `
   :host([placement="top-left"]) .panel,
   :host([placement="top-right"]) .panel {
     bottom: 100%;
-    margin-bottom: 6px;
+    margin-bottom: ${SP_075};
   }
 
   :host([placement="top"]) .panel {
@@ -213,7 +226,7 @@ const STYLES = /* css */ `
   :host([placement="bottom-left"]) .panel,
   :host([placement="bottom-right"]) .panel {
     top: 100%;
-    margin-top: 6px;
+    margin-top: ${SP_075};
   }
 
   :host([placement="bottom"]) .panel {
@@ -233,21 +246,21 @@ const STYLES = /* css */ `
     right: 100%;
     top: 50%;
     transform: translateY(-50%);
-    margin-right: 6px;
+    margin-right: ${SP_075};
   }
 
   :host([placement="right"]) .panel {
     left: 100%;
     top: 50%;
     transform: translateY(-50%);
-    margin-left: 6px;
+    margin-left: ${SP_075};
   }
 
   /* ── Size: XS ────────────────────────────────────────────────────────────── */
 
   :host([size="xs"]) .panel {
-    padding: 2px 4px;
-    gap: 4px;
+    padding: ${SP_025} ${SP_05};
+    gap: ${SP_05};
   }
 
   :host([size="xs"]) .text {
@@ -267,8 +280,8 @@ const STYLES = /* css */ `
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .panel {
-    padding: 4px 8px;
-    gap: 4px;
+    padding: ${SP_05} ${SP_1};
+    gap: ${SP_05};
   }
 
   :host([size="s"]) .text {
@@ -289,8 +302,8 @@ const STYLES = /* css */ `
 
   :host .panel,
   :host([size="m"]) .panel {
-    padding: 6px 12px;
-    gap: 8px;
+    padding: ${SP_075} ${SP_15};
+    gap: ${SP_1};
   }
 
   :host .text,
@@ -313,8 +326,8 @@ const STYLES = /* css */ `
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .panel {
-    padding: 10px 16px;
-    gap: 8px;
+    padding: ${SP_125} ${SP_2};
+    gap: ${SP_1};
   }
 
   :host([size="l"]) .text {

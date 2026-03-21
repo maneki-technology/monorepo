@@ -4,6 +4,7 @@ import {
   elevationVar,
   colorVar,
   radiusVar,
+  borderWidthVar,
 } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
@@ -23,11 +24,12 @@ export const SP_1_5 = spaceVar("1.5");
 export const SP_0_5 = spaceVar("0.5");
 
 // Hover overlay — not a semantic token, uses rgba directly
-export const HOVER_OVERLAY = "rgba(159, 177, 189, 0.2)";
+export const BW_MD = borderWidthVar("md");
+export const HOVER_OVERLAY = semanticVar("stateHover", "surfaceModerate");
 // Disabled text — from stateDisabled
 export const DISABLED_TEXT = semanticVar("stateDisabled", "text");
 // Range overlay
-export const RANGE_OVERLAY = "rgba(24, 106, 222, 0.2)";
+export const RANGE_OVERLAY = semanticVar("stateSelected", "surfaceOverlay");
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -176,8 +178,8 @@ export const STYLES = /* css */ `
   }
 
   .day-cell:focus-visible {
-    outline: 2px solid ${BORDER_FOCUS};
-    outline-offset: -2px;
+    outline: ${BW_MD} solid ${BORDER_FOCUS};
+    outline-offset: calc(-1 * ${BW_MD});
   }
 
   /* ─── Monthly grid ─── */
@@ -214,8 +216,8 @@ export const STYLES = /* css */ `
   }
 
   .month-cell:focus-visible {
-    outline: 2px solid ${BORDER_FOCUS};
-    outline-offset: -2px;
+    outline: ${BW_MD} solid ${BORDER_FOCUS};
+    outline-offset: calc(-1 * ${BW_MD});
   }
 
   /* ─── Event dots ─── */

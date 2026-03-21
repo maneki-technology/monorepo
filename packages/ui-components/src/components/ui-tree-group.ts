@@ -1,6 +1,6 @@
 import "./ui-tree-item.js";
 import { ICON_SEARCH } from "@maneki/foundation";
-import { semanticVar } from "@maneki/foundation";
+import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -10,6 +10,14 @@ const TEXT_PRIMARY = semanticVar("text", "primary");
 const TEXT_TERTIARY = semanticVar("text", "tertiary");
 const ICON_SECONDARY = semanticVar("icon", "secondary");
 const BORDER_FOCUS = semanticVar("border", "focus");
+const RADIUS_SM = radiusVar("sm");             // 2px
+const SP_05 = spaceVar("0.5");                 // 4px
+const SP_1 = spaceVar("1");                     // 8px
+const SP_15 = spaceVar("1.5");                 // 12px
+const SP_2 = spaceVar("2");                     // 16px
+const SP_3 = spaceVar("3");                     // 24px
+const SP_4 = spaceVar("4");                     // 32px
+const SP_5 = spaceVar("5");                     // 40px
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -42,7 +50,7 @@ const STYLES = /* css */ `
     align-items: center;
     border: 1px solid ${BORDER_MODERATE};
     background: ${SURFACE_PRIMARY};
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
   }
 
   :host([searchable]) .search-input-wrapper {
@@ -90,7 +98,7 @@ const STYLES = /* css */ `
   .tree {
     display: flex;
     flex-direction: column;
-    padding: 4px 0;
+    padding: ${SP_05} 0;
   }
 
   ::slotted(ui-tree-item) {
@@ -104,9 +112,9 @@ const STYLES = /* css */ `
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .search-input-wrapper {
-    height: 24px;
-    padding: 0 8px;
-    gap: 4px;
+    height: ${SP_3};
+    padding: 0 ${SP_1};
+    gap: ${SP_05};
   }
 
   :host([size="s"]) .search-icon {
@@ -124,21 +132,21 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   /* ── Size: M (default) ───────────────────────────────────────────────────── */
 
   :host,
   :host([size="m"]) {
-    gap: 12px;
+    gap: ${SP_15};
   }
 
   :host .search-input-wrapper,
   :host([size="m"]) .search-input-wrapper {
-    height: 32px;
-    padding: 0 8px;
-    gap: 8px;
+    height: ${SP_4};
+    padding: 0 ${SP_1};
+    gap: ${SP_1};
   }
 
   :host .search-icon,
@@ -161,13 +169,13 @@ const STYLES = /* css */ `
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) {
-    gap: 16px;
+    gap: ${SP_2};
   }
 
   :host([size="l"]) .search-input-wrapper {
-    height: 40px;
-    padding: 0 12px;
-    gap: 8px;
+    height: ${SP_5};
+    padding: 0 ${SP_15};
+    gap: ${SP_1};
   }
 
   :host([size="l"]) .search-icon {

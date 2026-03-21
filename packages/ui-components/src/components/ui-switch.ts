@@ -1,4 +1,4 @@
-import { semanticVar, colorVar } from "@maneki/foundation";
+import { semanticVar, colorVar, spaceVar, radiusVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -6,8 +6,13 @@ const TEXT_PRIMARY = semanticVar("text", "primary");
 const TEXT_SECONDARY = semanticVar("text", "secondary");
 const BLUE_30 = colorVar("blue", 30);
 const BLUE_60 = colorVar("blue", 60);
+const GRAY_30 = colorVar("gray", 30);
+const GRAY_40 = colorVar("gray", 40);
+const RED_20 = colorVar("red", 20);
+const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
 const BORDER_FOCUS = semanticVar("border", "focus");
-
+const RADIUS_PILL = radiusVar("pill");     // 999px
+const SP_1 = spaceVar("1");                 // 8px
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type SwitchSize = "s" | "m" | "l";
@@ -44,7 +49,7 @@ const STYLES = /* css */ `
   .switch:focus-visible {
     outline: 2px solid ${BORDER_FOCUS};
     outline-offset: 2px;
-    border-radius: 999px;
+    border-radius: ${RADIUS_PILL};
   }
 
   /* ── Track (thin bar behind handle) ──────────────────────────────────────── */
@@ -53,8 +58,8 @@ const STYLES = /* css */ `
     position: absolute;
     left: 0;
     right: 0;
-    border-radius: 999px;
-    background: #C1CCD6;
+    border-radius: ${RADIUS_PILL};
+    background: ${GRAY_30};
     transition: background 0.2s ease;
   }
 
@@ -63,7 +68,7 @@ const STYLES = /* css */ `
   }
 
   :host([status="error"]) .track {
-    background: #FADCD9;
+    background: ${RED_20};
   }
 
   /* ── Handle (circle that slides) ─────────────────────────────────────────── */
@@ -71,8 +76,8 @@ const STYLES = /* css */ `
   .handle {
     position: absolute;
     left: 0;
-    border-radius: 999px;
-    background: #9FB1BD;
+    border-radius: ${RADIUS_PILL};
+    background: ${GRAY_40};
     transition: left 0.2s ease, background 0.2s ease;
   }
 
@@ -81,7 +86,7 @@ const STYLES = /* css */ `
   }
 
   :host([status="error"]) .handle {
-    background: #D91F11;
+    background: ${ERROR_BOLD};
   }
 
   /* ── Label ───────────────────────────────────────────────────────────────── */
@@ -119,7 +124,7 @@ const STYLES = /* css */ `
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   :host([size="s"]) .switch {
@@ -151,7 +156,7 @@ const STYLES = /* css */ `
 
   :host,
   :host([size="m"]) {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   :host .switch,
@@ -187,7 +192,7 @@ const STYLES = /* css */ `
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) {
-    gap: 8px;
+    gap: ${SP_1};
   }
 
   :host([size="l"]) .switch {

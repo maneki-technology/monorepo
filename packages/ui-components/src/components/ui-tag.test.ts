@@ -404,8 +404,8 @@ describe("ui-tag", () => {
     expect(styles).toContain("white-space: nowrap");
   });
 
-  it("CSS contains border-radius: 200px for pill shape", () => {
-    expect(STYLES).toContain("border-radius: 200px");
+  it("CSS contains border-radius pill token for pill shape", () => {
+    expect(STYLES).toContain("border-radius: var(--fd-radius-pill)");
   });
 
   // ── Toggle type specifics ─────────────────────────────────────────────
@@ -419,7 +419,7 @@ describe("ui-tag", () => {
   });
 
   it("CSS contains border-radius: 2px for toggle", () => {
-    expect(STYLES).toContain("border-radius: 2px");
+    expect(STYLES).toContain("border-radius: var(--fd-radius-sm)");
   });
 
   // ── Selectable type specifics ─────────────────────────────────────────

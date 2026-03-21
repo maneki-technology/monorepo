@@ -1,4 +1,4 @@
-import { semanticVar, elevationVar, spaceVar } from "@maneki/foundation";
+import { semanticVar, elevationVar, spaceVar, borderWidthVar } from "@maneki/foundation";
 
 // ─── Token constants ─────────────────────────────────────────────────────────
 
@@ -6,6 +6,10 @@ const SURFACE_SECONDARY = semanticVar("surface", "secondary");
 const TEXT_PRIMARY = semanticVar("text", "primary");
 const BORDER_MINIMAL = semanticVar("border", "minimal");
 const ELEVATION_03 = elevationVar("03");
+const SP_2 = spaceVar("2");                   // 16px
+const SP_125 = spaceVar("1.25");             // 10px
+const SP_5 = spaceVar("5");                   // 40px
+const BW_SM = borderWidthVar("sm");           // 1px
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -35,7 +39,7 @@ export const STYLES = /* css */ `
   .flyout {
     display: none;
     position: absolute;
-    left: 40px;
+    left: ${SP_5};
     top: 0;
     min-width: 200px;
     max-height: 100%;
@@ -52,11 +56,11 @@ export const STYLES = /* css */ `
   }
 
   .flyout-title {
-    padding: 10px 16px;
+    padding: ${SP_125} ${SP_2};
     font-size: 14px;
     font-weight: 500;
     line-height: 20px;
     color: var(--ui-spm-flyout-title, ${TEXT_PRIMARY});
-    border-bottom: 1px solid var(--ui-spm-flyout-sep, ${BORDER_MINIMAL});
+    border-bottom: ${BW_SM} solid var(--ui-spm-flyout-sep, ${BORDER_MINIMAL});
   }
 `;
