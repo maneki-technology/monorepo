@@ -18,6 +18,7 @@ import {
   TYPE_BODY_01,
   TYPE_BODY_02,
   TYPE_BODY_03,
+  SURFACE_PRIMARY,
 } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -69,7 +70,7 @@ const STYLES = /* css */ `
     justify-content: center;
     border: 1px solid var(--ui-radio-border, ${FORM_INPUT_BORDER});
     border-radius: ${RADIUS_CIRCLE};
-    background-color: var(--ui-radio-bg, #ffffff);
+    background-color: var(--ui-radio-bg, ${SURFACE_PRIMARY});
     transition:
       background-color 0.15s ease,
       border-color 0.15s ease;
@@ -198,7 +199,7 @@ const STYLES = /* css */ `
 
   :host([checked]) .radio {
     border-color: var(--ui-radio-checked-border, ${BORDER_CONTRAST});
-    background-color: var(--ui-radio-bg, #ffffff);
+    background-color: var(--ui-radio-bg, ${SURFACE_PRIMARY});
   }
 
   /* ── Hover ──────────────────────────────────────────────────────────────── */

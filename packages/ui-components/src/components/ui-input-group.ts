@@ -11,6 +11,7 @@ import {
   SURFACE_TERTIARY,
   TEXT_PRIMARY,
   TEXT_SECONDARY,
+  SURFACE_PRIMARY,
 } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -107,7 +108,7 @@ const STYLES = /* css */ `
     display: flex;
     flex: 1;
     min-width: 0;
-    background-color: var(--ui-ig-input-bg, #ffffff);
+    background-color: var(--ui-ig-input-bg, ${SURFACE_PRIMARY});
   }
 
   ::slotted(ui-input) {

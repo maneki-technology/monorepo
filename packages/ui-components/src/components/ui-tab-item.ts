@@ -272,7 +272,7 @@ const STYLES = /* css */ `
 
   .close-btn:hover {
     color: var(--ui-tab-text-color, ${TEXT_PRIMARY});
-    background: rgba(0, 0, 0, 0.08);
+    background: var(--fd-state-hover-surface-moderate, rgba(0, 0, 0, 0.08));
   }
 
   .close-btn:focus-visible {

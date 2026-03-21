@@ -19,13 +19,13 @@ function renderSwatch(name: string, cssVar: string, value: any, mode: string): s
   if (mode === "surface") {
     swatchHtml = `<div style="width:44px;height:44px;border-radius:6px;flex-shrink:0;background:${resolved};${isLight ? "border:1px solid #dce3e8;" : ""}"></div>`;
   } else if (mode === "border") {
-    swatchHtml = `<div style="width:44px;height:44px;border-radius:6px;flex-shrink:0;background:#fff;border:2px solid ${resolved};"></div>`;
+    swatchHtml = `<div style="width:44px;height:44px;border-radius:6px;flex-shrink:0;background:var(--fd-surface-tertiary,#f8f9fa);border:2px solid ${resolved};"></div>`;
   } else {
-    swatchHtml = `<div style="width:44px;height:44px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;background:#fff;border:1px solid #dce3e8;color:${resolved};">${mode === "icon" ? "\u2605" : "Aa"}</div>`;
+    swatchHtml = `<div style="width:44px;height:44px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;background:var(--fd-surface-tertiary,#f8f9fa);border:1px solid var(--fd-border-minimal,#dce3e8);color:${resolved};">${mode === "icon" ? "\u2605" : "Aa"}</div>`;
   }
 
   return `
-    <div style="display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px;background:#f8f9fa;">
+    <div style="display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px;background:var(--fd-surface-secondary,#f8f9fa);">
       ${swatchHtml}
       <div style="min-width:0;">
         <div style="font-size:12px;font-weight:500;margin-bottom:2px;">${name}</div>

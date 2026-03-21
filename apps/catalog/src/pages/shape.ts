@@ -9,7 +9,7 @@ registerPage("shape", {
       <style>
         .shape-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px; margin-bottom: 40px; }
         .shape-card {
-          background: #fff; border: 1px solid var(--fd-border-minimal, #dce3e8);
+          background: var(--fd-surface-tertiary, #f8f9fa); border: 1px solid var(--fd-border-minimal, #dce3e8);
           border-radius: 8px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 12px;
         }
         .shape-preview { display: flex; align-items: center; justify-content: center; }
@@ -47,7 +47,7 @@ registerPage("shape", {
       html += `
         <div class="shape-card">
           <div class="shape-preview">
-            <div style="width:80px;height:48px;background:#fff;border:${value} solid #186ade;border-radius:4px;"></div>
+            <div style="width:80px;height:48px;background:var(--fd-surface-tertiary,#f8f9fa);border:${value} solid #186ade;border-radius:4px;"></div>
           </div>
           <div class="shape-name">${step}</div>
           <div class="shape-value">${value}</div>

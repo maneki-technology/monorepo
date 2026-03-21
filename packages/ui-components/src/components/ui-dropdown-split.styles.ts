@@ -322,14 +322,13 @@ export const STYLES = /* css */ `
   /* ── Action × Emphasis: CONTRAST ──────────────────────────────────────── */
   :host([action="contrast"]) .base,
   :host([action="contrast"][emphasis="bold"]) .base {
-    background-color: var(--ui-dds-bg, #ffffff);
     color: var(--ui-dds-color, ${TEXT_PRIMARY});
-    border-color: var(--ui-dds-border-color, #ffffff);
+    border-color: var(--ui-dds-border-color, ${SURFACE_PRIMARY});
   }
   :host([action="contrast"][emphasis="subtle"]) .base {
     background-color: transparent;
     color: var(--ui-dds-color, #ffffff);
-    border-color: var(--ui-dds-border-color, #ffffff);
+    border-color: var(--ui-dds-border-color, ${SURFACE_PRIMARY});
   }
   :host([action="contrast"][emphasis="minimal"]) .base {
     background-color: transparent;
@@ -364,23 +363,23 @@ export const STYLES = /* css */ `
   .left:focus-visible,
   .right:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${BORDER_FOCUS};
+    box-shadow: 0 0 0 1px ${SURFACE_PRIMARY}, 0 0 0 2px ${BORDER_FOCUS};
   }
   :host([action="secondary"]) .left:focus-visible,
   :host([action="secondary"]) .right:focus-visible {
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${TEXT_PRIMARY};
+    box-shadow: 0 0 0 1px ${SURFACE_PRIMARY}, 0 0 0 2px ${TEXT_PRIMARY};
   }
   :host([action="destructive"]) .left:focus-visible,
   :host([action="destructive"]) .right:focus-visible {
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${SURFACE_DESTRUCTIVE};
+    box-shadow: 0 0 0 1px ${SURFACE_PRIMARY}, 0 0 0 2px ${SURFACE_DESTRUCTIVE};
   }
   :host([action="info"]) .left:focus-visible,
   :host([action="info"]) .right:focus-visible {
-    box-shadow: 0 0 0 1px #ffffff, 0 0 0 2px ${SURFACE_ACTION_CONTRAST};
+    box-shadow: 0 0 0 1px ${SURFACE_PRIMARY}, 0 0 0 2px ${SURFACE_ACTION_CONTRAST};
   }
   :host([action="contrast"]) .left:focus-visible,
   :host([action="contrast"]) .right:focus-visible {
-    box-shadow: 0 0 0 1px ${TEXT_PRIMARY}, 0 0 0 2px #ffffff;
+    box-shadow: 0 0 0 1px ${TEXT_PRIMARY}, 0 0 0 2px ${SURFACE_PRIMARY};
   }
   /* ── Disabled ────────────────────────────────────────────────────────── */
   :host([disabled]) .base {
@@ -476,7 +475,6 @@ export const STYLES = /* css */ `
     z-index: 1000;
     min-width: 240px;
     padding: ${SP_0_5} 0;
-    background-color: var(--ui-dds-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-dds-menu-shadow, ${ELEVATION_05});
     border-radius: ${RADIUS_SM};
     overflow: visible;

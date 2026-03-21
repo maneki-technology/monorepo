@@ -77,7 +77,6 @@ export const STYLES = /* css */ `
     align-items: center;
     border: 1px solid var(--ui-select-border, ${FORM_INPUT_BORDER});
     border-radius: ${RADIUS_SM};
-    background-color: var(--ui-select-bg, #ffffff);
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;
@@ -240,10 +239,9 @@ export const STYLES = /* css */ `
     z-index: 1000;
     min-width: 100%;
     padding: ${SP_0_5} 0;
-    background-color: var(--ui-select-panel-bg, ${SURFACE_PRIMARY});
+    background: var(--ui-select-panel-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-select-panel-shadow, ${ELEVATION_05});
     border-radius: ${RADIUS_SM};
-    overflow: visible;
     margin-top: ${SP_0_25};
     opacity: 0;
     visibility: hidden;

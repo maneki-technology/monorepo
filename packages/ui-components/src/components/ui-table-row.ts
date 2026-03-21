@@ -17,7 +17,7 @@ const STYLES = /* css */ `
   /* ── Hover ────────────────────────────────────────────────────────────── */
 
   :host(:hover:not([disabled]):not([header])) {
-    background: linear-gradient(0deg, rgba(159, 177, 189, 0.20) 0%, rgba(159, 177, 189, 0.20) 100%), #fff;
+    background: linear-gradient(0deg, rgba(159, 177, 189, 0.20) 0%, rgba(159, 177, 189, 0.20) 100%), var(--fd-surface-primary, #fff);
   }
 
   /* ── Selected ─────────────────────────────────────────────────────────── */
