@@ -78,6 +78,11 @@ const STYLES = /* css */ `
 
   :host([selected]) .row {
     background-color: var(--ui-spmi-selected-bg, ${SELECTED_OVERLAY});
+    color: var(--ui-spmi-active-text, ${ICON_ACTION});
+  }
+
+  :host([selected]) .leading-icon {
+    color: var(--ui-spmi-active-icon, ${ICON_ACTION});
   }
 
   :host([selected]) .row::before {

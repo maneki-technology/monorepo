@@ -102,12 +102,15 @@ function buildSidebar(): void {
   }
 
   // Populate the <ui-side-panel-menu> with section headers + items
+  let isFirstSection = true;
   for (const section of sectionOrder) {
     const items = sections[section];
     if (!items) continue;
 
     const header = document.createElement("ui-side-panel-menu-section");
     header.textContent = section;
+    if (!isFirstSection) header.setAttribute("separator", "");
+    isFirstSection = false;
     sidebar.appendChild(header);
 
     for (const item of items) {
