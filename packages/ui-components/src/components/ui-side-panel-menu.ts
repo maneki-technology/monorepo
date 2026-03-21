@@ -12,7 +12,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiSidePanelMenu extends HTMLElement {
-  static readonly observedAttributes = ["state", "overlay", "title", "mobile"];
+  static readonly observedAttributes = ["state", "overlay", "title", "mobile", "no-collapse"];
 
   private _panel: HTMLElement;
   private _menu: HTMLDivElement;
@@ -121,6 +121,10 @@ export class UiSidePanelMenu extends HTMLElement {
         this.setAttribute("state", "expanded");
       }
     }
+    if (name === "no-collapse") {
+      if (this.hasAttribute("no-collapse")) this._panel.setAttribute("no-collapse", "");
+      else this._panel.removeAttribute("no-collapse");
+    }
   }
 
   // ── Property accessors ──────────────────────────────────────────────────
@@ -153,6 +157,7 @@ export class UiSidePanelMenu extends HTMLElement {
     this._panel.setAttribute("title", this.getAttribute("title") ?? "Panel Title");
     if (this.hasAttribute("overlay")) this._panel.setAttribute("overlay", "");
     if (this.hasAttribute("mobile")) this._panel.setAttribute("mobile", "");
+    if (this.hasAttribute("no-collapse")) this._panel.setAttribute("no-collapse", "");
   }
 
   // ── Private: item type sync ─────────────────────────────────────────────

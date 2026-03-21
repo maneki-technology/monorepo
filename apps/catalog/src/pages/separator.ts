@@ -5,7 +5,7 @@ registerPage("separator", {
   section: "Primitives",
   render: () => `
     <h3>Emphasis — Horizontal</h3>
-    <div class="stack-l" style="gap: 24px; max-width: 400px;">
+    <div class="stack-l w-400">
       <div class="variant-col">
         <span class="variant-label">Minimal</span>
         <ui-separator emphasis="minimal"></ui-separator>
@@ -29,7 +29,7 @@ registerPage("separator", {
     </div>
 
     <h3>Length — Horizontal</h3>
-    <div class="stack-l" style="gap: 24px; max-width: 400px;">
+    <div class="stack-l w-400">
       <div class="variant-col">
         <span class="variant-label">Full</span>
         <ui-separator emphasis="bold" length="full"></ui-separator>
@@ -53,24 +53,24 @@ registerPage("separator", {
     </div>
 
     <h3>Vertical — Emphasis</h3>
-    <div class="variant-row" style="gap: 40px; height: 80px; align-items: stretch;">
-      <div class="variant-col" style="align-items: center;">
+    <div class="variant-row gap-40" style="height: 80px; align-items: stretch;">
+      <div class="variant-col items-center">
         <span class="variant-label">Minimal</span>
         <ui-separator orientation="vertical" emphasis="minimal"></ui-separator>
       </div>
-      <div class="variant-col" style="align-items: center;">
+      <div class="variant-col items-center">
         <span class="variant-label">Subtle</span>
         <ui-separator orientation="vertical" emphasis="subtle"></ui-separator>
       </div>
-      <div class="variant-col" style="align-items: center;">
+      <div class="variant-col items-center">
         <span class="variant-label">Moderate</span>
         <ui-separator orientation="vertical" emphasis="moderate"></ui-separator>
       </div>
-      <div class="variant-col" style="align-items: center;">
+      <div class="variant-col items-center">
         <span class="variant-label">Bold</span>
         <ui-separator orientation="vertical" emphasis="bold"></ui-separator>
       </div>
-      <div class="variant-col" style="align-items: center;">
+      <div class="variant-col items-center">
         <span class="variant-label">Contrast</span>
         <ui-separator orientation="vertical" emphasis="contrast"></ui-separator>
       </div>

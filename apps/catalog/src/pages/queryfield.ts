@@ -6,7 +6,7 @@ registerPage("queryfield", {
   render: () => `
     <h3>Interactive (click input to try)</h3>
     <p style="font-size: 13px; color: var(--fd-text-tertiary, #7a909e); margin: 0 0 8px;">Pick from suggestions, type custom values + Enter, click tags to edit, X to dismiss</p>
-    <div class="stack-l" style="gap: 16px; max-width: 600px;">
+    <div class="stack-m w-600">
       <ui-queryfield id="interactive-qf" size="m" placeholder="Click to add filters...">
         <ui-queryfield-tag slot="tags" category="CITY" expression="equals London or Mumbai" filter-name="city" operator="equals" values="London,Mumbai"></ui-queryfield-tag>
         <ui-queryfield-tag slot="tags" category="TITLE" expression="contains VP" filter-name="title" operator="contains" values="VP"></ui-queryfield-tag>
@@ -14,7 +14,7 @@ registerPage("queryfield", {
     </div>
 
     <h3>Queryfield Tag — Sizes</h3>
-    <div class="stack-l" style="gap: 16px;">
+    <div class="stack-m">
       <div class="variant-col">
         <span class="variant-label">S</span>
         <ui-queryfield-tag size="s" category="CITY" expression="equals London or Bengaluru"></ui-queryfield-tag>
@@ -30,7 +30,7 @@ registerPage("queryfield", {
     </div>
 
     <h3>Queryfield — Sizes</h3>
-    <div class="stack-l" style="gap: 16px; max-width: 600px;">
+    <div class="stack-m w-600">
       <div class="variant-col">
         <span class="variant-label">S</span>
         <ui-queryfield size="s" placeholder="Search...">
@@ -54,19 +54,19 @@ registerPage("queryfield", {
     </div>
 
     <h3>Queryfield — Empty</h3>
-    <div class="stack-l" style="gap: 16px; max-width: 600px;">
+    <div class="stack-m w-600">
       <ui-queryfield size="m" placeholder="Type to search or add filters..."></ui-queryfield>
     </div>
 
     <h3>Queryfield — Disabled</h3>
-    <div class="stack-l" style="gap: 16px; max-width: 600px;">
+    <div class="stack-m w-600">
       <ui-queryfield size="m" placeholder="Search..." disabled>
         <ui-queryfield-tag slot="tags" category="CITY" expression="equals London"></ui-queryfield-tag>
       </ui-queryfield>
     </div>
 
     <h3>Queryfield — Multiple Tags</h3>
-    <div class="stack-l" style="gap: 16px; max-width: 600px;">
+    <div class="stack-m w-600">
       <ui-queryfield size="m" placeholder="Add more filters...">
         <ui-queryfield-tag slot="tags" category="CITY" expression="equals London or Bengaluru"></ui-queryfield-tag>
         <ui-queryfield-tag slot="tags" category="STATUS" expression="equals Active"></ui-queryfield-tag>

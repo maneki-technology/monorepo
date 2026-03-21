@@ -5,7 +5,7 @@ registerPage("button", {
   section: "Primitives",
   render: () => `
     <h3>Actions × Emphases</h3>
-    <div class="variant-group" style="display:grid;grid-template-columns:80px 1fr 1fr 1fr;gap:8px 12px;align-items:center;">
+    <div class="variant-group matrix matrix-3">
       <span class="variant-label"></span>
       <span class="variant-label">Bold</span>
       <span class="variant-label">Subtle</span>
@@ -18,7 +18,7 @@ registerPage("button", {
       ).join("")}
     </div>
     <h3>Sizes</h3>
-    <div class="variant-group" style="display:grid;grid-template-columns:80px 1fr 1fr 1fr 1fr;gap:8px 12px;align-items:center;">
+    <div class="variant-group matrix matrix-4">
       <span class="variant-label"></span>
       <span class="variant-label">S</span>
       <span class="variant-label">M</span>

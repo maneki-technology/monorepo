@@ -101,22 +101,27 @@ function buildSidebar(): void {
     sections[entry.section].push({ id: entry.id, title: entry.title });
   }
 
-  let html = `<h1>Maneki</h1>`;
+  // Populate the <ui-side-panel-menu> with section headers + items
   for (const section of sectionOrder) {
     const items = sections[section];
     if (!items) continue;
-    html += `<div class="section-title">${section}</div>`;
+
+    const header = document.createElement("ui-side-panel-menu-section");
+    header.textContent = section;
+    sidebar.appendChild(header);
+
     for (const item of items) {
-      html += `<a href="#${item.id}" data-page="${item.id}">${item.title}</a>`;
+      const child = document.createElement("ui-side-panel-menu-item");
+      child.dataset.page = item.id;
+      child.textContent = item.title;
+      sidebar.appendChild(child);
     }
   }
-  sidebar.innerHTML = html;
 
   sidebar.addEventListener("click", (e) => {
-    const link = (e.target as HTMLElement).closest("a");
-    if (!link) return;
-    e.preventDefault();
-    const pageId = link.dataset.page;
+    const item = (e.target as HTMLElement).closest("ui-side-panel-menu-item[data-page]");
+    if (!item) return;
+    const pageId = (item as HTMLElement).dataset.page;
     if (pageId) navigate(pageId);
   });
 }
@@ -134,9 +139,14 @@ async function renderPage(pageId: string): Promise<void> {
     return;
   }
 
-  // Update active link immediately (no waiting for lazy load)
-  document.querySelectorAll("#sidebar a").forEach((a) => {
-    a.classList.toggle("active", (a as HTMLElement).dataset.page === pageId);
+  // Update active item immediately (no waiting for lazy load)
+  document.querySelectorAll("#sidebar ui-side-panel-menu-item[data-page]").forEach((item) => {
+    const el = item as HTMLElement;
+    if (el.dataset.page === pageId) {
+      el.setAttribute("selected", "");
+    } else {
+      el.removeAttribute("selected");
+    }
   });
 
   // Show subtle loading state if not already cached

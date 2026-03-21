@@ -13,7 +13,7 @@ sheet.replaceSync(STYLES);
 const MOBILE_QUERY = "(max-width: 767px)";
 
 export class UiSidePanel extends HTMLElement {
-  static readonly observedAttributes = ["state", "overlay", "mobile", "title"];
+  static readonly observedAttributes = ["state", "overlay", "mobile", "title", "no-collapse"];
 
   #header!: HTMLElement;
   #titleEl!: HTMLElement;
@@ -67,6 +67,8 @@ export class UiSidePanel extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.hasAttribute("state")) this.setAttribute("state", "expanded");
+    if (this.hasAttribute("no-collapse")) this.#toggleBtn.style.display = "none";
+    if (!this.hasAttribute("state")) this.setAttribute("state", "expanded");
 
     this.#toggleBtn.addEventListener("click", () => this.toggle());
     this._syncToggleIcon();
@@ -89,6 +91,9 @@ export class UiSidePanel extends HTMLElement {
         break;
       case "title":
         this._syncTitle();
+        break;
+      case "no-collapse":
+        this.#toggleBtn.style.display = newValue !== null ? "none" : "";
         break;
     }
   }

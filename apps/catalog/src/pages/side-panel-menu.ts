@@ -139,5 +139,51 @@ registerPage("side-panel-menu", {
         <p class="card-text">Main content area</p>
       </div>
     </div>
+
+    <h3>Non-Collapsible</h3>
+    <div class="layout-frame layout-frame-400">
+      <ui-side-panel-menu title="Navigation" no-collapse>
+        <ui-side-panel-menu-item leading-icon>
+          <ui-icon slot="icon" name="home" size="m"></ui-icon>
+          Dashboard
+        </ui-side-panel-menu-item>
+        <ui-side-panel-menu-item leading-icon selected>
+          <ui-icon slot="icon" name="person" size="m"></ui-icon>
+          Profile
+        </ui-side-panel-menu-item>
+        <ui-side-panel-menu-item leading-icon>
+          <ui-icon slot="icon" name="bar_chart" size="m"></ui-icon>
+          Analytics
+        </ui-side-panel-menu-item>
+        <ui-side-panel-menu-item leading-icon>
+          <ui-icon slot="icon" name="settings" size="m"></ui-icon>
+          Settings
+        </ui-side-panel-menu-item>
+      </ui-side-panel-menu>
+      <div class="main-content">
+        <p class="card-text">Main content area</p>
+      </div>
+    </div>
+
+    <h3>With Sections</h3>
+    <div class="layout-frame layout-frame-500">
+      <ui-side-panel-menu title="Catalog" no-collapse>
+        <ui-side-panel-menu-section>Foundation</ui-side-panel-menu-section>
+        <ui-side-panel-menu-item>Colors</ui-side-panel-menu-item>
+        <ui-side-panel-menu-item selected>Spacing</ui-side-panel-menu-item>
+        <ui-side-panel-menu-item>Typography</ui-side-panel-menu-item>
+        <ui-side-panel-menu-item>Elevation</ui-side-panel-menu-item>
+        <ui-side-panel-menu-section>Primitives</ui-side-panel-menu-section>
+        <ui-side-panel-menu-item>Badge</ui-side-panel-menu-item>
+        <ui-side-panel-menu-item>Button</ui-side-panel-menu-item>
+        <ui-side-panel-menu-item>Avatar</ui-side-panel-menu-item>
+        <ui-side-panel-menu-section>Form Controls</ui-side-panel-menu-section>
+        <ui-side-panel-menu-item>Input</ui-side-panel-menu-item>
+        <ui-side-panel-menu-item>Select</ui-side-panel-menu-item>
+        <ui-side-panel-menu-item>Checkbox</ui-side-panel-menu-item>
+      </ui-side-panel-menu>
+      <div class="main-content">
+        <p class="card-text">Main content area</p>
+      </div>
   `,
 });

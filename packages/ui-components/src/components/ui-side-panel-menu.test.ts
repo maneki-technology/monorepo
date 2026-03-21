@@ -61,7 +61,7 @@ describe("ui-side-panel-menu", () => {
     const Ctor = customElements.get("ui-side-panel-menu") as unknown as {
       observedAttributes: string[];
     };
-    expect(Ctor.observedAttributes).toEqual(["state", "overlay", "title", "mobile"]);
+    expect(Ctor.observedAttributes).toEqual(["state", "overlay", "title", "mobile", "no-collapse"]);
   });
 
   // ── State attribute ──────────────────────────────────────────────────────
