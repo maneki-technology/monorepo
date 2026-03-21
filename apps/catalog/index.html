@@ -12,6 +12,23 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; }
 
+    /* Skip link — visible only on focus for keyboard users */
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: 16px;
+      z-index: 9999;
+      padding: 8px 16px;
+      background: #186ade;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 14px;
+      text-decoration: none;
+    }
+    .skip-link:focus {
+      top: 8px;
+    }
+
     /* Fallback font metrics to minimize CLS during Geist swap */
     @font-face {
       font-family: 'Geist Fallback';
@@ -248,8 +265,11 @@
   </style>
 </head>
 <body>
+  <a href="#content" class="skip-link">Skip to content</a>
   <div id="app">
-    <ui-side-panel-menu id="sidebar" title="Maneki" state="expanded" no-collapse></ui-side-panel-menu>
+    <nav aria-label="Component navigation">
+      <ui-side-panel-menu id="sidebar" title="Maneki" state="expanded" no-collapse></ui-side-panel-menu>
+    </nav>
     <main id="content"></main>
   </div>
   <div id="update-banner">
