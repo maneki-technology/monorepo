@@ -267,8 +267,15 @@
 <body>
   <a href="#content" class="skip-link">Skip to content</a>
   <div id="app">
-    <nav aria-label="Component navigation">
-      <ui-side-panel-menu id="sidebar" title="Maneki" state="expanded" no-collapse></ui-side-panel-menu>
+    <nav aria-label="Component navigation" style="display:flex;flex-direction:column;height:100vh">
+      <ui-side-panel-menu id="sidebar" title="Maneki" state="expanded" no-collapse style="flex:1;overflow-y:auto"></ui-side-panel-menu>
+      <div style="padding:8px 12px;border-top:1px solid var(--fd-border-minimal,#dce3e8);display:flex;justify-content:center">
+        <button id="theme-toggle" aria-label="Toggle dark mode" style="
+          background:none;border:none;cursor:pointer;
+          font-size:18px;padding:6px 12px;border-radius:4px;
+          color:var(--fd-text-secondary,#3e5463);
+        ">☀️</button>
+      </div>
     </nav>
     <main id="content" tabindex="0"></main>
   </div>

@@ -7,6 +7,7 @@ import {
   HOVER_BORDER_MODERATE,
   SP_1,
   SP_1_5,
+  SURFACE_PRIMARY,
   SURFACE_SECONDARY,
   SURFACE_TERTIARY,
   TEXT_PRIMARY,
@@ -35,7 +36,7 @@ const STYLES = /* css */ `
     align-items: stretch;
     border: 1px solid var(--ui-fu-border, ${FORM_INPUT_BORDER});
     border-radius: 2px;
-    background-color: var(--ui-fu-bg, #ffffff);
+    background-color: var(--ui-fu-bg, ${SURFACE_PRIMARY});
     overflow: hidden;
     cursor: pointer;
     width: 100%;

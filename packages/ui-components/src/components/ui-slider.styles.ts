@@ -16,6 +16,7 @@ import {
   SURFACE_BOLD,
   TEXT_PRIMARY,
   TYPE_BODY_03,
+  SURFACE_PRIMARY,
 } from "@maneki/foundation";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -89,7 +90,7 @@ export const STYLES = /* css */ `
     position: absolute;
     inset: ${BW_MD};
     border-radius: ${RADIUS_PILL};
-    background: #ffffff;
+    background: ${SURFACE_PRIMARY};
     transition: background 0.1s ease;
   }
 

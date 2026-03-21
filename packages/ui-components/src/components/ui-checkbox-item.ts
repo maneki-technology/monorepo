@@ -18,6 +18,7 @@ import {
   TYPE_BODY_01,
   TYPE_BODY_02,
   TYPE_BODY_03,
+  SURFACE_PRIMARY,
 } from "@maneki/foundation";
 import "./ui-icon.js";
 import type { UiIcon } from "./ui-icon.js";
@@ -74,7 +75,7 @@ const STYLES = /* css */ `
     border-style: solid;
     border-color: var(--ui-cb-border, ${FORM_INPUT_BORDER});
     border-radius: ${RADIUS_SM};
-    background-color: var(--ui-cb-bg, #ffffff);
+    background-color: var(--ui-cb-bg, ${SURFACE_PRIMARY});
     color: #ffffff;
     transition:
       background-color 0.15s ease,

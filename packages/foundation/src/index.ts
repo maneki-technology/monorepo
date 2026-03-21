@@ -5,6 +5,8 @@ export {
   colorVar,
   semanticToCssProperties,
   elevationToCssProperties,
+  darkSemanticToCssProperties,
+  darkElevationToCssProperties,
   injectAllTokens,
   semanticVar,
   elevationVar,

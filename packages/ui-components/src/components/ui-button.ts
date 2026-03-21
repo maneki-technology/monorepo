@@ -29,7 +29,9 @@ import {
   SP_4,
   SURFACE_ACTION,
   SURFACE_ACTION_CONTRAST,
+  SURFACE_CONTRAST,
   SURFACE_DESTRUCTIVE,
+  SURFACE_PRIMARY,
   SURFACE_SUCCESS,
   SURFACE_TERTIARY,
   TEXT_PRIMARY,
@@ -243,9 +245,9 @@ const STYLES = /* css */ `
 
   :host([action="contrast"]) button,
   :host([action="contrast"][emphasis="bold"]) button {
-    background-color: var(--ui-btn-bg, ${WHITE});
-    color: var(--ui-btn-color, ${TEXT_PRIMARY});
-    border-color: var(--ui-btn-border-color, ${WHITE});
+    background-color: var(--ui-btn-bg, ${SURFACE_PRIMARY});
+    color: var(--ui-btn-color, ${SURFACE_CONTRAST});
+    border-color: var(--ui-btn-border-color, ${SURFACE_PRIMARY});
   }
 
   :host([action="contrast"][emphasis="subtle"]) button {

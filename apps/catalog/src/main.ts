@@ -96,6 +96,8 @@ async function ensurePageLoaded(pageId: string): Promise<boolean> {
 
 function buildSidebar(): void {
   const sidebar = document.getElementById("sidebar")!;
+  // Clear any existing items (prevents duplication on re-run)
+  sidebar.querySelectorAll("ui-side-panel-menu-item, ui-side-panel-menu-section").forEach(el => el.remove());
   const sections: Record<string, { id: string; title: string }[]> = {};
 
   for (const entry of manifest) {
@@ -185,7 +187,33 @@ function onHashChange(): void {
   renderPage(hash || manifest[0].id);
 }
 
+// ─── Theme Toggle ─────────────────────────────────────────────────────────
+
+function initThemeToggle(): void {
+  const btn = document.getElementById("theme-toggle")!;
+  const saved = localStorage.getItem("maneki-theme");
+  if (saved === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+    btn.textContent = "\u263E";
+  }
+  btn.addEventListener("click", () => {
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    if (isDark) {
+      document.documentElement.removeAttribute("data-theme");
+      localStorage.setItem("maneki-theme", "light");
+      btn.textContent = "\u2600\uFE0F";
+    } else {
+      document.documentElement.setAttribute("data-theme", "dark");
+      localStorage.setItem("maneki-theme", "dark");
+      btn.textContent = "\u263E";
+    }
+  });
+}
+
 // ─── Init ────────────────────────────────────────────────────────────────────
+
+buildSidebar();
+initThemeToggle();
 
 buildSidebar();
 window.addEventListener("hashchange", onHashChange);

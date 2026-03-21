@@ -16,6 +16,7 @@ import {
   SP_2,
   TEXT_LINK,
   TEXT_PRIMARY,
+  SURFACE_PRIMARY,
 } from "@maneki/foundation";
 import "./ui-icon.js";
 import type { TabItemSize, TabItemOrientation } from "./ui-tab-item.js";
@@ -161,7 +162,7 @@ const STYLES = /* css */ `
     display: none;
     position: absolute;
     z-index: 100;
-    background: #ffffff;
+    background: ${SURFACE_PRIMARY};
     border: ${BW_SM} solid ${BORDER_MINIMAL};
     border-radius: ${RADIUS_MD};
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
@@ -222,7 +223,7 @@ const STYLES = /* css */ `
   }
 
   .overflow-menu-item:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--fd-state-hover-surface-minimal, rgba(0, 0, 0, 0.04));
   }
 
   .overflow-menu-item.selected {

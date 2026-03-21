@@ -1,12 +1,12 @@
 import {
   FONT_PRIMARY,
+  GRAY_110,
   ICON_REVERSED,
   RADIUS_SM,
   SP_1,
   SP_1_5,
   SP_2,
   SP_2_5,
-  SURFACE_CONTRAST,
   TEXT_REVERSED,
   TYPE_BODY_01,
   TYPE_BODY_02,
@@ -56,7 +56,7 @@ export const STYLES = /* css */ `
   .base {
     display: flex;
     align-items: flex-start;
-    background: ${SURFACE_CONTRAST};
+    background: ${GRAY_110};
     border-radius: ${RADIUS_SM};
     color: ${TEXT_REVERSED};
   }
@@ -114,7 +114,7 @@ export const STYLES = /* css */ `
     position: absolute;
     width: 10px;
     height: 10px;
-    background: ${SURFACE_CONTRAST};
+    background: ${GRAY_110};
     transform: rotate(45deg);
   }
 

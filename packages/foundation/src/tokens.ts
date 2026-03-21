@@ -1,4 +1,12 @@
 import { colors, type ColorFamily } from "./colors.js";
+import {
+  semanticTokens,
+  elevation,
+  resolveSemanticValue,
+  type SemanticValue,
+  type SemanticTokenGroup,
+} from "./semantic-tokens.js";
+import { darkSemanticTokens, darkElevation } from "./dark-theme.js";
 
 /**
  * Generates CSS custom properties string from the color tokens.
@@ -41,18 +49,6 @@ export function colorVar<F extends ColorFamily>(
   return `var(--fd-color-${family}-${String(step)})`;
 }
 
-// ---------------------------------------------------------------------------
-// Semantic tokens → CSS custom properties
-// ---------------------------------------------------------------------------
-
-import {
-  semanticTokens,
-  elevation,
-  resolveSemanticValue,
-  type SemanticValue,
-  type SemanticTokenGroup,
-} from "./semantic-tokens.js";
-
 /** Convert a camelCase key to kebab-case. */
 function toKebab(s: string): string {
   return s.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
@@ -92,6 +88,32 @@ export function elevationToCssProperties(): string {
 }
 
 /**
+ * Generates CSS custom properties for dark theme semantic token overrides.
+ */
+export function darkSemanticToCssProperties(): string {
+  const lines: string[] = [];
+  for (const [group, tokens] of Object.entries(darkSemanticTokens)) {
+    const prefix = `--fd-${toKebab(group)}`;
+    for (const [name, value] of Object.entries(tokens)) {
+      lines.push(
+        `${prefix}-${toKebab(name)}: ${resolveSemanticValue(value as SemanticValue)};`,
+      );
+    }
+  }
+  return lines.join("\n");
+}
+
+/**
+ * Generates CSS custom properties for dark theme elevation overrides.
+ */
+export function darkElevationToCssProperties(): string {
+  const lines: string[] = [];
+  for (const [level, token] of Object.entries(darkElevation)) {
+    lines.push(`--fd-elevation-${level}: ${token.boxShadow};`);
+  }
+  return lines.join("\n");
+}
+/**
  * Injects all foundation tokens (palette + semantic + elevation) on :root.
  * Call once at app startup.
  */
@@ -110,9 +132,14 @@ export function injectAllTokens(): void {
     radiusToCssProperties(),
     borderWidthToCssProperties(),
   ].join("\n");
+  const darkCss = [
+    darkSemanticToCssProperties(),
+    darkElevationToCssProperties(),
+  ].join("\n");
+
   const style = document.createElement("style");
   style.id = id;
-  style.textContent = `:root {\n${css}\n}`;
+  style.textContent = `:root {\n${css}\n}\n\n[data-theme="dark"] {\n${darkCss}\n}`;
   document.head.appendChild(style);
 }
 

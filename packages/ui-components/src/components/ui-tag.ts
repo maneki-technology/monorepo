@@ -59,6 +59,7 @@ import {
   ULTRAMARINE_70,
   YELLOW_10,
   YELLOW_30,
+  SURFACE_PRIMARY,
 } from "@maneki/foundation";
 import "./ui-icon.js";
 import type { UiIcon } from "./ui-icon.js";
@@ -483,7 +484,7 @@ export const STYLES = /* css */ `
   /* ── Editable: editing state ─────────────────────────────────────────── */
 
   :host([editable]) .base.editing {
-    background-color: #ffffff;
+    background-color: ${SURFACE_PRIMARY};
     border: ${BW_MD} solid var(--ui-tag-border, ${BORDER_FOCUS});
     cursor: text;
   }

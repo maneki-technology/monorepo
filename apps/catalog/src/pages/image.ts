@@ -45,6 +45,7 @@ registerPage("image", {
     const png = createLandscapePng();
     const container = document.getElementById("object-fit-demo");
     if (!container) return;
+    container.innerHTML = "";
     for (const f of ["cover", "contain", "fill", "none"]) {
       const col = document.createElement("div");
       col.className = "flex-1";
