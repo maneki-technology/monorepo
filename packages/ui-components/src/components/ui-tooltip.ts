@@ -1,17 +1,15 @@
-import { ICON_CLOSE, colorVar } from "@maneki/foundation";
-import { spaceVar, radiusVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const GRAY_110 = colorVar("gray", 110);
-const RADIUS_SM = radiusVar("sm");           // 2px
-const SP_025 = spaceVar("0.25");             // 2px
-const SP_05 = spaceVar("0.5");               // 4px
-const SP_075 = spaceVar("0.75");             // 6px
-const SP_1 = spaceVar("1");                   // 8px
-const SP_15 = spaceVar("1.5");               // 12px
-const SP_125 = spaceVar("1.25");             // 10px
-const SP_2 = spaceVar("2");                   // 16px
+import {
+  GRAY_110,
+  ICON_CLOSE,
+  RADIUS_SM,
+  SP_0_25,
+  SP_0_5,
+  SP_0_75,
+  SP_1,
+  SP_1_25,
+  SP_1_5,
+  SP_2,
+} from "@maneki/foundation";
 
 // ─── Types ───────────────────────────────────────────────────────────────
 
@@ -206,7 +204,7 @@ const STYLES = /* css */ `
   :host([placement="top-left"]) .panel,
   :host([placement="top-right"]) .panel {
     bottom: 100%;
-    margin-bottom: ${SP_075};
+    margin-bottom: ${SP_0_75};
   }
 
   :host([placement="top"]) .panel {
@@ -226,7 +224,7 @@ const STYLES = /* css */ `
   :host([placement="bottom-left"]) .panel,
   :host([placement="bottom-right"]) .panel {
     top: 100%;
-    margin-top: ${SP_075};
+    margin-top: ${SP_0_75};
   }
 
   :host([placement="bottom"]) .panel {
@@ -246,21 +244,21 @@ const STYLES = /* css */ `
     right: 100%;
     top: 50%;
     transform: translateY(-50%);
-    margin-right: ${SP_075};
+    margin-right: ${SP_0_75};
   }
 
   :host([placement="right"]) .panel {
     left: 100%;
     top: 50%;
     transform: translateY(-50%);
-    margin-left: ${SP_075};
+    margin-left: ${SP_0_75};
   }
 
   /* ── Size: XS ────────────────────────────────────────────────────────────── */
 
   :host([size="xs"]) .panel {
-    padding: ${SP_025} ${SP_05};
-    gap: ${SP_05};
+    padding: ${SP_0_25} ${SP_0_5};
+    gap: ${SP_0_5};
   }
 
   :host([size="xs"]) .text {
@@ -280,8 +278,8 @@ const STYLES = /* css */ `
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .panel {
-    padding: ${SP_05} ${SP_1};
-    gap: ${SP_05};
+    padding: ${SP_0_5} ${SP_1};
+    gap: ${SP_0_5};
   }
 
   :host([size="s"]) .text {
@@ -302,7 +300,7 @@ const STYLES = /* css */ `
 
   :host .panel,
   :host([size="m"]) .panel {
-    padding: ${SP_075} ${SP_15};
+    padding: ${SP_0_75} ${SP_1_5};
     gap: ${SP_1};
   }
 
@@ -326,7 +324,7 @@ const STYLES = /* css */ `
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .panel {
-    padding: ${SP_125} ${SP_2};
+    padding: ${SP_1_25} ${SP_2};
     gap: ${SP_1};
   }
 

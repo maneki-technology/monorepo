@@ -1,21 +1,20 @@
-import { semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
+import {
+  BORDER_FOCUS,
+  BW_SM,
+  FORM_INPUT_BORDER,
+  HOVER_BORDER_MODERATE,
+  RADIUS_SM,
+  SP_1,
+  SP_1_5,
+  SURFACE_SECONDARY,
+  SURFACE_TERTIARY,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type InputGroupSize = "s" | "m" | "l";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const SURFACE_TERTIARY = semanticVar("surface", "tertiary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const SP_1 = spaceVar("1");
-const SP_15 = spaceVar("1.5");
-const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
-const FOCUS_BORDER = semanticVar("border", "focus");
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -33,21 +32,21 @@ const STYLES = /* css */ `
   .wrapper {
     display: flex;
     align-items: stretch;
-    border-width: ${borderWidthVar("sm")};
+    border-width: ${BW_SM};
     border-style: solid;
     border-color: var(--ui-ig-border, ${FORM_INPUT_BORDER});
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     overflow: hidden;
     width: 100%;
     transition: border-color 0.15s ease;
   }
 
   :host(:hover:not([disabled]):not([readonly])) .wrapper {
-    border-color: var(--ui-ig-hover-border, ${HOVER_BORDER});
+    border-color: var(--ui-ig-hover-border, ${HOVER_BORDER_MODERATE});
   }
 
   :host(:focus-within:not([disabled]):not([readonly])) .wrapper {
-    border-color: var(--ui-ig-focus-border, ${FOCUS_BORDER});
+    border-color: var(--ui-ig-focus-border, ${BORDER_FOCUS});
   }
 
   /* ── Prefix / Suffix sections ─────────────────────────────────────────── */
@@ -82,7 +81,7 @@ const STYLES = /* css */ `
 
   .separator {
     display: none;
-    width: ${borderWidthVar("sm")};
+    width: ${BW_SM};
     align-self: stretch;
     background-color: var(--ui-ig-separator, ${FORM_INPUT_BORDER});
     flex-shrink: 0;
@@ -94,11 +93,11 @@ const STYLES = /* css */ `
   }
 
   :host(:hover:not([disabled]):not([readonly])) .separator {
-    background-color: var(--ui-ig-hover-border, ${HOVER_BORDER});
+    background-color: var(--ui-ig-hover-border, ${HOVER_BORDER_MODERATE});
   }
 
   :host(:focus-within:not([disabled]):not([readonly])) .separator {
-    background-color: var(--ui-ig-focus-border, ${FOCUS_BORDER});
+    background-color: var(--ui-ig-focus-border, ${BORDER_FOCUS});
   }
 
   /* ── Default slot (for ui-input) ──────────────────────────────────────── */
@@ -143,7 +142,7 @@ const STYLES = /* css */ `
 
   :host([size="l"]) {
     --_ig-height: 38px;
-    --_ig-padding: ${SP_15};
+    --_ig-padding: ${SP_1_5};
     --_ig-font-size: 16px;
     --_ig-line-height: 24px;
   }

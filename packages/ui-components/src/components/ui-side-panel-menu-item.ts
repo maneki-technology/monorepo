@@ -1,30 +1,28 @@
-import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
+
+import {
+  BORDER_FOCUS,
+  BW_MD,
+  DISABLED_TEXT,
+  HOVER_MINIMAL,
+  HOVER_MODERATE,
+  ICON_ACTION,
+  ICON_PRIMARY,
+  SELECTED_OVERLAY,
+  SP_1,
+  SP_1_25,
+  SP_1_5,
+  SP_2,
+  SP_2_5,
+  SP_5,
+  SURFACE_SECONDARY,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type SidePanelMenuItemLevel = "primary" | "secondary" | "tertiary";
 export type SidePanelMenuItemType = "basic" | "icon-only";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const ICON_PRIMARY_TOKEN = semanticVar("icon", "primary");
-const ICON_ACTION = semanticVar("icon", "action");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const HOVER_MINIMAL = semanticVar("stateHover", "surfaceMinimal");
-const HOVER_MODERATE = semanticVar("stateHover", "surfaceModerate");
-const SELECTED_OVERLAY = semanticVar("stateSelected", "surfaceOverlay");
-const SP_1 = spaceVar("1");                     // 8px
-const SP_125 = spaceVar("1.25");               // 10px
-const SP_15 = spaceVar("1.5");                 // 12px
-const SP_2 = spaceVar("2");                     // 16px
-const SP_25 = spaceVar("2.5");                 // 20px
-const SP_5 = spaceVar("5");                     // 40px
-const BW_MD = borderWidthVar("md");             // 2px
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -45,7 +43,7 @@ const STYLES = /* css */ `
     align-items: center;
     gap: ${SP_1};
     width: 100%;
-    padding: ${SP_125} ${SP_1} ${SP_125} ${SP_2};
+    padding: ${SP_1_25} ${SP_1} ${SP_1_25} ${SP_2};
     border: none;
     margin: 0;
     background-color: var(--ui-spmi-bg, ${SURFACE_SECONDARY});
@@ -150,16 +148,16 @@ const STYLES = /* css */ `
     display: none;
     align-items: center;
     justify-content: center;
-    width: ${SP_25};
-    height: ${SP_25};
+    width: ${SP_2_5};
+    height: ${SP_2_5};
     line-height: 0;
-    color: var(--ui-spmi-icon, ${ICON_PRIMARY_TOKEN});
+    color: var(--ui-spmi-icon, ${ICON_PRIMARY});
     flex-shrink: 0;
   }
 
   ::slotted(svg) {
-    width: ${SP_25};
-    height: ${SP_25};
+    width: ${SP_2_5};
+    height: ${SP_2_5};
   }
 
   :host([leading-icon]) .leading-icon {
@@ -194,13 +192,13 @@ const STYLES = /* css */ `
     display: none;
     align-items: center;
     justify-content: center;
-    width: ${SP_25};
-    height: ${SP_25};
+    width: ${SP_2_5};
+    height: ${SP_2_5};
     line-height: 0;
-    color: var(--ui-spmi-expand-icon, ${ICON_PRIMARY_TOKEN});
+    color: var(--ui-spmi-expand-icon, ${ICON_PRIMARY});
     flex-shrink: 0;
     transition: transform 0.15s ease;
-    --ui-icon-size: ${SP_25};
+    --ui-icon-size: ${SP_2_5};
   }
 
   :host([expandable]) .expand-icon {
@@ -212,7 +210,7 @@ const STYLES = /* css */ `
   :host([type="icon-only"]) .row {
     width: ${SP_5};
     height: ${SP_5};
-    padding: ${SP_125};
+    padding: ${SP_1_25};
     justify-content: center;
   }
 

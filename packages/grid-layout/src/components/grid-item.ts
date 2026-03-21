@@ -1,13 +1,11 @@
+import {
+  BORDER_BOLD,
+  BORDER_FOCUS,
+  BW_MD,
+  SP_2,
+  SP_2_5,
+} from "@maneki/foundation";
 import type { ResizeHandleAxis } from "../core/types";
-import { semanticVar, borderWidthVar, spaceVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const BORDER_FOCUS = semanticVar("border", "focus");
-const BORDER_BOLD = semanticVar("border", "bold");
-const BW_MD = borderWidthVar("md");             // 2px
-const SP_2 = spaceVar("2");                     // 16px
-const SP_25 = spaceVar("2.5");                 // 20px
 
 const GRID_ITEM_STYLES = `
 :host {
@@ -50,8 +48,8 @@ const GRID_ITEM_STYLES = `
 /* Resize handles */
 .resize-handle {
   position: absolute;
-  width: var(--grid-handle-size, ${SP_25});
-  height: var(--grid-handle-size, ${SP_25});
+  width: var(--grid-handle-size, ${SP_2_5});
+  height: var(--grid-handle-size, ${SP_2_5});
   z-index: 2;
 }
 

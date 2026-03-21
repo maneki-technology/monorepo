@@ -1,15 +1,15 @@
-import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-export const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-export const TEXT_PRIMARY = semanticVar("text", "primary");
-export const TEXT_SECONDARY = semanticVar("text", "secondary");
-export const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
-export const SP_1 = spaceVar("1");
-export const SP_0_5 = spaceVar("0.5");
-export const SP_125 = spaceVar("1.25");
-export const SP_15 = spaceVar("1.5");
+import {
+  RADIUS_NONE,
+  RADIUS_SM,
+  SELECTED_BOLD,
+  SP_0_5,
+  SP_1,
+  SP_1_25,
+  SP_1_5,
+  SURFACE_SECONDARY,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -29,12 +29,12 @@ export const STYLES = /* css */ `
   /* ─── Vertical (side) layout ─── */
 
   :host([orientation="side"]) {
-    border-radius: ${radiusVar("sm")} ${radiusVar("none")} ${radiusVar("none")} ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM} ${RADIUS_NONE} ${RADIUS_NONE} ${RADIUS_SM};
   }
 
   :host([orientation="bottom"]) {
     position: relative;
-    border-radius: ${radiusVar("none")} ${radiusVar("none")} ${radiusVar("sm")} ${radiusVar("sm")};
+    border-radius: ${RADIUS_NONE} ${RADIUS_NONE} ${RADIUS_SM} ${RADIUS_SM};
     overflow: hidden;
     min-width: 0;
   }
@@ -79,13 +79,13 @@ export const STYLES = /* css */ `
   .fade-left {
     left: 0;
     background: linear-gradient(to left, transparent, ${SURFACE_SECONDARY});
-    border-radius: ${radiusVar("none")} ${radiusVar("none")} ${radiusVar("none")} ${radiusVar("sm")};
+    border-radius: ${RADIUS_NONE} ${RADIUS_NONE} ${RADIUS_NONE} ${RADIUS_SM};
   }
 
   .fade-right {
     right: 0;
     background: linear-gradient(to right, transparent, ${SURFACE_SECONDARY});
-    border-radius: ${radiusVar("none")} ${radiusVar("none")} ${radiusVar("sm")} ${radiusVar("none")};
+    border-radius: ${RADIUS_NONE} ${RADIUS_NONE} ${RADIUS_SM} ${RADIUS_NONE};
   }
 
   :host(:not([orientation="bottom"])) .fade {
@@ -190,7 +190,7 @@ export const STYLES = /* css */ `
 
   :host([size="m"][orientation="bottom"]) .menu,
   :host(:not([size])[orientation="bottom"]) .menu {
-    padding: ${SP_125} ${SP_15};
+    padding: ${SP_1_25} ${SP_1_5};
     gap: 16px;
   }
 

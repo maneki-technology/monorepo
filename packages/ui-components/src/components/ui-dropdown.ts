@@ -1,4 +1,14 @@
-import { semanticVar, spaceVar, elevationVar, radiusVar } from "@maneki/foundation";
+
+import {
+  ELEVATION_05,
+  RADIUS_SM,
+  SP_0_5,
+  SP_0_75,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SURFACE_PRIMARY,
+} from "@maneki/foundation";
 import "./ui-button.js";
 import "./ui-icon.js";
 
@@ -8,17 +18,6 @@ export type DropdownSize = "s" | "m" | "l" | "xl";
 export type DropdownAction = "primary" | "secondary" | "destructive" | "info" | "contrast";
 export type DropdownEmphasis = "bold" | "subtle" | "minimal";
 export type DropdownShape = "basic" | "rounded";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-const ELEVATION_05 = elevationVar("05");
-const SP_05 = spaceVar("0.5"); // 4px
-const SP_075 = spaceVar("0.75"); // 6px
-const SP_1 = spaceVar("1");     // 8px
-const SP_15 = spaceVar("1.5");  // 12px
-const SP_2 = spaceVar("2");     // 16px
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -40,11 +39,11 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) ui-button::part(button) {
-    padding-right: ${SP_075};
+    padding-right: ${SP_0_75};
   }
 
   :host([size="l"]) ui-button::part(button) {
-    padding-right: ${SP_15};
+    padding-right: ${SP_1_5};
   }
 
   :host([size="xl"]) ui-button::part(button) {
@@ -74,10 +73,10 @@ export const STYLES = /* css */ `
     left: 0;
     z-index: 1000;
     min-width: 240px;
-    padding: ${SP_05} 0;
+    padding: ${SP_0_5} 0;
     background-color: var(--ui-dd-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-dd-menu-shadow, ${ELEVATION_05});
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     overflow: visible;
     opacity: 0;
     visibility: hidden;

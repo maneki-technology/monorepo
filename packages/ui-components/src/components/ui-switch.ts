@@ -1,18 +1,17 @@
-import { semanticVar, colorVar, spaceVar, radiusVar } from "@maneki/foundation";
+import {
+  BLUE_30,
+  BLUE_60,
+  BORDER_FOCUS,
+  GRAY_30,
+  GRAY_40,
+  RADIUS_PILL,
+  RED_20,
+  SP_1,
+  STATUS_SURFACE_ERROR_BOLD,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const BLUE_30 = colorVar("blue", 30);
-const BLUE_60 = colorVar("blue", 60);
-const GRAY_30 = colorVar("gray", 30);
-const GRAY_40 = colorVar("gray", 40);
-const RED_20 = colorVar("red", 20);
-const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const RADIUS_PILL = radiusVar("pill");     // 999px
-const SP_1 = spaceVar("1");                 // 8px
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type SwitchSize = "s" | "m" | "l";
@@ -86,7 +85,7 @@ const STYLES = /* css */ `
   }
 
   :host([status="error"]) .handle {
-    background: ${ERROR_BOLD};
+    background: ${STATUS_SURFACE_ERROR_BOLD};
   }
 
   /* ── Label ───────────────────────────────────────────────────────────────── */

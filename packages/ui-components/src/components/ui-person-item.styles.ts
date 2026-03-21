@@ -1,12 +1,14 @@
-import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
-const SP_125 = spaceVar("1.25");   // 10px
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const ICON_PRIMARY = semanticVar("icon", "primary");
-const BORDER_SUBTLE = semanticVar("border", "subtle");
+import {
+  BORDER_SUBTLE,
+  BW_SM,
+  ICON_PRIMARY,
+  SP_1,
+  SP_1_25,
+  SP_1_5,
+  SP_2,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -34,11 +36,11 @@ export const STYLES = /* css */ `
   .wrapper {
     display: flex;
     flex-direction: column;
-    padding-top: ${spaceVar("1")};
+    padding-top: ${SP_1};
   }
   .contents {
     display: grid;
-    column-gap: ${spaceVar("1.5")};
+    column-gap: ${SP_1_5};
   }
 
   .avatar-slot {
@@ -76,7 +78,7 @@ export const STYLES = /* css */ `
   .actions {
     display: flex;
     align-items: center;
-    gap: ${spaceVar("2")};
+    gap: ${SP_2};
     flex-shrink: 0;
   }
 
@@ -113,7 +115,7 @@ export const STYLES = /* css */ `
 
   .separator {
     width: 100%;
-    height: ${borderWidthVar("sm")};
+    height: ${BW_SM};
     background: ${BORDER_SUBTLE};
     flex-shrink: 0;
   }
@@ -125,7 +127,7 @@ export const STYLES = /* css */ `
   }
 
   :host([name-only]) .wrapper {
-    gap: ${spaceVar("1")};
+    gap: ${SP_1};
   }
 
   :host([name-only]) .contents {
@@ -135,7 +137,7 @@ export const STYLES = /* css */ `
   /* ── XS: [avatar] [name] [icons] — single row ───────────────────────────── */
 
   :host([size="xs"]) .wrapper {
-    gap: ${spaceVar("1")};
+    gap: ${SP_1};
   }
 
   :host([size="xs"]) .contents {
@@ -169,7 +171,7 @@ export const STYLES = /* css */ `
   /* ── S: [avatar] [name+title] [icons] — single row ──────────────────────── */
 
   :host([size="s"]) .wrapper {
-    gap: ${spaceVar("1.5")};
+    gap: ${SP_1_5};
   }
 
   :host([size="s"]) .contents {
@@ -190,7 +192,7 @@ export const STYLES = /* css */ `
   :host([size="s"]) .actions {
     grid-column: 3;
     grid-row: 1;
-    padding-top: ${SP_125};
+    padding-top: ${SP_1_25};
   }
 
   :host([size="s"]) .location {
@@ -200,7 +202,7 @@ export const STYLES = /* css */ `
   /* ── M: [avatar] [name+title+location] / [icons below text] ──────────── */
 
   :host([size="m"]) .wrapper {
-    gap: ${spaceVar("2")};
+    gap: ${SP_2};
   }
 
   :host([size="m"]) .contents {
@@ -232,13 +234,13 @@ export const STYLES = /* css */ `
   :host([size="m"]) .actions {
     grid-column: 2;
     grid-row: 2;
-    padding-top: ${spaceVar("1")};
+    padding-top: ${SP_1};
   }
 
   /* ── L: [avatar] [name+title+location] / [icons below text] ──────────── */
 
   :host([size="l"]) .wrapper {
-    gap: ${spaceVar("2")};
+    gap: ${SP_2};
   }
 
   :host([size="l"]) .contents {
@@ -270,6 +272,6 @@ export const STYLES = /* css */ `
   :host([size="l"]) .actions {
     grid-column: 2;
     grid-row: 2;
-    padding-top: ${spaceVar("1")};
+    padding-top: ${SP_1};
   }
 `;

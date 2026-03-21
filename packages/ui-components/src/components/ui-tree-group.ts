@@ -1,23 +1,21 @@
+import {
+  BORDER_FOCUS,
+  BORDER_MODERATE,
+  ICON_SEARCH,
+  ICON_SECONDARY,
+  RADIUS_SM,
+  SP_0_5,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_3,
+  SP_4,
+  SP_5,
+  SURFACE_PRIMARY,
+  TEXT_PRIMARY,
+  TEXT_TERTIARY,
+} from "@maneki/foundation";
 import "./ui-tree-item.js";
-import { ICON_SEARCH } from "@maneki/foundation";
-import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const BORDER_MODERATE = semanticVar("border", "moderate");
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_TERTIARY = semanticVar("text", "tertiary");
-const ICON_SECONDARY = semanticVar("icon", "secondary");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const RADIUS_SM = radiusVar("sm");             // 2px
-const SP_05 = spaceVar("0.5");                 // 4px
-const SP_1 = spaceVar("1");                     // 8px
-const SP_15 = spaceVar("1.5");                 // 12px
-const SP_2 = spaceVar("2");                     // 16px
-const SP_3 = spaceVar("3");                     // 24px
-const SP_4 = spaceVar("4");                     // 32px
-const SP_5 = spaceVar("5");                     // 40px
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -98,7 +96,7 @@ const STYLES = /* css */ `
   .tree {
     display: flex;
     flex-direction: column;
-    padding: ${SP_05} 0;
+    padding: ${SP_0_5} 0;
   }
 
   ::slotted(ui-tree-item) {
@@ -114,7 +112,7 @@ const STYLES = /* css */ `
   :host([size="s"]) .search-input-wrapper {
     height: ${SP_3};
     padding: 0 ${SP_1};
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   :host([size="s"]) .search-icon {
@@ -139,7 +137,7 @@ const STYLES = /* css */ `
 
   :host,
   :host([size="m"]) {
-    gap: ${SP_15};
+    gap: ${SP_1_5};
   }
 
   :host .search-input-wrapper,
@@ -174,7 +172,7 @@ const STYLES = /* css */ `
 
   :host([size="l"]) .search-input-wrapper {
     height: ${SP_5};
-    padding: 0 ${SP_15};
+    padding: 0 ${SP_1_5};
     gap: ${SP_1};
   }
 

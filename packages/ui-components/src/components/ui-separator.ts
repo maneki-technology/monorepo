@@ -1,17 +1,14 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const BORDER_SUBTLE = semanticVar("border", "subtle");
-const BORDER_MODERATE = semanticVar("border", "moderate");
-const BORDER_BOLD = semanticVar("border", "bold");
-const BORDER_CONTRAST = semanticVar("border", "contrast");
-
-const SP_05 = spaceVar("0.5");   // 4px
-const SP_1 = spaceVar("1");       // 8px
-const SP_2 = spaceVar("2");       // 16px
-const SP_3 = spaceVar("3");       // 24px
+import {
+  BORDER_BOLD,
+  BORDER_CONTRAST,
+  BORDER_MINIMAL,
+  BORDER_MODERATE,
+  BORDER_SUBTLE,
+  SP_0_5,
+  SP_1,
+  SP_2,
+  SP_3,
+} from "@maneki/foundation";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -83,8 +80,8 @@ const STYLES = /* css */ `
   /* ── Length: horizontal insets ────────────────────────────────────────────── */
 
   :host([length="inset-04"]:not([orientation="vertical"])) .line {
-    margin-left: ${SP_05};
-    margin-right: ${SP_05};
+    margin-left: ${SP_0_5};
+    margin-right: ${SP_0_5};
   }
 
   :host([length="inset-08"]:not([orientation="vertical"])) .line {
@@ -105,8 +102,8 @@ const STYLES = /* css */ `
   /* ── Length: vertical insets ─────────────────────────────────────────────── */
 
   :host([orientation="vertical"][length="inset-04"]) .line {
-    margin-top: ${SP_05};
-    margin-bottom: ${SP_05};
+    margin-top: ${SP_0_5};
+    margin-bottom: ${SP_0_5};
   }
 
   :host([orientation="vertical"][length="inset-08"]) .line {

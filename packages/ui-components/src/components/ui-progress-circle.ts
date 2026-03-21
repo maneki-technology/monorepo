@@ -1,5 +1,10 @@
-import { spaceVar } from "@maneki/foundation";
-import { TEXT_PRIMARY, STATUS_FILL, STATUS_TRACK } from "./ui-progress-bar.styles.js";
+import {
+  SP_0_5,
+  SP_1,
+  SP_3,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
+import { STATUS_FILL, STATUS_TRACK } from "./ui-progress-bar.styles.js";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -55,8 +60,8 @@ export const CIRCLE_STYLES = /* css */ `
   /* ── Size: S (24px) ──────────────────────────────────────────────────────── */
 
   :host([size="s"]) .container {
-    width: ${spaceVar("3")};
-    height: ${spaceVar("3")};
+    width: ${SP_3};
+    height: ${SP_3};
   }
 
   :host([size="s"]) .percentage {
@@ -91,7 +96,7 @@ export const CIRCLE_STYLES = /* css */ `
   /* ── Label positions ─────────────────────────────────────────────────────── */
 
   :host([label-position="bottom"]) {
-    gap: ${spaceVar("1")};
+    gap: ${SP_1};
   }
 
   :host([label-position="bottom"]) .label {
@@ -99,12 +104,12 @@ export const CIRCLE_STYLES = /* css */ `
   }
 
   :host([size="s"][label-position="bottom"]) {
-    gap: ${spaceVar("0.5")};
+    gap: ${SP_0_5};
   }
 
   :host([label-position="right"]) {
     flex-direction: row;
-    gap: ${spaceVar("1")};
+    gap: ${SP_1};
   }
 
   :host([label-position="right"]) .label {

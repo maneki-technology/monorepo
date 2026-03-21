@@ -1,4 +1,20 @@
-import { semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
+
+import {
+  BORDER_FOCUS,
+  BW_SM,
+  DISABLED_BORDER,
+  DISABLED_MINIMAL,
+  DISABLED_TEXT,
+  FORM_INPUT_BORDER,
+  HOVER_BORDER_MODERATE,
+  RADIUS_SM,
+  SELECTED_BOLD,
+  SP_0_75,
+  SP_1,
+  STATUS_GENERAL_ERROR,
+  STATUS_SURFACE_ERROR_BOLD,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 import "./ui-icon.js";
 import type { UiIcon } from "./ui-icon.js";
 
@@ -6,23 +22,6 @@ import type { UiIcon } from "./ui-icon.js";
 
 export type CheckboxSize = "s" | "m" | "l";
 export type CheckboxLabel = "none" | "right" | "left";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
-const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
-const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
-const STATUS_ERROR = semanticVar("statusGeneral", "error");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const DISABLED_BORDER = semanticVar("stateDisabled", "border");
-const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const SP_075 = spaceVar("0.75");
-const SP_1 = spaceVar("1");
-
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -55,7 +54,7 @@ const STYLES = /* css */ `
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    border-width: ${borderWidthVar("sm")};
+    border-width: ${BW_SM};
     border-style: solid;
     border-color: transparent;
   }
@@ -67,17 +66,16 @@ const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-width: ${borderWidthVar("sm")};
+    border-width: ${BW_SM};
     border-style: solid;
     border-color: var(--ui-cb-border, ${FORM_INPUT_BORDER});
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     background-color: var(--ui-cb-bg, #ffffff);
     color: #ffffff;
     transition:
       background-color 0.15s ease,
       border-color 0.15s ease;
   }
-
 
   /* ── Check / indeterminate icons ─────────────────────────────────────────── */
 
@@ -100,7 +98,6 @@ const STYLES = /* css */ `
   :host([indeterminate]) .indeterminate-icon {
     display: inline-flex;
   }
-
 
   /* ── Label slot ──────────────────────────────────────────────────────────── */
 
@@ -177,7 +174,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .base {
-    gap: var(--ui-cb-gap, ${SP_075});
+    gap: var(--ui-cb-gap, ${SP_0_75});
   }
 
   :host([size="s"]) .label {
@@ -233,7 +230,7 @@ const STYLES = /* css */ `
   /* ── Hover ───────────────────────────────────────────────────────────────── */
 
   :host(:hover) .checkbox {
-    border-color: var(--ui-cb-hover-border, ${HOVER_BORDER});
+    border-color: var(--ui-cb-hover-border, ${HOVER_BORDER_MODERATE});
   }
 
   :host([checked]:hover) .checkbox,
@@ -268,13 +265,13 @@ const STYLES = /* css */ `
   /* ── Error ───────────────────────────────────────────────────────────────── */
 
   :host([error]) .checkbox {
-    border-color: var(--ui-cb-error-border, ${STATUS_ERROR});
+    border-color: var(--ui-cb-error-border, ${STATUS_GENERAL_ERROR});
   }
 
   :host([error][checked]) .checkbox,
   :host([error][indeterminate]) .checkbox {
-    background-color: var(--ui-cb-error-checked-bg, ${ERROR_BOLD});
-    border-color: var(--ui-cb-error-checked-bg, ${ERROR_BOLD});
+    background-color: var(--ui-cb-error-checked-bg, ${STATUS_SURFACE_ERROR_BOLD});
+    border-color: var(--ui-cb-error-checked-bg, ${STATUS_SURFACE_ERROR_BOLD});
   }
 
   /* ── Reduced motion ──────────────────────────────────────────────────────── */

@@ -1,24 +1,24 @@
-import { semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const TEXT_TERTIARY = semanticVar("text", "tertiary");
-const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const DISABLED_BORDER = semanticVar("stateDisabled", "border");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const STATUS_ERROR = semanticVar("statusGeneral", "error");
-const STATUS_WARNING = semanticVar("statusGeneral", "warning");
-const STATUS_SUCCESS = semanticVar("statusGeneral", "success");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const ICON_PRIMARY = semanticVar("icon", "primary");
-const SP_05 = spaceVar("0.5");
-const SP_1 = spaceVar("1");
-const SP_15 = spaceVar("1.5");
+import {
+  BORDER_FOCUS,
+  BORDER_MINIMAL,
+  BW_SM,
+  DISABLED_BORDER,
+  DISABLED_TEXT,
+  FORM_INPUT_BORDER,
+  HOVER_BORDER_MODERATE,
+  ICON_PRIMARY,
+  RADIUS_SM,
+  SP_0_5,
+  SP_1,
+  SP_1_5,
+  STATUS_GENERAL_ERROR,
+  STATUS_GENERAL_SUCCESS,
+  STATUS_GENERAL_WARNING,
+  SURFACE_SECONDARY,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_TERTIARY,
+} from "@maneki/foundation";
 
 // ─── Status icon map ─────────────────────────────────────────────────────────
 
@@ -41,7 +41,7 @@ export const STYLES = /* css */ `
   :host {
     display: inline-flex;
     flex-direction: column;
-    gap: ${SP_05};
+    gap: ${SP_0_5};
     font-family: "Geist", sans-serif;
   }
 
@@ -66,10 +66,10 @@ export const STYLES = /* css */ `
   .input-container {
     display: flex;
     align-items: center;
-    border-width: ${borderWidthVar("sm")};
+    border-width: ${BW_SM};
     border-style: solid;
     border-color: var(--ui-input-border, ${FORM_INPUT_BORDER});
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     background-color: var(--ui-input-bg, #ffffff);
     transition:
       border-color 0.15s ease,
@@ -136,18 +136,18 @@ export const STYLES = /* css */ `
 
   :host([status="warning"]) .status-icon {
     display: flex;
-    color: ${STATUS_WARNING};
+    color: ${STATUS_GENERAL_WARNING};
   }
 
   :host([status="error"]) .status-icon,
   :host([error]) .status-icon {
     display: flex;
-    color: ${STATUS_ERROR};
+    color: ${STATUS_GENERAL_ERROR};
   }
 
   :host([status="success"]) .status-icon {
     display: flex;
-    color: ${STATUS_SUCCESS};
+    color: ${STATUS_GENERAL_SUCCESS};
   }
 
   :host([status="loading"]) .status-icon {
@@ -262,16 +262,16 @@ export const STYLES = /* css */ `
   }
 
   :host([status="warning"]) .supportive-text {
-    color: ${STATUS_WARNING};
+    color: ${STATUS_GENERAL_WARNING};
   }
 
   :host([status="error"]) .supportive-text,
   :host([error]) .supportive-text {
-    color: ${STATUS_ERROR};
+    color: ${STATUS_GENERAL_ERROR};
   }
 
   :host([status="success"]) .supportive-text {
-    color: ${STATUS_SUCCESS};
+    color: ${STATUS_GENERAL_SUCCESS};
   }
 
   /* ── Size: m (default) ─────────────────────────────────────────────────── */
@@ -305,7 +305,7 @@ export const STYLES = /* css */ `
 
   :host([size="l"]) {
     --_input-height: 40px;
-    --_input-padding-left: ${SP_15};
+    --_input-padding-left: ${SP_1_5};
     --_input-font-size: 16px;
     --_input-line-height: 24px;
     --_status-icon-size: 20px;
@@ -318,7 +318,7 @@ export const STYLES = /* css */ `
     height: var(--_input-height);
     padding-left: var(--_input-padding-left);
     padding-right: ${SP_1};
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   :host([type="numeric"]) .input-container {
@@ -347,7 +347,7 @@ export const STYLES = /* css */ `
   /* ── Hover ─────────────────────────────────────────────────────────────── */
 
   :host(:hover:not([disabled]):not([readonly])) .input-container {
-    border-color: var(--ui-input-hover-border, ${HOVER_BORDER});
+    border-color: var(--ui-input-hover-border, ${HOVER_BORDER_MODERATE});
   }
 
   /* ── Focus ─────────────────────────────────────────────────────────────── */
@@ -361,35 +361,35 @@ export const STYLES = /* css */ `
 
   :host([status="error"]) .input-container,
   :host([error]) .input-container {
-    border-color: ${STATUS_ERROR};
+    border-color: ${STATUS_GENERAL_ERROR};
   }
 
   :host([status="error"]:focus-within) .input-container,
   :host([error]:focus-within) .input-container {
-    border-color: ${STATUS_ERROR};
-    box-shadow: 0 0 0 1px ${STATUS_ERROR};
+    border-color: ${STATUS_GENERAL_ERROR};
+    box-shadow: 0 0 0 1px ${STATUS_GENERAL_ERROR};
   }
 
   /* ── Warning state ─────────────────────────────────────────────────────── */
 
   :host([status="warning"]) .input-container {
-    border-color: ${STATUS_WARNING};
+    border-color: ${STATUS_GENERAL_WARNING};
   }
 
   :host([status="warning"]:focus-within) .input-container {
-    border-color: ${STATUS_WARNING};
-    box-shadow: 0 0 0 1px ${STATUS_WARNING};
+    border-color: ${STATUS_GENERAL_WARNING};
+    box-shadow: 0 0 0 1px ${STATUS_GENERAL_WARNING};
   }
 
   /* ── Success state ─────────────────────────────────────────────────────── */
 
   :host([status="success"]) .input-container {
-    border-color: ${STATUS_SUCCESS};
+    border-color: ${STATUS_GENERAL_SUCCESS};
   }
 
   :host([status="success"]:focus-within) .input-container {
-    border-color: ${STATUS_SUCCESS};
-    box-shadow: 0 0 0 1px ${STATUS_SUCCESS};
+    border-color: ${STATUS_GENERAL_SUCCESS};
+    box-shadow: 0 0 0 1px ${STATUS_GENERAL_SUCCESS};
   }
 
   /* ── Disabled ──────────────────────────────────────────────────────────── */

@@ -1,28 +1,26 @@
-import { semanticVar, spaceVar, radiusVar, elevationVar, colorVar } from "@maneki/foundation";
+import {
+  BORDER_FOCUS,
+  BORDER_MODERATE,
+  ELEVATION_03,
+  HOVER_MINIMAL,
+  ICON_SECONDARY,
+  RADIUS_PILL,
+  RADIUS_SM,
+  SP_0_5,
+  SP_0_75,
+  SP_1,
+  SP_1_25,
+  SP_1_5,
+  SP_2,
+  SP_3,
+  SURFACE_BOLD,
+  SURFACE_PRIMARY,
+  SURFACE_SECONDARY,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_TERTIARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const TEXT_TERTIARY = semanticVar("text", "tertiary");
-const ICON_SECONDARY = semanticVar("icon", "secondary");
-const BORDER_MODERATE = semanticVar("border", "moderate");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const SURFACE_BOLD = semanticVar("surface", "bold");
-const HOVER_MINIMAL = semanticVar("stateHover", "surfaceMinimal");
-
-const RADIUS_SM = radiusVar("sm");         // 2px
-const RADIUS_PILL = radiusVar("pill");     // 999px
-const ELEV_03 = elevationVar("03");
-const SP_05 = spaceVar("0.5");             // 4px
-const SP_075 = spaceVar("0.75");           // 6px
-const SP_1 = spaceVar("1");                 // 8px
-const SP_125 = spaceVar("1.25");           // 10px
-const SP_15 = spaceVar("1.5");             // 12px
-const SP_2 = spaceVar("2");                 // 16px
-const SP_3 = spaceVar("3");                 // 24px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -137,8 +135,8 @@ export const STYLES = /* css */ `
     flex-direction: column;
     background: ${SURFACE_PRIMARY};
     border-radius: ${RADIUS_SM};
-    box-shadow: ${ELEV_03};
-    padding: ${SP_05} 0;
+    box-shadow: ${ELEVATION_03};
+    padding: ${SP_0_5} 0;
     max-height: 400px;
     overflow-y: auto;
     opacity: 0;
@@ -276,7 +274,7 @@ export const STYLES = /* css */ `
   :host([size="s"]) .input-wrapper {
     height: 24px;
     padding: 0 ${SP_1};
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   :host([size="s"]) .search-icon {
@@ -304,7 +302,7 @@ export const STYLES = /* css */ `
 
   :host([size="s"]) .category-heading {
     height: 24px;
-    padding: ${SP_05} ${SP_15};
+    padding: ${SP_0_5} ${SP_1_5};
     font-size: 11px;
     line-height: 16px;
   }
@@ -315,7 +313,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .result-item {
-    padding: ${SP_075} ${SP_15};
+    padding: ${SP_0_75} ${SP_1_5};
     gap: ${SP_1};
   }
 
@@ -348,7 +346,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .result-content {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   /* ── Size: M (default) ───────────────────────────────────────────────────── */
@@ -396,7 +394,7 @@ export const STYLES = /* css */ `
   :host .category-heading,
   :host([size="m"]) .category-heading {
     height: 24px;
-    padding: ${SP_05} ${SP_2};
+    padding: ${SP_0_5} ${SP_2};
     font-size: 12px;
     line-height: 16px;
   }
@@ -409,7 +407,7 @@ export const STYLES = /* css */ `
 
   :host .result-item,
   :host([size="m"]) .result-item {
-    padding: ${SP_075} ${SP_2};
+    padding: ${SP_0_75} ${SP_2};
     gap: ${SP_1};
   }
 
@@ -449,14 +447,14 @@ export const STYLES = /* css */ `
 
   :host .result-content,
   :host([size="m"]) .result-content {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .input-wrapper {
     height: 40px;
-    padding: 0 ${SP_15};
+    padding: 0 ${SP_1_5};
     gap: ${SP_1};
   }
 
@@ -496,8 +494,8 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .result-item {
-    padding: ${SP_125} ${SP_2};
-    gap: ${SP_15};
+    padding: ${SP_1_25} ${SP_2};
+    gap: ${SP_1_5};
   }
 
   :host([size="l"]) .result-item.has-leading {
@@ -529,7 +527,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .result-content {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   @media (prefers-reduced-motion: reduce) {

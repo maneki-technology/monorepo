@@ -1,10 +1,9 @@
-import { semanticVar, borderWidthVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const ICON_PRIMARY = semanticVar("icon", "primary");
+import {
+  BORDER_MINIMAL,
+  BW_SM,
+  ICON_PRIMARY,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -23,7 +22,7 @@ export const STYLES = /* css */ `
   }
 
   .top-border {
-    height: ${borderWidthVar("sm")};
+    height: ${BW_SM};
     width: 100%;
     background: ${BORDER_MINIMAL};
     flex-shrink: 0;
@@ -68,12 +67,11 @@ export const STYLES = /* css */ `
   }
 
   .bottom-border {
-    height: ${borderWidthVar("sm")};
+    height: ${BW_SM};
     width: 100%;
     background: ${BORDER_MINIMAL};
     flex-shrink: 0;
   }
-
 
   /* ═══════════════════════════════════════════════════════════════════════════ */
   /* Size: S                                                                    */

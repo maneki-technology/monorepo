@@ -1,18 +1,16 @@
-import { spaceVar } from "@maneki/foundation";
+
+import {
+  SP_1,
+  SP_1_5,
+  SP_2_5,
+  SP_3,
+} from "@maneki/foundation";
 import type { RadioSize } from "./ui-radio-item.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type RadioGroupSize = RadioSize;
 export type RadioGroupOrientation = "vertical" | "horizontal";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SP_1 = spaceVar("1");     // 8px
-const SP_1_5 = spaceVar("1.5"); // 12px
-const SP_2_5 = spaceVar("2.5"); // 20px
-const SP_3 = spaceVar("3");     // 24px
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `

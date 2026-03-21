@@ -1,15 +1,13 @@
-import { semanticVar, spaceVar, elevationVar, radiusVar } from "@maneki/foundation";
+import {
+  ELEVATION_05,
+  RADIUS_SM,
+  SP_0_5,
+  SURFACE_PRIMARY,
+} from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type MenuSize = "s" | "m" | "l";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-const ELEVATION_05 = elevationVar("05");
-const SP_05 = spaceVar("0.5"); // 4px
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -24,10 +22,10 @@ export const STYLES = /* css */ `
     position: absolute;
     z-index: 1000;
     min-width: var(--ui-menu-min-width, 240px);
-    padding: ${SP_05} 0;
+    padding: ${SP_0_5} 0;
     background-color: var(--ui-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-menu-shadow, ${ELEVATION_05});
-    border-radius: var(--ui-menu-radius, ${radiusVar("sm")});
+    border-radius: var(--ui-menu-radius, ${RADIUS_SM});
     opacity: 0;
     visibility: hidden;
     transform: translateY(-4px);

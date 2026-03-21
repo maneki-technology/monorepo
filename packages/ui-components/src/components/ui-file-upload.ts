@@ -1,21 +1,20 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import {
+  BORDER_FOCUS,
+  DISABLED_BORDER,
+  DISABLED_TEXT,
+  FORM_INPUT_BORDER,
+  HOVER_BORDER_MODERATE,
+  SP_1,
+  SP_1_5,
+  SURFACE_SECONDARY,
+  SURFACE_TERTIARY,
+  TEXT_PRIMARY,
+  TEXT_TERTIARY,
+} from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type FileUploadSize = "s" | "m" | "l";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_TERTIARY = semanticVar("text", "tertiary");
-const SURFACE_TERTIARY = semanticVar("surface", "tertiary");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const DISABLED_BORDER = semanticVar("stateDisabled", "border");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const SP_1 = spaceVar("1");
-const SP_15 = spaceVar("1.5");
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -121,7 +120,7 @@ const STYLES = /* css */ `
 
   :host([size="l"]) {
     --_fu-height: 38px;
-    --_fu-padding-h: ${SP_15};
+    --_fu-padding-h: ${SP_1_5};
     --_fu-font-size: 16px;
     --_fu-line-height: 24px;
     --_fu-btn-gap: 6px;
@@ -149,7 +148,7 @@ const STYLES = /* css */ `
   /* ── Hover ─────────────────────────────────────────────────────────────── */
 
   :host(:hover:not([disabled])) .wrapper {
-    border-color: var(--ui-fu-hover-border, ${semanticVar("stateHover", "borderModerate")});
+    border-color: var(--ui-fu-hover-border, ${HOVER_BORDER_MODERATE});
   }
 
   /* ── Focus ─────────────────────────────────────────────────────────────── */
@@ -167,7 +166,7 @@ const STYLES = /* css */ `
 
   :host([disabled]) .wrapper {
     border-color: ${DISABLED_BORDER};
-    background-color: var(--ui-fu-disabled-bg, ${semanticVar("surface", "secondary")});
+    background-color: var(--ui-fu-disabled-bg, ${SURFACE_SECONDARY});
   }
 
   :host([disabled]) .display-text {
@@ -176,7 +175,7 @@ const STYLES = /* css */ `
 
   :host([disabled]) .browse-btn {
     color: ${DISABLED_TEXT};
-    background-color: var(--ui-fu-disabled-btn-bg, ${semanticVar("surface", "secondary")});
+    background-color: var(--ui-fu-disabled-btn-bg, ${SURFACE_SECONDARY});
     border-left-color: ${DISABLED_BORDER};
   }
 

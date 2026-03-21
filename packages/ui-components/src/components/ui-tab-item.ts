@@ -1,30 +1,29 @@
-import { semanticVar, spaceVar, borderWidthVar, radiusVar } from "@maneki/foundation";
+
+import {
+  BORDER_FOCUS,
+  BORDER_MINIMAL,
+  BW_MD,
+  DISABLED_TEXT,
+  ICON_ACTION,
+  ICON_PRIMARY,
+  ICON_SECONDARY,
+  RADIUS_SM,
+  SELECTED_BOLD,
+  SP_0_5,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_4,
+  SP_5,
+  TEXT_LINK,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type TabItemSize = "s" | "m";
 export type TabItemOrientation = "horizontal" | "vertical";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_LINK = semanticVar("text", "link");
-const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const ICON_PRIMARY = semanticVar("icon", "primary");
-const ICON_SECONDARY = semanticVar("icon", "secondary");
-const ICON_ACTION = semanticVar("icon", "action");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const SP_1 = spaceVar("1");                     // 8px
-const SP_05 = spaceVar("0.5");                 // 4px
-const SP_15 = spaceVar("1.5");                 // 12px
-const SP_2 = spaceVar("2");                     // 16px
-const SP_4 = spaceVar("4");                     // 32px
-const SP_5 = spaceVar("5");                     // 40px
-const BW_MD = borderWidthVar("md");             // 2px
-const RADIUS_SM = radiusVar("sm");             // 2px
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -114,7 +113,7 @@ const STYLES = /* css */ `
   }
 
   :host([orientation="vertical"]) .label-container {
-    padding-left: ${SP_15};
+    padding-left: ${SP_1_5};
     padding-right: ${SP_1};
   }
 
@@ -157,8 +156,8 @@ const STYLES = /* css */ `
   :host([size="m"]) .base {
     font-size: 14px;
     line-height: 20px;
-    padding-top: ${SP_05};
-    padding-bottom: ${SP_05};
+    padding-top: ${SP_0_5};
+    padding-bottom: ${SP_0_5};
   }
 
   :host .label-container,
@@ -187,12 +186,12 @@ const STYLES = /* css */ `
   :host([size="s"]) .base {
     font-size: 12px;
     line-height: 16px;
-    padding-top: ${SP_05};
-    padding-bottom: ${SP_05};
+    padding-top: ${SP_0_5};
+    padding-bottom: ${SP_0_5};
   }
 
   :host([size="s"]) .label-container {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   :host([size="s"]) .leading-icon,
@@ -276,7 +275,7 @@ const STYLES = /* css */ `
   }
 
   .close-btn:focus-visible {
-    outline: ${BW_MD} solid ${semanticVar("border", "focus")};
+    outline: ${BW_MD} solid ${BORDER_FOCUS};
     outline-offset: -1px;
   }
 

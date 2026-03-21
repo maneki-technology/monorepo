@@ -1,8 +1,6 @@
-import { spaceVar } from "@maneki/foundation";
+
+import { SP_1PX } from "@maneki/foundation";
 import type { ButtonAction, ButtonEmphasis, ButtonSize, ButtonShape } from "./ui-button.js";
-
-const SP_1PX = spaceVar("1px");
-
 const STYLES = `
   :host {
     display: inline-flex;

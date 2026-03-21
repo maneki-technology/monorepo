@@ -1,18 +1,16 @@
-import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
+import {
+  BORDER_MINIMAL,
+  BORDER_MODERATE,
+  BW_SM,
+  SP_0_75,
+  SP_1_5,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type TableCellAlign = "left" | "center" | "right";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const BORDER_MODERATE = semanticVar("border", "moderate");
-const BW_SM = borderWidthVar("sm");             // 1px
-const SP_075 = spaceVar("0.75");               // 6px
-const SP_15 = spaceVar("1.5");                 // 12px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -30,7 +28,7 @@ const STYLES = /* css */ `
     font-weight: 400;
     text-align: left;
     /* Inherit size from parent ui-table via CSS custom properties */
-    padding: var(--_table-cell-padding, ${SP_075} ${SP_15});
+    padding: var(--_table-cell-padding, ${SP_0_75} ${SP_1_5});
     font-size: var(--_table-cell-font-size, 14px);
     line-height: var(--_table-cell-line-height, 20px);
     /* Vertical separator - only when table sets the variable */

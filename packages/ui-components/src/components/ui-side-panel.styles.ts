@@ -1,17 +1,15 @@
-import { semanticVar, elevationVar, spaceVar, borderWidthVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const ICON_PRIMARY_TOKEN = semanticVar("icon", "primary");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const BORDER_SUBTLE = semanticVar("border", "subtle");
-const ELEVATION_03 = elevationVar("03");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const BW_MD = borderWidthVar("md");
-const SP_1 = spaceVar("1");       // 8px
-const SP_2 = spaceVar("2");       // 16px
+import {
+  BORDER_FOCUS,
+  BORDER_MINIMAL,
+  BORDER_SUBTLE,
+  BW_MD,
+  ELEVATION_03,
+  ICON_PRIMARY,
+  SP_1,
+  SP_2,
+  SURFACE_SECONDARY,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -108,7 +106,7 @@ export const STYLES = /* css */ `
     width: 20px;
     height: 20px;
     line-height: 0;
-    color: var(--ui-sp-toggle-icon, ${ICON_PRIMARY_TOKEN});
+    color: var(--ui-sp-toggle-icon, ${ICON_PRIMARY});
     cursor: pointer;
     border: none;
     background: transparent;

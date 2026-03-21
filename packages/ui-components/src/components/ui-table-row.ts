@@ -1,10 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const ROW_DEFAULT = semanticVar("gridRow", "rowDefault");
-const ROW_SELECTED = semanticVar("gridRow", "rowSelected");
-const BORDER_MODERATE = semanticVar("border", "moderate");
+import { BORDER_MODERATE, GRID_ROW_DEFAULT, GRID_ROW_SELECTED } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -17,7 +11,7 @@ const STYLES = /* css */ `
 
   :host {
     display: table-row;
-    background-color: var(--ui-table-row-bg, ${ROW_DEFAULT});
+    background-color: var(--ui-table-row-bg, ${GRID_ROW_DEFAULT});
   }
 
   /* ── Hover ────────────────────────────────────────────────────────────── */
@@ -29,7 +23,7 @@ const STYLES = /* css */ `
   /* ── Selected ─────────────────────────────────────────────────────────── */
 
   :host([selected]) {
-    background-color: var(--ui-table-row-selected-bg, ${ROW_SELECTED});
+    background-color: var(--ui-table-row-selected-bg, ${GRID_ROW_SELECTED});
   }
 
   /* ── Header rows always use moderate border ───────────────────────────── */

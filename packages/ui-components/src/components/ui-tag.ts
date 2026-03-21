@@ -1,4 +1,61 @@
-import { colorVar, semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
+
+import {
+  AQUA_20,
+  AQUA_60,
+  AQUA_70,
+  BLUE_20,
+  BLUE_60,
+  BLUE_70,
+  BORDER_FOCUS,
+  BORDER_MODERATE,
+  BUTTON_SECONDARY,
+  BW_MD,
+  BW_SM,
+  DISABLED_MINIMAL,
+  DISABLED_TEXT,
+  GREEN_20,
+  GREEN_60,
+  GREEN_70,
+  LIME_20,
+  LIME_60,
+  LIME_70,
+  ORANGE_20,
+  ORANGE_60,
+  ORANGE_70,
+  PINK_20,
+  PINK_60,
+  PINK_70,
+  PURPLE_20,
+  PURPLE_60,
+  PURPLE_70,
+  RADIUS_PILL,
+  RADIUS_SM,
+  RED_20,
+  RED_60,
+  RED_70,
+  SP_0_25,
+  SP_0_5,
+  SP_0_75,
+  SP_1,
+  SP_1_25,
+  TAG_BOLD,
+  TAG_SUBTLE,
+  TAG_TEXT_BOLD,
+  TAG_TEXT_MINIMAL,
+  TAG_TEXT_SUBTLE,
+  TEAL_20,
+  TEAL_60,
+  TEAL_70,
+  TEXT_PRIMARY,
+  TURQUOISE_20,
+  TURQUOISE_60,
+  TURQUOISE_70,
+  ULTRAMARINE_20,
+  ULTRAMARINE_60,
+  ULTRAMARINE_70,
+  YELLOW_10,
+  YELLOW_30,
+} from "@maneki/foundation";
 import "./ui-icon.js";
 import type { UiIcon } from "./ui-icon.js";
 
@@ -22,68 +79,6 @@ export type TagColor =
   | "pink"
   | "purple"
   | "orange";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TAG_BOLD = semanticVar("tag", "bold");
-const TAG_SUBTLE = semanticVar("tag", "subtle");
-const TAG_TEXT_BOLD = semanticVar("tag", "textBold");
-const TAG_TEXT_SUBTLE = semanticVar("tag", "textSubtle");
-const TAG_TEXT_MINIMAL = semanticVar("tag", "textMinimal");
-const BORDER_MODERATE = semanticVar("border", "moderate");
-const BUTTON_SECONDARY = semanticVar("button", "secondary");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-// Color tokens (60 = bold bg, 20 = subtle bg, 70 = subtle/minimal text)
-const RED_60 = colorVar("red", 60);
-const YELLOW_30 = colorVar("yellow", 30);
-const GREEN_60 = colorVar("green", 60);
-const BLUE_60 = colorVar("blue", 60);
-const LIME_60 = colorVar("lime", 60);
-const TEAL_60 = colorVar("teal", 60);
-const TURQUOISE_60 = colorVar("turquoise", 60);
-const AQUA_60 = colorVar("aqua", 60);
-const ULTRAMARINE_60 = colorVar("ultramarine", 60);
-const PINK_60 = colorVar("pink", 60);
-const PURPLE_60 = colorVar("purple", 60);
-const ORANGE_60 = colorVar("orange", 60);
-
-const RED_20 = colorVar("red", 20);
-const YELLOW_10 = colorVar("yellow", 10);
-const GREEN_20 = colorVar("green", 20);
-const BLUE_20 = colorVar("blue", 20);
-const LIME_20 = colorVar("lime", 20);
-const TEAL_20 = colorVar("teal", 20);
-const TURQUOISE_20 = colorVar("turquoise", 20);
-const AQUA_20 = colorVar("aqua", 20);
-const ULTRAMARINE_20 = colorVar("ultramarine", 20);
-const PINK_20 = colorVar("pink", 20);
-const PURPLE_20 = colorVar("purple", 20);
-const ORANGE_20 = colorVar("orange", 20);
-
-const RED_70 = colorVar("red", 70);
-const GREEN_70 = colorVar("green", 70);
-const BLUE_70 = colorVar("blue", 70);
-const LIME_70 = colorVar("lime", 70);
-const TEAL_70 = colorVar("teal", 70);
-const TURQUOISE_70 = colorVar("turquoise", 70);
-const AQUA_70 = colorVar("aqua", 70);
-const ULTRAMARINE_70 = colorVar("ultramarine", 70);
-const PINK_70 = colorVar("pink", 70);
-const PURPLE_70 = colorVar("purple", 70);
-const ORANGE_70 = colorVar("orange", 70);
-
-const RADIUS_PILL = radiusVar("pill");         // 999px
-const RADIUS_SM = radiusVar("sm");             // 2px
-const BW_SM = borderWidthVar("sm");             // 1px
-const BW_MD = borderWidthVar("md");             // 2px
-const SP_025 = spaceVar("0.25");               // 2px
-const SP_05 = spaceVar("0.5");                 // 4px
-const SP_075 = spaceVar("0.75");               // 6px
-const SP_1 = spaceVar("1");                     // 8px
-const SP_125 = spaceVar("1.25");               // 10px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -117,13 +112,13 @@ export const STYLES = /* css */ `
   :host([size="m"]) .base {
     font-size: 14px;
     line-height: 20px;
-    padding: ${SP_025} ${SP_1};
+    padding: ${SP_0_25} ${SP_1};
     border-radius: ${RADIUS_PILL};
   }
 
   :host .base .content,
   :host([size="m"]) .base .content {
-    padding: 0 ${SP_05};
+    padding: 0 ${SP_0_5};
   }
 
   /* ── Size: xs ────────────────────────────────────────────────────────────── */
@@ -131,12 +126,12 @@ export const STYLES = /* css */ `
   :host([size="xs"]) .base {
     font-size: 11px;
     line-height: 16px;
-    padding: 0 ${SP_075};
+    padding: 0 ${SP_0_75};
     border-radius: ${RADIUS_PILL};
   }
 
   :host([size="xs"]) .base .content {
-    padding: 0 ${SP_025};
+    padding: 0 ${SP_0_25};
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
@@ -144,12 +139,12 @@ export const STYLES = /* css */ `
   :host([size="s"]) .base {
     font-size: 12px;
     line-height: 16px;
-    padding: ${SP_025} ${SP_1};
+    padding: ${SP_0_25} ${SP_1};
     border-radius: ${RADIUS_PILL};
   }
 
   :host([size="s"]) .base .content {
-    padding: 0 ${SP_05};
+    padding: 0 ${SP_0_5};
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
@@ -157,12 +152,12 @@ export const STYLES = /* css */ `
   :host([size="l"]) .base {
     font-size: 14px;
     line-height: 20px;
-    padding: ${SP_075} ${SP_125};
+    padding: ${SP_0_75} ${SP_1_25};
     border-radius: ${RADIUS_PILL};
   }
 
   :host([size="l"]) .base .content {
-    padding: 0 ${SP_075};
+    padding: 0 ${SP_0_75};
   }
 
   /* ── Emphasis: bold (default) — basic type only ─────────────────────────── */
@@ -518,7 +513,6 @@ export const STYLES = /* css */ `
     display: none;
   }
 `;
-
 
 // ─── Component ───────────────────────────────────────────────────────────────
 

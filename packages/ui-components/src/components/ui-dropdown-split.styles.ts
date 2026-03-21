@@ -1,32 +1,30 @@
-import { semanticVar, spaceVar, elevationVar, radiusVar, borderWidthVar } from "@maneki/foundation";
+import {
+  ACTIVE_BOLD,
+  ACTIVE_SUBTLE,
+  BORDER_FOCUS,
+  BW_SM,
+  ELEVATION_05,
+  HOVER_BOLD,
+  HOVER_SUBTLE,
+  RADIUS_NONE,
+  RADIUS_PILL,
+  RADIUS_SM,
+  SP_0_5,
+  SP_0_75,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_2_5,
+  SP_3,
+  SP_4,
+  SURFACE_ACTION,
+  SURFACE_ACTION_CONTRAST,
+  SURFACE_DESTRUCTIVE,
+  SURFACE_PRIMARY,
+  SURFACE_TERTIARY,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_ACTION = semanticVar("surface", "action");
-const SURFACE_TERTIARY = semanticVar("surface", "tertiary");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const SURFACE_DESTRUCTIVE = semanticVar("surface", "destructive");
-const SURFACE_ACTION_CONTRAST = semanticVar("surface", "actionContrast");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-const ELEVATION_05 = elevationVar("05");
-const SP_05 = spaceVar("0.5");
-const SP_075 = spaceVar("0.75");
-const SP_1 = spaceVar("1");
-const SP_15 = spaceVar("1.5");
-const SP_2 = spaceVar("2");
-const SP_25 = spaceVar("2.5");
-const SP_3 = spaceVar("3");
-const SP_4 = spaceVar("4");
-
-const RADIUS_SM = radiusVar("sm");
-const RADIUS_PILL = radiusVar("pill");
-const RADIUS_NONE = radiusVar("none");
-const BORDER_SM = borderWidthVar("sm");
-const HOVER_BOLD = semanticVar("stateHover", "surfaceBold");
-const HOVER_SUBTLE = semanticVar("stateHover", "surfaceSubtle");
-const ACTIVE_BOLD = semanticVar("stateActive", "surfaceBold");
-const ACTIVE_SUBTLE = semanticVar("stateActive", "surfaceSubtle");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -47,7 +45,7 @@ export const STYLES = /* css */ `
     display: inline-flex;
     flex-direction: row;
     align-items: stretch;
-    border-width: ${BORDER_SM};
+    border-width: ${BW_SM};
     border-style: solid;
     border-color: transparent;
     cursor: pointer;
@@ -87,7 +85,7 @@ export const STYLES = /* css */ `
   }
 
   .left {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   /* ── Border-radius on outer corners only ────────────────────────────────── */
@@ -114,22 +112,22 @@ export const STYLES = /* css */ `
   :host([size="m"]) .left {
     font-size: 14px;
     line-height: 20px;
-    padding: ${SP_075} ${SP_15} ${SP_075} ${SP_2};
+    padding: ${SP_0_75} ${SP_1_5} ${SP_0_75} ${SP_2};
   }
 
   :host([shape="rounded"]) .left,
   :host([shape="rounded"][size="m"]) .left {
-    padding: ${SP_075} ${SP_15} ${SP_075} ${SP_25};
+    padding: ${SP_0_75} ${SP_1_5} ${SP_0_75} ${SP_2_5};
   }
 
   :host .right,
   :host([size="m"]) .right {
-    padding: ${SP_075};
+    padding: ${SP_0_75};
   }
 
   :host([shape="rounded"]) .right,
   :host([shape="rounded"][size="m"]) .right {
-    padding: ${SP_075} ${SP_15} ${SP_075} ${SP_075};
+    padding: ${SP_0_75} ${SP_1_5} ${SP_0_75} ${SP_0_75};
   }
 
   /* ── Size: s ────────────────────────────────────────────────────────────── */
@@ -137,19 +135,19 @@ export const STYLES = /* css */ `
   :host([size="s"]) .left {
     font-size: 12px;
     line-height: 16px;
-    padding: ${SP_05} ${SP_1};
+    padding: ${SP_0_5} ${SP_1};
   }
 
   :host([size="s"][shape="rounded"]) .left {
-    padding: ${SP_05} ${SP_1} ${SP_05} ${SP_2};
+    padding: ${SP_0_5} ${SP_1} ${SP_0_5} ${SP_2};
   }
 
   :host([size="s"]) .right {
-    padding: ${SP_05};
+    padding: ${SP_0_5};
   }
 
   :host([size="s"][shape="rounded"]) .right {
-    padding: ${SP_05} ${SP_1} ${SP_05} ${SP_05};
+    padding: ${SP_0_5} ${SP_1} ${SP_0_5} ${SP_0_5};
   }
 
   /* ── Size: l ────────────────────────────────────────────────────────────── */
@@ -157,7 +155,7 @@ export const STYLES = /* css */ `
   :host([size="l"]) .left {
     font-size: 16px;
     line-height: 24px;
-    padding: ${SP_1} ${SP_2} ${SP_1} ${SP_25};
+    padding: ${SP_1} ${SP_2} ${SP_1} ${SP_2_5};
   }
 
   :host([size="l"][shape="rounded"]) .left {
@@ -169,7 +167,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"][shape="rounded"]) .right {
-    padding: ${SP_1} ${SP_15} ${SP_1} ${SP_1};
+    padding: ${SP_1} ${SP_1_5} ${SP_1} ${SP_1};
   }
 
   /* ── Size: xl ───────────────────────────────────────────────────────────── */
@@ -177,61 +175,61 @@ export const STYLES = /* css */ `
   :host([size="xl"]) .left {
     font-size: 16px;
     line-height: 24px;
-    padding: ${SP_15} ${SP_4};
+    padding: ${SP_1_5} ${SP_4};
   }
 
   :host([size="xl"][shape="rounded"]) .left {
-    padding: ${SP_15} ${SP_4} ${SP_15} ${SP_3};
+    padding: ${SP_1_5} ${SP_4} ${SP_1_5} ${SP_3};
   }
 
   :host([size="xl"]) .right {
-    padding: ${SP_15};
+    padding: ${SP_1_5};
   }
 
   :host([size="xl"][shape="rounded"]) .right {
-    padding: ${SP_15};
+    padding: ${SP_1_5};
   }
   /* ── Icon-only padding (square) ────────────────────────────────────────── */
   :host([icon="icon-only"]) .left,
   :host([icon="icon-only"][size="m"]) .left {
-    padding: ${SP_075};
+    padding: ${SP_0_75};
   }
   :host([icon="icon-only"][size="s"]) .left {
-    padding: ${SP_05};
+    padding: ${SP_0_5};
   }
   :host([icon="icon-only"][size="l"]) .left {
-    padding: ${SP_15};
+    padding: ${SP_1_5};
   }
   :host([icon="icon-only"][size="xl"]) .left {
-    padding: ${SP_15};
+    padding: ${SP_1_5};
   }
   /* ── Leading-icon padding adjustments ───────────────────────────────────── */
   :host([icon="leading-icon"]) .left,
   :host([icon="leading-icon"][size="m"]) .left {
-    padding: ${SP_075} ${SP_15} ${SP_075} ${SP_1};
+    padding: ${SP_0_75} ${SP_1_5} ${SP_0_75} ${SP_1};
   }
   :host([icon="leading-icon"][size="s"]) .left {
-    padding: ${SP_05} ${SP_1} ${SP_05} ${SP_05};
+    padding: ${SP_0_5} ${SP_1} ${SP_0_5} ${SP_0_5};
   }
   :host([icon="leading-icon"][size="l"]) .left {
-    padding: ${SP_15} ${SP_2} ${SP_15} ${SP_1};
+    padding: ${SP_1_5} ${SP_2} ${SP_1_5} ${SP_1};
   }
   :host([icon="leading-icon"][size="xl"]) .left {
-    padding: ${SP_15} ${SP_4} ${SP_15} ${SP_2};
+    padding: ${SP_1_5} ${SP_4} ${SP_1_5} ${SP_2};
   }
   /* ── Trailing-icon padding adjustments ──────────────────────────────────── */
   :host([icon="trailing-icon"]) .left,
   :host([icon="trailing-icon"][size="m"]) .left {
-    padding: ${SP_075} ${SP_1} ${SP_075} ${SP_2};
+    padding: ${SP_0_75} ${SP_1} ${SP_0_75} ${SP_2};
   }
   :host([icon="trailing-icon"][size="s"]) .left {
-    padding: ${SP_05} ${SP_05} ${SP_05} ${SP_1};
+    padding: ${SP_0_5} ${SP_0_5} ${SP_0_5} ${SP_1};
   }
   :host([icon="trailing-icon"][size="l"]) .left {
-    padding: ${SP_15} ${SP_1} ${SP_15} ${SP_25};
+    padding: ${SP_1_5} ${SP_1} ${SP_1_5} ${SP_2_5};
   }
   :host([icon="trailing-icon"][size="xl"]) .left {
-    padding: ${SP_15} ${SP_2} ${SP_15} ${SP_4};
+    padding: ${SP_1_5} ${SP_2} ${SP_1_5} ${SP_4};
   }
   /* ── Icon slot visibility ───────────────────────────────────────────────── */
   .slot-icon-start,
@@ -478,7 +476,7 @@ export const STYLES = /* css */ `
     left: 0;
     z-index: 1000;
     min-width: 240px;
-    padding: ${SP_05} 0;
+    padding: ${SP_0_5} 0;
     background-color: var(--ui-dds-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-dds-menu-shadow, ${ELEVATION_05});
     border-radius: ${RADIUS_SM};

@@ -1,11 +1,17 @@
-import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
+
+import {
+  BORDER_MODERATE,
+  BW_SM,
+  SP_0_5,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_2_5,
+  SP_3,
+  SP_4,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 import type { MetricSize } from "./ui-metric.js";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const BORDER_MODERATE = semanticVar("border", "moderate");
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -22,7 +28,7 @@ const STYLES = /* css */ `
 
   .wrapper {
     display: flex;
-    gap: ${spaceVar("1")};
+    gap: ${SP_1};
     align-items: stretch;
     height: 100%;
   }
@@ -30,7 +36,7 @@ const STYLES = /* css */ `
   /* ── Separator ───────────────────────────────────────────────────────────── */
 
   .separator {
-    width: ${borderWidthVar("sm")};
+    width: ${BW_SM};
     align-self: stretch;
     background: ${BORDER_MODERATE};
     flex-shrink: 0;
@@ -41,9 +47,9 @@ const STYLES = /* css */ `
   .group {
     display: flex;
     flex-direction: column;
-    gap: ${spaceVar("0.5")};
+    gap: ${SP_0_5};
     align-items: flex-start;
-    padding-top: ${spaceVar("1")};
+    padding-top: ${SP_1};
   }
 
   /* ── Title ───────────────────────────────────────────────────────────────── */
@@ -74,36 +80,36 @@ const STYLES = /* css */ `
 
   :host .metrics,
   :host([size="s"]) .metrics {
-    gap: ${spaceVar("2.5")};
+    gap: ${SP_2_5};
   }
 
   :host .title,
   :host([size="s"]) .title {
-    padding-left: ${spaceVar("1")};
+    padding-left: ${SP_1};
   }
 
   :host([size="xs"]) .metrics {
-    gap: ${spaceVar("2")};
+    gap: ${SP_2};
   }
 
   :host([size="xs"]) .title {
-    padding-left: ${spaceVar("1")};
+    padding-left: ${SP_1};
   }
 
   :host([size="m"]) .metrics {
-    gap: ${spaceVar("3")};
+    gap: ${SP_3};
   }
 
   :host([size="m"]) .title {
-    padding-left: ${spaceVar("1.5")};
+    padding-left: ${SP_1_5};
   }
 
   :host([size="l"]) .metrics {
-    gap: ${spaceVar("4")};
+    gap: ${SP_4};
   }
 
   :host([size="l"]) .title {
-    padding-left: ${spaceVar("2")};
+    padding-left: ${SP_2};
   }
 `;
 

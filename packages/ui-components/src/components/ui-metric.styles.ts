@@ -1,21 +1,19 @@
-import { semanticVar, colorVar, spaceVar, radiusVar } from "@maneki/foundation";
+import {
+  ACTIVE_SUBTLE,
+  GREEN_60,
+  HOVER_MINIMAL,
+  RADIUS_SM,
+  RED_60,
+  SP_0_25,
+  SP_0_5,
+  SP_0_75,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const GREEN_60 = colorVar("green", 60);
-const RED_60 = colorVar("red", 60);
-const ACTIVE_SURFACE = semanticVar("stateActive", "surfaceSubtle");
-const HOVER_SURFACE = semanticVar("stateHover", "surfaceMinimal");
-
-const SP_025 = spaceVar("0.25");   // 2px
-const SP_05 = spaceVar("0.5");     // 4px
-const SP_075 = spaceVar("0.75");   // 6px
-const SP_1 = spaceVar("1");         // 8px
-const SP_15 = spaceVar("1.5");     // 12px
-const SP_2 = spaceVar("2");         // 16px
-const RADIUS_SM = radiusVar("sm");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -85,7 +83,7 @@ export const STYLES = /* css */ `
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: ${SP_025};
+    gap: ${SP_0_25};
   }
 
   .label {
@@ -147,7 +145,7 @@ export const STYLES = /* css */ `
   .delta-content {
     display: flex;
     align-items: center;
-    gap: ${SP_05};
+    gap: ${SP_0_5};
     font-size: 12px;
     line-height: 16px;
     font-weight: 400;
@@ -194,21 +192,21 @@ export const STYLES = /* css */ `
   }
 
   :host([clickable]) .base:hover {
-    background: ${HOVER_SURFACE};
+    background: ${HOVER_MINIMAL};
   }
 
   :host([clickable]) .base:active {
-    background: ${ACTIVE_SURFACE};
+    background: ${ACTIVE_SUBTLE};
   }
 
   /* ── Size: xs ────────────────────────────────────────────────────────────── */
 
   :host([size="xs"]) .base {
-    padding: ${SP_05} ${SP_1};
+    padding: ${SP_0_5} ${SP_1};
   }
 
   :host([size="xs"][legend-color]) .base {
-    padding: ${SP_05} ${SP_1} ${SP_05} ${SP_075};
+    padding: ${SP_0_5} ${SP_1} ${SP_0_5} ${SP_0_75};
   }
 
   :host([size="xs"]) .content {
@@ -232,24 +230,24 @@ export const STYLES = /* css */ `
   }
 
   :host([size="xs"]) .value-container {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   /* ── Size: s (default) ───────────────────────────────────────────────────── */
 
   :host .base,
   :host([size="s"]) .base {
-    padding: ${SP_05} ${SP_1};
+    padding: ${SP_0_5} ${SP_1};
   }
 
   :host([legend-color]) .base,
   :host([size="s"][legend-color]) .base {
-    padding: ${SP_05} ${SP_1} ${SP_05} ${SP_075};
+    padding: ${SP_0_5} ${SP_1} ${SP_0_5} ${SP_0_75};
   }
 
   :host .content,
   :host([size="s"]) .content {
-    gap: ${SP_025};
+    gap: ${SP_0_25};
   }
 
   :host .value,
@@ -273,21 +271,21 @@ export const STYLES = /* css */ `
 
   :host .value-container,
   :host([size="s"]) .value-container {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   /* ── Size: m ─────────────────────────────────────────────────────────────── */
 
   :host([size="m"]) .base {
-    padding: ${SP_075} ${SP_15};
+    padding: ${SP_0_75} ${SP_1_5};
   }
 
   :host([size="m"][legend-color]) .base {
-    padding: ${SP_075} ${SP_15} ${SP_075} ${SP_1};
+    padding: ${SP_0_75} ${SP_1_5} ${SP_0_75} ${SP_1};
   }
 
   :host([size="m"]) .content {
-    gap: ${SP_025};
+    gap: ${SP_0_25};
   }
 
   :host([size="m"]) .value {
@@ -307,7 +305,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="m"]) .value-container {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   :host([size="m"][orientation="horizontal"]) .base {
@@ -330,7 +328,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .content {
-    gap: ${SP_025};
+    gap: ${SP_0_25};
   }
 
   :host([size="l"]) .value {
@@ -350,16 +348,16 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .value-container {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   /* ── Clickable hover bg for m size ───────────────────────────────────────── */
 
   :host([size="m"][clickable]) .base {
-    background: ${ACTIVE_SURFACE};
+    background: ${ACTIVE_SUBTLE};
   }
 
   :host([size="m"][clickable]) .base:hover {
-    background: ${HOVER_SURFACE};
+    background: ${HOVER_MINIMAL};
   }
 `;

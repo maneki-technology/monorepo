@@ -1,4 +1,9 @@
-import { semanticVar, ICON_CODEPOINTS } from "@maneki/foundation";
+import {
+  DISABLED_MINIMAL,
+  ICON_ACTION,
+  ICON_CODEPOINTS,
+  ICON_REVERSED,
+} from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -14,13 +19,6 @@ export type IconState =
   | "focus-inverse"
   | "disabled"
   | "disabled-inverse";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const ICON_REVERSED = semanticVar("icon", "reversed");
-const ICON_ACTION = semanticVar("icon", "action");
-const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `

@@ -1,4 +1,29 @@
-import { colorVar, semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
+import {
+  AQUA_60,
+  BLUE_60,
+  BORDER_MODERATE,
+  GRAY_60,
+  GREEN_60,
+  LIME_60,
+  ORANGE_60,
+  PINK_60,
+  PURPLE_60,
+  RADIUS_PILL,
+  RADIUS_SM,
+  RED_60,
+  SP_0_25,
+  SP_0_5,
+  SP_0_75,
+  SP_1,
+  SP_1_25,
+  SURFACE_TERTIARY,
+  TEAL_60,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TURQUOISE_60,
+  ULTRAMARINE_60,
+  YELLOW_30,
+} from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -25,35 +50,6 @@ export type BadgeStatus =
   | "warning"
   | "success"
   | "information";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const GRAY_60 = colorVar("gray", 60);
-const RED_60 = colorVar("red", 60);
-const YELLOW_30 = colorVar("yellow", 30);
-const GREEN_60 = colorVar("green", 60);
-const BLUE_60 = colorVar("blue", 60);
-const LIME_60 = colorVar("lime", 60);
-const TEAL_60 = colorVar("teal", 60);
-const TURQUOISE_60 = colorVar("turquoise", 60);
-const AQUA_60 = colorVar("aqua", 60);
-const ULTRAMARINE_60 = colorVar("ultramarine", 60);
-const PINK_60 = colorVar("pink", 60);
-const PURPLE_60 = colorVar("purple", 60);
-const ORANGE_60 = colorVar("orange", 60);
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const SURFACE_TERTIARY = semanticVar("surface", "tertiary");
-const BORDER_MODERATE = semanticVar("border", "moderate");
-
-const SP_025 = spaceVar("0.25");   // 2px
-const SP_05 = spaceVar("0.5");     // 4px
-const SP_075 = spaceVar("0.75");   // 6px
-const SP_1 = spaceVar("1");         // 8px
-const SP_125 = spaceVar("1.25");   // 10px
-const RADIUS_SM = radiusVar("sm");   // 2px
-const RADIUS_PILL = radiusVar("pill"); // 999px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -85,7 +81,7 @@ export const STYLES = /* css */ `
   :host([size="m"]) .base {
     font-size: 12px;
     line-height: 16px;
-    padding: ${SP_025} ${SP_1};
+    padding: ${SP_0_25} ${SP_1};
   }
 
   /* ── Size: xs ────────────────────────────────────────────────────────────── */
@@ -93,7 +89,7 @@ export const STYLES = /* css */ `
   :host([size="xs"]) .base {
     font-size: 9px;
     line-height: 12px;
-    padding: 0 ${SP_05};
+    padding: 0 ${SP_0_5};
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
@@ -101,7 +97,7 @@ export const STYLES = /* css */ `
   :host([size="s"]) .base {
     font-size: 11px;
     line-height: 16px;
-    padding: 0 ${SP_075};
+    padding: 0 ${SP_0_75};
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
@@ -109,7 +105,7 @@ export const STYLES = /* css */ `
   :host([size="l"]) .base {
     font-size: 14px;
     line-height: 20px;
-    padding: ${SP_05} ${SP_125};
+    padding: ${SP_0_5} ${SP_1_25};
   }
 
   /* ── Shape: square (default) ─────────────────────────────────────────────── */

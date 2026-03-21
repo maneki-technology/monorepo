@@ -1,20 +1,19 @@
-import { semanticVar, colorVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
+import {
+  BLUE_60,
+  BW_MD,
+  DISABLED_MINIMAL,
+  DISABLED_TEXT,
+  RADIUS_PILL,
+  SP_0_5,
+  SP_1,
+  SP_1_5,
+  STATUS_GENERAL_WARNING,
+  STATUS_SURFACE_ERROR_BOLD,
+  SURFACE_BOLD,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const BLUE_60 = colorVar("blue", 60);
-const SURFACE_BOLD = semanticVar("surface", "bold");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
-const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
-const WARNING_GENERAL = semanticVar("statusGeneral", "warning");
-const RADIUS_PILL = radiusVar("pill");         // 999px
-const BW_MD = borderWidthVar("md");             // 2px
-const SP_05 = spaceVar("0.5");                 // 4px
-const SP_1 = spaceVar("1");                     // 8px
-const SP_15 = spaceVar("1.5");                 // 12px
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type StepSize = "s" | "m";
@@ -158,11 +157,11 @@ export const STEP_ITEM_STYLES = /* css */ `
   }
 
   :host([status="error"]) .dot {
-    background: ${ERROR_BOLD};
+    background: ${STATUS_SURFACE_ERROR_BOLD};
   }
 
   :host([status="warning"]) .dot {
-    background: ${WARNING_GENERAL};
+    background: ${STATUS_GENERAL_WARNING};
   }
 
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
@@ -198,11 +197,11 @@ export const STEP_ITEM_STYLES = /* css */ `
   }
 
   :host([size="s"][orientation="horizontal"]) {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   :host([size="s"][orientation="vertical"]) {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   :host([size="s"][orientation="vertical"]) .line {
@@ -286,7 +285,7 @@ export const STEP_ITEM_STYLES = /* css */ `
   }
 
   :host([size="m"][orientation="vertical"]) .labels {
-    padding: ${SP_15} 0;
+    padding: ${SP_1_5} 0;
   }
 
   /* ── Dot icon (M size only) ──────────────────────────────────────────────── */

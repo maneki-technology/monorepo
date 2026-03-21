@@ -1,27 +1,25 @@
-import { semanticVar, elevationVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
+import {
+  BORDER_MINIMAL,
+  BW_SM,
+  ELEVATION_00,
+  ELEVATION_01,
+  ELEVATION_02,
+  ELEVATION_04,
+  RADIUS_NONE,
+  RADIUS_SM,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_2_5,
+  SP_3,
+  SURFACE_PRIMARY,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type CardSize = "s" | "m" | "l";
 export type CardElevation = "00" | "01" | "02" | "04";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-
-const ELEVATION_00 = elevationVar("00");
-const ELEVATION_01 = elevationVar("01");
-const ELEVATION_02 = elevationVar("02");
-const ELEVATION_04 = elevationVar("04");
-
-const SP_1 = spaceVar("1");
-const SP_1_5 = spaceVar("1.5");
-const SP_2 = spaceVar("2");
-const SP_2_5 = spaceVar("2.5");
-const SP_3 = spaceVar("3");
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -42,7 +40,7 @@ const STYLES = /* css */ `
     display: flex;
     flex-direction: column;
     width: 100%;
-    border-radius: var(--ui-card-radius, ${radiusVar("sm")});
+    border-radius: var(--ui-card-radius, ${RADIUS_SM});
     background-color: var(--ui-card-bg, ${SURFACE_PRIMARY});
     color: var(--ui-card-color, ${TEXT_PRIMARY});
     overflow: hidden;
@@ -70,7 +68,7 @@ const STYLES = /* css */ `
   /* ── Bordered ────────────────────────────────────────────────────────────── */
 
   :host([bordered]) .base {
-    border-width: ${borderWidthVar("sm")};
+    border-width: ${BW_SM};
     border-style: solid;
     border-color: var(--ui-card-border-color, ${BORDER_MINIMAL});
   }
@@ -79,7 +77,7 @@ const STYLES = /* css */ `
 
   .image-slot {
     overflow: hidden;
-    border-radius: var(--ui-card-radius, ${radiusVar("sm")}) var(--ui-card-radius, ${radiusVar("sm")}) ${radiusVar("none")} ${radiusVar("none")};
+    border-radius: var(--ui-card-radius, ${RADIUS_SM}) var(--ui-card-radius, ${RADIUS_SM}) ${RADIUS_NONE} ${RADIUS_NONE};
   }
 
   .image-slot ::slotted(*) {

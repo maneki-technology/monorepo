@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
+
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -11,58 +11,45 @@ export type AlertStatus =
   | "error"
   | "warning";
 
+import {
+  RADIUS_SM,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_2_5,
+  SP_3,
+  STATUS_ICON_ERROR_BOLD,
+  STATUS_ICON_ERROR_SUBTLE,
+  STATUS_ICON_INFO_BOLD,
+  STATUS_ICON_INFO_SUBTLE,
+  STATUS_ICON_NONE_BOLD,
+  STATUS_ICON_NONE_SUBTLE,
+  STATUS_ICON_SUCCESS_BOLD,
+  STATUS_ICON_SUCCESS_SUBTLE,
+  STATUS_ICON_WARNING_BOLD,
+  STATUS_ICON_WARNING_SUBTLE,
+  STATUS_SURFACE_ERROR_BOLD,
+  STATUS_SURFACE_ERROR_SUBTLE,
+  STATUS_SURFACE_INFO_BOLD,
+  STATUS_SURFACE_INFO_SUBTLE,
+  STATUS_SURFACE_NONE_BOLD,
+  STATUS_SURFACE_NONE_SUBTLE,
+  STATUS_SURFACE_SUCCESS_BOLD,
+  STATUS_SURFACE_SUCCESS_SUBTLE,
+  STATUS_SURFACE_WARNING_BOLD,
+  STATUS_SURFACE_WARNING_SUBTLE,
+  STATUS_TEXT_ERROR_BOLD,
+  STATUS_TEXT_ERROR_SUBTLE,
+  STATUS_TEXT_INFO_BOLD,
+  STATUS_TEXT_INFO_SUBTLE,
+  STATUS_TEXT_NONE_BOLD,
+  STATUS_TEXT_NONE_SUBTLE,
+  STATUS_TEXT_SUCCESS_BOLD,
+  STATUS_TEXT_SUCCESS_SUBTLE,
+  STATUS_TEXT_WARNING_BOLD,
+  STATUS_TEXT_WARNING_SUBTLE,
+} from "@maneki/foundation";
 import "./ui-icon.js";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-// Bold surfaces
-const SURF_NONE_BOLD = semanticVar("statusSurface", "noneBold");
-const SURF_INFO_BOLD = semanticVar("statusSurface", "informationBold");
-const SURF_SUCCESS_BOLD = semanticVar("statusSurface", "successBold");
-const SURF_ERROR_BOLD = semanticVar("statusSurface", "errorBold");
-const SURF_WARNING_BOLD = semanticVar("statusSurface", "warningBold");
-
-// Bold text
-const TEXT_NONE_BOLD = semanticVar("statusText", "noneBoldText");
-const TEXT_INFO_BOLD = semanticVar("statusText", "informationBoldText");
-const TEXT_SUCCESS_BOLD = semanticVar("statusText", "successBoldText");
-const TEXT_ERROR_BOLD = semanticVar("statusText", "errorBoldText");
-const TEXT_WARNING_BOLD = semanticVar("statusText", "warningBoldText");
-
-// Bold icon
-const ICON_NONE_BOLD = semanticVar("statusIcon", "noneBoldIcon");
-const ICON_INFO_BOLD = semanticVar("statusIcon", "informationBoldIcon");
-const ICON_SUCCESS_BOLD = semanticVar("statusIcon", "successBoldIcon");
-const ICON_ERROR_BOLD = semanticVar("statusIcon", "errorBoldIcon");
-const ICON_WARNING_BOLD = semanticVar("statusIcon", "warningBoldIcon");
-
-// Subtle surfaces
-const SURF_NONE_SUBTLE = semanticVar("statusSurface", "noneSubtle");
-const SURF_INFO_SUBTLE = semanticVar("statusSurface", "informationSubtle");
-const SURF_SUCCESS_SUBTLE = semanticVar("statusSurface", "successSubtle");
-const SURF_ERROR_SUBTLE = semanticVar("statusSurface", "errorSubtle");
-const SURF_WARNING_SUBTLE = semanticVar("statusSurface", "warningSubtle");
-
-// Subtle text
-const TEXT_NONE_SUBTLE = semanticVar("statusText", "noneSubtleText");
-const TEXT_INFO_SUBTLE = semanticVar("statusText", "informationSubtleText");
-const TEXT_SUCCESS_SUBTLE = semanticVar("statusText", "successSubtleText");
-const TEXT_ERROR_SUBTLE = semanticVar("statusText", "errorSubtleText");
-const TEXT_WARNING_SUBTLE = semanticVar("statusText", "warningSubtleText");
-
-// Subtle icon
-const ICON_NONE_SUBTLE = semanticVar("statusIcon", "noneSubtleIcon");
-const ICON_INFO_SUBTLE = semanticVar("statusIcon", "informationSubtleIcon");
-const ICON_SUCCESS_SUBTLE = semanticVar("statusIcon", "successSubtleIcon");
-const ICON_ERROR_SUBTLE = semanticVar("statusIcon", "errorSubtleIcon");
-const ICON_WARNING_SUBTLE = semanticVar("statusIcon", "warningSubtleIcon");
-
-const SP_1 = spaceVar("1");       // 8px
-const SP_1_5 = spaceVar("1.5");   // 12px
-const SP_2 = spaceVar("2");       // 16px
-const SP_2_5 = spaceVar("2.5");   // 20px
-const SP_3 = spaceVar("3");       // 24px
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -87,7 +74,7 @@ const STYLES = /* css */ `
   .base {
     display: flex;
     flex-direction: column;
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     font-family: "Geist", sans-serif;
   }
 
@@ -191,7 +178,6 @@ const STYLES = /* css */ `
     line-height: 0;
   }
 
-
   :host([dismissable]) .close-btn {
     display: inline-flex;
   }
@@ -286,107 +272,107 @@ const STYLES = /* css */ `
   :host .base,
   :host([status="none"]) .base,
   :host([status="none"][emphasis="bold"]) .base {
-    background-color: var(--ui-alert-bg, ${SURF_NONE_BOLD});
-    color: var(--ui-alert-text, ${TEXT_NONE_BOLD});
+    background-color: var(--ui-alert-bg, ${STATUS_SURFACE_NONE_BOLD});
+    color: var(--ui-alert-text, ${STATUS_TEXT_NONE_BOLD});
   }
 
   :host .leading-icon,
   :host([status="none"]) .leading-icon,
   :host([status="none"][emphasis="bold"]) .leading-icon {
-    color: var(--ui-alert-icon, ${ICON_NONE_BOLD});
+    color: var(--ui-alert-icon, ${STATUS_ICON_NONE_BOLD});
   }
 
   :host([status="information"]) .base,
   :host([status="information"][emphasis="bold"]) .base {
-    background-color: var(--ui-alert-bg, ${SURF_INFO_BOLD});
-    color: var(--ui-alert-text, ${TEXT_INFO_BOLD});
+    background-color: var(--ui-alert-bg, ${STATUS_SURFACE_INFO_BOLD});
+    color: var(--ui-alert-text, ${STATUS_TEXT_INFO_BOLD});
   }
 
   :host([status="information"]) .leading-icon,
   :host([status="information"][emphasis="bold"]) .leading-icon {
-    color: var(--ui-alert-icon, ${ICON_INFO_BOLD});
+    color: var(--ui-alert-icon, ${STATUS_ICON_INFO_BOLD});
   }
 
   :host([status="success"]) .base,
   :host([status="success"][emphasis="bold"]) .base {
-    background-color: var(--ui-alert-bg, ${SURF_SUCCESS_BOLD});
-    color: var(--ui-alert-text, ${TEXT_SUCCESS_BOLD});
+    background-color: var(--ui-alert-bg, ${STATUS_SURFACE_SUCCESS_BOLD});
+    color: var(--ui-alert-text, ${STATUS_TEXT_SUCCESS_BOLD});
   }
 
   :host([status="success"]) .leading-icon,
   :host([status="success"][emphasis="bold"]) .leading-icon {
-    color: var(--ui-alert-icon, ${ICON_SUCCESS_BOLD});
+    color: var(--ui-alert-icon, ${STATUS_ICON_SUCCESS_BOLD});
   }
 
   :host([status="error"]) .base,
   :host([status="error"][emphasis="bold"]) .base {
-    background-color: var(--ui-alert-bg, ${SURF_ERROR_BOLD});
-    color: var(--ui-alert-text, ${TEXT_ERROR_BOLD});
+    background-color: var(--ui-alert-bg, ${STATUS_SURFACE_ERROR_BOLD});
+    color: var(--ui-alert-text, ${STATUS_TEXT_ERROR_BOLD});
   }
 
   :host([status="error"]) .leading-icon,
   :host([status="error"][emphasis="bold"]) .leading-icon {
-    color: var(--ui-alert-icon, ${ICON_ERROR_BOLD});
+    color: var(--ui-alert-icon, ${STATUS_ICON_ERROR_BOLD});
   }
 
   :host([status="warning"]) .base,
   :host([status="warning"][emphasis="bold"]) .base {
-    background-color: var(--ui-alert-bg, ${SURF_WARNING_BOLD});
-    color: var(--ui-alert-text, ${TEXT_WARNING_BOLD});
+    background-color: var(--ui-alert-bg, ${STATUS_SURFACE_WARNING_BOLD});
+    color: var(--ui-alert-text, ${STATUS_TEXT_WARNING_BOLD});
   }
 
   :host([status="warning"]) .leading-icon,
   :host([status="warning"][emphasis="bold"]) .leading-icon {
-    color: var(--ui-alert-icon, ${ICON_WARNING_BOLD});
+    color: var(--ui-alert-icon, ${STATUS_ICON_WARNING_BOLD});
   }
 
   /* ── Status + Emphasis: subtle ───────────────────────────────────────────── */
 
   :host([emphasis="subtle"]) .base,
   :host([status="none"][emphasis="subtle"]) .base {
-    background-color: var(--ui-alert-bg, ${SURF_NONE_SUBTLE});
-    color: var(--ui-alert-text, ${TEXT_NONE_SUBTLE});
+    background-color: var(--ui-alert-bg, ${STATUS_SURFACE_NONE_SUBTLE});
+    color: var(--ui-alert-text, ${STATUS_TEXT_NONE_SUBTLE});
   }
 
   :host([emphasis="subtle"]) .leading-icon,
   :host([status="none"][emphasis="subtle"]) .leading-icon {
-    color: var(--ui-alert-icon, ${ICON_NONE_SUBTLE});
+    color: var(--ui-alert-icon, ${STATUS_ICON_NONE_SUBTLE});
   }
 
   :host([status="information"][emphasis="subtle"]) .base {
-    background-color: var(--ui-alert-bg, ${SURF_INFO_SUBTLE});
-    color: var(--ui-alert-text, ${TEXT_INFO_SUBTLE});
+    background-color: var(--ui-alert-bg, ${STATUS_SURFACE_INFO_SUBTLE});
+    color: var(--ui-alert-text, ${STATUS_TEXT_INFO_SUBTLE});
   }
 
   :host([status="information"][emphasis="subtle"]) .leading-icon {
-    color: var(--ui-alert-icon, ${ICON_INFO_SUBTLE});
+    color: var(--ui-alert-icon, ${STATUS_ICON_INFO_SUBTLE});
   }
 
   :host([status="success"][emphasis="subtle"]) .base {
-    background-color: var(--ui-alert-bg, ${SURF_SUCCESS_SUBTLE});
-    color: var(--ui-alert-text, ${TEXT_SUCCESS_SUBTLE});
+    background-color: var(--ui-alert-bg, ${STATUS_SURFACE_SUCCESS_SUBTLE});
+    color: var(--ui-alert-text, ${STATUS_TEXT_SUCCESS_SUBTLE});
   }
 
   :host([status="success"][emphasis="subtle"]) .leading-icon {
-    color: var(--ui-alert-icon, ${ICON_SUCCESS_SUBTLE});
+    color: var(--ui-alert-icon, ${STATUS_ICON_SUCCESS_SUBTLE});
   }
 
   :host([status="error"][emphasis="subtle"]) .base {
-    background-color: var(--ui-alert-bg, ${SURF_ERROR_SUBTLE});
-    color: var(--ui-alert-text, ${TEXT_ERROR_SUBTLE});
+    background-color: var(--ui-alert-bg, ${STATUS_SURFACE_ERROR_SUBTLE});
+    color: var(--ui-alert-text, ${STATUS_TEXT_ERROR_SUBTLE});
   }
 
   :host([status="error"][emphasis="subtle"]) .leading-icon {
-    color: var(--ui-alert-icon, ${ICON_ERROR_SUBTLE});
+    color: var(--ui-alert-icon, ${STATUS_ICON_ERROR_SUBTLE});
   }
 
   :host([status="warning"][emphasis="subtle"]) .base {
-    background-color: var(--ui-alert-bg, ${SURF_WARNING_SUBTLE});
-    color: var(--ui-alert-text, ${TEXT_WARNING_SUBTLE});
+    background-color: var(--ui-alert-bg, ${STATUS_SURFACE_WARNING_SUBTLE});
+    color: var(--ui-alert-text, ${STATUS_TEXT_WARNING_SUBTLE});
   }
 
   :host([status="warning"][emphasis="subtle"]) .leading-icon {
-    color: var(--ui-alert-icon, ${ICON_WARNING_SUBTLE});
+    color: var(--ui-alert-icon, ${STATUS_ICON_WARNING_SUBTLE});
   }
 `;
 

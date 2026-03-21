@@ -1,8 +1,4 @@
-import { semanticVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const BORDER_MINIMAL = semanticVar("border", "minimal");
+import { BORDER_MINIMAL } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 

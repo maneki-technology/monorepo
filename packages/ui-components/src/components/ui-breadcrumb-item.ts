@@ -1,23 +1,20 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+
+import {
+  ICON_PRIMARY,
+  SP_0_25,
+  SP_0_5,
+  TEXT_LINK,
+  TEXT_LINK_ACTIVE,
+  TEXT_LINK_HOVER,
+  TEXT_PRIMARY,
+  TEXT_TERTIARY,
+  TEXT_VISITED,
+} from "@maneki/foundation";
 import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type BreadcrumbSize = "s" | "m" | "l";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_LINK = semanticVar("text", "link");
-const TEXT_LINK_HOVER = semanticVar("text", "linkHover");
-const TEXT_LINK_ACTIVE = semanticVar("text", "linkActive");
-const TEXT_VISITED = semanticVar("text", "visited");
-const TEXT_DISABLED = semanticVar("text", "tertiary");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const ICON_PRIMARY = semanticVar("icon", "primary");
-
-const SP_025 = spaceVar("0.25");   // 2px
-const SP_05 = spaceVar("0.5");     // 4px
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -69,7 +66,7 @@ const STYLES = /* css */ `
   /* ── Disabled ──────────────────────────────────────────────────────────── */
 
   :host([disabled]) .link {
-    color: var(--ui-bc-link-disabled, ${TEXT_DISABLED});
+    color: var(--ui-bc-link-disabled, ${TEXT_TERTIARY});
     pointer-events: none;
     cursor: default;
   }
@@ -91,7 +88,6 @@ const STYLES = /* css */ `
     line-height: 0;
   }
 
-
   .separator.hidden {
     display: none;
   }
@@ -102,8 +98,8 @@ const STYLES = /* css */ `
   :host([size="m"]) .link {
     font-size: 14px;
     line-height: 20px;
-    padding-left: ${SP_025};
-    padding-right: ${SP_025};
+    padding-left: ${SP_0_25};
+    padding-right: ${SP_0_25};
   }
 
   :host .separator,
@@ -115,7 +111,7 @@ const STYLES = /* css */ `
 
   :host .base,
   :host([size="m"]) .base {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   /* ── Size: s ────────────────────────────────────────────────────────────── */
@@ -123,8 +119,8 @@ const STYLES = /* css */ `
   :host([size="s"]) .link {
     font-size: 12px;
     line-height: 16px;
-    padding-left: ${SP_025};
-    padding-right: ${SP_025};
+    padding-left: ${SP_0_25};
+    padding-right: ${SP_0_25};
   }
 
   :host([size="s"]) .separator {
@@ -134,7 +130,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .base {
-    gap: ${SP_025};
+    gap: ${SP_0_25};
   }
 
   /* ── Size: l ────────────────────────────────────────────────────────────── */
@@ -142,8 +138,8 @@ const STYLES = /* css */ `
   :host([size="l"]) .link {
     font-size: 16px;
     line-height: 24px;
-    padding-left: ${SP_025};
-    padding-right: ${SP_025};
+    padding-left: ${SP_0_25};
+    padding-right: ${SP_0_25};
   }
 
   :host([size="l"]) .separator {

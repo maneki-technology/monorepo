@@ -1,15 +1,13 @@
-import { semanticVar, elevationVar, spaceVar, borderWidthVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const ELEVATION_03 = elevationVar("03");
-const SP_2 = spaceVar("2");                   // 16px
-const SP_125 = spaceVar("1.25");             // 10px
-const SP_5 = spaceVar("5");                   // 40px
-const BW_SM = borderWidthVar("sm");           // 1px
+import {
+  BORDER_MINIMAL,
+  BW_SM,
+  ELEVATION_03,
+  SP_1_25,
+  SP_2,
+  SP_5,
+  SURFACE_SECONDARY,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -56,7 +54,7 @@ export const STYLES = /* css */ `
   }
 
   .flyout-title {
-    padding: ${SP_125} ${SP_2};
+    padding: ${SP_1_25} ${SP_2};
     font-size: 14px;
     font-weight: 500;
     line-height: 20px;

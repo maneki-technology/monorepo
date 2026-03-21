@@ -1,28 +1,26 @@
-import { semanticVar, spaceVar, radiusVar, elevationVar } from "@maneki/foundation";
+import {
+  BORDER_FOCUS,
+  BORDER_MODERATE,
+  ELEVATION_03,
+  HOVER_BORDER_MODERATE,
+  HOVER_MINIMAL,
+  ICON_SECONDARY,
+  RADIUS_SM,
+  SP_0_25,
+  SP_0_5,
+  SP_0_75,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_3,
+  SP_4,
+  SP_5,
+  SURFACE_PRIMARY,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_TERTIARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const TEXT_TERTIARY = semanticVar("text", "tertiary");
-const BORDER_MODERATE = semanticVar("border", "moderate");
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-const ICON_SECONDARY = semanticVar("icon", "secondary");
-const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
-const FOCUS_BORDER = semanticVar("border", "focus");
-const HOVER_MINIMAL = semanticVar("stateHover", "surfaceMinimal");
-
-const RADIUS_SM = radiusVar("sm");         // 2px
-const ELEV_03 = elevationVar("03");
-const SP_025 = spaceVar("0.25");           // 2px
-const SP_05 = spaceVar("0.5");             // 4px
-const SP_075 = spaceVar("0.75");           // 6px
-const SP_1 = spaceVar("1");                 // 8px
-const SP_15 = spaceVar("1.5");             // 12px
-const SP_2 = spaceVar("2");                 // 16px
-const SP_3 = spaceVar("3");                 // 24px
-const SP_4 = spaceVar("4");                 // 32px
-const SP_5 = spaceVar("5");                 // 40px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const FIELD_STYLES = /* css */ `
@@ -48,19 +46,19 @@ export const FIELD_STYLES = /* css */ `
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: ${SP_05} ${SP_1};
+    gap: ${SP_0_5} ${SP_1};
     border: 1px solid ${BORDER_MODERATE};
     background: ${SURFACE_PRIMARY};
     transition: border-color 0.15s ease;
   }
 
   .wrapper:hover {
-    border-color: ${HOVER_BORDER};
+    border-color: ${HOVER_BORDER_MODERATE};
   }
 
   .wrapper:focus-within {
-    border-color: ${FOCUS_BORDER};
-    outline: 1px solid ${FOCUS_BORDER};
+    border-color: ${BORDER_FOCUS};
+    outline: 1px solid ${BORDER_FOCUS};
     outline-offset: -1px;
   }
 
@@ -90,7 +88,7 @@ export const FIELD_STYLES = /* css */ `
   .tags {
     display: flex;
     align-items: center;
-    gap: ${SP_05};
+    gap: ${SP_0_5};
     flex-wrap: wrap;
   }
 
@@ -111,7 +109,7 @@ export const FIELD_STYLES = /* css */ `
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .wrapper {
-    padding: ${SP_025} ${SP_1};
+    padding: ${SP_0_25} ${SP_1};
     min-height: ${SP_3};
     border-radius: ${RADIUS_SM};
   }
@@ -134,7 +132,7 @@ export const FIELD_STYLES = /* css */ `
 
   :host .wrapper,
   :host([size="m"]) .wrapper {
-    padding: ${SP_05} ${SP_15};
+    padding: ${SP_0_5} ${SP_1_5};
     min-height: ${SP_4};
     border-radius: ${RADIUS_SM};
   }
@@ -159,7 +157,7 @@ export const FIELD_STYLES = /* css */ `
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .wrapper {
-    padding: ${SP_075} ${SP_15};
+    padding: ${SP_0_75} ${SP_1_5};
     min-height: ${SP_5};
     border-radius: ${RADIUS_SM};
   }
@@ -198,9 +196,9 @@ export const FIELD_STYLES = /* css */ `
     max-width: 280px;
     background: ${SURFACE_PRIMARY};
     border-radius: ${RADIUS_SM};
-    box-shadow: ${ELEV_03};
-    padding: ${SP_05} 0;
-    margin-top: ${SP_025};
+    box-shadow: ${ELEVATION_03};
+    padding: ${SP_0_5} 0;
+    margin-top: ${SP_0_25};
     opacity: 0;
     transform: translateY(-4px);
     transition: opacity 0.15s ease, transform 0.15s ease;
@@ -217,7 +215,7 @@ export const FIELD_STYLES = /* css */ `
   }
 
   .menu-heading {
-    padding: ${SP_05} ${SP_2};
+    padding: ${SP_0_5} ${SP_2};
     font-size: 12px;
     line-height: 16px;
     font-weight: 500;
@@ -230,7 +228,7 @@ export const FIELD_STYLES = /* css */ `
     display: flex;
     align-items: center;
     gap: ${SP_1};
-    padding: ${SP_075} ${SP_2};
+    padding: ${SP_0_75} ${SP_2};
     font-size: 14px;
     line-height: 20px;
     font-weight: 400;
@@ -250,7 +248,7 @@ export const FIELD_STYLES = /* css */ `
 
   .menu-item.selected {
     font-weight: 500;
-    color: ${FOCUS_BORDER};
+    color: ${BORDER_FOCUS};
   }
 
   @media (prefers-reduced-motion: reduce) {
