@@ -1,6 +1,7 @@
 import {
   BORDER_FOCUS,
   BORDER_MODERATE,
+  FONT_PRIMARY,
   ICON_SEARCH,
   ICON_SECONDARY,
   RADIUS_SM,
@@ -14,6 +15,9 @@ import {
   SURFACE_PRIMARY,
   TEXT_PRIMARY,
   TEXT_TERTIARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 import "./ui-tree-item.js";
 
@@ -36,7 +40,7 @@ const STYLES = /* css */ `
     display: flex;
     flex-direction: column;
     width: 100%;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   .search {
@@ -84,7 +88,7 @@ const STYLES = /* css */ `
     min-width: 0;
     border: none;
     background: transparent;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     color: ${TEXT_PRIMARY};
     outline: none;
   }
@@ -125,8 +129,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .search-input {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) {
@@ -160,8 +163,7 @@ const STYLES = /* css */ `
 
   :host .search-input,
   :host([size="m"]) .search-input {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
@@ -186,8 +188,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .search-input {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 `;
 

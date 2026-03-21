@@ -9,6 +9,9 @@ import {
   SP_1_25,
   SURFACE_PRIMARY,
   TEXT_PRIMARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 
 export const SELECTED_SUBTLE = "rgba(173, 204, 247, 1)"; // #ADCCF7 — switch track
@@ -150,13 +153,11 @@ export const STYLES = /* css */ `
   :host([size="s"]) .time-input {
     width: 28px;
     height: 24px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .colon {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .toggle-group {
@@ -164,8 +165,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .toggle-label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .switch {
@@ -201,14 +201,12 @@ export const STYLES = /* css */ `
   :host(:not([size])) .time-input {
     width: 36px;
     height: 32px;
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="m"]) .colon,
   :host(:not([size])) .colon {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="m"]) .toggle-group,
@@ -218,8 +216,7 @@ export const STYLES = /* css */ `
 
   :host([size="m"]) .toggle-label,
   :host(:not([size])) .toggle-label {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="m"]) .switch,
@@ -255,13 +252,11 @@ export const STYLES = /* css */ `
   :host([size="l"]) .time-input {
     width: 44px;
     height: 40px;
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .colon {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .toggle-group {
@@ -269,8 +264,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .toggle-label {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .switch {

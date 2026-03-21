@@ -5,6 +5,7 @@ import {
   ELEVATION_01,
   ELEVATION_02,
   ELEVATION_04,
+  FONT_PRIMARY,
   RADIUS_NONE,
   RADIUS_SM,
   SP_1,
@@ -31,7 +32,7 @@ const STYLES = /* css */ `
 
   :host {
     display: block;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   /* ── Base ─────────────────────────────────────────────────────────────────── */

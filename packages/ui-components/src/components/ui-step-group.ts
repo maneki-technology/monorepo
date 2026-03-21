@@ -1,3 +1,4 @@
+import { FONT_PRIMARY } from "@maneki/foundation";
 import "./ui-step-item.js";
 import type { StepSize, StepOrientation } from "./ui-step-item.styles.js";
 
@@ -8,7 +9,7 @@ const STYLES = /* css */ `
     display: flex;
     align-items: flex-start;
     width: 100%;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   :host([orientation="vertical"]) {

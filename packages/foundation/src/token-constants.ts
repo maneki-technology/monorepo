@@ -20,6 +20,7 @@ import {
   radiusVar,
   borderWidthVar,
   elevationVar,
+  typeBlock,
 } from "./tokens.js";
 
 // ─── Text ───────────────────────────────────────────────────────────────────
@@ -297,3 +298,43 @@ export const ELEVATION_03 = elevationVar("03");
 export const ELEVATION_04 = elevationVar("04");
 export const ELEVATION_05 = elevationVar("05");
 export const ELEVATION_06 = elevationVar("06");
+
+// ─── Font Family ────────────────────────────────────────────────────────────
+
+export const FONT_PRIMARY = "'Geist', sans-serif";
+export const FONT_CODE = "'Roboto Mono', monospace";
+// ─── Typography Blocks ──────────────────────────────────────────────────────
+// Each constant is a CSS block: font-size + line-height + font-weight as var() refs.
+
+// Display: light weight, large sizes
+export const TYPE_DISPLAY_01 = typeBlock("display", "01");  // 78px/104px/300
+export const TYPE_DISPLAY_02 = typeBlock("display", "02");  // 60px/80px/300
+export const TYPE_DISPLAY_03 = typeBlock("display", "03");  // 48px/64px/300
+
+// Heading: medium weight
+export const TYPE_HEADING_01 = typeBlock("heading", "01");  // 40px/52px/500
+export const TYPE_HEADING_02 = typeBlock("heading", "02");  // 32px/40px/500
+export const TYPE_HEADING_03 = typeBlock("heading", "03");  // 24px/32px/500
+export const TYPE_HEADING_04 = typeBlock("heading", "04");  // 20px/28px/500
+export const TYPE_HEADING_05 = typeBlock("heading", "05");  // 16px/24px/500
+export const TYPE_HEADING_06 = typeBlock("heading", "06");  // 14px/20px/500
+export const TYPE_HEADING_07 = typeBlock("heading", "07");  // 12px/16px/500
+
+// Body: regular weight
+export const TYPE_BODY_01 = typeBlock("body", "01");        // 16px/24px/400
+export const TYPE_BODY_02 = typeBlock("body", "02");        // 14px/20px/400
+export const TYPE_BODY_03 = typeBlock("body", "03");        // 12px/16px/400
+
+// UI
+export const TYPE_UI_01 = typeBlock("ui", "01");            // 24px/32px/400
+export const TYPE_UI_02 = typeBlock("ui", "02");            // 11px/16px/500
+
+// Caption
+export const TYPE_CAPTION_01 = typeBlock("caption", "01");  // 11px/16px/400
+
+// Badge
+export const TYPE_BADGE_01 = typeBlock("badge", "01");      // 14px/20px/400
+
+// Code
+export const TYPE_CODE_01 = typeBlock("code", "01");        // 14px/20px/400
+export const TYPE_CODE_02 = typeBlock("code", "02");        // 12px/16px/400

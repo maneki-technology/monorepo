@@ -2,6 +2,7 @@ import {
   BORDER_MINIMAL,
   BW_SM,
   ELEVATION_03,
+  FONT_PRIMARY,
   SP_1_25,
   SP_2,
   SP_5,
@@ -46,7 +47,7 @@ export const STYLES = /* css */ `
     box-shadow: var(--ui-spm-flyout-shadow, ${ELEVATION_03});
     flex-direction: column;
     z-index: 10;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   .flyout[open] {

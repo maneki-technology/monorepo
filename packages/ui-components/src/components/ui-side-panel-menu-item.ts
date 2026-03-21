@@ -3,6 +3,7 @@ import {
   BORDER_FOCUS,
   BW_MD,
   DISABLED_TEXT,
+  FONT_PRIMARY,
   HOVER_MINIMAL,
   HOVER_MODERATE,
   ICON_ACTION,
@@ -47,7 +48,7 @@ const STYLES = /* css */ `
     border: none;
     margin: 0;
     background-color: var(--ui-spmi-bg, ${SURFACE_SECONDARY});
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     font-size: 14px;
     font-weight: 500;
     line-height: 20px;

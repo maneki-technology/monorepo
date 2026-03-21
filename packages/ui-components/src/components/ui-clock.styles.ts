@@ -12,6 +12,9 @@ import {
   SURFACE_PRIMARY,
   SURFACE_SECONDARY,
   TEXT_PRIMARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -194,8 +197,7 @@ export const STYLES = /* css */ `
   :host([size="s"]) .clock-number {
     width: 24px;
     height: 24px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .digital-container {
@@ -216,13 +218,11 @@ export const STYLES = /* css */ `
   :host([size="s"]) .digital-input {
     width: 56px;
     height: 24px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .digital-label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     width: 56px;
   }
 
@@ -245,8 +245,7 @@ export const STYLES = /* css */ `
   :host(:not([size])) .clock-number {
     width: 28px;
     height: 28px;
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="m"]) .digital-container,
@@ -271,14 +270,12 @@ export const STYLES = /* css */ `
   :host(:not([size])) .digital-input {
     width: 70px;
     height: 32px;
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="m"]) .digital-label,
   :host(:not([size])) .digital-label {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
     width: 70px;
   }
 
@@ -298,8 +295,7 @@ export const STYLES = /* css */ `
   :host([size="l"]) .clock-number {
     width: 32px;
     height: 32px;
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .digital-container {
@@ -320,13 +316,11 @@ export const STYLES = /* css */ `
   :host([size="l"]) .digital-input {
     width: 80px;
     height: 40px;
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .digital-label {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
     width: 80px;
   }
 `;

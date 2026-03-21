@@ -3,6 +3,8 @@ import {
   BW_SM,
   ICON_PRIMARY,
   TEXT_PRIMARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -83,8 +85,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .heading {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="s"]) .collapse-btn {
@@ -105,8 +106,7 @@ export const STYLES = /* css */ `
 
   :host([size="m"]) .heading,
   :host(:not([size])) .heading {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="m"]) .collapse-btn,
@@ -126,8 +126,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .heading {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .collapse-btn {

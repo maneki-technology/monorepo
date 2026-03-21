@@ -1,8 +1,11 @@
 import {
+  FONT_PRIMARY,
   SP_0_5,
   SP_1,
   SP_3,
   TEXT_PRIMARY,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 import { STATUS_FILL, STATUS_TRACK } from "./ui-progress-bar.styles.js";
 
@@ -19,7 +22,7 @@ export const CIRCLE_STYLES = /* css */ `
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   .container {
@@ -69,8 +72,7 @@ export const CIRCLE_STYLES = /* css */ `
   }
 
   :host([size="s"]) .label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   /* ── Size: M (default, 52px) ─────────────────────────────────────────────── */
@@ -83,14 +85,12 @@ export const CIRCLE_STYLES = /* css */ `
 
   :host .percentage,
   :host([size="m"]) .percentage {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .label,
   :host([size="m"]) .label {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   /* ── Label positions ─────────────────────────────────────────────────────── */

@@ -1,5 +1,6 @@
 
 import {
+  FONT_PRIMARY,
   ICON_PRIMARY,
   SP_0_25,
   SP_0_5,
@@ -9,6 +10,9 @@ import {
   TEXT_PRIMARY,
   TEXT_TERTIARY,
   TEXT_VISITED,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 import "./ui-icon.js";
 
@@ -27,7 +31,7 @@ const STYLES = /* css */ `
   :host {
     display: inline-flex;
     align-items: center;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   .base {
@@ -96,8 +100,7 @@ const STYLES = /* css */ `
 
   :host .link,
   :host([size="m"]) .link {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
     padding-left: ${SP_0_25};
     padding-right: ${SP_0_25};
   }
@@ -117,8 +120,7 @@ const STYLES = /* css */ `
   /* ── Size: s ────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .link {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     padding-left: ${SP_0_25};
     padding-right: ${SP_0_25};
   }
@@ -136,8 +138,7 @@ const STYLES = /* css */ `
   /* ── Size: l ────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .link {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
     padding-left: ${SP_0_25};
     padding-right: ${SP_0_25};
   }

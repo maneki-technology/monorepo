@@ -1,4 +1,5 @@
 import {
+  FONT_PRIMARY,
   RADIUS_PILL,
   SP_0_25,
   SP_0_5,
@@ -8,6 +9,9 @@ import {
   TAG_SUBTLE,
   TAG_TEXT_SUBTLE,
   TEXT_SECONDARY,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -28,7 +32,7 @@ export const TAG_STYLES = /* css */ `
   :host {
     display: inline-flex;
     align-items: center;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   .category {
@@ -119,8 +123,7 @@ export const TAG_STYLES = /* css */ `
 
   :host([size="s"]) .category {
     padding: 0 ${SP_1};
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([size="s"]) .value {
@@ -129,8 +132,7 @@ export const TAG_STYLES = /* css */ `
   }
 
   :host([size="s"]) .value-text {
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([size="s"]) .dismiss {
@@ -147,8 +149,7 @@ export const TAG_STYLES = /* css */ `
   :host .category,
   :host([size="m"]) .category {
     padding: ${SP_0_25} ${SP_1_5};
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host .value,
@@ -159,8 +160,7 @@ export const TAG_STYLES = /* css */ `
 
   :host .value-text,
   :host([size="m"]) .value-text {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host .dismiss,
@@ -178,8 +178,7 @@ export const TAG_STYLES = /* css */ `
 
   :host([size="l"]) .category {
     padding: ${SP_0_25} ${SP_1_5};
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="l"]) .value {
@@ -188,8 +187,7 @@ export const TAG_STYLES = /* css */ `
   }
 
   :host([size="l"]) .value-text {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="l"]) .dismiss {

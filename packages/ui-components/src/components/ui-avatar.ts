@@ -2,6 +2,7 @@
 import {
   AQUA_60,
   BLUE_60,
+  FONT_PRIMARY,
   GRAY_20,
   GRAY_60,
   GRAY_80,
@@ -22,6 +23,10 @@ import {
   SP_6,
   TEAL_60,
   TURQUOISE_60,
+  TYPE_BODY_01,
+  TYPE_BODY_03,
+  TYPE_HEADING_04,
+  TYPE_UI_01,
   ULTRAMARINE_60,
   YELLOW_30,
 } from "@maneki/foundation";
@@ -74,7 +79,7 @@ const STYLES = /* css */ `
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     font-weight: 500;
     color: #ffffff;
   }
@@ -157,8 +162,7 @@ const STYLES = /* css */ `
 
   :host .text,
   :host([size="m"]) .text {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host .icon,
@@ -194,8 +198,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .text {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .icon {
@@ -212,8 +215,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .text {
-    font-size: 20px;
-    line-height: 28px;
+    ${TYPE_HEADING_04}
   }
 
   :host([size="l"]) .icon {
@@ -230,8 +232,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="xl"]) .text {
-    font-size: 24px;
-    line-height: 32px;
+    ${TYPE_UI_01}
   }
 
   :host([size="xl"]) .icon {

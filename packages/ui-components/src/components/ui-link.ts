@@ -1,4 +1,5 @@
 import {
+  FONT_PRIMARY,
   SP_0_25,
   SP_0_5,
   TEXT_LINK,
@@ -46,7 +47,7 @@ const STYLES = /* css */ `
   :host {
     display: inline-flex;
     align-items: center;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   /* ── Link element ─────────────────────────────────────────────────────────── */

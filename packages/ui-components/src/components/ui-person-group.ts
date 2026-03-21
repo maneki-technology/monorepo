@@ -1,5 +1,10 @@
 
-import { SP_1, TEXT_PRIMARY } from "@maneki/foundation";
+import {
+  FONT_PRIMARY,
+  SP_1,
+  TEXT_PRIMARY,
+  TYPE_BODY_01,
+} from "@maneki/foundation";
 import type { PersonItemSize } from "./ui-person-item.js";
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -14,13 +19,12 @@ const STYLES = /* css */ `
     display: flex;
     flex-direction: column;
     width: 100%;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   .title {
     font-weight: 500;
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
     color: ${TEXT_PRIMARY};
     padding-bottom: ${SP_1};
   }

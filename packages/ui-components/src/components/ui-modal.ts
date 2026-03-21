@@ -1,6 +1,7 @@
 
 import {
   ELEVATION_06,
+  FONT_PRIMARY,
   ICON_PRIMARY,
   RADIUS_SM,
   SP_1,
@@ -13,6 +14,11 @@ import {
   SURFACE_PRIMARY,
   TEXT_PRIMARY,
   TEXT_SECONDARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
+  TYPE_HEADING_04,
 } from "@maneki/foundation";
 import "./ui-icon.js";
 
@@ -61,7 +67,7 @@ const STYLES = /* css */ `
     background-color: var(--ui-modal-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-modal-shadow, ${ELEVATION_06});
     border-radius: ${RADIUS_SM};
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     color: ${TEXT_PRIMARY};
     width: var(--ui-modal-width, 441px);
     opacity: 0;
@@ -128,8 +134,7 @@ const STYLES = /* css */ `
     display: none;
     color: ${TEXT_SECONDARY};
     font-weight: 400;
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([has-subtitle]) .subtitle {
@@ -201,14 +206,12 @@ const STYLES = /* css */ `
 
   :host .title,
   :host([size="m"]) .title {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host .body,
   :host([size="m"]) .body {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .close-btn,
@@ -228,13 +231,11 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .title {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="s"]) .body {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .close-btn {
@@ -253,13 +254,11 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .title {
-    font-size: 20px;
-    line-height: 28px;
+    ${TYPE_HEADING_04}
   }
 
   :host([size="l"]) .body {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="l"]) .close-btn {

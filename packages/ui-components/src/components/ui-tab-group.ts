@@ -4,6 +4,7 @@ import {
   BORDER_MINIMAL,
   BW_MD,
   BW_SM,
+  FONT_PRIMARY,
   ICON_ACTION,
   ICON_PRIMARY,
   ICON_SECONDARY,
@@ -208,7 +209,7 @@ const STYLES = /* css */ `
     display: flex;
     align-items: center;
     padding: ${SP_0_75} ${SP_1_5};
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     font-size: 13px;
     line-height: 20px;
     color: ${TEXT_PRIMARY};

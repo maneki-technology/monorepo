@@ -1,5 +1,6 @@
 import {
   ACTIVE_SUBTLE,
+  FONT_PRIMARY,
   GREEN_60,
   HOVER_MINIMAL,
   RADIUS_SM,
@@ -12,6 +13,11 @@ import {
   SP_2,
   TEXT_PRIMARY,
   TEXT_SECONDARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_HEADING_02,
+  TYPE_HEADING_04,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -33,7 +39,7 @@ export const STYLES = /* css */ `
     display: flex;
     align-items: flex-start;
     border-radius: ${RADIUS_SM};
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   /* Vertical orientation (default) */
@@ -87,9 +93,7 @@ export const STYLES = /* css */ `
   }
 
   .label {
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 400;
+    ${TYPE_BODY_03}
     color: ${TEXT_SECONDARY};
     white-space: nowrap;
   }
@@ -146,9 +150,7 @@ export const STYLES = /* css */ `
     display: flex;
     align-items: center;
     gap: ${SP_0_5};
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 400;
+    ${TYPE_BODY_03}
     white-space: nowrap;
   }
 
@@ -214,8 +216,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="xs"]) .value {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="xs"]) .delta-arrow {
@@ -252,8 +253,7 @@ export const STYLES = /* css */ `
 
   :host .value,
   :host([size="s"]) .value {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host .delta-arrow,
@@ -289,8 +289,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="m"]) .value {
-    font-size: 20px;
-    line-height: 28px;
+    ${TYPE_HEADING_04}
   }
 
   :host([size="m"]) .delta-arrow {
@@ -313,8 +312,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="m"][orientation="horizontal"]) .label {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
@@ -332,8 +330,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .value {
-    font-size: 32px;
-    line-height: 40px;
+    ${TYPE_HEADING_02}
   }
 
   :host([size="l"]) .delta-arrow {

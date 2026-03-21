@@ -2,6 +2,7 @@
 import {
   BORDER_MINIMAL,
   BW_SM,
+  FONT_PRIMARY,
   SP_1,
   SP_1_5,
   SP_2,
@@ -14,6 +15,8 @@ import {
   SURFACE_PRIMARY,
   SURFACE_SECONDARY,
   TEXT_PRIMARY,
+  TYPE_BODY_02,
+  TYPE_HEADING_04,
 } from "@maneki/foundation";
 import "./ui-step-group.js";
 import "./ui-step-item.js";
@@ -35,7 +38,7 @@ const STYLES = /* css */ `
   :host {
     display: flex;
     flex-direction: column;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     width: 100%;
     height: 100%;
     background: ${SURFACE_PRIMARY};
@@ -142,8 +145,7 @@ const STYLES = /* css */ `
   }
 
   :host([layout="horizontal"]) .header-title {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([layout="horizontal"]) .steps-bar {
@@ -164,8 +166,7 @@ const STYLES = /* css */ `
   }
 
   :host([layout="vertical"]) .header-title {
-    font-size: 20px;
-    line-height: 28px;
+    ${TYPE_HEADING_04}
   }
 
   :host([layout="vertical"]) .steps-sidebar {

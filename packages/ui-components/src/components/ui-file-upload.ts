@@ -2,6 +2,7 @@ import {
   BORDER_FOCUS,
   DISABLED_BORDER,
   DISABLED_TEXT,
+  FONT_PRIMARY,
   FORM_INPUT_BORDER,
   HOVER_BORDER_MODERATE,
   SP_1,
@@ -26,7 +27,7 @@ const STYLES = /* css */ `
 
   :host {
     display: inline-flex;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   .wrapper {

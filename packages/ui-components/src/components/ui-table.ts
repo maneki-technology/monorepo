@@ -2,6 +2,7 @@ import {
   BORDER_MINIMAL,
   BORDER_MODERATE,
   BW_SM,
+  FONT_PRIMARY,
   GRID_ROW_ALT,
   SP_0_75,
   SP_1,
@@ -24,7 +25,7 @@ const STYLES = /* css */ `
 
   :host {
     display: block;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     /* Default size: m */
     --_table-cell-padding: ${SP_0_75} ${SP_1_5};
     --_table-cell-font-size: 14px;

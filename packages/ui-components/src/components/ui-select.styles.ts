@@ -4,6 +4,7 @@ import {
   DISABLED_BORDER,
   DISABLED_TEXT,
   ELEVATION_05,
+  FONT_PRIMARY,
   FORM_INPUT_BORDER,
   HOVER_BORDER_MODERATE,
   ICON_SECONDARY,
@@ -23,6 +24,8 @@ import {
   TEXT_PRIMARY,
   TEXT_SECONDARY,
   TEXT_TERTIARY,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 
 // ─── Status icon map ─────────────────────────────────────────────────────────
@@ -46,7 +49,7 @@ export const STYLES = /* css */ `
     display: inline-flex;
     flex-direction: column;
     gap: 0;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   /* ── Label row ─────────────────────────────────────────────────────────── */
@@ -112,8 +115,7 @@ export const STYLES = /* css */ `
     flex-shrink: 0;
   }
   .tag-label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     color: ${TAG_TEXT_SUBTLE};
     white-space: nowrap;
   }
@@ -259,8 +261,7 @@ export const STYLES = /* css */ `
   /* ── Supportive text ───────────────────────────────────────────────────── */
   .supportive-text {
     display: none;
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
     color: var(--ui-select-supportive-color, ${TEXT_SECONDARY});
   }
   :host([supportive]) .supportive-text {

@@ -1,6 +1,7 @@
 import {
   BORDER_FOCUS,
   BW_MD,
+  FONT_PRIMARY,
   HOVER_MINIMAL,
   HOVER_MODERATE,
   ICON_PRIMARY,
@@ -14,6 +15,9 @@ import {
   SP_7,
   TEXT_PRIMARY,
   TEXT_SECONDARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -42,7 +46,7 @@ export const TREE_ITEM_STYLES = /* css */ `
     display: flex;
     align-items: center;
     width: 100%;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     cursor: pointer;
     overflow: hidden;
     max-height: 100px;
@@ -205,13 +209,11 @@ export const TREE_ITEM_STYLES = /* css */ `
   }
 
   :host([size="s"]) .label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .secondary-label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   /* Level indents for S */
@@ -251,8 +253,7 @@ export const TREE_ITEM_STYLES = /* css */ `
 
   :host .label,
   :host([size="m"]) .label {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .secondary-label,
@@ -300,8 +301,7 @@ export const TREE_ITEM_STYLES = /* css */ `
   }
 
   :host([size="l"]) .label {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .secondary-label {

@@ -1,4 +1,5 @@
 import {
+  FONT_PRIMARY,
   SP_0_75,
   SP_1,
   SP_1_25,
@@ -7,6 +8,8 @@ import {
   SP_2_5,
   SP_3,
   TEXT_PRIMARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -30,7 +33,7 @@ export const STYLES = /* css */ `
     align-items: center;
     justify-content: center;
     padding: ${SP_1_5};
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     width: 100%;
   }
 
@@ -89,8 +92,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .text {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   /* ── Size: M (default) ───────────────────────────────────────────────────── */
@@ -119,8 +121,7 @@ export const STYLES = /* css */ `
   :host .text,
   :host([size="m"]) .text {
     font-weight: 500;
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   /* ── Size: L ─────────────────────────────────────────────────────────────── */

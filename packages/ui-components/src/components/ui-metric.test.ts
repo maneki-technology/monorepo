@@ -253,43 +253,27 @@ describe("ui-metric", () => {
 
   // ── Size CSS: xs ──────────────────────────────────────────────────────────
 
-  it("CSS sets xs value font-size to 14px", () => {
+  it("CSS sets xs value typography token (body-02)", () => {
     expect(STYLES).toContain(':host([size="xs"]) .value');
-    expect(STYLES).toMatch(/\:host\(\[size="xs"\]\) \.value\s*\{[^}]*font-size:\s*14px/);
-  });
-
-  it("CSS sets xs value line-height to 20px", () => {
-    expect(STYLES).toMatch(/\:host\(\[size="xs"\]\) \.value\s*\{[^}]*line-height:\s*20px/);
+    expect(STYLES).toMatch(/\:host\(\[size="xs"\]\) \.value\s*\{[^}]*var\(--fd-type-body-02-font-size\)/);
   });
 
   // ── Size CSS: s ───────────────────────────────────────────────────────────
 
-  it("CSS sets s value font-size to 16px", () => {
-    expect(STYLES).toMatch(/\:host\(\[size="s"\]\) \.value\s*\{[^}]*font-size:\s*16px/);
-  });
-
-  it("CSS sets s value line-height to 24px", () => {
-    expect(STYLES).toMatch(/\:host\(\[size="s"\]\) \.value\s*\{[^}]*line-height:\s*24px/);
+  it("CSS sets s value typography token (body-01)", () => {
+    expect(STYLES).toMatch(/\:host\(\[size="s"\]\) \.value\s*\{[^}]*var\(--fd-type-body-01-font-size\)/);
   });
 
   // ── Size CSS: m ───────────────────────────────────────────────────────────
 
-  it("CSS sets m value font-size to 20px", () => {
-    expect(STYLES).toMatch(/\:host\(\[size="m"\]\) \.value\s*\{[^}]*font-size:\s*20px/);
-  });
-
-  it("CSS sets m value line-height to 28px", () => {
-    expect(STYLES).toMatch(/\:host\(\[size="m"\]\) \.value\s*\{[^}]*line-height:\s*28px/);
+  it("CSS sets m value typography token (heading-04)", () => {
+    expect(STYLES).toMatch(/\:host\(\[size="m"\]\) \.value\s*\{[^}]*var\(--fd-type-heading-04-font-size\)/);
   });
 
   // ── Size CSS: l ───────────────────────────────────────────────────────────
 
-  it("CSS sets l value font-size to 32px", () => {
-    expect(STYLES).toMatch(/\:host\(\[size="l"\]\) \.value\s*\{[^}]*font-size:\s*32px/);
-  });
-
-  it("CSS sets l value line-height to 40px", () => {
-    expect(STYLES).toMatch(/\:host\(\[size="l"\]\) \.value\s*\{[^}]*line-height:\s*40px/);
+  it("CSS sets l value typography token (heading-02)", () => {
+    expect(STYLES).toMatch(/\:host\(\[size="l"\]\) \.value\s*\{[^}]*var\(--fd-type-heading-02-font-size\)/);
   });
 
   // ── Orientation attribute ─────────────────────────────────────────────────

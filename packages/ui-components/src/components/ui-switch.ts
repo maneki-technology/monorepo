@@ -2,6 +2,7 @@ import {
   BLUE_30,
   BLUE_60,
   BORDER_FOCUS,
+  FONT_PRIMARY,
   GRAY_30,
   GRAY_40,
   RADIUS_PILL,
@@ -10,6 +11,9 @@ import {
   STATUS_SURFACE_ERROR_BOLD,
   TEXT_PRIMARY,
   TEXT_SECONDARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -30,7 +34,7 @@ const STYLES = /* css */ `
   :host {
     display: inline-flex;
     align-items: center;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     cursor: pointer;
     user-select: none;
     -webkit-user-select: none;
@@ -147,8 +151,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   /* ── Size: M (default) ───────────────────────────────────────────────────── */
@@ -184,8 +187,7 @@ const STYLES = /* css */ `
 
   :host .label,
   :host([size="m"]) .label {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
@@ -215,8 +217,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .label {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   @media (prefers-reduced-motion: reduce) {

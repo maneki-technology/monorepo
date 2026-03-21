@@ -5,6 +5,9 @@ import {
   SP_2,
   SP_3,
   TEXT_SECONDARY,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -33,24 +36,21 @@ const STYLES = /* css */ `
 
   :host .heading,
   :host([size="m"]) .heading {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     padding: ${SP_0_5} ${SP_2};
   }
 
   /* ── Size: s ────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .heading {
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
     padding: ${SP_0_5} ${SP_1_5};
   }
 
   /* ── Size: l ────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .heading {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
     padding: ${SP_1} ${SP_3};
   }
 `;

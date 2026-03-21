@@ -1,5 +1,6 @@
 import {
   DISABLED_TEXT,
+  FONT_PRIMARY,
   SP_0_25,
   STATUS_GENERAL_ERROR,
   TEXT_SECONDARY,
@@ -21,7 +22,7 @@ export const STYLES = /* css */ `
   :host {
     display: inline-flex;
     align-items: baseline;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     color: var(--ui-label-color, ${TEXT_SECONDARY});
   }
 

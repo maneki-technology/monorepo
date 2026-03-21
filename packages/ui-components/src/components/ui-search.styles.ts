@@ -2,6 +2,7 @@ import {
   BORDER_FOCUS,
   BORDER_MODERATE,
   ELEVATION_03,
+  FONT_PRIMARY,
   HOVER_MINIMAL,
   ICON_SECONDARY,
   RADIUS_PILL,
@@ -19,6 +20,10 @@ import {
   TEXT_PRIMARY,
   TEXT_SECONDARY,
   TEXT_TERTIARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -40,7 +45,7 @@ export const STYLES = /* css */ `
     display: block;
     position: relative;
     width: 100%;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   /* ── Input ───────────────────────────────────────────────────────────────── */
@@ -88,7 +93,7 @@ export const STYLES = /* css */ `
     min-width: 0;
     border: none;
     background: transparent;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     color: ${TEXT_PRIMARY};
     outline: none;
   }
@@ -169,7 +174,7 @@ export const STYLES = /* css */ `
     cursor: pointer;
     border: none;
     background: transparent;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     text-transform: uppercase;
     padding: 0;
   }
@@ -182,7 +187,7 @@ export const STYLES = /* css */ `
     background: ${SURFACE_PRIMARY};
     cursor: pointer;
     border: none;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     text-align: left;
     width: 100%;
     color: ${TEXT_PRIMARY};
@@ -208,7 +213,7 @@ export const STYLES = /* css */ `
     border-radius: ${RADIUS_PILL};
     background: ${SURFACE_BOLD};
     color: #ffffff;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     font-weight: 500;
     font-size: 10px;
     line-height: 1;
@@ -287,8 +292,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .input {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .clear-btn {
@@ -303,13 +307,11 @@ export const STYLES = /* css */ `
   :host([size="s"]) .category-heading {
     height: 24px;
     padding: ${SP_0_5} ${SP_1_5};
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([size="s"]) .category-heading .show-all {
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([size="s"]) .result-item {
@@ -331,18 +333,15 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .result-title {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .result-info {
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([size="s"]) .result-description {
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([size="s"]) .result-content {
@@ -376,8 +375,7 @@ export const STYLES = /* css */ `
 
   :host .input,
   :host([size="m"]) .input {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .clear-btn,
@@ -395,14 +393,12 @@ export const STYLES = /* css */ `
   :host([size="m"]) .category-heading {
     height: 24px;
     padding: ${SP_0_5} ${SP_2};
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host .category-heading .show-all,
   :host([size="m"]) .category-heading .show-all {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host .result-item,
@@ -429,20 +425,17 @@ export const STYLES = /* css */ `
 
   :host .result-title,
   :host([size="m"]) .result-title {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .result-info,
   :host([size="m"]) .result-info {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host .result-description,
   :host([size="m"]) .result-description {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host .result-content,
@@ -468,8 +461,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .input {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .clear-btn {
@@ -484,13 +476,11 @@ export const STYLES = /* css */ `
   :host([size="l"]) .category-heading {
     height: 36px;
     padding: ${SP_1} ${SP_3};
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="l"]) .category-heading .show-all {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="l"]) .result-item {
@@ -512,18 +502,15 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .result-title {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .result-info {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="l"]) .result-description {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="l"]) .result-content {

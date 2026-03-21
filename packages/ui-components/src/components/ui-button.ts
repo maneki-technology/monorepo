@@ -33,6 +33,9 @@ import {
   SURFACE_SUCCESS,
   SURFACE_TERTIARY,
   TEXT_PRIMARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 import "./ui-icon.js";
 const WHITE = "#ffffff";
@@ -75,8 +78,7 @@ const STYLES = /* css */ `
 
   :host button,
   :host([size="m"]) button {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
     padding: ${SP_0_75} ${SP_2};
   }
 
@@ -88,8 +90,7 @@ const STYLES = /* css */ `
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) button {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     padding: ${SP_0_5} ${SP_1_5};
   }
 
@@ -100,8 +101,7 @@ const STYLES = /* css */ `
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) button {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
     padding: ${SP_1} ${SP_3};
   }
 
@@ -112,8 +112,7 @@ const STYLES = /* css */ `
   /* ── Size: xl ────────────────────────────────────────────────────────────── */
 
   :host([size="xl"]) button {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
     padding: ${SP_1_5} ${SP_4};
   }
 

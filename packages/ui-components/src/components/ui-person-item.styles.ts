@@ -1,6 +1,7 @@
 import {
   BORDER_SUBTLE,
   BW_SM,
+  FONT_PRIMARY,
   ICON_PRIMARY,
   SP_1,
   SP_1_25,
@@ -8,6 +9,8 @@ import {
   SP_2,
   TEXT_PRIMARY,
   TEXT_SECONDARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -30,7 +33,7 @@ export const STYLES = /* css */ `
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   .wrapper {
@@ -62,16 +65,14 @@ export const STYLES = /* css */ `
     overflow: hidden;
     text-overflow: ellipsis;
     width: 100%;
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   .title,
   .location {
     font-weight: 400;
     color: ${TEXT_SECONDARY};
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
     white-space: nowrap;
   }
 

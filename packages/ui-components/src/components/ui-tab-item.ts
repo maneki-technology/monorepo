@@ -4,6 +4,7 @@ import {
   BORDER_MINIMAL,
   BW_MD,
   DISABLED_TEXT,
+  FONT_PRIMARY,
   ICON_ACTION,
   ICON_PRIMARY,
   ICON_SECONDARY,
@@ -17,6 +18,8 @@ import {
   SP_5,
   TEXT_LINK,
   TEXT_PRIMARY,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 import "./ui-icon.js";
 
@@ -52,7 +55,7 @@ const STYLES = /* css */ `
     justify-content: center;
     width: 100%;
     flex: 1 1 0%;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     font-weight: var(--ui-tab-font-weight, 400);
     color: var(--ui-tab-text-color, ${TEXT_PRIMARY});
     position: relative;
@@ -154,8 +157,7 @@ const STYLES = /* css */ `
 
   :host .base,
   :host([size="m"]) .base {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
     padding-top: ${SP_0_5};
     padding-bottom: ${SP_0_5};
   }
@@ -184,8 +186,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .base {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     padding-top: ${SP_0_5};
     padding-bottom: ${SP_0_5};
   }
