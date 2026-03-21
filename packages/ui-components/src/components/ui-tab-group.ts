@@ -1,27 +1,23 @@
+
 import {
-  semanticVar,
-  spaceVar,
-  borderWidthVar,
-  radiusVar,
+  BORDER_FOCUS,
+  BORDER_MINIMAL,
+  BW_MD,
+  BW_SM,
+  ICON_ACTION,
+  ICON_PRIMARY,
+  ICON_SECONDARY,
+  RADIUS_MD,
+  SP_0_25,
+  SP_0_5,
+  SP_0_75,
+  SP_1_5,
+  SP_2,
+  TEXT_LINK,
+  TEXT_PRIMARY,
 } from "@maneki/foundation";
 import "./ui-icon.js";
 import type { TabItemSize, TabItemOrientation } from "./ui-tab-item.js";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const ICON_PRIMARY = semanticVar("icon", "primary");
-const ICON_SECONDARY = semanticVar("icon", "secondary");
-const SP_025 = spaceVar("0.25");               // 2px
-const SP_05 = spaceVar("0.5");                 // 4px
-const SP_075 = spaceVar("0.75");               // 6px
-const SP_1_5 = spaceVar("1.5");               // 12px
-const SP_2 = spaceVar("2");                     // 16px
-const BW_SM = borderWidthVar("sm");             // 1px
-const BW_MD = borderWidthVar("md");             // 2px
-const RADIUS_MD = radiusVar("md");             // 4px
-
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type TabGroupOverflow = "scroll" | "menu";
@@ -131,18 +127,18 @@ const STYLES = /* css */ `
     cursor: pointer;
     background: none;
     border: none;
-    padding: 0 ${SP_05};
+    padding: 0 ${SP_0_5};
     color: ${ICON_PRIMARY};
     font-size: 20px;
     --ui-icon-size: 20px;
   }
 
   .more-btn.has-selected {
-    color: ${semanticVar("icon", "action")};
+    color: ${ICON_ACTION};
   }
 
   :host([orientation="vertical"]) .more-btn {
-    padding: ${SP_05} 0;
+    padding: ${SP_0_5} 0;
   }
 
   :host([overflow="menu"]) .more-btn.visible {
@@ -154,7 +150,7 @@ const STYLES = /* css */ `
   }
 
   .more-btn:focus-visible {
-    outline: ${BW_MD} solid ${semanticVar("border", "focus")};
+    outline: ${BW_MD} solid ${BORDER_FOCUS};
     outline-offset: calc(-1 * ${BW_MD});
   }
 
@@ -168,7 +164,7 @@ const STYLES = /* css */ `
     border: ${BW_SM} solid ${BORDER_MINIMAL};
     border-radius: ${RADIUS_MD};
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    padding: ${SP_05} 0;
+    padding: ${SP_0_5} 0;
     min-width: 120px;
     max-height: 240px;
     overflow-y: auto;
@@ -199,19 +195,19 @@ const STYLES = /* css */ `
   .overflow-menu.open.horizontal {
     top: 100%;
     right: 0;
-    margin-top: ${SP_025};
+    margin-top: ${SP_0_25};
   }
 
   .overflow-menu.open.vertical {
     left: 100%;
     top: 0;
-    margin-left: ${SP_025};
+    margin-left: ${SP_0_25};
   }
 
   .overflow-menu-item {
     display: flex;
     align-items: center;
-    padding: ${SP_075} ${SP_1_5};
+    padding: ${SP_0_75} ${SP_1_5};
     font-family: "Geist", sans-serif;
     font-size: 13px;
     line-height: 20px;
@@ -229,12 +225,12 @@ const STYLES = /* css */ `
   }
 
   .overflow-menu-item.selected {
-    color: ${semanticVar("text", "link")};
+    color: ${TEXT_LINK};
     font-weight: 500;
   }
 
   .overflow-menu-item:focus-visible {
-    outline: ${BW_MD} solid ${semanticVar("border", "focus")};
+    outline: ${BW_MD} solid ${BORDER_FOCUS};
     outline-offset: calc(-1 * ${BW_MD});
   }
 `;

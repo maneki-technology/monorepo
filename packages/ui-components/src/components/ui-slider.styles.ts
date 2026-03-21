@@ -1,22 +1,21 @@
-import { semanticVar, colorVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
+import {
+  BLUE_60,
+  BORDER_FOCUS,
+  BW_MD,
+  DISABLED_TEXT,
+  GRAY_110,
+  RADIUS_PILL,
+  RADIUS_SM,
+  SP_0_25,
+  SP_0_5,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_3,
+  SURFACE_BOLD,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const BLUE_60 = colorVar("blue", 60);
-const GRAY_110 = colorVar("gray", 110);
-const SURFACE_BOLD = semanticVar("surface", "bold");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const RADIUS_SM = radiusVar("sm");             // 2px
-const RADIUS_PILL = radiusVar("pill");         // 999px
-const BW_MD = borderWidthVar("md");             // 2px
-const SP_025 = spaceVar("0.25");               // 2px
-const SP_05 = spaceVar("0.5");                 // 4px
-const SP_1 = spaceVar("1");                     // 8px
-const SP_15 = spaceVar("1.5");                 // 12px
-const SP_2 = spaceVar("2");                     // 16px
-const SP_3 = spaceVar("3");                     // 24px
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type SliderSize = "s" | "m" | "l";
@@ -128,7 +127,7 @@ export const STYLES = /* css */ `
     color: #ffffff;
     font-size: 12px;
     line-height: 16px;
-    padding: ${SP_05} ${SP_1};
+    padding: ${SP_0_5} ${SP_1};
     border-radius: ${RADIUS_SM};
     white-space: nowrap;
     pointer-events: none;
@@ -166,7 +165,7 @@ export const STYLES = /* css */ `
   /* ── Size: S ────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .track-area {
-    height: ${SP_15};
+    height: ${SP_1_5};
   }
 
   :host([size="s"]) .track,
@@ -175,14 +174,13 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .handle {
-    width: ${SP_15};
-    height: ${SP_15};
+    width: ${SP_1_5};
+    height: ${SP_1_5};
   }
 
   :host([size="s"]) .labels {
-    margin-top: ${SP_025};
+    margin-top: ${SP_0_25};
   }
-
 
   /* ── Size: M (default) ───────────────────────────────────────────────────── */
 
@@ -206,9 +204,8 @@ export const STYLES = /* css */ `
 
   :host .labels,
   :host([size="m"]) .labels {
-    margin-top: ${SP_05};
+    margin-top: ${SP_0_5};
   }
-
 
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
 
@@ -227,9 +224,8 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .labels {
-    margin-top: ${SP_05};
+    margin-top: ${SP_0_5};
   }
-
 
   @media (prefers-reduced-motion: reduce) {
     .handle-inner {

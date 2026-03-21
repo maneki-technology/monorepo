@@ -1,17 +1,18 @@
-import { semanticVar, spaceVar, elevationVar, radiusVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const BUTTON_SECONDARY = semanticVar("button", "secondary");
-const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
-const ICON_PRIMARY = semanticVar("icon", "primary");
-const ELEVATION_05 = elevationVar("05");
-const SP_1 = spaceVar("1");
+import {
+  BORDER_FOCUS,
+  BORDER_MINIMAL,
+  BUTTON_SECONDARY,
+  ELEVATION_05,
+  FORM_INPUT_BORDER,
+  ICON_PRIMARY,
+  RADIUS_CIRCLE,
+  RADIUS_MD,
+  RADIUS_SM,
+  SP_1,
+  SURFACE_PRIMARY,
+  SURFACE_SECONDARY,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -26,7 +27,7 @@ export const STYLES = /* css */ `
     display: inline-block;
     background: ${SURFACE_PRIMARY};
     box-shadow: var(--ui-clock-elevation, ${ELEVATION_05});
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     font-family: Inter, sans-serif;
   }
 
@@ -51,7 +52,7 @@ export const STYLES = /* css */ `
     opacity: 0.4;
     cursor: pointer;
     padding: 4px 8px;
-    border-radius: ${radiusVar("md")};
+    border-radius: ${RADIUS_MD};
     transition: opacity 0.15s ease, background 0.15s ease;
   }
 
@@ -81,7 +82,7 @@ export const STYLES = /* css */ `
 
   .clock-face {
     position: relative;
-    border-radius: ${radiusVar("circle")};
+    border-radius: ${RADIUS_CIRCLE};
     background: ${SURFACE_SECONDARY};
   }
 
@@ -93,7 +94,7 @@ export const STYLES = /* css */ `
     color: ${TEXT_PRIMARY};
     cursor: pointer;
     user-select: none;
-    border-radius: ${radiusVar("circle")};
+    border-radius: ${RADIUS_CIRCLE};
   }
 
   .clock-number:hover {
@@ -122,7 +123,7 @@ export const STYLES = /* css */ `
     width: 6px;
     height: 6px;
     margin: -3px 0 0 -3px;
-    border-radius: ${radiusVar("circle")};
+    border-radius: ${RADIUS_CIRCLE};
     background: ${BORDER_FOCUS};
     pointer-events: none;
   }
@@ -152,7 +153,7 @@ export const STYLES = /* css */ `
     justify-content: center;
     border: none;
     background: ${BUTTON_SECONDARY};
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     cursor: pointer;
     color: ${ICON_PRIMARY};
     flex-shrink: 0;
@@ -164,7 +165,7 @@ export const STYLES = /* css */ `
 
   .digital-input {
     border: 1px solid ${FORM_INPUT_BORDER};
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     background: ${SURFACE_PRIMARY};
     text-align: center;
     font-family: Inter, sans-serif;
@@ -176,7 +177,6 @@ export const STYLES = /* css */ `
     border-color: ${BORDER_FOCUS};
     box-shadow: 0 0 0 1px ${BORDER_FOCUS};
   }
-
 
   /* ─── Size: S ─── */
 

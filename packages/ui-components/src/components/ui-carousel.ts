@@ -1,19 +1,17 @@
-import { semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
+
+import {
+  BW_MD,
+  HOVER_BOLD,
+  ICON_PRIMARY,
+  ICON_SECONDARY,
+  RADIUS_PILL,
+  SELECTED_BOLD,
+  SP_1,
+  SP_2,
+  SP_2_5,
+  SP_5,
+} from "@maneki/foundation";
 import "./ui-icon.js";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const ICON_PRIMARY = semanticVar("icon", "primary");
-const ICON_SECONDARY = semanticVar("icon", "secondary");
-const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
-const HOVER_SURFACE = semanticVar("stateHover", "surfaceBold");
-
-const SP_1 = spaceVar("1");         // 8px
-const SP_2 = spaceVar("2");         // 16px
-const SP_25 = spaceVar("2.5");     // 20px
-const SP_5 = spaceVar("5");         // 40px
-const RADIUS_PILL = radiusVar("pill"); // 999px
-const BORDER_MD = borderWidthVar("md"); // 2px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -52,7 +50,7 @@ const STYLES = /* css */ `
     border-radius: ${RADIUS_PILL};
     cursor: pointer;
     color: ${ICON_PRIMARY};
-    --ui-icon-size: ${SP_25};
+    --ui-icon-size: ${SP_2_5};
     transition: background 0.15s ease;
   }
 
@@ -62,14 +60,14 @@ const STYLES = /* css */ `
   }
 
   .arrow-btn:hover:not(:disabled) {
-    background: ${HOVER_SURFACE};
+    background: ${HOVER_BOLD};
   }
 
   .arrow-btn:focus-visible {
-    outline-width: ${BORDER_MD};
+    outline-width: ${BW_MD};
     outline-style: solid;
     outline-color: #ffffff;
-    outline-offset: ${BORDER_MD};
+    outline-offset: ${BW_MD};
   }
 
   /* ── Track ──────────────────────────────────────────────────────────── */
@@ -120,10 +118,10 @@ const STYLES = /* css */ `
   }
 
   .dot:focus-visible {
-    outline-width: ${BORDER_MD};
+    outline-width: ${BW_MD};
     outline-style: solid;
     outline-color: ${SELECTED_BOLD};
-    outline-offset: ${BORDER_MD};
+    outline-offset: ${BW_MD};
   }
   @media (prefers-reduced-motion: reduce) {
     .track {

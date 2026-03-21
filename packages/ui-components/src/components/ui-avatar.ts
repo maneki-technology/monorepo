@@ -1,4 +1,30 @@
-import { colorVar, spaceVar, radiusVar } from "@maneki/foundation";
+
+import {
+  AQUA_60,
+  BLUE_60,
+  GRAY_20,
+  GRAY_60,
+  GRAY_80,
+  GRAY_90,
+  GREEN_60,
+  LIME_60,
+  ORANGE_60,
+  PINK_60,
+  PURPLE_60,
+  RADIUS_PILL,
+  RADIUS_SM,
+  RED_60,
+  SP_1_5,
+  SP_2,
+  SP_3,
+  SP_4,
+  SP_5,
+  SP_6,
+  TEAL_60,
+  TURQUOISE_60,
+  ULTRAMARINE_60,
+  YELLOW_30,
+} from "@maneki/foundation";
 import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -28,32 +54,6 @@ export type AvatarColor =
   | "ultramarine"
   | "purple"
   | "pink";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const GRAY_60 = colorVar("gray", 60);
-const GRAY_20 = colorVar("gray", 20);
-const GRAY_80 = colorVar("gray", 80);
-const RED_60 = colorVar("red", 60);
-const ORANGE_60 = colorVar("orange", 60);
-const YELLOW_30 = colorVar("yellow", 30);
-const GREEN_60 = colorVar("green", 60);
-const BLUE_60 = colorVar("blue", 60);
-const LIME_60 = colorVar("lime", 60);
-const TEAL_60 = colorVar("teal", 60);
-const TURQUOISE_60 = colorVar("turquoise", 60);
-const AQUA_60 = colorVar("aqua", 60);
-const ULTRAMARINE_60 = colorVar("ultramarine", 60);
-const PURPLE_60 = colorVar("purple", 60);
-const PINK_60 = colorVar("pink", 60);
-const GRAY_90 = colorVar("gray", 90);
-
-const SP_1_5 = spaceVar("1.5");   // 12px
-const SP_2 = spaceVar("2");       // 16px
-const SP_3 = spaceVar("3");       // 24px
-const SP_4 = spaceVar("4");       // 32px
-const SP_5 = spaceVar("5");       // 40px
-const SP_6 = spaceVar("6");       // 48px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -125,7 +125,6 @@ const STYLES = /* css */ `
     line-height: 0;
   }
 
-
   .image {
     width: 100%;
     height: 100%;
@@ -141,11 +140,11 @@ const STYLES = /* css */ `
 
   :host .base,
   :host([shape="circle"]) .base {
-    border-radius: ${radiusVar("pill")};
+    border-radius: ${RADIUS_PILL};
   }
 
   :host([shape="square"]) .base {
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
   }
 
   /* ── Size: m (default) ───────────────────────────────────────────────────── */

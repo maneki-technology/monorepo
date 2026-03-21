@@ -1,25 +1,25 @@
-import { semanticVar, elevationVar, spaceVar, radiusVar } from "@maneki/foundation";
+
+import {
+  ELEVATION_06,
+  ICON_PRIMARY,
+  RADIUS_SM,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_2_5,
+  SP_3,
+  SURFACE_BOLD,
+  SURFACE_OVERLAY,
+  SURFACE_PRIMARY,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 import "./ui-icon.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type ModalSize = "s" | "m" | "l";
 export type ModalLayout = "auto" | "fluid";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-const SURFACE_OVERLAY = semanticVar("surface", "overlay");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const ICON_PRIMARY = semanticVar("icon", "primary");
-const ELEVATION_06 = elevationVar("06");
-const SP_1 = spaceVar("1");       // 8px
-const SP_15 = spaceVar("1.5");    // 12px
-const SP_2 = spaceVar("2");       // 16px
-const SP_25 = spaceVar("2.5");    // 20px
-const SP_3 = spaceVar("3");       // 24px
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -53,8 +53,6 @@ const STYLES = /* css */ `
     visibility: visible;
   }
 
-
-
   /* ── Dialog ──────────────────────────────────────────────────────────────── */
 
   .dialog {
@@ -62,7 +60,7 @@ const STYLES = /* css */ `
     flex-direction: column;
     background-color: var(--ui-modal-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-modal-shadow, ${ELEVATION_06});
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     font-family: "Geist", sans-serif;
     color: ${TEXT_PRIMARY};
     width: var(--ui-modal-width, 441px);
@@ -95,7 +93,7 @@ const STYLES = /* css */ `
   }
 
   .body::-webkit-scrollbar-thumb {
-    background-color: var(--ui-modal-scrollbar, ${semanticVar("surface", "bold")});
+    background-color: var(--ui-modal-scrollbar, ${SURFACE_BOLD});
     border-radius: 12px;
     border: 3.5px solid transparent;
     background-clip: padding-box;
@@ -153,7 +151,6 @@ const STYLES = /* css */ `
     line-height: 0;
     flex-shrink: 0;
   }
-
 
   :host([dismissible]) .close-btn {
     display: inline-flex;
@@ -222,12 +219,12 @@ const STYLES = /* css */ `
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .dialog {
-    padding: ${SP_15};
-    gap: ${SP_25};
+    padding: ${SP_1_5};
+    gap: ${SP_2_5};
   }
 
   :host([size="s"]) .content {
-    gap: ${SP_15};
+    gap: ${SP_1_5};
   }
 
   :host([size="s"]) .title {
@@ -247,12 +244,12 @@ const STYLES = /* css */ `
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .dialog {
-    padding: ${SP_25};
+    padding: ${SP_2_5};
     gap: ${SP_3};
   }
 
   :host([size="l"]) .content {
-    gap: ${SP_25};
+    gap: ${SP_2_5};
   }
 
   :host([size="l"]) .title {

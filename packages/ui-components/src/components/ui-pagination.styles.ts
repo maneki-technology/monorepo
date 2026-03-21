@@ -1,24 +1,21 @@
-import { semanticVar, colorVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const BORDER_MODERATE = semanticVar("border", "moderate");
-const BLUE_60 = colorVar("blue", 60);
-const BLUE_70 = colorVar("blue", 70);
-const SELECTED_MINIMAL = semanticVar("stateSelected", "surfaceMinimal");
-const HOVER_SURFACE = semanticVar("stateHover", "surfaceBold");
-const ACTIVE_SURFACE = semanticVar("stateActive", "surfaceSubtle");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-
-const SP_025 = spaceVar("0.25");   // 2px
-const SP_05 = spaceVar("0.5");     // 4px
-const SP_1 = spaceVar("1");         // 8px
-const SP_2 = spaceVar("2");         // 16px
-const RADIUS_SM = radiusVar("sm");
-const BW_SM = borderWidthVar("sm");
-const BW_MD = borderWidthVar("md");
+import {
+  ACTIVE_SUBTLE,
+  BLUE_60,
+  BLUE_70,
+  BORDER_MODERATE,
+  BW_MD,
+  BW_SM,
+  DISABLED_TEXT,
+  HOVER_BOLD,
+  RADIUS_SM,
+  SELECTED_MINIMAL,
+  SP_0_25,
+  SP_0_5,
+  SP_1,
+  SP_2,
+  SURFACE_PRIMARY,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -53,7 +50,7 @@ export const STYLES = /* css */ `
   .nav {
     display: flex;
     align-items: center;
-    gap: ${SP_025};
+    gap: ${SP_0_25};
   }
 
   .addon {
@@ -83,11 +80,11 @@ export const STYLES = /* css */ `
   }
 
   .item:hover {
-    background: ${HOVER_SURFACE};
+    background: ${HOVER_BOLD};
   }
 
   .item:active {
-    background: ${ACTIVE_SURFACE};
+    background: ${ACTIVE_SUBTLE};
   }
 
   .item:focus-visible {
@@ -117,7 +114,6 @@ export const STYLES = /* css */ `
     justify-content: center;
     flex-shrink: 0;
   }
-
 
   .item .icon .material-symbols-outlined {
     font-family: "Material Symbols Outlined";
@@ -200,7 +196,7 @@ export const STYLES = /* css */ `
   :host .item.nav-btn,
   :host([size="m"]) .item.nav-btn {
     padding: 0 12px 0 8px;
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   :host .item.nav-btn.nav-next,
@@ -264,7 +260,7 @@ export const STYLES = /* css */ `
 
   :host([size="s"]) .item.nav-btn {
     padding: 0 8px 0 4px;
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   :host([size="s"]) .item.nav-btn.nav-next,
@@ -319,7 +315,7 @@ export const STYLES = /* css */ `
 
   :host([size="xs"]) .item.nav-btn {
     padding: 0 4px 0 2px;
-    gap: ${SP_025};
+    gap: ${SP_0_25};
   }
 
   :host([size="xs"]) .item.nav-btn.nav-next,

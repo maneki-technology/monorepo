@@ -1,14 +1,12 @@
-import { semanticVar, elevationVar, spaceVar, radiusVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-const ELEVATION_05 = elevationVar("05");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const SP_1 = spaceVar("1");
-const RADIUS_SM = radiusVar("sm");
+import {
+  BORDER_FOCUS,
+  BORDER_MINIMAL,
+  ELEVATION_05,
+  RADIUS_SM,
+  SP_1,
+  SURFACE_PRIMARY,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 

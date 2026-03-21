@@ -1,19 +1,16 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import {
+  SP_0_25,
+  SP_0_5,
+  TEXT_LINK,
+  TEXT_LINK_ACTIVE,
+  TEXT_LINK_HOVER,
+  TEXT_VISITED,
+} from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type LinkSize = "s" | "m" | "l";
 export type LinkEmphasis = "bold" | "subtle";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_LINK = semanticVar("text", "link");
-const TEXT_LINK_HOVER = semanticVar("text", "linkHover");
-const TEXT_LINK_ACTIVE = semanticVar("text", "linkActive");
-const TEXT_VISITED = semanticVar("text", "visited");
-const SP_025 = spaceVar("0.25");
-const SP_05 = spaceVar("0.5");
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -139,7 +136,7 @@ const STYLES = /* css */ `
   :host([size="m"]) {
     --_font-size: 14px;
     --_line-height: 20px;
-    --_gap: ${SP_05};
+    --_gap: ${SP_0_5};
     --_icon-size: 16px;
   }
 
@@ -148,7 +145,7 @@ const STYLES = /* css */ `
   :host([size="s"]) {
     --_font-size: 12px;
     --_line-height: 16px;
-    --_gap: ${SP_025};
+    --_gap: ${SP_0_25};
     --_icon-size: 12px;
   }
 
@@ -157,7 +154,7 @@ const STYLES = /* css */ `
   :host([size="l"]) {
     --_font-size: 16px;
     --_line-height: 24px;
-    --_gap: ${SP_05};
+    --_gap: ${SP_0_5};
     --_icon-size: 20px;
   }
 `;

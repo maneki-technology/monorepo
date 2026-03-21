@@ -1,35 +1,25 @@
 import {
-  semanticVar,
-  spaceVar,
-  elevationVar,
-  colorVar,
-  radiusVar,
-  borderWidthVar,
+  BORDER_FOCUS,
+  BORDER_MINIMAL,
+  BW_MD,
+  DISABLED_TEXT,
+  ELEVATION_05,
+  HOVER_MODERATE,
+  ICON_PRIMARY,
+  RADIUS_MD,
+  RADIUS_PILL,
+  RADIUS_SM,
+  SELECTED_BOLD,
+  SELECTED_OVERLAY,
+  SP_0_5,
+  SP_1,
+  SP_1_5,
+  SURFACE_PRIMARY,
+  TAG_TEXT_SUBTLE,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_TERTIARY,
 } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-export const SURFACE_PRIMARY = semanticVar("surface", "primary");
-export const TEXT_PRIMARY = semanticVar("text", "primary");
-export const TEXT_SECONDARY = semanticVar("text", "secondary");
-export const TEXT_TERTIARY = semanticVar("text", "tertiary");
-export const BORDER_FOCUS = semanticVar("border", "focus");
-export const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
-export const TAG_TEXT_SUBTLE = semanticVar("tag", "textSubtle");
-export const ICON_PRIMARY = semanticVar("icon", "primary");
-export const ELEVATION_05 = elevationVar("05");
-export const BORDER_MINIMAL = semanticVar("border", "minimal");
-export const SP_1 = spaceVar("1");
-export const SP_1_5 = spaceVar("1.5");
-export const SP_0_5 = spaceVar("0.5");
-
-// Hover overlay — not a semantic token, uses rgba directly
-export const BW_MD = borderWidthVar("md");
-export const HOVER_OVERLAY = semanticVar("stateHover", "surfaceModerate");
-// Disabled text — from stateDisabled
-export const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-// Range overlay
-export const RANGE_OVERLAY = semanticVar("stateSelected", "surfaceOverlay");
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -44,7 +34,7 @@ export const STYLES = /* css */ `
     display: inline-block;
     background: ${SURFACE_PRIMARY};
     box-shadow: var(--ui-calendar-elevation, ${ELEVATION_05});
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     font-family: Inter, sans-serif;
   }
 
@@ -125,7 +115,7 @@ export const STYLES = /* css */ `
   }
 
   .day-cell:hover {
-    background: ${HOVER_OVERLAY};
+    background: ${HOVER_MODERATE};
   }
 
   .day-cell[data-outside] {
@@ -163,12 +153,12 @@ export const STYLES = /* css */ `
   }
 
   .day-cell[data-in-range] {
-    background: ${RANGE_OVERLAY};
+    background: ${SELECTED_OVERLAY};
     color: ${TAG_TEXT_SUBTLE};
   }
 
   .day-cell[data-range-hover] {
-    background: ${HOVER_OVERLAY};
+    background: ${HOVER_MODERATE};
   }
 
   .day-cell[data-today][data-in-range] {
@@ -201,7 +191,7 @@ export const STYLES = /* css */ `
   }
 
   .month-cell:hover {
-    background: ${HOVER_OVERLAY};
+    background: ${HOVER_MODERATE};
   }
 
   .month-cell[data-selected] {
@@ -232,7 +222,7 @@ export const STYLES = /* css */ `
   }
 
   .event-dot {
-    border-radius: ${radiusVar("pill")};
+    border-radius: ${RADIUS_PILL};
   }
 
   /* ─── Legend ─── */
@@ -267,7 +257,7 @@ export const STYLES = /* css */ `
   .legend-dot {
     width: 6px;
     height: 6px;
-    border-radius: ${radiusVar("md")};
+    border-radius: ${RADIUS_MD};
     flex-shrink: 0;
   }
 

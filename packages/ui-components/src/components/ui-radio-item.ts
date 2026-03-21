@@ -1,27 +1,25 @@
-import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
+import {
+  BORDER_CONTRAST,
+  BORDER_FOCUS,
+  DISABLED_BORDER,
+  DISABLED_MINIMAL,
+  DISABLED_TEXT,
+  FORM_INPUT_BORDER,
+  HOVER_BORDER_MODERATE,
+  RADIUS_CIRCLE,
+  SELECTED_BOLD,
+  SP_0_75,
+  SP_1,
+  SP_1_5,
+  STATUS_GENERAL_ERROR,
+  STATUS_SURFACE_ERROR_BOLD,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type RadioSize = "s" | "m" | "l";
 export type RadioLabel = "none" | "right" | "left";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
-const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
-const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
-const BORDER_CONTRAST = semanticVar("border", "contrast");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const ERROR_BOLD = semanticVar("statusSurface", "errorBold");
-const STATUS_ERROR = semanticVar("statusGeneral", "error");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const DISABLED_BORDER = semanticVar("stateDisabled", "border");
-const DISABLED_MINIMAL = semanticVar("stateDisabled", "minimal");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const SP_075 = spaceVar("0.75");
-const SP_1 = spaceVar("1");
-const SP_15 = spaceVar("1.5");
-const RADIUS_CIRCLE = radiusVar("circle");  // 50%
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -156,7 +154,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .base {
-    gap: var(--ui-radio-gap, ${SP_075});
+    gap: var(--ui-radio-gap, ${SP_0_75});
   }
 
   :host([size="s"]) .label {
@@ -182,7 +180,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .base {
-    gap: var(--ui-radio-gap, ${SP_15});
+    gap: var(--ui-radio-gap, ${SP_1_5});
   }
 
   :host([size="l"]) .label {
@@ -205,7 +203,7 @@ const STYLES = /* css */ `
   /* ── Hover ──────────────────────────────────────────────────────────────── */
 
   :host(:hover) .radio {
-    border-color: var(--ui-radio-hover-border, ${HOVER_BORDER});
+    border-color: var(--ui-radio-hover-border, ${HOVER_BORDER_MODERATE});
   }
 
   :host([checked]:hover) .radio {
@@ -242,15 +240,15 @@ const STYLES = /* css */ `
   /* ── Error ──────────────────────────────────────────────────────────────── */
 
   :host([error]) .radio {
-    border-color: var(--ui-radio-error-border, ${STATUS_ERROR});
+    border-color: var(--ui-radio-error-border, ${STATUS_GENERAL_ERROR});
   }
 
   :host([error][checked]) .radio {
-    border-color: var(--ui-radio-error-border, ${STATUS_ERROR});
+    border-color: var(--ui-radio-error-border, ${STATUS_GENERAL_ERROR});
     background-color: #ffffff;
   }
   :host([error][checked]) .dot {
-    background-color: var(--ui-radio-error-dot, ${ERROR_BOLD});
+    background-color: var(--ui-radio-error-dot, ${STATUS_SURFACE_ERROR_BOLD});
   }
 
   /* ── Reduced motion ─────────────────────────────────────────────────────── */

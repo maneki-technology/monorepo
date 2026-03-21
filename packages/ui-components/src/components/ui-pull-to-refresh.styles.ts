@@ -1,16 +1,14 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import {
+  SP_0_75,
+  SP_1,
+  SP_1_25,
+  SP_1_5,
+  SP_2,
+  SP_2_5,
+  SP_3,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-
-const SP_075 = spaceVar("0.75");   // 6px
-const SP_1 = spaceVar("1");         // 8px
-const SP_15 = spaceVar("1.5");     // 12px
-const SP_2 = spaceVar("2");         // 16px
-const SP_25 = spaceVar("2.5");     // 20px
-const SP_3 = spaceVar("3");         // 24px
-const SP_125 = spaceVar("1.25");   // 10px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -31,7 +29,7 @@ export const STYLES = /* css */ `
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: ${SP_15};
+    padding: ${SP_1_5};
     font-family: "Geist", sans-serif;
     width: 100%;
   }
@@ -50,8 +48,8 @@ export const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: ${SP_25};
-    height: ${SP_25};
+    width: ${SP_2_5};
+    height: ${SP_2_5};
     animation: spin 1s linear infinite;
   }
 
@@ -59,7 +57,7 @@ export const STYLES = /* css */ `
     font-family: "Material Symbols Outlined";
     font-weight: normal;
     font-style: normal;
-    font-size: ${SP_25};
+    font-size: ${SP_2_5};
     line-height: 1;
     letter-spacing: normal;
     text-transform: none;
@@ -78,7 +76,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .loading-info {
-    gap: ${SP_075};
+    gap: ${SP_0_75};
   }
 
   :host([size="s"]) .spinner {
@@ -99,7 +97,7 @@ export const STYLES = /* css */ `
 
   :host,
   :host([size="m"]) {
-    padding: ${SP_15};
+    padding: ${SP_1_5};
   }
 
   :host .loading-info,
@@ -109,13 +107,13 @@ export const STYLES = /* css */ `
 
   :host .spinner,
   :host([size="m"]) .spinner {
-    width: ${SP_25};
-    height: ${SP_25};
+    width: ${SP_2_5};
+    height: ${SP_2_5};
   }
 
   :host .spinner .material-symbols-outlined,
   :host([size="m"]) .spinner .material-symbols-outlined {
-    font-size: ${SP_25};
+    font-size: ${SP_2_5};
   }
 
   :host .text,
@@ -132,7 +130,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .loading-info {
-    gap: ${SP_125};
+    gap: ${SP_1_25};
   }
 
   :host([size="l"]) .spinner {

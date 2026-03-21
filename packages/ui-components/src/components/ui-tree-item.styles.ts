@@ -1,22 +1,21 @@
-import { semanticVar, colorVar, spaceVar, borderWidthVar } from "@maneki/foundation";
+import {
+  BORDER_FOCUS,
+  BW_MD,
+  HOVER_MINIMAL,
+  HOVER_MODERATE,
+  ICON_PRIMARY,
+  SELECTED_OVERLAY,
+  SP_0_5,
+  SP_0_75,
+  SP_1,
+  SP_10,
+  SP_3,
+  SP_4,
+  SP_7,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const ICON_PRIMARY = semanticVar("icon", "primary");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const HOVER_MINIMAL = semanticVar("stateHover", "surfaceMinimal");
-const HOVER_MODERATE = semanticVar("stateHover", "surfaceModerate");
-const SELECTED_OVERLAY = semanticVar("stateSelected", "surfaceOverlay");
-const BW_MD = borderWidthVar("md");             // 2px
-const SP_05 = spaceVar("0.5");                 // 4px
-const SP_075 = spaceVar("0.75");               // 6px
-const SP_1 = spaceVar("1");                     // 8px
-const SP_3 = spaceVar("3");                     // 24px
-const SP_4 = spaceVar("4");                     // 32px
-const SP_7 = spaceVar("7");                     // 56px
-const SP_10 = spaceVar("10");                   // 80px
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type TreeItemSize = "s" | "m" | "l";
@@ -61,7 +60,7 @@ export const TREE_ITEM_STYLES = /* css */ `
   .base {
     display: flex;
     flex: 1 0 0;
-    gap: ${SP_05};
+    gap: ${SP_0_5};
     align-items: center;
     min-width: 0;
     transition: background 0.15s ease;
@@ -108,7 +107,7 @@ export const TREE_ITEM_STYLES = /* css */ `
   .content {
     display: flex;
     flex: 1 0 0;
-    gap: ${SP_05};
+    gap: ${SP_0_5};
     align-items: center;
     min-width: 0;
   }
@@ -184,7 +183,7 @@ export const TREE_ITEM_STYLES = /* css */ `
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .base {
-    padding: ${SP_05} ${SP_075};
+    padding: ${SP_0_5} ${SP_0_75};
   }
 
   :host([size="s"]) .chevron {
@@ -216,7 +215,7 @@ export const TREE_ITEM_STYLES = /* css */ `
   }
 
   /* Level indents for S */
-  :host([size="s"][level="parent"]) .base { padding-left: ${SP_075} }
+  :host([size="s"][level="parent"]) .base { padding-left: ${SP_0_75} }
   :host([size="s"][level="child-1"]) .base { padding-left: ${SP_3} }
   :host([size="s"][level="child-2"]) .base { padding-left: 42px }
   :host([size="s"][level="child-3"]) .base { padding-left: 60px }
@@ -225,7 +224,7 @@ export const TREE_ITEM_STYLES = /* css */ `
 
   :host .base,
   :host([size="m"]) .base {
-    padding: ${SP_05} ${SP_1};
+    padding: ${SP_0_5} ${SP_1};
   }
 
   :host .chevron,
@@ -297,7 +296,7 @@ export const TREE_ITEM_STYLES = /* css */ `
   }
 
   :host([size="l"]) .content {
-    gap: ${SP_075};
+    gap: ${SP_0_75};
   }
 
   :host([size="l"]) .label {

@@ -1,12 +1,11 @@
-import { semanticVar, spaceVar, radiusVar, colorVar } from "@maneki/foundation";
+import {
+  ICON_SECONDARY,
+  RADIUS_PILL,
+  RADIUS_SM,
+  SP_1_5,
+  SURFACE_TERTIARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_TERTIARY = semanticVar("surface", "tertiary");
-const ICON_SECONDARY = semanticVar("icon", "secondary");
-const RADIUS_SM = radiusVar("sm");           // 2px
-const RADIUS_PILL = radiusVar("pill");       // 999px
-const SP_15 = spaceVar("1.5");               // 12px
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type SkeletonVariant = "text" | "circle" | "rect";
@@ -27,7 +26,7 @@ const STYLES = /* css */ `
 
   :host,
   :host([variant="text"]) {
-    --_skeleton-h: ${SP_15};
+    --_skeleton-h: ${SP_1_5};
     --_skeleton-r: ${RADIUS_SM};
   }
 

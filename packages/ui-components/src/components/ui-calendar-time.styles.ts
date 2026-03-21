@@ -1,17 +1,17 @@
-import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
-const SP_125 = spaceVar("1.25");   // 10px
+import {
+  BORDER_MINIMAL,
+  FORM_INPUT_BORDER,
+  RADIUS_PILL,
+  RADIUS_SM,
+  SELECTED_BOLD,
+  SP_0_5,
+  SP_1,
+  SP_1_25,
+  SURFACE_PRIMARY,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-export const SURFACE_PRIMARY = semanticVar("surface", "primary");
-export const TEXT_PRIMARY = semanticVar("text", "primary");
-export const BORDER_MINIMAL = semanticVar("border", "minimal");
-export const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
-export const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
 export const SELECTED_SUBTLE = "rgba(173, 204, 247, 1)"; // #ADCCF7 — switch track
-export const SP_1 = spaceVar("1");
-export const SP_0_5 = spaceVar("0.5");
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -53,7 +53,7 @@ export const STYLES = /* css */ `
 
   .time-input {
     border: 1px solid ${FORM_INPUT_BORDER};
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     background: ${SURFACE_PRIMARY};
     color: ${TEXT_PRIMARY};
     font-family: Inter, sans-serif;
@@ -111,7 +111,7 @@ export const STYLES = /* css */ `
     left: 0;
     right: 0;
     transform: translateY(-50%);
-    border-radius: ${radiusVar("pill")};
+    border-radius: ${RADIUS_PILL};
     background: ${SELECTED_SUBTLE};
   }
 
@@ -119,7 +119,7 @@ export const STYLES = /* css */ `
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    border-radius: ${radiusVar("pill")};
+    border-radius: ${RADIUS_PILL};
     background: ${SELECTED_BOLD};
     transition: left 0.15s ease, right 0.15s ease;
   }
@@ -249,7 +249,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .time-group {
-    gap: ${SP_125};
+    gap: ${SP_1_25};
   }
 
   :host([size="l"]) .time-input {
@@ -265,7 +265,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .toggle-group {
-    gap: ${SP_125};
+    gap: ${SP_1_25};
   }
 
   :host([size="l"]) .toggle-label {

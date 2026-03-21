@@ -1,10 +1,6 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+
+import { SP_1, TEXT_PRIMARY } from "@maneki/foundation";
 import type { PersonItemSize } from "./ui-person-item.js";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -26,7 +22,7 @@ const STYLES = /* css */ `
     font-size: 16px;
     line-height: 24px;
     color: ${TEXT_PRIMARY};
-    padding-bottom: ${spaceVar("1")};
+    padding-bottom: ${SP_1};
   }
 
   .title:empty {

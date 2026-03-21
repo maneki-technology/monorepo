@@ -1,13 +1,7 @@
-import { semanticVar } from "@maneki/foundation";
+
+import { BORDER_CONTRAST, FORM_INPUT_BORDER, SELECTED_BOLD } from "@maneki/foundation";
 import "./ui-icon.js";
 import { STYLES } from "./ui-dropdown-item.styles.js";
-
-// ─── Token constants (used in SVG generation) ────────────────────────────────
-
-const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
-const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
-const BORDER_CONTRAST = semanticVar("border", "contrast");
-
 // ─── Type exports ────────────────────────────────────────────────────────────
 
 export type DropdownItemSize = "s" | "m" | "l";
@@ -63,7 +57,6 @@ export class UiDropdownItem extends HTMLElement {
     const right = document.createElement("span");
     right.className = "right";
     this._rightEl = right;
-
 
     head.appendChild(right);
     content.appendChild(head);

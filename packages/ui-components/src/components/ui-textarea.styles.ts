@@ -1,23 +1,23 @@
-import { semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const TEXT_TERTIARY = semanticVar("text", "tertiary");
-const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const DISABLED_BORDER = semanticVar("stateDisabled", "border");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const STATUS_ERROR = semanticVar("statusGeneral", "error");
-const STATUS_WARNING = semanticVar("statusGeneral", "warning");
-const STATUS_SUCCESS = semanticVar("statusGeneral", "success");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const SP_05 = spaceVar("0.5");
-const SP_1 = spaceVar("1");
-const SP_15 = spaceVar("1.5");
+import {
+  BORDER_FOCUS,
+  BORDER_MINIMAL,
+  BW_SM,
+  DISABLED_BORDER,
+  DISABLED_TEXT,
+  FORM_INPUT_BORDER,
+  HOVER_BORDER_MODERATE,
+  RADIUS_SM,
+  SP_0_5,
+  SP_1,
+  SP_1_5,
+  STATUS_GENERAL_ERROR,
+  STATUS_GENERAL_SUCCESS,
+  STATUS_GENERAL_WARNING,
+  SURFACE_SECONDARY,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_TERTIARY,
+} from "@maneki/foundation";
 
 // ─── Status icon map ─────────────────────────────────────────────────────────
 
@@ -40,7 +40,7 @@ export const STYLES = /* css */ `
   :host {
     display: inline-flex;
     flex-direction: column;
-    gap: ${SP_05};
+    gap: ${SP_0_5};
     font-family: "Geist", sans-serif;
   }
 
@@ -79,10 +79,10 @@ export const STYLES = /* css */ `
   .textarea-container {
     display: flex;
     position: relative;
-    border-width: ${borderWidthVar("sm")};
+    border-width: ${BW_SM};
     border-style: solid;
     border-color: var(--ui-textarea-border, ${FORM_INPUT_BORDER});
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     background-color: var(--ui-textarea-bg, #ffffff);
     transition:
       border-color 0.15s ease,
@@ -128,18 +128,18 @@ export const STYLES = /* css */ `
 
   :host([status="warning"]) .status-icon {
     display: flex;
-    color: ${STATUS_WARNING};
+    color: ${STATUS_GENERAL_WARNING};
   }
 
   :host([status="error"]) .status-icon,
   :host([error]) .status-icon {
     display: flex;
-    color: ${STATUS_ERROR};
+    color: ${STATUS_GENERAL_ERROR};
   }
 
   :host([status="success"]) .status-icon {
     display: flex;
-    color: ${STATUS_SUCCESS};
+    color: ${STATUS_GENERAL_SUCCESS};
   }
 
   :host([status="loading"]) .status-icon {
@@ -205,7 +205,7 @@ export const STYLES = /* css */ `
   /* ── Hover ─────────────────────────────────────────────────────────────── */
 
   :host(:hover:not([disabled]):not([readonly])) .textarea-container {
-    border-color: var(--ui-textarea-hover-border, ${HOVER_BORDER});
+    border-color: var(--ui-textarea-hover-border, ${HOVER_BORDER_MODERATE});
   }
 
   /* ── Focus ─────────────────────────────────────────────────────────────── */
@@ -219,35 +219,35 @@ export const STYLES = /* css */ `
 
   :host([status="error"]) .textarea-container,
   :host([error]) .textarea-container {
-    border-color: ${STATUS_ERROR};
+    border-color: ${STATUS_GENERAL_ERROR};
   }
 
   :host([status="error"]:focus-within) .textarea-container,
   :host([error]:focus-within) .textarea-container {
-    border-color: ${STATUS_ERROR};
-    box-shadow: 0 0 0 1px ${STATUS_ERROR};
+    border-color: ${STATUS_GENERAL_ERROR};
+    box-shadow: 0 0 0 1px ${STATUS_GENERAL_ERROR};
   }
 
   /* ── Warning state ─────────────────────────────────────────────────────── */
 
   :host([status="warning"]) .textarea-container {
-    border-color: ${STATUS_WARNING};
+    border-color: ${STATUS_GENERAL_WARNING};
   }
 
   :host([status="warning"]:focus-within) .textarea-container {
-    border-color: ${STATUS_WARNING};
-    box-shadow: 0 0 0 1px ${STATUS_WARNING};
+    border-color: ${STATUS_GENERAL_WARNING};
+    box-shadow: 0 0 0 1px ${STATUS_GENERAL_WARNING};
   }
 
   /* ── Success state ─────────────────────────────────────────────────────── */
 
   :host([status="success"]) .textarea-container {
-    border-color: ${STATUS_SUCCESS};
+    border-color: ${STATUS_GENERAL_SUCCESS};
   }
 
   :host([status="success"]:focus-within) .textarea-container {
-    border-color: ${STATUS_SUCCESS};
-    box-shadow: 0 0 0 1px ${STATUS_SUCCESS};
+    border-color: ${STATUS_GENERAL_SUCCESS};
+    box-shadow: 0 0 0 1px ${STATUS_GENERAL_SUCCESS};
   }
 
   /* ── Disabled ──────────────────────────────────────────────────────────── */
@@ -297,16 +297,16 @@ export const STYLES = /* css */ `
   /* ── Status secondary label color ──────────────────────────────────────── */
 
   :host([status="warning"]) .secondary-label {
-    color: ${STATUS_WARNING};
+    color: ${STATUS_GENERAL_WARNING};
   }
 
   :host([status="error"]) .secondary-label,
   :host([error]) .secondary-label {
-    color: ${STATUS_ERROR};
+    color: ${STATUS_GENERAL_ERROR};
   }
 
   :host([status="success"]) .secondary-label {
-    color: ${STATUS_SUCCESS};
+    color: ${STATUS_GENERAL_SUCCESS};
   }
 
   /* ── Reduced motion ────────────────────────────────────────────────────── */

@@ -1,4 +1,10 @@
-import { semanticVar, borderWidthVar, radiusVar } from "@maneki/foundation";
+
+import {
+  BORDER_MINIMAL,
+  BW_MD,
+  RADIUS_MD,
+  SURFACE_SECONDARY,
+} from "@maneki/foundation";
 import type {
   LayoutItem,
   Layout,
@@ -36,14 +42,6 @@ import {
 import { moveElement } from "../core/layout-engine";
 import { compact, correctBounds } from "../core/compact";
 import { GridItemElement } from "./grid-item";
-
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const BW_MD = borderWidthVar("md");             // 2px
-const RADIUS_MD = radiusVar("md");             // 4px
-
 const GRID_LAYOUT_STYLES = `
 :host {
   display: block;

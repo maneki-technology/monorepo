@@ -1,14 +1,9 @@
-import { semanticVar } from "@maneki/foundation";
+import { SURFACE_SECONDARY } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type ImageRatio = "16:9" | "3:2" | "1:1" | "3:1" | "21:9";
 export type ImageFit = "cover" | "contain" | "fill" | "none";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-
 // ─── Aspect ratio map ────────────────────────────────────────────────────────
 
 const RATIO_MAP: Record<ImageRatio, string> = {

@@ -1,13 +1,12 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import {
+  SP_0_5,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_3,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const SP_05 = spaceVar("0.5");   // 4px
-const SP_15 = spaceVar("1.5");   // 12px
-const SP_2 = spaceVar("2");      // 16px
-const SP_1 = spaceVar("1");      // 8px
-const SP_3 = spaceVar("3");      // 24px
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -36,7 +35,7 @@ const STYLES = /* css */ `
   :host([size="m"]) .heading {
     font-size: 12px;
     line-height: 16px;
-    padding: ${SP_05} ${SP_2};
+    padding: ${SP_0_5} ${SP_2};
   }
 
   /* ── Size: s ────────────────────────────────────────────────────────────── */
@@ -44,7 +43,7 @@ const STYLES = /* css */ `
   :host([size="s"]) .heading {
     font-size: 11px;
     line-height: 16px;
-    padding: ${SP_05} ${SP_15};
+    padding: ${SP_0_5} ${SP_1_5};
   }
 
   /* ── Size: l ────────────────────────────────────────────────────────────── */

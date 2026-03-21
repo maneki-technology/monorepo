@@ -1,20 +1,18 @@
-import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
+import {
+  BORDER_MINIMAL,
+  BORDER_MODERATE,
+  BW_SM,
+  GRID_ROW_ALT,
+  SP_0_75,
+  SP_1,
+  SP_1_5,
+  SP_2,
+} from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type TableSize = "s" | "m" | "l";
 export type TableSeparator = "minimal" | "moderate";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const BORDER_MODERATE = semanticVar("border", "moderate");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const BW_SM = borderWidthVar("sm");             // 1px
-const SP_075 = spaceVar("0.75");               // 6px
-const SP_1 = spaceVar("1");                     // 8px
-const SP_15 = spaceVar("1.5");                 // 12px
-const SP_2 = spaceVar("2");                     // 16px
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -28,7 +26,7 @@ const STYLES = /* css */ `
     display: block;
     font-family: "Geist", sans-serif;
     /* Default size: m */
-    --_table-cell-padding: ${SP_075} ${SP_15};
+    --_table-cell-padding: ${SP_0_75} ${SP_1_5};
     --_table-cell-font-size: 14px;
     --_table-cell-line-height: 20px;
     --_table-header-font-size: 14px;
@@ -41,7 +39,7 @@ const STYLES = /* css */ `
   /* ── Size: s ──────────────────────────────────────────────────────────── */
 
   :host([size="s"]) {
-    --_table-cell-padding: ${SP_075} ${SP_1};
+    --_table-cell-padding: ${SP_0_75} ${SP_1};
     --_table-cell-font-size: 12px;
     --_table-cell-line-height: 16px;
     --_table-header-font-size: 12px;
@@ -51,7 +49,7 @@ const STYLES = /* css */ `
   /* ── Size: l ──────────────────────────────────────────────────────────── */
 
   :host([size="l"]) {
-    --_table-cell-padding: ${SP_15} ${SP_2};
+    --_table-cell-padding: ${SP_1_5} ${SP_2};
     --_table-cell-font-size: 16px;
     --_table-cell-line-height: 24px;
     --_table-header-font-size: 16px;
@@ -74,7 +72,7 @@ const STYLES = /* css */ `
   /* ── Zebra ────────────────────────────────────────────────────────────── */
 
   :host([zebra]) ::slotted(ui-table-row:nth-child(even)) {
-    --ui-table-row-bg: ${semanticVar("gridRow", "rowAlt")};
+    --ui-table-row-bg: ${GRID_ROW_ALT};
   }
 
   .table-wrapper {

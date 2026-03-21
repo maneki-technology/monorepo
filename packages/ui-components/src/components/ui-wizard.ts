@@ -1,26 +1,24 @@
-import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
+
+import {
+  BORDER_MINIMAL,
+  BW_SM,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_2_5,
+  SP_3,
+  SP_4,
+  SP_5,
+  SP_7,
+  SP_8,
+  SURFACE_PRIMARY,
+  SURFACE_SECONDARY,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 import "./ui-step-group.js";
 import "./ui-step-item.js";
 import "./ui-button.js";
 import "./ui-separator.js";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const BW_SM = borderWidthVar("sm");             // 1px
-const SP_1 = spaceVar("1");                     // 8px
-const SP_15 = spaceVar("1.5");                 // 12px
-const SP_2 = spaceVar("2");                     // 16px
-const SP_25 = spaceVar("2.5");                 // 20px
-const SP_3 = spaceVar("3");                     // 24px
-const SP_4 = spaceVar("4");                     // 32px
-const SP_5 = spaceVar("5");                     // 40px
-const SP_7 = spaceVar("7");                     // 56px
-const SP_8 = spaceVar("8");                     // 64px
-
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type WizardLayout = "horizontal" | "vertical";
@@ -150,12 +148,12 @@ const STYLES = /* css */ `
 
   :host([layout="horizontal"]) .steps-bar {
     height: ${SP_8};
-    padding: ${SP_25} ${SP_5};
+    padding: ${SP_2_5} ${SP_5};
   }
 
   :host([layout="horizontal"]) .footer {
     height: ${SP_7};
-    padding: 0 ${SP_15};
+    padding: 0 ${SP_1_5};
   }
 
   /* ── Vertical layout ─────────────────────────────────────────────────────── */
@@ -177,7 +175,7 @@ const STYLES = /* css */ `
 
   :host([layout="vertical"]) .footer {
     height: ${SP_7};
-    padding: 0 ${SP_15};
+    padding: 0 ${SP_1_5};
   }
 `;
 

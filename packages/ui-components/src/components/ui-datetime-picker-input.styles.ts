@@ -1,22 +1,21 @@
-import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const TEXT_TERTIARY = semanticVar("text", "tertiary");
-const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const DISABLED_BORDER = semanticVar("stateDisabled", "border");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const STATUS_ERROR = semanticVar("statusGeneral", "error");
-const STATUS_WARNING = semanticVar("statusGeneral", "warning");
-const STATUS_SUCCESS = semanticVar("statusGeneral", "success");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const SP_05 = spaceVar("0.5");
-const SP_1 = spaceVar("1");
+import {
+  BORDER_FOCUS,
+  BORDER_MINIMAL,
+  DISABLED_BORDER,
+  DISABLED_TEXT,
+  FORM_INPUT_BORDER,
+  HOVER_BORDER_MODERATE,
+  RADIUS_SM,
+  SP_0_5,
+  SP_1,
+  STATUS_GENERAL_ERROR,
+  STATUS_GENERAL_SUCCESS,
+  STATUS_GENERAL_WARNING,
+  SURFACE_SECONDARY,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_TERTIARY,
+} from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -30,7 +29,7 @@ export const STYLES = /* css */ `
   :host {
     display: inline-flex;
     flex-direction: column;
-    gap: ${SP_05};
+    gap: ${SP_0_5};
     font-family: Inter, sans-serif;
   }
 
@@ -56,7 +55,7 @@ export const STYLES = /* css */ `
     display: flex;
     align-items: center;
     border: 1px solid var(--ui-dpi-border, ${FORM_INPUT_BORDER});
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
     background-color: var(--ui-dpi-bg, #ffffff);
     cursor: pointer;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -64,7 +63,7 @@ export const STYLES = /* css */ `
   }
 
   :host(:hover:not([disabled]):not([readonly])) .input-container {
-    border-color: ${HOVER_BORDER};
+    border-color: ${HOVER_BORDER_MODERATE};
   }
 
   :host([focused]) .input-container {
@@ -85,15 +84,15 @@ export const STYLES = /* css */ `
   }
 
   :host([status="error"]) .input-container {
-    border-color: ${STATUS_ERROR};
+    border-color: ${STATUS_GENERAL_ERROR};
   }
 
   :host([status="warning"]) .input-container {
-    border-color: ${STATUS_WARNING};
+    border-color: ${STATUS_GENERAL_WARNING};
   }
 
   :host([status="success"]) .input-container {
-    border-color: ${STATUS_SUCCESS};
+    border-color: ${STATUS_GENERAL_SUCCESS};
   }
 
   /* ── Icon ─── */
@@ -122,17 +121,17 @@ export const STYLES = /* css */ `
 
   :host([status="warning"]) .status-icon {
     display: flex;
-    color: ${STATUS_WARNING};
+    color: ${STATUS_GENERAL_WARNING};
   }
 
   :host([status="error"]) .status-icon {
     display: flex;
-    color: ${STATUS_ERROR};
+    color: ${STATUS_GENERAL_ERROR};
   }
 
   :host([status="success"]) .status-icon {
     display: flex;
-    color: ${STATUS_SUCCESS};
+    color: ${STATUS_GENERAL_SUCCESS};
   }
 
   :host([status="loading"]) .status-icon {
@@ -167,7 +166,7 @@ export const STYLES = /* css */ `
   .segment-clickable {
     cursor: pointer;
     padding: 2px 4px;
-    border-radius: ${radiusVar("sm")};
+    border-radius: ${RADIUS_SM};
   }
 
   .segment-clickable:hover {
@@ -238,18 +237,18 @@ export const STYLES = /* css */ `
   }
 
   :host([status="error"]) .supportive {
-    color: ${STATUS_ERROR};
+    color: ${STATUS_GENERAL_ERROR};
   }
 
   :host([status="warning"]) .supportive {
-    color: ${STATUS_WARNING};
+    color: ${STATUS_GENERAL_WARNING};
   }
 
   /* ── Size: S ─── */
 
   :host([size="s"]) .input-container {
     height: 24px;
-    padding: 0 ${SP_05};
+    padding: 0 ${SP_0_5};
     gap: 4px;
   }
 

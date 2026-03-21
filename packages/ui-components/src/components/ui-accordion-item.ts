@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
+
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -6,28 +6,25 @@ export type AccordionSize = "s" | "m" | "l";
 export type AccordionEmphasis = "bold" | "subtle";
 export type AccordionStatus = "none" | "error" | "warning" | "success";
 
+import {
+  BORDER_FOCUS,
+  BORDER_MODERATE,
+  BW_MD,
+  DISABLED_TEXT,
+  HOVER_MINIMAL,
+  ICON_PRIMARY,
+  SP_1,
+  SP_1_25,
+  SP_1_5,
+  SP_2,
+  SP_2_5,
+  SP_3,
+  STATUS_GENERAL_ERROR,
+  STATUS_GENERAL_SUCCESS,
+  STATUS_GENERAL_WARNING,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 import "./ui-icon.js";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const BORDER_MODERATE = semanticVar("border", "moderate");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const ICON_PRIMARY = semanticVar("icon", "primary");
-const STATUS_ERROR = semanticVar("statusGeneral", "error");
-const STATUS_WARNING = semanticVar("statusGeneral", "warning");
-const STATUS_SUCCESS = semanticVar("statusGeneral", "success");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const HOVER_SURFACE = semanticVar("stateHover", "surfaceMinimal");
-
-const SP_1 = spaceVar("1");       // 8px
-const SP_125 = spaceVar("1.25"); // 10px
-const BW_MD = borderWidthVar("md"); // 2px
-const SP_1_5 = spaceVar("1.5");   // 12px
-const SP_2 = spaceVar("2");       // 16px
-const SP_2_5 = spaceVar("2.5");   // 20px
-const SP_3 = spaceVar("3");       // 24px
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -70,7 +67,7 @@ const STYLES = /* css */ `
   }
 
   .header:hover {
-    background: var(--ui-acc-hover-bg, ${HOVER_SURFACE});
+    background: var(--ui-acc-hover-bg, ${HOVER_MINIMAL});
   }
 
   .header:focus-visible {
@@ -128,20 +125,19 @@ const STYLES = /* css */ `
     line-height: 0;
   }
 
-
   :host([status="error"]) .status-icon {
     display: inline-flex;
-    color: ${STATUS_ERROR};
+    color: ${STATUS_GENERAL_ERROR};
   }
 
   :host([status="warning"]) .status-icon {
     display: inline-flex;
-    color: ${STATUS_WARNING};
+    color: ${STATUS_GENERAL_WARNING};
   }
 
   :host([status="success"]) .status-icon {
     display: inline-flex;
-    color: ${STATUS_SUCCESS};
+    color: ${STATUS_GENERAL_SUCCESS};
   }
 
   /* ── Chevron ────────────────────────────────────────────────────────────── */
@@ -154,7 +150,6 @@ const STYLES = /* css */ `
     color: var(--ui-acc-chevron-color, ${ICON_PRIMARY});
     transition: transform 0.2s ease;
   }
-
 
   :host([expanded]) .chevron {
     transform: rotate(180deg);
@@ -184,7 +179,7 @@ const STYLES = /* css */ `
   :host .header,
   :host([size="m"]) .header {
     padding-top: 9px;
-    padding-bottom: ${SP_125};
+    padding-bottom: ${SP_1_25};
   }
 
   :host .content-left,
@@ -268,7 +263,7 @@ const STYLES = /* css */ `
 
   :host([size="l"]) .header {
     padding-top: 9px;
-    padding-bottom: ${SP_125};
+    padding-bottom: ${SP_1_25};
   }
 
   :host([size="l"]) .content-left {
@@ -333,7 +328,6 @@ const STYLES = /* css */ `
     }
   }
 `;
-
 
 // ─── Component ───────────────────────────────────────────────────────────────
 

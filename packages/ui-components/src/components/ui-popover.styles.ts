@@ -1,16 +1,14 @@
-import { semanticVar, spaceVar, radiusVar } from "@maneki/foundation";
+import {
+  ICON_REVERSED,
+  RADIUS_SM,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_2_5,
+  SURFACE_CONTRAST,
+  TEXT_REVERSED,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────────
-
-const SURFACE_CONTRAST = semanticVar("surface", "contrast");
-const ICON_REVERSED = semanticVar("icon", "reversed");
-const TEXT_REVERSED = semanticVar("text", "reversed");
-
-const SP_1 = spaceVar("1");         // 8px
-const SP_15 = spaceVar("1.5");     // 12px
-const SP_2 = spaceVar("2");         // 16px
-const SP_25 = spaceVar("2.5");     // 20px
-const RADIUS_SM = radiusVar("sm");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -123,13 +121,13 @@ export const STYLES = /* css */ `
 
   :host .base,
   :host([size="m"]) .base {
-    padding: ${SP_25} ${SP_2};
+    padding: ${SP_2_5} ${SP_2};
     gap: ${SP_1};
   }
 
   :host .content,
   :host([size="m"]) .content {
-    gap: ${SP_15};
+    gap: ${SP_1_5};
   }
 
   :host .title-text,
@@ -150,7 +148,6 @@ export const STYLES = /* css */ `
   }
 
   /* ── Size: S ─────────────────────────────────────────────────────────────── */
-
 
   :host([size="s"]) .base {
     padding: ${SP_2};

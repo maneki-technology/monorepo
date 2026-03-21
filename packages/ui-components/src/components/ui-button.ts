@@ -1,4 +1,4 @@
-import { semanticVar, spaceVar, radiusVar, borderWidthVar } from "@maneki/foundation";
+
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -9,36 +9,33 @@ export type ButtonShape = "basic" | "rounded";
 export type ButtonIcon = "text-only" | "leading-icon" | "trailing-icon" | "icon-only";
 export type ButtonStatus = "none" | "error" | "loading" | "success";
 
+import {
+  ACTIVE_BOLD,
+  ACTIVE_SUBTLE,
+  BORDER_FOCUS,
+  BW_MD,
+  BW_SM,
+  HOVER_BOLD,
+  HOVER_SUBTLE,
+  RADIUS_PILL,
+  RADIUS_SM,
+  SP_0_5,
+  SP_0_75,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  SP_2_5,
+  SP_3,
+  SP_4,
+  SURFACE_ACTION,
+  SURFACE_ACTION_CONTRAST,
+  SURFACE_DESTRUCTIVE,
+  SURFACE_SUCCESS,
+  SURFACE_TERTIARY,
+  TEXT_PRIMARY,
+} from "@maneki/foundation";
 import "./ui-icon.js";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const SURFACE_ACTION = semanticVar("surface", "action");
-const SURFACE_TERTIARY = semanticVar("surface", "tertiary");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const SURFACE_DESTRUCTIVE = semanticVar("surface", "destructive");
-const SURFACE_ACTION_CONTRAST = semanticVar("surface", "actionContrast");
-const SURFACE_SUCCESS = semanticVar("surface", "success");
-const BORDER_FOCUS = semanticVar("border", "focus");
-
-const SP_05 = spaceVar("0.5");
-const SP_075 = spaceVar("0.75");
-const SP_1 = spaceVar("1");
-const SP_15 = spaceVar("1.5");
-const SP_2 = spaceVar("2");
-const SP_25 = spaceVar("2.5");
-const SP_3 = spaceVar("3");
-const SP_4 = spaceVar("4");
-
-const RADIUS_SM = radiusVar("sm");
-const RADIUS_PILL = radiusVar("pill");
-const BORDER_SM = borderWidthVar("sm");
-
 const WHITE = "#ffffff";
-const HOVER_OVERLAY = semanticVar("stateHover", "surfaceBold");
-const HOVER_FILL = semanticVar("stateHover", "surfaceSubtle");
-const ACTIVE_OVERLAY = semanticVar("stateActive", "surfaceBold");
-const ACTIVE_FILL = semanticVar("stateActive", "surfaceSubtle");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -59,7 +56,7 @@ const STYLES = /* css */ `
     align-items: center;
     justify-content: center;
     gap: ${SP_1};
-    border-width: ${BORDER_SM};
+    border-width: ${BW_SM};
     border-style: solid;
     border-color: transparent;
     cursor: pointer;
@@ -80,12 +77,12 @@ const STYLES = /* css */ `
   :host([size="m"]) button {
     font-size: 14px;
     line-height: 20px;
-    padding: ${SP_075} ${SP_2};
+    padding: ${SP_0_75} ${SP_2};
   }
 
   :host([shape="rounded"]) button,
   :host([shape="rounded"][size="m"]) button {
-    padding: ${SP_075} ${SP_25};
+    padding: ${SP_0_75} ${SP_2_5};
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
@@ -93,11 +90,11 @@ const STYLES = /* css */ `
   :host([size="s"]) button {
     font-size: 12px;
     line-height: 16px;
-    padding: ${SP_05} ${SP_15};
+    padding: ${SP_0_5} ${SP_1_5};
   }
 
   :host([size="s"][shape="rounded"]) button {
-    padding: ${SP_05} ${SP_15};
+    padding: ${SP_0_5} ${SP_1_5};
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
@@ -117,22 +114,22 @@ const STYLES = /* css */ `
   :host([size="xl"]) button {
     font-size: 16px;
     line-height: 24px;
-    padding: ${SP_15} ${SP_4};
+    padding: ${SP_1_5} ${SP_4};
   }
 
   :host([size="xl"][shape="rounded"]) button {
-    padding: ${SP_15} ${SP_4};
+    padding: ${SP_1_5} ${SP_4};
   }
 
   /* ── Icon-only padding (square) ──────────────────────────────────────────── */
 
   :host([icon="icon-only"]) button,
   :host([icon="icon-only"][size="m"]) button {
-    padding: ${SP_075};
+    padding: ${SP_0_75};
   }
 
   :host([icon="icon-only"][size="s"]) button {
-    padding: ${SP_05};
+    padding: ${SP_0_5};
   }
 
   :host([icon="icon-only"][size="l"]) button {
@@ -140,7 +137,7 @@ const STYLES = /* css */ `
   }
 
   :host([icon="icon-only"][size="xl"]) button {
-    padding: ${SP_15};
+    padding: ${SP_1_5};
   }
 
   /* ── Shape ───────────────────────────────────────────────────────────────── */
@@ -267,49 +264,49 @@ const STYLES = /* css */ `
   /* ── Hover state ─────────────────────────────────────────────────────────── */
 
   button:hover {
-    background-image: linear-gradient(${HOVER_OVERLAY}, ${HOVER_OVERLAY});
+    background-image: linear-gradient(${HOVER_BOLD}, ${HOVER_BOLD});
   }
 
   /* subtle/minimal hover — add a light fill */
   :host([emphasis="subtle"]) button:hover,
   :host([emphasis="minimal"]) button:hover {
     background-image: none;
-    background-color: ${HOVER_FILL};
+    background-color: ${HOVER_SUBTLE};
   }
 
   /* ── Active state ────────────────────────────────────────────────────────── */
 
   button:active {
-    background-image: linear-gradient(${ACTIVE_OVERLAY}, ${ACTIVE_OVERLAY});
+    background-image: linear-gradient(${ACTIVE_BOLD}, ${ACTIVE_BOLD});
   }
 
   :host([emphasis="subtle"]) button:active,
   :host([emphasis="minimal"]) button:active {
     background-image: none;
-    background-color: ${ACTIVE_FILL};
+    background-color: ${ACTIVE_SUBTLE};
   }
 
   /* ── Focus-visible (double ring) ─────────────────────────────────────────── */
 
   button:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 ${BORDER_SM} ${WHITE}, 0 0 0 ${borderWidthVar("md")} ${BORDER_FOCUS};
+    box-shadow: 0 0 0 ${BW_SM} ${WHITE}, 0 0 0 ${BW_MD} ${BORDER_FOCUS};
   }
 
   :host([action="secondary"]) button:focus-visible {
-    box-shadow: 0 0 0 ${BORDER_SM} ${WHITE}, 0 0 0 ${borderWidthVar("md")} ${TEXT_PRIMARY};
+    box-shadow: 0 0 0 ${BW_SM} ${WHITE}, 0 0 0 ${BW_MD} ${TEXT_PRIMARY};
   }
 
   :host([action="destructive"]) button:focus-visible {
-    box-shadow: 0 0 0 ${BORDER_SM} ${WHITE}, 0 0 0 ${borderWidthVar("md")} ${SURFACE_DESTRUCTIVE};
+    box-shadow: 0 0 0 ${BW_SM} ${WHITE}, 0 0 0 ${BW_MD} ${SURFACE_DESTRUCTIVE};
   }
 
   :host([action="info"]) button:focus-visible {
-    box-shadow: 0 0 0 ${BORDER_SM} ${WHITE}, 0 0 0 ${borderWidthVar("md")} ${SURFACE_ACTION_CONTRAST};
+    box-shadow: 0 0 0 ${BW_SM} ${WHITE}, 0 0 0 ${BW_MD} ${SURFACE_ACTION_CONTRAST};
   }
 
   :host([action="contrast"]) button:focus-visible {
-    box-shadow: 0 0 0 ${BORDER_SM} ${TEXT_PRIMARY}, 0 0 0 ${borderWidthVar("md")} ${WHITE};
+    box-shadow: 0 0 0 ${BW_SM} ${TEXT_PRIMARY}, 0 0 0 ${BW_MD} ${WHITE};
   }
 
   /* ── Disabled ────────────────────────────────────────────────────────────── */
@@ -364,7 +361,6 @@ const STYLES = /* css */ `
     line-height: 0;
     --ui-icon-size: 20px;
   }
-
 
   :host([size="s"]) .status-icon {
     width: 16px;

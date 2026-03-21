@@ -1,24 +1,22 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SELECTED = semanticVar("text", "selected");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
-const SELECTED_BOLD = semanticVar("stateSelected", "surfaceBold");
-const BORDER_CONTRAST = semanticVar("border", "contrast");
-const HOVER_SURFACE = semanticVar("stateHover", "surfaceMinimal");
-const HOVER_MODERATE = semanticVar("stateHover", "surfaceModerate");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const SP_05 = spaceVar("0.5");   // 4px — description gap
-const SP_075 = spaceVar("0.75"); // 6px
-const SP_1 = spaceVar("1");      // 8px
-const SP_125 = spaceVar("1.25"); // 10px
-const SP_15 = spaceVar("1.5");   // 12px
-const SP_2 = spaceVar("2");      // 16px
-const SP_3 = spaceVar("3");      // 24px
+import {
+  BORDER_CONTRAST,
+  DISABLED_TEXT,
+  FORM_INPUT_BORDER,
+  HOVER_MINIMAL,
+  HOVER_MODERATE,
+  SELECTED_BOLD,
+  SP_0_5,
+  SP_0_75,
+  SP_1,
+  SP_1_25,
+  SP_1_5,
+  SP_2,
+  SP_3,
+  SURFACE_SECONDARY,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_SELECTED,
+} from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -65,7 +63,7 @@ export const STYLES = /* css */ `
   }
 
   .item:hover {
-    background-color: var(--ui-dd-item-hover-bg, ${HOVER_SURFACE});
+    background-color: var(--ui-dd-item-hover-bg, ${HOVER_MINIMAL});
   }
 
   .item:active {
@@ -83,7 +81,7 @@ export const STYLES = /* css */ `
   :host([size="m"]) .item {
     font-size: 14px;
     line-height: 20px;
-    padding: ${SP_075} ${SP_2};
+    padding: ${SP_0_75} ${SP_2};
     gap: ${SP_1};
   }
 
@@ -111,13 +109,12 @@ export const STYLES = /* css */ `
     height: 20px;
   }
 
-
   /* ── Size: s ────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .item {
     font-size: 12px;
     line-height: 16px;
-    padding: ${SP_075} ${SP_15};
+    padding: ${SP_0_75} ${SP_1_5};
     gap: ${SP_1};
   }
 
@@ -141,14 +138,13 @@ export const STYLES = /* css */ `
     height: 16px;
   }
 
-
   /* ── Size: l ────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .item {
     font-size: 16px;
     line-height: 24px;
-    padding: ${SP_125} ${SP_2} ${SP_125} ${SP_3};
-    gap: ${SP_15};
+    padding: ${SP_1_25} ${SP_2} ${SP_1_25} ${SP_3};
+    gap: ${SP_1_5};
   }
 
   :host([size="l"]) .leading {
@@ -170,7 +166,6 @@ export const STYLES = /* css */ `
     width: 24px;
     height: 24px;
   }
-
 
   /* ── Disabled ───────────────────────────────────────────────────────────── */
 
@@ -209,7 +204,7 @@ export const STYLES = /* css */ `
   .content {
     display: flex;
     flex-direction: column;
-    gap: ${SP_05};
+    gap: ${SP_0_5};
     flex: 1;
     min-width: 0;
   }
@@ -255,8 +250,6 @@ export const STYLES = /* css */ `
     flex-shrink: 0;
     line-height: 0;
   }
-
-
 
   /* ── Selected ───────────────────────────────────────────────────────────── */
 

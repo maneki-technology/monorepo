@@ -1,16 +1,14 @@
-import { semanticVar, spaceVar } from "@maneki/foundation";
+import {
+  DISABLED_TEXT,
+  SP_0_25,
+  STATUS_GENERAL_ERROR,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type LabelSize = "s" | "m" | "l";
 export type LabelEmphasis = "bold" | "subtle";
-
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const STATUS_ERROR = semanticVar("statusGeneral", "error");
-
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -34,10 +32,10 @@ export const STYLES = /* css */ `
   }
 
   .required {
-    color: ${STATUS_ERROR};
+    color: ${STATUS_GENERAL_ERROR};
     font-size: var(--_font-size);
     line-height: var(--_line-height);
-    margin-left: ${spaceVar("0.25")};
+    margin-left: ${SP_0_25};
   }
 
   :host(:not([required])) .required {

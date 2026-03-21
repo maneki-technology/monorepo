@@ -1,19 +1,18 @@
-import { semanticVar, spaceVar, borderWidthVar } from "@maneki/foundation";
+import {
+  BORDER_MINIMAL,
+  BW_SM,
+  HOVER_MINIMAL,
+  ICON_PRIMARY,
+  SELECTED_MINIMAL,
+  SP_0_5,
+  SP_0_75,
+  SP_1,
+  SP_1_5,
+  SP_2,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const ICON_PRIMARY = semanticVar("icon", "primary");
-const HOVER_BG = semanticVar("stateHover", "surfaceMinimal");
-const ACTIVE_BG = semanticVar("stateSelected", "surfaceMinimal");
-const SP_05 = spaceVar("0.5");
-const SP_075 = spaceVar("0.75");
-const SP_1 = spaceVar("1");
-const SP_15 = spaceVar("1.5");
-const SP_2 = spaceVar("2");
-const BW_SM = borderWidthVar("sm");
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -157,17 +156,16 @@ export const STYLES = /* css */ `
   /* ─── States ─── */
 
   :host(:hover) .content {
-    background: ${HOVER_BG};
+    background: ${HOVER_MINIMAL};
   }
 
   :host(:hover) .content[data-active] {
-    background: ${ACTIVE_BG};
+    background: ${SELECTED_MINIMAL};
   }
 
   :host([selected]) .content {
     background: transparent;
   }
-
 
   /* ═══════════════════════════════════════════════════════════════════════════ */
   /* Size: S                                                                    */
@@ -184,7 +182,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .text-area {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   :host([size="s"]) .primary-text {
@@ -240,7 +238,7 @@ export const STYLES = /* css */ `
 
   :host([size="m"]) .text-area,
   :host(:not([size])) .text-area {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   :host([size="m"]) .primary-text,
@@ -300,7 +298,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .text-area {
-    gap: ${SP_05};
+    gap: ${SP_0_5};
   }
 
   :host([size="l"]) .primary-text {
@@ -316,7 +314,7 @@ export const STYLES = /* css */ `
   :host([size="l"]) .leading {
     width: 32px;
     height: 32px;
-    margin-right: ${SP_15};
+    margin-right: ${SP_1_5};
   }
 
   :host([size="l"]) .trailing {
@@ -329,8 +327,8 @@ export const STYLES = /* css */ `
 
   /* Padding */
   :host([size="l"][padding="s"]) .content {
-    padding-left: ${SP_15};
-    padding-right: ${SP_15};
+    padding-left: ${SP_1_5};
+    padding-right: ${SP_1_5};
   }
 
   :host([size="l"][padding="m"]) .content {

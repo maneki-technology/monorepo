@@ -1,31 +1,30 @@
-import { semanticVar, spaceVar, elevationVar, radiusVar } from "@maneki/foundation";
+import {
+  BORDER_FOCUS,
+  BORDER_MINIMAL,
+  DISABLED_BORDER,
+  DISABLED_TEXT,
+  ELEVATION_05,
+  FORM_INPUT_BORDER,
+  HOVER_BORDER_MODERATE,
+  ICON_SECONDARY,
+  RADIUS_PILL,
+  RADIUS_SM,
+  SP_0_25,
+  SP_0_5,
+  SP_1,
+  SP_1_5,
+  STATUS_GENERAL_ERROR,
+  STATUS_GENERAL_SUCCESS,
+  STATUS_GENERAL_WARNING,
+  SURFACE_PRIMARY,
+  SURFACE_SECONDARY,
+  TAG_SUBTLE,
+  TAG_TEXT_SUBTLE,
+  TEXT_PRIMARY,
+  TEXT_SECONDARY,
+  TEXT_TERTIARY,
+} from "@maneki/foundation";
 
-// ─── Token constants ─────────────────────────────────────────────────────────
-
-const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const TEXT_SECONDARY = semanticVar("text", "secondary");
-const TEXT_TERTIARY = semanticVar("text", "tertiary");
-const HOVER_BORDER = semanticVar("stateHover", "borderModerate");
-const BORDER_FOCUS = semanticVar("border", "focus");
-const DISABLED_BORDER = semanticVar("stateDisabled", "border");
-const DISABLED_TEXT = semanticVar("stateDisabled", "text");
-const STATUS_ERROR = semanticVar("statusGeneral", "error");
-const STATUS_WARNING = semanticVar("statusGeneral", "warning");
-const STATUS_SUCCESS = semanticVar("statusGeneral", "success");
-const BORDER_MINIMAL = semanticVar("border", "minimal");
-const SURFACE_SECONDARY = semanticVar("surface", "secondary");
-const SURFACE_PRIMARY = semanticVar("surface", "primary");
-const ICON_SECONDARY = semanticVar("icon", "secondary");
-const TAG_SUBTLE = semanticVar("tag", "subtle");
-const TAG_TEXT_SUBTLE = semanticVar("tag", "textSubtle");
-const ELEVATION_05 = elevationVar("05");
-const RADIUS_SM = radiusVar("sm");           // 2px
-const RADIUS_PILL = radiusVar("pill");       // 999px
-const SP_025 = spaceVar("0.25");             // 2px
-const SP_05 = spaceVar("0.5");               // 4px
-const SP_1 = spaceVar("1");                   // 8px
-const SP_15 = spaceVar("1.5");               // 12px
 // ─── Status icon map ─────────────────────────────────────────────────────────
 
 export const STATUS_ICON_MAP: Record<string, string> = {
@@ -58,7 +57,7 @@ export const STYLES = /* css */ `
   }
   :host([label]) .label-row {
     display: flex;
-    margin-bottom: ${SP_05};
+    margin-bottom: ${SP_0_5};
   }
   .label-row ui-label {
     display: inline;
@@ -94,7 +93,7 @@ export const STYLES = /* css */ `
     min-width: 0;
     display: flex;
     align-items: center;
-    gap: ${SP_05};
+    gap: ${SP_0_5};
     overflow: hidden;
     color: var(--ui-select-color, ${TEXT_PRIMARY});
   }
@@ -108,8 +107,8 @@ export const STYLES = /* css */ `
     align-items: center;
     background: ${TAG_SUBTLE};
     border-radius: ${RADIUS_PILL};
-    padding: ${SP_025} ${SP_1};
-    gap: ${SP_05};
+    padding: ${SP_0_25} ${SP_1};
+    gap: ${SP_0_5};
     flex-shrink: 0;
   }
   .tag-label {
@@ -194,16 +193,16 @@ export const STYLES = /* css */ `
   }
   :host([status="warning"]) .status-icon {
     display: flex;
-    color: ${STATUS_WARNING};
+    color: ${STATUS_GENERAL_WARNING};
   }
   :host([status="error"]) .status-icon,
   :host([error]) .status-icon {
     display: flex;
-    color: ${STATUS_ERROR};
+    color: ${STATUS_GENERAL_ERROR};
   }
   :host([status="success"]) .status-icon {
     display: flex;
-    color: ${STATUS_SUCCESS};
+    color: ${STATUS_GENERAL_SUCCESS};
   }
   :host([status="loading"]) .status-icon {
     display: flex;
@@ -238,12 +237,12 @@ export const STYLES = /* css */ `
     left: 0;
     z-index: 1000;
     min-width: 100%;
-    padding: ${SP_05} 0;
+    padding: ${SP_0_5} 0;
     background-color: var(--ui-select-panel-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-select-panel-shadow, ${ELEVATION_05});
     border-radius: ${RADIUS_SM};
     overflow: visible;
-    margin-top: ${SP_025};
+    margin-top: ${SP_0_25};
     opacity: 0;
     visibility: hidden;
     transform: translateY(-4px);
@@ -266,17 +265,17 @@ export const STYLES = /* css */ `
   }
   :host([supportive]) .supportive-text {
     display: block;
-    margin-top: ${SP_05};
+    margin-top: ${SP_0_5};
   }
   :host([status="warning"]) .supportive-text {
-    color: ${STATUS_WARNING};
+    color: ${STATUS_GENERAL_WARNING};
   }
   :host([status="error"]) .supportive-text,
   :host([error]) .supportive-text {
-    color: ${STATUS_ERROR};
+    color: ${STATUS_GENERAL_ERROR};
   }
   :host([status="success"]) .supportive-text {
-    color: ${STATUS_SUCCESS};
+    color: ${STATUS_GENERAL_SUCCESS};
   }
 
   /* ── Size: m (default) ─────────────────────────────────────────────────── */
@@ -300,7 +299,7 @@ export const STYLES = /* css */ `
     --_select-padding-right: ${SP_1};
     --_select-font-size: 12px;
     --_select-line-height: 16px;
-    --_select-gap: ${SP_05};
+    --_select-gap: ${SP_0_5};
     --_status-icon-size: 14px;
     --_chevron-size: 16px;
     --_leading-size: 16px;
@@ -309,8 +308,8 @@ export const STYLES = /* css */ `
   /* ── Size: l ───────────────────────────────────────────────────────────── */
   :host([size="l"]) {
     --_select-height: 40px;
-    --_select-padding-left: ${SP_15};
-    --_select-padding-right: ${SP_15};
+    --_select-padding-left: ${SP_1_5};
+    --_select-padding-right: ${SP_1_5};
     --_select-font-size: 16px;
     --_select-line-height: 24px;
     --_select-gap: ${SP_1};
@@ -338,7 +337,7 @@ export const STYLES = /* css */ `
 
   /* ── Hover ─────────────────────────────────────────────────────────────── */
   :host(:not([disabled]):not([readonly]):not([open])) .trigger:hover {
-    border-color: var(--ui-select-hover-border, ${HOVER_BORDER});
+    border-color: var(--ui-select-hover-border, ${HOVER_BORDER_MODERATE});
   }
 
   /* ── Open / Focus ──────────────────────────────────────────────────────── */
@@ -350,34 +349,34 @@ export const STYLES = /* css */ `
   /* ── Error state ───────────────────────────────────────────────────────── */
   :host([status="error"]) .trigger,
   :host([error]) .trigger {
-    border-color: ${STATUS_ERROR};
+    border-color: ${STATUS_GENERAL_ERROR};
   }
   :host([status="error"]) .trigger:focus-visible,
   :host([status="error"][open]) .trigger,
   :host([error]) .trigger:focus-visible,
   :host([error][open]) .trigger {
-    border-color: ${STATUS_ERROR};
-    box-shadow: 0 0 0 1px ${STATUS_ERROR};
+    border-color: ${STATUS_GENERAL_ERROR};
+    box-shadow: 0 0 0 1px ${STATUS_GENERAL_ERROR};
   }
 
   /* ── Warning state ─────────────────────────────────────────────────────── */
   :host([status="warning"]) .trigger {
-    border-color: ${STATUS_WARNING};
+    border-color: ${STATUS_GENERAL_WARNING};
   }
   :host([status="warning"]) .trigger:focus-visible,
   :host([status="warning"][open]) .trigger {
-    border-color: ${STATUS_WARNING};
-    box-shadow: 0 0 0 1px ${STATUS_WARNING};
+    border-color: ${STATUS_GENERAL_WARNING};
+    box-shadow: 0 0 0 1px ${STATUS_GENERAL_WARNING};
   }
 
   /* ── Success state ─────────────────────────────────────────────────────── */
   :host([status="success"]) .trigger {
-    border-color: ${STATUS_SUCCESS};
+    border-color: ${STATUS_GENERAL_SUCCESS};
   }
   :host([status="success"]) .trigger:focus-visible,
   :host([status="success"][open]) .trigger {
-    border-color: ${STATUS_SUCCESS};
-    box-shadow: 0 0 0 1px ${STATUS_SUCCESS};
+    border-color: ${STATUS_GENERAL_SUCCESS};
+    box-shadow: 0 0 0 1px ${STATUS_GENERAL_SUCCESS};
   }
 
   /* ── Disabled ──────────────────────────────────────────────────────────── */
@@ -423,8 +422,8 @@ export const STYLES = /* css */ `
   :host([multiple]) .trigger {
     height: auto;
     min-height: var(--_select-height);
-    padding-top: ${SP_025};
-    padding-bottom: ${SP_025};
+    padding-top: ${SP_0_25};
+    padding-bottom: ${SP_0_25};
     flex-wrap: wrap;
   }
 
