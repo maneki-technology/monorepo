@@ -13,14 +13,14 @@ registerPage("skeleton", {
     </div>
 
     <h3>Circle</h3>
-    <div class="variant-row" style="gap: 16px;">
+    <div class="variant-row gap-16">
       <ui-skeleton variant="circle" width="24" height="24"></ui-skeleton>
       <ui-skeleton variant="circle" width="32" height="32"></ui-skeleton>
       <ui-skeleton variant="circle" width="48" height="48"></ui-skeleton>
     </div>
 
     <h3>Rectangle</h3>
-    <div style="max-width: 400px;">
+    <div class="w-400">
       <ui-skeleton variant="rect" width="100%" height="192"></ui-skeleton>
     </div>
 
@@ -81,7 +81,7 @@ registerPage("skeleton", {
     </div>
 
     <h3>Table Skeleton</h3>
-    <div style="max-width: 500px;">
+    <div class="w-500">
       <ui-table size="l" separator="minimal">
         <ui-table-row header>
           <ui-table-cell header><ui-skeleton variant="text" width="72px"></ui-skeleton></ui-table-cell>

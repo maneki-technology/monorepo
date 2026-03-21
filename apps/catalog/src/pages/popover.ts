@@ -5,8 +5,8 @@ registerPage("popover", {
   section: "Overlays",
   render: () => `
     <h3>Variants</h3>
-    <div style="display: flex; gap: 40px; padding: 20px 0 120px;">
-      <div class="variant-col" style="align-items: center;">
+    <div class="gap-40" style="display: flex; padding: 20px 0 120px;">
+      <div class="variant-col items-center">
         <span class="variant-label">Size S</span>
         <ui-popover size="s" placement="bottom-left" title-text="Title" description="Description" open>
           <ui-button slot="trigger" size="s">Trigger S</ui-button>
@@ -21,8 +21,8 @@ registerPage("popover", {
     </div>
 
     <h3>Dismissable</h3>
-    <div style="display: flex; gap: 40px; padding: 20px 0 120px;">
-      <div class="variant-col" style="align-items: center;">
+    <div class="gap-40" style="display: flex; padding: 20px 0 120px;">
+      <div class="variant-col items-center">
         <span class="variant-label">Off</span>
         <ui-popover size="m" placement="bottom-left" title-text="Title" description="Description" open>
           <ui-button slot="trigger" size="m">Trigger</ui-button>

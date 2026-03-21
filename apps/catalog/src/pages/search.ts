@@ -5,7 +5,7 @@ registerPage("search", {
   section: "Form Controls",
   render: () => `
     <h3>Search Input — Sizes</h3>
-    <div class="stack-l" style="gap: 16px; max-width: 432px;">
+    <div class="stack-m" style="max-width: 432px;">
       <div class="variant-col">
         <span class="variant-label">S</span>
         <ui-search size="s" placeholder="Type to search..."></ui-search>
@@ -21,12 +21,12 @@ registerPage("search", {
     </div>
 
     <h3>Search Dropdown — Interactive (type "fin" to try)</h3>
-    <div class="stack-l" style="gap: 16px; max-width: 432px;">
+    <div class="stack-m" style="max-width: 432px;">
       <ui-search id="search-demo-m" size="m" placeholder="Type to search..."></ui-search>
     </div>
 
     <h3 style="margin-top: 320px;">Search Dropdown — Size L</h3>
-    <div class="stack-l" style="gap: 16px; max-width: 432px;">
+    <div class="stack-m" style="max-width: 432px;">
       <ui-search id="search-demo-l" size="l" placeholder="Type to search..."></ui-search>
     </div>
   `,

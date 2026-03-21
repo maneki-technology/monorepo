@@ -5,7 +5,7 @@ registerPage("slider", {
   section: "Form Controls",
   render: () => `
     <h3>Sizes</h3>
-    <div class="stack-l" style="gap: 24px; max-width: 400px;">
+    <div class="stack-l w-400">
       <div class="variant-col">
         <span class="variant-label">S</span>
         <ui-slider size="s" value="50"></ui-slider>
@@ -21,7 +21,7 @@ registerPage("slider", {
     </div>
 
     <h3>With Labels</h3>
-    <div class="stack-l" style="gap: 24px; max-width: 400px;">
+    <div class="stack-l w-400">
       <div class="variant-col">
         <span class="variant-label">S</span>
         <ui-slider size="s" value="50" labels></ui-slider>
@@ -37,7 +37,7 @@ registerPage("slider", {
     </div>
 
     <h3>Range</h3>
-    <div class="stack-l" style="gap: 24px; max-width: 400px;">
+    <div class="stack-l w-400">
       <div class="variant-col">
         <span class="variant-label">Range 0\u201350</span>
         <ui-slider size="m" range value="0" value-high="50" labels></ui-slider>
@@ -53,7 +53,7 @@ registerPage("slider", {
     </div>
 
     <h3>Steps</h3>
-    <div class="stack-l" style="gap: 24px; max-width: 400px;">
+    <div class="stack-l w-400">
       <div class="variant-col">
         <span class="variant-label">Step 10</span>
         <ui-slider size="m" value="50" step="10" labels></ui-slider>
@@ -65,12 +65,12 @@ registerPage("slider", {
     </div>
 
     <h3>Disabled</h3>
-    <div class="stack-l" style="gap: 24px; max-width: 400px;">
+    <div class="stack-l w-400">
       <ui-slider size="m" value="50" labels disabled></ui-slider>
     </div>
 
     <h3>Interactive (drag or use arrow keys)</h3>
-    <div class="stack-l" style="gap: 24px; max-width: 400px;">
+    <div class="stack-l w-400">
       <div class="variant-col">
         <span class="variant-label">Single</span>
         <ui-slider id="slider-single" size="l" value="30" labels tooltip></ui-slider>

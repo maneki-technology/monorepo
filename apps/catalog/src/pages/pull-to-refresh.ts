@@ -5,7 +5,7 @@ registerPage("pull-to-refresh", {
   section: "Data Display",
   render: () => `
     <h3>Sizes — Light</h3>
-    <div class="stack-l" style="gap: 16px;">
+    <div class="stack-m">
       <div class="variant-col">
         <span class="variant-label">S</span>
         <div style="border: 1px solid var(--fd-border-minimal, #dce3e8); border-radius: 4px;">
@@ -27,7 +27,7 @@ registerPage("pull-to-refresh", {
     </div>
 
     <h3>Sizes — Dark</h3>
-    <div class="stack-l" style="gap: 16px;">
+    <div class="stack-m">
       <div class="variant-col">
         <span class="variant-label">S</span>
         <div style="background: #11294d; border-radius: 4px;">

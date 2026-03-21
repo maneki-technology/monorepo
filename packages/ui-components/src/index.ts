@@ -71,6 +71,7 @@ export { UiSidePanelMenu } from "./components/ui-side-panel-menu.js";
 export type { SidePanelMenuState } from "./components/ui-side-panel-menu.js";
 export { UiSidePanelMenuItem } from "./components/ui-side-panel-menu-item.js";
 export type { SidePanelMenuItemLevel, SidePanelMenuItemType } from "./components/ui-side-panel-menu-item.js";
+export { UiSidePanelMenuSection } from "./components/ui-side-panel-menu-section.js";
 
 // ─── Disclosure ─────────────────────────────────────────────────────────────
 

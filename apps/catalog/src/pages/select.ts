@@ -112,7 +112,7 @@ registerPage("select", {
 
     <h3>With Headings &amp; Separators</h3>
     <div class="variant-row">
-      <ui-select label="Country" supportive="Select your country" placeholder="Choose a country" style="width:300px;">
+      <ui-select label="Country" supportive="Select your country" placeholder="Choose a country" class="w-fixed-300">
         <ui-dropdown-heading>North America</ui-dropdown-heading>
         <ui-dropdown-item value="us">United States</ui-dropdown-item>
         <ui-dropdown-item value="ca">Canada</ui-dropdown-item>

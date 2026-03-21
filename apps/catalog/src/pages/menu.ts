@@ -5,7 +5,7 @@ registerPage("menu", {
   section: "Menus & Dropdowns",
   render: () => `
     <h3>Sizes</h3>
-    <div class="variant-row" style="position:relative;min-height:200px;gap:48px">
+    <div class="variant-row pos-relative min-h-200 gap-48">
       ${["s", "m", "l"].map(size =>
         `<div class="variant-col">
           <span class="variant-label">${size.toUpperCase()}</span>
@@ -19,7 +19,7 @@ registerPage("menu", {
     </div>
 
     <h3>With Headings &amp; Separators</h3>
-    <div class="variant-row" style="position:relative;min-height:320px">
+    <div class="variant-row pos-relative min-h-320">
       <ui-menu size="m" open class="pos-relative">
         <ui-dropdown-heading>Edit</ui-dropdown-heading>
         <ui-dropdown-item value="cut">Cut</ui-dropdown-item>
@@ -34,7 +34,7 @@ registerPage("menu", {
     </div>
 
     <h3>With Disabled Items</h3>
-    <div class="variant-row" style="position:relative;min-height:220px">
+    <div class="variant-row pos-relative min-h-220">
       <ui-menu size="m" open class="pos-relative">
         <ui-dropdown-item value="cut">Cut</ui-dropdown-item>
         <ui-dropdown-item value="copy">Copy</ui-dropdown-item>
@@ -45,7 +45,7 @@ registerPage("menu", {
     </div>
 
     <h3>Single Select</h3>
-    <div class="variant-row" style="position:relative;min-height:240px">
+    <div class="variant-row pos-relative min-h-240">
       <ui-menu size="m" open selectable class="pos-relative">
         <ui-dropdown-heading>Sort by</ui-dropdown-heading>
         <ui-dropdown-item value="name" selected>Name</ui-dropdown-item>
@@ -56,7 +56,7 @@ registerPage("menu", {
     </div>
 
     <h3>Multi Select</h3>
-    <div class="variant-row" style="position:relative;min-height:260px">
+    <div class="variant-row pos-relative min-h-260">
       <ui-menu size="m" open selectable multiple class="pos-relative">
         <ui-dropdown-heading>Show columns</ui-dropdown-heading>
         <ui-dropdown-item value="name" selected>Name</ui-dropdown-item>
@@ -68,7 +68,7 @@ registerPage("menu", {
     </div>
 
     <h3>With Secondary Labels</h3>
-    <div class="variant-row" style="position:relative;min-height:260px">
+    <div class="variant-row pos-relative min-h-260">
       <ui-menu size="m" open class="pos-relative">
         <ui-dropdown-item secondary="Ctrl+N">New File</ui-dropdown-item>
         <ui-dropdown-item secondary="Ctrl+O">Open File</ui-dropdown-item>
@@ -80,7 +80,7 @@ registerPage("menu", {
     </div>
 
     <h3>With Descriptions</h3>
-    <div class="variant-row" style="position:relative;min-height:260px">
+    <div class="variant-row pos-relative min-h-260">
       <ui-menu size="m" open class="pos-relative" style="--ui-menu-min-width:300px">
         <ui-dropdown-item description="Create a new empty document">New File</ui-dropdown-item>
         <ui-dropdown-item description="Open an existing file from disk">Open File</ui-dropdown-item>
@@ -89,7 +89,7 @@ registerPage("menu", {
     </div>
 
     <h3>With Checkboxes</h3>
-    <div class="variant-row" style="position:relative;min-height:220px">
+    <div class="variant-row pos-relative min-h-220">
       <ui-menu size="m" open selectable multiple class="pos-relative">
         <ui-dropdown-item leading="checkbox" value="bold" selected>Bold</ui-dropdown-item>
         <ui-dropdown-item leading="checkbox" value="italic">Italic</ui-dropdown-item>
@@ -99,7 +99,7 @@ registerPage("menu", {
     </div>
 
     <h3>With Radios</h3>
-    <div class="variant-row" style="position:relative;min-height:260px">
+    <div class="variant-row pos-relative min-h-260">
       <ui-menu size="m" open selectable class="pos-relative">
         <ui-dropdown-heading>Sort By</ui-dropdown-heading>
         <ui-dropdown-item leading="radio" value="name" selected>Name</ui-dropdown-item>

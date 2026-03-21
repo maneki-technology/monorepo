@@ -24,50 +24,9 @@
 
     /* Sidebar */
     #sidebar {
-      width: 240px;
-      min-width: 240px;
       height: 100vh;
       overflow-y: auto;
-      background: var(--fd-surface-primary, #fff);
-      border-right: 1px solid var(--fd-border-minimal, #dce3e8);
-      padding: 16px 0;
       scrollbar-width: thin;
-    }
-
-    #sidebar h1 {
-      font-size: 16px;
-      font-weight: 700;
-      padding: 0 16px 12px;
-      color: var(--fd-text-primary, #1c2b36);
-    }
-
-    #sidebar .section-title {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--fd-text-tertiary, #7a909e);
-      padding: 12px 16px 4px;
-    }
-
-    #sidebar a {
-      display: block;
-      padding: 6px 16px 6px 24px;
-      font-size: 13px;
-      color: var(--fd-text-secondary, #3e5463);
-      text-decoration: none;
-      line-height: 20px;
-      transition: background 0.1s;
-    }
-
-    #sidebar a:hover {
-      background: var(--fd-surface-secondary, #f2f5f7);
-    }
-
-    #sidebar a.active {
-      background: var(--fd-state-selected-surface-minimal, #ebf3fe);
-      color: var(--fd-text-action, #186ade);
-      font-weight: 500;
     }
 
     /* Content */
@@ -75,6 +34,7 @@
       flex: 1;
       overflow-y: auto;
       padding: 32px 40px;
+      background: var(--fd-surface-primary, #fff);
       transition: opacity 0.15s ease;
     }
 
@@ -127,33 +87,7 @@
       margin-bottom: 16px;
     }
 
-    .variant-group-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--fd-text-secondary, #3e5463);
-      margin-bottom: 12px;
-    }
 
-    /* Page-specific: color swatches */
-    .swatch-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, 64px);
-      gap: 8px;
-    }
-
-    .swatch {
-      width: 64px;
-      height: 40px;
-      border-radius: 4px;
-      border: 1px solid var(--fd-border-minimal, rgba(0,0,0,0.08));
-    }
-
-    .swatch-label {
-      font-size: 10px;
-      color: var(--fd-text-tertiary, #7a909e);
-      text-align: center;
-      margin-top: 2px;
-    }
 
     /* Page-specific: spacing */
     .spacing-bar {
@@ -181,10 +115,6 @@
       color: var(--fd-text-tertiary, #7a909e);
     }
 
-    /* List container for component demos */
-    .demo-list {
-      width: 300px;
-    }
 
     /* ─── Reusable layout utilities ─── */
 
@@ -197,7 +127,6 @@
     .w-400 { max-width: 400px; }
     .w-600 { max-width: 600px; }
     .w-720 { max-width: 720px; }
-    .w-280 { width: 280px; }
 
     .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
     .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -211,7 +140,6 @@
     .row-wrap { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .row-start { align-items: flex-start; }
 
-    .panel-border { max-width: 280px; border: 1px solid var(--fd-border-minimal, #dce3e8); border-radius: 8px; overflow: hidden; }
     .pos-relative { position: relative; }
 
     .card-content { display: flex; flex-direction: column; gap: 4px; }
@@ -247,7 +175,6 @@
     .demo-frame { width: 100%; }
     .demo-frame-400 { height: 400px; }
     .demo-frame-500 { height: 500px; }
-    .demo-frame-600 { height: 600px; }
     .flex-fill { flex: 1; padding: 0; }
     .panel-content { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--fd-text-secondary, #5b7282); font-family: Geist, sans-serif; font-size: 16px; font-weight: 500; }
     .grid-item-cell { border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: Geist, sans-serif; font-size: 14px; font-weight: 600; height: 100%; user-select: none; }
@@ -289,11 +216,26 @@
     #update-banner button:hover {
       background: rgba(255,255,255,0.3);
     }
+    .gap-8 { gap: 8px; }
+    .gap-12 { gap: 12px; }
+    .gap-16 { gap: 16px; }
+    .gap-40 { gap: 40px; }
+    .gap-60 { gap: 60px; }
+    .w-fixed-280 { width: 280px; }
+    .w-fixed-300 { width: 300px; }
+    .w-480 { max-width: 480px; }
+    .w-500 { max-width: 500px; }
+    .min-h-200 { min-height: 200px; }
+    .min-h-220 { min-height: 220px; }
+    .min-h-240 { min-height: 240px; }
+    .min-h-260 { min-height: 260px; }
+    .min-h-320 { min-height: 320px; }
+
   </style>
 </head>
 <body>
   <div id="app">
-    <nav id="sidebar"></nav>
+    <ui-side-panel-menu id="sidebar" title="Maneki" state="expanded" no-collapse></ui-side-panel-menu>
     <main id="content"></main>
   </div>
   <div id="update-banner">

@@ -3,6 +3,7 @@ import { html } from "lit";
 import "../components/ui-icon.js";
 import "../components/ui-side-panel-menu.js";
 import "../components/ui-side-panel-menu-item.js";
+import "../components/ui-side-panel-menu-section.js";
 
 // Material Symbols icon helper (font loaded in .storybook/preview.ts)
 const icon = (name: string) =>
@@ -305,6 +306,52 @@ export const Mobile: Story = {
         ${icon("settings")}
         Settings
       </ui-side-panel-menu-item>
+    </ui-side-panel-menu>
+  `,
+};
+
+// ── Non-Collapsible ─────────────────────────────────────────────────────────
+
+export const NonCollapsible: Story = {
+  render: () => html`
+    <ui-side-panel-menu title="Navigation" no-collapse>
+      <ui-side-panel-menu-item leading-icon>
+        ${icon("home")}
+        Dashboard
+      </ui-side-panel-menu-item>
+      <ui-side-panel-menu-item leading-icon selected>
+        ${icon("person")}
+        Profile
+      </ui-side-panel-menu-item>
+      <ui-side-panel-menu-item leading-icon>
+        ${icon("bar_chart")}
+        Analytics
+      </ui-side-panel-menu-item>
+      <ui-side-panel-menu-item leading-icon>
+        ${icon("mail")}
+        Messages
+      </ui-side-panel-menu-item>
+      <ui-side-panel-menu-item leading-icon>
+        ${icon("settings")}
+        Settings
+      </ui-side-panel-menu-item>
+    </ui-side-panel-menu>
+  `,
+};
+
+// ── With Sections ───────────────────────────────────────────────────────────
+
+export const WithSections: Story = {
+  render: () => html`
+    <ui-side-panel-menu title="Catalog" no-collapse>
+      <ui-side-panel-menu-section>Foundation</ui-side-panel-menu-section>
+      <ui-side-panel-menu-item>Colors</ui-side-panel-menu-item>
+      <ui-side-panel-menu-item selected>Spacing</ui-side-panel-menu-item>
+      <ui-side-panel-menu-item>Typography</ui-side-panel-menu-item>
+      <ui-side-panel-menu-section>Components</ui-side-panel-menu-section>
+      <ui-side-panel-menu-item>Button</ui-side-panel-menu-item>
+      <ui-side-panel-menu-item>Card</ui-side-panel-menu-item>
+      <ui-side-panel-menu-item>Input</ui-side-panel-menu-item>
     </ui-side-panel-menu>
   `,
 };
