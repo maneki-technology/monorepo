@@ -93,7 +93,7 @@ Every change — component, fix, refactor, docs — follows this workflow:
 8. **Wait for explicit push request** — NEVER push code unless the user explicitly asks. Present the completed work and wait for the user to say "push", "let's push", "push it", etc.
 9. **Push** — `jj bookmark set <name> -r @ --allow-backwards && jj git push --bookmark <name>`
 10. **Create PR** — `gh pr create --base main --head <name>`
-11. **Chromatic review** — wait for visual regression tests to pass
+11. **Visual review** — verify in Storybook/catalog, run Playwright visual tests
 12. **Never push directly to `main`**
 
 ## COMMANDS
@@ -116,8 +116,8 @@ npx vite build               # Build
 
 ## NOTES
 - Git repo: `maneki-technology/monorepo` on GitHub
-- CI/CD: Chromatic for Storybook visual review (`.github/workflows/chromatic.yml`). Storybook: https://www.chromatic.com/library?appId=69ac56bb2124263f2f04fadc
-- `apps/` directory exists but is empty — reserved for future consumer apps
+- CI/CD: Playwright visual regression tests in `apps/catalog/`. Catalog: deployed via Cloudflare Pages.
+- `apps/catalog/` — Visual catalog app with 56 Playwright visual regression tests
 - Root `package.json` has Storybook scripts (`storybook`, `storybook:build`) and devDependencies for the root-level Storybook
 - Node pinned at 22 because Storybook 10 requires Node 20.19+
 - LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead

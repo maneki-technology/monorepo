@@ -83,10 +83,9 @@ npm run storybook:build      # Static build → storybook-static/
 - Tests co-located: `foo.ts` → `foo.test.ts`
 - Moon tasks in kebab-case: `build`, `test`, `test-watch`, `dev`, `storybook`
 
-## Storybook
+## Visual Catalog
 
-Published to Chromatic: https://www.chromatic.com/library?appId=69ac56bb2124263f2f04fadc
-
+Browse all components: [Maneki Catalog](https://maneki-catalog.pages.dev/)
 ---
 
 ## License

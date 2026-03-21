@@ -342,5 +342,4 @@ moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
 moon run ui-components:test            # vitest --run (2235 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
-moon run ui-components:chromatic       # Publish to Chromatic
 ```

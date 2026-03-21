@@ -41,9 +41,6 @@ injectAllTokens();
 const preview: Preview = {
   tags: ["autodocs"],
   parameters: {
-    chromatic: {
-      delay: 1000, // Wait for icon font to load before capturing screenshots
-    },
     a11y: {
       test: "error",
     },
