@@ -27,6 +27,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "spacing": () => import("./pages/spacing.js"),
   "typography": () => import("./pages/typography.js"),
   "elevation": () => import("./pages/elevation.js"),
+  "shape": () => import("./pages/shape.js"),
   "semantic-tokens": () => import("./pages/semantic-tokens.js"),
   "badge": () => import("./pages/badge.js"),
   "button": () => import("./pages/button.js"),

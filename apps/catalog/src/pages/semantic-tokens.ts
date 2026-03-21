@@ -2,6 +2,8 @@ import { registerPage } from "../registry.js";
 import {
   surface, border, text, icon, global,
   statusSurface, statusText, statusIcon, statusGeneral,
+  stateDisabled, stateHover, stateActive, stateSelected,
+  form, tag, button, gridRow,
   resolveSemanticValue,
 } from "@maneki/foundation";
 
@@ -52,9 +54,17 @@ registerPage("semantic-tokens", {
       renderGroup("Text", text, "text", "text") +
       renderGroup("Icon", icon, "icon", "icon") +
       renderGroup("Global", global, "global", "surface") +
-      renderGroup("Status \u2014 General", statusGeneral, "status-general", "surface") +
-      renderGroup("Status \u2014 Surface", statusSurface, "status-surface", "surface") +
-      renderGroup("Status \u2014 Text", statusText, "status-text", "text") +
-      renderGroup("Status \u2014 Icon", statusIcon, "status-icon", "icon");
+      renderGroup("Form", form, "form", "border") +
+      renderGroup("Button", button, "button", "surface") +
+      renderGroup("Tag", tag, "tag", "surface") +
+      renderGroup("Grid Row", gridRow, "grid-row", "surface") +
+      renderGroup("State — Hover", stateHover, "state-hover", "surface") +
+      renderGroup("State — Active", stateActive, "state-active", "surface") +
+      renderGroup("State — Selected", stateSelected, "state-selected", "surface") +
+      renderGroup("State — Disabled", stateDisabled, "state-disabled", "surface") +
+      renderGroup("Status — General", statusGeneral, "status-general", "surface") +
+      renderGroup("Status — Surface", statusSurface, "status-surface", "surface") +
+      renderGroup("Status — Text", statusText, "status-text", "text") +
+      renderGroup("Status — Icon", statusIcon, "status-icon", "icon");
   },
 });

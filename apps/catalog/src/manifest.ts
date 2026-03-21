@@ -27,6 +27,7 @@ export const manifest: PageMeta[] = [
   { id: "spacing", title: "Spacing", section: "Foundation" },
   { id: "typography", title: "Typography", section: "Foundation" },
   { id: "elevation", title: "Elevation", section: "Foundation" },
+  { id: "shape", title: "Shape", section: "Foundation" },
   { id: "semantic-tokens", title: "Semantic Tokens", section: "Foundation" },
   // Primitives
   { id: "badge", title: "Badge", section: "Primitives" },

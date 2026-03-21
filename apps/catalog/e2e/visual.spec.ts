@@ -7,6 +7,7 @@ const pages = [
   "spacing",
   "typography",
   "elevation",
+  "shape",
   "semantic-tokens",
   // Components
   "badge",
