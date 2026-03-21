@@ -96,6 +96,12 @@ export class UiMetric extends HTMLElement {
     if (this.hasAttribute("clickable")) {
       this._setupClickable();
     }
+    this.addEventListener("keydown", (e: KeyboardEvent) => {
+      if ((e.key === "Enter" || e.key === " ") && this.hasAttribute("clickable")) {
+        e.preventDefault();
+        this.click();
+      }
+    });
   }
 
   attributeChangedCallback(

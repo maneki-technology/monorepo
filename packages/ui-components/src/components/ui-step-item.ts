@@ -91,6 +91,12 @@ export class UiStepItem extends HTMLElement {
         }),
       );
     });
+    this.addEventListener("keydown", (e: KeyboardEvent) => {
+      if ((e.key === "Enter" || e.key === " ") && this.hasAttribute("clickable") && this.status !== "disabled") {
+        e.preventDefault();
+        this.click();
+      }
+    });
   }
 
   attributeChangedCallback(): void {

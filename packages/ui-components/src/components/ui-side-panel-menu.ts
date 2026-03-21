@@ -85,6 +85,8 @@ export class UiSidePanelMenu extends HTMLElement {
 
   connectedCallback(): void {
     this._syncPanelAttributes();
+    // Scrollable region must be keyboard-focusable
+    if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
   }
 
   disconnectedCallback(): void {

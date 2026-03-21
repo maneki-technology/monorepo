@@ -263,6 +263,8 @@ export class UiWizard extends HTMLElement {
   }
 
   connectedCallback(): void {
+    if (!this.hasAttribute("role")) this.setAttribute("role", "group");
+    if (!this.hasAttribute("aria-label")) this.setAttribute("aria-label", "Wizard");
     if (!this.hasAttribute("layout")) this.setAttribute("layout", "horizontal");
     if (!this.hasAttribute("current-step")) this.setAttribute("current-step", "1");
     this._syncAll();

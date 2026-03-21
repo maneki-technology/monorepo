@@ -573,15 +573,24 @@ export class UiModal extends HTMLElement {
       }
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
-      if (e.shiftKey && document.activeElement === first) {
+      if (e.shiftKey && this._getDeepActiveElement() === first) {
         e.preventDefault();
         last.focus();
-      } else if (!e.shiftKey && document.activeElement === last) {
+      } else if (!e.shiftKey && this._getDeepActiveElement() === last) {
         e.preventDefault();
         first.focus();
       }
     }
   };
+
+  /** Walk shadowRoot.activeElement chain to find the truly focused element. */
+  private _getDeepActiveElement(): Element | null {
+    let active: Element | null = document.activeElement;
+    while (active?.shadowRoot?.activeElement) {
+      active = active.shadowRoot.activeElement;
+    }
+    return active;
+  }
 }
 
 customElements.define("ui-modal", UiModal);

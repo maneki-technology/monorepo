@@ -588,6 +588,14 @@ export class UiTag extends HTMLElement {
     dismissWrap.className = "dismiss-icon";
     dismissWrap.addEventListener("click", () => this._handleDismiss());
     base.addEventListener("click", () => this._handleClick());
+    base.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        if (this.type === "selectable" || this.type === "toggle") {
+          e.preventDefault();
+          this._handleClick();
+        }
+      }
+    });
     base.appendChild(dismissWrap);
 
     shadow.appendChild(base);
@@ -618,14 +626,38 @@ export class UiTag extends HTMLElement {
     const addIcon = document.createElement("ui-icon") as UiIcon;
     addIcon.setAttribute("name", "add");
     addWrap.appendChild(addIcon);
+    this._syncA11y();
   }
 
   attributeChangedCallback(
-    _name: string,
+    name: string,
     _oldValue: string | null,
     _newValue: string | null,
   ): void {
-    // All styling is handled via :host([attr]) CSS selectors — no JS sync needed
+    if (name === "type" || name === "state") this._syncA11y();
+  }
+
+  private _syncA11y(): void {
+    const type = this.type;
+    if (type === "selectable") {
+      this.setAttribute("role", "option");
+      this.setAttribute("tabindex", "0");
+      this.setAttribute("aria-selected", this.state === "selected" ? "true" : "false");
+      if (this.state === "disabled") this.setAttribute("aria-disabled", "true");
+      else this.removeAttribute("aria-disabled");
+    } else if (type === "toggle") {
+      this.setAttribute("role", "switch");
+      this.setAttribute("tabindex", "0");
+      this.setAttribute("aria-checked", this.state === "selected" ? "true" : "false");
+      if (this.state === "disabled") this.setAttribute("aria-disabled", "true");
+      else this.removeAttribute("aria-disabled");
+    } else {
+      this.removeAttribute("role");
+      this.removeAttribute("tabindex");
+      this.removeAttribute("aria-selected");
+      this.removeAttribute("aria-checked");
+      this.removeAttribute("aria-disabled");
+    }
   }
 
   // ── Property accessors ──────────────────────────────────────────────────
@@ -731,6 +763,7 @@ export class UiTag extends HTMLElement {
 
     const newState = this.state === "selected" ? "enabled" : "selected";
     this.state = newState;
+    this._syncA11y();
 
     this.dispatchEvent(
       new CustomEvent("change", {

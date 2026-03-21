@@ -220,6 +220,8 @@ export class UiDropdownItem extends HTMLElement {
 
   private _syncDisabled(): void {
     this._button.disabled = this.disabled;
+    if (this.disabled) this.setAttribute("aria-disabled", "true");
+    else this.removeAttribute("aria-disabled");
   }
 
   private _syncLeading(): void {

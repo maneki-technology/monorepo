@@ -254,6 +254,7 @@ export class UiClock extends HTMLElement {
     const hourDecBtn = document.createElement("button");
     hourDecBtn.className = "spin-btn";
     hourDecBtn.type = "button";
+    hourDecBtn.setAttribute("aria-label", "Decrease hour");
     const hourDecIcon = document.createElement("ui-icon");
     hourDecIcon.setAttribute("name", "chevron_left");
     hourDecBtn.appendChild(hourDecIcon);
@@ -266,6 +267,7 @@ export class UiClock extends HTMLElement {
     const hourIncBtn = document.createElement("button");
     hourIncBtn.className = "spin-btn";
     hourIncBtn.type = "button";
+    hourIncBtn.setAttribute("aria-label", "Increase hour");
     const hourIncIcon = document.createElement("ui-icon");
     hourIncIcon.setAttribute("name", "chevron_right");
     hourIncBtn.appendChild(hourIncIcon);
@@ -283,6 +285,7 @@ export class UiClock extends HTMLElement {
     const minDecBtn = document.createElement("button");
     minDecBtn.className = "spin-btn";
     minDecBtn.type = "button";
+    minDecBtn.setAttribute("aria-label", "Decrease minute");
     const minDecIcon = document.createElement("ui-icon");
     minDecIcon.setAttribute("name", "chevron_left");
     minDecBtn.appendChild(minDecIcon);
@@ -295,6 +298,7 @@ export class UiClock extends HTMLElement {
     const minIncBtn = document.createElement("button");
     minIncBtn.className = "spin-btn";
     minIncBtn.type = "button";
+    minIncBtn.setAttribute("aria-label", "Increase minute");
     const minIncIcon = document.createElement("ui-icon");
     minIncIcon.setAttribute("name", "chevron_right");
     minIncBtn.appendChild(minIncIcon);

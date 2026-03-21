@@ -76,15 +76,15 @@ registerPage("input", {
     <div class="stack-m w-400">
       <ui-input-group size="m">
         <span slot="prefix">https://</span>
-        <ui-input placeholder="www.example.com"></ui-input>
+        <ui-input aria-label="URL" placeholder="www.example.com"></ui-input>
         <span slot="suffix">Open URL</span>
       </ui-input-group>
       <ui-input-group size="m">
         <span slot="prefix">$</span>
-        <ui-input placeholder="0.00"></ui-input>
+        <ui-input aria-label="Amount" placeholder="0.00"></ui-input>
       </ui-input-group>
       <ui-input-group size="m">
-        <ui-input placeholder="Enter email"></ui-input>
+        <ui-input aria-label="Email" placeholder="Enter email"></ui-input>
         <span slot="suffix">@gmail.com</span>
       </ui-input-group>
     </div>
@@ -93,17 +93,17 @@ registerPage("input", {
     <div class="stack-m w-400">
       <ui-input-group size="s">
         <span slot="prefix">https://</span>
-        <ui-input size="s" placeholder="www.example.com"></ui-input>
+        <ui-input size="s" aria-label="URL" placeholder="www.example.com"></ui-input>
         <span slot="suffix">Open URL</span>
       </ui-input-group>
       <ui-input-group size="m">
         <span slot="prefix">https://</span>
-        <ui-input size="m" placeholder="www.example.com"></ui-input>
+        <ui-input size="m" aria-label="URL" placeholder="www.example.com"></ui-input>
         <span slot="suffix">Open URL</span>
       </ui-input-group>
       <ui-input-group size="l">
         <span slot="prefix">https://</span>
-        <ui-input size="l" placeholder="www.example.com"></ui-input>
+        <ui-input size="l" aria-label="URL" placeholder="www.example.com"></ui-input>
         <span slot="suffix">Open URL</span>
       </ui-input-group>
     </div>

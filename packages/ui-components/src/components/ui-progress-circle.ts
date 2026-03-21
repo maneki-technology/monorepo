@@ -283,6 +283,8 @@ export class UiProgressCircle extends HTMLElement {
     // ARIA
     this.#container.setAttribute("aria-valuenow", String(val));
     if (this.labelText) this.#container.setAttribute("aria-label", this.labelText);
+    else if (!this.#container.hasAttribute("aria-label")) this.#container.setAttribute("aria-label", "Progress");
+    if (this.labelText) this.#container.setAttribute("aria-label", this.labelText);
   }
 }
 

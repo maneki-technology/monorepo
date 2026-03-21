@@ -373,8 +373,10 @@ export class UiDropdown extends HTMLElement {
   private _syncDisabled(): void {
     if (this.disabled) {
       this._trigger.setAttribute("disabled", "");
+      this.setAttribute("aria-disabled", "true");
     } else {
       this._trigger.removeAttribute("disabled");
+      this.removeAttribute("aria-disabled");
     }
   }
 

@@ -582,6 +582,7 @@ export class UiButton extends HTMLElement {
 
   private _syncStatus(): void {
     const status = this.status;
+    // Preserve user-provided label, use aria-busy for loading
     switch (status) {
       case "error": {
         this._statusIcon.innerHTML = "";
@@ -589,7 +590,7 @@ export class UiButton extends HTMLElement {
         icon.setAttribute("name", "error");
         icon.setAttribute("filled", "");
         this._statusIcon.appendChild(icon);
-        this._button.setAttribute("aria-label", "Error");
+        this._button.removeAttribute("aria-busy");
         break;
       }
       case "success": {
@@ -598,7 +599,7 @@ export class UiButton extends HTMLElement {
         icon.setAttribute("name", "check_circle");
         icon.setAttribute("filled", "");
         this._statusIcon.appendChild(icon);
-        this._button.setAttribute("aria-label", "Success");
+        this._button.removeAttribute("aria-busy");
         break;
       }
       case "loading": {
@@ -606,13 +607,11 @@ export class UiButton extends HTMLElement {
         const icon = document.createElement("ui-icon") as HTMLElement;
         icon.setAttribute("name", "progress_activity");
         this._statusIcon.appendChild(icon);
-        this._button.setAttribute("aria-label", "Loading");
         this._button.setAttribute("aria-busy", "true");
         break;
       }
       default:
         this._statusIcon.innerHTML = "";
-        this._button.removeAttribute("aria-label");
         this._button.removeAttribute("aria-busy");
         break;
     }

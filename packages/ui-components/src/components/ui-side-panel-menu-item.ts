@@ -8,6 +8,7 @@ import {
   HOVER_MODERATE,
   ICON_ACTION,
   ICON_PRIMARY,
+  SELECTED_MINIMAL,
   SELECTED_OVERLAY,
   SP_1,
   SP_1_25,
@@ -77,7 +78,7 @@ const STYLES = /* css */ `
   /* ── Selected ────────────────────────────────────────────────────────────── */
 
   :host([selected]) .row {
-    background-color: var(--ui-spmi-selected-bg, ${SELECTED_OVERLAY});
+    background-color: var(--ui-spmi-selected-bg, ${SELECTED_MINIMAL});
     color: var(--ui-spmi-active-text, ${ICON_ACTION});
   }
 
