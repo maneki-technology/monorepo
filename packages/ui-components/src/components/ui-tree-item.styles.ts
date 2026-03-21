@@ -34,6 +34,7 @@ export const TREE_ITEM_STYLES = /* css */ `
     font-family: "Material Symbols Outlined";
     font-style: normal;
     src: local("Material Symbols Outlined");
+    font-display: swap;
   }
 
   *,

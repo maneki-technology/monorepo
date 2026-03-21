@@ -4,6 +4,7 @@
 const geistFace = new FontFace("Geist", `url(/Geist-Variable.woff2) format('woff2')`, {
   weight: "100 900",
   style: "normal",
+  display: "swap",
 });
 geistFace.load().then((f) => document.fonts.add(f));
 
