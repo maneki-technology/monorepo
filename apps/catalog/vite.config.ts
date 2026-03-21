@@ -1,10 +1,30 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import { ViteMinifyPlugin } from "vite-plugin-minify";
 import { VitePWA } from "vite-plugin-pwa";
+
+/** Injects <link rel="preload"> for .woff2 assets into the HTML head. */
+function fontPreloadPlugin(): Plugin {
+  return {
+    name: "font-preload",
+    enforce: "post",
+    transformIndexHtml(html, ctx) {
+      const bundle = ctx.bundle;
+      if (!bundle) return html;
+      const fonts = Object.keys(bundle).filter((f) => f.endsWith(".woff2"));
+      const tags = fonts.map((f) => ({
+        tag: "link",
+        attrs: { rel: "preload", href: `/${f}`, as: "font", type: "font/woff2", crossorigin: true },
+        injectTo: "head" as const,
+      }));
+      return tags;
+    },
+  };
+}
 
 export default defineConfig({
   root: ".",
   plugins: [
+    fontPreloadPlugin(),
     VitePWA({
       registerType: "prompt",
       workbox: {

@@ -19,6 +19,7 @@ export const STYLES = /* css */ `
     font-family: "Material Symbols Outlined";
     font-style: normal;
     src: local("Material Symbols Outlined");
+    font-display: swap;
   }
 
   *,
