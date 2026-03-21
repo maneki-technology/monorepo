@@ -16,6 +16,10 @@ import {
   TEXT_PRIMARY,
   TEXT_SECONDARY,
   TEXT_SELECTED,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -79,8 +83,7 @@ export const STYLES = /* css */ `
 
   :host .item,
   :host([size="m"]) .item {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
     padding: ${SP_0_75} ${SP_2};
     gap: ${SP_1};
   }
@@ -93,14 +96,12 @@ export const STYLES = /* css */ `
 
   :host .secondary,
   :host([size="m"]) .secondary {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host .description,
   :host([size="m"]) .description {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host .submenu,
@@ -112,8 +113,7 @@ export const STYLES = /* css */ `
   /* ── Size: s ────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .item {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     padding: ${SP_0_75} ${SP_1_5};
     gap: ${SP_1};
   }
@@ -124,13 +124,11 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .secondary {
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([size="s"]) .description {
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([size="s"]) .submenu {
@@ -141,8 +139,7 @@ export const STYLES = /* css */ `
   /* ── Size: l ────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .item {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
     padding: ${SP_1_25} ${SP_2} ${SP_1_25} ${SP_3};
     gap: ${SP_1_5};
   }
@@ -153,13 +150,11 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .secondary {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="l"]) .description {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="l"]) .submenu {

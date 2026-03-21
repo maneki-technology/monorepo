@@ -13,6 +13,7 @@ import {
   BW_SM,
   DISABLED_MINIMAL,
   DISABLED_TEXT,
+  FONT_PRIMARY,
   GREEN_20,
   GREEN_60,
   GREEN_70,
@@ -50,6 +51,9 @@ import {
   TURQUOISE_20,
   TURQUOISE_60,
   TURQUOISE_70,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
   ULTRAMARINE_20,
   ULTRAMARINE_60,
   ULTRAMARINE_70,
@@ -98,7 +102,7 @@ export const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     white-space: nowrap;
     border: ${BW_SM} solid transparent;
     cursor: default;
@@ -110,8 +114,7 @@ export const STYLES = /* css */ `
 
   :host .base,
   :host([size="m"]) .base {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
     padding: ${SP_0_25} ${SP_1};
     border-radius: ${RADIUS_PILL};
   }
@@ -124,8 +127,7 @@ export const STYLES = /* css */ `
   /* ── Size: xs ────────────────────────────────────────────────────────────── */
 
   :host([size="xs"]) .base {
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
     padding: 0 ${SP_0_75};
     border-radius: ${RADIUS_PILL};
   }
@@ -137,8 +139,7 @@ export const STYLES = /* css */ `
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .base {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     padding: ${SP_0_25} ${SP_1};
     border-radius: ${RADIUS_PILL};
   }
@@ -150,8 +151,7 @@ export const STYLES = /* css */ `
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .base {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
     padding: ${SP_0_75} ${SP_1_25};
     border-radius: ${RADIUS_PILL};
   }

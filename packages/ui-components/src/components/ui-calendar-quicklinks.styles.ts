@@ -9,6 +9,10 @@ import {
   SURFACE_SECONDARY,
   TEXT_PRIMARY,
   TEXT_SECONDARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -157,8 +161,7 @@ export const STYLES = /* css */ `
   :host([size="s"]) .link {
     height: 24px;
     padding: 0 8px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .section {
@@ -198,16 +201,14 @@ export const STYLES = /* css */ `
   :host(:not([size])) .link {
     height: 32px;
     padding: 0 12px;
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="m"]) .section,
   :host(:not([size])) .section {
     height: 24px;
     padding: 0 12px;
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════ */
@@ -235,14 +236,12 @@ export const STYLES = /* css */ `
   :host([size="l"]) .link {
     height: 40px;
     padding: 0 16px;
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .section {
     height: 28px;
     padding: 0 16px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 `;

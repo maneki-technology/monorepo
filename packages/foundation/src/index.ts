@@ -10,6 +10,7 @@ export {
   elevationVar,
   typographyToCssProperties,
   typeVar,
+  typeBlock,
   spacingToCssProperties,
   spaceVar,
   radiusToCssProperties,

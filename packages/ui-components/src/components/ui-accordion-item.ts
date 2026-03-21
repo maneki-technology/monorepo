@@ -11,6 +11,7 @@ import {
   BORDER_MODERATE,
   BW_MD,
   DISABLED_TEXT,
+  FONT_PRIMARY,
   HOVER_MINIMAL,
   ICON_PRIMARY,
   SP_1,
@@ -23,6 +24,9 @@ import {
   STATUS_GENERAL_SUCCESS,
   STATUS_GENERAL_WARNING,
   TEXT_PRIMARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 import "./ui-icon.js";
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -61,7 +65,7 @@ const STYLES = /* css */ `
     width: 100%;
     padding: 0;
     margin: 0;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     color: var(--ui-acc-label-color, ${TEXT_PRIMARY});
     transition: background 0.15s ease;
   }
@@ -162,7 +166,7 @@ const STYLES = /* css */ `
     grid-template-rows: 0fr;
     transition: grid-template-rows 0.2s ease;
     color: var(--ui-acc-content-color, ${TEXT_PRIMARY});
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     font-weight: 400;
   }
   :host([expanded]) .content {
@@ -189,8 +193,7 @@ const STYLES = /* css */ `
 
   :host .label,
   :host([size="m"]) .label {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .leading-icon,
@@ -217,8 +220,7 @@ const STYLES = /* css */ `
   :host([size="m"]) .content-body {
     padding-top: ${SP_1_5};
     padding-bottom: ${SP_2_5};
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
   /* ── Size: s ────────────────────────────────────────────────────────────── */
 
@@ -232,8 +234,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .leading-icon {
@@ -256,8 +257,7 @@ const STYLES = /* css */ `
   :host([size="s"]) .content-body {
     padding-top: ${SP_1};
     padding-bottom: ${SP_2};
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
   /* ── Size: l ────────────────────────────────────────────────────────────── */
 
@@ -271,8 +271,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .label {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .leading-icon {
@@ -295,8 +294,7 @@ const STYLES = /* css */ `
   :host([size="l"]) .content-body {
     padding-top: ${SP_1_5};
     padding-bottom: ${SP_3};
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
   /* ── Disabled ───────────────────────────────────────────────────────────── */
 

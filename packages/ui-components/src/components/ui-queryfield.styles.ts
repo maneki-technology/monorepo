@@ -2,6 +2,7 @@ import {
   BORDER_FOCUS,
   BORDER_MODERATE,
   ELEVATION_03,
+  FONT_PRIMARY,
   HOVER_BORDER_MODERATE,
   HOVER_MINIMAL,
   ICON_SECONDARY,
@@ -19,6 +20,10 @@ import {
   TEXT_PRIMARY,
   TEXT_SECONDARY,
   TEXT_TERTIARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_HEADING_07,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -39,7 +44,7 @@ export const FIELD_STYLES = /* css */ `
   :host {
     display: block;
     width: 100%;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   .wrapper {
@@ -97,7 +102,7 @@ export const FIELD_STYLES = /* css */ `
     min-width: 80px;
     border: none;
     background: transparent;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     color: ${TEXT_PRIMARY};
     outline: none;
   }
@@ -124,8 +129,7 @@ export const FIELD_STYLES = /* css */ `
   }
 
   :host([size="s"]) .input {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   /* ── Size: M (default) ───────────────────────────────────────────────────── */
@@ -150,8 +154,7 @@ export const FIELD_STYLES = /* css */ `
 
   :host .input,
   :host([size="m"]) .input {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   /* ── Size: L ─────────────────────────────────────────────────────────────── */
@@ -172,8 +175,7 @@ export const FIELD_STYLES = /* css */ `
   }
 
   :host([size="l"]) .input {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   /* ── Disabled ────────────────────────────────────────────────────────────── */
@@ -216,9 +218,7 @@ export const FIELD_STYLES = /* css */ `
 
   .menu-heading {
     padding: ${SP_0_5} ${SP_2};
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 500;
+    ${TYPE_HEADING_07}
     color: ${TEXT_SECONDARY};
     text-transform: uppercase;
     white-space: nowrap;
@@ -229,9 +229,7 @@ export const FIELD_STYLES = /* css */ `
     align-items: center;
     gap: ${SP_1};
     padding: ${SP_0_75} ${SP_2};
-    font-size: 14px;
-    line-height: 20px;
-    font-weight: 400;
+    ${TYPE_BODY_02}
     color: ${TEXT_PRIMARY};
     cursor: pointer;
     white-space: nowrap;
@@ -239,7 +237,6 @@ export const FIELD_STYLES = /* css */ `
     background: transparent;
     width: 100%;
     text-align: left;
-    font-family: "Geist", sans-serif;
   }
 
   .menu-item:hover {

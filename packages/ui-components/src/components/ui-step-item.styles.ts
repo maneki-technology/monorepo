@@ -3,6 +3,7 @@ import {
   BW_MD,
   DISABLED_MINIMAL,
   DISABLED_TEXT,
+  FONT_PRIMARY,
   RADIUS_PILL,
   SP_0_5,
   SP_1,
@@ -12,6 +13,9 @@ import {
   SURFACE_BOLD,
   TEXT_PRIMARY,
   TEXT_SECONDARY,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -39,7 +43,7 @@ export const STEP_ITEM_STYLES = /* css */ `
     display: flex;
     min-width: 0;
     min-height: 0;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   /* ── Horizontal (default) ────────────────────────────────────────────────── */
@@ -187,13 +191,11 @@ export const STEP_ITEM_STYLES = /* css */ `
   }
 
   :host([size="s"]) .label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .sublabel {
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([size="s"][orientation="horizontal"]) {
@@ -251,14 +253,12 @@ export const STEP_ITEM_STYLES = /* css */ `
 
   :host .label,
   :host([size="m"]) .label {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .sublabel,
   :host([size="m"]) .sublabel {
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([orientation="horizontal"]),

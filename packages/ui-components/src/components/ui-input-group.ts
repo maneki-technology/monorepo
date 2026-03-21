@@ -1,6 +1,7 @@
 import {
   BORDER_FOCUS,
   BW_SM,
+  FONT_PRIMARY,
   FORM_INPUT_BORDER,
   HOVER_BORDER_MODERATE,
   RADIUS_SM,
@@ -26,7 +27,7 @@ const STYLES = /* css */ `
 
   :host {
     display: inline-flex;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   .wrapper {

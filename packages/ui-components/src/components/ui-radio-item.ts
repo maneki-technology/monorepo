@@ -4,6 +4,7 @@ import {
   DISABLED_BORDER,
   DISABLED_MINIMAL,
   DISABLED_TEXT,
+  FONT_PRIMARY,
   FORM_INPUT_BORDER,
   HOVER_BORDER_MODERATE,
   RADIUS_CIRCLE,
@@ -14,6 +15,9 @@ import {
   STATUS_GENERAL_ERROR,
   STATUS_SURFACE_ERROR_BOLD,
   TEXT_PRIMARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -87,7 +91,7 @@ const STYLES = /* css */ `
 
   .label {
     display: none;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     font-weight: 400;
     color: var(--ui-radio-label-color, ${TEXT_PRIMARY});
   }
@@ -131,8 +135,7 @@ const STYLES = /* css */ `
 
   :host .label,
   :host([size="m"]) .label {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .dot,
@@ -158,8 +161,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .dot {
@@ -184,8 +186,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .label {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .dot {

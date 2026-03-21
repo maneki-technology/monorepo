@@ -12,6 +12,7 @@ export type AlertStatus =
   | "warning";
 
 import {
+  FONT_PRIMARY,
   RADIUS_SM,
   SP_1,
   SP_1_5,
@@ -48,6 +49,9 @@ import {
   STATUS_TEXT_SUCCESS_SUBTLE,
   STATUS_TEXT_WARNING_BOLD,
   STATUS_TEXT_WARNING_SUBTLE,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 import "./ui-icon.js";
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -75,7 +79,7 @@ const STYLES = /* css */ `
     display: flex;
     flex-direction: column;
     border-radius: ${RADIUS_SM};
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   /* ── Top content ─────────────────────────────────────────────────────────── */
@@ -191,14 +195,12 @@ const STYLES = /* css */ `
 
   :host .title,
   :host([size="m"]) .title {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .description,
   :host([size="m"]) .description {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .leading-icon,
@@ -221,13 +223,11 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .title {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .description {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .leading-icon {
@@ -248,13 +248,11 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .title {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .description {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .leading-icon {

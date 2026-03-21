@@ -23,6 +23,9 @@ import {
   SURFACE_PRIMARY,
   SURFACE_TERTIARY,
   TEXT_PRIMARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -110,8 +113,7 @@ export const STYLES = /* css */ `
 
   :host .left,
   :host([size="m"]) .left {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
     padding: ${SP_0_75} ${SP_1_5} ${SP_0_75} ${SP_2};
   }
 
@@ -133,8 +135,7 @@ export const STYLES = /* css */ `
   /* ── Size: s ────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .left {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     padding: ${SP_0_5} ${SP_1};
   }
 
@@ -153,8 +154,7 @@ export const STYLES = /* css */ `
   /* ── Size: l ────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .left {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
     padding: ${SP_1} ${SP_2} ${SP_1} ${SP_2_5};
   }
 
@@ -173,8 +173,7 @@ export const STYLES = /* css */ `
   /* ── Size: xl ───────────────────────────────────────────────────────────── */
 
   :host([size="xl"]) .left {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
     padding: ${SP_1_5} ${SP_4};
   }
 

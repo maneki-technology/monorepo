@@ -4,6 +4,7 @@ import {
   BW_SM,
   DISABLED_BORDER,
   DISABLED_TEXT,
+  FONT_PRIMARY,
   FORM_INPUT_BORDER,
   HOVER_BORDER_MODERATE,
   RADIUS_SM,
@@ -17,6 +18,7 @@ import {
   TEXT_PRIMARY,
   TEXT_SECONDARY,
   TEXT_TERTIARY,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 
 // ─── Status icon map ─────────────────────────────────────────────────────────
@@ -41,7 +43,7 @@ export const STYLES = /* css */ `
     display: inline-flex;
     flex-direction: column;
     gap: ${SP_0_5};
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   /* ── Label row ─────────────────────────────────────────────────────────── */
@@ -63,8 +65,7 @@ export const STYLES = /* css */ `
 
   .char-count {
     display: none;
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
     color: ${TEXT_SECONDARY};
     flex-shrink: 0;
     white-space: nowrap;
@@ -160,8 +161,7 @@ export const STYLES = /* css */ `
 
   .secondary-label {
     display: none;
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
     color: var(--ui-textarea-secondary-color, ${TEXT_SECONDARY});
   }
 

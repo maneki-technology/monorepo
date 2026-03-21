@@ -222,16 +222,12 @@ describe("ui-popover", () => {
     expect(STYLES).toContain("font-size: 20px");
   });
 
-  it("styles contain size m description font-size 14px", () => {
-    expect(STYLES).toContain("font-size: 14px");
+  it("styles contain size m description typography token", () => {
+    expect(STYLES).toContain("var(--fd-type-body-02-font-size)");
   });
 
-  it("styles contain size s title font-size 16px", () => {
-    expect(STYLES).toContain("font-size: 16px");
-  });
-
-  it("styles contain size s description font-size 12px", () => {
-    expect(STYLES).toContain("font-size: 12px");
+  it("styles contain size s description typography token", () => {
+    expect(STYLES).toContain("var(--fd-type-body-03-font-size)");
   });
 
   // ── Placements ────────────────────────────────────────────────────────────

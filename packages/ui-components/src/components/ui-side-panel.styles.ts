@@ -4,6 +4,7 @@ import {
   BORDER_SUBTLE,
   BW_MD,
   ELEVATION_03,
+  FONT_PRIMARY,
   ICON_PRIMARY,
   SP_1,
   SP_2,
@@ -31,7 +32,7 @@ export const STYLES = /* css */ `
     width: var(--ui-sp-width, 300px);
     height: 100%;
     background-color: var(--ui-sp-bg, ${SURFACE_SECONDARY});
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     position: relative;
     transition: width 0.2s ease;
   }

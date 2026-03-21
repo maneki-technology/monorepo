@@ -6,6 +6,7 @@ import {
   BW_MD,
   BW_SM,
   DISABLED_TEXT,
+  FONT_PRIMARY,
   HOVER_BOLD,
   RADIUS_SM,
   SELECTED_MINIMAL,
@@ -15,6 +16,8 @@ import {
   SP_2,
   SURFACE_PRIMARY,
   TEXT_PRIMARY,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -35,7 +38,7 @@ export const STYLES = /* css */ `
   :host {
     display: flex;
     align-items: center;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   /* ── Layout ──────────────────────────────────────────────────────────────── */
@@ -70,7 +73,7 @@ export const STYLES = /* css */ `
     border: none;
     background: transparent;
     cursor: pointer;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     font-weight: 400;
     color: ${TEXT_PRIMARY};
     padding: 0;
@@ -147,7 +150,7 @@ export const STYLES = /* css */ `
     border-color: ${BORDER_MODERATE};
     border-radius: ${RADIUS_SM};
     background: ${SURFACE_PRIMARY};
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     color: ${TEXT_PRIMARY};
     text-align: left;
   }
@@ -163,7 +166,7 @@ export const STYLES = /* css */ `
     border-color: ${BORDER_MODERATE};
     border-radius: ${RADIUS_SM};
     background: ${SURFACE_PRIMARY};
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     color: ${TEXT_PRIMARY};
     cursor: pointer;
     appearance: none;
@@ -189,8 +192,7 @@ export const STYLES = /* css */ `
   :host([size="m"]) .item {
     height: 32px;
     min-width: 32px;
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .item.nav-btn,
@@ -227,8 +229,7 @@ export const STYLES = /* css */ `
   :host .page-status,
   :host([size="m"]) .goto,
   :host([size="m"]) .page-status {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .goto-input,
@@ -236,8 +237,7 @@ export const STYLES = /* css */ `
     width: 48px;
     height: 32px;
     padding: 6px 8px;
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .page-size-select,
@@ -245,8 +245,7 @@ export const STYLES = /* css */ `
     width: auto;
     height: 32px;
     padding: 6px 24px 6px 8px;
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
@@ -254,8 +253,7 @@ export const STYLES = /* css */ `
   :host([size="s"]) .item {
     height: 24px;
     min-width: 24px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .item.nav-btn {
@@ -284,24 +282,21 @@ export const STYLES = /* css */ `
 
   :host([size="s"]) .goto,
   :host([size="s"]) .page-status {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .goto-input {
     width: 40px;
     height: 24px;
     padding: 4px 8px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .page-size-select {
     width: auto;
     height: 24px;
     padding: 4px 20px 4px 8px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   /* ── Size: xs ────────────────────────────────────────────────────────────── */
@@ -309,8 +304,7 @@ export const STYLES = /* css */ `
   :host([size="xs"]) .item {
     height: 20px;
     min-width: 20px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="xs"]) .item.nav-btn {
@@ -339,23 +333,20 @@ export const STYLES = /* css */ `
 
   :host([size="xs"]) .goto,
   :host([size="xs"]) .page-status {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="xs"]) .goto-input {
     width: 32px;
     height: 20px;
     padding: 2px 8px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="xs"]) .page-size-select {
     width: auto;
     height: 20px;
     padding: 2px 18px 2px 8px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 `;

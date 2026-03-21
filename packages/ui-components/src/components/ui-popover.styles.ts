@@ -1,4 +1,5 @@
 import {
+  FONT_PRIMARY,
   ICON_REVERSED,
   RADIUS_SM,
   SP_1,
@@ -7,6 +8,10 @@ import {
   SP_2_5,
   SURFACE_CONTRAST,
   TEXT_REVERSED,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_HEADING_04,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -28,7 +33,7 @@ export const STYLES = /* css */ `
     display: inline-flex;
     position: relative;
     width: fit-content;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   /* ── Popover panel ───────────────────────────────────────────────────────── */
@@ -132,14 +137,12 @@ export const STYLES = /* css */ `
 
   :host .title-text,
   :host([size="m"]) .title-text {
-    font-size: 20px;
-    line-height: 28px;
+    ${TYPE_HEADING_04}
   }
 
   :host .description-text,
   :host([size="m"]) .description-text {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .close .material-symbols-outlined,
@@ -159,13 +162,11 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .title-text {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="s"]) .description-text {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .close .material-symbols-outlined {

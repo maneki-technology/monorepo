@@ -2,6 +2,7 @@ import {
   AQUA_60,
   BLUE_60,
   BORDER_MODERATE,
+  FONT_PRIMARY,
   GRAY_60,
   GREEN_60,
   LIME_60,
@@ -21,6 +22,9 @@ import {
   TEXT_PRIMARY,
   TEXT_SECONDARY,
   TURQUOISE_60,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
   ULTRAMARINE_60,
   YELLOW_30,
 } from "@maneki/foundation";
@@ -69,7 +73,7 @@ export const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     font-weight: 500;
     text-transform: uppercase;
     white-space: nowrap;
@@ -79,8 +83,7 @@ export const STYLES = /* css */ `
 
   :host .base,
   :host([size="m"]) .base {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     padding: ${SP_0_25} ${SP_1};
   }
 
@@ -95,16 +98,14 @@ export const STYLES = /* css */ `
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .base {
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
     padding: 0 ${SP_0_75};
   }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .base {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
     padding: ${SP_0_5} ${SP_1_25};
   }
 

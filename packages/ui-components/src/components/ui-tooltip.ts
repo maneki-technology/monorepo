@@ -1,4 +1,5 @@
 import {
+  FONT_PRIMARY,
   GRAY_110,
   ICON_CLOSE,
   RADIUS_SM,
@@ -9,6 +10,9 @@ import {
   SP_1_25,
   SP_1_5,
   SP_2,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 
 // ─── Types ───────────────────────────────────────────────────────────────
@@ -43,7 +47,7 @@ const STYLES = /* css */ `
     display: inline-flex;
     position: relative;
     width: fit-content;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   /* ── Tooltip panel ───────────────────────────────────────────────────────── */
@@ -262,8 +266,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="xs"]) .text {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="xs"]) .close {
@@ -283,8 +286,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .text {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .close {
@@ -306,8 +308,7 @@ const STYLES = /* css */ `
 
   :host .text,
   :host([size="m"]) .text {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .close,
@@ -329,8 +330,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .text {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .close {

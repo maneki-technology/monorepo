@@ -10,6 +10,7 @@ import {
   SP_3,
   SP_4,
   TEXT_SECONDARY,
+  TYPE_HEADING_07,
 } from "@maneki/foundation";
 import type { MetricSize } from "./ui-metric.js";
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -56,10 +57,7 @@ const STYLES = /* css */ `
 
   .title {
     display: none;
-    font-family: "Geist", sans-serif;
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 500;
+    ${TYPE_HEADING_07}
     text-transform: uppercase;
     color: ${TEXT_SECONDARY};
     white-space: nowrap;

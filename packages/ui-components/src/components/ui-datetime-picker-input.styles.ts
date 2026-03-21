@@ -15,6 +15,10 @@ import {
   TEXT_PRIMARY,
   TEXT_SECONDARY,
   TEXT_TERTIARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -227,8 +231,7 @@ export const STYLES = /* css */ `
 
   .supportive {
     display: none;
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
     color: ${TEXT_SECONDARY};
   }
 
@@ -261,8 +264,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .content {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .spin-btn {
@@ -290,8 +292,7 @@ export const STYLES = /* css */ `
 
   :host([size="m"]) .content,
   :host(:not([size])) .content {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="m"]) .spin-btn,
@@ -316,8 +317,7 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .content {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .spin-btn {

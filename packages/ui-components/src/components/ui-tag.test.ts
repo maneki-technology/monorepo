@@ -500,24 +500,16 @@ describe("ui-tag", () => {
 
   // ── Size CSS specifics ────────────────────────────────────────────────
 
-  it("CSS contains font-size: 11px for xs", () => {
-    expect(STYLES).toContain("font-size: 11px");
+  it("CSS contains caption typography token for xs", () => {
+    expect(STYLES).toContain("var(--fd-type-caption-01-font-size)");
   });
 
-  it("CSS contains font-size: 12px for s", () => {
-    expect(STYLES).toContain("font-size: 12px");
+  it("CSS contains body-03 typography token for s", () => {
+    expect(STYLES).toContain("var(--fd-type-body-03-font-size)");
   });
 
-  it("CSS contains font-size: 14px for m/l", () => {
-    expect(STYLES).toContain("font-size: 14px");
-  });
-
-  it("CSS contains line-height: 16px for xs/s", () => {
-    expect(STYLES).toContain("line-height: 16px");
-  });
-
-  it("CSS contains line-height: 20px for m/l", () => {
-    expect(STYLES).toContain("line-height: 20px");
+  it("CSS contains body-02 typography token for m/l", () => {
+    expect(STYLES).toContain("var(--fd-type-body-02-font-size)");
   });
 
   // ── Multiple instances ────────────────────────────────────────────────

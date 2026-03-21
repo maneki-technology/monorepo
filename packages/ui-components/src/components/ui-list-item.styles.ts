@@ -11,6 +11,10 @@ import {
   SP_2,
   TEXT_PRIMARY,
   TEXT_SECONDARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -186,13 +190,11 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .primary-text {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .description {
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([size="s"]) .leading {
@@ -243,14 +245,12 @@ export const STYLES = /* css */ `
 
   :host([size="m"]) .primary-text,
   :host(:not([size])) .primary-text {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="m"]) .description,
   :host(:not([size])) .description {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="m"]) .leading,
@@ -302,13 +302,11 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .primary-text {
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .description {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="l"]) .leading {

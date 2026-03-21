@@ -1,5 +1,6 @@
 import {
   BLUE_40,
+  FONT_PRIMARY,
   GRAY_50,
   SP_0_5,
   SP_1,
@@ -20,6 +21,8 @@ import {
   STATUS_SURFACE_SUSPENDED_SUBTLE,
   STATUS_SURFACE_WARNING_BOLD,
   TEXT_PRIMARY,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 
 // ─── Status color maps ─────────────────────────────────────────────────────────
@@ -95,7 +98,7 @@ export const BAR_STYLES = /* css */ `
   :host {
     display: block;
     width: 100%;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   .wrapper {
@@ -188,8 +191,7 @@ export const BAR_STYLES = /* css */ `
   }
 
   :host([size="s"]) .top-label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .bar {
@@ -207,8 +209,7 @@ export const BAR_STYLES = /* css */ `
 
   :host .top-label,
   :host([size="m"]) .top-label {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host .bar,
@@ -223,8 +224,7 @@ export const BAR_STYLES = /* css */ `
 
   :host .inner-label,
   :host([size="m"]) .inner-label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     padding: ${SP_0_5} ${SP_1};
   }
 
@@ -248,8 +248,7 @@ export const BAR_STYLES = /* css */ `
   }
 
   :host([size="l"]) .inner-label {
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
     padding: ${SP_0_5} ${SP_1};
   }
 

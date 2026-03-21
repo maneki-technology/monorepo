@@ -190,6 +190,31 @@ export function typeVar<G extends TypographyGroup>(
   return `var(--fd-type-${toKebab(group)}-${key}-${prop})`;
 }
 
+/**
+ * Returns a CSS block with font-family, font-size, line-height, and font-weight
+ * properties as `var()` references for a typography token.
+ *
+ * Usage in template literals:
+ * ```ts
+ * ${typeBlock("body", "02")}
+ * // → font-family: var(--fd-type-body-02-font-family);
+ * //   font-size: var(--fd-type-body-02-font-size);
+ * //   line-height: var(--fd-type-body-02-line-height);
+ * //   font-weight: var(--fd-type-body-02-font-weight);
+ * ```
+ */
+export function typeBlock<G extends TypographyGroup>(
+  group: G,
+  key: TypographyKey<G>,
+): string {
+  return [
+    `font-family: ${typeVar(group, key, "font-family")};`,
+    `font-size: ${typeVar(group, key, "font-size")};`,
+    `line-height: ${typeVar(group, key, "line-height")};`,
+    `font-weight: ${typeVar(group, key, "font-weight")};`,
+  ].join("\n    ");
+}
+
 // ---------------------------------------------------------------------------
 // Spacing → CSS custom properties
 // ---------------------------------------------------------------------------

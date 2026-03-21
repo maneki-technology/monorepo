@@ -3,6 +3,7 @@ import {
   BORDER_FOCUS,
   BW_MD,
   DISABLED_TEXT,
+  FONT_PRIMARY,
   GRAY_110,
   RADIUS_PILL,
   RADIUS_SM,
@@ -14,6 +15,7 @@ import {
   SP_3,
   SURFACE_BOLD,
   TEXT_PRIMARY,
+  TYPE_BODY_03,
 } from "@maneki/foundation";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -32,7 +34,7 @@ export const STYLES = /* css */ `
   :host {
     display: block;
     width: 100%;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     position: relative;
     user-select: none;
     -webkit-user-select: none;
@@ -105,8 +107,7 @@ export const STYLES = /* css */ `
   .labels {
     display: none;
     justify-content: space-between;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     color: ${TEXT_PRIMARY};
   }
 
@@ -125,8 +126,7 @@ export const STYLES = /* css */ `
     margin-bottom: ${SP_1};
     background: ${GRAY_110};
     color: #ffffff;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     padding: ${SP_0_5} ${SP_1};
     border-radius: ${RADIUS_SM};
     white-space: nowrap;

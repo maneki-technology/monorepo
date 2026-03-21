@@ -19,6 +19,10 @@ import {
   TEXT_PRIMARY,
   TEXT_SECONDARY,
   TEXT_TERTIARY,
+  TYPE_BODY_01,
+  TYPE_BODY_02,
+  TYPE_BODY_03,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -262,8 +266,7 @@ export const STYLES = /* css */ `
   }
 
   .legend-label {
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
     color: ${TEXT_PRIMARY};
   }
 
@@ -289,8 +292,7 @@ export const STYLES = /* css */ `
 
   :host([size="s"]) .header-label {
     height: 16px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .dow-row,
@@ -300,20 +302,17 @@ export const STYLES = /* css */ `
 
   :host([size="s"]) .dow-cell {
     height: 16px;
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([size="s"]) .day-cell {
     height: 28px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .month-cell {
     height: 28px;
-    font-size: 12px;
-    line-height: 16px;
+    ${TYPE_BODY_03}
   }
 
   :host([size="s"]) .month-grid {
@@ -351,8 +350,7 @@ export const STYLES = /* css */ `
   :host([size="m"]) .header-label,
   :host(:not([size])) .header-label {
     height: 20px;
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="m"]) .dow-row,
@@ -365,22 +363,19 @@ export const STYLES = /* css */ `
   :host([size="m"]) .dow-cell,
   :host(:not([size])) .dow-cell {
     height: 16px;
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
   }
 
   :host([size="m"]) .day-cell,
   :host(:not([size])) .day-cell {
     height: 36px;
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="m"]) .month-cell,
   :host(:not([size])) .month-cell {
     height: 36px;
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="m"]) .month-grid,
@@ -416,8 +411,7 @@ export const STYLES = /* css */ `
 
   :host([size="l"]) .header-label {
     height: 24px;
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .dow-row,
@@ -427,20 +421,17 @@ export const STYLES = /* css */ `
 
   :host([size="l"]) .dow-cell {
     height: 20px;
-    font-size: 14px;
-    line-height: 20px;
+    ${TYPE_BODY_02}
   }
 
   :host([size="l"]) .day-cell {
     height: 44px;
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .month-cell {
     height: 44px;
-    font-size: 16px;
-    line-height: 24px;
+    ${TYPE_BODY_01}
   }
 
   :host([size="l"]) .month-grid {

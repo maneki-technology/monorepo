@@ -4,6 +4,7 @@ import {
   BW_SM,
   DISABLED_BORDER,
   DISABLED_TEXT,
+  FONT_PRIMARY,
   FORM_INPUT_BORDER,
   HOVER_BORDER_MODERATE,
   ICON_PRIMARY,
@@ -18,6 +19,7 @@ import {
   TEXT_PRIMARY,
   TEXT_SECONDARY,
   TEXT_TERTIARY,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 
 // ─── Status icon map ─────────────────────────────────────────────────────────
@@ -42,7 +44,7 @@ export const STYLES = /* css */ `
     display: inline-flex;
     flex-direction: column;
     gap: ${SP_0_5};
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
   }
 
   /* ── Label row ─────────────────────────────────────────────────────────── */
@@ -252,8 +254,7 @@ export const STYLES = /* css */ `
 
   .supportive-text {
     display: none;
-    font-size: 11px;
-    line-height: 16px;
+    ${TYPE_CAPTION_01}
     color: var(--ui-input-supportive-color, ${TEXT_SECONDARY});
   }
 

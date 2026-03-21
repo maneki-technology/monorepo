@@ -2,6 +2,7 @@ import {
   BORDER_MINIMAL,
   BORDER_MODERATE,
   BW_SM,
+  FONT_PRIMARY,
   SP_0_75,
   SP_1_5,
   TEXT_PRIMARY,
@@ -23,7 +24,7 @@ const STYLES = /* css */ `
   :host {
     display: table-cell;
     vertical-align: middle;
-    font-family: "Geist", sans-serif;
+    font-family: ${FONT_PRIMARY};
     color: var(--ui-table-cell-color, ${TEXT_PRIMARY});
     font-weight: 400;
     text-align: left;
