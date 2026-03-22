@@ -197,17 +197,15 @@ export class UiSidePanel extends HTMLElement {
   }
 
   private _syncMobileState(isMobile: boolean): void {
+    // Reset explicit state on mobile/desktop transition so defaults apply
+    this.#userExplicitState = false;
     if (isMobile) {
       this.setAttribute("mobile", "");
-      if (!this.#userExplicitState) {
-        this.setAttribute("state", "collapsed");
-      }
+      this.setAttribute("state", "collapsed");
     } else {
       this.removeAttribute("mobile");
       this.removeAttribute("overlay");
-      if (!this.#userExplicitState) {
-        this.setAttribute("state", "expanded");
-      }
+      this.setAttribute("state", "expanded");
     }
     this.dispatchEvent(
       new CustomEvent("mobilechange", {
