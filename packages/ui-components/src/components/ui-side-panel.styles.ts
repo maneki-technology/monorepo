@@ -38,6 +38,7 @@ export const STYLES = /* css */ `
     transition: width 0.2s ease;
   }
 
+
   .container {
     display: flex;
     flex-direction: column;
@@ -67,13 +68,69 @@ export const STYLES = /* css */ `
     width: var(--ui-sp-collapsed-width, 40px);
   }
 
-  /* ── Mobile full-width overlay ───────────────────────────────────────────── */
+  /* Mobile: host takes no layout space, container handles positioning */
+  :host([mobile]) {
+    width: 0;
+    overflow: visible;
+    transition: none;
+  }
+  /* ── Mobile: slide-in/out via container ─────────────────────────────────── */
 
-  :host([mobile][state="expanded"]) {
+  :host([mobile]) .container {
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
     z-index: 100;
+    background-color: var(--ui-sp-bg, ${SURFACE_SECONDARY});
+    transform: translateX(0);
+    transition: transform 0.25s ease;
+  }
+
+  :host([mobile][state="collapsed"]) .container {
+    transform: translateX(-100%);
+    pointer-events: none;
+  }
+
+  .mobile-trigger {
+    display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 101;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--ui-sp-border, ${BORDER_SUBTLE});
+    background-color: var(--ui-sp-bg, ${SURFACE_SECONDARY});
+    color: var(--ui-sp-toggle-icon, ${ICON_PRIMARY});
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-trigger .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: "FILL" 0;
+  }
+
+  :host([mobile][state="collapsed"]) .mobile-trigger {
+    display: flex;
   }
 
   /* ── Header ──────────────────────────────────────────────────────────────── */
@@ -165,6 +222,27 @@ export const STYLES = /* css */ `
     flex-direction: column;
     flex: 1;
     overflow-y: auto;
+  }
+
+  /* ── Footer ──────────────────────────────────────────────────────────────── */
+
+  .footer {
+    flex-shrink: 0;
+    border-top: 1px solid var(--ui-sp-separator, ${BORDER_MINIMAL});
+  }
+
+  .footer:empty {
+    display: none;
+  }
+
+  :host([mobile][state="collapsed"]) .footer {
+    display: none;
+  }
+
+  /* ── no-collapse: only hide desktop toggle, mobile still works ─────────── */
+
+  :host([no-collapse]:not([mobile])) .header-toggle {
+    display: none;
   }
 
   /* ── Reduced motion ──────────────────────────────────────────────────────── */

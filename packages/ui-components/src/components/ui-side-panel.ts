@@ -1,5 +1,5 @@
 import { STYLES } from "./ui-side-panel.styles.js";
-import { ICON_KEYBOARD_DOUBLE_ARROW_LEFT, ICON_KEYBOARD_DOUBLE_ARROW_RIGHT } from "@maneki/foundation";
+import { ICON_KEYBOARD_DOUBLE_ARROW_LEFT, ICON_KEYBOARD_DOUBLE_ARROW_RIGHT, ICON_MENU } from "@maneki/foundation";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -23,6 +23,7 @@ export class UiSidePanel extends HTMLElement {
   #mql: MediaQueryList | null = null;
   #mqlHandler: ((e: MediaQueryListEvent) => void) | null = null;
   #userExplicitState = false;
+  #mobileTrigger!: HTMLButtonElement;
 
   constructor() {
     super();
@@ -61,8 +62,27 @@ export class UiSidePanel extends HTMLElement {
     const slot = document.createElement("slot");
     this.#body.appendChild(slot);
 
-    container.append(this.#header, separator, this.#body);
-    shadow.appendChild(container);
+    // Footer (named slot)
+    const footer = document.createElement("div");
+    footer.className = "footer";
+    const footerSlot = document.createElement("slot");
+    footerSlot.name = "footer";
+    footer.appendChild(footerSlot);
+
+    container.append(this.#header, separator, this.#body, footer);
+
+    // Mobile floating trigger (outside container, shown only when mobile+collapsed)
+    this.#mobileTrigger = document.createElement("button");
+    this.#mobileTrigger.className = "mobile-trigger";
+    this.#mobileTrigger.type = "button";
+    this.#mobileTrigger.setAttribute("aria-label", "Open navigation");
+    const triggerIcon = document.createElement("span");
+    triggerIcon.className = "material-symbols-outlined";
+    triggerIcon.textContent = ICON_MENU;
+    this.#mobileTrigger.appendChild(triggerIcon);
+    this.#mobileTrigger.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
+
+    shadow.append(container, this.#mobileTrigger);
   }
 
   connectedCallback(): void {
@@ -71,6 +91,7 @@ export class UiSidePanel extends HTMLElement {
     if (!this.hasAttribute("state")) this.setAttribute("state", "expanded");
 
     this.#toggleBtn.addEventListener("click", () => this.toggle());
+    this.#mobileTrigger.addEventListener("click", () => this.toggle());
     this._syncToggleIcon();
     this._syncTitle();
     this._setupMobileDetection();
@@ -93,7 +114,7 @@ export class UiSidePanel extends HTMLElement {
         this._syncTitle();
         break;
       case "no-collapse":
-        this.#toggleBtn.style.display = newValue !== null ? "none" : "";
+        // no-collapse only hides desktop toggle; CSS handles via :host([no-collapse]:not([mobile]))
         break;
     }
   }
@@ -180,18 +201,23 @@ export class UiSidePanel extends HTMLElement {
   }
 
   private _syncMobileState(isMobile: boolean): void {
+    // Reset explicit state on mobile/desktop transition so defaults apply
+    this.#userExplicitState = false;
     if (isMobile) {
       this.setAttribute("mobile", "");
-      if (!this.#userExplicitState) {
-        this.setAttribute("state", "collapsed");
-      }
+      this.setAttribute("state", "collapsed");
     } else {
       this.removeAttribute("mobile");
       this.removeAttribute("overlay");
-      if (!this.#userExplicitState) {
-        this.setAttribute("state", "expanded");
-      }
+      this.setAttribute("state", "expanded");
     }
+    this.dispatchEvent(
+      new CustomEvent("mobilechange", {
+        detail: { mobile: isMobile, state: this.state },
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 }
 

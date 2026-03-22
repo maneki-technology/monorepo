@@ -51,10 +51,9 @@
       height: 100vh;
     }
 
-    /* Sidebar */
+    /* Sidebar — let component manage width via --ui-sp-width */
     #sidebar {
-      width: 250px;
-      min-width: 250px;
+      --ui-sp-width: 250px;
       height: 100vh;
       overflow-y: auto;
       scrollbar-width: thin;
@@ -262,21 +261,64 @@
     .min-h-260 { min-height: 260px; }
     .min-h-320 { min-height: 320px; }
 
+    /* ─── Responsive: Mobile-first breakpoints (aligned with @maneki/foundation) ─── */
+
+    /* Mobile: below 768px (xs + s breakpoints) — component auto-collapses via built-in matchMedia */
+    @media (max-width: 767px) {
+      #content {
+        padding: 16px;
+        padding-top: 60px; /* clear floating hamburger trigger */
+      }
+
+      #content h2 { font-size: 20px; margin-bottom: 16px; }
+
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .matrix-3 { grid-template-columns: 60px repeat(3, 1fr); }
+      .matrix-4 { grid-template-columns: 60px repeat(4, 1fr); font-size: 12px; }
+      .matrix-5 { grid-template-columns: 60px repeat(5, 1fr); font-size: 11px; }
+
+      .variant-row { gap: 12px; }
+      .row-start-wrap { gap: 16px; }
+
+      .w-320, .w-360, .w-400, .w-600, .w-720 { max-width: 100%; }
+
+      .layout-frame { flex-direction: column; }
+      .layout-frame-400, .layout-frame-500 { height: auto; min-height: 300px; }
+    }
+
+    /* Tablet: 768–1023px (m breakpoint) */
+    @media (min-width: 768px) and (max-width: 1023px) {
+      #content {
+        padding: 24px 32px;
+      }
+
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* Touch-friendly: ensure minimum 44px touch targets on touch devices */
+    @media (pointer: coarse) {
+      #sidebar ui-side-panel-menu-item {
+        min-height: 44px;
+      }
+      #theme-toggle {
+        min-width: 44px;
+        min-height: 44px;
+      }
+    }
+
   </style>
 </head>
 <body>
   <a href="#content" class="skip-link">Skip to content</a>
   <div id="app">
-    <nav aria-label="Component navigation" style="display:flex;flex-direction:column;height:100vh">
-      <ui-side-panel-menu id="sidebar" title="Maneki" state="expanded" no-collapse style="flex:1;overflow-y:auto"></ui-side-panel-menu>
-      <div style="padding:8px 12px;border-top:1px solid var(--fd-border-minimal,#dce3e8);display:flex;justify-content:center">
-        <button id="theme-toggle" aria-label="Toggle dark mode" style="
-          background:none;border:none;cursor:pointer;
-          font-size:18px;padding:6px 12px;border-radius:4px;
-          color:var(--fd-text-secondary,#3e5463);
-        ">☀️</button>
-      </div>
-    </nav>
+    <ui-side-panel-menu id="sidebar" title="Maneki" state="expanded" no-collapse style="height:100vh">
+      <button slot="footer" id="theme-toggle" aria-label="Toggle dark mode" style="
+        background:none;border:none;cursor:pointer;
+        font-size:18px;padding:8px 12px;border-radius:4px;
+        color:var(--fd-text-secondary,#3e5463);
+        width:100%;display:flex;justify-content:center;
+      ">☀️</button>
+    </ui-side-panel-menu>
     <main id="content" tabindex="0"></main>
   </div>
   <div id="update-banner">

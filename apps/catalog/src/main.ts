@@ -215,7 +215,6 @@ function initThemeToggle(): void {
 buildSidebar();
 initThemeToggle();
 
-buildSidebar();
 window.addEventListener("hashchange", onHashChange);
 onHashChange();
 

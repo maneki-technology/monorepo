@@ -38,6 +38,14 @@ export class UiSidePanelMenu extends HTMLElement {
     menu.appendChild(menuSlot);
     this._panel.appendChild(menu);
 
+    // Footer passthrough — re-slot consumer's slot="footer" into the panel's footer slot
+    const footerPassthrough = document.createElement("div");
+    footerPassthrough.setAttribute("slot", "footer");
+    const footerSlot = document.createElement("slot");
+    footerSlot.name = "footer";
+    footerPassthrough.appendChild(footerSlot);
+    this._panel.appendChild(footerPassthrough);
+
     shadow.appendChild(this._panel);
 
     // Flyout submenu (for collapsed mode) — lives outside the panel
@@ -81,10 +89,36 @@ export class UiSidePanelMenu extends HTMLElement {
       if (this._panel.hasAttribute("overlay")) this.setAttribute("overlay", "");
       else this.removeAttribute("overlay");
     });
+
+    // Listen for mobile state changes from the inner panel
+    this._panel.addEventListener("mobilechange", (e: Event) => {
+      const ce = e as CustomEvent;
+      if (ce.detail.mobile) {
+        this.setAttribute("mobile", "");
+        this.setAttribute("state", ce.detail.state);
+      } else {
+        this.removeAttribute("mobile");
+        this.removeAttribute("overlay");
+        this.setAttribute("state", ce.detail.state);
+      }
+    });
+    this._panel.addEventListener("toggle", (e: Event) => {
+      const ce = e as CustomEvent;
+      // Sync state + overlay from panel back to menu
+      this.setAttribute("state", ce.detail.state);
+      if (this._panel.hasAttribute("overlay")) this.setAttribute("overlay", "");
+      else this.removeAttribute("overlay");
+    });
   }
 
   connectedCallback(): void {
     this._syncPanelAttributes();
+    // After syncing, check if panel already detected mobile and sync back
+    if (this._panel.hasAttribute("mobile")) {
+      this.setAttribute("mobile", "");
+      const panelState = this._panel.getAttribute("state");
+      if (panelState) this.setAttribute("state", panelState);
+    }
     // Scrollable region must be keyboard-focusable
     if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
   }
