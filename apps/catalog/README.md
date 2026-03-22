@@ -1,10 +1,10 @@
 # @maneki/catalog
 
-Visual catalog app for the Maneki design system. Renders all foundation tokens and 50 UI components with key variants on deterministic pages. Used as the target for Playwright screenshot-based visual regression tests.
+Visual catalog app for the Maneki design system. Renders all foundation tokens and UI components with key variants on deterministic pages. Used as the target for Playwright visual and accessibility regression tests.
 
-- 34 pages (5 foundation + 29 component)
-- 36 Playwright visual regression tests
-- Hash-based routing, sidebar navigation
+- 57 pages (6 foundation + 51 component)
+- 115 Playwright tests (57 visual + 57 a11y + sidebar)
+- Hash-based routing, sidebar navigation, dark theme toggle
 - Pure Vite + vanilla TypeScript — no Storybook dependency
 
 ## Quick Start
@@ -14,7 +14,7 @@ Visual catalog app for the Maneki design system. Renders all foundation tokens a
 moon run catalog:dev          # http://localhost:5174
 
 # Visual regression tests
-moon run catalog:test-visual  # Run 36 screenshot tests
+moon run catalog:test-visual  # Run 115 Playwright tests
 ```
 
 ## Pages
@@ -27,6 +27,7 @@ moon run catalog:test-visual  # Run 36 screenshot tests
 | Typography | 7 groups (display, heading, body, ui, caption, badge, code) |
 | Elevation | 6 elevation levels |
 | Semantic Tokens | Surface, border, text, icon token swatches |
+| Shape | Border-radius + border-width tokens |
 
 ### Components
 | Page | Variants |
@@ -61,7 +62,7 @@ moon run catalog:test-visual  # Run 36 screenshot tests
 | Clock | Sizes |
 | List | Sizes, description, leading/trailing, groups |
 
-## Visual Regression Tests
+## Visual & Accessibility Tests
 
 ```bash
 # Run tests (requires build first)
@@ -71,7 +72,7 @@ moon run catalog:test-visual
 moon run catalog:test-visual-update
 ```
 
-36 tests: one screenshot per page (targeting `#content`), plus sidebar and full-layout screenshots. Chromium only, 1280×900 viewport, 1% pixel diff threshold.
+115 tests: 57 visual screenshots (one per page targeting `#content`), 57 a11y scans (axe-core per page), plus sidebar screenshot. Chromium only, 1280×900 viewport, 1% pixel diff threshold.
 
 ## Development
 

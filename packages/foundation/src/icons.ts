@@ -177,3 +177,76 @@ export function registerIconFont(fontUrl: string): Promise<FontFace> {
   document.fonts.add(face);
   return face.load();
 }
+
+// ── Custom Icon Registry ────────────────────────────────────────────
+// Allows consumers to register custom icon factories that ui-icon
+// resolves before falling back to Material Symbols.
+
+type IconFactory = () => Element;
+
+const _iconRegistry = new Map<string, IconFactory>();
+
+/**
+ * Register a custom icon. When `<ui-icon name="my-icon">` is used,
+ * the factory is called to create the DOM element.
+ *
+ * ```ts
+ * import { registerIcon } from "@maneki/foundation";
+ *
+ * registerIcon("brand-logo", () => {
+ *   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+ *   svg.setAttribute("viewBox", "0 0 24 24");
+ *   svg.innerHTML = '<path d="M12 2L2 22h20L12 2z"/>';
+ *   return svg;
+ * });
+ * ```
+ */
+export function registerIcon(name: string, factory: IconFactory): void {
+  _iconRegistry.set(name, factory);
+}
+
+/**
+ * Register multiple icons at once.
+ *
+ * ```ts
+ * registerIcons({
+ *   "brand-logo": () => createSvg('<path d="..."/>'),
+ *   "brand-mark": () => createSvg('<circle cx="12" cy="12" r="10"/>'),
+ * });
+ * ```
+ */
+export function registerIcons(icons: Record<string, IconFactory>): void {
+  for (const [name, factory] of Object.entries(icons)) {
+    _iconRegistry.set(name, factory);
+  }
+}
+
+/**
+ * Resolve a custom icon by name. Returns the element if registered,
+ * or null to fall back to Material Symbols.
+ */
+export function resolveIcon(name: string): Element | null {
+  const factory = _iconRegistry.get(name);
+  return factory ? factory() : null;
+}
+
+/**
+ * Check if a custom icon is registered.
+ */
+export function hasIcon(name: string): boolean {
+  return _iconRegistry.has(name);
+}
+
+/**
+ * Remove a registered custom icon.
+ */
+export function unregisterIcon(name: string): boolean {
+  return _iconRegistry.delete(name);
+}
+
+/**
+ * Remove all registered custom icons.
+ */
+export function clearIcons(): void {
+  _iconRegistry.clear();
+}

@@ -21,6 +21,9 @@ foundation/
     ├── typography.ts         # 19 type tokens across 7 groups (display, heading, body, ui, caption, badge, code)
     ├── spacing.ts            # 17-step spacing scale based on 8px base unit (0 through 10, plus 1px and fractional)
     ├── breakpoints.ts        # 3 density variants (compact/standard/spacious) × 7 breakpoints + helpers
+    ├── dark-theme.ts         # Dark theme token overrides (mirrors all semantic groups)
+    ├── token-constants.ts    # Pre-computed var() references for all tokens (TEXT_PRIMARY, SP_1, etc.)
+    ├── shape.ts              # Shape tokens: border-radius + border-width CSS custom properties
     ├── tokens.ts             # CSS custom property generators + var() helpers
     ├── tokens.test.ts        # 32 tests
     ├── breakpoints.test.ts   # 27 tests
@@ -42,16 +45,21 @@ foundation/
 | Wire new token type to CSS | `tokens.ts` | Add `*ToCssProperties()` + `*Var()` + add to `injectAllTokens()` |
 | Update barrel exports | `index.ts` | Re-export new functions/types |
 | Add new icon | `assets/icon-manifest.txt` | See SOP below |
+| Dark theme overrides | `dark-theme.ts` | Mirrors all semantic groups for `[data-theme="dark"]` |
+| Token constants | `token-constants.ts` | Pre-computed `var()` references (`TEXT_PRIMARY`, `SP_1`, etc.) |
+| Shape tokens | `shape.ts` | Border-radius + border-width CSS custom properties |
 
 ## TOKEN ARCHITECTURE
 ```
-Raw data (colors.ts, semantic-tokens.ts, typography.ts, spacing.ts)
+Raw data (colors.ts, semantic-tokens.ts, typography.ts, spacing.ts, shape.ts)
     ↓
 CSS generators (tokens.ts) — *ToCssProperties() functions
     ↓
 injectAllTokens() — creates <style> on :root with all tokens
+    + dark-theme.ts — generates [data-theme="dark"] overrides for all semantic tokens
     ↓
 var() helpers — colorVar(), semanticVar(), elevationVar(), typeVar(), spaceVar()
+    + token-constants.ts — pre-computed var() references (TEXT_PRIMARY, SP_1, TYPE_BODY_02, etc.)
 ```
 
 ## CSS CUSTOM PROPERTY PREFIXES
@@ -69,6 +77,8 @@ var() helpers — colorVar(), semanticVar(), elevationVar(), typeVar(), spaceVar
 | Spacing | `--fd-space-{step}` | `--fd-space-2-5` |
 | Tag | `--fd-tag-{name}` | `--fd-tag-bold` |
 | Button | `--fd-button-{name}` | `--fd-button-secondary` |
+| Shape radius | `--fd-radius-{name}` | `--fd-radius-s` |
+| Shape border-width | `--fd-border-width-{name}` | `--fd-border-width-s` |
 
 ## CONVENTIONS
 - **Figma is source of truth.** All values extracted from "Foundation UI Kit (Community)".
@@ -80,6 +90,9 @@ var() helpers — colorVar(), semanticVar(), elevationVar(), typeVar(), spaceVar
 - **`injectAllTokens()`** is idempotent — checks for existing `<style id="maneki-foundation-all">` before injecting.
 - **Breakpoints are JS-only.** Not injected as CSS custom properties — use `getBreakpoint()`, `getBreakpointConfig()`, `breakpointMediaQuery()` helpers.
 - **Three layout densities.** Compact (tightest), standard (moderate), spacious (widest margins/gutters).
+- **Dark theme values in `dark-theme.ts`** — mirrors all semantic groups. Toggled via `[data-theme="dark"]` on `:root`.
+- **Token constants in `token-constants.ts`** — pre-computed `var()` references for all tokens. Import `TEXT_PRIMARY`, `SP_1`, etc. directly instead of calling `semanticVar()`/`spaceVar()` at each use site.
+- **Custom icon registry** — `registerIcon()`, `resolveIcon()`, `hasIcon()`, `clearIcons()` allow registering custom SVG icons alongside Material Symbols.
 
 ## ANTI-PATTERNS
 - **Don't hardcode color values in components** — use `colorVar()` / `semanticVar()` helpers
@@ -140,3 +153,13 @@ When a component needs a Material Symbols icon not yet in the subset font:
    python3 packages/foundation/assets/subset-icons.py [path-to-full-font.woff2]
    ```
 8. **Commit** the updated `icon-manifest.txt`, `subset-icons.py`, `icons.ts`, `index.ts`, and the regenerated `.woff2`.
+
+## SOP: Dark Theme Token Changes
+
+When modifying or adding semantic tokens that need dark theme support:
+
+1. **Add/update the light value** in `semantic-tokens.ts`.
+2. **Add/update the dark value** in `dark-theme.ts` — ensure the same key exists in both files.
+3. **Run tests** — `npx vitest --run` to verify CSS generation includes both light and dark values.
+4. **Verify visually** — toggle `[data-theme="dark"]` on `:root` in Storybook/catalog and check the token renders correctly.
+5. **Rebuild foundation** — `npx vite build && npx tsc --emitDeclarationOnly`.

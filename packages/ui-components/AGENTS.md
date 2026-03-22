@@ -57,6 +57,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-breadcrumb-group>` — breadcrumb nav wrapper with size propagation
 - `<ui-side-panel-menu>` — collapsible sidebar navigation: expanded/collapsed states, mobile responsive (auto-collapse), flyout submenu in collapsed mode, overlay mode, selection management with parent highlighting
 - `<ui-side-panel-menu-item>` — sidebar menu item: 3 levels (primary/secondary/tertiary), expandable parent with inline children, leading icon slot, selected/disabled states, keyboard navigation
+- `<ui-side-panel-menu-section>` — sidebar section grouping: heading label, collapsible, divider line
 
 **Disclosure:**
 - `<ui-accordion-item>` — expandable panel: 3 sizes, 2 emphases, 4 statuses, smooth CSS transition
@@ -72,13 +73,14 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 
 **Overlays:**
 - `<ui-modal>` — modal dialog with backdrop, header (title+subtitle+close), scrollable body, footer button slots, 3 sizes, 2 layouts (auto/fluid), dismiss behavior
-
+- `<ui-popover>` — focus-managed popover: trigger element, floating panel, outside-click + Escape dismiss, focus trap, arrow key navigation
+- `<ui-tooltip>` — tooltip with aria-describedby: hover/focus trigger, configurable placement, delay, accessible label
 **Tabs:**
 - `<ui-tab-item>` — tab item: 2 sizes (s/m), 3 states (enabled/selected/disabled), 2 orientations (horizontal/vertical), leading/trailing icon slots, sub-menu chevron, smooth transition
 - `<ui-tab-group>` — tab group wrapper: size/orientation propagation, single selection, roving tabindex, arrow key navigation
 
 **Icons:**
-- `<ui-icon>` — Material Symbols icon: 5 sizes (xxs/xs/s/m/l), 10 states (enabled/hover/active/focus/disabled + inverse variants), filled variant, ICON_CODEPOINTS lookup with ligature fallback, accessible label
+- `<ui-icon>` — Material Symbols icon: 5 sizes (xxs/xs/s/m/l), 10 states (enabled/hover/active/focus/disabled + inverse variants), filled variant, ICON_CODEPOINTS lookup with ligature fallback, accessible label, custom icon registry via `registerIcon()`
 
 ## STRUCTURE
 ```
@@ -111,6 +113,7 @@ ui-components/
 │   │   ├── ui-breadcrumb-group.ts
 │   │   ├── ui-side-panel-menu.ts + ui-side-panel-menu.styles.ts
 │   │   ├── ui-side-panel-menu-item.ts
+│   │   ├── ui-side-panel-menu-section.ts
 │   │   ├── ui-accordion-item.ts
 │   │   ├── ui-accordion-group.ts
 │   │   ├── ui-dropdown.ts
@@ -130,9 +133,7 @@ ui-components/
 │   │   ├── ui-carousel.ts
 │   │   ├── ui-carousel-item.ts
 │   │   ├── ui-calendar.ts        + ui-calendar.styles.ts
-- `<ui-calendar-quicklinks>` — composable quicklinks panel: 3 sizes (s/m/l), 2 orientations (side/bottom), section headings, selected state, click events
-- `<ui-calendar-time>` — composable inline time panel: 3 sizes (s/m/l), hour/minute inputs, AM/PM toggle switch, separator line, 12h/24h conversion
-- `<ui-calendar-panel>` — composable wrapper: elevation, slots (default/side/bottom), size propagation, optional actions bar (Cancel/OK)
+│   │   ├── ui-calendar-quicklinks.ts  + ui-calendar-quicklinks.styles.ts
 │   │   ├── ui-calendar-time.ts    + ui-calendar-time.styles.ts
 │   │   ├── ui-calendar-panel.ts    + ui-calendar-panel.styles.ts
 │   │   ├── ui-datetime-picker-input.ts + ui-datetime-picker-input.styles.ts
@@ -140,7 +141,8 @@ ui-components/
 │   │   ├── ui-clock.ts            + ui-clock.styles.ts
 │   │   ├── ui-list-item.ts        + ui-list-item.styles.ts
 │   │   ├── ui-list-header.ts      + ui-list-header.styles.ts
-│   │   ├── ui-list-group.ts       + ui-list-group.styles.ts
+│   │   ├── ui-popover.ts           + ui-popover.styles.ts
+│   │   ├── ui-tooltip.ts
 │   │   └── *.test.ts            # Co-located tests
 │   └── stories/
 │       └── *.stories.ts     # CSF3 + lit html
@@ -248,6 +250,10 @@ Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, u
 - **Visual Figma verification required.** Before a component is considered done, visually compare the Storybook rendering against the Figma source using the Playwright/browser tool. Verify sizes, colors, spacing, and states match. No component ships without this step.
 - **Reuse existing primitives.** When adding a new component, review existing components and stories to check if they should consume the new component instead of duplicating markup (e.g., stories using inline `<button>` elements should use `<ui-button>` once it exists). Applies to both component implementations and Storybook stories.
 - **No direct pushes to `main`.** All changes go through feature branches and PRs. Use `jj bookmark set <name> -r @` + `jj git push --bookmark <name>` then `gh pr create`.
+- **Import token constants from `@maneki/foundation`** — no local `const X = semanticVar(...)` definitions. Use pre-computed constants like `TEXT_PRIMARY`, `SP_1`, etc.
+- **Typography via `${TYPE_BODY_02}`** — emits font-family + font-size + line-height + font-weight in one interpolation via `typeBlock()` from foundation.
+- **Custom icons:** `registerIcon()` / `registerIcons()` re-exported from ui-components. Allows registering custom SVG icons alongside Material Symbols.
+- **Accessibility:** 14 components have ARIA improvements (PR #116) — proper roles, labels, keyboard navigation, and screen reader support.
 
 ## ANTI-PATTERNS
 - **No hardcoded design values** — never use raw hex colors (`#186ade`), pixel spacing (`4px`, `16px`), or font sizes directly. Always use foundation token helpers (`colorVar()`, `spaceVar()`, `typeVar()`, etc.).
@@ -340,6 +346,6 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ```bash
 moon run ui-components:storybook       # Dev server on port 6006
 moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (2235 tests)
+moon run ui-components:test            # vitest --run (3593 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 ```

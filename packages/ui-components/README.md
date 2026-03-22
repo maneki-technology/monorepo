@@ -119,7 +119,7 @@ moon run ui-components:storybook-build  # Static build → storybook-static/
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (2235 tests)
+moon run ui-components:test   # vitest --run (3593 tests)
 ```
 
 ---

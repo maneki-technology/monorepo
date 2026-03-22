@@ -1,5 +1,27 @@
 import { registerPage } from "../registry.js";
+import { registerIcon } from "@maneki/ui-components";
 
+// Register custom icons for the demo
+registerIcon("brand-star", () => {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.innerHTML = '<path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>';
+  return svg;
+});
+
+registerIcon("brand-heart", () => {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.innerHTML = '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>';
+  return svg;
+});
+
+registerIcon("brand-bolt", () => {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.innerHTML = '<path d="M11 21h-1l1-7H7.5c-.88 0-.33-.75-.31-.78C8.48 10.94 10.42 7.54 13.01 3h1l-1 7h3.51c.4 0 .62.19.4.66C12.97 17.55 11 21 11 21z"/>';
+  return svg;
+});
 registerPage("icon", {
   title: "Icon",
   section: "Primitives",
@@ -64,6 +86,35 @@ registerPage("icon", {
         <ui-icon name="home" size="m" label="Home"></ui-icon>
         <ui-icon name="settings" size="m" label="Settings"></ui-icon>
         <ui-icon name="person" size="m" label="User profile"></ui-icon>
+      </div>
+
+      <h3>Custom Icons (via registerIcon)</h3>
+      <p class="hint">These icons are registered at runtime — not part of Material Symbols.</p>
+      <div class="variant-row">
+        ${["brand-star", "brand-heart", "brand-bolt"].map(name =>
+          `<div class="variant-col items-center">
+            <ui-icon name="${name}" size="m"></ui-icon>
+            <span class="variant-label">${name}</span>
+          </div>`
+        ).join("")}
+      </div>
+
+      <h3>Custom Icons — Sizes</h3>
+      <div class="variant-row">
+        ${["xxs","xs","s","m","l"].map(s =>
+          `<div class="variant-col items-center">
+            <ui-icon name="brand-star" size="${s}"></ui-icon>
+            <span class="variant-label">${s}</span>
+          </div>`
+        ).join("")}
+      </div>
+
+      <h3>Custom Icons — Inherit Color</h3>
+      <div class="variant-row">
+        <div style="color:#186ade"><ui-icon name="brand-heart" size="m"></ui-icon></div>
+        <div style="color:#D91F11"><ui-icon name="brand-heart" size="m"></ui-icon></div>
+        <div style="color:#1B806A"><ui-icon name="brand-heart" size="m"></ui-icon></div>
+        <div style="color:#E86427"><ui-icon name="brand-bolt" size="m"></ui-icon></div>
       </div>
     `;
   },

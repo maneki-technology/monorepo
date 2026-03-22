@@ -1,25 +1,26 @@
 # apps/catalog — Visual Catalog & Playwright Regression Tests
 
 ## OVERVIEW
-Dedicated visual catalog app for the Maneki design system. Renders all foundation tokens and 50 UI components with key variants on static pages. Used as the target for Playwright screenshot-based visual regression tests. No Storybook dependency — pure Vite + vanilla TS.
+Dedicated visual catalog app for the Maneki design system. Renders all foundation tokens and UI components with key variants on static pages. Used as the target for Playwright screenshot-based visual regression tests (visual + accessibility). No Storybook dependency — pure Vite + vanilla TS.
 
 ## STRUCTURE
 ```
 catalog/
-├── index.html              # App shell (sidebar + content area + CSS)
+├── index.html              # App shell (sidebar + content area + theme toggle + CSS)
 ├── vite.config.ts          # Vite config with @maneki/* aliases
 ├── tsconfig.json           # TypeScript config
 ├── playwright.config.ts    # Playwright: chromium, 1280×900, vite preview server
 ├── moon.yml                # Moon tasks: dev, build, test-visual, test-visual-update
 ├── package.json            # @maneki/catalog — deps on foundation + ui-components
 ├── src/
-│   ├── main.ts             # App entry: injects tokens, registers icon font, imports all pages, hash router
-│   └── pages/              # 34 page modules (5 foundation + 29 component)
+│   ├── main.ts             # App entry: injects tokens, registers icon font, imports all pages, hash router, theme toggle
+│   └── pages/              # 57 page modules (6 foundation + 51 component)
 │       ├── colors.ts
 │       ├── spacing.ts
 │       ├── typography.ts
 │       ├── elevation.ts
 │       ├── semantic-tokens.ts
+│       ├── shape.ts
 │       ├── badge.ts
 │       ├── button.ts
 │       ├── avatar.ts
@@ -41,16 +42,22 @@ catalog/
 │       ├── dropdown.ts
 │       ├── menu.ts
 │       ├── modal.ts
+│       ├── popover.ts
+│       ├── tooltip.ts
 │       ├── side-panel-menu.ts
+│       ├── side-panel.ts
 │       ├── tabs.ts
 │       ├── table.ts
 │       ├── carousel.ts
 │       ├── calendar.ts
 │       ├── datetime-picker.ts
 │       ├── clock.ts
-│       └── list.ts
+│       ├── list.ts
+│       └── ... (57 pages total)
 └── e2e/
-    ├── visual.spec.ts      # 36 Playwright screenshot tests
+    ├── helpers.ts          # Shared page list + test utilities
+    ├── visual.spec.ts      # 57 Playwright visual screenshot tests
+    ├── a11y.spec.ts        # 57 Playwright accessibility tests (axe-core)
     ├── test-results/        # Playwright test artifacts (gitignored)
     └── snapshots/           # Baseline screenshots (committed)
         └── visual.spec.ts/
@@ -58,16 +65,17 @@ catalog/
             ├── visual-button/button-chromium.png
             ├── visual-sidebar/sidebar-chromium.png
             ├── visual-full-layout/full-layout-chromium.png
-            └── ... (36 snapshot directories total)
+            └── ... (57+ snapshot directories total)
 ```
 
 ## WHERE TO LOOK
 | Task | Location | Notes |
 |------|----------|-------|
 | Add a new catalog page | `src/pages/` | Create file + import in `main.ts` |
-| Add page to visual tests | `e2e/visual.spec.ts` | Add page ID to `pages` array |
+| Add page to visual tests | `e2e/helpers.ts` | Add page ID to shared `pages` array |
+| Add page to a11y tests | `e2e/a11y.spec.ts` | Uses same `pages` array from `helpers.ts` |
 | Update baseline snapshots | Run `test-visual-update` | After intentional visual changes |
-| Modify app shell/layout | `index.html` | Sidebar, content area, CSS classes |
+| Modify app shell/layout | `index.html` | Sidebar, content area, theme toggle, CSS classes |
 | Change Playwright config | `playwright.config.ts` | Viewport, threshold, browser |
 
 ## ARCHITECTURE
@@ -83,8 +91,14 @@ Each page module calls `registerPage(id, { title, section, render, setup? })`:
 ### Router
 Hash-based routing. `window.location.hash` maps to page IDs. Sidebar links update the hash, `hashchange` event triggers re-render.
 
+### Theme Toggle
+App shell includes a dark/light theme toggle button. Sets `[data-theme="dark"]` on `:root` to switch all semantic tokens to dark values.
+
 ### Visual Tests
-One screenshot test per page, targeting `#content` element (excludes sidebar for focused component comparison). Plus sidebar and full-layout tests.
+One screenshot test per page, targeting `#content` element (excludes sidebar for focused component comparison). Plus sidebar and full-layout tests. Shared `pages` array in `e2e/helpers.ts` drives both visual and a11y specs.
+
+### Accessibility Tests
+Per-page a11y tests using `@axe-core/playwright`. Each page is loaded and scanned for WCAG violations. Uses the same shared `pages` array from `e2e/helpers.ts`.
 
 ## CONVENTIONS
 - **Plain HTML strings** — no lit, no JSX. `render()` returns template literal HTML.
@@ -97,7 +111,7 @@ One screenshot test per page, targeting `#content` element (excludes sidebar for
 - **Don't use Storybook patterns** — no lit html, no CSF3, no decorators. Plain HTML strings only.
 - **Don't open dropdowns/modals by default** — they overlay other content and break screenshots.
 - **Don't use external images** — they cause flaky tests. Use colored divs or inline SVGs.
-- **Don't forget to add new pages to both `main.ts` imports AND `visual.spec.ts` pages array.**
+- **Don't forget to add new pages to `main.ts` imports, AND the `pages` array in `e2e/helpers.ts`** (drives both visual.spec.ts and a11y.spec.ts).
 
 ## COMMANDS
 ```bash
@@ -109,7 +123,7 @@ npx vite --port 5174               # Same, from apps/catalog/
 moon run catalog:build              # Vite production build → dist/
 
 # Visual regression tests
-moon run catalog:test-visual        # Run 36 Playwright screenshot tests
+moon run catalog:test-visual        # Run 115 Playwright tests (57 visual + 57 a11y + sidebar)
 moon run catalog:test-visual-update # Regenerate baseline snapshots
 
 # From apps/catalog/ directly
@@ -121,9 +135,9 @@ npx playwright test --update-snapshots  # Update baselines
 
 1. Create `src/pages/{component}.ts`
 2. Import `registerPage` from `"../main.js"`
-3. Call `registerPage("{id}", { title, section: "Components", render: () => html })` 
+3. Call `registerPage("{id}", { title, section: "Components", render: () => html })`
 4. Add `import "./pages/{component}.js"` to `src/main.ts`
-5. Add `"{id}"` to the `pages` array in `e2e/visual.spec.ts`
+5. Add `"{id}"` to the `pages` array in `e2e/helpers.ts` (drives both visual + a11y tests)
 6. Run `npx vite build && npx playwright test --update-snapshots` to generate baseline
 7. Verify the snapshot looks correct
 8. Commit the new page file + snapshot
@@ -131,6 +145,6 @@ npx playwright test --update-snapshots  # Update baselines
 ## NOTES
 - Vite aliases resolve `@maneki/foundation` and `@maneki/ui-components` to source (not dist) for HMR in dev
 - Playwright uses `vite preview` (production build) for deterministic rendering
-- 36 tests run in ~44s on Chromium
+- 115 tests (57 visual + 57 a11y + 1 sidebar) run on Chromium
 - Snapshots are platform-specific (chromium on macOS) — CI may need its own baselines
 - The `setup()` callback uses `requestAnimationFrame` to ensure DOM is ready before imperative manipulation

@@ -136,4 +136,10 @@ export {
   ICON_REFRESH,
   ICON_CODEPOINTS,
   registerIconFont,
+  registerIcon,
+  registerIcons,
+  resolveIcon,
+  hasIcon,
+  unregisterIcon,
+  clearIcons,
 } from "./icons.js";

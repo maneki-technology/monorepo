@@ -21,6 +21,7 @@ maneki-monorepo/
 ├── .prototools              # node 22.16.0, moon 2.0.4
 ├── .moon/                   # Moon workspace + toolchain config
 ├── .storybook/              # Root Storybook config (aggregates all packages)
+├── docs/                    # ADRs + lessons learned
 ├── package.json             # npm workspaces root + Storybook scripts
 ├── packages/
 │   ├── foundation/          # Design tokens (@maneki/foundation)
@@ -35,7 +36,7 @@ maneki-monorepo/
 
 | Package | npm name | Description |
 |---|---|---|
-| `foundation` | `@maneki/foundation` | Design tokens: 131 colors, semantic tokens, typography, spacing, elevation, responsive breakpoints |
+| `foundation` | `@maneki/foundation` | Design tokens: 131 colors, semantic tokens, typography, spacing, elevation, breakpoints, dark theme, shape, token constants |
 | `ui-components` | `@maneki/ui-components` | 50 Web Components (button, badge, image, icon, tag, avatar, alert, label, link, checkbox, radio, input, textarea, file-upload, select, card, breadcrumb, accordion, dropdown, menu, modal, side-panel-menu, tabs, table, carousel, calendar, calendar-quicklinks, calendar-time, datetime-picker, clock, list-item, list-header, list-group) with Storybook 10 |
 | `grid-layout` | `@maneki/grid-layout` | Zero-dep drag/resize grid layout (220 tests) |
 | `flex-layout` | `@maneki/flex-layout` | Panel-based flex layout for dashboard-style interfaces (3 components, 50 tests) |
@@ -44,8 +45,7 @@ maneki-monorepo/
 
 | App | Description |
 |---|---|
-| `catalog` | Visual catalog for all foundation tokens + 50 components. Used for Playwright visual regression tests (36 screenshot tests). |
-| `flex-layout` | `@maneki/flex-layout` | Panel-based flex layout for dashboard-style interfaces (3 components, 50 tests) |
+| `catalog` | Visual catalog for all foundation tokens + UI components. 57 pages, 115 Playwright tests (57 visual + 57 a11y + sidebar). Dark theme toggle. |
 
 ---
 
@@ -82,6 +82,8 @@ npm run storybook:build      # Static build → storybook-static/
 - TypeScript strict mode, ES2022 target
 - Tests co-located: `foo.ts` → `foo.test.ts`
 - Moon tasks in kebab-case: `build`, `test`, `test-watch`, `dev`, `storybook`
+- Dark theme support via `[data-theme="dark"]` attribute
+- Architectural Decision Records in `docs/adr/`
 
 ## Visual Catalog
 

@@ -3,6 +3,7 @@ import {
   ICON_ACTION,
   ICON_CODEPOINTS,
   ICON_REVERSED,
+  resolveIcon,
 } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -59,6 +60,20 @@ export const STYLES = /* css */ `
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     font-feature-settings: 'liga';
+    color: var(--ui-icon-color, currentColor);
+  }
+
+  /* Custom icon: inherit size from host, reset font styles */
+  .icon.has-custom {
+    font-family: inherit;
+    font-variation-settings: normal;
+  }
+
+  .icon.has-custom > * {
+    width: 100%;
+    height: 100%;
+    fill: currentColor;
+    color: currentColor;
   }
 
   /* ── Filled variant ────────────────────────────────────────────────────────── */
@@ -232,6 +247,21 @@ export class UiIcon extends HTMLElement {
 
   #updateIcon(): void {
     const name = this.getAttribute("name") ?? "";
+
+    // Check custom icon registry first
+    const custom = resolveIcon(name);
+    if (custom) {
+      // Custom icon: replace font icon with the custom element
+      custom.setAttribute("part", "icon");
+      custom.classList.add("custom-icon");
+      this.#iconEl.textContent = "";
+      this.#iconEl.replaceChildren(custom);
+      this.#iconEl.classList.add("has-custom");
+      return;
+    }
+
+    // Material Symbols fallback: codepoint lookup, then ligature
+    this.#iconEl.classList.remove("has-custom");
     const codepoint = ICON_CODEPOINTS[name];
     this.#iconEl.textContent = codepoint ?? name;
   }
