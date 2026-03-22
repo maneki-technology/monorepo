@@ -4,6 +4,8 @@ Design system monorepo with Web Components and design tokens extracted from Figm
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+🐱 **[Browse the Visual Catalog](https://ui.maneki.tech)**
+
 ---
 
 ## Toolchain
@@ -85,9 +87,6 @@ npm run storybook:build      # Static build → storybook-static/
 - Dark theme support via `[data-theme="dark"]` attribute
 - Architectural Decision Records in `docs/adr/`
 
-## Visual Catalog
-
-Browse all components: [Maneki Catalog](https://maneki-catalog.pages.dev/)
 ---
 
 ## License
