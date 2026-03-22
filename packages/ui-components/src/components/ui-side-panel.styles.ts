@@ -38,6 +38,7 @@ export const STYLES = /* css */ `
     transition: width 0.2s ease;
   }
 
+
   .container {
     display: flex;
     flex-direction: column;
@@ -67,23 +68,29 @@ export const STYLES = /* css */ `
     width: var(--ui-sp-collapsed-width, 40px);
   }
 
-  /* ── Mobile full-width overlay ───────────────────────────────────────────── */
-
-  :host([mobile][state="expanded"]) {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    z-index: 100;
-  }
-  /* ── Mobile collapsed: fully hidden + floating trigger ─────────────────── */
-
-  :host([mobile][state="collapsed"]) {
+  /* Mobile: host takes no layout space, container handles positioning */
+  :host([mobile]) {
     width: 0;
-    overflow: hidden;
+    overflow: visible;
+    transition: none;
+  }
+  /* ── Mobile: slide-in/out via container ─────────────────────────────────── */
+
+  :host([mobile]) .container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    background-color: var(--ui-sp-bg, ${SURFACE_SECONDARY});
+    transform: translateX(0);
+    transition: transform 0.25s ease;
   }
 
   :host([mobile][state="collapsed"]) .container {
-    display: none;
+    transform: translateX(-100%);
+    pointer-events: none;
   }
 
   .mobile-trigger {
