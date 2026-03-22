@@ -1,5 +1,5 @@
 import { STYLES } from "./ui-side-panel.styles.js";
-import { ICON_KEYBOARD_DOUBLE_ARROW_LEFT, ICON_KEYBOARD_DOUBLE_ARROW_RIGHT } from "@maneki/foundation";
+import { ICON_KEYBOARD_DOUBLE_ARROW_LEFT, ICON_KEYBOARD_DOUBLE_ARROW_RIGHT, ICON_MENU } from "@maneki/foundation";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -78,8 +78,9 @@ export class UiSidePanel extends HTMLElement {
     this.#mobileTrigger.setAttribute("aria-label", "Open navigation");
     const triggerIcon = document.createElement("span");
     triggerIcon.className = "material-symbols-outlined";
-    triggerIcon.textContent = "menu";
+    triggerIcon.textContent = ICON_MENU;
     this.#mobileTrigger.appendChild(triggerIcon);
+    this.#mobileTrigger.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`;
 
     shadow.append(container, this.#mobileTrigger);
   }
