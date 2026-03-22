@@ -245,6 +245,13 @@ Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, u
 - **Tests co-located:** `ui-button.ts` → `ui-button.test.ts` in same directory
 - **Storybook 10:** Consolidated — no separate `@storybook/addon-essentials` or `@storybook/blocks` needed
 - **`@maneki/foundation` is a production dependency.** Tokens are consumed via CSS custom property references (`var(--fd-*)`) and type-safe JS helpers (`colorVar`, `spaceVar`). Foundation code is bundled into the built output.
+- **Multi-entry build.** Vite emits both a barrel (`dist/index.js`) and per-component files (`dist/components/ui-*.js`). Consumers can import everything or cherry-pick. Shared foundation code is deduped into `dist/shared/` chunks.
+- **Deep imports via exports map.** `import "@maneki/ui-components/components/ui-badge.js"` imports only that component + its dependencies. Use for apps that need a subset (e.g., the blog app uses 4 of 75 components).
+- **Component prefix:** `ui-*` for element names
+- **Shadow DOM:** Always. No light DOM components.
+- **Tests co-located:** `ui-button.ts` → `ui-button.test.ts` in same directory
+- **Storybook 10:** Consolidated — no separate `@storybook/addon-essentials` or `@storybook/blocks` needed
+- **`@maneki/foundation` is a production dependency.** Tokens are consumed via CSS custom property references (`var(--fd-*)`) and type-safe JS helpers (`colorVar`, `spaceVar`). Foundation code is bundled into the built output.
 - **All components MUST use type-safe foundation tokens.** No hardcoded color hex values, spacing pixel values, or typography values. Use `colorVar()`, `spaceVar()`, `typeVar()`, `semanticVar()`, `elevationVar()` from `@maneki/foundation`. The only exceptions are: `#ffffff` (white, not in palette), `rgba()` overlays for hover/active/focus states, and shape constants like `2px`/`999px` border-radius that have no token equivalent.
 - **Branch per component.** Every new component implementation MUST happen on a dedicated branch (e.g., `feat/ui-checkbox`). Do not implement directly on `main`.
 - **Visual Figma verification required.** Before a component is considered done, visually compare the Storybook rendering against the Figma source using the Playwright/browser tool. Verify sizes, colors, spacing, and states match. No component ships without this step.

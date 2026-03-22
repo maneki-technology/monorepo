@@ -14,7 +14,7 @@ maneki-monorepo/
 │   ├── main.ts              # stories from foundation + ui-components + grid-layout
 │   └── preview.ts           # injects tokens + registers components
 ├── docs/                    # Project-level documentation
-│   ├── adr/                 # 15 architectural decision records
+│   ├── adr/                 # 16 architectural decision records
 │   └── WEB_COMPONENTS_LESSONS.md  # Lessons learned building Web Components
 ├── package.json             # npm workspaces root + Storybook scripts
 ├── packages/
@@ -38,7 +38,7 @@ maneki-monorepo/
 │   │   └── playwright.config.ts
 │   └── blog/                # Personal blog + portfolio (@maneki/blog)
 │       ├── content/posts/    # Markdown posts with YAML frontmatter
-│       ├── plugins/          # Vite plugin: markdown → virtual:posts
+│       ├── plugins/          # Vite plugins: markdown → virtual:posts, auto-detect → virtual:ui-components
 │       └── src/pages/        # 5 routes: home, blog, post, portfolio, about
 ```
 
@@ -134,5 +134,5 @@ npx vite build               # Build
 - Node pinned at 22 because Storybook 10 requires Node 20.19+
 - LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead
 - Dark theme: `[data-theme="dark"]` toggles all semantic tokens. Catalog has theme toggle button.
-- ADRs in `docs/adr/` — 15 architectural decision records
-- `apps/blog/` — Personal blog + portfolio. Markdown posts in `content/posts/`, Vite virtual module plugin, static generation. Port 5175.
+- ADRs in `docs/adr/` — 16 architectural decision records
+- `apps/blog/` — Personal blog + portfolio. Markdown posts in `content/posts/`, Vite virtual module plugin, auto-detected UI component imports, static generation. Port 5175.

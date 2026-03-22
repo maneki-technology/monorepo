@@ -20,3 +20,4 @@ This directory contains Architectural Decision Records (ADRs) for the Maneki des
 | [012](012-zero-runtime-dependencies.md) | Zero Runtime Dependencies | Accepted | 2026-03 |
 | [014](014-custom-icon-registry.md) | Custom Icon Registry | Accepted | 2026-03 |
 | [015](015-blog-markdown-pipeline.md) | Blog App — Markdown Pipeline with Static Generation | Accepted | 2026-03 |
+| [016](016-ui-components-tree-shaking.md) | UI Components Tree-Shaking with Auto-Detection | Accepted | 2026-03 |

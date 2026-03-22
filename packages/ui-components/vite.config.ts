@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from "vitest/config";
 import { resolve } from "path";
+import { readdirSync } from "node:fs";
 
 import { minifyCss } from "./src/css-minify.js";
 /**
@@ -35,13 +36,25 @@ export default defineConfig({
   plugins: [minifyCssLiterals()],
   build: {
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
-      name: "ManekiUiComponents",
-      fileName: "index",
+      entry: {
+        index: resolve(__dirname, "src/index.ts"),
+        ...Object.fromEntries(
+          readdirSync(resolve(__dirname, "src/components"))
+            .filter((f) => f.startsWith("ui-") && f.endsWith(".ts") && !f.includes(".test.") && !f.includes(".styles."))
+            .map((f) => [`components/${f.replace(".ts", "")}`, resolve(__dirname, `src/components/${f}`)])
+        ),
+      },
       formats: ["es"],
     },
     outDir: "dist",
     sourcemap: true,
+    rollupOptions: {
+      output: {
+        preserveModules: false,
+        entryFileNames: "[name].js",
+        chunkFileNames: "shared/[name]-[hash].js",
+      },
+    },
   },
   test: {
     environment: "happy-dom",
