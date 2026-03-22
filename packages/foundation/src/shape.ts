@@ -14,10 +14,12 @@
 export const radius = {
   /** 0px — no rounding */
   none: "0px",
-  /** 2px — default component radius (buttons, inputs, badges, cards, alerts) */
-  sm: "2px",
-  /** 4px — medium radius */
-  md: "4px",
+  /** 8px — small component radius (size S buttons, inputs, badges) */
+  sm: "8px",
+  /** 10px — medium/default component radius (size M buttons, inputs, cards) */
+  md: "10px",
+  /** 12px — large component radius (size L buttons, inputs, modals) */
+  lg: "12px",
   /** 999px — pill shape (avatars, tags, switches, rounded badges) */
   pill: "999px",
   /** 50% — perfect circle (progress-circle, clock) */

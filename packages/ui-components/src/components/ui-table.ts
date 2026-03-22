@@ -1,6 +1,7 @@
 import {
   BORDER_MINIMAL,
   BORDER_MODERATE,
+  RADIUS_MD,
   BW_SM,
   FONT_PRIMARY,
   GRID_ROW_ALT,
@@ -84,6 +85,8 @@ const STYLES = /* css */ `
 
   :host([bordered]) .table-wrapper {
     border: ${BW_SM} solid ${BORDER_MODERATE};
+    border-radius: ${RADIUS_MD};
+    overflow: hidden;
   }
 
   /* Tell last row's cells to hide bottom border when bordered */

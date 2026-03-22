@@ -13,6 +13,8 @@ export type AlertStatus =
 
 import {
   FONT_PRIMARY,
+  RADIUS_LG,
+  RADIUS_MD,
   RADIUS_SM,
   SP_1,
   SP_1_5,
@@ -78,7 +80,7 @@ const STYLES = /* css */ `
   .base {
     display: flex;
     flex-direction: column;
-    border-radius: ${RADIUS_SM};
+    border-radius: ${RADIUS_MD};
     font-family: ${FONT_PRIMARY};
   }
 

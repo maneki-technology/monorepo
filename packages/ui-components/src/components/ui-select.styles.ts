@@ -9,6 +9,8 @@ import {
   HOVER_BORDER_MODERATE,
   ICON_SECONDARY,
   RADIUS_PILL,
+  RADIUS_LG,
+  RADIUS_MD,
   RADIUS_SM,
   SP_0_25,
   SP_0_5,
@@ -76,7 +78,15 @@ export const STYLES = /* css */ `
     display: flex;
     align-items: center;
     border: 1px solid var(--ui-select-border, ${FORM_INPUT_BORDER});
+    border-radius: ${RADIUS_MD};
+  }
+
+  :host([size="s"]) .trigger {
     border-radius: ${RADIUS_SM};
+  }
+
+  :host([size="l"]) .trigger {
+    border-radius: ${RADIUS_LG};
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;
@@ -241,7 +251,7 @@ export const STYLES = /* css */ `
     padding: ${SP_0_5} 0;
     background: var(--ui-select-panel-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-select-panel-shadow, ${ELEVATION_05});
-    border-radius: ${RADIUS_SM};
+    border-radius: ${RADIUS_MD};
     margin-top: ${SP_0_25};
     opacity: 0;
     visibility: hidden;

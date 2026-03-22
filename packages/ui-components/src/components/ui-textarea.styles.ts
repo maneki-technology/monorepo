@@ -7,6 +7,8 @@ import {
   FONT_PRIMARY,
   FORM_INPUT_BORDER,
   HOVER_BORDER_MODERATE,
+  RADIUS_LG,
+  RADIUS_MD,
   RADIUS_SM,
   SP_0_5,
   SP_1,
@@ -84,7 +86,15 @@ export const STYLES = /* css */ `
     border-width: ${BW_SM};
     border-style: solid;
     border-color: var(--ui-textarea-border, ${FORM_INPUT_BORDER});
+    border-radius: ${RADIUS_MD};
+  }
+
+  :host([size="s"]) .textarea-container {
     border-radius: ${RADIUS_SM};
+  }
+
+  :host([size="l"]) .textarea-container {
+    border-radius: ${RADIUS_LG};
     background-color: var(--ui-textarea-bg, ${SURFACE_PRIMARY});
     transition:
       border-color 0.15s ease,

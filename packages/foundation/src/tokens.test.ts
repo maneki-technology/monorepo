@@ -31,7 +31,7 @@ describe("colorsToCssProperties", () => {
   it("generates CSS custom properties", () => {
     const css = colorsToCssProperties();
     expect(css).toContain("--fd-color-red-10: #fcf3f2;");
-    expect(css).toContain("--fd-color-gray-110: #090f14;");
+    expect(css).toContain("--fd-color-gray-110: #09090b;");
   });
 
   it("generates 131 properties", () => {
@@ -51,19 +51,19 @@ describe("semanticToCssProperties", () => {
   it("generates surface tokens", () => {
     const css = semanticToCssProperties();
     expect(css).toContain("--fd-surface-primary: #ffffff;");
-    expect(css).toContain("--fd-surface-secondary: #f2f5f7;");
-    expect(css).toContain("--fd-surface-overlay: rgba(28, 43, 54, 0.8);");
+    expect(css).toContain("--fd-surface-secondary: #fafafa;");
+    expect(css).toContain("--fd-surface-overlay: rgba(0, 0, 0, 0.5);");
   });
 
   it("generates border tokens", () => {
     const css = semanticToCssProperties();
-    expect(css).toContain("--fd-border-minimal: #dce3e8;");
-    expect(css).toContain("--fd-border-contrast: #1c2b36;");
+    expect(css).toContain("--fd-border-minimal: #e4e4e7;");
+    expect(css).toContain("--fd-border-contrast: #18181b;");
   });
 
   it("generates text tokens", () => {
     const css = semanticToCssProperties();
-    expect(css).toContain("--fd-text-primary: #1c2b36;");
+    expect(css).toContain("--fd-text-primary: #27272a;");
     expect(css).toContain("--fd-text-link: #186ade;");
     expect(css).toContain("--fd-text-destructive: #d91f11;");
   });
@@ -82,7 +82,7 @@ describe("semanticToCssProperties", () => {
 
   it("generates status surface tokens", () => {
     const css = semanticToCssProperties();
-    expect(css).toContain("--fd-status-surface-none-bold: #5b7282;");
+    expect(css).toContain("--fd-status-surface-none-bold: #52525b;");
     expect(css).toContain("--fd-status-surface-error-bold: #d91f11;");
     expect(css).toContain("--fd-status-surface-warning-subtle: #faf6cf;");
   });
@@ -90,7 +90,7 @@ describe("semanticToCssProperties", () => {
   it("generates status text tokens", () => {
     const css = semanticToCssProperties();
     expect(css).toContain("--fd-status-text-none-bold-text: #ffffff;");
-    expect(css).toContain("--fd-status-text-warning-bold-text: #090f14;");
+    expect(css).toContain("--fd-status-text-warning-bold-text: #09090b;");
   });
 
   it("generates status icon tokens", () => {
@@ -100,25 +100,25 @@ describe("semanticToCssProperties", () => {
 
   it("generates status general tokens", () => {
     const css = semanticToCssProperties();
-    expect(css).toContain("--fd-status-general-none: #5b7282;");
+    expect(css).toContain("--fd-status-general-none: #52525b;");
     expect(css).toContain("--fd-status-general-warning: #e86427;");
   });
 
   it("generates state disabled tokens", () => {
     const css = semanticToCssProperties();
-    expect(css).toContain("--fd-state-disabled-border: rgba(91, 114, 130, 0.4);");
-    expect(css).toContain("--fd-state-disabled-minimal: rgba(91, 114, 130, 0.2);");
-    expect(css).toContain("--fd-state-disabled-text: rgba(91, 114, 130, 0.5);");
+    expect(css).toContain("--fd-state-disabled-border: rgba(113, 113, 122, 0.3);");
+    expect(css).toContain("--fd-state-disabled-minimal: rgba(113, 113, 122, 0.15);");
+    expect(css).toContain("--fd-state-disabled-text: rgba(113, 113, 122, 0.5);");
   });
   it("generates form tokens", () => {
     const css = semanticToCssProperties();
-    expect(css).toContain("--fd-form-input-border: #9fb1bd;");
+    expect(css).toContain("--fd-form-input-border: #d4d4d8;");
     expect(css).toContain("--fd-form-input-background: #ffffff;");
   });
 
   it("generates state hover tokens", () => {
     const css = semanticToCssProperties();
-    expect(css).toContain("--fd-state-hover-border-moderate: #7a909e;");
+    expect(css).toContain("--fd-state-hover-border-moderate: #71717a;");
   });
 
   it("generates state selected tokens", () => {
@@ -224,3 +224,4 @@ describe("spaceVar", () => {
     expect(spaceVar("2.5")).toBe("var(--fd-space-2-5)");
   });
 });
+

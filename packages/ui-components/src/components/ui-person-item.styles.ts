@@ -3,6 +3,7 @@ import {
   BW_SM,
   FONT_PRIMARY,
   ICON_PRIMARY,
+  RADIUS_SM,
   SP_1,
   SP_1_25,
   SP_1_5,
@@ -97,6 +98,10 @@ export const STYLES = /* css */ `
     color: ${ICON_PRIMARY};
     cursor: pointer;
     flex-shrink: 0;
+    border: none;
+    background: none;
+    padding: 0;
+    border-radius: ${RADIUS_SM};
   }
 
   .action-icon .material-symbols-outlined {

@@ -12,6 +12,7 @@ import {
   SP_5,
   SP_7,
   SP_8,
+  RADIUS_MD,
   SURFACE_PRIMARY,
   SURFACE_SECONDARY,
   TEXT_PRIMARY,
@@ -42,6 +43,7 @@ const STYLES = /* css */ `
     width: 100%;
     height: 100%;
     background: ${SURFACE_PRIMARY};
+    border-radius: ${RADIUS_MD};
     overflow: hidden;
   }
 

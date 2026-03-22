@@ -7,6 +7,8 @@ import {
   ELEVATION_04,
   FONT_PRIMARY,
   RADIUS_NONE,
+  RADIUS_LG,
+  RADIUS_MD,
   RADIUS_SM,
   SP_1,
   SP_1_5,
@@ -41,7 +43,7 @@ const STYLES = /* css */ `
     display: flex;
     flex-direction: column;
     width: 100%;
-    border-radius: var(--ui-card-radius, ${RADIUS_SM});
+    border-radius: var(--ui-card-radius, ${RADIUS_MD});
     background-color: var(--ui-card-bg, ${SURFACE_PRIMARY});
     color: var(--ui-card-color, ${TEXT_PRIMARY});
     overflow: hidden;
@@ -78,7 +80,7 @@ const STYLES = /* css */ `
 
   .image-slot {
     overflow: hidden;
-    border-radius: var(--ui-card-radius, ${RADIUS_SM}) var(--ui-card-radius, ${RADIUS_SM}) ${RADIUS_NONE} ${RADIUS_NONE};
+    border-radius: var(--ui-card-radius, ${RADIUS_MD}) var(--ui-card-radius, ${RADIUS_MD}) ${RADIUS_NONE} ${RADIUS_NONE};
   }
 
   .image-slot ::slotted(*) {

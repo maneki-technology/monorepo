@@ -281,6 +281,7 @@ export const SP_10 = spaceVar("10");        // 80px
 export const RADIUS_NONE = radiusVar("none");
 export const RADIUS_SM = radiusVar("sm");
 export const RADIUS_MD = radiusVar("md");
+export const RADIUS_LG = radiusVar("lg");
 export const RADIUS_PILL = radiusVar("pill");
 export const RADIUS_CIRCLE = radiusVar("circle");
 

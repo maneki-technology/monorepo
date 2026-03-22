@@ -7,6 +7,9 @@ import {
   HOVER_BORDER_MODERATE,
   SP_1,
   SP_1_5,
+  RADIUS_LG,
+  RADIUS_MD,
+  RADIUS_SM,
   SURFACE_PRIMARY,
   SURFACE_SECONDARY,
   SURFACE_TERTIARY,
@@ -35,7 +38,7 @@ const STYLES = /* css */ `
     display: flex;
     align-items: stretch;
     border: 1px solid var(--ui-fu-border, ${FORM_INPUT_BORDER});
-    border-radius: 2px;
+    border-radius: ${RADIUS_MD};
     background-color: var(--ui-fu-bg, ${SURFACE_PRIMARY});
     overflow: hidden;
     cursor: pointer;
@@ -43,6 +46,14 @@ const STYLES = /* css */ `
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;
+  }
+
+  :host([size="s"]) .wrapper {
+    border-radius: ${RADIUS_SM};
+  }
+
+  :host([size="l"]) .wrapper {
+    border-radius: ${RADIUS_LG};
   }
 
   .display-area {

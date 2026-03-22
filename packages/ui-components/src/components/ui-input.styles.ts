@@ -8,6 +8,8 @@ import {
   FORM_INPUT_BORDER,
   HOVER_BORDER_MODERATE,
   ICON_PRIMARY,
+  RADIUS_LG,
+  RADIUS_MD,
   RADIUS_SM,
   SP_0_5,
   SP_1,
@@ -72,7 +74,15 @@ export const STYLES = /* css */ `
     border-width: ${BW_SM};
     border-style: solid;
     border-color: var(--ui-input-border, ${FORM_INPUT_BORDER});
+    border-radius: ${RADIUS_MD};
+  }
+
+  :host([size="s"]) .input-container {
     border-radius: ${RADIUS_SM};
+  }
+
+  :host([size="l"]) .input-container {
+    border-radius: ${RADIUS_LG};
     background-color: var(--ui-input-bg, ${SURFACE_PRIMARY});
     transition:
       border-color 0.15s ease,

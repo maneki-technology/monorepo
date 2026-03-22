@@ -14,6 +14,7 @@ import {
   FONT_PRIMARY,
   HOVER_MINIMAL,
   ICON_PRIMARY,
+  RADIUS_MD,
   SP_1,
   SP_1_25,
   SP_1_5,

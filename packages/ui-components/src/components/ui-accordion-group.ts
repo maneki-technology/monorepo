@@ -1,9 +1,12 @@
 import type { AccordionSize, AccordionEmphasis } from "./ui-accordion-item.js";
-
+import { RADIUS_MD, BORDER_MINIMAL } from "@maneki/foundation";
 const STYLES = `
   :host {
     display: flex;
     flex-direction: column;
+    border-radius: ${RADIUS_MD};
+    overflow: hidden;
+    border: 1px solid ${BORDER_MINIMAL};
   }
 `;
 

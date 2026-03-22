@@ -10,6 +10,8 @@ import {
   PINK_60,
   PURPLE_60,
   RADIUS_PILL,
+  RADIUS_LG,
+  RADIUS_MD,
   RADIUS_SM,
   RED_60,
   SP_0_25,
@@ -113,7 +115,7 @@ export const STYLES = /* css */ `
 
   :host .base,
   :host([shape="square"]) .base {
-    border-radius: ${RADIUS_SM};
+    border-radius: ${RADIUS_MD};
   }
 
   /* ── Shape: rounded ──────────────────────────────────────────────────────── */

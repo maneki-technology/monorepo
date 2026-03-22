@@ -8,6 +8,8 @@ import {
   FONT_PRIMARY,
   FORM_INPUT_BORDER,
   HOVER_BORDER_MODERATE,
+  RADIUS_LG,
+  RADIUS_MD,
   RADIUS_SM,
   SELECTED_BOLD,
   SP_0_75,
@@ -74,7 +76,7 @@ const STYLES = /* css */ `
     border-width: ${BW_SM};
     border-style: solid;
     border-color: var(--ui-cb-border, ${FORM_INPUT_BORDER});
-    border-radius: ${RADIUS_SM};
+    border-radius: ${RADIUS_MD};
     background-color: var(--ui-cb-bg, ${SURFACE_PRIMARY});
     color: #ffffff;
     transition:

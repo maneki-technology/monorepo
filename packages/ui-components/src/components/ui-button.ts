@@ -18,6 +18,8 @@ import {
   HOVER_BOLD,
   HOVER_SUBTLE,
   RADIUS_PILL,
+  RADIUS_LG,
+  RADIUS_MD,
   RADIUS_SM,
   SP_0_5,
   SP_0_75,
@@ -144,7 +146,15 @@ const STYLES = /* css */ `
   /* ── Shape ───────────────────────────────────────────────────────────────── */
 
   :host button {
+    border-radius: var(--ui-btn-radius, ${RADIUS_MD});
+  }
+  :host([size="s"]) button {
     border-radius: var(--ui-btn-radius, ${RADIUS_SM});
+  }
+
+  :host([size="l"]) button,
+  :host([size="xl"]) button {
+    border-radius: var(--ui-btn-radius, ${RADIUS_LG});
   }
 
   :host([shape="rounded"]) button {

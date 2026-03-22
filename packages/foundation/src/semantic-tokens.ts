@@ -58,7 +58,7 @@ export const surface = {
   destructive: ref("red", 60),
   success: ref("green", 60),
   contrast: ref("gray", 110),
-  overlay: "rgba(28, 43, 54, 0.8)", // Gray 90 @80%
+  overlay: "rgba(0, 0, 0, 0.5)",
   light: "#ffffff",
   dark: ref("gray", 110),
 } as const satisfies Record<string, SemanticValue>;
@@ -70,36 +70,28 @@ export const surface = {
 export const elevation = {
   "00": { boxShadow: "none" },
   "01": {
-    boxShadow:
-      "0px 1px 1px 0px rgba(0,0,0,0.14), 0px 2px 1px -1px rgba(0,0,0,0.12), 0px 1px 3px 0px rgba(0,0,0,0.2)",
+    boxShadow: "0 1px 2px 0 rgba(0,0,0,0.05)",
   },
   "02": {
-    boxShadow:
-      "0px 2px 2px 0px rgba(0,0,0,0.14), 0px 3px 1px -2px rgba(0,0,0,0.12), 0px 1px 5px 0px rgba(0,0,0,0.2)",
+    boxShadow: "0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1)",
   },
   "03": {
-    boxShadow:
-      "0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12), 0px 2px 4px -1px rgba(0,0,0,0.2)",
+    boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)",
   },
   "04": {
-    boxShadow:
-      "0px 6px 10px 0px rgba(0,0,0,0.14), 0px 1px 18px 0px rgba(0,0,0,0.12), 0px 3px 5px -1px rgba(0,0,0,0.2)",
+    boxShadow: "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)",
   },
   "05": {
-    boxShadow:
-      "0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12), 0px 5px 5px -3px rgba(0,0,0,0.2)",
+    boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
   },
   "06": {
-    boxShadow:
-      "0px 12px 17px 2px rgba(0,0,0,0.14), 0px 5px 22px 4px rgba(0,0,0,0.12), 0px 7px 8px -4px rgba(0,0,0,0.2)",
+    boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
   },
   "07": {
-    boxShadow:
-      "0px 16px 24px 2px rgba(0,0,0,0.14), 0px 6px 30px 5px rgba(0,0,0,0.12), 0px 8px 10px -5px rgba(0,0,0,0.2)",
+    boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
   },
   "08": {
-    boxShadow:
-      "0px 24px 38px 3px rgba(0,0,0,0.14), 0px 9px 46px 8px rgba(0,0,0,0.12), 0px 11px 15px -7px rgba(0,0,0,0.2)",
+    boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
   },
 } as const satisfies Record<string, ElevationToken>;
 
@@ -123,9 +115,9 @@ export const border = {
 // ---------------------------------------------------------------------------
 
 export const text = {
-  primary: ref("gray", 90),
-  secondary: ref("gray", 70),
-  tertiary: ref("gray", 40),
+  primary: ref("gray", 80),           // #27272a — softer than near-black
+  secondary: ref("gray", 60),         // #52525b
+  tertiary: ref("gray", 50),          // #71717a
   link: ref("blue", 60),
   linkHover: ref("blue", 70),
   linkActive: ref("blue", 80),
@@ -237,9 +229,9 @@ export const statusGeneral = {
 // ---------------------------------------------------------------------------
 
 export const stateDisabled = {
-  border: "rgba(91, 114, 130, 0.4)",   // gray-60 @40% — outer ring
-  minimal: "rgba(91, 114, 130, 0.2)",  // gray-60 @20% — inner fill/dot
-  text: "rgba(91, 114, 130, 0.5)",     // gray-60 @50% — label text
+  border: "rgba(113, 113, 122, 0.3)",   // zinc-500 @30%
+  minimal: "rgba(113, 113, 122, 0.15)", // zinc-500 @15%
+  text: "rgba(113, 113, 122, 0.5)",     // zinc-500 @50%
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------
@@ -247,8 +239,8 @@ export const stateDisabled = {
 // ---------------------------------------------------------------------------
 
 export const form = {
-  inputBorder: ref("gray", 40),        // #9FB1BD — same resolved value as border.moderate
-  inputBackground: "#ffffff",           // white
+  inputBorder: ref("gray", 30),        // #d4d4d8 — subtle border
+  inputBackground: "#ffffff",
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------
@@ -256,11 +248,11 @@ export const form = {
 // ---------------------------------------------------------------------------
 
 export const stateHover = {
-  borderModerate: ref("gray", 50),      // #7A909E — darkened border on hover
-  surfaceMinimal: "rgba(159, 177, 189, 0.10)",  // gray-60 @10% — hover-minimal surface (translucent overlay)
-  surfaceModerate: "rgba(159, 177, 189, 0.20)", // gray-60 @20% — hover-moderate surface (active/pressed)
-  surfaceBold: "rgba(14, 23, 31, 0.1)",          // gray-90 @10% — bold interactive hover overlay (buttons, dropdowns)
-  surfaceSubtle: "rgba(14, 23, 31, 0.06)",       // gray-90 @6% — subtle/minimal interactive hover fill
+  borderModerate: ref("gray", 50),      // #71717a
+  surfaceMinimal: "rgba(0, 0, 0, 0.04)",
+  surfaceModerate: "rgba(0, 0, 0, 0.08)",
+  surfaceBold: "rgba(0, 0, 0, 0.1)",
+  surfaceSubtle: "rgba(0, 0, 0, 0.06)",
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------
@@ -268,8 +260,8 @@ export const stateHover = {
 // ---------------------------------------------------------------------------
 
 export const stateActive = {
-  surfaceBold: "rgba(14, 23, 31, 0.2)",          // gray-90 @20% — bold interactive active overlay (buttons, dropdowns)
-  surfaceSubtle: "rgba(14, 23, 31, 0.12)",       // gray-90 @12% — subtle/minimal interactive active fill
+  surfaceBold: "rgba(0, 0, 0, 0.15)",
+  surfaceSubtle: "rgba(0, 0, 0, 0.1)",
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------

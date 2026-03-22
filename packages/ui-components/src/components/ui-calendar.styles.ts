@@ -38,7 +38,7 @@ export const STYLES = /* css */ `
     display: inline-block;
     background: ${SURFACE_PRIMARY};
     box-shadow: var(--ui-calendar-elevation, ${ELEVATION_05});
-    border-radius: ${RADIUS_SM};
+    border-radius: ${RADIUS_MD};
     font-family: Inter, sans-serif;
   }
 
@@ -52,7 +52,9 @@ export const STYLES = /* css */ `
   .header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     background: ${SURFACE_PRIMARY};
+    padding: 0 ${SP_0_5};
   }
 
   .nav-btn {
@@ -120,6 +122,7 @@ export const STYLES = /* css */ `
 
   .day-cell:hover {
     background: ${HOVER_MODERATE};
+    border-radius: ${RADIUS_SM};
   }
 
   .day-cell[data-outside] {
@@ -135,6 +138,7 @@ export const STYLES = /* css */ `
     background: ${SELECTED_BOLD};
     color: #ffffff;
     box-shadow: none;
+    border-radius: ${RADIUS_SM};
   }
 
   .day-cell[data-disabled] {
@@ -149,11 +153,22 @@ export const STYLES = /* css */ `
 
   /* ─── Range selection ─── */
 
-  .day-cell[data-range-start],
+  .day-cell[data-range-start] {
+    background: ${SELECTED_BOLD};
+    color: #ffffff;
+    box-shadow: none;
+    border-radius: ${RADIUS_SM} 0 0 ${RADIUS_SM};
+  }
+
   .day-cell[data-range-end] {
     background: ${SELECTED_BOLD};
     color: #ffffff;
     box-shadow: none;
+    border-radius: 0 ${RADIUS_SM} ${RADIUS_SM} 0;
+  }
+
+  .day-cell[data-range-start][data-range-end] {
+    border-radius: ${RADIUS_SM};
   }
 
   .day-cell[data-in-range] {
