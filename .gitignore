@@ -42,3 +42,4 @@ playwright-report/
 *.png
 !e2e/snapshots/**/*.png
 !apps/catalog/public/favicon.png
+!apps/blog/public/favicon.png

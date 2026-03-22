@@ -79,7 +79,6 @@
       color: var(--fd-text-primary, #27272a);
       font-weight: 500;
     }
-
     #theme-toggle {
       background: none;
       border: none;
@@ -115,14 +114,12 @@
       align-items: center;
     }
 
-    footer a {
-      color: var(--fd-text-secondary, #52525b);
-      text-decoration: none;
+    footer ui-link {
+      --ui-link-color: var(--fd-text-secondary, #52525b);
+      --ui-link-hover-color: var(--fd-text-primary, #27272a);
+      --ui-link-visited-color: var(--fd-text-secondary, #52525b);
     }
 
-    footer a:hover {
-      color: var(--fd-text-primary, #27272a);
-    }
 
     /* ─── Typography ─── */
 
@@ -304,8 +301,8 @@
     <footer>
       <span>© 2026</span>
       <div style="display:flex;gap:16px;">
-        <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a>
+        <ui-link href="https://github.com" size="s" emphasis="subtle" external>GitHub</ui-link>
+        <ui-link href="https://linkedin.com" size="s" emphasis="subtle" external>LinkedIn</ui-link>
       </div>
     </footer>
   </div>
