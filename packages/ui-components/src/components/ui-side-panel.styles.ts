@@ -103,10 +103,23 @@ export const STYLES = /* css */ `
     justify-content: center;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     padding: 0;
-    font-family: ${FONT_PRIMARY};
-    font-size: 20px;
-    line-height: 1;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-trigger .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: "FILL" 0;
   }
 
   :host([mobile][state="collapsed"]) .mobile-trigger {

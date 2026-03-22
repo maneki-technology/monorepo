@@ -76,7 +76,10 @@ export class UiSidePanel extends HTMLElement {
     this.#mobileTrigger.className = "mobile-trigger";
     this.#mobileTrigger.type = "button";
     this.#mobileTrigger.setAttribute("aria-label", "Open navigation");
-    this.#mobileTrigger.textContent = "\u2630"; // ☰
+    const triggerIcon = document.createElement("span");
+    triggerIcon.className = "material-symbols-outlined";
+    triggerIcon.textContent = "menu";
+    this.#mobileTrigger.appendChild(triggerIcon);
 
     shadow.append(container, this.#mobileTrigger);
   }
