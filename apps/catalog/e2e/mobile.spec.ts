@@ -4,78 +4,68 @@ import { navigateToPage } from "./helpers.js";
 // Mobile-only tests — skip on desktop project
 test.skip(({ browserName }, testInfo) => testInfo.project.name === "chromium", "mobile only");
 
-// ─── Hamburger menu visibility ────────────────────────────────────────────
+// ─── Sidebar auto-collapses on mobile ───────────────────────────────────
 
-test("mobile: hamburger toggle visible", async ({ page }) => {
+test("mobile: sidebar auto-collapses", async ({ page }) => {
   await page.goto("/");
   await page.waitForTimeout(500);
   await page.evaluate(() => document.fonts.ready);
-  const toggle = page.locator("#nav-toggle");
-  await expect(toggle).toBeVisible();
+  const sidebar = page.locator("#sidebar");
+  await expect(sidebar).toHaveAttribute("state", "collapsed");
 });
 
-// ─── Sidebar opens on toggle click ────────────────────────────────────────
+// ─── Built-in toggle expands and collapses sidebar ──────────────────────
 
-test("mobile: sidebar opens and closes", async ({ page }) => {
+test("mobile: toggle expands and collapses sidebar", async ({ page }) => {
   await page.goto("/");
   await page.waitForTimeout(500);
   await page.evaluate(() => document.fonts.ready);
 
-  const toggle = page.locator("#nav-toggle");
-  const nav = page.locator("#app > nav");
-  const overlay = page.locator("#sidebar-overlay");
+  const sidebar = page.locator("#sidebar");
+  await expect(sidebar).toHaveAttribute("state", "collapsed");
 
-  // Sidebar should be off-screen initially
-  await expect(nav).not.toHaveClass(/open/);
-
-  // Open sidebar
+  // Click the built-in toggle to expand
+  const toggle = sidebar.locator("button").first();
   await toggle.click();
-  await expect(nav).toHaveClass(/open/);
-  await expect(overlay).toHaveClass(/visible/);
+  await page.waitForTimeout(300);
+  await expect(sidebar).toHaveAttribute("state", "expanded");
 
-  // Close via overlay
-  await overlay.click();
-  await expect(nav).not.toHaveClass(/open/);
-});
-
-// ─── Navigation closes sidebar on mobile ──────────────────────────────────
-
-test("mobile: nav closes on page select", async ({ page }) => {
-  await page.goto("/");
-  await page.waitForTimeout(500);
-  await page.evaluate(() => document.fonts.ready);
-
-  const toggle = page.locator("#nav-toggle");
-  const nav = page.locator("#app > nav");
-
-  // Open sidebar and click a page
+  // Click toggle again to collapse
   await toggle.click();
-  await expect(nav).toHaveClass(/open/);
-
-  const firstItem = page.locator("ui-side-panel-menu-item[data-page]").first();
-  await firstItem.click();
   await page.waitForTimeout(300);
-
-  // Sidebar should close after navigation
-  await expect(nav).not.toHaveClass(/open/);
+  await expect(sidebar).toHaveAttribute("state", "collapsed");
 });
 
-// ─── Mobile visual: open sidebar ──────────────────────────────────────────
+// ─── Mobile visual: collapsed sidebar ───────────────────────────────────
 
-test("mobile visual: sidebar open", async ({ page }) => {
+test("mobile visual: sidebar collapsed", async ({ page }) => {
   await page.goto("/");
   await page.waitForTimeout(500);
   await page.evaluate(() => document.fonts.ready);
 
-  await page.locator("#nav-toggle").click();
-  await page.waitForTimeout(300);
-
-  await expect(page).toHaveScreenshot("mobile-sidebar-open.png", {
+  await expect(page).toHaveScreenshot("mobile-sidebar-collapsed.png", {
     maxDiffPixelRatio: 0.01,
   });
 });
 
-// ─── Mobile visual: content page ──────────────────────────────────────────
+// ─── Mobile visual: expanded sidebar overlay ────────────────────────────
+
+test("mobile visual: sidebar expanded", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForTimeout(500);
+  await page.evaluate(() => document.fonts.ready);
+
+  const sidebar = page.locator("#sidebar");
+  const toggle = sidebar.locator("button").first();
+  await toggle.click();
+  await page.waitForTimeout(300);
+
+  await expect(page).toHaveScreenshot("mobile-sidebar-expanded.png", {
+    maxDiffPixelRatio: 0.01,
+  });
+});
+
+// ─── Mobile visual: content page ────────────────────────────────────────
 
 test("mobile visual: content page", async ({ page }) => {
   await navigateToPage(page, "button");

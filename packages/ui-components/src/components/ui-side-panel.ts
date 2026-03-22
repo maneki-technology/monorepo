@@ -61,7 +61,14 @@ export class UiSidePanel extends HTMLElement {
     const slot = document.createElement("slot");
     this.#body.appendChild(slot);
 
-    container.append(this.#header, separator, this.#body);
+    // Footer (named slot)
+    const footer = document.createElement("div");
+    footer.className = "footer";
+    const footerSlot = document.createElement("slot");
+    footerSlot.name = "footer";
+    footer.appendChild(footerSlot);
+
+    container.append(this.#header, separator, this.#body, footer);
     shadow.appendChild(container);
   }
 
@@ -192,6 +199,13 @@ export class UiSidePanel extends HTMLElement {
         this.setAttribute("state", "expanded");
       }
     }
+    this.dispatchEvent(
+      new CustomEvent("mobilechange", {
+        detail: { mobile: isMobile, state: this.state },
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 }
 

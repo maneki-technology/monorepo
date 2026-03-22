@@ -75,6 +75,20 @@ export const STYLES = /* css */ `
     width: 100%;
     z-index: 100;
   }
+  /* ── Mobile collapsed: compact toggle strip ─────────────────────────────── */
+
+  :host([mobile][state="collapsed"]) {
+    width: var(--ui-sp-mobile-collapsed-width, 40px);
+  }
+
+  :host([mobile][state="collapsed"]) .body {
+    display: none;
+  }
+
+  :host([mobile][state="collapsed"]) .separator {
+    display: none;
+  }
+
 
   /* ── Header ──────────────────────────────────────────────────────────────── */
 
@@ -165,6 +179,21 @@ export const STYLES = /* css */ `
     flex-direction: column;
     flex: 1;
     overflow-y: auto;
+  }
+
+  /* ── Footer ──────────────────────────────────────────────────────────────── */
+
+  .footer {
+    flex-shrink: 0;
+    border-top: 1px solid var(--ui-sp-separator, ${BORDER_MINIMAL});
+  }
+
+  .footer:empty {
+    display: none;
+  }
+
+  :host([mobile][state="collapsed"]) .footer {
+    display: none;
   }
 
   /* ── Reduced motion ──────────────────────────────────────────────────────── */
