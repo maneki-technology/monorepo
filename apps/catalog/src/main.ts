@@ -210,12 +210,49 @@ function initThemeToggle(): void {
   });
 }
 
+// ─── Mobile Nav Toggle ────────────────────────────────────────────────────
+
+function initMobileNav(): void {
+  const toggle = document.getElementById("nav-toggle")!;
+  const nav = document.querySelector("#app > nav") as HTMLElement;
+  const overlay = document.getElementById("sidebar-overlay")!;
+
+  function openNav(): void {
+    nav.classList.add("open");
+    overlay.classList.add("visible");
+    toggle.setAttribute("aria-expanded", "true");
+    toggle.textContent = "\u2715"; // ✕
+  }
+
+  function closeNav(): void {
+    nav.classList.remove("open");
+    overlay.classList.remove("visible");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.textContent = "\u2630"; // ☰
+  }
+
+  toggle.addEventListener("click", () => {
+    const isOpen = nav.classList.contains("open");
+    if (isOpen) closeNav(); else openNav();
+  });
+
+  overlay.addEventListener("click", closeNav);
+
+  // Close nav on page navigation (mobile)
+  window.addEventListener("hashchange", closeNav);
+
+  // Close on Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && nav.classList.contains("open")) closeNav();
+  });
+}
+
 // ─── Init ────────────────────────────────────────────────────────────────────
 
 buildSidebar();
 initThemeToggle();
+initMobileNav();
 
-buildSidebar();
 window.addEventListener("hashchange", onHashChange);
 onHashChange();
 
