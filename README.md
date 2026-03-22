@@ -46,6 +46,7 @@ maneki-monorepo/
 | App | Description |
 |---|---|
 | `catalog` | Visual catalog for all foundation tokens + UI components. 57 pages, 115 Playwright tests (57 visual + 57 a11y + sidebar). Dark theme toggle. |
+| `blog` | Personal blog + portfolio. Markdown posts with frontmatter, Vite virtual module plugin, static generation, dark theme. 5 routes. |
 
 ---
 

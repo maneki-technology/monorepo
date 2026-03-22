@@ -1,0 +1,60 @@
+name: Deploy Blog
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/blog/**'
+      - 'packages/ui-components/**'
+      - 'packages/foundation/**'
+      - '.github/workflows/deploy-blog.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/blog/**'
+      - 'packages/ui-components/**'
+      - 'packages/foundation/**'
+      - '.github/workflows/deploy-blog.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Build foundation
+        run: npm run build
+        working-directory: packages/foundation
+
+      - name: Build ui-components
+        run: npm run build
+        working-directory: packages/ui-components
+
+      - name: Build blog
+        run: npx vite build
+        working-directory: apps/blog
+
+      - name: Create Cloudflare Pages project (if needed)
+        uses: cloudflare/wrangler-action@v3
+        continue-on-error: true
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages project create maneki-blog --production-branch=main
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy apps/blog/dist --project-name=maneki-blog --branch=${{ github.head_ref || github.ref_name }} --commit-dirty=true

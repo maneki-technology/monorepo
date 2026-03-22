@@ -14,7 +14,7 @@ maneki-monorepo/
 │   ├── main.ts              # stories from foundation + ui-components + grid-layout
 │   └── preview.ts           # injects tokens + registers components
 ├── docs/                    # Project-level documentation
-│   ├── adr/                 # 14 architectural decision records
+│   ├── adr/                 # 15 architectural decision records
 │   └── WEB_COMPONENTS_LESSONS.md  # Lessons learned building Web Components
 ├── package.json             # npm workspaces root + Storybook scripts
 ├── packages/
@@ -32,10 +32,14 @@ maneki-monorepo/
 │   │                        # Tags: tag (selectable/toggle)
 │   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints, dark-theme, token-constants, shape (@maneki/foundation)
 ├── apps/
-│   └── catalog/             # Visual catalog app + Playwright regression tests (@maneki/catalog)
-│       ├── src/pages/        # 57 pages (6 foundation + 51 component)
-│       ├── e2e/             # Playwright visual + a11y specs + baseline snapshots
-│       └── playwright.config.ts
+│   ├── catalog/             # Visual catalog app + Playwright regression tests (@maneki/catalog)
+│   │   ├── src/pages/        # 57 pages (6 foundation + 51 component)
+│   │   ├── e2e/             # Playwright visual + a11y specs + baseline snapshots
+│   │   └── playwright.config.ts
+│   └── blog/                # Personal blog + portfolio (@maneki/blog)
+│       ├── content/posts/    # Markdown posts with YAML frontmatter
+│       ├── plugins/          # Vite plugin: markdown → virtual:posts
+│       └── src/pages/        # 5 routes: home, blog, post, portfolio, about
 ```
 
 ## WHERE TO LOOK
@@ -52,6 +56,7 @@ maneki-monorepo/
 | Flex layout library | `packages/flex-layout/` | Panel-based flex layout, has its own AGENTS.md |
 | Storybook (all packages) | `.storybook/` | Root-level, aggregates foundation + ui-components + grid-layout + flex-layout |
 | Visual catalog + Playwright tests | `apps/catalog/` | 57 pages, 115 Playwright tests (57 visual + 57 a11y + sidebar + full layout) |
+| Personal blog + portfolio | `apps/blog/` | Markdown pipeline, static generation, dark theme, 5 routes |
 
 ## CONVENTIONS
 - **Zero runtime deps** (except `ui-components`, `grid-layout`, and `flex-layout` → `@maneki/foundation`). Foundation has zero production dependencies.
@@ -129,4 +134,5 @@ npx vite build               # Build
 - Node pinned at 22 because Storybook 10 requires Node 20.19+
 - LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead
 - Dark theme: `[data-theme="dark"]` toggles all semantic tokens. Catalog has theme toggle button.
-- ADRs in `docs/adr/` — 14 architectural decision records
+- ADRs in `docs/adr/` — 15 architectural decision records
+- `apps/blog/` — Personal blog + portfolio. Markdown posts in `content/posts/`, Vite virtual module plugin, static generation. Port 5175.
