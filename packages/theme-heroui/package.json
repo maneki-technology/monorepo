@@ -1,0 +1,22 @@
+{
+  "name": "@maneki/theme-heroui",
+  "version": "0.1.0",
+  "description": "HeroUI v3-inspired theme for the Maneki design system",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc --emitDeclarationOnly"
+  },
+  "dependencies": {
+    "@maneki/foundation": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "vite": "^5.4.21"
+  }
+}

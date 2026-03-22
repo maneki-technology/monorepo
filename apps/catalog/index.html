@@ -41,6 +41,8 @@
 
     html, body {
       height: 100%;
+      margin: 0;
+      overflow: hidden;
       font-family: Geist, 'Geist Fallback', sans-serif;
       color: var(--fd-text-primary, #1c2b36);
       background: var(--fd-surface-secondary, #f8f9fa);
@@ -49,13 +51,14 @@
     #app {
       display: flex;
       height: 100vh;
+      overflow: hidden;
     }
 
     /* Sidebar */
     #sidebar {
       width: 250px;
       min-width: 250px;
-      height: 100vh;
+      overflow-x: hidden;
       overflow-y: auto;
       scrollbar-width: thin;
     }
@@ -63,6 +66,8 @@
     /* Content */
     #content {
       flex: 1;
+      min-width: 0;
+      overflow-x: hidden;
       overflow-y: auto;
       padding: 32px 40px;
       background: var(--fd-surface-primary, #fff);
@@ -267,14 +272,22 @@
 <body>
   <a href="#content" class="skip-link">Skip to content</a>
   <div id="app">
-    <nav aria-label="Component navigation" style="display:flex;flex-direction:column;height:100vh">
-      <ui-side-panel-menu id="sidebar" title="Maneki" state="expanded" no-collapse style="flex:1;overflow-y:auto"></ui-side-panel-menu>
-      <div style="padding:8px 12px;border-top:1px solid var(--fd-border-minimal,#dce3e8);display:flex;justify-content:center">
-        <button id="theme-toggle" aria-label="Toggle dark mode" style="
+    <nav aria-label="Component navigation" style="display:flex;flex-direction:column;height:100%;width:250px;min-width:250px;overflow:hidden">
+      <ui-side-panel-menu id="sidebar" title="Maneki" state="expanded" no-collapse style="flex:1;overflow-x:hidden;overflow-y:auto;scrollbar-width:thin"></ui-side-panel-menu>
+      <div style="padding:8px 12px;border-top:1px solid var(--fd-border-minimal,#dce3e8);display:flex;justify-content:center;gap:8px">
+        <button id="mode-toggle" aria-label="Toggle dark mode" style="
           background:none;border:none;cursor:pointer;
-          font-size:18px;padding:6px 12px;border-radius:4px;
+          font-size:16px;padding:4px 8px;border-radius:4px;
           color:var(--fd-text-secondary,#3e5463);
         ">☀️</button>
+        <select id="theme-select" aria-label="Select theme" style="
+          background:var(--fd-surface-secondary,#f4f4f5);border:1px solid var(--fd-border-minimal,#dce3e8);
+          border-radius:4px;padding:2px 6px;font-size:12px;cursor:pointer;
+          color:var(--fd-text-secondary,#3e5463);
+        ">
+          <option value="default">Default</option>
+          <option value="heroui">HeroUI</option>
+        </select>
       </div>
     </nav>
     <main id="content" tabindex="0"></main>

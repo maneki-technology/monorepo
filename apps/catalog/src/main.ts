@@ -8,12 +8,14 @@ const geistFace = new FontFace("Geist", `url(/Geist-Variable.woff2) format('woff
 });
 geistFace.load().then((f) => document.fonts.add(f));
 
-import { injectAllTokens, registerIconFont } from "@maneki/foundation";
+import { injectAllTokens, injectTheme, registerIconFont } from "@maneki/foundation";
+import { heroTheme, heroThemeDark } from "@maneki/theme-heroui";
 import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";
 import "@maneki/ui-components";
 
 // Inject foundation tokens + icon font
 injectAllTokens();
+injectTheme(heroTheme, heroThemeDark);
 registerIconFont(materialSymbolsWoff2);
 
 import { pages } from "./registry.js";
@@ -96,8 +98,8 @@ async function ensurePageLoaded(pageId: string): Promise<boolean> {
 
 function buildSidebar(): void {
   const sidebar = document.getElementById("sidebar")!;
-  // Clear any existing items (prevents duplication on re-run)
-  sidebar.querySelectorAll("ui-side-panel-menu-item, ui-side-panel-menu-section").forEach(el => el.remove());
+  // Guard against double execution (HMR, module re-run)
+  if (sidebar.querySelector("ui-side-panel-menu-item")) return;
   const sections: Record<string, { id: string; title: string }[]> = {};
 
   for (const entry of manifest) {
@@ -187,35 +189,53 @@ function onHashChange(): void {
   renderPage(hash || manifest[0].id);
 }
 
-// ─── Theme Toggle ─────────────────────────────────────────────────────────
+// ─── Theme Controls ─────────────────────────────────────────────────────────
 
-function initThemeToggle(): void {
-  const btn = document.getElementById("theme-toggle")!;
-  const saved = localStorage.getItem("maneki-theme");
-  if (saved === "dark") {
+function applyTheme(): void {
+  const mode = localStorage.getItem("maneki-mode") ?? "light";
+  const theme = localStorage.getItem("maneki-theme") ?? "default";
+  if (mode === "dark" && theme !== "default") {
+    document.documentElement.setAttribute("data-theme", `${theme}-dark`);
+  } else if (mode === "dark") {
     document.documentElement.setAttribute("data-theme", "dark");
-    btn.textContent = "\u263E";
+  } else if (theme !== "default") {
+    document.documentElement.setAttribute("data-theme", theme);
+  } else {
+    document.documentElement.removeAttribute("data-theme");
   }
-  btn.addEventListener("click", () => {
-    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-    if (isDark) {
-      document.documentElement.removeAttribute("data-theme");
-      localStorage.setItem("maneki-theme", "light");
-      btn.textContent = "\u2600\uFE0F";
-    } else {
-      document.documentElement.setAttribute("data-theme", "dark");
-      localStorage.setItem("maneki-theme", "dark");
-      btn.textContent = "\u263E";
-    }
+}
+
+function initThemeControls(): void {
+  const modeBtn = document.getElementById("mode-toggle")!;
+  const themeSelect = document.getElementById("theme-select") as HTMLSelectElement;
+
+  // Restore saved state
+  const savedMode = localStorage.getItem("maneki-mode") ?? "light";
+  const savedTheme = localStorage.getItem("maneki-theme") ?? "default";
+  if (savedMode === "dark") modeBtn.textContent = "\u263E";
+  themeSelect.value = savedTheme;
+  applyTheme();
+
+  // Dark/light toggle
+  modeBtn.addEventListener("click", () => {
+    const current = localStorage.getItem("maneki-mode") ?? "light";
+    const next = current === "dark" ? "light" : "dark";
+    localStorage.setItem("maneki-mode", next);
+    modeBtn.textContent = next === "dark" ? "\u263E" : "\u2600\uFE0F";
+    applyTheme();
+  });
+
+  // Theme selector
+  themeSelect.addEventListener("change", () => {
+    localStorage.setItem("maneki-theme", themeSelect.value);
+    applyTheme();
   });
 }
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 
 buildSidebar();
-initThemeToggle();
-
-buildSidebar();
+initThemeControls();
 window.addEventListener("hashchange", onHashChange);
 onHashChange();
 

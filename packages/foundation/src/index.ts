@@ -19,6 +19,8 @@ export {
   radiusVar,
   borderWidthToCssProperties,
   borderWidthVar,
+  injectTheme,
+  type ManekiTheme,
 } from "./tokens.js";
 export {
   surface,

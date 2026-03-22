@@ -78,7 +78,7 @@ const STYLES = /* css */ `
   .base {
     display: flex;
     flex-direction: column;
-    border-radius: ${RADIUS_SM};
+    border-radius: var(--ui-alert-radius, ${RADIUS_SM});
     font-family: ${FONT_PRIMARY};
   }
 

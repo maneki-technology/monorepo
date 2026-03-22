@@ -15,6 +15,7 @@
     "@maneki/flex-layout": "*",
     "@maneki/foundation": "*",
     "@maneki/grid-layout": "*",
+    "@maneki/theme-heroui": "*",
     "@maneki/ui-components": "*"
   },
   "devDependencies": {

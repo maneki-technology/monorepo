@@ -113,6 +113,7 @@ export function darkElevationToCssProperties(): string {
   }
   return lines.join("\n");
 }
+
 /**
  * Injects all foundation tokens (palette + semantic + elevation) on :root.
  * Call once at app startup.
@@ -139,8 +140,53 @@ export function injectAllTokens(): void {
 
   const style = document.createElement("style");
   style.id = id;
-  style.textContent = `:root {\n${css}\n}\n\n[data-theme="dark"] {\n${darkCss}\n}`;
+  style.textContent = [
+    `:root {\n${css}\n}`,
+    `[data-theme="dark"] {\n${darkCss}\n}`,
+  ].join("\n\n");
   document.head.appendChild(style);
+}
+
+// ─── Theme injection API ─────────────────────────────────────────────────────
+
+/**
+ * A theme definition that can be injected via `injectTheme()`.
+ * Theme packages export objects conforming to this interface.
+ */
+export interface ManekiTheme {
+  /** CSS selector for the theme (e.g., `[data-theme="heroui"]`) */
+  selector: string;
+  /** CSS custom property overrides as a raw string */
+  css: string;
+}
+
+/**
+ * Inject a custom theme into the document.
+ * Call after `injectAllTokens()` to add theme-specific overrides.
+ *
+ * ```ts
+ * import { injectAllTokens, injectTheme } from "@maneki/foundation";
+ * import { heroTheme } from "@maneki/theme-heroui";
+ *
+ * injectAllTokens();
+ * injectTheme(heroTheme);
+ * ```
+ */
+export function injectTheme(...themes: ManekiTheme[]): void {
+  if (typeof document === "undefined") return;
+
+  const id = "maneki-theme-custom";
+  let style = document.getElementById(id) as HTMLStyleElement | null;
+  if (!style) {
+    style = document.createElement("style");
+    style.id = id;
+    document.head.appendChild(style);
+  }
+
+  const css = themes
+    .map((t) => `${t.selector} {\n${t.css}\n}`)
+    .join("\n\n");
+  style.textContent = css;
 }
 
 /**
