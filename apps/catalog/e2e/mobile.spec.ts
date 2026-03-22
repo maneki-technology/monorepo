@@ -14,9 +14,9 @@ test("mobile: sidebar auto-collapses", async ({ page }) => {
   await expect(sidebar).toHaveAttribute("state", "collapsed");
 });
 
-// ─── Built-in toggle expands and collapses sidebar ──────────────────────
+// ─── Floating trigger expands sidebar, header toggle collapses ──────────
 
-test("mobile: toggle expands and collapses sidebar", async ({ page }) => {
+test("mobile: trigger expands and toggle collapses sidebar", async ({ page }) => {
   await page.goto("/");
   await page.waitForTimeout(500);
   await page.evaluate(() => document.fonts.ready);
@@ -24,14 +24,15 @@ test("mobile: toggle expands and collapses sidebar", async ({ page }) => {
   const sidebar = page.locator("#sidebar");
   await expect(sidebar).toHaveAttribute("state", "collapsed");
 
-  // Click the built-in toggle to expand
-  const toggle = sidebar.locator("button").first();
-  await toggle.click();
+  // Click the floating trigger to expand
+  const trigger = page.getByRole("button", { name: "Open navigation" });
+  await trigger.click();
   await page.waitForTimeout(300);
   await expect(sidebar).toHaveAttribute("state", "expanded");
 
-  // Click toggle again to collapse
-  await toggle.click();
+  // Click the header collapse toggle to close
+  const collapseBtn = page.getByRole("button", { name: "Collapse panel" });
+  await collapseBtn.click();
   await page.waitForTimeout(300);
   await expect(sidebar).toHaveAttribute("state", "collapsed");
 });
@@ -55,9 +56,8 @@ test("mobile visual: sidebar expanded", async ({ page }) => {
   await page.waitForTimeout(500);
   await page.evaluate(() => document.fonts.ready);
 
-  const sidebar = page.locator("#sidebar");
-  const toggle = sidebar.locator("button").first();
-  await toggle.click();
+  const trigger = page.getByRole("button", { name: "Open navigation" });
+  await trigger.click();
   await page.waitForTimeout(300);
 
   await expect(page).toHaveScreenshot("mobile-sidebar-expanded.png", {
