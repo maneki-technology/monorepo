@@ -31,6 +31,7 @@ keyboard_double_arrow_left
 keyboard_double_arrow_right
 last_page
 mail
+menu
 message
 more_horiz
 more_vert
