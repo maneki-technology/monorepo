@@ -23,6 +23,7 @@ export class UiSidePanel extends HTMLElement {
   #mql: MediaQueryList | null = null;
   #mqlHandler: ((e: MediaQueryListEvent) => void) | null = null;
   #userExplicitState = false;
+  #mobileTrigger!: HTMLButtonElement;
 
   constructor() {
     super();
@@ -69,7 +70,15 @@ export class UiSidePanel extends HTMLElement {
     footer.appendChild(footerSlot);
 
     container.append(this.#header, separator, this.#body, footer);
-    shadow.appendChild(container);
+
+    // Mobile floating trigger (outside container, shown only when mobile+collapsed)
+    this.#mobileTrigger = document.createElement("button");
+    this.#mobileTrigger.className = "mobile-trigger";
+    this.#mobileTrigger.type = "button";
+    this.#mobileTrigger.setAttribute("aria-label", "Open navigation");
+    this.#mobileTrigger.textContent = "\u2630"; // ☰
+
+    shadow.append(container, this.#mobileTrigger);
   }
 
   connectedCallback(): void {
@@ -78,6 +87,7 @@ export class UiSidePanel extends HTMLElement {
     if (!this.hasAttribute("state")) this.setAttribute("state", "expanded");
 
     this.#toggleBtn.addEventListener("click", () => this.toggle());
+    this.#mobileTrigger.addEventListener("click", () => this.toggle());
     this._syncToggleIcon();
     this._syncTitle();
     this._setupMobileDetection();
@@ -100,7 +110,7 @@ export class UiSidePanel extends HTMLElement {
         this._syncTitle();
         break;
       case "no-collapse":
-        this.#toggleBtn.style.display = newValue !== null ? "none" : "";
+        // no-collapse only hides desktop toggle; CSS handles via :host([no-collapse]:not([mobile]))
         break;
     }
   }

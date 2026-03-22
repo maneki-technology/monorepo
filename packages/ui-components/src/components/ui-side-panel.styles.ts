@@ -75,20 +75,43 @@ export const STYLES = /* css */ `
     width: 100%;
     z-index: 100;
   }
-  /* ── Mobile collapsed: compact toggle strip ─────────────────────────────── */
+  /* ── Mobile collapsed: fully hidden + floating trigger ─────────────────── */
 
   :host([mobile][state="collapsed"]) {
-    width: var(--ui-sp-mobile-collapsed-width, 40px);
+    width: 0;
+    overflow: hidden;
   }
 
-  :host([mobile][state="collapsed"]) .body {
+  :host([mobile][state="collapsed"]) .container {
     display: none;
   }
 
-  :host([mobile][state="collapsed"]) .separator {
+  .mobile-trigger {
     display: none;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 101;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--ui-sp-border, ${BORDER_SUBTLE});
+    background-color: var(--ui-sp-bg, ${SURFACE_SECONDARY});
+    color: var(--ui-sp-toggle-icon, ${ICON_PRIMARY});
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 0;
+    font-family: ${FONT_PRIMARY};
+    font-size: 20px;
+    line-height: 1;
+    -webkit-tap-highlight-color: transparent;
   }
 
+  :host([mobile][state="collapsed"]) .mobile-trigger {
+    display: flex;
+  }
 
   /* ── Header ──────────────────────────────────────────────────────────────── */
 
@@ -193,6 +216,12 @@ export const STYLES = /* css */ `
   }
 
   :host([mobile][state="collapsed"]) .footer {
+    display: none;
+  }
+
+  /* ── no-collapse: only hide desktop toggle, mobile still works ─────────── */
+
+  :host([no-collapse]:not([mobile])) .header-toggle {
     display: none;
   }
 
