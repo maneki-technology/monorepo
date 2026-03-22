@@ -13,6 +13,9 @@ maneki-monorepo/
 ├── .storybook/              # Root Storybook config (aggregates all packages)
 │   ├── main.ts              # stories from foundation + ui-components + grid-layout
 │   └── preview.ts           # injects tokens + registers components
+├── docs/                    # Project-level documentation
+│   ├── adr/                 # 14 architectural decision records
+│   └── WEB_COMPONENTS_LESSONS.md  # Lessons learned building Web Components
 ├── package.json             # npm workspaces root + Storybook scripts
 ├── packages/
 │   ├── grid-layout/         # <grid-layout> Web Component library (@maneki/grid-layout)
@@ -21,18 +24,18 @@ maneki-monorepo/
 │   │                        # Primitives: badge, image, button, avatar, alert, label, link
 │   │                        # Form Controls: checkbox-item/group, radio-item/group, input, input-group, file-upload, select
 │   │                        # Containers: card, button-group
-│   │                        # Navigation: breadcrumb-item/group, side-panel-menu/item
+│   │                        # Navigation: breadcrumb-item/group, side-panel-menu/item/section
 │   │                        # Disclosure: accordion-item/group
 │   │                        # Menus & Dropdowns: dropdown, dropdown-item/heading/separator/split, menu
-│   │                        # Overlays: modal
+│   │                        # Overlays: modal, popover (focus mgmt), tooltip (aria-describedby)
 │   │                        # Tabs: tab-item, tab-group
-│   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints (@maneki/foundation)
+│   │                        # Tags: tag (selectable/toggle)
+│   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints, dark-theme, token-constants, shape (@maneki/foundation)
 ├── apps/
 │   └── catalog/             # Visual catalog app + Playwright regression tests (@maneki/catalog)
-│       ├── src/pages/        # 34 pages (5 foundation + 29 component)
-│       ├── e2e/             # Playwright visual specs + baseline snapshots
+│       ├── src/pages/        # 57 pages (6 foundation + 51 component)
+│       ├── e2e/             # Playwright visual + a11y specs + baseline snapshots
 │       └── playwright.config.ts
-```
 ```
 
 ## WHERE TO LOOK
@@ -48,7 +51,7 @@ maneki-monorepo/
 | Grid layout library | `packages/grid-layout/` | Has its own detailed AGENTS.md |
 | Flex layout library | `packages/flex-layout/` | Panel-based flex layout, has its own AGENTS.md |
 | Storybook (all packages) | `.storybook/` | Root-level, aggregates foundation + ui-components + grid-layout + flex-layout |
-| Visual catalog + Playwright tests | `apps/catalog/` | 34 pages, 36 visual regression tests |
+| Visual catalog + Playwright tests | `apps/catalog/` | 57 pages, 115 Playwright tests (57 visual + 57 a11y + sidebar + full layout) |
 
 ## CONVENTIONS
 - **Zero runtime deps** (except `ui-components`, `grid-layout`, and `flex-layout` → `@maneki/foundation`). Foundation has zero production dependencies.
@@ -60,6 +63,10 @@ maneki-monorepo/
 - **Testing.** Vitest with happy-dom. Tests co-located: `foo.ts` → `foo.test.ts`. Visual tests via Playwright in `e2e/`.
 - **TypeScript.** Strict mode, ES2022 target, bundler moduleResolution.
 - **Barrel exports.** Each package has `src/index.ts` re-exporting the public API.
+- **Dark theme via `[data-theme="dark"]` attribute on `:root`.** Toggles all semantic tokens to dark values.
+- **Custom icons via `registerIcon()` from `@maneki/ui-components`.** Allows registering custom SVG icons alongside Material Symbols.
+- **Centralized token constants in `@maneki/foundation`** — import `TEXT_PRIMARY`, `SP_1`, etc. directly instead of calling `semanticVar()`/`spaceVar()` at each use site.
+- **Typography via `typeBlock()`** — `${TYPE_BODY_02}` emits font-family + font-size + line-height + font-weight in one interpolation.
 
 ## ANTI-PATTERNS
 - **No `as any`, `@ts-ignore`, `@ts-expect-error`** — never suppress types
@@ -117,7 +124,9 @@ npx vite build               # Build
 ## NOTES
 - Git repo: `maneki-technology/monorepo` on GitHub
 - CI/CD: Playwright visual regression tests in `apps/catalog/`. Catalog: deployed via Cloudflare Pages.
-- `apps/catalog/` — Visual catalog app with 56 Playwright visual regression tests
+- `apps/catalog/` — Visual catalog app with 115 Playwright tests (57 visual + 57 a11y + sidebar + full layout)
 - Root `package.json` has Storybook scripts (`storybook`, `storybook:build`) and devDependencies for the root-level Storybook
 - Node pinned at 22 because Storybook 10 requires Node 20.19+
 - LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead
+- Dark theme: `[data-theme="dark"]` toggles all semantic tokens. Catalog has theme toggle button.
+- ADRs in `docs/adr/` — 14 architectural decision records

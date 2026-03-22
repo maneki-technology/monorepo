@@ -18,3 +18,4 @@ This directory contains Architectural Decision Records (ADRs) for the Maneki des
 | [010](010-material-symbols-subset-font.md) | Material Symbols Subsetted Font | Accepted | 2026-03 |
 | [011](011-catalog-app-visual-testing.md) | Catalog App for Visual Testing | Accepted | 2026-03 |
 | [012](012-zero-runtime-dependencies.md) | Zero Runtime Dependencies | Accepted | 2026-03 |
+| [014](014-custom-icon-registry.md) | Custom Icon Registry | Accepted | 2026-03 |

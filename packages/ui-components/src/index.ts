@@ -274,3 +274,7 @@ export { UiTreeGroup } from "./components/ui-tree-group.js";
 
 export { UiWizard } from "./components/ui-wizard.js";
 export type { WizardLayout } from "./components/ui-wizard.js";
+
+// ─── Icon Registry (re-exported from foundation) ────────────────────────────
+
+export { registerIcon, registerIcons } from "@maneki/foundation";

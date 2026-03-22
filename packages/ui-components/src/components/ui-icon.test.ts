@@ -1,4 +1,7 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import "./ui-icon.js";
+import { STYLES } from "./ui-icon.js";
+import { registerIcon, clearIcons, hasIcon, unregisterIcon } from "@maneki/foundation";
 import "./ui-icon.js";
 import { STYLES } from "./ui-icon.js";
 
@@ -431,5 +434,86 @@ describe("ui-icon", () => {
 
     expect((el as unknown as { state: string }).state).toBe("hover");
     expect((el2 as unknown as { state: string }).state).toBe("disabled");
+  });
+});
+
+// ── Custom Icon Registry ─────────────────────────────────────────────────────
+
+describe("ui-icon custom registry", () => {
+  let el: HTMLElement;
+
+  beforeEach(() => {
+    document.body.innerHTML = "";
+    clearIcons();
+    el = document.createElement("ui-icon");
+    document.body.appendChild(el);
+  });
+
+  afterEach(() => {
+    clearIcons();
+  });
+
+  it("renders a custom SVG icon when registered", () => {
+    registerIcon("brand-logo", () => {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "0 0 24 24");
+      svg.innerHTML = '<circle cx="12" cy="12" r="10"/>';
+      return svg;
+    });
+    el.setAttribute("name", "brand-logo");
+    const iconEl = el.shadowRoot!.querySelector(".icon")!;
+    expect(iconEl.classList.contains("has-custom")).toBe(true);
+    expect(iconEl.querySelector("svg")).toBeTruthy();
+  });
+
+  it("falls back to Material Symbols when not registered", () => {
+    el.setAttribute("name", "home");
+    const iconEl = el.shadowRoot!.querySelector(".icon")!;
+    expect(iconEl.classList.contains("has-custom")).toBe(false);
+    expect(iconEl.textContent).toBeTruthy();
+  });
+
+  it("switches from custom to Material Symbols when unregistered", () => {
+    registerIcon("temp-icon", () => {
+      const span = document.createElement("span");
+      span.textContent = "X";
+      return span;
+    });
+    el.setAttribute("name", "temp-icon");
+    const iconEl = el.shadowRoot!.querySelector(".icon")!;
+    expect(iconEl.classList.contains("has-custom")).toBe(true);
+
+    unregisterIcon("temp-icon");
+    el.setAttribute("name", "home");
+    expect(iconEl.classList.contains("has-custom")).toBe(false);
+  });
+
+  it("hasIcon returns true for registered icons", () => {
+    registerIcon("my-icon", () => document.createElement("span"));
+    expect(hasIcon("my-icon")).toBe(true);
+    expect(hasIcon("not-registered")).toBe(false);
+  });
+
+  it("clearIcons removes all registered icons", () => {
+    registerIcon("a", () => document.createElement("span"));
+    registerIcon("b", () => document.createElement("span"));
+    expect(hasIcon("a")).toBe(true);
+    clearIcons();
+    expect(hasIcon("a")).toBe(false);
+    expect(hasIcon("b")).toBe(false);
+  });
+
+  it("custom icon inherits currentColor via fill", () => {
+    expect(STYLES).toContain("fill: currentColor");
+  });
+
+  it("custom icon element gets part attribute", () => {
+    registerIcon("parted", () => {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      return svg;
+    });
+    el.setAttribute("name", "parted");
+    const custom = el.shadowRoot!.querySelector(".icon > *");
+    expect(custom?.getAttribute("part")).toBe("icon");
   });
 });
