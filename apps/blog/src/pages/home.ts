@@ -12,11 +12,11 @@ function formatDate(dateStr: string): string {
 
 registerRoute({
   id: "home",
-  meta: { title: "Home", description: "Fullstack developer. Design systems, developer tools, and things for the web." },
+  meta: { title: "Home", description: "Senior Software Engineer. Distributed systems, micro-frontend architecture, and design systems." },
   render: () => `
     <section class="mb-6">
       <h1 class="display-03">Hey, I'm <strong>Kien Nguyen</strong></h1>
-      <p class="body-01 text-secondary mt-2">Fullstack developer. I build design systems, developer tools, and things for the web.</p>
+      <p class="body-01 text-secondary mt-2">Senior Software Engineer. Distributed systems, micro-frontends, and design systems.</p>
     </section>
 
     <section class="mb-6">
