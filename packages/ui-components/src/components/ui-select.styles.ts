@@ -400,8 +400,8 @@ export const STYLES = /* css */ `
   :host([disabled]) .leading-slot {
     color: ${DISABLED_TEXT};
   }
-  :host([disabled]) .status-icon {
-    color: ${DISABLED_TEXT} !important;
+  :host([disabled]) span.status-icon {
+    color: ${DISABLED_TEXT};
   }
 
   /* ── Readonly ──────────────────────────────────────────────────────────── */

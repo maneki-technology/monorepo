@@ -108,8 +108,8 @@ const STYLES = /* css */ `
     width: 100%;
   }
 
-  ::slotted(ui-tree-item[hidden]) {
-    display: flex !important;
+  ::slotted(ui-tree-item[hidden][hidden]) {
+    display: flex;
   }
 
   /* ── Size: S ─────────────────────────────────────────────────────────────── */

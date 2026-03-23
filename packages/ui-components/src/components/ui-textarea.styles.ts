@@ -278,8 +278,8 @@ export const STYLES = /* css */ `
     color: ${DISABLED_TEXT};
   }
 
-  :host([disabled]) .status-icon {
-    color: ${DISABLED_TEXT} !important;
+  :host([disabled]) span.status-icon {
+    color: ${DISABLED_TEXT};
   }
 
   /* ── Readonly ──────────────────────────────────────────────────────────── */

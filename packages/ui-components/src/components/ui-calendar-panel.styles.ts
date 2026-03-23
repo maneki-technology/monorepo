@@ -45,16 +45,16 @@ export const STYLES = /* css */ `
   }
 
   /* Reset children elevation + border-radius */
-  ::slotted(ui-calendar) {
+  .body ::slotted(ui-calendar) {
     --ui-calendar-elevation: none;
-    border-radius: 0 !important;
+    border-radius: 0;
   }
 
-  ::slotted(ui-calendar-quicklinks) {
-    border-radius: 0 !important;
+  .body ::slotted(ui-calendar-quicklinks) {
+    border-radius: 0;
   }
 
-  ::slotted(ui-calendar-time) {
-    border-radius: 0 !important;
+  .body ::slotted(ui-calendar-time) {
+    border-radius: 0;
   }
 `;

@@ -221,10 +221,10 @@ const STYLES = /* css */ `
     justify-content: center;
   }
 
-  :host([type="icon-only"]) .label,
-  :host([type="icon-only"]) .badge,
-  :host([type="icon-only"]) .expand-icon {
-    display: none !important;
+  :host([type="icon-only"]) span.label,
+  :host([type="icon-only"]) span.badge,
+  :host([type="icon-only"]) span.expand-icon {
+    display: none;
   }
 
   :host([type="icon-only"]) .leading-icon {
