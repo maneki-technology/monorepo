@@ -17,7 +17,7 @@ registerRoute({
     <div class="stack">
       ${posts.map((post) => `
         <div class="post-card">
-          <a class="post-card-title" href="#post/${post.slug}">${post.title}</a>
+          <a class="post-card-title" href="/post/${post.slug}">${post.title}</a>
           <div class="post-meta">${formatDate(post.date)} · ${post.readTime}</div>
           <p class="post-excerpt">${post.excerpt}</p>
           <div class="tags">

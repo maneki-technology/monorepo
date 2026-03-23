@@ -243,10 +243,10 @@
     }
 
     /* Shiki dual-theme: show light theme by default, dark when [data-theme="dark"] */
-    .shiki,
-    .shiki span { color: var(--shiki-light); background-color: var(--shiki-light-bg); }
-    [data-theme="dark"] .shiki,
-    [data-theme="dark"] .shiki span { color: var(--shiki-dark); background-color: var(--shiki-dark-bg); }
+    .shiki { background-color: var(--shiki-light-bg); color: var(--shiki-light); }
+    .shiki span { color: var(--shiki-light); }
+    [data-theme="dark"] .shiki { background-color: var(--shiki-dark-bg); color: var(--shiki-dark, #e4e4e7); }
+    [data-theme="dark"] .shiki span { color: var(--shiki-dark, #e4e4e7); }
 
     .post-content code {
       font-family: 'Roboto Mono', monospace;
@@ -290,6 +290,18 @@
       }
     }
 
+    .project-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 600px) {
+      .project-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     /* ─── Responsive ─── */
 
     @media (max-width: 600px) {
@@ -304,11 +316,11 @@
 <body>
   <div id="app">
     <header>
-      <a href="#home" class="site-name">Kien Nguyen</a>
+      <a href="/" class="site-name">Kien Nguyen</a>
       <nav>
-        <a href="#blog" data-route="blog">Blog</a>
-        <a href="#portfolio" data-route="portfolio">Portfolio</a>
-        <a href="#about" data-route="about">About</a>
+        <a href="/blog" data-route="blog">Blog</a>
+        <a href="/portfolio" data-route="portfolio">Portfolio</a>
+        <a href="/about" data-route="about">About</a>
         <button id="theme-toggle" aria-label="Toggle dark mode">☀️</button>
       </nav>
     </header>

@@ -39,6 +39,7 @@ async function getMd(): Promise<MarkdownIt> {
       light: "github-light",
       dark: "github-dark",
     },
+    defaultColor: false,
   }));
 
 // ─── Custom renderers: output Maneki Web Components instead of plain HTML ───
