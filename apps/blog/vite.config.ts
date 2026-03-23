@@ -1,9 +1,10 @@
 import { defineConfig } from "vite";
 import { markdownPostsPlugin } from "./plugins/markdown-posts.js";
+import { autoUiComponentsPlugin } from "./plugins/auto-ui-components.js";
 
 export default defineConfig({
   root: ".",
-  plugins: [markdownPostsPlugin()],
+  plugins: [markdownPostsPlugin(), autoUiComponentsPlugin()],
   build: {
     outDir: "dist",
     emptyOutDir: true,
