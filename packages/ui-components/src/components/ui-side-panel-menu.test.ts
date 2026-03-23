@@ -102,10 +102,9 @@ describe("ui-side-panel-menu", () => {
     expect(header).toBeTruthy();
   });
 
-  it("renders a .header-title element", () => {
-    const title = panelShadow(el).querySelector(".header-title");
+  it("renders a title via header slot", () => {
+    const title = el.shadowRoot!.querySelector(".panel-title");
     expect(title).toBeTruthy();
-    expect(title!.textContent).toBe("Panel Title");
   });
 
   it("renders a .header-toggle button", () => {
@@ -134,14 +133,14 @@ describe("ui-side-panel-menu", () => {
 
   it("updates header title from title attribute", () => {
     el.setAttribute("title", "Navigation");
-    const title = panelShadow(el).querySelector(".header-title");
+    const title = el.shadowRoot!.querySelector(".panel-title");
     expect(title!.textContent).toBe("Navigation");
   });
 
-  it("shows default title when title attribute is removed", () => {
+  it("shows empty title when title attribute is removed", () => {
     el.setAttribute("title", "Navigation");
     el.removeAttribute("title");
-    const title = panelShadow(el).querySelector(".header-title");
+    const title = el.shadowRoot!.querySelector(".panel-title");
     expect(title!.textContent).toBe("");
   });
 

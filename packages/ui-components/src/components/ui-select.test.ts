@@ -89,10 +89,6 @@ describe("ui-select", () => {
     expect((el as any).value).toBe("");
   });
 
-  it("defaults label to empty string", () => {
-    el = createSelect();
-    expect((el as any).label).toBe("");
-  });
 
   it("defaults supportive to empty string", () => {
     el = createSelect();
@@ -127,24 +123,16 @@ describe("ui-select", () => {
     // but propagateSize is called in connectedCallback
   });
 
-  // ── Label ────────────────────────────────────────────────────────────────
-
-  it("shows label row when label attribute is set", () => {
-    el = createSelect({ label: "Country" });
-    const labelRow = el.shadowRoot!.querySelector(".label-row") as HTMLElement;
-    expect(labelRow).toBeTruthy();
-  });
-
-  it("sets label text on ui-label element", () => {
-    el = createSelect({ label: "Country" });
-    const labelEl = el.shadowRoot!.querySelector("ui-label");
-    expect(labelEl?.textContent).toBe("Country");
+  it("has label slot in shadow DOM", () => {
+    el = createSelect();
+    const slot = el.shadowRoot!.querySelector('slot[name="label"]');
+    expect(slot).toBeTruthy();
   });
 
   it("sets secondary label text", () => {
-    el = createSelect({ label: "Country", "secondary-label": "Optional" });
+    el = createSelect({ "secondary-label": "Optional" });
     const labels = el.shadowRoot!.querySelectorAll("ui-label");
-    expect(labels[1]?.textContent).toBe("Optional");
+    expect(labels[0]?.textContent).toBe("Optional");
   });
 
   // ── Supportive text ──────────────────────────────────────────────────────
@@ -330,8 +318,12 @@ describe("ui-select", () => {
     expect(trigger?.getAttribute("aria-describedby")).toBe(sup?.id);
   });
 
-  it("sets aria-label from label attribute", () => {
-    el = createSelect({ label: "Country" });
+  it("sets aria-label from host aria-label attribute", () => {
+    el = createSelect();
+    el.setAttribute("aria-label", "Country");
+    // re-trigger _syncAria
+    (el as any).disabled = true;
+    (el as any).disabled = false;
     const trigger = el.shadowRoot!.querySelector(".trigger");
     expect(trigger?.getAttribute("aria-label")).toBe("Country");
   });
@@ -498,7 +490,6 @@ describe("ui-select", () => {
   it("has correct observedAttributes", () => {
     const observed = (customElements.get("ui-select") as any).observedAttributes;
     expect(observed).toContain("size");
-    expect(observed).toContain("label");
     expect(observed).toContain("secondary-label");
     expect(observed).toContain("supportive");
     expect(observed).toContain("placeholder");
@@ -607,28 +598,26 @@ describe("ui-select", () => {
     // but the outside click handler should not close it
   });
 
-  // ── Label disabled sync ──────────────────────────────────────────────────
+  // ── Label disabled sync ──────────────────────────────────────────────────────
 
-  it("propagates disabled to label elements", () => {
-    el = createSelect({ label: "Test", disabled: "" });
-    const labels = el.shadowRoot!.querySelectorAll("ui-label");
-    expect(labels[0]?.hasAttribute("disabled")).toBe(true);
-    expect(labels[1]?.hasAttribute("disabled")).toBe(true);
+  it("propagates disabled to secondary label element", () => {
+    el = createSelect({ "secondary-label": "Test", disabled: "" });
+    const label = el.shadowRoot!.querySelector("ui-label");
+    expect(label?.hasAttribute("disabled")).toBe(true);
   });
 
-  it("removes disabled from labels when enabled", () => {
-    el = createSelect({ label: "Test", disabled: "" });
+  it("removes disabled from secondary label when enabled", () => {
+    el = createSelect({ "secondary-label": "Test", disabled: "" });
     (el as any).disabled = false;
-    const labels = el.shadowRoot!.querySelectorAll("ui-label");
-    expect(labels[0]?.hasAttribute("disabled")).toBe(false);
+    const label = el.shadowRoot!.querySelector("ui-label");
+    expect(label?.hasAttribute("disabled")).toBe(false);
   });
 
-  // ── Label size sync ──────────────────────────────────────────────────────
+  // ── Label size sync ────────────────────────────────────────────────────────
 
-  it("propagates size to label elements", () => {
-    el = createSelect({ label: "Test", size: "l" });
-    const labels = el.shadowRoot!.querySelectorAll("ui-label");
-    expect(labels[0]?.getAttribute("size")).toBe("l");
-    expect(labels[1]?.getAttribute("size")).toBe("l");
+  it("propagates size to secondary label element", () => {
+    el = createSelect({ "secondary-label": "Test", size: "l" });
+    const label = el.shadowRoot!.querySelector("ui-label");
+    expect(label?.getAttribute("size")).toBe("l");
   });
 });

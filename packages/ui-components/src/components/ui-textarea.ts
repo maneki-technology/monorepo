@@ -15,7 +15,6 @@ sheet.replaceSync(STYLES);
 export class UiTextarea extends HTMLElement {
   static readonly observedAttributes = [
     "size",
-    "label",
     "secondary-label",
     "placeholder",
     "value",
@@ -31,7 +30,6 @@ export class UiTextarea extends HTMLElement {
   private _textareaEl: HTMLTextAreaElement;
   private _statusIconEl: HTMLSpanElement;
   private _statusIconInner: HTMLElement;
-  private _labelTextEl: HTMLElement;
   private _charCountEl: HTMLSpanElement;
   private _secondaryLabelEl: HTMLSpanElement;
 
@@ -45,10 +43,9 @@ export class UiTextarea extends HTMLElement {
     const labelRow = document.createElement("div");
     labelRow.className = "label-row";
 
-    this._labelTextEl = document.createElement("ui-label");
-    this._labelTextEl.setAttribute("emphasis", "bold");
-    labelRow.appendChild(this._labelTextEl);
-
+    const labelSlot = document.createElement("slot");
+    labelSlot.name = "label";
+    labelRow.appendChild(labelSlot);
     this._charCountEl = document.createElement("span");
     this._charCountEl.className = "char-count";
     labelRow.appendChild(this._charCountEl);
@@ -135,10 +132,6 @@ export class UiTextarea extends HTMLElement {
         this._syncStatusIcon();
         this._syncAria();
         break;
-      case "label":
-        this._syncLabels();
-        this._syncAria();
-        break;
       case "secondary-label":
         this._syncSecondaryLabel();
         break;
@@ -165,17 +158,7 @@ export class UiTextarea extends HTMLElement {
     this.setAttribute("size", value);
   }
 
-  get label(): string {
-    return this.getAttribute("label") ?? "";
-  }
 
-  set label(value: string) {
-    if (value) {
-      this.setAttribute("label", value);
-    } else {
-      this.removeAttribute("label");
-    }
-  }
 
   get secondaryLabel(): string {
     return this.getAttribute("secondary-label") ?? "";
@@ -336,13 +319,10 @@ export class UiTextarea extends HTMLElement {
   }
 
   private _syncLabels(): void {
-    this._labelTextEl.textContent = this.label;
     const size = this.getAttribute("size") || "m";
-    this._labelTextEl.setAttribute("size", size);
+    // Propagate size to slotted label elements
     if (this.disabled) {
-      this._labelTextEl.setAttribute("disabled", "");
-    } else {
-      this._labelTextEl.removeAttribute("disabled");
+      // disabled state handled by slotted ui-label
     }
   }
 
@@ -382,14 +362,10 @@ export class UiTextarea extends HTMLElement {
     }
 
     // aria-label
-    if (this.label) {
-      this._textareaEl.setAttribute("aria-label", this.label);
-      this.setAttribute("aria-label", this.label);
-    } else {
-      const hostAriaLabel = this.getAttribute("aria-label");
-      if (hostAriaLabel) {
-        this._textareaEl.setAttribute("aria-label", hostAriaLabel);
-      }
+    // aria-label
+    const hostAriaLabel = this.getAttribute("aria-label");
+    if (hostAriaLabel) {
+      this._textareaEl.setAttribute("aria-label", hostAriaLabel);
     }
   }
 

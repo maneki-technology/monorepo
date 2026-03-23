@@ -10,6 +10,10 @@ export default defineConfig({
     outDir: "dist",
     emptyOutDir: true,
     rollupOptions: {
+      input: {
+        main: "index.html",
+        editor: "editor.html",
+      },
       output: {
         manualChunks(id) {
           if (
@@ -31,4 +35,5 @@ export default defineConfig({
   server: {
     port: 5175,
   },
+  appType: "mpa",
 });

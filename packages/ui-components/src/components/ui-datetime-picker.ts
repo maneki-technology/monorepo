@@ -16,7 +16,7 @@ sheet.replaceSync(STYLES);
 
 export class UiDatetimePicker extends HTMLElement {
   static readonly observedAttributes = [
-    "size", "type", "value", "min", "max", "label", "supportive",
+    "size", "type", "value", "min", "max", "supportive",
     "status", "disabled", "readonly", "open", "show-actions", "time-mode",
   ];
 
@@ -35,6 +35,11 @@ export class UiDatetimePicker extends HTMLElement {
     super();
     const shadow = this.attachShadow({ mode: "open" });
     shadow.adoptedStyleSheets = [sheet];
+
+    // Label slot
+    const labelSlot = document.createElement("slot");
+    labelSlot.name = "label";
+    shadow.appendChild(labelSlot);
 
     // Input trigger
     this.#inputEl = document.createElement("ui-datetime-picker-input");
@@ -128,7 +133,7 @@ export class UiDatetimePicker extends HTMLElement {
     _newValue: string | null,
   ): void {
     if (!this.isConnected) return;
-    if (name === "size" || name === "label" || name === "supportive" || name === "status" || name === "disabled" || name === "readonly") {
+    if (name === "size" || name === "supportive" || name === "status" || name === "disabled" || name === "readonly") {
       this.#syncInputProps();
     }
     if (name === "size" || name === "min" || name === "max") {
@@ -186,13 +191,7 @@ export class UiDatetimePicker extends HTMLElement {
     else this.removeAttribute("open");
   }
 
-  get label(): string {
-    return this.getAttribute("label") || "";
-  }
 
-  set label(v: string) {
-    this.setAttribute("label", v);
-  }
 
   get min(): string {
     return this.getAttribute("min") || "";
@@ -239,9 +238,6 @@ export class UiDatetimePicker extends HTMLElement {
     if (val) input.setAttribute("value", val);
     else input.removeAttribute("value");
 
-    const label = this.getAttribute("label");
-    if (label) input.setAttribute("label", label);
-    else input.removeAttribute("label");
 
     const supportive = this.getAttribute("supportive");
     if (supportive) input.setAttribute("supportive", supportive);

@@ -51,16 +51,14 @@ export const STYLES = /* css */ `
   /* ── Label row ─────────────────────────────────────────────────────────── */
 
   .label-row {
-    display: none;
+    display: flex;
     align-items: baseline;
     gap: ${SP_1};
   }
 
-  :host([label]) .label-row {
-    display: flex;
-  }
 
-  .label-row ui-label {
+  .label-row ui-label,
+  .label-row ::slotted(ui-label) {
     display: inline;
   }
 
@@ -69,6 +67,7 @@ export const STYLES = /* css */ `
   .input-container {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     border-width: ${BW_SM};
     border-style: solid;
     border-color: var(--ui-input-border, ${FORM_INPUT_BORDER});
@@ -77,7 +76,6 @@ export const STYLES = /* css */ `
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;
-    overflow: hidden;
   }
 
   /* ── Native input ──────────────────────────────────────────────────────── */
@@ -107,7 +105,15 @@ export const STYLES = /* css */ `
 
   /* ── Slots (leading / trailing) ────────────────────────────────────────── */
 
-  .leading-slot,
+  .leading-slot {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    flex-shrink: 0;
+    color: ${TEXT_SECONDARY};
+  }
+
   .trailing-slot {
     display: flex;
     align-items: center;

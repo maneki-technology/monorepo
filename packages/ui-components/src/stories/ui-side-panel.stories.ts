@@ -13,22 +13,22 @@ const meta: Meta = {
     overlay: {
       control: { type: "boolean" },
     },
-    title: {
+    headerTitle: {
       control: { type: "text" },
     },
   },
   args: {
     state: "expanded",
     overlay: false,
-    title: "Panel Title",
+    headerTitle: "Panel Title",
   },
   render: (args) => html`
     <div style="height: 400px; display: flex;">
       <ui-side-panel
         state=${args.state}
         ?overlay=${args.overlay}
-        title=${args.title}
       >
+        <span slot="header">${args.headerTitle}</span>
         <div style="padding: 16px; font-family: Geist, sans-serif; font-size: 14px; color: #3e5463;">
           Panel body content goes here.
         </div>
@@ -58,15 +58,15 @@ export const Overlay: Story = {
 export const WithContent: Story = {
   args: {
     state: "expanded",
-    title: "Navigation",
+    headerTitle: "Navigation",
   },
   render: (args) => html`
     <div style="height: 400px; display: flex;">
       <ui-side-panel
         state=${args.state}
         ?overlay=${args.overlay}
-        title=${args.title}
       >
+        <span slot="header">${args.headerTitle}</span>
         <ul style="list-style: none; margin: 0; padding: 8px 0; font-family: Geist, sans-serif; font-size: 14px; color: #3e5463;">
           <li style="padding: 8px 16px;">Dashboard</li>
           <li style="padding: 8px 16px;">Settings</li>

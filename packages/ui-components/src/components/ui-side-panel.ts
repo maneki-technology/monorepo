@@ -13,10 +13,9 @@ sheet.replaceSync(STYLES);
 const MOBILE_QUERY = "(max-width: 767px)";
 
 export class UiSidePanel extends HTMLElement {
-  static readonly observedAttributes = ["state", "overlay", "mobile", "title", "no-collapse"];
+  static readonly observedAttributes = ["state", "overlay", "mobile", "no-collapse"];
 
   #header!: HTMLElement;
-  #titleEl!: HTMLElement;
   #toggleBtn!: HTMLButtonElement;
   #toggleIcon!: HTMLElement;
   #body!: HTMLElement;
@@ -37,8 +36,6 @@ export class UiSidePanel extends HTMLElement {
     this.#header = document.createElement("div");
     this.#header.className = "header";
 
-    this.#titleEl = document.createElement("span");
-    this.#titleEl.className = "header-title";
 
     this.#toggleBtn = document.createElement("button");
     this.#toggleBtn.className = "header-toggle";
@@ -50,7 +47,11 @@ export class UiSidePanel extends HTMLElement {
     this.#toggleIcon.textContent = ICON_KEYBOARD_DOUBLE_ARROW_LEFT;
     this.#toggleBtn.appendChild(this.#toggleIcon);
 
-    this.#header.append(this.#titleEl, this.#toggleBtn);
+    // Header slot (optional extra content between title and toggle)
+    const headerSlot = document.createElement("slot");
+    headerSlot.name = "header";
+
+    this.#header.append(headerSlot, this.#toggleBtn);
 
     // Separator
     const separator = document.createElement("div");
@@ -93,7 +94,6 @@ export class UiSidePanel extends HTMLElement {
     this.#toggleBtn.addEventListener("click", () => this.toggle());
     this.#mobileTrigger.addEventListener("click", () => this.toggle());
     this._syncToggleIcon();
-    this._syncTitle();
     this._setupMobileDetection();
   }
 
@@ -109,9 +109,6 @@ export class UiSidePanel extends HTMLElement {
     switch (name) {
       case "state":
         this._syncToggleIcon();
-        break;
-      case "title":
-        this._syncTitle();
         break;
       case "no-collapse":
         // no-collapse only hides desktop toggle; CSS handles via :host([no-collapse]:not([mobile]))
@@ -140,12 +137,6 @@ export class UiSidePanel extends HTMLElement {
     return this.hasAttribute("mobile");
   }
 
-  get panelTitle(): string {
-    return this.getAttribute("title") ?? "";
-  }
-  set panelTitle(v: string) {
-    this.setAttribute("title", v);
-  }
 
   // ── Public API ──────────────────────────────────────────────────────────
 
@@ -180,9 +171,6 @@ export class UiSidePanel extends HTMLElement {
     );
   }
 
-  private _syncTitle(): void {
-    this.#titleEl.textContent = this.getAttribute("title") ?? "";
-  }
 
   private _setupMobileDetection(): void {
     if (typeof window.matchMedia !== "function") return;

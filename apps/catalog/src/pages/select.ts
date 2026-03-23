@@ -27,15 +27,18 @@ registerPage("select", {
 
     <h3>Sizes — With Labels</h3>
     <div class="stack-m w-320">
-      <ui-select size="s" label="Label" supportive="Supportive Text" placeholder="Small (S)">
+      <ui-select size="s" supportive="Supportive Text" placeholder="Small (S)">
+        <ui-label slot="label" size="s">Label</ui-label>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         <ui-dropdown-item value="b">Option B</ui-dropdown-item>
       </ui-select>
-      <ui-select size="m" label="Label" supportive="Supportive Text" placeholder="Medium (M)">
+      <ui-select size="m" supportive="Supportive Text" placeholder="Medium (M)">
+        <ui-label slot="label" size="m">Label</ui-label>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         <ui-dropdown-item value="b">Option B</ui-dropdown-item>
       </ui-select>
-      <ui-select size="l" label="Label" supportive="Supportive Text" placeholder="Large (L)">
+      <ui-select size="l" supportive="Supportive Text" placeholder="Large (L)">
+        <ui-label slot="label" size="l">Label</ui-label>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         <ui-dropdown-item value="b">Option B</ui-dropdown-item>
       </ui-select>
@@ -45,21 +48,24 @@ registerPage("select", {
     <div class="grid-3">
       <div class="card-content">
         <span class="variant-label">Enabled</span>
-        <ui-select label="Label" supportive="Supportive Text" placeholder="Select an option">
+        <ui-select supportive="Supportive Text" placeholder="Select an option">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         </ui-select>
       </div>
       <div class="card-content">
         <span class="variant-label">Filled (Single)</span>
-        <ui-select label="Label" supportive="Supportive Text" value="a">
+        <ui-select supportive="Supportive Text" value="a">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         </ui-select>
       </div>
       <div class="card-content">
         <span class="variant-label">Filled (Multi)</span>
-        <ui-select label="Label" supportive="Supportive Text" multiple value="a,b">
+        <ui-select supportive="Supportive Text" multiple value="a,b">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
           <ui-dropdown-item value="c">Option C</ui-dropdown-item>
@@ -67,14 +73,16 @@ registerPage("select", {
       </div>
       <div class="card-content">
         <span class="variant-label">Disabled</span>
-        <ui-select label="Label" supportive="Supportive Text" disabled placeholder="Select an option">
+        <ui-select supportive="Supportive Text" disabled placeholder="Select an option">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         </ui-select>
       </div>
       <div class="card-content">
         <span class="variant-label">Read Only</span>
-        <ui-select label="Label" supportive="Supportive Text" readonly value="a">
+        <ui-select supportive="Supportive Text" readonly value="a">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         </ui-select>
@@ -83,32 +91,39 @@ registerPage("select", {
 
     <h3>Statuses</h3>
     <div class="stack-m w-320">
-      <ui-select label="Label" supportive="Supportive Text" placeholder="Select an option">
+      <ui-select supportive="Supportive Text" placeholder="Select an option">
+        <ui-label slot="label">Label</ui-label>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
       </ui-select>
-      <ui-select label="Label" supportive="Warning message" status="warning" placeholder="Select an option">
+      <ui-select supportive="Warning message" status="warning" placeholder="Select an option">
+        <ui-label slot="label">Label</ui-label>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
       </ui-select>
-      <ui-select label="Label" supportive="Error message" status="error" placeholder="Select an option">
+      <ui-select supportive="Error message" status="error" placeholder="Select an option">
+        <ui-label slot="label">Label</ui-label>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
       </ui-select>
-      <ui-select label="Label" supportive="Success message" status="success" placeholder="Select an option">
+      <ui-select supportive="Success message" status="success" placeholder="Select an option">
+        <ui-label slot="label">Label</ui-label>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
       </ui-select>
-      <ui-select label="Label" supportive="Loading..." status="loading" placeholder="Select an option">
+      <ui-select supportive="Loading..." status="loading" placeholder="Select an option">
+        <ui-label slot="label">Label</ui-label>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
       </ui-select>
     </div>
 
     <h3>Leading Icon</h3>
     <div class="variant-row">
-      <ui-select label="With Leading Icon" supportive="Supportive Text" placeholder="Select an option">
+      <ui-select supportive="Supportive Text" placeholder="Select an option">
+        <ui-label slot="label">With Leading Icon</ui-label>
         <ui-icon name="account_circle" size="m" slot="leading"></ui-icon>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         <ui-dropdown-item value="c">Option C</ui-dropdown-item>
       </ui-select>
-      <ui-select label="Without Leading Icon" supportive="Supportive Text" placeholder="Select an option">
+      <ui-select supportive="Supportive Text" placeholder="Select an option">
+        <ui-label slot="label">Without Leading Icon</ui-label>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         <ui-dropdown-item value="c">Option C</ui-dropdown-item>
@@ -117,7 +132,8 @@ registerPage("select", {
 
     <h3>With Headings &amp; Separators</h3>
     <div class="variant-row">
-      <ui-select label="Country" supportive="Select your country" placeholder="Choose a country" class="w-fixed-300">
+      <ui-select supportive="Select your country" placeholder="Choose a country" class="w-fixed-300">
+        <ui-label slot="label">Country</ui-label>
         <ui-dropdown-heading>North America</ui-dropdown-heading>
         <ui-dropdown-item value="us">United States</ui-dropdown-item>
         <ui-dropdown-item value="ca">Canada</ui-dropdown-item>
@@ -132,7 +148,8 @@ registerPage("select", {
 
     <h3>Multi-Select</h3>
     <div class="variant-row">
-      <ui-select label="Tags" supportive="Select multiple tags" multiple style="width:400px;">
+      <ui-select supportive="Select multiple tags" multiple style="width:400px;">
+        <ui-label slot="label">Tags</ui-label>
         <ui-dropdown-item value="react">React</ui-dropdown-item>
         <ui-dropdown-item value="vue">Vue</ui-dropdown-item>
         <ui-dropdown-item value="angular">Angular</ui-dropdown-item>

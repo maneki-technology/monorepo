@@ -43,9 +43,9 @@ describe("ui-side-panel", () => {
     expect(header).not.toBeNull();
   });
 
-  it("renders a .header-title element", () => {
-    const title = el.shadowRoot!.querySelector(".header-title");
-    expect(title).not.toBeNull();
+  it("renders a header slot", () => {
+    const headerSlot = el.shadowRoot!.querySelector("slot[name='header']");
+    expect(headerSlot).not.toBeNull();
   });
 
   it("renders a .header-toggle button", () => {
@@ -93,10 +93,15 @@ describe("ui-side-panel", () => {
     expect(el.hasAttribute("overlay")).toBe(true);
   });
 
-  it("reflects title attribute", () => {
-    el.setAttribute("title", "My Panel");
-    const titleEl = el.shadowRoot!.querySelector(".header-title");
-    expect(titleEl!.textContent).toBe("My Panel");
+  it("header slot receives slotted content", () => {
+    const span = document.createElement("span");
+    span.setAttribute("slot", "header");
+    span.textContent = "My Panel";
+    el.appendChild(span);
+    const headerSlot = el.shadowRoot!.querySelector("slot[name='header']") as HTMLSlotElement;
+    const assigned = headerSlot.assignedElements();
+    expect(assigned.length).toBe(1);
+    expect(assigned[0].textContent).toBe("My Panel");
   });
 
   // ── Property accessors ────────────────────────────────────────────────────
@@ -130,16 +135,6 @@ describe("ui-side-panel", () => {
     expect(el.hasAttribute("overlay")).toBe(false);
   });
 
-  it("panelTitle getter returns empty string by default", () => {
-    const panel = el as any;
-    expect(panel.panelTitle).toBe("");
-  });
-
-  it("panelTitle setter updates title attribute", () => {
-    const panel = el as any;
-    panel.panelTitle = "Settings";
-    expect(el.getAttribute("title")).toBe("Settings");
-  });
 
   it("mobile getter returns false by default on desktop", () => {
     const panel = el as any;
@@ -222,9 +217,9 @@ describe("ui-side-panel", () => {
 
   // ── Collapsed state ───────────────────────────────────────────────────────
 
-  it("header-title is hidden when collapsed (via CSS class)", () => {
+  it("header slot content is hidden when collapsed (via CSS)", () => {
     el.setAttribute("state", "collapsed");
-    // The CSS rule :host([state="collapsed"]) .header-title { display: none }
+    // The CSS rule :host([state="collapsed"]) slot[name="header"] { display: none }
     // is applied via stylesheet; verify the attribute is set
     expect(el.getAttribute("state")).toBe("collapsed");
   });
@@ -274,10 +269,6 @@ describe("ui-side-panel", () => {
     expect(Ctor.observedAttributes).toContain("overlay");
   });
 
-  it("observedAttributes includes title", () => {
-    const Ctor = customElements.get("ui-side-panel") as any;
-    expect(Ctor.observedAttributes).toContain("title");
-  });
 
   it("observedAttributes includes mobile", () => {
     const Ctor = customElements.get("ui-side-panel") as any;

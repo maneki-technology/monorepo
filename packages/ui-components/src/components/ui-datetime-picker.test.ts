@@ -86,10 +86,6 @@ describe("ui-datetime-picker", () => {
       expect(el.hasAttribute("open")).toBe(true);
     });
 
-    it("get/set label", () => {
-      el.label = "Date";
-      expect(el.label).toBe("Date");
-    });
 
     it("get/set min", () => {
       el.min = "2024-01-01";
@@ -122,10 +118,9 @@ describe("ui-datetime-picker", () => {
       expect(calendar().getAttribute("size")).toBe("l");
     });
 
-    it("syncs label to input", async () => {
-      el.label = "Pick date";
-      await tick();
-      expect(input().getAttribute("label")).toBe("Pick date");
+    it("has label slot in shadow DOM", () => {
+      const slot = el.shadowRoot!.querySelector('slot[name="label"]');
+      expect(slot).toBeTruthy();
     });
 
     it("syncs value to input", async () => {

@@ -39,9 +39,6 @@ describe("ui-input", () => {
     expect((el as unknown as { value: string }).value).toBe("");
   });
 
-  it("defaults label to empty string", () => {
-    expect((el as unknown as { label: string }).label).toBe("");
-  });
 
   it("defaults supportive to empty string", () => {
     expect((el as unknown as { supportive: string }).supportive).toBe("");
@@ -196,19 +193,11 @@ describe("ui-input", () => {
     expect(input.name).toBe("username");
   });
 
-  // ── Label ────────────────────────────────────────────────────────────────
+  // ── Label slot ────────────────────────────────────────────────────────────────
 
-  it("sets label attribute and shows label text", () => {
-    (el as unknown as { label: string }).label = "Email";
-    expect(el.getAttribute("label")).toBe("Email");
-    const labelEl = el.shadowRoot!.querySelector("ui-label[emphasis='bold']");
-    expect(labelEl!.textContent).toBe("Email");
-  });
-
-  it("removes label attribute when set to empty", () => {
-    (el as unknown as { label: string }).label = "Email";
-    (el as unknown as { label: string }).label = "";
-    expect(el.hasAttribute("label")).toBe(false);
+  it("has label slot in shadow DOM", () => {
+    const slot = el.shadowRoot!.querySelector('slot[name="label"]');
+    expect(slot).toBeTruthy();
   });
 
   // ── Secondary label ──────────────────────────────────────────────────────
@@ -330,8 +319,11 @@ describe("ui-input", () => {
     expect(input.getAttribute("aria-describedby")).toBe(supEl!.id);
   });
 
-  it("sets aria-label on native input from label attribute", () => {
-    (el as unknown as { label: string }).label = "Username";
+  it("sets aria-label from host aria-label attribute", () => {
+    el.setAttribute("aria-label", "Username");
+    // re-trigger _syncAria by toggling disabled
+    (el as unknown as { disabled: boolean }).disabled = true;
+    (el as unknown as { disabled: boolean }).disabled = false;
     const input = el.shadowRoot!.querySelector(".native-input") as HTMLInputElement;
     expect(input.getAttribute("aria-label")).toBe("Username");
   });
@@ -584,7 +576,6 @@ describe("ui-input", () => {
     const component = el as unknown as {
       size: string;
       type: string;
-      label: string;
       secondaryLabel: string;
       supportive: string;
       placeholder: string;
@@ -601,9 +592,6 @@ describe("ui-input", () => {
 
     component.type = "numeric";
     expect(component.type).toBe("numeric");
-
-    component.label = "Email";
-    expect(component.label).toBe("Email");
 
     component.secondaryLabel = "Optional";
     expect(component.secondaryLabel).toBe("Optional");

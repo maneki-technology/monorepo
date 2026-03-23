@@ -28,7 +28,18 @@ const STYLES = /* css */ `
 
   :host {
     display: inline-flex;
+    flex-direction: column;
     font-family: ${FONT_PRIMARY};
+  }
+
+  .label-row {
+    display: flex;
+    align-items: baseline;
+    gap: ${SP_1};
+  }
+
+  .label-row ::slotted(ui-label) {
+    display: inline;
   }
 
   .wrapper {
@@ -225,6 +236,14 @@ export class UiFileUpload extends HTMLElement {
     this._hiddenInput.tabIndex = -1;
     this._hiddenInput.setAttribute("aria-hidden", "true");
     shadow.appendChild(this._hiddenInput);
+
+    // Label slot
+    const labelRow = document.createElement("div");
+    labelRow.className = "label-row";
+    const labelSlot = document.createElement("slot");
+    labelSlot.name = "label";
+    labelRow.appendChild(labelSlot);
+    shadow.appendChild(labelRow);
 
     // Wrapper
     const wrapper = document.createElement("div");

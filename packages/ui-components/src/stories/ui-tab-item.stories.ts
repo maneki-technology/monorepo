@@ -13,6 +13,8 @@ const meta: Meta = {
     selected: { control: "boolean" },
     disabled: { control: "boolean" },
     subMenu: { control: "boolean" },
+    closable: { control: "boolean" },
+    addable: { control: "boolean" },
     label: { control: "text" },
   },
   args: {
@@ -290,6 +292,46 @@ export const OverflowMenuVertical: Story = {
         <ui-tab-item label="Pie Chart"></ui-tab-item>
         <ui-tab-item label="Bar Chart"></ui-tab-item>
         <ui-tab-item label="Line Chart"></ui-tab-item>
+      </ui-tab-group>
+    </div>
+  `,
+};
+
+// ---------------------------------------------------------------------------
+// Closable
+// ---------------------------------------------------------------------------
+
+export const Closable: Story = {
+  args: {
+    size: "m",
+    closable: true,
+  },
+  render: (args) => html`
+    <div style="width: 400px;">
+      <ui-tab-group size=${args.size} ?closable=${args.closable}>
+        <ui-tab-item label="Dashboard" selected></ui-tab-item>
+        <ui-tab-item label="Settings"></ui-tab-item>
+        <ui-tab-item label="Users"></ui-tab-item>
+      </ui-tab-group>
+    </div>
+  `,
+};
+
+// ---------------------------------------------------------------------------
+// Addable
+// ---------------------------------------------------------------------------
+
+export const Addable: Story = {
+  args: {
+    size: "m",
+    closable: true,
+    addable: true,
+  },
+  render: (args) => html`
+    <div style="width: 400px;">
+      <ui-tab-group size=${args.size} ?closable=${args.closable} ?addable=${args.addable}>
+        <ui-tab-item label="index.ts" selected></ui-tab-item>
+        <ui-tab-item label="styles.css"></ui-tab-item>
       </ui-tab-group>
     </div>
   `,

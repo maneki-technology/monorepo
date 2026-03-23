@@ -54,15 +54,12 @@ export const STYLES = /* css */ `
 
   /* ── Label row ─────────────────────────────────────────────────────────── */
   .label-row {
-    display: none;
+    display: flex;
     align-items: baseline;
     gap: ${SP_1};
   }
-  :host([label]) .label-row {
-    display: flex;
-    margin-bottom: ${SP_0_5};
-  }
-  .label-row ui-label {
+  .label-row ui-label,
+  .label-row ::slotted(ui-label) {
     display: inline;
   }
 

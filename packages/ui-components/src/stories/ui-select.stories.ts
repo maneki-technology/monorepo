@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "../components/ui-icon.js";
 import "../components/ui-select.js";
+import "../components/ui-label.js";
 import "../components/ui-dropdown-item.js";
 import "../components/ui-dropdown-heading.js";
 import "../components/ui-dropdown-separator.js";
@@ -15,7 +16,6 @@ const meta: Meta = {
       control: { type: "select" },
       options: ["none", "warning", "error", "success", "loading"],
     },
-    label: { control: "text" },
     "secondary-label": { control: "text" },
     supportive: { control: "text" },
     placeholder: { control: "text" },
@@ -34,7 +34,6 @@ const meta: Meta = {
   args: {
     size: "m",
     status: "none",
-    label: "",
     "secondary-label": "",
     supportive: "",
     placeholder: "Select an option",
@@ -47,7 +46,6 @@ const meta: Meta = {
     <ui-select
       size=${args.size}
       status=${args.status}
-      label=${args.label || undefined}
       secondary-label=${args["secondary-label"] || undefined}
       supportive=${args.supportive || undefined}
       placeholder=${args.placeholder}
@@ -69,7 +67,8 @@ type Story = StoryObj;
 
 export const Default: Story = {
   render: () => html`
-    <ui-select label="Fruit" supportive="Pick your favorite fruit" placeholder="Select a fruit">
+    <ui-select supportive="Pick your favorite fruit" placeholder="Select a fruit">
+      <ui-label slot="label">Fruit</ui-label>
       <ui-dropdown-item value="apple">Apple</ui-dropdown-item>
       <ui-dropdown-item value="banana">Banana</ui-dropdown-item>
       <ui-dropdown-item value="cherry">Cherry</ui-dropdown-item>
@@ -97,15 +96,18 @@ export const Variants: Story = {
       </div>
       <div style="display: flex; flex-direction: column; gap: 16px; width: 280px;">
         <h4 style="margin: 0; font-family: Inter, sans-serif; font-size: 13px; color: #3e5463;">With Labels</h4>
-        <ui-select size="s" label="Label" supportive="Supportive Text" placeholder="Small (S)">
+        <ui-select size="s" supportive="Supportive Text" placeholder="Small (S)">
+          <ui-label slot="label" size="s">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         </ui-select>
-        <ui-select size="m" label="Label" supportive="Supportive Text" placeholder="Medium (M)">
+        <ui-select size="m" supportive="Supportive Text" placeholder="Medium (M)">
+          <ui-label slot="label" size="m">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         </ui-select>
-        <ui-select size="l" label="Label" supportive="Supportive Text" placeholder="Large (L)">
+        <ui-select size="l" supportive="Supportive Text" placeholder="Large (L)">
+          <ui-label slot="label" size="l">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         </ui-select>
@@ -119,21 +121,24 @@ export const States: Story = {
     <div style="display: grid; grid-template-columns: repeat(2, 280px); gap: 24px;">
       <div style="display: flex; flex-direction: column; gap: 4px;">
         <span style="font-family: Inter, sans-serif; font-size: 11px; color: #5b7282;">Enabled</span>
-        <ui-select label="Label" supportive="Supportive Text" placeholder="Select an option">
+        <ui-select supportive="Supportive Text" placeholder="Select an option">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         </ui-select>
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px;">
         <span style="font-family: Inter, sans-serif; font-size: 11px; color: #5b7282;">Filled (Single)</span>
-        <ui-select label="Label" supportive="Supportive Text" value="a">
+        <ui-select supportive="Supportive Text" value="a">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         </ui-select>
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px;">
         <span style="font-family: Inter, sans-serif; font-size: 11px; color: #5b7282;">Filled (Multi)</span>
-        <ui-select label="Label" supportive="Supportive Text" multiple value="a,b">
+        <ui-select supportive="Supportive Text" multiple value="a,b">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
           <ui-dropdown-item value="c">Option C</ui-dropdown-item>
@@ -141,14 +146,16 @@ export const States: Story = {
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px;">
         <span style="font-family: Inter, sans-serif; font-size: 11px; color: #5b7282;">Disabled</span>
-        <ui-select label="Label" supportive="Supportive Text" disabled placeholder="Select an option">
+        <ui-select supportive="Supportive Text" disabled placeholder="Select an option">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         </ui-select>
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px;">
         <span style="font-family: Inter, sans-serif; font-size: 11px; color: #5b7282;">Read Only</span>
-        <ui-select label="Label" supportive="Supportive Text" readonly value="a">
+        <ui-select supportive="Supportive Text" readonly value="a">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
           <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         </ui-select>
@@ -162,31 +169,36 @@ export const Status: Story = {
     <div style="display: grid; grid-template-columns: repeat(2, 280px); gap: 24px;">
       <div style="display: flex; flex-direction: column; gap: 4px;">
         <span style="font-family: Inter, sans-serif; font-size: 11px; color: #5b7282;">None</span>
-        <ui-select label="Label" supportive="Supportive Text" placeholder="Select an option">
+        <ui-select supportive="Supportive Text" placeholder="Select an option">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         </ui-select>
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px;">
         <span style="font-family: Inter, sans-serif; font-size: 11px; color: #5b7282;">Warning</span>
-        <ui-select label="Label" supportive="Warning message" status="warning" placeholder="Select an option">
+        <ui-select supportive="Warning message" status="warning" placeholder="Select an option">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         </ui-select>
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px;">
         <span style="font-family: Inter, sans-serif; font-size: 11px; color: #5b7282;">Error</span>
-        <ui-select label="Label" supportive="Error message" status="error" placeholder="Select an option">
+        <ui-select supportive="Error message" status="error" placeholder="Select an option">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         </ui-select>
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px;">
         <span style="font-family: Inter, sans-serif; font-size: 11px; color: #5b7282;">Success</span>
-        <ui-select label="Label" supportive="Success message" status="success" placeholder="Select an option">
+        <ui-select supportive="Success message" status="success" placeholder="Select an option">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         </ui-select>
       </div>
       <div style="display: flex; flex-direction: column; gap: 4px;">
         <span style="font-family: Inter, sans-serif; font-size: 11px; color: #5b7282;">Loading</span>
-        <ui-select label="Label" supportive="Loading..." status="loading" placeholder="Select an option">
+        <ui-select supportive="Loading..." status="loading" placeholder="Select an option">
+          <ui-label slot="label">Label</ui-label>
           <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         </ui-select>
       </div>
@@ -197,13 +209,15 @@ export const Status: Story = {
 export const LeadingIcon: Story = {
   render: () => html`
     <div style="display: flex; gap: 32px; align-items: flex-start;">
-      <ui-select label="With Leading Icon" supportive="Supportive Text" placeholder="Select an option">
+      <ui-select supportive="Supportive Text" placeholder="Select an option">
+        <ui-label slot="label">With Leading Icon</ui-label>
         <ui-icon name="account_circle" size="m" slot="leading"></ui-icon>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         <ui-dropdown-item value="c">Option C</ui-dropdown-item>
       </ui-select>
-      <ui-select label="Without Leading Icon" supportive="Supportive Text" placeholder="Select an option">
+      <ui-select supportive="Supportive Text" placeholder="Select an option">
+        <ui-label slot="label">Without Leading Icon</ui-label>
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         <ui-dropdown-item value="b">Option B</ui-dropdown-item>
         <ui-dropdown-item value="c">Option C</ui-dropdown-item>
@@ -214,7 +228,8 @@ export const LeadingIcon: Story = {
 
 export const WithHeadings: Story = {
   render: () => html`
-    <ui-select label="Country" supportive="Select your country" placeholder="Choose a country" style="width: 300px;">
+    <ui-select supportive="Select your country" placeholder="Choose a country" style="width: 300px;">
+      <ui-label slot="label">Country</ui-label>
       <ui-dropdown-heading>North America</ui-dropdown-heading>
       <ui-dropdown-item value="us">United States</ui-dropdown-item>
       <ui-dropdown-item value="ca">Canada</ui-dropdown-item>
@@ -230,7 +245,8 @@ export const WithHeadings: Story = {
 
 export const MultiSelect: Story = {
   render: () => html`
-    <ui-select label="Tags" supportive="Select multiple tags" multiple style="width: 400px;">
+    <ui-select supportive="Select multiple tags" multiple style="width: 400px;">
+      <ui-label slot="label">Tags</ui-label>
       <ui-dropdown-item value="react">React</ui-dropdown-item>
       <ui-dropdown-item value="vue">Vue</ui-dropdown-item>
       <ui-dropdown-item value="angular">Angular</ui-dropdown-item>

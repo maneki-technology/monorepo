@@ -18,7 +18,8 @@ export const STYLES = /* css */ `
   }
 
   :host {
-    display: inline-block;
+    display: inline-flex;
+    flex-direction: column;
     position: relative;
     font-family: Inter, sans-serif;
   }

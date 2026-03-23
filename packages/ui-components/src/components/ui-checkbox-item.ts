@@ -113,21 +113,21 @@ const STYLES = /* css */ `
     color: var(--ui-cb-label-color, ${TEXT_PRIMARY});
   }
 
-  :host([label="right"]) .label {
+  :host([label-position="right"]) .label {
     display: inline;
     order: 1;
   }
 
-  :host([label="left"]) .label {
+  :host([label-position="left"]) .label {
     display: inline;
     order: -1;
   }
 
-  :host([label="right"]) .outer {
+  :host([label-position="right"]) .outer {
     order: 0;
   }
 
-  :host([label="left"]) .outer {
+  :host([label-position="left"]) .outer {
     order: 0;
   }
 
@@ -293,7 +293,7 @@ sheet.replaceSync(STYLES);
 export class UiCheckboxItem extends HTMLElement {
   static readonly observedAttributes = [
     "size",
-    "label",
+    "label-position",
     "checked",
     "indeterminate",
     "disabled",
@@ -336,8 +336,9 @@ export class UiCheckboxItem extends HTMLElement {
     // Label slot
     const label = document.createElement("span");
     label.className = "label";
-    const slot = document.createElement("slot");
-    label.appendChild(slot);
+    const labelSlot = document.createElement("slot");
+    labelSlot.name = "label";
+    label.appendChild(labelSlot);
     base.appendChild(label);
 
     shadow.appendChild(base);
@@ -383,12 +384,12 @@ export class UiCheckboxItem extends HTMLElement {
     this.setAttribute("size", value);
   }
 
-  get label(): CheckboxLabel {
-    return (this.getAttribute("label") as CheckboxLabel) ?? "none";
+  get labelPosition(): CheckboxLabel {
+    return (this.getAttribute("label-position") as CheckboxLabel) ?? "none";
   }
 
-  set label(value: CheckboxLabel) {
-    this.setAttribute("label", value);
+  set labelPosition(value: CheckboxLabel) {
+    this.setAttribute("label-position", value);
   }
 
   get checked(): boolean {
