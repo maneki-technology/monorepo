@@ -56,8 +56,8 @@ const STYLES = /* css */ `
     width: 100%;
     flex: 1 1 0%;
     font-family: ${FONT_PRIMARY};
-    font-weight: var(--ui-tab-font-weight, 400);
-    color: var(--ui-tab-text-color, ${TEXT_PRIMARY});
+    font-weight: var(--ui-tab-font-weight, var(--_tab-font-weight, 400));
+    color: var(--ui-tab-text-color, var(--_tab-text-color, ${TEXT_PRIMARY}));
     position: relative;
     transition: color 0.15s ease, font-weight 0.15s ease;
   }
@@ -72,7 +72,7 @@ const STYLES = /* css */ `
 
   .highlight {
     position: absolute;
-    background-color: var(--ui-tab-highlight-color, transparent);
+    background-color: var(--ui-tab-highlight-color, var(--_tab-highlight-color, transparent));
     transition: background-color 0.15s ease;
   }
 
@@ -207,24 +207,24 @@ const STYLES = /* css */ `
   /* ── State: enabled (default) ───────────────────────────────────────────── */
 
   :host {
-    --ui-tab-text-color: ${TEXT_PRIMARY};
-    --ui-tab-font-weight: 400;
-    --ui-tab-highlight-color: transparent;
+    --_tab-text-color: ${TEXT_PRIMARY};
+    --_tab-font-weight: 400;
+    --_tab-highlight-color: transparent;
   }
 
   /* ── State: hover ─────────────────────────────────────────────────────── */
 
   :host(:hover:not([selected]):not([disabled])) {
-    --ui-tab-text-color: ${TEXT_PRIMARY};
-    --ui-tab-highlight-color: ${BORDER_MINIMAL};
+    --_tab-text-color: ${TEXT_PRIMARY};
+    --_tab-highlight-color: ${BORDER_MINIMAL};
   }
 
   /* ── State: selected ────────────────────────────────────────────────────── */
 
   :host([selected]) {
-    --ui-tab-text-color: ${TEXT_LINK};
-    --ui-tab-font-weight: 500;
-    --ui-tab-highlight-color: ${SELECTED_BOLD};
+    --_tab-text-color: ${TEXT_LINK};
+    --_tab-font-weight: 500;
+    --_tab-highlight-color: ${SELECTED_BOLD};
   }
 
   :host([selected]) .leading-icon,
@@ -236,9 +236,9 @@ const STYLES = /* css */ `
   /* ── State: disabled ────────────────────────────────────────────────────── */
 
   :host([disabled]) {
-    --ui-tab-text-color: ${DISABLED_TEXT};
-    --ui-tab-font-weight: 400;
-    --ui-tab-highlight-color: transparent;
+    --_tab-text-color: ${DISABLED_TEXT};
+    --_tab-font-weight: 400;
+    --_tab-highlight-color: transparent;
     pointer-events: none;
     cursor: default;
   }
@@ -271,7 +271,7 @@ const STYLES = /* css */ `
   }
 
   .close-btn:hover {
-    color: var(--ui-tab-text-color, ${TEXT_PRIMARY});
+    color: var(--ui-tab-text-color, var(--_tab-text-color, ${TEXT_PRIMARY}));
     background: var(--fd-state-hover-surface-moderate, rgba(0, 0, 0, 0.08));
   }
 
