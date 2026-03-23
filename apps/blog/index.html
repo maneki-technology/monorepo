@@ -20,6 +20,16 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; }
 
+    /* Prevent FOUC — hide Web Components until JS registers them */
+    ui-badge:not(:defined),
+    ui-card:not(:defined),
+    ui-link:not(:defined),
+    ui-image:not(:defined),
+    ui-search:not(:defined),
+    ui-progress-bar:not(:defined) {
+      opacity: 0;
+    }
+
     @font-face {
       font-family: 'Geist Fallback';
       src: local('Arial');

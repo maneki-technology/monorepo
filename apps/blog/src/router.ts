@@ -23,7 +23,7 @@ export function navigate(routeId: string): void {
 }
 
 export function getCurrentRoute(): string {
-  const path = window.location.pathname.slice(1); // remove leading /
+  const path = window.location.pathname.slice(1).replace(/\/$/, ""); // remove leading and trailing /
   return path || "home";
 }
 

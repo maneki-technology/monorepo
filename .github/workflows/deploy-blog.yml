@@ -41,7 +41,7 @@ jobs:
         working-directory: packages/ui-components
 
       - name: Build blog
-        run: npx vite build
+        run: npm run build
         working-directory: apps/blog
 
       - name: Create Cloudflare Pages project (if needed)

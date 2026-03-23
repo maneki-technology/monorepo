@@ -1,5 +1,5 @@
 import { posts } from "virtual:posts";
-import { registerRoute } from "../router.js";
+import type { Route } from "../router.js";
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-US", {
@@ -9,7 +9,7 @@ function formatDate(dateStr: string): string {
   });
 }
 
-registerRoute({
+export const blogRoute: Route = {
   id: "blog",
   meta: { title: "Blog", description: "Posts about fullstack development, design systems, and the web." },
   render: () => `
@@ -60,4 +60,4 @@ registerRoute({
       noResults.style.display = "none";
     });
   },
-});
+};

@@ -56,5 +56,5 @@ jobs:
         working-directory: apps/blog
 
       - name: Build blog
-        run: npx vite build
+        run: npm run build
         working-directory: apps/blog

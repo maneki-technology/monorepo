@@ -1,13 +1,13 @@
-import { registerRoute } from "../router.js";
+import type { Route } from "../router.js";
 
-registerRoute({
+export const aboutRoute: Route = {
   id: "about",
   meta: { title: "About", description: "Senior Software Engineer with 14+ years of experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization." },
   render: () => `
     <h1 class="heading-02 mb-4">About</h1>
 
     <div class="post-content">
-      <p>Senior Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization. Comfortable owning systems end-to-end — from API design and data modeling to CI/CD pipelines and observability.</p>
+      <p>Senior Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization. Comfortable owning systems end-to-end \u2014 from API design and data modeling to CI/CD pipelines and observability.</p>
 
       <p>Currently at Xendit, building mission-critical authorization services and leading frontend development for cross-border financial products across Southeast Asia.</p>
 
@@ -29,4 +29,4 @@ registerRoute({
       </p>
     </div>
   `,
-});
+};
