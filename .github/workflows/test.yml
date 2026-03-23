@@ -1,0 +1,60 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'packages/foundation/**'
+      - 'packages/ui-components/**'
+      - 'apps/blog/**'
+      - 'apps/catalog/**'
+      - '.github/workflows/test.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  push:
+    branches: [main]
+    paths:
+      - 'packages/foundation/**'
+      - 'packages/ui-components/**'
+      - 'apps/blog/**'
+      - 'apps/catalog/**'
+      - '.github/workflows/test.yml'
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.16.0'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: Build foundation
+        run: npm run build
+        working-directory: packages/foundation
+
+      - name: Test foundation
+        run: npx vitest --run
+        working-directory: packages/foundation
+
+      - name: Build ui-components
+        run: npm run build
+        working-directory: packages/ui-components
+
+      - name: Test ui-components
+        run: npx vitest --run
+        working-directory: packages/ui-components
+
+      - name: Type check blog
+        run: npx tsc --noEmit
+        working-directory: apps/blog
+
+      - name: Build blog
+        run: npx vite build
+        working-directory: apps/blog

@@ -1,4 +1,5 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-label.js";
 
 registerPage("label", {
   title: "Label",

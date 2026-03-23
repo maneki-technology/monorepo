@@ -1,4 +1,8 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-input.js";
+import "@maneki/ui-components/components/ui-step-group.js";
+import "@maneki/ui-components/components/ui-step-item.js";
+import "@maneki/ui-components/components/ui-wizard.js";
 
 registerPage("wizard", {
   title: "Wizard",

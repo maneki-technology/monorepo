@@ -1,4 +1,5 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-file-upload.js";
 
 registerPage("file-upload", {
   title: "File Upload",

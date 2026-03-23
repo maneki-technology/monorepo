@@ -1,4 +1,6 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-breadcrumb-group.js";
+import "@maneki/ui-components/components/ui-breadcrumb-item.js";
 
 registerPage("breadcrumb", {
   title: "Breadcrumb",

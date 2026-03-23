@@ -1,4 +1,7 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-checkbox-item.js";
+import "@maneki/ui-components/components/ui-tree-group.js";
+import "@maneki/ui-components/components/ui-tree-item.js";
 
 registerPage("tree", {
   title: "Tree",

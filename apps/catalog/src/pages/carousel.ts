@@ -1,4 +1,6 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-carousel.js";
+import "@maneki/ui-components/components/ui-carousel-item.js";
 
 registerPage("carousel", {
   title: "Carousel",

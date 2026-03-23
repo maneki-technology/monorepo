@@ -1,4 +1,5 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-pull-to-refresh.js";
 
 registerPage("pull-to-refresh", {
   title: "Pull to Refresh",

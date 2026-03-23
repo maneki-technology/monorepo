@@ -22,9 +22,6 @@ describe("ui-side-panel-menu", () => {
     itemCount = 3,
   ): HTMLElement {
     const menu = document.createElement("ui-side-panel-menu");
-    for (const [k, v] of Object.entries(attrs)) {
-      menu.setAttribute(k, v);
-    }
     for (let i = 0; i < itemCount; i++) {
       const item = document.createElement("ui-side-panel-menu-item");
       item.setAttribute("leading-icon", "");
@@ -32,6 +29,10 @@ describe("ui-side-panel-menu", () => {
       menu.appendChild(item);
     }
     document.body.appendChild(menu);
+    // Set attributes after connecting to avoid panel's connectedCallback overriding them
+    for (const [k, v] of Object.entries(attrs)) {
+      menu.setAttribute(k, v);
+    }
     return menu;
   }
 
@@ -394,7 +395,6 @@ describe("ui-side-panel-menu", () => {
   });
   it("does not expand inline when collapsed and expandable item is clicked", () => {
     const menu = document.createElement("ui-side-panel-menu");
-    menu.setAttribute("state", "collapsed");
     const item = document.createElement("ui-side-panel-menu-item");
     item.setAttribute("expandable", "");
     item.setAttribute("leading-icon", "");
@@ -406,6 +406,7 @@ describe("ui-side-panel-menu", () => {
     item.appendChild(child);
     menu.appendChild(item);
     document.body.appendChild(menu);
+    menu.setAttribute("state", "collapsed");
     const row = item.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
     // Should NOT be expanded inline
@@ -413,7 +414,6 @@ describe("ui-side-panel-menu", () => {
   });
   it("opens flyout when collapsed expandable item is clicked", () => {
     const menu = document.createElement("ui-side-panel-menu");
-    menu.setAttribute("state", "collapsed");
     const item = document.createElement("ui-side-panel-menu-item");
     item.setAttribute("expandable", "");
     item.setAttribute("leading-icon", "");
@@ -425,6 +425,7 @@ describe("ui-side-panel-menu", () => {
     item.appendChild(child);
     menu.appendChild(item);
     document.body.appendChild(menu);
+    menu.setAttribute("state", "collapsed");
     const row = item.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
     const flyout = menu.shadowRoot!.querySelector(".flyout");
@@ -432,7 +433,6 @@ describe("ui-side-panel-menu", () => {
   });
   it("closes flyout when same item is clicked again", () => {
     const menu = document.createElement("ui-side-panel-menu");
-    menu.setAttribute("state", "collapsed");
     const item = document.createElement("ui-side-panel-menu-item");
     item.setAttribute("expandable", "");
     item.setAttribute("leading-icon", "");
@@ -444,6 +444,7 @@ describe("ui-side-panel-menu", () => {
     item.appendChild(child);
     menu.appendChild(item);
     document.body.appendChild(menu);
+    menu.setAttribute("state", "collapsed");
     const row = item.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
     expect(menu.shadowRoot!.querySelector(".flyout")!.hasAttribute("open")).toBe(true);
@@ -452,7 +453,6 @@ describe("ui-side-panel-menu", () => {
   });
   it("closes flyout when Escape is pressed", () => {
     const menu = document.createElement("ui-side-panel-menu");
-    menu.setAttribute("state", "collapsed");
     const item = document.createElement("ui-side-panel-menu-item");
     item.setAttribute("expandable", "");
     item.setAttribute("leading-icon", "");
@@ -464,6 +464,7 @@ describe("ui-side-panel-menu", () => {
     item.appendChild(child);
     menu.appendChild(item);
     document.body.appendChild(menu);
+    menu.setAttribute("state", "collapsed");
     const row = item.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
     expect(menu.shadowRoot!.querySelector(".flyout")!.hasAttribute("open")).toBe(true);
@@ -472,7 +473,6 @@ describe("ui-side-panel-menu", () => {
   });
   it("closes flyout when state changes to expanded", () => {
     const menu = document.createElement("ui-side-panel-menu");
-    menu.setAttribute("state", "collapsed");
     const item = document.createElement("ui-side-panel-menu-item");
     item.setAttribute("expandable", "");
     item.setAttribute("leading-icon", "");
@@ -484,6 +484,7 @@ describe("ui-side-panel-menu", () => {
     item.appendChild(child);
     menu.appendChild(item);
     document.body.appendChild(menu);
+    menu.setAttribute("state", "collapsed");
     const row = item.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
     expect(menu.shadowRoot!.querySelector(".flyout")!.hasAttribute("open")).toBe(true);

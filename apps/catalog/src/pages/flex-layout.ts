@@ -1,5 +1,7 @@
 import { registerPage } from "../registry.js";
 import "@maneki/flex-layout";
+import "@maneki/ui-components/components/ui-tab-group.js";
+import "@maneki/ui-components/components/ui-tab-item.js";
 
 const tabsHtml = `
   <ui-tab-group slot="tabs" size="s" closable>

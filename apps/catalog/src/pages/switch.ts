@@ -1,4 +1,5 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-switch.js";
 
 registerPage("switch", {
   title: "Switch",

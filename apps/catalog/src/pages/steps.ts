@@ -1,4 +1,6 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-step-group.js";
+import "@maneki/ui-components/components/ui-step-item.js";
 
 registerPage("steps", {
   title: "Steps",

@@ -1,4 +1,7 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-table.js";
+import "@maneki/ui-components/components/ui-table-cell.js";
+import "@maneki/ui-components/components/ui-table-row.js";
 
 registerPage("table", {
   title: "Table",

@@ -1,4 +1,6 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-progress-bar.js";
+import "@maneki/ui-components/components/ui-progress-circle.js";
 
 registerPage("progress", {
   title: "Progress",

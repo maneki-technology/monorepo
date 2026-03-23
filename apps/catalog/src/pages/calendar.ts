@@ -1,4 +1,8 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-calendar.js";
+import "@maneki/ui-components/components/ui-calendar-panel.js";
+import "@maneki/ui-components/components/ui-calendar-quicklinks.js";
+import "@maneki/ui-components/components/ui-calendar-time.js";
 
 registerPage("calendar", {
   title: "Calendar",

@@ -1,5 +1,9 @@
 import { registerPage } from "../registry.js";
 import { landscapeSvg } from "../shared.js";
+import "@maneki/ui-components/components/ui-button.js";
+import "@maneki/ui-components/components/ui-card.js";
+import "@maneki/ui-components/components/ui-icon.js";
+import "@maneki/ui-components/components/ui-image.js";
 
 registerPage("card", {
   title: "Card",

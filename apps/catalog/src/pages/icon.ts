@@ -1,5 +1,6 @@
 import { registerPage } from "../registry.js";
-import { registerIcon } from "@maneki/ui-components";
+import { registerIcon } from "@maneki/foundation";
+import "@maneki/ui-components/components/ui-icon.js";
 
 // Register custom icons for the demo
 registerIcon("brand-star", () => {
