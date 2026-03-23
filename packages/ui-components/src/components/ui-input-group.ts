@@ -111,14 +111,14 @@ const STYLES = /* css */ `
     background-color: var(--ui-ig-input-bg, ${SURFACE_PRIMARY});
   }
 
-  ::slotted(ui-input) {
+  .input-slot ::slotted(ui-input) {
     flex: 1;
     min-width: 0;
     --ui-input-border: transparent;
     --ui-input-hover-border: transparent;
     --ui-input-focus-border: transparent;
-    border: none !important;
-    border-radius: 0 !important;
+    border: none;
+    border-radius: 0;
   }
 
   /* ── Size: m (default) ────────────────────────────────────────────────── */

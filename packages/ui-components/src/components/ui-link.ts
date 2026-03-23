@@ -124,11 +124,11 @@ const STYLES = /* css */ `
     display: flex;
   }
 
-  .leading-icon ::slotted(*),
-  .trailing-icon ::slotted(*) {
+  span.leading-icon ::slotted(*),
+  span.trailing-icon ::slotted(*) {
     display: flex;
     align-items: center;
-    font-size: var(--_icon-size) !important;
+    font-size: var(--_icon-size);
     line-height: 1;
   }
 
