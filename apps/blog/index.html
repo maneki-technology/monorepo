@@ -8,6 +8,14 @@
   <link rel="icon" type="image/png" href="/favicon.png" />
   <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
   <meta name="theme-color" content="#1c2b36" media="(prefers-color-scheme: dark)" />
+
+  <!-- Open Graph defaults (overridden per-page by JS) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Kien Nguyen's blog" />
+  <meta property="og:title" content="Blog — Kien Nguyen" />
+  <meta property="og:description" content="Personal blog and portfolio — fullstack development, design systems, and more." />
+  <meta property="og:url" content="https://blog.maneki.tech/" />
+  <meta name="twitter:card" content="summary" />
   <link rel="preload" href="/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; }
@@ -224,7 +232,6 @@
     .post-content li { margin-bottom: var(--fd-space-0-5); }
 
     .post-content pre {
-      background: var(--fd-surface-secondary, #f4f4f5);
       border: 1px solid var(--fd-border-minimal, #e4e4e7);
       border-radius: var(--fd-radius-sm);
       padding: var(--fd-space-2);
@@ -234,6 +241,12 @@
       font-size: var(--fd-type-code-01-font-size);
       line-height: var(--fd-type-code-01-line-height);
     }
+
+    /* Shiki dual-theme: show light theme by default, dark when [data-theme="dark"] */
+    .shiki,
+    .shiki span { color: var(--shiki-light); background-color: var(--shiki-light-bg); }
+    [data-theme="dark"] .shiki,
+    [data-theme="dark"] .shiki span { color: var(--shiki-dark); background-color: var(--shiki-dark-bg); }
 
     .post-content code {
       font-family: 'Roboto Mono', monospace;
@@ -291,7 +304,7 @@
 <body>
   <div id="app">
     <header>
-      <a href="#home" class="site-name">yourname</a>
+      <a href="#home" class="site-name">Kien Nguyen</a>
       <nav>
         <a href="#blog" data-route="blog">Blog</a>
         <a href="#portfolio" data-route="portfolio">Portfolio</a>
@@ -301,7 +314,7 @@
     </header>
     <main id="content">
       <section class="mb-6">
-        <h1 class="display-03">Hey, I'm <strong>yourname</strong></h1>
+        <h1 class="display-03">Hey, I'm <strong>Kien Nguyen</strong></h1>
         <p class="body-01 text-secondary mt-2">Fullstack developer. I build design systems, developer tools, and things for the web.</p>
       </section>
     </main>

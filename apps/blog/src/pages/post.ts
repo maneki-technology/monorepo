@@ -29,5 +29,9 @@ for (const post of posts) {
         </div>
       </article>
     `,
+    meta: {
+      title: post.title,
+      description: post.excerpt,
+    },
   });
 }

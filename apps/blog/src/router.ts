@@ -4,6 +4,10 @@ export interface Route {
   id: string;
   render: () => string;
   setup?: () => void;
+  meta?: {
+    title?: string;
+    description?: string;
+  };
 }
 
 const routes: Record<string, Route> = {};
@@ -35,6 +39,19 @@ export function renderRoute(): void {
   if (route.setup) {
     requestAnimationFrame(() => route.setup!());
   }
+
+  // Update page title + meta tags
+  const siteTitle = "Kien Nguyen";
+  const pageTitle = route.meta?.title ? `${route.meta.title} — ${siteTitle}` : siteTitle;
+  document.title = pageTitle;
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  if (ogTitle) ogTitle.setAttribute("content", pageTitle);
+  const ogDesc = document.querySelector('meta[property="og:description"]');
+  if (ogDesc && route.meta?.description) ogDesc.setAttribute("content", route.meta.description);
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc && route.meta?.description) metaDesc.setAttribute("content", route.meta.description);
+  const ogUrl = document.querySelector('meta[property="og:url"]');
+  if (ogUrl) ogUrl.setAttribute("content", `https://blog.maneki.tech/#${routeId}`);
 
   // Update active nav link
   document.querySelectorAll("nav a[data-route]").forEach((a) => {
