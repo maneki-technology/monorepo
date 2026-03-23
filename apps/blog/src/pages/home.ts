@@ -1,6 +1,6 @@
 import { posts } from "virtual:posts";
 import { projects } from "../data.js";
-import { registerRoute } from "../router.js";
+import type { Route } from "../router.js";
 
 function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString("en-US", {
@@ -10,7 +10,7 @@ function formatDate(dateStr: string): string {
   });
 }
 
-registerRoute({
+export const homeRoute: Route = {
   id: "home",
   meta: { title: "Home", description: "Senior Software Engineer. Distributed systems, micro-frontend architecture, and design systems." },
   render: () => `
@@ -22,13 +22,13 @@ registerRoute({
     <section class="mb-6">
       <div class="row items-center" style="justify-content:space-between;">
         <h2 class="heading-05">Recent posts</h2>
-        <a href="/blog" class="body-02 text-link" style="text-decoration:none;">View all →</a>
+        <a href="/blog" class="body-02 text-link" style="text-decoration:none;">View all \u2192</a>
       </div>
       <div class="stack mt-3">
         ${posts.slice(0, 3).map((post) => `
           <div class="post-card">
             <a class="post-card-title" href="/post/${post.slug}">${post.title}</a>
-            <div class="post-meta">${formatDate(post.date)} · ${post.readTime}</div>
+            <div class="post-meta">${formatDate(post.date)} \u00b7 ${post.readTime}</div>
             <p class="post-excerpt">${post.excerpt}</p>
           </div>
         `).join("")}
@@ -38,7 +38,7 @@ registerRoute({
     <section>
       <div class="row items-center" style="justify-content:space-between;">
         <h2 class="heading-05">Featured projects</h2>
-        <a href="/portfolio" class="body-02 text-link" style="text-decoration:none;">View all →</a>
+        <a href="/portfolio" class="body-02 text-link" style="text-decoration:none;">View all \u2192</a>
       </div>
       <div class="project-grid mt-3">
         ${projects.slice(0, 2).map((project) => `
@@ -59,4 +59,4 @@ registerRoute({
       </div>
     </section>
   `,
-});
+};

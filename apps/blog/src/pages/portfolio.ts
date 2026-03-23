@@ -1,12 +1,12 @@
 import { projects } from "../data.js";
-import { registerRoute } from "../router.js";
+import type { Route } from "../router.js";
 
-registerRoute({
+export const portfolioRoute: Route = {
   id: "portfolio",
-  meta: { title: "Portfolio", description: "Things I've built — from design systems to CLI tools." },
+  meta: { title: "Portfolio", description: "Things I've built \u2014 from design systems to CLI tools." },
   render: () => `
     <h1 class="heading-02 mb-2">Portfolio</h1>
-    <p class="body-01 text-secondary mb-4">Things I've built — from design systems to CLI tools.</p>
+    <p class="body-01 text-secondary mb-4">Things I've built \u2014 from design systems to CLI tools.</p>
     <div class="project-grid">
       ${projects.map((project) => `
         <ui-card size="m" bordered>
@@ -25,4 +25,4 @@ registerRoute({
       `).join("")}
     </div>
   `,
-});
+};

@@ -15,16 +15,11 @@ import "virtual:ui-components";
 injectAllTokens();
 registerIconFont(materialSymbolsWoff2);
 
-// Register all pages (side-effect imports)
-import "./pages/home.js";
-import "./pages/blog.js";
-import "./pages/post.js";
-import "./pages/portfolio.js";
-import "./pages/resume.js";
-import "./pages/about.js";
+// Register all routes
+import { routes } from "./routes.js";
+import { registerRoute, initRouter } from "./router.js";
 
-import { initRouter } from "./router.js";
-
+routes.forEach(registerRoute);
 // ─── Theme Toggle ─────────────────────────────────────────────────────────
 
 function initThemeToggle(): void {

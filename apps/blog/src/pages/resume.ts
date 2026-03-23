@@ -1,6 +1,6 @@
-import { registerRoute } from "../router.js";
+import type { Route } from "../router.js";
 
-registerRoute({
+export const resumeRoute: Route = {
   id: "resume",
   meta: { title: "Resume", description: "Senior Software Engineer with 14+ years of experience. Go, TypeScript, Java, Python. Distributed systems, micro-frontends, fine-grained authorization." },
   render: () => `
@@ -45,12 +45,12 @@ registerRoute({
 
       <h2>Experience</h2>
 
-      <h3>Xendit Pte Ltd — Senior Software Engineer</h3>
-      <p class="body-02 text-secondary">March 2021 – Present</p>
+      <h3>Xendit Pte Ltd \u2014 Senior Software Engineer</h3>
+      <p class="body-02 text-secondary">March 2021 \u2013 Present</p>
       <p class="body-02 text-secondary mb-2">Southeast Asian fintech providing payment infrastructure across Indonesia, the Philippines, Hong Kong, Mexico, and beyond.</p>
 
       <h4>Auth Platform <span class="body-02 text-secondary">| Engineer | Team of 2</span></h4>
-      <p>Designed and built a mission-critical fine-grained authorization service using OpenFGA — a single point of dependency for all product APIs and the merchant dashboard. Handles dynamic permission overrides across 5 product types and 140+ currency pairs with P99 latency under 40ms.</p>
+      <p>Designed and built a mission-critical fine-grained authorization service using OpenFGA \u2014 a single point of dependency for all product APIs and the merchant dashboard. Handles dynamic permission overrides across 5 product types and 140+ currency pairs with P99 latency under 40ms.</p>
       <ul>
         <li>Architected an FGA system using OpenFGA to replace legacy Postgres-based permission checks, supporting real-time blocklist/whitelist overrides across 5 financial products and 140+ currency pairs</li>
         <li>Implemented smart override resolution that checks default permissions before writing, reducing write operations by ~40%</li>
@@ -62,10 +62,10 @@ registerRoute({
       </div>
 
       <h4>Regional Dashboard <span class="body-02 text-secondary">| Frontend Lead | Team of 6</span></h4>
-      <p>Led frontend development for Xendit's global expansion, shipping 5 cross-border products in under 6 months — Xendit's highest-margin product line.</p>
+      <p>Led frontend development for Xendit's global expansion, shipping 5 cross-border products in under 6 months \u2014 Xendit's highest-margin product line.</p>
       <ul>
-        <li>Delivered cross-border payments, balance conversion, cross-border payouts, withdrawals, and FX management — 5 products in &lt;6 months</li>
-        <li>Modernized the frontend tech stack through the strangler pattern — no major rewrites, zero downtime</li>
+        <li>Delivered cross-border payments, balance conversion, cross-border payouts, withdrawals, and FX management \u2014 5 products in &lt;6 months</li>
+        <li>Modernized the frontend tech stack through the strangler pattern \u2014 no major rewrites, zero downtime</li>
         <li>Built a scalable authorization layer ensuring compliance with local and global regulatory requirements across new markets</li>
         <li>Optimized frontend performance, reducing initial load time by ~30%</li>
       </ul>
@@ -96,8 +96,8 @@ registerRoute({
         ${["React 18", "Module Federation", "Redux", "Jotai", "Node.js/Express", "Nx", "Vite"].map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
       </div>
 
-      <h3>Hearti Lab Pte Ltd — Product Developer Lead</h3>
-      <p class="body-02 text-secondary">October 2019 – February 2021</p>
+      <h3>Hearti Lab Pte Ltd \u2014 Product Developer Lead</h3>
+      <p class="body-02 text-secondary">October 2019 \u2013 February 2021</p>
 
       <h4>CYBERhythm <span class="body-02 text-secondary">| Lead | Team of 6</span></h4>
       <p>Led development of a multi-cloud cybersecurity platform for SMEs, providing unified security monitoring across AWS, Azure, GCP, and Alibaba Cloud.</p>
@@ -111,8 +111,8 @@ registerRoute({
         ${["Django", "React/Redux", "Spring Cloud", "Airflow", "PostgreSQL", "Elasticsearch", "Docker/AKS"].map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
       </div>
 
-      <h3>Helius Technologies — Senior Application Developer</h3>
-      <p class="body-02 text-secondary">May 2018 – October 2019</p>
+      <h3>Helius Technologies \u2014 Senior Application Developer</h3>
+      <p class="body-02 text-secondary">May 2018 \u2013 October 2019</p>
 
       <h4>DBS Digimarkets</h4>
       <p>Built an FX trading platform for DBS enabling traders to request quotes and book deals, with data-driven analytics.</p>
@@ -124,12 +124,12 @@ registerRoute({
         ${["Polymer/LitElement", "Spring Cloud", "GraphQL", "Kafka", "Elasticsearch", "Docker/OpenShift"].map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
       </div>
 
-      <h3>FPT Software Limited — Software Engineer</h3>
-      <p class="body-02 text-secondary">June 2014 – May 2018</p>
+      <h3>FPT Software Limited \u2014 Software Engineer</h3>
+      <p class="body-02 text-secondary">June 2014 \u2013 May 2018</p>
       <p>Built retail and configuration systems for Starhub (AngularJS, Spring Boot, Neo4j) and a high-availability program guide web service for DirecTV/AT&T (Java/Spring Boot, Couchbase, Elasticsearch).</p>
 
-      <h3>VietSoftware International — Software Engineer</h3>
-      <p class="body-02 text-secondary">May 2012 – June 2014</p>
+      <h3>VietSoftware International \u2014 Software Engineer</h3>
+      <p class="body-02 text-secondary">May 2012 \u2013 June 2014</p>
       <p>Built an enterprise service bus for Alliance Bernstein (UK) and a foreign exchange management system for BIDV bank.</p>
 
       <h2>Education</h2>
@@ -137,7 +137,7 @@ registerRoute({
       <p class="body-02 text-secondary">Post and Telecommunication Institute of Technology, Hanoi</p>
 
       <h2>Training</h2>
-      <p>Essential DDD — Paul Rayner</p>
+      <p>Essential DDD \u2014 Paul Rayner</p>
     </div>
   `,
-});
+};
