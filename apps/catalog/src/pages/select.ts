@@ -1,4 +1,9 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-dropdown-heading.js";
+import "@maneki/ui-components/components/ui-dropdown-item.js";
+import "@maneki/ui-components/components/ui-dropdown-separator.js";
+import "@maneki/ui-components/components/ui-icon.js";
+import "@maneki/ui-components/components/ui-select.js";
 
 registerPage("select", {
   title: "Select",

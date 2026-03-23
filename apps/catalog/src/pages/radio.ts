@@ -1,4 +1,6 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-radio-group.js";
+import "@maneki/ui-components/components/ui-radio-item.js";
 
 registerPage("radio", {
   title: "Radio",

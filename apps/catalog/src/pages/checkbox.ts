@@ -1,4 +1,6 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-checkbox-group.js";
+import "@maneki/ui-components/components/ui-checkbox-item.js";
 
 registerPage("checkbox", {
   title: "Checkbox",

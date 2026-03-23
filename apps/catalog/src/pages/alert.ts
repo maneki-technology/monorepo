@@ -1,4 +1,7 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-alert.js";
+import "@maneki/ui-components/components/ui-button.js";
+import "@maneki/ui-components/components/ui-icon.js";
 
 registerPage("alert", {
   title: "Alert",

@@ -1,4 +1,6 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-metric.js";
+import "@maneki/ui-components/components/ui-metric-group.js";
 
 registerPage("metric", {
   title: "Metric",

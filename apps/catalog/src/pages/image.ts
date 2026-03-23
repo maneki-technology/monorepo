@@ -1,5 +1,7 @@
 import { registerPage } from "../registry.js";
 import { landscapeSvg, createLandscapePng } from "../shared.js";
+import "@maneki/ui-components/components/ui-card.js";
+import "@maneki/ui-components/components/ui-image.js";
 
 registerPage("image", {
   title: "Image",

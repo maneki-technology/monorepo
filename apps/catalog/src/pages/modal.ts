@@ -1,4 +1,6 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-button.js";
+import "@maneki/ui-components/components/ui-modal.js";
 
 registerPage("modal", {
   title: "Modal",

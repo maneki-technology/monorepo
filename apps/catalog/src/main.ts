@@ -10,7 +10,10 @@ geistFace.load().then((f) => document.fonts.add(f));
 
 import { injectAllTokens, registerIconFont } from "@maneki/foundation";
 import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";
-import "@maneki/ui-components";
+// Sidebar components (created programmatically in buildSidebar)
+import "@maneki/ui-components/components/ui-side-panel-menu.js";
+import "@maneki/ui-components/components/ui-side-panel-menu-item.js";
+import "@maneki/ui-components/components/ui-side-panel-menu-section.js";
 
 // Inject foundation tokens + icon font
 injectAllTokens();

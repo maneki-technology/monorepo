@@ -1,4 +1,6 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-accordion-group.js";
+import "@maneki/ui-components/components/ui-accordion-item.js";
 
 registerPage("accordion", {
   title: "Accordion",

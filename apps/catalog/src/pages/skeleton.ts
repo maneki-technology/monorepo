@@ -1,4 +1,9 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-icon.js";
+import "@maneki/ui-components/components/ui-skeleton.js";
+import "@maneki/ui-components/components/ui-table.js";
+import "@maneki/ui-components/components/ui-table-cell.js";
+import "@maneki/ui-components/components/ui-table-row.js";
 
 registerPage("skeleton", {
   title: "Skeleton",

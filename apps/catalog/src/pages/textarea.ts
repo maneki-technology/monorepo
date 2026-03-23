@@ -1,4 +1,5 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-textarea.js";
 
 registerPage("textarea", {
   title: "Textarea",

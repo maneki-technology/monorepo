@@ -1,4 +1,6 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-person-group.js";
+import "@maneki/ui-components/components/ui-person-item.js";
 
 registerPage("person", {
   title: "Person",

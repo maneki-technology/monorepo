@@ -1,4 +1,5 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-side-panel.js";
 
 registerPage("side-panel", {
   title: "Side Panel",

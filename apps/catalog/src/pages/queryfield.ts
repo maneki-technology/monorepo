@@ -1,4 +1,6 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-queryfield.js";
+import "@maneki/ui-components/components/ui-queryfield-tag.js";
 
 registerPage("queryfield", {
   title: "Queryfield",

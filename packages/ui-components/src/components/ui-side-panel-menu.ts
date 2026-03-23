@@ -21,6 +21,7 @@ export class UiSidePanelMenu extends HTMLElement {
   private _flyoutBody: HTMLDivElement;
   private _activeFlyoutItem: Element | null = null;
   private _dismissFlyout: (() => void) | null = null;
+  private _syncingState = false;
 
   constructor() {
     super();
@@ -78,11 +79,18 @@ export class UiSidePanelMenu extends HTMLElement {
       const target = (e as CustomEvent).composedPath().find(
         (el) => (el as Element).tagName === "UI-SIDE-PANEL-MENU-ITEM",
       );
-      if (target) this._handleItemToggle(e as CustomEvent);
+      if (target) {
+        e.stopPropagation();
+        this._handleItemToggle(e as CustomEvent);
+      }
     });
 
     // Listen for panel toggle to sync item types
     this._panel.addEventListener("toggle", (e: Event) => {
+      // Only handle toggle events from the panel itself, not from slotted items
+      if (e.target !== this._panel) return;
+      // Skip if we're the ones who set the panel state (avoid feedback loop)
+      if (this._syncingState) return;
       const ce = e as CustomEvent;
       // Sync state + overlay from panel back to menu
       this.setAttribute("state", ce.detail.state);
@@ -92,6 +100,7 @@ export class UiSidePanelMenu extends HTMLElement {
 
     // Listen for mobile state changes from the inner panel
     this._panel.addEventListener("mobilechange", (e: Event) => {
+      if (this._syncingState) return;
       const ce = e as CustomEvent;
       if (ce.detail.mobile) {
         this.setAttribute("mobile", "");
@@ -102,18 +111,21 @@ export class UiSidePanelMenu extends HTMLElement {
         this.setAttribute("state", ce.detail.state);
       }
     });
-    this._panel.addEventListener("toggle", (e: Event) => {
-      const ce = e as CustomEvent;
-      // Sync state + overlay from panel back to menu
-      this.setAttribute("state", ce.detail.state);
-      if (this._panel.hasAttribute("overlay")) this.setAttribute("overlay", "");
-      else this.removeAttribute("overlay");
-    });
   }
 
   connectedCallback(): void {
+    // Save intended state — panel's connectedCallback will override via mobilechange
+    const intendedState = this.getAttribute("state");
     this._syncPanelAttributes();
-    // After syncing, check if panel already detected mobile and sync back
+    // Panel's connectedCallback fires _syncMobileState which overrides state.
+    // If not mobile, re-assert the intended state.
+    if (!this._panel.hasAttribute("mobile") && intendedState) {
+      this._syncingState = true;
+      this.setAttribute("state", intendedState);
+      this._panel.setAttribute("state", intendedState);
+      this._syncingState = false;
+    }
+    // If mobile, sync from panel
     if (this._panel.hasAttribute("mobile")) {
       this.setAttribute("mobile", "");
       const panelState = this._panel.getAttribute("state");
@@ -133,7 +145,9 @@ export class UiSidePanelMenu extends HTMLElement {
     _newValue: string | null,
   ): void {
     if (name === "state") {
+      this._syncingState = true;
       this._panel.setAttribute("state", this.state);
+      this._syncingState = false;
       this._syncItemTypes();
       this._closeFlyout();
     }
@@ -512,10 +526,13 @@ export class UiSidePanelMenu extends HTMLElement {
         this._closeFlyout();
       }
     };
-    document.addEventListener("click", onDocClick, true);
     document.addEventListener("keydown", onKeydown);
+    // Defer outside-click listener to avoid catching the originating click
+    requestAnimationFrame(() => {
+      document.addEventListener("click", onDocClick);
+    });
     this._dismissFlyout = () => {
-      document.removeEventListener("click", onDocClick, true);
+      document.removeEventListener("click", onDocClick);
       document.removeEventListener("keydown", onKeydown);
     };
   }

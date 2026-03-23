@@ -1,4 +1,5 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-datetime-picker.js";
 
 registerPage("datetime-picker", {
   title: "Datetime Picker",

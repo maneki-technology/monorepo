@@ -1,4 +1,8 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-icon.js";
+import "@maneki/ui-components/components/ui-side-panel-menu.js";
+import "@maneki/ui-components/components/ui-side-panel-menu-item.js";
+import "@maneki/ui-components/components/ui-side-panel-menu-section.js";
 
 registerPage("side-panel-menu", {
   title: "Side Panel Menu",

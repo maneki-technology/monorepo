@@ -1,4 +1,9 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-avatar.js";
+import "@maneki/ui-components/components/ui-icon.js";
+import "@maneki/ui-components/components/ui-list-group.js";
+import "@maneki/ui-components/components/ui-list-header.js";
+import "@maneki/ui-components/components/ui-list-item.js";
 
 registerPage("list", {
   title: "List",

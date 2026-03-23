@@ -1,4 +1,7 @@
 import { registerPage } from "../registry.js";
+import "@maneki/ui-components/components/ui-icon.js";
+import "@maneki/ui-components/components/ui-tab-group.js";
+import "@maneki/ui-components/components/ui-tab-item.js";
 
 registerPage("tabs", {
   title: "Tabs",
