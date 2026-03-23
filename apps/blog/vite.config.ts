@@ -1,10 +1,11 @@
 import { defineConfig } from "vite";
 import { markdownPostsPlugin } from "./plugins/markdown-posts.js";
 import { autoUiComponentsPlugin } from "./plugins/auto-ui-components.js";
+import { sitemapPlugin } from "./plugins/sitemap.js";
 
 export default defineConfig({
   root: ".",
-  plugins: [markdownPostsPlugin(), autoUiComponentsPlugin()],
+  plugins: [markdownPostsPlugin(), autoUiComponentsPlugin(), sitemapPlugin()],
   build: {
     outDir: "dist",
     emptyOutDir: true,

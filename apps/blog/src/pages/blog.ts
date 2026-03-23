@@ -11,6 +11,7 @@ function formatDate(dateStr: string): string {
 
 registerRoute({
   id: "blog",
+  meta: { title: "Blog", description: "Posts about fullstack development, design systems, and the web." },
   render: () => `
     <h1 class="heading-02 mb-4">Blog</h1>
     <div class="stack">

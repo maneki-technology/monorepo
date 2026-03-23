@@ -2,6 +2,7 @@ import { registerRoute } from "../router.js";
 
 registerRoute({
   id: "about",
+  meta: { title: "About", description: "Fullstack developer who cares about the craft — from pixel-perfect UIs to well-structured backends." },
   render: () => `
     <h1 class="heading-02 mb-4">About</h1>
 
