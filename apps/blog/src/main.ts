@@ -22,10 +22,6 @@ import "./pages/post.js";
 import "./pages/portfolio.js";
 import "./pages/resume.js";
 import "./pages/about.js";
-import "./pages/blog.js";
-import "./pages/post.js";
-import "./pages/portfolio.js";
-import "./pages/about.js";
 
 import { initRouter } from "./router.js";
 
@@ -52,7 +48,20 @@ function initThemeToggle(): void {
   });
 }
 
+// ─── Reading Progress ─────────────────────────────────────────────────────────
+
+function initReadingProgress(): void {
+  const bar = document.getElementById("reading-progress") as HTMLElement;
+  window.addEventListener("scroll", () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
+    bar.setAttribute("value", String(progress));
+  }, { passive: true });
+}
+
 // ─── Init ──────────────────────────────────────────────────────────────────
 
 initThemeToggle();
+initReadingProgress();
 initRouter();

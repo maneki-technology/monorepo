@@ -10,6 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import MarkdownIt from "markdown-it";
+import anchor from "markdown-it-anchor";
 import { createHighlighter } from "shiki";
 import { fromHighlighter } from "@shikijs/markdown-it";
 
@@ -41,6 +42,12 @@ async function getMd(): Promise<MarkdownIt> {
     },
     defaultColor: false,
   }));
+
+  // Add anchor IDs to headings
+  md.use(anchor, {
+    slugify: (s: string) => s.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, ""),
+    permalink: false,
+  });
 
 // ─── Custom renderers: output Maneki Web Components instead of plain HTML ───
 
@@ -103,6 +110,22 @@ export function markdownPostsPlugin(): Plugin {
       const words = content.split(/\s+/).length;
       const readTime = Math.max(1, Math.round(words / 200));
 
+      // Extract headings for TOC
+      const headings: { level: number; text: string; id: string }[] = [];
+      const tokens = md.parse(content, {});
+      for (let i = 0; i < tokens.length; i++) {
+        const token = tokens[i];
+        if (token.type === "heading_open") {
+          const level = parseInt(token.tag.slice(1), 10);
+          const inline = tokens[i + 1];
+          if (inline?.type === "inline" && inline.content) {
+            const text = inline.content;
+            const id = text.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, "");
+            headings.push({ level, text, id });
+          }
+        }
+      }
+
       return {
         slug,
         title: data.title ?? slug,
@@ -110,6 +133,7 @@ export function markdownPostsPlugin(): Plugin {
         readTime: `${readTime} min read`,
         excerpt: data.excerpt ?? "",
         tags: data.tags ?? [],
+        headings,
         content: html,
       };
     });

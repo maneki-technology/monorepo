@@ -6,6 +6,7 @@ declare module "virtual:posts" {
     readTime: string;
     excerpt: string;
     tags: string[];
+    headings: { level: number; text: string; id: string }[];
     content: string;
   }
   export const posts: Post[];
