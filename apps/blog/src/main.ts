@@ -20,6 +20,11 @@ import "./pages/home.js";
 import "./pages/blog.js";
 import "./pages/post.js";
 import "./pages/portfolio.js";
+import "./pages/resume.js";
+import "./pages/about.js";
+import "./pages/blog.js";
+import "./pages/post.js";
+import "./pages/portfolio.js";
 import "./pages/about.js";
 
 import { initRouter } from "./router.js";

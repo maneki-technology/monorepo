@@ -20,9 +20,10 @@ export function sitemapPlugin(): Plugin {
       // Static routes
       const urls: { loc: string; priority: string }[] = [
         { loc: `${SITE_URL}/`, priority: "1.0" },
-        { loc: `${SITE_URL}/#blog`, priority: "0.9" },
-        { loc: `${SITE_URL}/#portfolio`, priority: "0.7" },
-        { loc: `${SITE_URL}/#about`, priority: "0.5" },
+        { loc: `${SITE_URL}/blog`, priority: "0.9" },
+        { loc: `${SITE_URL}/portfolio`, priority: "0.7" },
+        { loc: `${SITE_URL}/resume`, priority: "0.6" },
+        { loc: `${SITE_URL}/about`, priority: "0.5" },
       ];
 
       // Post routes
@@ -34,7 +35,7 @@ export function sitemapPlugin(): Plugin {
 
         for (const file of files) {
           const slug = file.replace(/\.md$/, "");
-          urls.push({ loc: `${SITE_URL}/#post/${slug}`, priority: "0.8" });
+          urls.push({ loc: `${SITE_URL}/post/${slug}`, priority: "0.8" });
         }
       }
 

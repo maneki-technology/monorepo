@@ -1,4 +1,4 @@
-/** Minimal hash router for the blog app. */
+/** Minimal History API router for the blog app. */
 
 export interface Route {
   id: string;
@@ -17,11 +17,14 @@ export function registerRoute(route: Route): void {
 }
 
 export function navigate(routeId: string): void {
-  window.location.hash = routeId;
+  const path = routeId === "home" ? "/" : `/${routeId}`;
+  history.pushState(null, "", path);
+  renderRoute();
 }
 
 export function getCurrentRoute(): string {
-  return window.location.hash.slice(1) || "home";
+  const path = window.location.pathname.slice(1); // remove leading /
+  return path || "home";
 }
 
 export function renderRoute(): void {
@@ -42,7 +45,7 @@ export function renderRoute(): void {
 
   // Update page title + meta tags
   const siteTitle = "Kien Nguyen";
-  const pageTitle = route.meta?.title ? `${route.meta.title} — ${siteTitle}` : siteTitle;
+  const pageTitle = route.meta?.title ? `${route.meta.title} \u2014 ${siteTitle}` : siteTitle;
   document.title = pageTitle;
   const ogTitle = document.querySelector('meta[property="og:title"]');
   if (ogTitle) ogTitle.setAttribute("content", pageTitle);
@@ -51,7 +54,8 @@ export function renderRoute(): void {
   const metaDesc = document.querySelector('meta[name="description"]');
   if (metaDesc && route.meta?.description) metaDesc.setAttribute("content", route.meta.description);
   const ogUrl = document.querySelector('meta[property="og:url"]');
-  if (ogUrl) ogUrl.setAttribute("content", `https://blog.maneki.tech/#${routeId}`);
+  const url = routeId === "home" ? "https://blog.maneki.tech/" : `https://blog.maneki.tech/${routeId}`;
+  if (ogUrl) ogUrl.setAttribute("content", url);
 
   // Update active nav link
   document.querySelectorAll("nav a[data-route]").forEach((a) => {
@@ -67,6 +71,21 @@ export function renderRoute(): void {
 }
 
 export function initRouter(): void {
-  window.addEventListener("hashchange", renderRoute);
+  // Handle browser back/forward
+  window.addEventListener("popstate", renderRoute);
+
+  // Intercept link clicks for SPA navigation
+  document.addEventListener("click", (e) => {
+    const anchor = (e.target as Element).closest("a[href]") as HTMLAnchorElement | null;
+    if (!anchor) return;
+    const href = anchor.getAttribute("href");
+    if (!href || href.startsWith("http") || href.startsWith("mailto:") || anchor.hasAttribute("external")) return;
+    if (href.startsWith("/")) {
+      e.preventDefault();
+      history.pushState(null, "", href);
+      renderRoute();
+    }
+  });
+
   renderRoute();
 }
