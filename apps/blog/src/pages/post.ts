@@ -31,4 +31,5 @@ export const postRoutes: Route[] = posts.map((post) => ({
     title: post.title,
     description: post.excerpt,
   },
+  showProgress: true,
 }));
