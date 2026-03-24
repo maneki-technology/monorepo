@@ -15,8 +15,7 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
-const SITE_URL = "https://blog.maneki.tech";
-const SITE_TITLE = "Kien Nguyen";
+// SITE_URL and SITE_TITLE loaded via Vite SSR from src/config.ts
 
 async function prerender(): Promise<void> {
   // Create a Vite dev server in SSR mode to resolve virtual modules
@@ -27,7 +26,11 @@ async function prerender(): Promise<void> {
   });
 
   try {
-    // Load routes via Vite's module graph (resolves virtual:posts etc.)
+    // Load config and routes via Vite's module graph
+    const { SITE_URL, SITE_TITLE } = await vite.ssrLoadModule("/src/config.ts") as {
+      SITE_URL: string;
+      SITE_TITLE: string;
+    };
     const { routes } = await vite.ssrLoadModule("/src/routes.ts") as {
       routes: Array<{
         id: string;

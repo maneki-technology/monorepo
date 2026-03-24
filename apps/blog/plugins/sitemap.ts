@@ -7,7 +7,7 @@ import { type Plugin } from "vite";
 import fs from "node:fs";
 import path from "node:path";
 
-const SITE_URL = "https://blog.maneki.tech";
+import { SITE_URL } from "../src/config.js";
 const POSTS_DIR = "content/posts";
 
 export function sitemapPlugin(): Plugin {
