@@ -1,0 +1,15 @@
+{
+  "extends": "stylelint-config-standard",
+  "customSyntax": "postcss-lit",
+  "rules": {
+    "selector-type-no-unknown": [true, {
+      "ignoreTypes": ["/^ui-/"]
+    }],
+    "no-descending-specificity": null,
+    "custom-property-pattern": null,
+    "declaration-block-no-duplicate-properties": [true, {
+      "ignore": ["consecutive-duplicates-with-different-syntaxes"]
+    }],
+    "no-duplicate-selectors": null
+  }
+}
