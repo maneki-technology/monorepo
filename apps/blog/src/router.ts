@@ -1,3 +1,4 @@
+import { SITE_URL, SITE_TITLE } from "./config.js";
 /** Minimal History API router for the blog app. */
 
 export interface Route {
@@ -54,8 +55,7 @@ export function renderRoute(): void {
   }
 
   // Update page title + meta tags
-  const siteTitle = "Kien Nguyen";
-  const pageTitle = route.meta?.title ? `${route.meta.title} \u2014 ${siteTitle}` : siteTitle;
+  const pageTitle = route.meta?.title ? `${route.meta.title} \u2014 ${SITE_TITLE}` : SITE_TITLE;
   document.title = pageTitle;
   const ogTitle = document.querySelector('meta[property="og:title"]');
   if (ogTitle) ogTitle.setAttribute("content", pageTitle);
@@ -64,7 +64,7 @@ export function renderRoute(): void {
   const metaDesc = document.querySelector('meta[name="description"]');
   if (metaDesc && route.meta?.description) metaDesc.setAttribute("content", route.meta.description);
   const ogUrl = document.querySelector('meta[property="og:url"]');
-  const url = routeId === "home" ? "https://blog.maneki.tech/" : `https://blog.maneki.tech/${routeId}`;
+  const url = routeId === "home" ? `${SITE_URL}/` : `${SITE_URL}/${routeId}`;
   if (ogUrl) ogUrl.setAttribute("content", url);
 
   // Toggle reading progress based on route config
