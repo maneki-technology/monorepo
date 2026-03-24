@@ -36,8 +36,37 @@ async function prerender(): Promise<void> {
       }>;
     };
 
-    // Read the built HTML shell
-    const shell = readFileSync(resolve(root, "dist/index.html"), "utf-8");
+    // Generate foundation token CSS to inline in <head>
+    const tokens = await vite.ssrLoadModule("@maneki/foundation") as {
+      colorsToCssProperties: () => string;
+      semanticToCssProperties: () => string;
+      elevationToCssProperties: () => string;
+      typographyToCssProperties: () => string;
+      spacingToCssProperties: () => string;
+      radiusToCssProperties: () => string;
+      borderWidthToCssProperties: () => string;
+      darkSemanticToCssProperties: () => string;
+      darkElevationToCssProperties: () => string;
+    };
+
+    const tokenCss = [
+      tokens.colorsToCssProperties(),
+      tokens.semanticToCssProperties(),
+      tokens.elevationToCssProperties(),
+      tokens.typographyToCssProperties(),
+      tokens.spacingToCssProperties(),
+      tokens.radiusToCssProperties(),
+      tokens.borderWidthToCssProperties(),
+    ].join("\n");
+    const darkTokenCss = [
+      tokens.darkSemanticToCssProperties(),
+      tokens.darkElevationToCssProperties(),
+    ].join("\n");
+    const tokenStyle = `<style id="maneki-foundation-all">:root {\n${tokenCss}\n}\n\n[data-theme="dark"] {\n${darkTokenCss}\n}</style>`;
+
+    // Read the built HTML shell and inject tokens into <head>
+    let shell = readFileSync(resolve(root, "dist/index.html"), "utf-8");
+    shell = shell.replace("</head>", `${tokenStyle}\n</head>`);
 
     console.log(`Prerendering ${routes.length} routes...`);
 
@@ -54,7 +83,7 @@ async function prerender(): Promise<void> {
       let page = shell
         .replace(
           /<main id="content">[\s\S]*?<\/main>/,
-          `<main id="content">${html}</main>`,
+          `<main id="content" data-prerendered>${html}</main>`,
         )
         .replace(/<title>.*?<\/title>/, `<title>${pageTitle}</title>`)
         .replace(

@@ -36,11 +36,20 @@ export function renderRoute(): void {
     content.innerHTML = `<p class="body-01 text-secondary">Page not found.</p>`;
     return;
   }
-
-  content.innerHTML = route.render();
-
-  if (route.setup) {
-    requestAnimationFrame(() => route.setup!());
+  const isPrerendered = content.hasAttribute("data-prerendered") && !content.dataset.hydrated;
+  if (isPrerendered) {
+    content.removeAttribute("data-prerendered");
+    content.dataset.hydrated = "true";
+    // Still run setup for interactive features (search, etc.)
+    if (route.setup) {
+      requestAnimationFrame(() => route.setup!());
+    }
+  } else {
+    content.dataset.hydrated = "true";
+    content.innerHTML = route.render();
+    if (route.setup) {
+      requestAnimationFrame(() => route.setup!());
+    }
   }
 
   // Update page title + meta tags

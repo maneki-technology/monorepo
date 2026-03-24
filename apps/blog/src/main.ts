@@ -1,11 +1,3 @@
-// Self-hosted Geist font
-const geistFace = new FontFace("Geist", `url(/Geist-Variable.woff2) format('woff2')`, {
-  weight: "100 900",
-  style: "normal",
-  display: "swap",
-});
-geistFace.load().then((f) => document.fonts.add(f));
-
 import { injectAllTokens, registerIconFont } from "@maneki/foundation";
 import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";
 // Auto-detect and import only the <ui-*> components used in source files
