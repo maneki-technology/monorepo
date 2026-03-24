@@ -8,6 +8,7 @@ export interface Route {
     title?: string;
     description?: string;
   };
+  showProgress?: boolean;
 }
 
 const routes: Record<string, Route> = {};
@@ -65,6 +66,9 @@ export function renderRoute(): void {
   const ogUrl = document.querySelector('meta[property="og:url"]');
   const url = routeId === "home" ? "https://blog.maneki.tech/" : `https://blog.maneki.tech/${routeId}`;
   if (ogUrl) ogUrl.setAttribute("content", url);
+
+  // Toggle reading progress based on route config
+  document.body.toggleAttribute("data-show-progress", !!route.showProgress);
 
   // Update active nav link
   document.querySelectorAll("nav a[data-route]").forEach((a) => {

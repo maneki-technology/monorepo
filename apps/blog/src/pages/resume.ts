@@ -3,6 +3,7 @@ import type { Route } from "../router.js";
 export const resumeRoute: Route = {
   id: "resume",
   meta: { title: "Resume", description: "Senior Software Engineer with 14+ years of experience. Go, TypeScript, Java, Python. Distributed systems, micro-frontends, fine-grained authorization." },
+  showProgress: true,
   render: () => `
     <h1 class="heading-02 mb-2">Kien Nguyen Trung</h1>
     <p class="body-01 text-secondary">Senior Software Engineer</p>
