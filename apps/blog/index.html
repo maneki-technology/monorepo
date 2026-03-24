@@ -16,6 +16,13 @@
   <meta property="og:description" content="Personal blog and portfolio — fullstack development, design systems, and more." />
   <meta property="og:url" content="https://blog.maneki.tech/" />
   <meta name="twitter:card" content="summary" />
+  <!-- Prevent dark mode flash: apply theme before any rendering -->
+  <script>
+    (function() {
+      var t = localStorage.getItem('blog-theme');
+      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
   <link rel="preload" href="/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; }
@@ -28,6 +35,14 @@
     ui-search:not(:defined),
     ui-progress-bar:not(:defined) {
       opacity: 0;
+    }
+
+    @font-face {
+      font-family: 'Geist';
+      src: url('/Geist-Variable.woff2') format('woff2');
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: swap;
     }
 
     @font-face {
@@ -64,7 +79,7 @@
       max-width: 720px;
       width: 100%;
       margin: 0 auto;
-      padding: 24px 24px 0;
+      padding: var(--fd-space-3) var(--fd-space-3) 0;
     }
 
     .site-name {
@@ -81,7 +96,7 @@
     nav {
       display: flex;
       align-items: center;
-      gap: 24px;
+      gap: var(--fd-space-3);
     }
 
     nav a {
@@ -107,6 +122,11 @@
       padding: 4px;
       color: var(--fd-text-secondary, #52525b);
       line-height: 1;
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* ─── Content ─── */
@@ -116,7 +136,7 @@
       max-width: 720px;
       width: 100%;
       margin: 0 auto;
-      padding: 48px 24px;
+      padding: var(--fd-space-6) var(--fd-space-3);
     }
 
     /* ─── Footer ─── */
@@ -125,7 +145,7 @@
       max-width: 720px;
       width: 100%;
       margin: 0 auto;
-      padding: 24px;
+      padding: var(--fd-space-3);
       border-top: 1px solid var(--fd-border-minimal, #e4e4e7);
       font-size: 12px;
       color: var(--fd-text-secondary, #52525b);
@@ -160,24 +180,24 @@
     .text-tertiary { color: var(--fd-text-tertiary, #71717a); }
     .text-link { color: var(--fd-text-link, #2680eb); }
 
-    .mt-1 { margin-top: 8px; }
-    .mt-2 { margin-top: 16px; }
-    .mt-3 { margin-top: 24px; }
-    .mt-4 { margin-top: 32px; }
-    .mt-6 { margin-top: 48px; }
-    .mt-8 { margin-top: 64px; }
-    .mt-10 { margin-top: 80px; }
-    .mb-1 { margin-bottom: 8px; }
-    .mb-2 { margin-bottom: 16px; }
-    .mb-3 { margin-bottom: 24px; }
-    .mb-4 { margin-bottom: 32px; }
-    .mb-6 { margin-bottom: 48px; }
+    .mt-1 { margin-top: var(--fd-space-1); }
+    .mt-2 { margin-top: var(--fd-space-2); }
+    .mt-3 { margin-top: var(--fd-space-3); }
+    .mt-4 { margin-top: var(--fd-space-4); }
+    .mt-6 { margin-top: var(--fd-space-6); }
+    .mt-8 { margin-top: var(--fd-space-8); }
+    .mt-10 { margin-top: var(--fd-space-10); }
+    .mb-1 { margin-bottom: var(--fd-space-1); }
+    .mb-2 { margin-bottom: var(--fd-space-2); }
+    .mb-3 { margin-bottom: var(--fd-space-3); }
+    .mb-4 { margin-bottom: var(--fd-space-4); }
+    .mb-6 { margin-bottom: var(--fd-space-6); }
 
-    .gap-1 { gap: 8px; }
-    .gap-2 { gap: 16px; }
-    .gap-3 { gap: 24px; }
-    .gap-4 { gap: 32px; }
-    .gap-6 { gap: 48px; }
+    .gap-1 { gap: var(--fd-space-1); }
+    .gap-2 { gap: var(--fd-space-2); }
+    .gap-3 { gap: var(--fd-space-3); }
+    .gap-4 { gap: var(--fd-space-4); }
+    .gap-6 { gap: var(--fd-space-6); }
 
     .stack { display: flex; flex-direction: column; }
     .row { display: flex; flex-wrap: wrap; }
@@ -186,7 +206,7 @@
     /* ─── Blog-specific ─── */
 
     .post-card {
-      padding: 24px 0;
+      padding: var(--fd-space-3) 0;
       border-bottom: 1px solid var(--fd-border-minimal, #e4e4e7);
     }
 
@@ -228,7 +248,8 @@
     .tags {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: var(--fd-space-0-75);
+      margin-top: var(--fd-space-1-5);
       margin-top: 12px;
     }
 
