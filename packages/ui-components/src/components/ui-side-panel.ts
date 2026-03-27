@@ -1,5 +1,6 @@
 import { STYLES } from "./ui-side-panel.styles.js";
 import { ICON_KEYBOARD_DOUBLE_ARROW_LEFT, ICON_KEYBOARD_DOUBLE_ARROW_RIGHT, ICON_MENU } from "@maneki/foundation";
+import "./ui-scrollbar.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -13,7 +14,7 @@ sheet.replaceSync(STYLES);
 const MOBILE_QUERY = "(max-width: 767px)";
 
 export class UiSidePanel extends HTMLElement {
-  static readonly observedAttributes = ["state", "overlay", "mobile", "no-collapse"];
+  static readonly observedAttributes = ["state", "overlay", "mobile", "no-collapse", "scrollbar-emphasis"];
 
   #header!: HTMLElement;
   #toggleBtn!: HTMLButtonElement;
@@ -57,9 +58,10 @@ export class UiSidePanel extends HTMLElement {
     const separator = document.createElement("div");
     separator.className = "separator";
 
-    // Body (generic slot)
-    this.#body = document.createElement("div");
+    // Body (wrapped in ui-scrollbar)
+    this.#body = document.createElement("ui-scrollbar");
     this.#body.className = "body";
+    this.#body.setAttribute("emphasis", "minimal");
     const slot = document.createElement("slot");
     this.#body.appendChild(slot);
 
@@ -111,10 +113,14 @@ export class UiSidePanel extends HTMLElement {
         this._syncToggleIcon();
         break;
       case "no-collapse":
-        // no-collapse only hides desktop toggle; CSS handles via :host([no-collapse]:not([mobile]))
+        break;
+      case "scrollbar-emphasis":
+        this.#body.setAttribute("emphasis", newValue ?? "minimal");
         break;
     }
   }
+
+  // ── Property accessors ──────────────────────────────────────────────────
 
   // ── Property accessors ──────────────────────────────────────────────────
 

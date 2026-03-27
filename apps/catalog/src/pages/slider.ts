@@ -1,5 +1,6 @@
 import { registerPage } from "../registry.js";
 import "@maneki/ui-components/components/ui-slider.js";
+import "@maneki/ui-components/components/ui-label.js";
 
 registerPage("slider", {
   title: "Slider",
@@ -79,6 +80,22 @@ registerPage("slider", {
       <div class="variant-col">
         <span class="variant-label">Range</span>
         <ui-slider id="slider-range" size="l" range value="20" value-high="80" labels tooltip></ui-slider>
+      </div>
+    </div>
+
+    <h3>With Label Slot</h3>
+    <div class="stack-l w-400">
+      <div class="variant-col">
+        <span class="variant-label">M</span>
+        <ui-slider size="m" value="50" labels>
+          <ui-label slot="label" size="m">Volume</ui-label>
+        </ui-slider>
+      </div>
+      <div class="variant-col">
+        <span class="variant-label">L</span>
+        <ui-slider size="l" value="50" labels>
+          <ui-label slot="label" size="l">Brightness</ui-label>
+        </ui-slider>
       </div>
     </div>
   `,

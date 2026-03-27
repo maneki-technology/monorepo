@@ -238,7 +238,6 @@ export class UiSwitch extends HTMLElement {
     "size",
     "checked",
     "disabled",
-    "label",
     "label-position",
     "status",
   ];
@@ -256,6 +255,9 @@ export class UiSwitch extends HTMLElement {
     // Label
     this.#labelEl = document.createElement("span");
     this.#labelEl.className = "label";
+    const labelSlot = document.createElement("slot");
+    labelSlot.name = "label";
+    this.#labelEl.appendChild(labelSlot);
 
     // Switch container
     this.#switchEl = document.createElement("div");
@@ -324,12 +326,6 @@ export class UiSwitch extends HTMLElement {
     else this.removeAttribute("disabled");
   }
 
-  get label(): string {
-    return this.getAttribute("label") ?? "";
-  }
-  set label(v: string) {
-    this.setAttribute("label", v);
-  }
 
   get labelPosition(): SwitchLabelPosition {
     return (this.getAttribute("label-position") as SwitchLabelPosition) ?? "none";
@@ -361,9 +357,6 @@ export class UiSwitch extends HTMLElement {
   // ── Private ─────────────────────────────────────────────────────────────
 
   private _syncAll(): void {
-    // Label
-    this.#labelEl.textContent = this.getAttribute("label") ?? "";
-
     // Label position: reorder DOM
     const pos = this.getAttribute("label-position");
     if (pos === "left" || pos === "top") {
@@ -376,8 +369,7 @@ export class UiSwitch extends HTMLElement {
 
     // ARIA
     this.#switchEl.setAttribute("aria-checked", String(this.checked));
-    if (this.label) this.#switchEl.setAttribute("aria-label", this.label);
-    else if (!this.#switchEl.hasAttribute("aria-label")) this.#switchEl.setAttribute("aria-label", "Toggle");
+    if (!this.#switchEl.hasAttribute("aria-label")) this.#switchEl.setAttribute("aria-label", "Toggle");
   }
 }
 

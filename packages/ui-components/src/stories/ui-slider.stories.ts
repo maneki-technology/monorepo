@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "../components/ui-slider.js";
+import "../components/ui-label.js";
 
 const meta: Meta = {
   title: "Components/Slider",
@@ -111,6 +112,19 @@ export const Steps: Story = {
     <div style="max-width: 400px;">
       <div style="margin-bottom: 8px; font-size: 12px; color: #666;">Step = 10</div>
       <ui-slider value="50" step="10" labels tooltip></ui-slider>
+    </div>
+  `,
+};
+
+
+// ── With Label ────────────────────────────────────────────────────────────────
+
+export const WithLabel: Story = {
+  render: () => html`
+    <div style="width: 400px;">
+      <ui-slider>
+        <ui-label slot="label" size="m">Volume</ui-label>
+      </ui-slider>
     </div>
   `,
 };

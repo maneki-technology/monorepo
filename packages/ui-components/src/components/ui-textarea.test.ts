@@ -39,9 +39,6 @@ describe("ui-textarea", () => {
   });
 
 
-  it("defaults secondaryLabel to empty string", () => {
-    expect((el as unknown as { secondaryLabel: string }).secondaryLabel).toBe("");
-  });
 
   it("defaults placeholder to empty string", () => {
     expect((el as unknown as { placeholder: string }).placeholder).toBe("");
@@ -204,19 +201,9 @@ describe("ui-textarea", () => {
     expect(slot).toBeTruthy();
   });
 
-  // ── Secondary label ──────────────────────────────────────────────────────
-
-  it("sets secondary-label attribute", () => {
-    (el as unknown as { secondaryLabel: string }).secondaryLabel = "Optional";
-    expect(el.getAttribute("secondary-label")).toBe("Optional");
-    const secEl = el.shadowRoot!.querySelector(".secondary-label");
-    expect(secEl!.textContent).toBe("Optional");
-  });
-
-  it("removes secondary-label attribute when set to empty", () => {
-    (el as unknown as { secondaryLabel: string }).secondaryLabel = "Optional";
-    (el as unknown as { secondaryLabel: string }).secondaryLabel = "";
-    expect(el.hasAttribute("secondary-label")).toBe(false);
+  it("has secondary-label slot in shadow DOM", () => {
+    const slot = el.shadowRoot!.querySelector('slot[name="secondary-label"]');
+    expect(slot).toBeTruthy();
   });
 
   // ── Rows ─────────────────────────────────────────────────────────────────
@@ -322,8 +309,8 @@ describe("ui-textarea", () => {
     expect(el.shadowRoot!.querySelector(".status-icon")).toBeTruthy();
   });
 
-  it("has .secondary-label element", () => {
-    expect(el.shadowRoot!.querySelector(".secondary-label")).toBeTruthy();
+  it("has secondary-label slot", () => {
+    expect(el.shadowRoot!.querySelector('slot[name="secondary-label"]')).toBeTruthy();
   });
 
   it("has .char-count element", () => {
@@ -586,7 +573,6 @@ describe("ui-textarea", () => {
   it("exposes all typed property accessors", () => {
     const component = el as unknown as {
       size: string;
-      secondaryLabel: string;
       placeholder: string;
       value: string;
       name: string;
@@ -601,8 +587,6 @@ describe("ui-textarea", () => {
     component.size = "l";
     expect(component.size).toBe("l");
 
-    component.secondaryLabel = "Optional";
-    expect(component.secondaryLabel).toBe("Optional");
 
     component.placeholder = "Type here";
     expect(component.placeholder).toBe("Type here");

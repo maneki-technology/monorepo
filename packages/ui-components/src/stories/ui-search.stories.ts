@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "../components/ui-search.js";
+import "../components/ui-label.js";
 
 const categories = [
   {
@@ -153,5 +154,18 @@ export const Empty: Story = {
         }
       });
     </script>
+  `,
+};
+
+
+// ── With Label ────────────────────────────────────────────────────────────────
+
+export const WithLabel: Story = {
+  render: () => html`
+    <div style="width: 400px;">
+      <ui-search>
+        <ui-label slot="label" size="m">Search</ui-label>
+      </ui-search>
+    </div>
   `,
 };

@@ -41,6 +41,10 @@ export const STYLES = /* css */ `
     -webkit-user-select: none;
   }
 
+  slot[name="label"] {
+    display: block;
+  }
+
   .wrapper {
     display: flex;
     flex-direction: column;

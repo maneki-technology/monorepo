@@ -14,9 +14,8 @@ const meta: Meta = {
       control: { type: "select" },
       options: ["none", "warning", "error", "success", "loading"],
     },
-    "secondary-label": { control: "text" },
-    supportive: { control: "text" },
     placeholder: { control: "text" },
+    supportive: { control: "text" },
     value: { control: "text" },
     disabled: { control: "boolean" },
     readonly: { control: "boolean" },
@@ -33,8 +32,6 @@ const meta: Meta = {
     size: "m",
     type: "text",
     status: "none",
-    "secondary-label": "",
-    supportive: "",
     placeholder: "Placeholder text",
     value: "",
     disabled: false,
@@ -46,14 +43,15 @@ const meta: Meta = {
       size=${args.size}
       type=${args.type}
       status=${args.status}
-      secondary-label=${args["secondary-label"] || undefined}
-      supportive=${args.supportive || undefined}
       placeholder=${args.placeholder}
       value=${args.value}
       ?disabled=${args.disabled}
       ?readonly=${args.readonly}
       ?error=${args.error}
-    ></ui-input>
+    >
+      ${args["secondary-label"] ? html`<ui-label slot="secondary-label" emphasis="subtle">${args["secondary-label"]}</ui-label>` : ""}
+      ${args.supportive ? html`<span slot="supportive">${args.supportive}</span>` : ""}
+    </ui-input>
   `,
 };
 export default meta;
@@ -79,7 +77,7 @@ export const WithLabel: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
       <ui-input placeholder="you@example.com"><ui-label slot="label">Email</ui-label></ui-input>
-      <ui-input secondary-label="Optional" placeholder="johndoe"><ui-label slot="label">Username</ui-label></ui-input>
+      <ui-input placeholder="johndoe"><ui-label slot="label">Username</ui-label><ui-label slot="secondary-label" emphasis="subtle">Optional</ui-label></ui-input>
     </div>
   `,
 };
@@ -89,18 +87,15 @@ export const WithSupportive: Story = {
     <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
       <ui-input
         placeholder="Enter password"
-        supportive="Must be at least 8 characters"
-      ><ui-label slot="label">Password</ui-label></ui-input>
+      ><ui-label slot="label">Password</ui-label><span slot="supportive">Must be at least 8 characters</span></ui-input>
       <ui-input
         placeholder="you@example.com"
         status="error"
-        supportive="Please enter a valid email address"
-      ><ui-label slot="label">Email</ui-label></ui-input>
+      ><ui-label slot="label">Email</ui-label><span slot="supportive">Please enter a valid email address</span></ui-input>
       <ui-input
         placeholder="johndoe"
         status="success"
-        supportive="Username is available"
-      ><ui-label slot="label">Username</ui-label></ui-input>
+      ><ui-label slot="label">Username</ui-label><span slot="supportive">Username is available</span></ui-input>
     </div>
   `,
 };
@@ -194,33 +189,27 @@ export const Statuses: Story = {
       <ui-input
         placeholder="No status"
         status="none"
-        supportive="Default supportive text"
-      ><ui-label slot="label">None</ui-label></ui-input>
+      ><ui-label slot="label">None</ui-label><span slot="supportive">Default supportive text</span></ui-input>
       <ui-input
         value="Might be wrong"
         status="warning"
-        supportive="Please double-check this value"
-      ><ui-label slot="label">Warning</ui-label></ui-input>
+      ><ui-label slot="label">Warning</ui-label><span slot="supportive">Please double-check this value</span></ui-input>
       <ui-input
         value="Invalid"
         status="error"
-        supportive="This field is required"
-      ><ui-label slot="label">Error</ui-label></ui-input>
+      ><ui-label slot="label">Error</ui-label><span slot="supportive">This field is required</span></ui-input>
       <ui-input
         value="Invalid"
         error
-        supportive="This field has an error"
-      ><ui-label slot="label">Error (boolean)</ui-label></ui-input>
+      ><ui-label slot="label">Error (boolean)</ui-label><span slot="supportive">This field has an error</span></ui-input>
       <ui-input
         value="Valid input"
         status="success"
-        supportive="Looks good!"
-      ><ui-label slot="label">Success</ui-label></ui-input>
+      ><ui-label slot="label">Success</ui-label><span slot="supportive">Looks good!</span></ui-input>
       <ui-input
         value="Checking..."
         status="loading"
-        supportive="Validating..."
-      ><ui-label slot="label">Loading</ui-label></ui-input>
+      ><ui-label slot="label">Loading</ui-label><span slot="supportive">Validating...</span></ui-input>
     </div>
   `,
 };
@@ -231,32 +220,30 @@ export const FullFeatured: Story = {
       <ui-input
         size="m"
         type="clearable"
-        secondary-label="Required"
         placeholder="you@example.com"
         value="john@example.com"
         status="success"
-        supportive="Email verified successfully"
       >
         <ui-label slot="label">Email Address</ui-label>
+        <ui-label slot="secondary-label" emphasis="subtle">Required</ui-label>
+        <span slot="supportive">Email verified successfully</span>
         <ui-icon name="mail" size="m" slot="leading"></ui-icon>
       </ui-input>
 
       <ui-input
         size="m"
         type="numeric"
-        secondary-label="Max 99"
         placeholder="0"
         value="5"
-        supportive="Enter the number of items"
-      ><ui-label slot="label">Quantity</ui-label></ui-input>
+      ><ui-label slot="label">Quantity</ui-label><ui-label slot="secondary-label" emphasis="subtle">Max 99</ui-label><span slot="supportive">Enter the number of items</span></ui-input>
 
       <ui-input
         size="l"
-        secondary-label="Optional"
         placeholder="Enter a description..."
-        supportive="Maximum 200 characters"
       >
         <ui-label slot="label">Description</ui-label>
+        <ui-label slot="secondary-label" emphasis="subtle">Optional</ui-label>
+        <span slot="supportive">Maximum 200 characters</span>
         <span slot="trailing" style="font-size: 12px; color: #9FB1BD;">0/200</span>
       </ui-input>
     </div>

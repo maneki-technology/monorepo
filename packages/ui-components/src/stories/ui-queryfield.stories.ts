@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "../components/ui-queryfield.js";
 import "../components/ui-queryfield-tag.js";
+import "../components/ui-label.js";
 
 const meta: Meta = {
   title: "Components/Queryfield",
@@ -129,5 +130,23 @@ export const Empty: Story = {
   args: { size: "m" },
   render: ({ size }) => html`
     <ui-queryfield size=${size}></ui-queryfield>
+  `,
+};
+
+
+// ── With Label ────────────────────────────────────────────────────────────────
+
+export const WithLabel: Story = {
+  render: () => html`
+    <div style="width: 400px;">
+      <ui-queryfield>
+        <ui-label slot="label" size="m">Search filters</ui-label>
+        <ui-queryfield-tag
+          slot="tags"
+          category="City"
+          expression="equals London"
+        ></ui-queryfield-tag>
+      </ui-queryfield>
+    </div>
   `,
 };

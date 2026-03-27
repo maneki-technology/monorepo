@@ -20,6 +20,7 @@ export const STYLES = /* css */ `
     display: block;
     overflow: hidden;
     position: relative;
+    height: 100%;
   }
 
   .container {
@@ -27,47 +28,40 @@ export const STYLES = /* css */ `
     height: 100%;
   }
 
-  /* ── Bold emphasis (default) ─────────────────────────────────────────────── */
+  /* ── Bold emphasis (default) ─────────────────────────────────────────── */
 
   :host,
   :host([emphasis="bold"]) {
-    --_track-bg: ${SURFACE_SECONDARY};
     --_thumb-bg: ${SURFACE_BOLD};
-    --_thumb-radius: ${SP_1_5};
-    --_thumb-size: 5px;
-    --_track-size: ${SP_1_5};
-    --_border-color: ${BORDER_MINIMAL};
+    --_thumb-radius: 5px;
+    --_track-size: 10px;
   }
 
-  /* ── Minimal emphasis ────────────────────────────────────────────────────── */
+  /* ── Minimal emphasis ────────────────────────────────────────────── */
 
   :host([emphasis="minimal"]) {
-    --_track-bg: transparent;
     --_thumb-bg: ${SURFACE_BOLD};
-    --_thumb-radius: ${SP_1_5};
-    --_thumb-size: 5px;
-    --_track-size: ${SP_1};
-    --_border-color: transparent;
+    --_thumb-radius: 3px;
+    --_track-size: 6px;
   }
 
-  /* ── Vertical (default) ──────────────────────────────────────────────────── */
+  /* ── Vertical (default) ──────────────────────────────────────────── */
 
   :host,
   :host([orientation="vertical"]) {
+    overflow: hidden;
+  }
+
+  :host([orientation="vertical"]) .container,
+  :host(:not([orientation])) .container {
     overflow-y: auto;
     overflow-x: hidden;
   }
 
-  :host([orientation="vertical"]) .container {
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-
-  /* ── Horizontal ──────────────────────────────────────────────────────────── */
+  /* ── Horizontal ─────────────────────────────────────────────────── */
 
   :host([orientation="horizontal"]) {
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden;
   }
 
   :host([orientation="horizontal"]) .container {
@@ -75,7 +69,7 @@ export const STYLES = /* css */ `
     overflow-y: hidden;
   }
 
-  /* ── Webkit scrollbar styling ────────────────────────────────────────────── */
+  /* ── Webkit scrollbar styling ──────────────────────────────────────── */
 
   .container::-webkit-scrollbar {
     width: var(--_track-size);
@@ -83,43 +77,28 @@ export const STYLES = /* css */ `
   }
 
   .container::-webkit-scrollbar-track {
-    background: var(--_track-bg);
+    background: transparent;
   }
 
   .container::-webkit-scrollbar-thumb {
-    background: var(--_thumb-bg);
+    background: transparent;
     border-radius: var(--_thumb-radius);
-    border: 3px solid transparent;
-    background-clip: content-box;
+    transition: background 0.2s ease;
   }
 
-  /* Bold: vertical border on left side of track */
-  :host([emphasis="bold"][orientation="vertical"]) .container::-webkit-scrollbar-track,
-  :host([emphasis="bold"]:not([orientation])) .container::-webkit-scrollbar-track {
-    border-left: 1px solid var(--_border-color);
+  :host(:hover) .container::-webkit-scrollbar-thumb {
+    background: var(--_thumb-bg);
   }
 
-  /* Bold: horizontal border on top of track */
-  :host([emphasis="bold"][orientation="horizontal"]) .container::-webkit-scrollbar-track {
-    border-top: 1px solid var(--_border-color);
-  }
+  /* ── Firefox scrollbar styling ─────────────────────────────────────── */
 
-  /* Minimal: thinner thumb, no border */
-  :host([emphasis="minimal"]) .container::-webkit-scrollbar-thumb {
-    border: ${BW_MD} solid transparent;
-    background-clip: content-box;
-  }
-
-  /* ── Firefox scrollbar styling ─────────────────────────────────────────── */
-
-  :host([emphasis="bold"]) .container,
-  :host(:not([emphasis])) .container {
-    scrollbar-width: auto;
-    scrollbar-color: var(--_thumb-bg) var(--_track-bg);
-  }
-
-  :host([emphasis="minimal"]) .container {
-    scrollbar-width: thin;
-    scrollbar-color: var(--_thumb-bg) transparent;
+  @supports not selector(::-webkit-scrollbar) {
+    .container {
+      scrollbar-width: thin;
+      scrollbar-color: transparent transparent;
+    }
+    :host(:hover) .container {
+      scrollbar-color: var(--_thumb-bg) transparent;
+    }
   }
 `;

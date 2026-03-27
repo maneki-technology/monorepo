@@ -40,6 +40,9 @@ export class UiSlider extends HTMLElement {
     const shadow = this.attachShadow({ mode: "open" });
     shadow.adoptedStyleSheets = [sheet];
 
+    const labelSlot = document.createElement("slot");
+    labelSlot.name = "label";
+
     const wrapper = document.createElement("div");
     wrapper.className = "wrapper";
 
@@ -85,7 +88,7 @@ export class UiSlider extends HTMLElement {
     labels.append(this.#labelMin, this.#labelMax);
 
     wrapper.append(this.#trackArea, labels);
-    shadow.appendChild(wrapper);
+    shadow.append(labelSlot, wrapper);
   }
 
   connectedCallback(): void {

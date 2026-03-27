@@ -8,6 +8,7 @@ import {
   ICON_PRIMARY,
   SP_1,
   SP_2,
+  SURFACE_PRIMARY,
   SURFACE_SECONDARY,
   TEXT_PRIMARY,
 } from "@maneki/foundation";
@@ -214,10 +215,8 @@ export const STYLES = /* css */ `
   /* ── Body ─────────────────────────────────────────────────────────────────── */
 
   .body {
-    display: flex;
-    flex-direction: column;
     flex: 1;
-    overflow-y: auto;
+    min-height: 0;
   }
 
   /* ── Footer ──────────────────────────────────────────────────────────────── */
