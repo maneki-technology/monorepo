@@ -158,5 +158,28 @@ registerPage("tabs", {
         <ui-tab-item label="Line Chart"></ui-tab-item>
       </ui-tab-group>
     </div>
+
+    <h3>Closable</h3>
+    <div class="variant-group stack-m">
+      <div class="variant-col">
+        <span class="variant-label">Closable tabs (click × to remove)</span>
+        <ui-tab-group size="m" closable>
+          <ui-tab-item label="Dashboard" selected></ui-tab-item>
+          <ui-tab-item label="Settings"></ui-tab-item>
+          <ui-tab-item label="Users"></ui-tab-item>
+        </ui-tab-group>
+      </div>
+    </div>
+
+    <h3>Addable</h3>
+    <div class="variant-group stack-m">
+      <div class="variant-col">
+        <span class="variant-label">Closable + Addable (code editor style)</span>
+        <ui-tab-group size="m" closable addable>
+          <ui-tab-item label="index.ts" selected></ui-tab-item>
+          <ui-tab-item label="styles.css"></ui-tab-item>
+        </ui-tab-group>
+      </div>
+    </div>
   `,
 });

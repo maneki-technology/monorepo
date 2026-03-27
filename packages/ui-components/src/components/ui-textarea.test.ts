@@ -38,9 +38,6 @@ describe("ui-textarea", () => {
     expect((el as unknown as { value: string }).value).toBe("");
   });
 
-  it("defaults label to empty string", () => {
-    expect((el as unknown as { label: string }).label).toBe("");
-  });
 
   it("defaults secondaryLabel to empty string", () => {
     expect((el as unknown as { secondaryLabel: string }).secondaryLabel).toBe("");
@@ -200,41 +197,11 @@ describe("ui-textarea", () => {
     expect(textarea.name).toBe("comment");
   });
 
-  // ── Label ────────────────────────────────────────────────────────────────
+  // ── Label slot ────────────────────────────────────────────────────────────────
 
-  it("sets label attribute and shows label text", () => {
-    (el as unknown as { label: string }).label = "Description";
-    expect(el.getAttribute("label")).toBe("Description");
-    const labelEl = el.shadowRoot!.querySelector("ui-label[emphasis='bold']");
-    expect(labelEl!.textContent).toBe("Description");
-  });
-
-  it("removes label attribute when set to empty", () => {
-    (el as unknown as { label: string }).label = "Description";
-    (el as unknown as { label: string }).label = "";
-    expect(el.hasAttribute("label")).toBe(false);
-  });
-
-  it("syncs label size with component size", () => {
-    (el as unknown as { label: string }).label = "Test";
-    (el as unknown as { size: string }).size = "l";
-    const labelEl = el.shadowRoot!.querySelector("ui-label[emphasis='bold']");
-    expect(labelEl!.getAttribute("size")).toBe("l");
-  });
-
-  it("sets disabled on label when component is disabled", () => {
-    (el as unknown as { label: string }).label = "Test";
-    (el as unknown as { disabled: boolean }).disabled = true;
-    const labelEl = el.shadowRoot!.querySelector("ui-label[emphasis='bold']");
-    expect(labelEl!.hasAttribute("disabled")).toBe(true);
-  });
-
-  it("removes disabled from label when component is enabled", () => {
-    (el as unknown as { label: string }).label = "Test";
-    (el as unknown as { disabled: boolean }).disabled = true;
-    (el as unknown as { disabled: boolean }).disabled = false;
-    const labelEl = el.shadowRoot!.querySelector("ui-label[emphasis='bold']");
-    expect(labelEl!.hasAttribute("disabled")).toBe(false);
+  it("has label slot in shadow DOM", () => {
+    const slot = el.shadowRoot!.querySelector('slot[name="label"]');
+    expect(slot).toBeTruthy();
   });
 
   // ── Secondary label ──────────────────────────────────────────────────────
@@ -363,8 +330,8 @@ describe("ui-textarea", () => {
     expect(el.shadowRoot!.querySelector(".char-count")).toBeTruthy();
   });
 
-  it("has ui-label element", () => {
-    expect(el.shadowRoot!.querySelector("ui-label")).toBeTruthy();
+  it("has label slot", () => {
+    expect(el.shadowRoot!.querySelector('slot[name="label"]')).toBeTruthy();
   });
 
   // ── Disabled state ───────────────────────────────────────────────────────
@@ -501,15 +468,12 @@ describe("ui-textarea", () => {
     expect(textarea.hasAttribute("aria-readonly")).toBe(false);
   });
 
-  it("sets aria-label on native textarea from label attribute", () => {
-    (el as unknown as { label: string }).label = "Message";
+  it("sets aria-label from host aria-label attribute", () => {
+    el.setAttribute("aria-label", "Message");
+    (el as unknown as { disabled: boolean }).disabled = true;
+    (el as unknown as { disabled: boolean }).disabled = false;
     const textarea = el.shadowRoot!.querySelector(".native-textarea") as HTMLTextAreaElement;
     expect(textarea.getAttribute("aria-label")).toBe("Message");
-  });
-
-  it("sets aria-label on host from label attribute", () => {
-    (el as unknown as { label: string }).label = "Message";
-    expect(el.getAttribute("aria-label")).toBe("Message");
   });
 
   it("does not override role if already set", () => {
@@ -622,7 +586,6 @@ describe("ui-textarea", () => {
   it("exposes all typed property accessors", () => {
     const component = el as unknown as {
       size: string;
-      label: string;
       secondaryLabel: string;
       placeholder: string;
       value: string;
@@ -637,9 +600,6 @@ describe("ui-textarea", () => {
 
     component.size = "l";
     expect(component.size).toBe("l");
-
-    component.label = "Description";
-    expect(component.label).toBe("Description");
 
     component.secondaryLabel = "Optional";
     expect(component.secondaryLabel).toBe("Optional");

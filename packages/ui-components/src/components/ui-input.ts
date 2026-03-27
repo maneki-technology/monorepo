@@ -18,7 +18,6 @@ export class UiInput extends HTMLElement {
   static readonly observedAttributes = [
     "size",
     "type",
-    "label",
     "secondary-label",
     "supportive",
     "placeholder",
@@ -37,7 +36,6 @@ export class UiInput extends HTMLElement {
   private _passwordToggleEl: HTMLButtonElement;
   private _passwordIconEl: HTMLElement;
   private _passwordVisible: boolean;
-  private _labelTextEl: HTMLElement;
   private _secondaryLabelEl: HTMLElement;
   private _supportiveTextEl: HTMLSpanElement;
   private _supportiveId: string;
@@ -52,9 +50,9 @@ export class UiInput extends HTMLElement {
     const labelRow = document.createElement("div");
     labelRow.className = "label-row";
 
-    this._labelTextEl = document.createElement("ui-label");
-    this._labelTextEl.setAttribute("emphasis", "bold");
-    labelRow.appendChild(this._labelTextEl);
+    const labelSlot = document.createElement("slot");
+    labelSlot.name = "label";
+    labelRow.appendChild(labelSlot);
 
     this._secondaryLabelEl = document.createElement("ui-label");
     this._secondaryLabelEl.setAttribute("emphasis", "subtle");
@@ -213,10 +211,8 @@ export class UiInput extends HTMLElement {
         this._syncStatusIcon();
         this._syncAria();
         break;
-      case "label":
       case "secondary-label":
         this._syncLabels();
-        this._syncAria();
         break;
       case "supportive":
         this._syncSupportive();
@@ -246,17 +242,7 @@ export class UiInput extends HTMLElement {
     this.setAttribute("type", value);
   }
 
-  get label(): string {
-    return this.getAttribute("label") ?? "";
-  }
 
-  set label(value: string) {
-    if (value) {
-      this.setAttribute("label", value);
-    } else {
-      this.removeAttribute("label");
-    }
-  }
 
   get secondaryLabel(): string {
     return this.getAttribute("secondary-label") ?? "";
@@ -410,17 +396,12 @@ export class UiInput extends HTMLElement {
   }
 
   private _syncLabels(): void {
-    this._labelTextEl.textContent = this.label;
     this._secondaryLabelEl.textContent = this.secondaryLabel;
-    // Sync size and disabled to ui-label children
     const size = this.getAttribute("size") || "m";
-    this._labelTextEl.setAttribute("size", size);
     this._secondaryLabelEl.setAttribute("size", size);
     if (this.disabled) {
-      this._labelTextEl.setAttribute("disabled", "");
       this._secondaryLabelEl.setAttribute("disabled", "");
     } else {
-      this._labelTextEl.removeAttribute("disabled");
       this._secondaryLabelEl.removeAttribute("disabled");
     }
   }
@@ -468,14 +449,9 @@ export class UiInput extends HTMLElement {
     }
 
     // aria-label — set on both host (for axe) and inner input
-    if (this.label) {
-      this._inputEl.setAttribute("aria-label", this.label);
-      this.setAttribute("aria-label", this.label);
-    } else {
-      const hostAriaLabel = this.getAttribute("aria-label");
-      if (hostAriaLabel) {
-        this._inputEl.setAttribute("aria-label", hostAriaLabel);
-      }
+    const hostAriaLabel = this.getAttribute("aria-label");
+    if (hostAriaLabel) {
+      this._inputEl.setAttribute("aria-label", hostAriaLabel);
     }
   }
 

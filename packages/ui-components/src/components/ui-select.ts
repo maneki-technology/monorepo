@@ -15,7 +15,6 @@ sheet.replaceSync(STYLES);
 export class UiSelect extends HTMLElement {
   static readonly observedAttributes = [
     "size",
-    "label",
     "secondary-label",
     "supportive",
     "placeholder",
@@ -37,7 +36,6 @@ export class UiSelect extends HTMLElement {
   private _chevron: HTMLSpanElement;
   private _panel: HTMLDivElement;
   private _slot: HTMLSlotElement;
-  private _labelTextEl: HTMLElement;
   private _secondaryLabelEl: HTMLElement;
   private _supportiveTextEl: HTMLDivElement;
   private _supportiveId: string;
@@ -54,9 +52,9 @@ export class UiSelect extends HTMLElement {
     const labelRow = document.createElement("div");
     labelRow.className = "label-row";
 
-    this._labelTextEl = document.createElement("ui-label");
-    this._labelTextEl.setAttribute("emphasis", "bold");
-    labelRow.appendChild(this._labelTextEl);
+    const labelSlot = document.createElement("slot");
+    labelSlot.name = "label";
+    labelRow.appendChild(labelSlot);
 
     this._secondaryLabelEl = document.createElement("ui-label");
     this._secondaryLabelEl.setAttribute("emphasis", "subtle");
@@ -213,7 +211,6 @@ export class UiSelect extends HTMLElement {
         this._syncStatusIcon();
         this._syncAria();
         break;
-      case "label":
       case "secondary-label":
         this._syncLabels();
         this._syncAria();
@@ -237,16 +234,7 @@ export class UiSelect extends HTMLElement {
     this.setAttribute("size", value);
   }
 
-  get label(): string {
-    return this.getAttribute("label") ?? "";
-  }
-  set label(value: string) {
-    if (value) {
-      this.setAttribute("label", value);
-    } else {
-      this.removeAttribute("label");
-    }
-  }
+
 
   get secondaryLabel(): string {
     return this.getAttribute("secondary-label") ?? "";
@@ -367,16 +355,12 @@ export class UiSelect extends HTMLElement {
   // ── Private sync methods ───────────────────────────────────────────────
 
   private _syncLabels(): void {
-    this._labelTextEl.textContent = this.label;
     this._secondaryLabelEl.textContent = this.secondaryLabel;
     const size = this.getAttribute("size") || "m";
-    this._labelTextEl.setAttribute("size", size);
     this._secondaryLabelEl.setAttribute("size", size);
     if (this.disabled) {
-      this._labelTextEl.setAttribute("disabled", "");
       this._secondaryLabelEl.setAttribute("disabled", "");
     } else {
-      this._labelTextEl.removeAttribute("disabled");
       this._secondaryLabelEl.removeAttribute("disabled");
     }
   }
@@ -451,14 +435,11 @@ export class UiSelect extends HTMLElement {
     } else {
       this._trigger.removeAttribute("aria-describedby");
     }
-    if (this.label) {
-      this._trigger.setAttribute("aria-label", this.label);
-      this.setAttribute("aria-label", this.label);
-    } else {
-      const hostAriaLabel = this.getAttribute("aria-label");
-      if (hostAriaLabel) {
-        this._trigger.setAttribute("aria-label", hostAriaLabel);
-      }
+    // aria-label
+    const hostAriaLabel = this.getAttribute("aria-label");
+    if (hostAriaLabel) {
+      this._trigger.setAttribute("aria-label", hostAriaLabel);
+      this.setAttribute("aria-label", hostAriaLabel);
     }
   }
 

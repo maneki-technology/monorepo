@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "../components/ui-icon.js";
 import "../components/ui-textarea.js";
+import "../components/ui-label.js";
 
 const meta: Meta = {
   title: "Components/Textarea",
@@ -12,7 +13,6 @@ const meta: Meta = {
       control: { type: "select" },
       options: ["none", "warning", "error", "success", "loading"],
     },
-    label: { control: "text" },
     "secondary-label": { control: "text" },
     placeholder: { control: "text" },
     value: { control: "text" },
@@ -33,7 +33,6 @@ const meta: Meta = {
     size: "m",
     status: "none",
     placeholder: "Placeholder Text",
-    label: "",
     "secondary-label": "",
     value: "",
     rows: 4,
@@ -45,7 +44,6 @@ const meta: Meta = {
     <ui-textarea
       size=${args.size}
       status=${args.status}
-      label=${args.label || undefined}
       secondary-label=${args["secondary-label"] || undefined}
       placeholder=${args.placeholder}
       value=${args.value}
@@ -62,16 +60,16 @@ type Story = StoryObj;
 
 export const Default: Story = {
   render: () => html`
-    <ui-textarea placeholder="Enter text..." label="Text area"></ui-textarea>
+    <ui-textarea placeholder="Enter text..."><ui-label slot="label">Text area</ui-label></ui-textarea>
   `,
 };
 
 export const AllSizes: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
-      <ui-textarea size="s" label="Small" placeholder="Size S"></ui-textarea>
-      <ui-textarea size="m" label="Medium" placeholder="Size M"></ui-textarea>
-      <ui-textarea size="l" label="Large" placeholder="Size L"></ui-textarea>
+      <ui-textarea size="s" placeholder="Size S"><ui-label slot="label" size="s">Small</ui-label></ui-textarea>
+      <ui-textarea size="m" placeholder="Size M"><ui-label slot="label" size="m">Medium</ui-label></ui-textarea>
+      <ui-textarea size="l" placeholder="Size L"><ui-label slot="label" size="l">Large</ui-label></ui-textarea>
     </div>
   `,
 };
@@ -79,12 +77,11 @@ export const AllSizes: Story = {
 export const WithLabel: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
-      <ui-textarea label="Description" placeholder="Enter a description..."></ui-textarea>
+      <ui-textarea placeholder="Enter a description..."><ui-label slot="label">Description</ui-label></ui-textarea>
       <ui-textarea
-        label="Bio"
         placeholder="Tell us about yourself..."
         maxlength="200"
-      ></ui-textarea>
+      ><ui-label slot="label">Bio</ui-label></ui-textarea>
     </div>
   `,
 };
@@ -93,15 +90,13 @@ export const WithSecondaryLabel: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
       <ui-textarea
-        label="Notes"
         placeholder="Add notes..."
         secondary-label="Optional"
-      ></ui-textarea>
+      ><ui-label slot="label">Notes</ui-label></ui-textarea>
       <ui-textarea
-        label="Feedback"
         placeholder="Share your feedback..."
         secondary-label="Max 500 characters"
-      ></ui-textarea>
+      ><ui-label slot="label">Feedback</ui-label></ui-textarea>
     </div>
   `,
 };
@@ -109,11 +104,11 @@ export const WithSecondaryLabel: Story = {
 export const States: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
-      <ui-textarea label="Enabled" placeholder="Default state"></ui-textarea>
-      <ui-textarea label="Filled" value="Some value entered by the user"></ui-textarea>
-      <ui-textarea label="Disabled" placeholder="Cannot edit" disabled></ui-textarea>
-      <ui-textarea label="Disabled filled" value="Cannot edit this content" disabled></ui-textarea>
-      <ui-textarea label="Readonly" value="Read only value" readonly></ui-textarea>
+      <ui-textarea placeholder="Default state"><ui-label slot="label">Enabled</ui-label></ui-textarea>
+      <ui-textarea value="Some value entered by the user"><ui-label slot="label">Filled</ui-label></ui-textarea>
+      <ui-textarea placeholder="Cannot edit" disabled><ui-label slot="label">Disabled</ui-label></ui-textarea>
+      <ui-textarea value="Cannot edit this content" disabled><ui-label slot="label">Disabled filled</ui-label></ui-textarea>
+      <ui-textarea value="Read only value" readonly><ui-label slot="label">Readonly</ui-label></ui-textarea>
     </div>
   `,
 };
@@ -122,41 +117,35 @@ export const Statuses: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
       <ui-textarea
-        label="None"
         placeholder="No status"
         status="none"
         secondary-label="Default secondary text"
-      ></ui-textarea>
+      ><ui-label slot="label">None</ui-label></ui-textarea>
       <ui-textarea
-        label="Warning"
         value="Might be wrong"
         status="warning"
         secondary-label="Please double-check this value"
-      ></ui-textarea>
+      ><ui-label slot="label">Warning</ui-label></ui-textarea>
       <ui-textarea
-        label="Error"
         value="Invalid"
         status="error"
         secondary-label="This field is required"
-      ></ui-textarea>
+      ><ui-label slot="label">Error</ui-label></ui-textarea>
       <ui-textarea
-        label="Error (boolean)"
         value="Invalid"
         error
         secondary-label="This field has an error"
-      ></ui-textarea>
+      ><ui-label slot="label">Error (boolean)</ui-label></ui-textarea>
       <ui-textarea
-        label="Success"
         value="Valid input"
         status="success"
         secondary-label="Looks good!"
-      ></ui-textarea>
+      ><ui-label slot="label">Success</ui-label></ui-textarea>
       <ui-textarea
-        label="Loading"
         value="Checking..."
         status="loading"
         secondary-label="Validating..."
-      ></ui-textarea>
+      ><ui-label slot="label">Loading</ui-label></ui-textarea>
     </div>
   `,
 };
@@ -164,31 +153,28 @@ export const Statuses: Story = {
 export const Hover: Story = {
   render: () => html`
     <ui-textarea
-      label="Hover state"
       placeholder="Hover over this textarea"
       style="max-width: 320px;"
-    ></ui-textarea>
+    ><ui-label slot="label">Hover state</ui-label></ui-textarea>
   `,
 };
 
 export const Focus: Story = {
   render: () => html`
     <ui-textarea
-      label="Focus state"
       placeholder="Click to focus this textarea"
       secondary-label="Focus ring appears on click or tab"
       style="max-width: 320px;"
-    ></ui-textarea>
+    ><ui-label slot="label">Focus state</ui-label></ui-textarea>
   `,
 };
 
 export const Active: Story = {
   render: () => html`
     <ui-textarea
-      label="Active / Filled"
       value="This textarea has content, showing the active/filled state."
       style="max-width: 320px;"
-    ></ui-textarea>
+    ><ui-label slot="label">Active / Filled</ui-label></ui-textarea>
   `,
 };
 
@@ -197,22 +183,20 @@ export const FullFeatured: Story = {
     <div style="display: flex; flex-direction: column; gap: 24px; max-width: 400px;">
       <ui-textarea
         size="m"
-        label="Description"
         secondary-label="Required"
         placeholder="Enter a detailed description..."
         value="This is a fully featured textarea with all options enabled."
         maxlength="300"
         status="success"
-      ></ui-textarea>
+      ><ui-label slot="label" size="m">Description</ui-label></ui-textarea>
 
       <ui-textarea
         size="l"
-        label="Comments"
         secondary-label="Optional"
         placeholder="Leave a comment..."
         rows="6"
         maxlength="500"
-      ></ui-textarea>
+      ><ui-label slot="label" size="l">Comments</ui-label></ui-textarea>
     </div>
   `,
 };

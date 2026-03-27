@@ -22,8 +22,8 @@ describe("ui-checkbox-item", () => {
     expect((el as unknown as { size: string }).size).toBe("m");
   });
 
-  it("defaults label to 'none'", () => {
-    expect((el as unknown as { label: string }).label).toBe("none");
+  it("defaults labelPosition to 'none'", () => {
+    expect((el as unknown as { labelPosition: string }).labelPosition).toBe("none");
   });
 
   it("defaults checked to false", () => {
@@ -61,21 +61,21 @@ describe("ui-checkbox-item", () => {
     expect(el.getAttribute("size")).toBe("l");
   });
 
-  // ── Label attribute ─────────────────────────────────────────────────────
+  // ── Label-position attribute ──────────────────────────────────────────────
 
-  it("reflects label='none' to attribute", () => {
-    (el as unknown as { label: string }).label = "none";
-    expect(el.getAttribute("label")).toBe("none");
+  it("reflects labelPosition='none' to attribute", () => {
+    (el as unknown as { labelPosition: string }).labelPosition = "none";
+    expect(el.getAttribute("label-position")).toBe("none");
   });
 
-  it("reflects label='right' to attribute", () => {
-    (el as unknown as { label: string }).label = "right";
-    expect(el.getAttribute("label")).toBe("right");
+  it("reflects labelPosition='right' to attribute", () => {
+    (el as unknown as { labelPosition: string }).labelPosition = "right";
+    expect(el.getAttribute("label-position")).toBe("right");
   });
 
-  it("reflects label='left' to attribute", () => {
-    (el as unknown as { label: string }).label = "left";
-    expect(el.getAttribute("label")).toBe("left");
+  it("reflects labelPosition='left' to attribute", () => {
+    (el as unknown as { labelPosition: string }).labelPosition = "left";
+    expect(el.getAttribute("label-position")).toBe("left");
   });
 
   // ── Boolean attributes ──────────────────────────────────────────────────
@@ -146,11 +146,11 @@ describe("ui-checkbox-item", () => {
     expect(shadow.querySelector(".label")).toBeTruthy();
   });
 
-  it("has default slot in shadow DOM", () => {
+  it("has named label slot in shadow DOM", () => {
     const shadow = el.shadowRoot!;
     const slots = shadow.querySelectorAll("slot");
-    const defaultSlot = Array.from(slots).find((s) => !s.name);
-    expect(defaultSlot).toBeTruthy();
+    const labelSlot = Array.from(slots).find((s) => s.name === "label");
+    expect(labelSlot).toBeTruthy();
   });
 
   it("has .check-icon element in shadow DOM", () => {
@@ -255,7 +255,7 @@ describe("ui-checkbox-item", () => {
   it("exposes all typed property accessors", () => {
     const component = el as unknown as {
       size: string;
-      label: string;
+      labelPosition: string;
       checked: boolean;
       indeterminate: boolean;
       disabled: boolean;
@@ -265,8 +265,8 @@ describe("ui-checkbox-item", () => {
     component.size = "l";
     expect(component.size).toBe("l");
 
-    component.label = "right";
-    expect(component.label).toBe("right");
+    component.labelPosition = "right";
+    expect(component.labelPosition).toBe("right");
 
     component.checked = true;
     expect(component.checked).toBe(true);

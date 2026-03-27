@@ -22,9 +22,9 @@ registerPage("wizard", {
         <div style="padding: 24px;">
           <h4 style="margin: 0 0 8px; font-size: 16px; font-weight: 500; color: var(--fd-text-primary, #1c2b36);">3. Contact Information</h4>
           <p style="margin: 0 0 16px; font-size: 14px; color: var(--fd-text-secondary, #3e5463);">Enter the following information to complete the section.</p>
-          <ui-input size="m" label="Email" placeholder="Enter email"></ui-input>
+          <ui-input size="m" placeholder="Enter email"><ui-label slot="label" size="m">Email</ui-label></ui-input>
           <div style="height: 16px;"></div>
-          <ui-input size="m" label="Phone" placeholder="Enter phone number"></ui-input>
+          <ui-input size="m" placeholder="Enter phone number"><ui-label slot="label" size="m">Phone</ui-label></ui-input>
         </div>
       </ui-wizard>
     </div>
@@ -42,9 +42,9 @@ registerPage("wizard", {
         <div style="padding: 24px;">
           <h4 style="margin: 0 0 8px; font-size: 16px; font-weight: 500; color: var(--fd-text-primary, #1c2b36);">3. Step Active Heading</h4>
           <p style="margin: 0 0 16px; font-size: 14px; color: var(--fd-text-secondary, #3e5463);">Enter the following information, in order to complete the section.</p>
-          <ui-input size="m" label="Label" placeholder="Placeholder Label"></ui-input>
+          <ui-input size="m" placeholder="Placeholder Label"><ui-label slot="label" size="m">Label</ui-label></ui-input>
           <div style="height: 16px;"></div>
-          <ui-input size="m" label="Label" placeholder="Placeholder Label"></ui-input>
+          <ui-input size="m" placeholder="Placeholder Label"><ui-label slot="label" size="m">Label</ui-label></ui-input>
         </div>
       </ui-wizard>
     </div>

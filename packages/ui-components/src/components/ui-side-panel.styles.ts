@@ -146,16 +146,12 @@ export const STYLES = /* css */ `
     flex-shrink: 0;
   }
 
-  .header-title {
+  slot[name="header"] {
     flex: 1 0 0;
     min-width: 0;
     overflow: hidden;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 24px;
-    color: var(--ui-sp-header-text, ${TEXT_PRIMARY});
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
   }
 
   .header-toggle {
@@ -203,7 +199,7 @@ export const STYLES = /* css */ `
     padding: ${SP_1};
   }
 
-  :host([state="collapsed"]) .header-title {
+  :host([state="collapsed"]) slot[name="header"] {
     display: none;
   }
 

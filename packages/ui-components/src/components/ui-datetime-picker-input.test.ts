@@ -131,10 +131,6 @@ describe("ui-datetime-picker-input", () => {
       expect(el.status).toBe("error");
     });
 
-    it("get/set label", () => {
-      el.label = "Pick a date";
-      expect(el.label).toBe("Pick a date");
-    });
 
     it("get/set supportive", () => {
       el.supportive = "Helper text";
@@ -263,20 +259,10 @@ describe("ui-datetime-picker-input", () => {
     });
   });
 
-  // ─── Label ───────────────────────────────────────────────────────────
-
   describe("label", () => {
-    it("label row hidden when no label attribute", () => {
-      expect(el.hasAttribute("label")).toBe(false);
-    });
-
-    it("label shown when attribute set", async () => {
-      el.label = "Select Date";
-      await tick();
-      expect(el.hasAttribute("label")).toBe(true);
-      const labelEl = labelRow().querySelector("ui-label");
-      expect(labelEl).toBeTruthy();
-      expect(labelEl!.textContent).toBe("Select Date");
+    it("has label slot in shadow DOM", () => {
+      const slot = el.shadowRoot!.querySelector('slot[name="label"]');
+      expect(slot).toBeTruthy();
     });
   });
 

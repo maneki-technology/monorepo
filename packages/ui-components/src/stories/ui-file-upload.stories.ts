@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "../components/ui-file-upload.js";
+import "../components/ui-label.js";
 
 const meta: Meta = {
   title: "Components/File Upload",
@@ -81,6 +82,21 @@ export const Disabled: Story = {
   render: () => html`
     <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
       <ui-file-upload disabled placeholder="Cannot upload"></ui-file-upload>
+    </div>
+  `,
+};
+export const WithLabel: Story = {
+  render: () => html`
+    <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
+      <ui-file-upload placeholder="Choose files to upload">
+        <ui-label slot="label" size="m">Upload document</ui-label>
+      </ui-file-upload>
+      <ui-file-upload placeholder="Select an image" accept="image/*">
+        <ui-label slot="label" size="m" required>Profile photo</ui-label>
+      </ui-file-upload>
+      <ui-file-upload disabled placeholder="Cannot upload">
+        <ui-label slot="label" size="m" disabled>Disabled upload</ui-label>
+      </ui-file-upload>
     </div>
   `,
 };

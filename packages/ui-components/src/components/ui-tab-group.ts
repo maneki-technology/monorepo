@@ -12,6 +12,7 @@ import {
   SP_0_25,
   SP_0_5,
   SP_0_75,
+  SP_1,
   SP_1_5,
   SP_2,
   TEXT_LINK,
@@ -36,6 +37,7 @@ const STYLES = /* css */ `
   :host {
     display: flex;
     width: 100%;
+    min-width: 0;
   }
 
   :host([orientation="vertical"]) {
@@ -58,6 +60,22 @@ const STYLES = /* css */ `
   /* ── Horizontal (default) ──────────────────────────────────────────────── */
 
   :host .tablist,
+  :host([orientation="horizontal"]) .tablist {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    border-bottom: var(--ui-tab-group-border, none);
+    box-shadow: var(--ui-tab-group-border-shadow, inset 0 -1px 0 ${BORDER_MINIMAL});
+    flex: 1 1 0%;
+    min-width: 0;
+  }
+
+  :host .tablist ::slotted(*) {
+    flex: 0 0 auto;
+  }
   :host([orientation="horizontal"]) .tablist {
     display: flex;
     flex-direction: row;
@@ -235,6 +253,35 @@ const STYLES = /* css */ `
     outline: ${BW_MD} solid ${BORDER_FOCUS};
     outline-offset: calc(-1 * ${BW_MD});
   }
+
+  .add-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: 300;
+    color: ${ICON_SECONDARY};
+    padding: 0 ${SP_1};
+    height: 100%;
+    transition: color 0.15s ease;
+  }
+
+  :host([addable]) .add-btn {
+    display: inline-flex;
+  }
+
+  .add-btn:hover {
+    color: ${TEXT_PRIMARY};
+  }
+
+  .add-btn:focus-visible {
+    outline: ${BW_MD} solid ${BORDER_FOCUS};
+    outline-offset: calc(-1 * ${BW_MD});
+  }
 `;
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -245,9 +292,10 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiTabGroup extends HTMLElement {
-  static readonly observedAttributes = ["size", "orientation", "overflow", "closable"];
+  static readonly observedAttributes = ["size", "orientation", "overflow", "closable", "addable"];
 
   private _tablist!: HTMLDivElement;
+  private _addBtn!: HTMLButtonElement;
   private _moreBtn!: HTMLButtonElement;
   private _moreContainer!: HTMLDivElement;
   private _overflowMenu!: HTMLDivElement;
@@ -273,6 +321,19 @@ export class UiTabGroup extends HTMLElement {
 
     const slot = document.createElement("slot");
     tablist.appendChild(slot);
+
+    // Add button (shown when addable attribute is set)
+    const addBtn = document.createElement("button");
+    addBtn.className = "add-btn";
+    addBtn.setAttribute("type", "button");
+    addBtn.setAttribute("aria-label", "Add tab");
+    addBtn.setAttribute("tabindex", "-1");
+    addBtn.textContent = "+";
+    addBtn.addEventListener("click", () => {
+      this.dispatchEvent(new CustomEvent("tab-add", { bubbles: true, composed: true }));
+    });
+    this._addBtn = addBtn;
+    tablist.appendChild(addBtn);
 
     // More button
     const moreBtn = document.createElement("button");
@@ -420,6 +481,15 @@ export class UiTabGroup extends HTMLElement {
     } else {
       this.removeAttribute("closable");
     }
+  }
+
+  get addable(): boolean {
+    return this.hasAttribute("addable");
+  }
+
+  set addable(value: boolean) {
+    if (value) this.setAttribute("addable", "");
+    else this.removeAttribute("addable");
   }
 
   // ── Private ─────────────────────────────────────────────────────────────

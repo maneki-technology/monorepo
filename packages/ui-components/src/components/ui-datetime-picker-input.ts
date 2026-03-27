@@ -15,7 +15,7 @@ sheet.replaceSync(STYLES);
 
 export class UiDatetimePickerInput extends HTMLElement {
   static readonly observedAttributes = [
-    "size", "type", "label", "supportive", "placeholder",
+    "size", "type", "supportive", "placeholder",
     "value", "disabled", "readonly", "status", "focused",
   ];
 
@@ -25,7 +25,6 @@ export class UiDatetimePickerInput extends HTMLElement {
   #statusIconEl!: HTMLElement;
   #statusIconInner!: HTMLElement;
   #spinEl!: HTMLElement;
-  #labelTextEl!: HTMLElement;
   #supportiveEl!: HTMLElement;
 
   constructor() {
@@ -37,9 +36,9 @@ export class UiDatetimePickerInput extends HTMLElement {
     const labelRow = document.createElement("div");
     labelRow.className = "label-row";
 
-    this.#labelTextEl = document.createElement("ui-label");
-    this.#labelTextEl.setAttribute("emphasis", "bold");
-    labelRow.appendChild(this.#labelTextEl);
+    const labelSlot = document.createElement("slot");
+    labelSlot.name = "label";
+    labelRow.appendChild(labelSlot);
 
     shadow.appendChild(labelRow);
 
@@ -123,9 +122,6 @@ export class UiDatetimePickerInput extends HTMLElement {
     if (name === "value" || name === "placeholder") {
       this.#renderContent();
     }
-    if (name === "label") {
-      this.#updateLabel();
-    }
     if (name === "supportive") {
       this.#updateSupportive();
     }
@@ -171,13 +167,7 @@ export class UiDatetimePickerInput extends HTMLElement {
     this.setAttribute("status", v);
   }
 
-  get label(): string {
-    return this.getAttribute("label") || "";
-  }
 
-  set label(v: string) {
-    this.setAttribute("label", v);
-  }
 
   get supportive(): string {
     return this.getAttribute("supportive") || "";
@@ -412,15 +402,11 @@ export class UiDatetimePickerInput extends HTMLElement {
   // ─── Label / Supportive ────────────────────────────────────────────────
 
   #updateLabel(): void {
-    const label = this.getAttribute("label");
-    if (label) {
-      this.#labelTextEl.textContent = label;
-    }
-    this.#updateLabelSize();
+    // Label is now provided via slot, no sync needed
   }
 
   #updateLabelSize(): void {
-    this.#labelTextEl.setAttribute("size", this.size);
+    // Size propagation handled by slotted ui-label
   }
 
   #updateSupportive(): void {
