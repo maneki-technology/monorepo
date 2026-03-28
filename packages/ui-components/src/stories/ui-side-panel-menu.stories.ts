@@ -48,8 +48,8 @@ export const Default: Story = {
     <ui-side-panel-menu
       state=${args.state}
       ?overlay=${args.overlay}
-      title=${args.title}
     >
+      <span slot="header">${args.title}</span>
       <ui-side-panel-menu-item leading-icon>
         ${icon("home")}
         Dashboard
@@ -78,7 +78,7 @@ export const Default: Story = {
 
 export const WithNestedItems: Story = {
   render: () => html`
-    <ui-side-panel-menu title="Navigation">
+    <ui-side-panel-menu><span slot="header">Navigation</span>
       <ui-side-panel-menu-item leading-icon>
         ${icon("home")}
         Dashboard
@@ -118,7 +118,7 @@ export const WithNestedItems: Story = {
 
 export const Collapsed: Story = {
   render: () => html`
-    <ui-side-panel-menu state="collapsed" title="Navigation">
+    <ui-side-panel-menu state="collapsed"><span slot="header">Navigation</span>
       <ui-side-panel-menu-item leading-icon>
         ${icon("home")}
         Dashboard
@@ -147,7 +147,7 @@ export const Collapsed: Story = {
 
 export const Overlay: Story = {
   render: () => html`
-    <ui-side-panel-menu overlay title="Navigation">
+    <ui-side-panel-menu overlay><span slot="header">Navigation</span>
       <ui-side-panel-menu-item leading-icon>
         ${icon("home")}
         Dashboard
@@ -183,7 +183,7 @@ export const AllStates: Story = {
     `,
   ],
   render: () => html`
-    <ui-side-panel-menu title="Item States">
+    <ui-side-panel-menu><span slot="header">Item States</span>
       <ui-side-panel-menu-item leading-icon>
         ${icon("home")}
         Enabled
@@ -229,7 +229,7 @@ export const Levels: Story = {
     `,
   ],
   render: () => html`
-    <ui-side-panel-menu title="Levels">
+    <ui-side-panel-menu><span slot="header">Levels</span>
       <ui-side-panel-menu-item leading-icon>
         ${icon("home")}
         Primary Level
@@ -279,7 +279,7 @@ export const Mobile: Story = {
     `,
   ],
   render: () => html`
-    <ui-side-panel-menu title="Navigation">
+    <ui-side-panel-menu><span slot="header">Navigation</span>
       <ui-side-panel-menu-item leading-icon>
         ${icon("home")}
         Dashboard
@@ -314,7 +314,7 @@ export const Mobile: Story = {
 
 export const NonCollapsible: Story = {
   render: () => html`
-    <ui-side-panel-menu title="Navigation" no-collapse>
+    <ui-side-panel-menu no-collapse><span slot="header">Navigation</span>
       <ui-side-panel-menu-item leading-icon>
         ${icon("home")}
         Dashboard
@@ -343,7 +343,7 @@ export const NonCollapsible: Story = {
 
 export const WithSections: Story = {
   render: () => html`
-    <ui-side-panel-menu title="Catalog" no-collapse>
+    <ui-side-panel-menu no-collapse><span slot="header">Catalog</span>
       <ui-side-panel-menu-section>Foundation</ui-side-panel-menu-section>
       <ui-side-panel-menu-item>Colors</ui-side-panel-menu-item>
       <ui-side-panel-menu-item selected>Spacing</ui-side-panel-menu-item>

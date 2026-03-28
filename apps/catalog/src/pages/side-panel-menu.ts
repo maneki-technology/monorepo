@@ -10,7 +10,7 @@ registerPage("side-panel-menu", {
   render: () => `
     <h3>Expanded (with content area)</h3>
     <div class="layout-frame layout-frame-400">
-      <ui-side-panel-menu state="expanded" title="Navigation">
+      <ui-side-panel-menu state="expanded"><span slot="header">Navigation</span>
         <ui-side-panel-menu-item leading-icon>
           <ui-icon slot="icon" name="home" size="m"></ui-icon>
           Dashboard
@@ -39,7 +39,7 @@ registerPage("side-panel-menu", {
 
     <h3>Collapsed</h3>
     <div class="layout-frame layout-frame-400">
-      <ui-side-panel-menu state="collapsed" title="Navigation">
+      <ui-side-panel-menu state="collapsed"><span slot="header">Navigation</span>
         <ui-side-panel-menu-item leading-icon>
           <ui-icon slot="icon" name="home" size="m"></ui-icon>
           Dashboard
@@ -64,7 +64,7 @@ registerPage("side-panel-menu", {
 
     <h3>With Nested Items</h3>
     <div class="layout-frame layout-frame-500">
-      <ui-side-panel-menu title="Navigation">
+      <ui-side-panel-menu><span slot="header">Navigation</span>
         <ui-side-panel-menu-item leading-icon>
           <ui-icon slot="icon" name="home" size="m"></ui-icon>
           Dashboard
@@ -94,7 +94,7 @@ registerPage("side-panel-menu", {
 
     <h3>All States</h3>
     <div class="layout-frame layout-frame-500">
-      <ui-side-panel-menu title="Item States">
+      <ui-side-panel-menu><span slot="header">Item States</span>
         <ui-side-panel-menu-item leading-icon>
           <ui-icon slot="icon" name="home" size="m"></ui-icon>
           Enabled
@@ -125,7 +125,7 @@ registerPage("side-panel-menu", {
 
     <h3>Levels</h3>
     <div class="layout-frame layout-frame-400">
-      <ui-side-panel-menu title="Levels">
+      <ui-side-panel-menu><span slot="header">Levels</span>
         <ui-side-panel-menu-item leading-icon>
           <ui-icon slot="icon" name="home" size="m"></ui-icon>
           Primary Level
@@ -146,7 +146,7 @@ registerPage("side-panel-menu", {
 
     <h3>Non-Collapsible</h3>
     <div class="layout-frame layout-frame-400">
-      <ui-side-panel-menu title="Navigation" no-collapse>
+      <ui-side-panel-menu no-collapse><span slot="header">Navigation</span>
         <ui-side-panel-menu-item leading-icon>
           <ui-icon slot="icon" name="home" size="m"></ui-icon>
           Dashboard
@@ -171,7 +171,7 @@ registerPage("side-panel-menu", {
 
     <h3>With Sections</h3>
     <div class="layout-frame layout-frame-500">
-      <ui-side-panel-menu title="Catalog" no-collapse>
+      <ui-side-panel-menu no-collapse><span slot="header">Catalog</span>
         <ui-side-panel-menu-section>Foundation</ui-side-panel-menu-section>
         <ui-side-panel-menu-item>Colors</ui-side-panel-menu-item>
         <ui-side-panel-menu-item selected>Spacing</ui-side-panel-menu-item>
