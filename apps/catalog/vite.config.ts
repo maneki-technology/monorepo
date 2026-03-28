@@ -28,8 +28,9 @@ export default defineConfig({
     VitePWA({
       registerType: "prompt",
       workbox: {
-        // Precache all built assets (JS chunks, CSS, fonts, HTML)
-        globPatterns: ["**/*.{js,css,html,woff2}"],
+        // Only cache static assets — HTML always comes from network
+        globPatterns: ["**/*.{js,css,woff2}"],
+        navigateFallback: null,
       },
       manifest: {
         name: "Maneki Design System Catalog",
