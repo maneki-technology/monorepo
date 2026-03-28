@@ -10,12 +10,18 @@ maneki-monorepo/
 ├── .moon/
 │   ├── workspace.yml        # projects: apps/*, packages/*
 │   └── toolchains.yml       # npm package manager
+├── .husky/                   # Pre-commit hook (lint-staged → html-validate + stylelint)
 ├── .storybook/              # Root Storybook config (aggregates all packages)
 │   ├── main.ts              # stories from foundation + ui-components + grid-layout
 │   └── preview.ts           # injects tokens + registers components
+├── .htmlvalidate.json       # HTML linting config
+├── .npmrc                   # npm config
+├── .stylelintrc.json        # CSS linting config
 ├── docs/                    # Project-level documentation
-│   ├── adr/                 # 16 architectural decision records
+│   ├── adr/                 # 15 architectural decision records
 │   └── WEB_COMPONENTS_LESSONS.md  # Lessons learned building Web Components
+├── shared/                  # Shared build utilities
+│   └── vite-dev-aliases.ts  # Dev aliases for cross-package HMR
 ├── package.json             # npm workspaces root + Storybook scripts
 ├── packages/
 │   ├── grid-layout/         # <grid-layout> Web Component library (@maneki/grid-layout)
@@ -33,13 +39,19 @@ maneki-monorepo/
 │   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints, dark-theme, token-constants, shape (@maneki/foundation)
 ├── apps/
 │   ├── catalog/             # Visual catalog app + Playwright regression tests (@maneki/catalog)
-│   │   ├── src/pages/        # 57 pages (6 foundation + 51 component)
+│   │   ├── src/pages/        # 55 pages (6 foundation + 49 component)
 │   │   ├── e2e/             # Playwright visual + a11y specs + baseline snapshots
 │   │   └── playwright.config.ts
 │   └── blog/                # Personal blog + portfolio (@maneki/blog)
+│       ├── editor.html       # Separate entry point for /editor
 │       ├── content/posts/    # Markdown posts with YAML frontmatter
-│       ├── plugins/          # Vite plugins: markdown → virtual:posts, auto-detect → virtual:ui-components
-│       └── src/pages/        # 5 routes: home, blog, post, portfolio, about
+│       ├── plugins/          # Vite plugins: markdown-posts, auto-ui-components, sitemap
+│       ├── scripts/          # prerender.ts — static prerendering
+│       └── src/
+│           ├── config.ts     # Site URL/title config
+│           ├── routes.ts     # Route definitions
+│           ├── editor-entry.ts # Editor entry point
+│           └── pages/        # 6 routes: home, blog, post, portfolio, resume, about + editor (separate entry)
 ```
 
 ## WHERE TO LOOK
@@ -55,8 +67,10 @@ maneki-monorepo/
 | Grid layout library | `packages/grid-layout/` | Has its own detailed AGENTS.md |
 | Flex layout library | `packages/flex-layout/` | Panel-based flex layout, has its own AGENTS.md |
 | Storybook (all packages) | `.storybook/` | Root-level, aggregates foundation + ui-components + grid-layout + flex-layout |
-| Visual catalog + Playwright tests | `apps/catalog/` | 57 pages, 115 Playwright tests (57 visual + 57 a11y + sidebar + full layout) |
-| Personal blog + portfolio | `apps/blog/` | Markdown pipeline, static generation, dark theme, 5 routes |
+| Visual catalog + Playwright tests | `apps/catalog/` | 55 pages, 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout). History API routing, workbox caching. |
+| Personal blog + portfolio | `apps/blog/` | Markdown pipeline, static prerendering, History API routing, workbox caching, dark theme, 6 routes + editor |
+| Shared Vite config | `shared/` | Dev aliases for cross-package HMR |
+| Linting | `.stylelintrc.json`, `.htmlvalidate.json`, `.husky/` | CSS + HTML linting with pre-commit hook |
 
 ## CONVENTIONS
 - **Zero runtime deps** (except `ui-components`, `grid-layout`, and `flex-layout` → `@maneki/foundation`). Foundation has zero production dependencies.
@@ -72,6 +86,13 @@ maneki-monorepo/
 - **Custom icons via `registerIcon()` from `@maneki/ui-components`.** Allows registering custom SVG icons alongside Material Symbols.
 - **Centralized token constants in `@maneki/foundation`** — import `TEXT_PRIMARY`, `SP_1`, etc. directly instead of calling `semanticVar()`/`spaceVar()` at each use site.
 - **Typography via `typeBlock()`** — `${TYPE_BODY_02}` emits font-family + font-size + line-height + font-weight in one interpolation.
+- **Composable label slots.** All form components use `<ui-label slot="label">` instead of a `label` attribute.
+- **Label positioning.** `ui-checkbox-item`/`ui-radio-item` use `label-position` (not `label`) for positioning.
+- **Side panel header slot.** `ui-side-panel-menu` uses `slot="header"` instead of `title` attribute.
+- **Multi-entry build for ui-components.** Barrel import + per-component deep imports for tree-shaking.
+- **Dev aliases.** `@maneki/*` resolves to source in dev mode for instant HMR (via `shared/vite-dev-aliases.ts`).
+- **Geist font.** Lives in `@maneki/foundation/assets/`, registered via `registerGeistFont()`.
+- **Pre-commit hook.** husky + lint-staged runs html-validate + stylelint on staged files.
 
 ## ANTI-PATTERNS
 - **No `as any`, `@ts-ignore`, `@ts-expect-error`** — never suppress types
@@ -128,11 +149,12 @@ npx vite build               # Build
 
 ## NOTES
 - Git repo: `maneki-technology/monorepo` on GitHub
-- CI/CD: Playwright visual regression tests in `apps/catalog/`. Catalog: deployed via Cloudflare Pages.
-- `apps/catalog/` — Visual catalog app with 115 Playwright tests (57 visual + 57 a11y + sidebar + full layout)
+- CI/CD: Playwright visual regression tests in `apps/catalog/`. Catalog deployed via Cloudflare Pages.
+- CI test pipeline runs on PRs (`.github/workflows/test.yml`). Deploy workflows for both blog (`deploy-blog.yml`) and catalog (`deploy-catalog.yml`).
+- `apps/catalog/` — Visual catalog app with 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout). History API routing, workbox caches JS/CSS/fonts only (not HTML).
 - Root `package.json` has Storybook scripts (`storybook`, `storybook:build`) and devDependencies for the root-level Storybook
 - Node pinned at 22 because Storybook 10 requires Node 20.19+
 - LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead
 - Dark theme: `[data-theme="dark"]` toggles all semantic tokens. Catalog has theme toggle button.
-- ADRs in `docs/adr/` — 16 architectural decision records
-- `apps/blog/` — Personal blog + portfolio. Markdown posts in `content/posts/`, Vite virtual module plugin, auto-detected UI component imports, static generation. Port 5175.
+- ADRs in `docs/adr/` — 15 architectural decision records
+- `apps/blog/` — Personal blog + portfolio. Markdown posts, Vite virtual module plugin, auto-detected UI component imports, static prerendering via `scripts/prerender.ts`, History API routing, workbox service worker (JS/CSS/fonts cached, HTML from network), Shiki syntax highlighting (build-time), SEO meta tags, sitemap generation, FOUC prevention, reading progress bar, client-side search, editor at `/editor` (separate entry), resume page. Port 5175.

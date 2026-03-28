@@ -24,12 +24,16 @@ maneki-monorepo/
 ├── .moon/                   # Moon workspace + toolchain config
 ├── .storybook/              # Root Storybook config (aggregates all packages)
 ├── docs/                    # ADRs + lessons learned
+├── shared/                  # Dev aliases for cross-package HMR
 ├── package.json             # npm workspaces root + Storybook scripts
 ├── packages/
 │   ├── foundation/          # Design tokens (@maneki/foundation)
 │   ├── ui-components/       # Web Components + Storybook (@maneki/ui-components)
 │   ├── grid-layout/         # Grid layout library (@maneki/grid-layout)
 │   └── flex-layout/         # Panel-based flex layout (@maneki/flex-layout)
+├── apps/
+│   ├── catalog/             # Visual catalog + Playwright tests (@maneki/catalog)
+│   └── blog/                # Personal blog + portfolio (@maneki/blog)
 ```
 
 ---
@@ -47,8 +51,8 @@ maneki-monorepo/
 
 | App | Description |
 |---|---|
-| `catalog` | Visual catalog for all foundation tokens + UI components. 57 pages, 115 Playwright tests (57 visual + 57 a11y + sidebar). Dark theme toggle. |
-| `blog` | Personal blog + portfolio. Markdown posts with frontmatter, Vite virtual module plugin, static generation, dark theme. 5 routes. |
+| `catalog` | Visual catalog for all foundation tokens + UI components. 55 pages, 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout). History API routing, workbox caching, dark theme toggle. |
+| `blog` | Personal blog + portfolio. Markdown posts, static prerendering, History API routing, workbox caching, dark theme, editor at `/editor`, 6 routes + editor (separate entry). |
 
 ---
 

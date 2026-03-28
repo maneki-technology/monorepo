@@ -13,8 +13,8 @@ catalog/
 ├── moon.yml                # Moon tasks: dev, build, test-visual, test-visual-update
 ├── package.json            # @maneki/catalog — deps on foundation + ui-components
 ├── src/
-│   ├── main.ts             # App entry: injects tokens, registers icon font, imports all pages, hash router, theme toggle
-│   └── pages/              # 57 page modules (6 foundation + 51 component)
+│   ├── main.ts             # App entry: injects tokens, registers icon font, imports all pages, History API router, theme toggle
+│   └── pages/              # 55 page modules (6 foundation + 49 component)
 │       ├── colors.ts
 │       ├── spacing.ts
 │       ├── typography.ts
@@ -53,11 +53,11 @@ catalog/
 │       ├── datetime-picker.ts
 │       ├── clock.ts
 │       ├── list.ts
-│       └── ... (57 pages total)
+│       └── ... (55 pages total)
 └── e2e/
     ├── helpers.ts          # Shared page list + test utilities
-    ├── visual.spec.ts      # 57 Playwright visual screenshot tests
-    ├── a11y.spec.ts        # 57 Playwright accessibility tests (axe-core)
+    ├── visual.spec.ts      # 55 Playwright visual screenshot tests + sidebar + full layout
+    ├── a11y.spec.ts        # 55 Playwright accessibility tests (axe-core) + sidebar + full layout
     ├── test-results/        # Playwright test artifacts (gitignored)
     └── snapshots/           # Baseline screenshots (committed)
         └── visual.spec.ts/
@@ -65,7 +65,7 @@ catalog/
             ├── visual-button/button-chromium.png
             ├── visual-sidebar/sidebar-chromium.png
             ├── visual-full-layout/full-layout-chromium.png
-            └── ... (57+ snapshot directories total)
+            └── ... (55+ snapshot directories total)
 ```
 
 ## WHERE TO LOOK
@@ -82,14 +82,14 @@ catalog/
 
 ### Page Registration
 Each page module calls `registerPage(id, { title, section, render, setup? })`:
-- `id` — URL hash fragment (e.g., `"button"` → `/#button`)
+- `id` — URL path segment (e.g., `"button"` → `/button`)
 - `title` — displayed as `<h2>` heading
 - `section` — sidebar group (`"Foundation"` or `"Components"`)
 - `render()` — returns plain HTML string with web component tags
 - `setup()` — optional, runs after render for imperative DOM manipulation (e.g., `setItems()`)
 
 ### Router
-Hash-based routing. `window.location.hash` maps to page IDs. Sidebar links update the hash, `hashchange` event triggers re-render.
+History API routing. `history.pushState()` + `popstate` event. Sidebar links intercept clicks and push state, `popstate` triggers re-render.
 
 ### Theme Toggle
 App shell includes a dark/light theme toggle button. Sets `[data-theme="dark"]` on `:root` to switch all semantic tokens to dark values.
@@ -123,7 +123,7 @@ npx vite --port 5174               # Same, from apps/catalog/
 moon run catalog:build              # Vite production build → dist/
 
 # Visual regression tests
-moon run catalog:test-visual        # Run 115 Playwright tests (57 visual + 57 a11y + sidebar)
+moon run catalog:test-visual        # Run 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout)
 moon run catalog:test-visual-update # Regenerate baseline snapshots
 
 # From apps/catalog/ directly
@@ -145,6 +145,6 @@ npx playwright test --update-snapshots  # Update baselines
 ## NOTES
 - Vite aliases resolve `@maneki/foundation` and `@maneki/ui-components` to source (not dist) for HMR in dev
 - Playwright uses `vite preview` (production build) for deterministic rendering
-- 115 tests (57 visual + 57 a11y + 1 sidebar) run on Chromium
+- 114 tests (55 visual + 55 a11y + sidebar + full layout) run on Chromium
 - Snapshots are platform-specific (chromium on macOS) — CI may need its own baselines
 - The `setup()` callback uses `requestAnimationFrame` to ensure DOM is ready before imperative manipulation
