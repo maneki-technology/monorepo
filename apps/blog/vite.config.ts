@@ -3,6 +3,12 @@ import { VitePWA } from "vite-plugin-pwa";
 import { markdownPostsPlugin } from "./plugins/markdown-posts.js";
 import { autoUiComponentsPlugin } from "./plugins/auto-ui-components.js";
 import { sitemapPlugin } from "./plugins/sitemap.js";
+import { rssFeedPlugin } from "./plugins/rss-feed.js";
+import { devAliases } from "../../shared/vite-dev-aliases.js";
+import { VitePWA } from "vite-plugin-pwa";
+import { markdownPostsPlugin } from "./plugins/markdown-posts.js";
+import { autoUiComponentsPlugin } from "./plugins/auto-ui-components.js";
+import { sitemapPlugin } from "./plugins/sitemap.js";
 import { devAliases } from "../../shared/vite-dev-aliases.js";
 
 export default defineConfig(({ command }) => ({
@@ -16,6 +22,7 @@ export default defineConfig(({ command }) => ({
     markdownPostsPlugin(),
     autoUiComponentsPlugin(),
     sitemapPlugin(),
+    rssFeedPlugin(),
     VitePWA({
       registerType: "prompt",
       manifest: false,
