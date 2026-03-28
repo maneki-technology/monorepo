@@ -5,7 +5,29 @@ import { sitemapPlugin } from "./plugins/sitemap.js";
 
 export default defineConfig({
   root: ".",
-  plugins: [markdownPostsPlugin(), autoUiComponentsPlugin(), sitemapPlugin()],
+  server: {
+    port: 5175,
+  },
+  appType: "spa",
+  plugins: [
+    markdownPostsPlugin(),
+    autoUiComponentsPlugin(),
+    sitemapPlugin(),
+    {
+      name: "editor-rewrite",
+      configureServer(server) {
+        // Run before Vite's SPA fallback — rewrite /editor to editor.html
+        return () => {
+          server.middlewares.use((req, _res, next) => {
+            if (req.url?.startsWith("/editor")) {
+              req.url = "/editor.html";
+            }
+            next();
+          });
+        };
+      },
+    },
+  ],
   build: {
     outDir: "dist",
     emptyOutDir: true,
@@ -32,8 +54,4 @@ export default defineConfig({
       },
     },
   },
-  server: {
-    port: 5175,
-  },
-  appType: "mpa",
 });

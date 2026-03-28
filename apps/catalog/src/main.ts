@@ -14,6 +14,7 @@ import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-out
 import "@maneki/ui-components/components/ui-side-panel-menu.js";
 import "@maneki/ui-components/components/ui-side-panel-menu-item.js";
 import "@maneki/ui-components/components/ui-side-panel-menu-section.js";
+import "@maneki/ui-components/components/ui-scrollbar.js";
 
 // Inject foundation tokens + icon font
 injectAllTokens();
