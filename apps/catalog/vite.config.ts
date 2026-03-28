@@ -2,20 +2,37 @@ import { defineConfig, type Plugin } from "vite";
 import { ViteMinifyPlugin } from "vite-plugin-minify";
 import { VitePWA } from "vite-plugin-pwa";
 import { devAliases } from "../../shared/vite-dev-aliases.js";
-/** Injects <link rel="preload"> for .woff2 assets into the HTML head. */
-function fontPreloadPlugin(): Plugin {
+/** Injects <link rel="preload"> + @font-face for .woff2 assets into the HTML head. */
+function fontPlugin(): Plugin {
   return {
-    name: "font-preload",
+    name: "font-plugin",
     enforce: "post",
     transformIndexHtml(html, ctx) {
       const bundle = ctx.bundle;
       if (!bundle) return html;
       const fonts = Object.keys(bundle).filter((f) => f.endsWith(".woff2"));
-      const tags = fonts.map((f) => ({
-        tag: "link",
-        attrs: { rel: "preload", href: `/${f}`, as: "font", type: "font/woff2", crossorigin: true },
-        injectTo: "head" as const,
-      }));
+      const tags: Array<{ tag: string; attrs: Record<string, string | boolean>; injectTo: "head" }> = [];
+
+      for (const f of fonts) {
+        // Preload all fonts
+        tags.push({
+          tag: "link",
+          attrs: { rel: "preload", href: `/${f}`, as: "font", type: "font/woff2", crossorigin: true },
+          injectTo: "head",
+        });
+      }
+
+      // Inject @font-face for Geist
+      const geist = fonts.find((f) => f.includes("Geist-Variable"));
+      if (geist) {
+        tags.push({
+          tag: "style",
+          attrs: {},
+          injectTo: "head",
+          children: `@font-face { font-family: 'Geist'; src: url('/${geist}') format('woff2'); font-weight: 100 900; font-style: normal; font-display: swap; }`,
+        } as any);
+      }
+
       return tags;
     },
   };
@@ -25,7 +42,7 @@ export default defineConfig(({ command }) => ({
   root: ".",
   resolve: command === "serve" ? { alias: devAliases } : {},
   plugins: [
-    fontPreloadPlugin(),
+    fontPlugin(),
     VitePWA({
       registerType: "prompt",
       workbox: {

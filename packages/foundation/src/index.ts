@@ -137,6 +137,7 @@ export {
   ICON_REFRESH,
   ICON_CODEPOINTS,
   registerIconFont,
+  registerGeistFont,
   registerIcon,
   registerIcons,
   resolveIcon,
