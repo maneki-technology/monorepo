@@ -9,7 +9,7 @@
  */
 
 import { createServer } from "vite";
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -67,9 +67,17 @@ async function prerender(): Promise<void> {
     ].join("\n");
     const tokenStyle = `<style id="maneki-foundation-all">:root {\n${tokenCss}\n}\n\n[data-theme="dark"] {\n${darkTokenCss}\n}</style>`;
 
-    // Read the built HTML shell and inject tokens into <head>
+    // Find the Geist font asset URL in the built output
+    const distDir = resolve(root, "dist/assets");
+    const geistFile = readdirSync(distDir).find((f) => f.startsWith("Geist-Variable") && f.endsWith(".woff2"));
+    const geistUrl = geistFile ? `/assets/${geistFile}` : "";
+
+    // Inject tokens + preload + @font-face into <head>
+    const fontPreload = geistUrl ? `<link rel="preload" href="${geistUrl}" as="font" type="font/woff2" crossorigin />` : "";
+    const fontFace = geistUrl ? `<style>@font-face { font-family: 'Geist'; src: url('${geistUrl}') format('woff2'); font-weight: 100 900; font-style: normal; font-display: swap; }</style>` : "";
+
     let shell = readFileSync(resolve(root, "dist/index.html"), "utf-8");
-    shell = shell.replace("</head>", `${tokenStyle}\n</head>`);
+    shell = shell.replace("</head>", `${fontPreload}\n${tokenStyle}\n${fontFace}\n</head>`);
 
     console.log(`Prerendering ${routes.length} routes...`);
 

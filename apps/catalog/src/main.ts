@@ -1,12 +1,6 @@
-// Self-hosted Geist font (MIT license, variable weight)
-// Copied to public/ because geist package lacks proper exports for bundlers
-
-const geistFace = new FontFace("Geist", `url(/Geist-Variable.woff2) format('woff2')`, {
-  weight: "100 900",
-  style: "normal",
-  display: "swap",
-});
-geistFace.load().then((f) => document.fonts.add(f));
+import { injectAllTokens, registerIconFont, registerGeistFont } from "@maneki/foundation";
+import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";
+import geistWoff2 from "@maneki/foundation/assets/Geist-Variable.woff2?url";
 
 import { injectAllTokens, registerIconFont } from "@maneki/foundation";
 import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";
@@ -16,9 +10,10 @@ import "@maneki/ui-components/components/ui-side-panel-menu-item.js";
 import "@maneki/ui-components/components/ui-side-panel-menu-section.js";
 import "@maneki/ui-components/components/ui-scrollbar.js";
 
-// Inject foundation tokens + icon font
+// Inject foundation tokens + fonts
 injectAllTokens();
 registerIconFont(materialSymbolsWoff2);
+registerGeistFont(geistWoff2);
 
 import { pages } from "./registry.js";
 import { manifest, sectionOrder } from "./manifest.js";

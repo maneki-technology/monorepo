@@ -181,6 +181,24 @@ export function registerIconFont(fontUrl: string): Promise<FontFace> {
   return face.load();
 }
 
+/**
+ * Register the Geist variable font on the document.
+ *
+ * Call once at app startup. Uses the FontFace API with `display: swap`
+ * for a smooth loading experience.
+ *
+ * @param fontUrl – URL to the Geist-Variable.woff2 file.
+ */
+export function registerGeistFont(fontUrl: string): Promise<FontFace> {
+  const face = new FontFace(
+    "Geist",
+    `url(${fontUrl}) format('woff2')`,
+    { weight: "100 900", style: "normal", display: "swap" },
+  );
+  document.fonts.add(face);
+  return face.load();
+}
+
 // ── Custom Icon Registry ────────────────────────────────────────────
 // Allows consumers to register custom icon factories that ui-icon
 // resolves before falling back to Material Symbols.

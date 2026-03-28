@@ -1,17 +1,11 @@
 import type { Preview } from "@storybook/web-components";
-import { injectAllTokens } from "@maneki/foundation";
-import { registerIconFont } from "@maneki/foundation";
+import { injectAllTokens, registerIconFont, registerGeistFont } from "@maneki/foundation";
 
-// Register Geist variable font (served from .storybook/public/)
-const geistFace = new FontFace("Geist", `url(/Geist-Variable.woff2) format('woff2')`, {
-  weight: "100 900",
-  style: "normal",
-});
-geistFace.load().then((f) => document.fonts.add(f));
-
-// Register subset Material Symbols Outlined font (~24 KB vs 3.7 MB full)
+// Register fonts from foundation assets
 import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";
+import geistWoff2 from "@maneki/foundation/assets/Geist-Variable.woff2?url";
 registerIconFont(materialSymbolsWoff2);
+registerGeistFont(geistWoff2);
 
 // Global .material-symbols-outlined class for slotted icon spans (light DOM)
 const globalIconStyles = document.createElement("style");
