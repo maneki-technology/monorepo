@@ -1,7 +1,7 @@
 import { defineConfig, type Plugin } from "vite";
 import { ViteMinifyPlugin } from "vite-plugin-minify";
 import { VitePWA } from "vite-plugin-pwa";
-
+import { devAliases } from "../../shared/vite-dev-aliases.js";
 /** Injects <link rel="preload"> for .woff2 assets into the HTML head. */
 function fontPreloadPlugin(): Plugin {
   return {
@@ -21,8 +21,9 @@ function fontPreloadPlugin(): Plugin {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   root: ".",
+  resolve: command === "serve" ? { alias: devAliases } : {},
   plugins: [
     fontPreloadPlugin(),
     VitePWA({
@@ -77,4 +78,4 @@ export default defineConfig({
   server: {
     port: 5174,
   },
-});
+}));
