@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 import { markdownPostsPlugin } from "./plugins/markdown-posts.js";
 import { autoUiComponentsPlugin } from "./plugins/auto-ui-components.js";
 import { sitemapPlugin } from "./plugins/sitemap.js";
@@ -15,10 +16,18 @@ export default defineConfig(({ command }) => ({
     markdownPostsPlugin(),
     autoUiComponentsPlugin(),
     sitemapPlugin(),
+    VitePWA({
+      registerType: "prompt",
+      manifest: false,
+      workbox: {
+        // Only cache static assets — HTML always comes from network
+        globPatterns: ["**/*.{js,css,woff2}"],
+        navigateFallback: null,
+      },
+    }),
     {
       name: "editor-rewrite",
       configureServer(server) {
-        // Run before Vite's SPA fallback — rewrite /editor to editor.html
         return () => {
           server.middlewares.use((req, _res, next) => {
             if (req.url?.startsWith("/editor")) {
