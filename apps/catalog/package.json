@@ -15,7 +15,8 @@
     "@maneki/flex-layout": "*",
     "@maneki/foundation": "*",
     "@maneki/grid-layout": "*",
-    "@maneki/ui-components": "*"
+    "@maneki/ui-components": "*",
+    "@maneki/charts": "*"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",

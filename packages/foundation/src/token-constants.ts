@@ -184,18 +184,21 @@ export const BLUE_70 = colorVar("blue", 70);
 // ─── Color: Green ───────────────────────────────────────────────────────────
 
 export const GREEN_20 = colorVar("green", 20);
+export const GREEN_40 = colorVar("green", 40);
 export const GREEN_60 = colorVar("green", 60);
 export const GREEN_70 = colorVar("green", 70);
 
 // ─── Color: Red ─────────────────────────────────────────────────────────────
 
 export const RED_20 = colorVar("red", 20);
+export const RED_40 = colorVar("red", 40);
 export const RED_60 = colorVar("red", 60);
 export const RED_70 = colorVar("red", 70);
 
 // ─── Color: Orange ──────────────────────────────────────────────────────────
 
 export const ORANGE_20 = colorVar("orange", 20);
+export const ORANGE_40 = colorVar("orange", 40);
 export const ORANGE_60 = colorVar("orange", 60);
 export const ORANGE_70 = colorVar("orange", 70);
 
@@ -207,12 +210,14 @@ export const YELLOW_30 = colorVar("yellow", 30);
 // ─── Color: Lime ────────────────────────────────────────────────────────────
 
 export const LIME_20 = colorVar("lime", 20);
+export const LIME_40 = colorVar("lime", 40);
 export const LIME_60 = colorVar("lime", 60);
 export const LIME_70 = colorVar("lime", 70);
 
 // ─── Color: Teal ────────────────────────────────────────────────────────────
 
 export const TEAL_20 = colorVar("teal", 20);
+export const TEAL_40 = colorVar("teal", 40);
 export const TEAL_60 = colorVar("teal", 60);
 export const TEAL_70 = colorVar("teal", 70);
 
@@ -225,24 +230,28 @@ export const TURQUOISE_70 = colorVar("turquoise", 70);
 // ─── Color: Aqua ────────────────────────────────────────────────────────────
 
 export const AQUA_20 = colorVar("aqua", 20);
+export const AQUA_40 = colorVar("aqua", 40);
 export const AQUA_60 = colorVar("aqua", 60);
 export const AQUA_70 = colorVar("aqua", 70);
 
 // ─── Color: Ultramarine ─────────────────────────────────────────────────────
 
 export const ULTRAMARINE_20 = colorVar("ultramarine", 20);
+export const ULTRAMARINE_40 = colorVar("ultramarine", 40);
 export const ULTRAMARINE_60 = colorVar("ultramarine", 60);
 export const ULTRAMARINE_70 = colorVar("ultramarine", 70);
 
 // ─── Color: Purple ──────────────────────────────────────────────────────────
 
 export const PURPLE_20 = colorVar("purple", 20);
+export const PURPLE_40 = colorVar("purple", 40);
 export const PURPLE_60 = colorVar("purple", 60);
 export const PURPLE_70 = colorVar("purple", 70);
 
 // ─── Color: Pink ────────────────────────────────────────────────────────────
 
 export const PINK_20 = colorVar("pink", 20);
+export const PINK_40 = colorVar("pink", 40);
 export const PINK_60 = colorVar("pink", 60);
 export const PINK_70 = colorVar("pink", 70);
 

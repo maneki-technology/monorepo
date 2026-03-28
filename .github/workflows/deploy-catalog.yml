@@ -9,6 +9,7 @@ on:
       - 'packages/foundation/**'
       - 'packages/grid-layout/**'
       - 'packages/flex-layout/**'
+      - 'packages/charts/**'
       - '.github/workflows/deploy-catalog.yml'
   pull_request:
     branches: [main]
@@ -18,6 +19,7 @@ on:
       - 'packages/foundation/**'
       - 'packages/grid-layout/**'
       - 'packages/flex-layout/**'
+      - 'packages/charts/**'
       - '.github/workflows/deploy-catalog.yml'
 
 jobs:
@@ -51,6 +53,10 @@ jobs:
       - name: Build flex-layout
         run: npm run build
         working-directory: packages/flex-layout
+
+      - name: Build charts
+        run: npm run build
+        working-directory: packages/charts
 
       - name: Build catalog
         run: npx vite build

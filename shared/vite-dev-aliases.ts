@@ -36,4 +36,8 @@ export const devAliases: AliasOptions = [
     find: /^@maneki\/flex-layout$/,
     replacement: resolve(root, "packages/flex-layout/src/index.ts"),
   },
+  {
+    find: /^@maneki\/charts$/,
+    replacement: resolve(root, "packages/charts/src/index.ts"),
+  },
 ];
