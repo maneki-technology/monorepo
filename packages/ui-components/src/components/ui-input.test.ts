@@ -40,9 +40,6 @@ describe("ui-input", () => {
   });
 
 
-  it("defaults supportive to empty string", () => {
-    expect((el as unknown as { supportive: string }).supportive).toBe("");
-  });
 
   it("defaults disabled to false", () => {
     expect((el as unknown as { disabled: boolean }).disabled).toBe(false);
@@ -64,9 +61,6 @@ describe("ui-input", () => {
     expect((el as unknown as { placeholder: string }).placeholder).toBe("");
   });
 
-  it("defaults secondaryLabel to empty string", () => {
-    expect((el as unknown as { secondaryLabel: string }).secondaryLabel).toBe("");
-  });
 
   // ── Size attribute ───────────────────────────────────────────────────────
 
@@ -200,34 +194,14 @@ describe("ui-input", () => {
     expect(slot).toBeTruthy();
   });
 
-  // ── Secondary label ──────────────────────────────────────────────────────
-
-  it("sets secondary-label attribute", () => {
-    (el as unknown as { secondaryLabel: string }).secondaryLabel = "Optional";
-    expect(el.getAttribute("secondary-label")).toBe("Optional");
-    const secEl = el.shadowRoot!.querySelector("ui-label[emphasis='subtle']");
-    expect(secEl!.textContent).toBe("Optional");
+  it("has secondary-label slot in shadow DOM", () => {
+    const slot = el.shadowRoot!.querySelector('slot[name="secondary-label"]');
+    expect(slot).toBeTruthy();
   });
 
-  it("removes secondary-label attribute when set to empty", () => {
-    (el as unknown as { secondaryLabel: string }).secondaryLabel = "Optional";
-    (el as unknown as { secondaryLabel: string }).secondaryLabel = "";
-    expect(el.hasAttribute("secondary-label")).toBe(false);
-  });
-
-  // ── Supportive text ──────────────────────────────────────────────────────
-
-  it("sets supportive attribute and shows text", () => {
-    (el as unknown as { supportive: string }).supportive = "Helper text";
-    expect(el.getAttribute("supportive")).toBe("Helper text");
-    const supEl = el.shadowRoot!.querySelector(".supportive-text");
-    expect(supEl!.textContent).toBe("Helper text");
-  });
-
-  it("removes supportive attribute when set to empty", () => {
-    (el as unknown as { supportive: string }).supportive = "Helper";
-    (el as unknown as { supportive: string }).supportive = "";
-    expect(el.hasAttribute("supportive")).toBe(false);
+  it("has supportive slot in shadow DOM", () => {
+    const slot = el.shadowRoot!.querySelector('slot[name="supportive"]');
+    expect(slot).toBeTruthy();
   });
 
   // ── Shadow DOM structure ─────────────────────────────────────────────────
@@ -312,12 +286,6 @@ describe("ui-input", () => {
     expect(input.getAttribute("aria-readonly")).toBe("true");
   });
 
-  it("sets aria-describedby when supportive text is present", () => {
-    (el as unknown as { supportive: string }).supportive = "Help text";
-    const input = el.shadowRoot!.querySelector(".native-input") as HTMLInputElement;
-    const supEl = el.shadowRoot!.querySelector(".supportive-text");
-    expect(input.getAttribute("aria-describedby")).toBe(supEl!.id);
-  });
 
   it("sets aria-label from host aria-label attribute", () => {
     el.setAttribute("aria-label", "Username");
@@ -576,8 +544,6 @@ describe("ui-input", () => {
     const component = el as unknown as {
       size: string;
       type: string;
-      secondaryLabel: string;
-      supportive: string;
       placeholder: string;
       value: string;
       name: string;
@@ -592,12 +558,6 @@ describe("ui-input", () => {
 
     component.type = "numeric";
     expect(component.type).toBe("numeric");
-
-    component.secondaryLabel = "Optional";
-    expect(component.secondaryLabel).toBe("Optional");
-
-    component.supportive = "Help";
-    expect(component.supportive).toBe("Help");
 
     component.placeholder = "Type here";
     expect(component.placeholder).toBe("Type here");

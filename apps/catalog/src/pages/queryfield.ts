@@ -1,6 +1,7 @@
 import { registerPage } from "../registry.js";
 import "@maneki/ui-components/components/ui-queryfield.js";
 import "@maneki/ui-components/components/ui-queryfield-tag.js";
+import "@maneki/ui-components/components/ui-label.js";
 
 registerPage("queryfield", {
   title: "Queryfield",
@@ -75,6 +76,24 @@ registerPage("queryfield", {
         <ui-queryfield-tag slot="tags" category="ROLE" expression="contains Manager"></ui-queryfield-tag>
         <ui-queryfield-tag slot="tags" category="DEPT" expression="equals Engineering"></ui-queryfield-tag>
       </ui-queryfield>
+    </div>
+
+    <h3>With Label Slot</h3>
+    <div class="stack-m w-600">
+      <div class="variant-col">
+        <span class="variant-label">M</span>
+        <ui-queryfield size="m" placeholder="Search...">
+          <ui-label slot="label" size="m">Search filters</ui-label>
+          <ui-queryfield-tag slot="tags" category="CITY" expression="equals London"></ui-queryfield-tag>
+        </ui-queryfield>
+      </div>
+      <div class="variant-col">
+        <span class="variant-label">L</span>
+        <ui-queryfield size="l" placeholder="Search...">
+          <ui-label slot="label" size="l">Search filters</ui-label>
+          <ui-queryfield-tag slot="tags" category="STATUS" expression="equals Active"></ui-queryfield-tag>
+        </ui-queryfield>
+      </div>
     </div>
   `,
   setup: () => {

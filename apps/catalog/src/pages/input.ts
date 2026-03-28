@@ -33,19 +33,19 @@ registerPage("input", {
 
     <h3>Statuses</h3>
     <div class="stack-m w-320">
-      <ui-input status="none" supportive="Default supportive text" placeholder="No status"><ui-label slot="label">None</ui-label></ui-input>
-      <ui-input status="warning" supportive="Please double-check this value" value="Might be wrong"><ui-label slot="label">Warning</ui-label></ui-input>
-      <ui-input status="error" supportive="This field is required" value="Invalid"><ui-label slot="label">Error</ui-label></ui-input>
-      <ui-input error supportive="This field has an error" value="Invalid"><ui-label slot="label">Error (boolean)</ui-label></ui-input>
-      <ui-input status="success" supportive="Looks good!" value="Valid input"><ui-label slot="label">Success</ui-label></ui-input>
-      <ui-input status="loading" supportive="Validating..." value="Checking..."><ui-label slot="label">Loading</ui-label></ui-input>
+      <ui-input status="none" placeholder="No status"><ui-label slot="label">None</ui-label><span slot="supportive">Default supportive text</span></ui-input>
+      <ui-input status="warning" value="Might be wrong"><ui-label slot="label">Warning</ui-label><span slot="supportive">Please double-check this value</span></ui-input>
+      <ui-input status="error" value="Invalid"><ui-label slot="label">Error</ui-label><span slot="supportive">This field is required</span></ui-input>
+      <ui-input error value="Invalid"><ui-label slot="label">Error (boolean)</ui-label><span slot="supportive">This field has an error</span></ui-input>
+      <ui-input status="success" value="Valid input"><ui-label slot="label">Success</ui-label><span slot="supportive">Looks good!</span></ui-input>
+      <ui-input status="loading" value="Checking..."><ui-label slot="label">Loading</ui-label><span slot="supportive">Validating...</span></ui-input>
     </div>
 
     <h3>With Label &amp; Supportive Text</h3>
     <div class="stack-m w-320">
-      <ui-input supportive="We'll never share your email" placeholder="you@example.com"><ui-label slot="label">Email</ui-label></ui-input>
-      <ui-input secondary-label="Optional" placeholder="johndoe"><ui-label slot="label">Username</ui-label></ui-input>
-      <ui-input placeholder="Enter password" supportive="Must be at least 8 characters"><ui-label slot="label">Password</ui-label></ui-input>
+      <ui-input placeholder="you@example.com"><ui-label slot="label">Email</ui-label><span slot="supportive">We'll never share your email</span></ui-input>
+      <ui-input placeholder="johndoe"><ui-label slot="label">Username</ui-label><ui-label slot="secondary-label" emphasis="subtle">Optional</ui-label></ui-input>
+      <ui-input placeholder="Enter password"><ui-label slot="label">Password</ui-label><span slot="supportive">Must be at least 8 characters</span></ui-input>
     </div>
 
     <h3>Leading &amp; Trailing Elements</h3>
@@ -70,13 +70,17 @@ registerPage("input", {
 
     <h3>Full Featured</h3>
     <div class="stack-l w-400">
-      <ui-input type="clearable" secondary-label="Required" placeholder="you@example.com" value="john@example.com" status="success" supportive="Email verified successfully">
+      <ui-input type="clearable" placeholder="you@example.com" value="john@example.com" status="success">
         <ui-label slot="label">Email Address</ui-label>
+        <ui-label slot="secondary-label" emphasis="subtle">Required</ui-label>
+        <span slot="supportive">Email verified successfully</span>
         <ui-icon name="mail" size="m" slot="leading"></ui-icon>
       </ui-input>
-      <ui-input type="numeric" secondary-label="Max 99" placeholder="0" value="5" supportive="Enter the number of items"><ui-label slot="label">Quantity</ui-label></ui-input>
-      <ui-input size="l" secondary-label="Optional" placeholder="Enter a description..." supportive="Maximum 200 characters">
+      <ui-input type="numeric" placeholder="0" value="5"><ui-label slot="label">Quantity</ui-label><ui-label slot="secondary-label" emphasis="subtle">Max 99</ui-label><span slot="supportive">Enter the number of items</span></ui-input>
+      <ui-input size="l" placeholder="Enter a description...">
         <ui-label slot="label">Description</ui-label>
+        <ui-label slot="secondary-label" emphasis="subtle">Optional</ui-label>
+        <span slot="supportive">Maximum 200 characters</span>
         <span slot="trailing" class="text-secondary">0/200</span>
       </ui-input>
     </div>

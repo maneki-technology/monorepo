@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import "./ui-switch.js";
-import type { SwitchSize, SwitchLabelPosition } from "./ui-switch.js";
+import "./ui-label.js";
 
 describe("ui-switch", () => {
   let el: HTMLElement;
@@ -88,19 +88,24 @@ describe("ui-switch", () => {
     expect(el.hasAttribute("disabled")).toBe(true);
   });
 
-  // ── Label attribute ───────────────────────────────────────────────────────
+  // ── Label slot ────────────────────────────────────────────────────────────
 
-  it("renders label text from attribute", () => {
-    el.setAttribute("label", "Dark mode");
-    const label = el.shadowRoot!.querySelector(".label");
-    expect(label!.textContent).toBe("Dark mode");
+  it("has a label slot in shadow DOM", () => {
+    const slot = el.shadowRoot!.querySelector('slot[name="label"]');
+    expect(slot).toBeTruthy();
   });
 
-  it("updates label text when attribute changes", () => {
-    el.setAttribute("label", "First");
-    el.setAttribute("label", "Second");
-    const label = el.shadowRoot!.querySelector(".label");
-    expect(label!.textContent).toBe("Second");
+  it("renders slotted label content", () => {
+    document.body.innerHTML = "";
+    const sw = document.createElement("ui-switch");
+    sw.setAttribute("label-position", "right");
+    const label = document.createElement("ui-label");
+    label.setAttribute("slot", "label");
+    label.textContent = "Dark mode";
+    sw.appendChild(label);
+    document.body.appendChild(sw);
+    const slot = sw.shadowRoot!.querySelector('slot[name="label"]') as HTMLSlotElement;
+    expect(slot).toBeTruthy();
   });
 
   // ── Label position attribute ──────────────────────────────────────────────
@@ -114,27 +119,39 @@ describe("ui-switch", () => {
   );
 
   it("places label before track when label-position=left", () => {
-    el.setAttribute("label", "Toggle");
-    el.setAttribute("label-position", "left");
-    const children = Array.from(el.shadowRoot!.children);
+    document.body.innerHTML = "";
+    const sw = document.createElement("ui-switch");
+    sw.setAttribute("label-position", "left");
+    const label = document.createElement("ui-label");
+    label.setAttribute("slot", "label");
+    label.textContent = "Toggle";
+    sw.appendChild(label);
+    document.body.appendChild(sw);
+    const children = Array.from(sw.shadowRoot!.children);
     const labelIdx = children.indexOf(
-      el.shadowRoot!.querySelector(".label") as Element,
+      sw.shadowRoot!.querySelector(".label") as Element,
     );
     const trackIdx = children.indexOf(
-      el.shadowRoot!.querySelector(".switch") as Element,
+      sw.shadowRoot!.querySelector(".switch") as Element,
     );
     expect(labelIdx).toBeLessThan(trackIdx);
   });
 
   it("places label after track when label-position=right", () => {
-    el.setAttribute("label", "Toggle");
-    el.setAttribute("label-position", "right");
-    const children = Array.from(el.shadowRoot!.children);
+    document.body.innerHTML = "";
+    const sw = document.createElement("ui-switch");
+    sw.setAttribute("label-position", "right");
+    const label = document.createElement("ui-label");
+    label.setAttribute("slot", "label");
+    label.textContent = "Toggle";
+    sw.appendChild(label);
+    document.body.appendChild(sw);
+    const children = Array.from(sw.shadowRoot!.children);
     const labelIdx = children.indexOf(
-      el.shadowRoot!.querySelector(".label") as Element,
+      sw.shadowRoot!.querySelector(".label") as Element,
     );
     const trackIdx = children.indexOf(
-      el.shadowRoot!.querySelector(".switch") as Element,
+      sw.shadowRoot!.querySelector(".switch") as Element,
     );
     expect(labelIdx).toBeGreaterThan(trackIdx);
   });
@@ -179,15 +196,6 @@ describe("ui-switch", () => {
     (el as any).disabled = true;
     (el as any).disabled = false;
     expect(el.hasAttribute("disabled")).toBe(false);
-  });
-
-  it("label getter returns empty string by default", () => {
-    expect((el as any).label).toBe("");
-  });
-
-  it("label setter updates attribute", () => {
-    (el as any).label = "Notifications";
-    expect(el.getAttribute("label")).toBe("Notifications");
   });
 
   it("labelPosition getter returns none by default", () => {
@@ -327,10 +335,9 @@ describe("ui-switch", () => {
     expect(track!.getAttribute("aria-checked")).toBe("false");
   });
 
-  it("sets aria-label from label attribute", () => {
-    el.setAttribute("label", "Dark mode");
+  it("sets default aria-label Toggle", () => {
     const track = el.shadowRoot!.querySelector(".switch");
-    expect(track!.getAttribute("aria-label")).toBe("Dark mode");
+    expect(track!.getAttribute("aria-label")).toBe("Toggle");
   });
 
   // ── observedAttributes ────────────────────────────────────────────────────
@@ -348,11 +355,6 @@ describe("ui-switch", () => {
   it("observedAttributes includes disabled", () => {
     const observed = (customElements.get("ui-switch") as any).observedAttributes;
     expect(observed).toContain("disabled");
-  });
-
-  it("observedAttributes includes label", () => {
-    const observed = (customElements.get("ui-switch") as any).observedAttributes;
-    expect(observed).toContain("label");
   });
 
   it("observedAttributes includes label-position", () => {

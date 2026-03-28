@@ -65,6 +65,9 @@ export class UiQueryfield extends HTMLElement {
     const shadow = this.attachShadow({ mode: "open" });
     shadow.adoptedStyleSheets = [sheet];
 
+    const labelSlot = document.createElement("slot");
+    labelSlot.name = "label";
+
     this.#wrapper = document.createElement("div");
     this.#wrapper.className = "wrapper";
 
@@ -94,7 +97,7 @@ export class UiQueryfield extends HTMLElement {
     this.#menu.className = "menu";
 
     this.#wrapper.append(searchIcon, this.#tags, this.#input);
-    shadow.append(this.#wrapper, this.#menu);
+    shadow.append(labelSlot, this.#wrapper, this.#menu);
   }
 
   connectedCallback(): void {

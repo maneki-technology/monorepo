@@ -15,7 +15,6 @@ sheet.replaceSync(STYLES);
 export class UiTextarea extends HTMLElement {
   static readonly observedAttributes = [
     "size",
-    "secondary-label",
     "placeholder",
     "value",
     "name",
@@ -31,7 +30,6 @@ export class UiTextarea extends HTMLElement {
   private _statusIconEl: HTMLSpanElement;
   private _statusIconInner: HTMLElement;
   private _charCountEl: HTMLSpanElement;
-  private _secondaryLabelEl: HTMLSpanElement;
 
   constructor() {
     super();
@@ -72,10 +70,10 @@ export class UiTextarea extends HTMLElement {
 
     shadow.appendChild(container);
 
-    // ── Secondary label ────────────────────────────────────────────────
-    this._secondaryLabelEl = document.createElement("span");
-    this._secondaryLabelEl.className = "secondary-label";
-    shadow.appendChild(this._secondaryLabelEl);
+    // ── Secondary label slot ──────────────────────────────────────────────────
+    const secondaryLabelSlot = document.createElement("slot");
+    secondaryLabelSlot.name = "secondary-label";
+    shadow.appendChild(secondaryLabelSlot);
 
     // ── Event listeners ────────────────────────────────────────────────
     this._textareaEl.addEventListener("input", this._handleInput.bind(this));
@@ -94,8 +92,6 @@ export class UiTextarea extends HTMLElement {
     this._syncDisabled();
     this._syncReadonly();
     this._syncStatusIcon();
-    this._syncLabels();
-    this._syncSecondaryLabel();
     this._syncRows();
     this._syncMaxlength();
     this._syncCharCount();
@@ -117,7 +113,6 @@ export class UiTextarea extends HTMLElement {
         break;
       case "disabled":
         this._syncDisabled();
-        this._syncLabels();
         this._syncAria();
         break;
       case "readonly":
@@ -125,15 +120,11 @@ export class UiTextarea extends HTMLElement {
         this._syncAria();
         break;
       case "size":
-        this._syncLabels();
         break;
       case "status":
       case "error":
         this._syncStatusIcon();
         this._syncAria();
-        break;
-      case "secondary-label":
-        this._syncSecondaryLabel();
         break;
       case "rows":
         this._syncRows();
@@ -160,17 +151,6 @@ export class UiTextarea extends HTMLElement {
 
 
 
-  get secondaryLabel(): string {
-    return this.getAttribute("secondary-label") ?? "";
-  }
-
-  set secondaryLabel(value: string) {
-    if (value) {
-      this.setAttribute("secondary-label", value);
-    } else {
-      this.removeAttribute("secondary-label");
-    }
-  }
 
   get placeholder(): string {
     return this.getAttribute("placeholder") ?? "";
@@ -326,9 +306,6 @@ export class UiTextarea extends HTMLElement {
     }
   }
 
-  private _syncSecondaryLabel(): void {
-    this._secondaryLabelEl.textContent = this.secondaryLabel;
-  }
 
   private _syncCharCount(): void {
     const ml = this.maxlength;

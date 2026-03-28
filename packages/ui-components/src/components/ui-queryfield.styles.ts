@@ -48,6 +48,10 @@ export const FIELD_STYLES = /* css */ `
     font-family: ${FONT_PRIMARY};
   }
 
+  slot[name="label"] {
+    display: block;
+  }
+
   .wrapper {
     display: flex;
     align-items: center;

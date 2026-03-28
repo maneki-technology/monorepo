@@ -18,8 +18,6 @@ export class UiInput extends HTMLElement {
   static readonly observedAttributes = [
     "size",
     "type",
-    "secondary-label",
-    "supportive",
     "placeholder",
     "value",
     "name",
@@ -36,9 +34,6 @@ export class UiInput extends HTMLElement {
   private _passwordToggleEl: HTMLButtonElement;
   private _passwordIconEl: HTMLElement;
   private _passwordVisible: boolean;
-  private _secondaryLabelEl: HTMLElement;
-  private _supportiveTextEl: HTMLSpanElement;
-  private _supportiveId: string;
 
   constructor() {
     super();
@@ -54,9 +49,9 @@ export class UiInput extends HTMLElement {
     labelSlot.name = "label";
     labelRow.appendChild(labelSlot);
 
-    this._secondaryLabelEl = document.createElement("ui-label");
-    this._secondaryLabelEl.setAttribute("emphasis", "subtle");
-    labelRow.appendChild(this._secondaryLabelEl);
+    const secondaryLabelSlot = document.createElement("slot");
+    secondaryLabelSlot.name = "secondary-label";
+    labelRow.appendChild(secondaryLabelSlot);
 
     shadow.appendChild(labelRow);
 
@@ -146,12 +141,13 @@ export class UiInput extends HTMLElement {
 
     shadow.appendChild(container);
 
-    // ── Supportive text ────────────────────────────────────────────────
-    this._supportiveId = "supportive-" + Math.random().toString(36).slice(2, 8);
-    this._supportiveTextEl = document.createElement("div");
-    this._supportiveTextEl.className = "supportive-text";
-    this._supportiveTextEl.id = this._supportiveId;
-    shadow.appendChild(this._supportiveTextEl);
+    // ── Supportive text slot ──────────────────────────────────────────────────
+    const supportiveWrapper = document.createElement("div");
+    supportiveWrapper.className = "supportive-text";
+    const supportiveSlot = document.createElement("slot");
+    supportiveSlot.name = "supportive";
+    supportiveWrapper.appendChild(supportiveSlot);
+    shadow.appendChild(supportiveWrapper);
 
     // ── Event listeners ────────────────────────────────────────────────
     this._inputEl.addEventListener("input", this._handleInput.bind(this));
@@ -172,8 +168,7 @@ export class UiInput extends HTMLElement {
     this._syncDisabled();
     this._syncReadonly();
     this._syncStatusIcon();
-    this._syncLabels();
-    this._syncSupportive();
+    this._syncStatusIcon();
     this._syncAria();
     this._syncClearVisibility();
   }
@@ -193,7 +188,6 @@ export class UiInput extends HTMLElement {
         break;
       case "disabled":
         this._syncDisabled();
-        this._syncLabels();
         this._syncAria();
         break;
       case "readonly":
@@ -203,19 +197,9 @@ export class UiInput extends HTMLElement {
       case "type":
         this._syncInputType();
         break;
-      case "size":
-        this._syncLabels();
-        break;
       case "status":
       case "error":
         this._syncStatusIcon();
-        this._syncAria();
-        break;
-      case "secondary-label":
-        this._syncLabels();
-        break;
-      case "supportive":
-        this._syncSupportive();
         this._syncAria();
         break;
       case "name":
@@ -243,30 +227,6 @@ export class UiInput extends HTMLElement {
   }
 
 
-
-  get secondaryLabel(): string {
-    return this.getAttribute("secondary-label") ?? "";
-  }
-
-  set secondaryLabel(value: string) {
-    if (value) {
-      this.setAttribute("secondary-label", value);
-    } else {
-      this.removeAttribute("secondary-label");
-    }
-  }
-
-  get supportive(): string {
-    return this.getAttribute("supportive") ?? "";
-  }
-
-  set supportive(value: string) {
-    if (value) {
-      this.setAttribute("supportive", value);
-    } else {
-      this.removeAttribute("supportive");
-    }
-  }
 
   get placeholder(): string {
     return this.getAttribute("placeholder") ?? "";
@@ -396,19 +356,9 @@ export class UiInput extends HTMLElement {
   }
 
   private _syncLabels(): void {
-    this._secondaryLabelEl.textContent = this.secondaryLabel;
     const size = this.getAttribute("size") || "m";
-    this._secondaryLabelEl.setAttribute("size", size);
-    if (this.disabled) {
-      this._secondaryLabelEl.setAttribute("disabled", "");
-    } else {
-      this._secondaryLabelEl.removeAttribute("disabled");
-    }
   }
 
-  private _syncSupportive(): void {
-    this._supportiveTextEl.textContent = this.supportive;
-  }
 
   private _syncClearVisibility(): void {
     if (this._inputEl.value) {
@@ -441,12 +391,6 @@ export class UiInput extends HTMLElement {
       this._inputEl.removeAttribute("aria-readonly");
     }
 
-    // aria-describedby
-    if (this.supportive) {
-      this._inputEl.setAttribute("aria-describedby", this._supportiveId);
-    } else {
-      this._inputEl.removeAttribute("aria-describedby");
-    }
 
     // aria-label — set on both host (for axe) and inner input
     const hostAriaLabel = this.getAttribute("aria-label");

@@ -1,5 +1,6 @@
 import { registerPage } from "../registry.js";
 import "@maneki/ui-components/components/ui-search.js";
+import "@maneki/ui-components/components/ui-label.js";
 
 registerPage("search", {
   title: "Search",
@@ -29,6 +30,22 @@ registerPage("search", {
     <h3 style="margin-top: 320px;">Search Dropdown — Size L</h3>
     <div class="stack-m" style="max-width: 432px;">
       <ui-search id="search-demo-l" size="l" placeholder="Type to search..."></ui-search>
+    </div>
+
+    <h3>With Label Slot</h3>
+    <div class="stack-m" style="max-width: 432px;">
+      <div class="variant-col">
+        <span class="variant-label">M</span>
+        <ui-search size="m" placeholder="Type to search...">
+          <ui-label slot="label" size="m">Search</ui-label>
+        </ui-search>
+      </div>
+      <div class="variant-col">
+        <span class="variant-label">L</span>
+        <ui-search size="l" placeholder="Type to search...">
+          <ui-label slot="label" size="l">Search</ui-label>
+        </ui-search>
+      </div>
     </div>
   `,
   setup: () => {

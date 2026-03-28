@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "../components/ui-switch.js";
+import "../components/ui-label.js";
 
 const meta: Meta = {
   title: "Components/Switch",
@@ -36,9 +37,8 @@ const meta: Meta = {
       size=${args.size}
       ?checked=${args.checked}
       ?disabled=${args.disabled}
-      label=${args.label}
       label-position=${args.labelPosition}
-    ></ui-switch>
+    ><ui-label slot="label">${args.label}</ui-label></ui-switch>
   `,
 };
 
@@ -80,15 +80,15 @@ export const WithLabel: Story = {
     <div style="display: flex; flex-direction: column; gap: 24px;">
       <div>
         <div style="margin-bottom: 8px; font-size: 12px; color: #666;">Label left</div>
-        <ui-switch label="Dark mode" label-position="left"></ui-switch>
+        <ui-switch label-position="left"><ui-label slot="label">Dark mode</ui-label></ui-switch>
       </div>
       <div>
         <div style="margin-bottom: 8px; font-size: 12px; color: #666;">Label right</div>
-        <ui-switch label="Notifications" label-position="right"></ui-switch>
+        <ui-switch label-position="right"><ui-label slot="label">Notifications</ui-label></ui-switch>
       </div>
       <div>
         <div style="margin-bottom: 8px; font-size: 12px; color: #666;">Label left, checked</div>
-        <ui-switch label="Auto-save" label-position="left" checked></ui-switch>
+        <ui-switch label-position="left" checked><ui-label slot="label">Auto-save</ui-label></ui-switch>
       </div>
     </div>
   `,

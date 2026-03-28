@@ -23,12 +23,12 @@ registerPage("textarea", {
 
     <h3>Statuses</h3>
     <div class="stack-m w-320">
-      <ui-textarea status="none" secondary-label="Default secondary text" placeholder="No status"><ui-label slot="label">None</ui-label></ui-textarea>
-      <ui-textarea status="warning" secondary-label="Please double-check this value" value="Might be wrong"><ui-label slot="label">Warning</ui-label></ui-textarea>
-      <ui-textarea status="error" secondary-label="This field is required" value="Invalid"><ui-label slot="label">Error</ui-label></ui-textarea>
-      <ui-textarea error secondary-label="This field has an error" value="Invalid"><ui-label slot="label">Error (boolean)</ui-label></ui-textarea>
-      <ui-textarea status="success" secondary-label="Looks good!" value="Valid input"><ui-label slot="label">Success</ui-label></ui-textarea>
-      <ui-textarea status="loading" secondary-label="Validating..." value="Checking..."><ui-label slot="label">Loading</ui-label></ui-textarea>
+      <ui-textarea status="none" placeholder="No status"><ui-label slot="label">None</ui-label><ui-label slot="secondary-label" emphasis="subtle">Default secondary text</ui-label></ui-textarea>
+      <ui-textarea status="warning" value="Might be wrong"><ui-label slot="label">Warning</ui-label><ui-label slot="secondary-label" emphasis="subtle">Please double-check this value</ui-label></ui-textarea>
+      <ui-textarea status="error" value="Invalid"><ui-label slot="label">Error</ui-label><ui-label slot="secondary-label" emphasis="subtle">This field is required</ui-label></ui-textarea>
+      <ui-textarea error value="Invalid"><ui-label slot="label">Error (boolean)</ui-label><ui-label slot="secondary-label" emphasis="subtle">This field has an error</ui-label></ui-textarea>
+      <ui-textarea status="success" value="Valid input"><ui-label slot="label">Success</ui-label><ui-label slot="secondary-label" emphasis="subtle">Looks good!</ui-label></ui-textarea>
+      <ui-textarea status="loading" value="Checking..."><ui-label slot="label">Loading</ui-label><ui-label slot="secondary-label" emphasis="subtle">Validating...</ui-label></ui-textarea>
     </div>
 
     <h3>With Labels</h3>
@@ -39,14 +39,14 @@ registerPage("textarea", {
 
     <h3>With Secondary Label</h3>
     <div class="stack-m w-320">
-      <ui-textarea placeholder="Add notes..." secondary-label="Optional"><ui-label slot="label">Notes</ui-label></ui-textarea>
-      <ui-textarea placeholder="Share your feedback..." secondary-label="Max 500 characters"><ui-label slot="label">Feedback</ui-label></ui-textarea>
+      <ui-textarea placeholder="Add notes..."><ui-label slot="label">Notes</ui-label><ui-label slot="secondary-label" emphasis="subtle">Optional</ui-label></ui-textarea>
+      <ui-textarea placeholder="Share your feedback..."><ui-label slot="label">Feedback</ui-label><ui-label slot="secondary-label" emphasis="subtle">Max 500 characters</ui-label></ui-textarea>
     </div>
 
     <h3>Full Featured</h3>
     <div class="stack-l w-400">
-      <ui-textarea size="m" secondary-label="Required" placeholder="Enter a detailed description..." value="This is a fully featured textarea with all options enabled." maxlength="300" status="success"><ui-label slot="label" size="m">Description</ui-label></ui-textarea>
-      <ui-textarea size="l" secondary-label="Optional" placeholder="Leave a comment..." rows="6" maxlength="500"><ui-label slot="label" size="l">Comments</ui-label></ui-textarea>
+      <ui-textarea size="m" placeholder="Enter a detailed description..." value="This is a fully featured textarea with all options enabled." maxlength="300" status="success"><ui-label slot="label" size="m">Description</ui-label><ui-label slot="secondary-label" emphasis="subtle">Required</ui-label></ui-textarea>
+      <ui-textarea size="l" placeholder="Leave a comment..." rows="6" maxlength="500"><ui-label slot="label" size="l">Comments</ui-label><ui-label slot="secondary-label" emphasis="subtle">Optional</ui-label></ui-textarea>
     </div>
   `,
 });

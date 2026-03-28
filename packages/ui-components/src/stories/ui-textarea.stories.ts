@@ -13,7 +13,6 @@ const meta: Meta = {
       control: { type: "select" },
       options: ["none", "warning", "error", "success", "loading"],
     },
-    "secondary-label": { control: "text" },
     placeholder: { control: "text" },
     value: { control: "text" },
     rows: { control: "number" },
@@ -33,7 +32,6 @@ const meta: Meta = {
     size: "m",
     status: "none",
     placeholder: "Placeholder Text",
-    "secondary-label": "",
     value: "",
     rows: 4,
     disabled: false,
@@ -44,7 +42,6 @@ const meta: Meta = {
     <ui-textarea
       size=${args.size}
       status=${args.status}
-      secondary-label=${args["secondary-label"] || undefined}
       placeholder=${args.placeholder}
       value=${args.value}
       rows=${args.rows}
@@ -52,7 +49,9 @@ const meta: Meta = {
       ?disabled=${args.disabled}
       ?readonly=${args.readonly}
       ?error=${args.error}
-    ></ui-textarea>
+    >
+      ${args["secondary-label"] ? html`<ui-label slot="secondary-label" emphasis="subtle">${args["secondary-label"]}</ui-label>` : ""}
+    </ui-textarea>
   `,
 };
 export default meta;
@@ -91,12 +90,10 @@ export const WithSecondaryLabel: Story = {
     <div style="display: flex; flex-direction: column; gap: 16px; max-width: 320px;">
       <ui-textarea
         placeholder="Add notes..."
-        secondary-label="Optional"
-      ><ui-label slot="label">Notes</ui-label></ui-textarea>
+      ><ui-label slot="label">Notes</ui-label><ui-label slot="secondary-label" emphasis="subtle">Optional</ui-label></ui-textarea>
       <ui-textarea
         placeholder="Share your feedback..."
-        secondary-label="Max 500 characters"
-      ><ui-label slot="label">Feedback</ui-label></ui-textarea>
+      ><ui-label slot="label">Feedback</ui-label><ui-label slot="secondary-label" emphasis="subtle">Max 500 characters</ui-label></ui-textarea>
     </div>
   `,
 };
@@ -119,33 +116,27 @@ export const Statuses: Story = {
       <ui-textarea
         placeholder="No status"
         status="none"
-        secondary-label="Default secondary text"
-      ><ui-label slot="label">None</ui-label></ui-textarea>
+      ><ui-label slot="label">None</ui-label><ui-label slot="secondary-label" emphasis="subtle">Default secondary text</ui-label></ui-textarea>
       <ui-textarea
         value="Might be wrong"
         status="warning"
-        secondary-label="Please double-check this value"
-      ><ui-label slot="label">Warning</ui-label></ui-textarea>
+      ><ui-label slot="label">Warning</ui-label><ui-label slot="secondary-label" emphasis="subtle">Please double-check this value</ui-label></ui-textarea>
       <ui-textarea
         value="Invalid"
         status="error"
-        secondary-label="This field is required"
-      ><ui-label slot="label">Error</ui-label></ui-textarea>
+      ><ui-label slot="label">Error</ui-label><ui-label slot="secondary-label" emphasis="subtle">This field is required</ui-label></ui-textarea>
       <ui-textarea
         value="Invalid"
         error
-        secondary-label="This field has an error"
-      ><ui-label slot="label">Error (boolean)</ui-label></ui-textarea>
+      ><ui-label slot="label">Error (boolean)</ui-label><ui-label slot="secondary-label" emphasis="subtle">This field has an error</ui-label></ui-textarea>
       <ui-textarea
         value="Valid input"
         status="success"
-        secondary-label="Looks good!"
-      ><ui-label slot="label">Success</ui-label></ui-textarea>
+      ><ui-label slot="label">Success</ui-label><ui-label slot="secondary-label" emphasis="subtle">Looks good!</ui-label></ui-textarea>
       <ui-textarea
         value="Checking..."
         status="loading"
-        secondary-label="Validating..."
-      ><ui-label slot="label">Loading</ui-label></ui-textarea>
+      ><ui-label slot="label">Loading</ui-label><ui-label slot="secondary-label" emphasis="subtle">Validating...</ui-label></ui-textarea>
     </div>
   `,
 };
@@ -163,9 +154,8 @@ export const Focus: Story = {
   render: () => html`
     <ui-textarea
       placeholder="Click to focus this textarea"
-      secondary-label="Focus ring appears on click or tab"
       style="max-width: 320px;"
-    ><ui-label slot="label">Focus state</ui-label></ui-textarea>
+    ><ui-label slot="label">Focus state</ui-label><ui-label slot="secondary-label" emphasis="subtle">Focus ring appears on click or tab</ui-label></ui-textarea>
   `,
 };
 
@@ -183,20 +173,21 @@ export const FullFeatured: Story = {
     <div style="display: flex; flex-direction: column; gap: 24px; max-width: 400px;">
       <ui-textarea
         size="m"
-        secondary-label="Required"
         placeholder="Enter a detailed description..."
         value="This is a fully featured textarea with all options enabled."
         maxlength="300"
         status="success"
-      ><ui-label slot="label" size="m">Description</ui-label></ui-textarea>
+      ><ui-label slot="label" size="m">Description</ui-label><ui-label slot="secondary-label" emphasis="subtle">Required</ui-label></ui-textarea>
 
       <ui-textarea
         size="l"
-        secondary-label="Optional"
         placeholder="Leave a comment..."
         rows="6"
         maxlength="500"
-      ><ui-label slot="label" size="l">Comments</ui-label></ui-textarea>
+      >
+        <ui-label slot="label" size="l">Comments</ui-label>
+        <ui-label slot="secondary-label" emphasis="subtle">Optional</ui-label>
+      </ui-textarea>
     </div>
   `,
 };

@@ -1,5 +1,6 @@
 import { registerPage } from "../registry.js";
 import "@maneki/ui-components/components/ui-switch.js";
+import "@maneki/ui-components/components/ui-label.js";
 
 registerPage("switch", {
   title: "Switch",
@@ -57,23 +58,23 @@ registerPage("switch", {
       </div>
       <div class="variant-col items-center">
         <span class="variant-label">Left</span>
-        <ui-switch size="m" label="Label" label-position="left" checked></ui-switch>
+        <ui-switch size="m" label-position="left" checked><ui-label slot="label">Label</ui-label></ui-switch>
       </div>
       <div class="variant-col items-center">
         <span class="variant-label">Right</span>
-        <ui-switch size="m" label="Label" label-position="right" checked></ui-switch>
+        <ui-switch size="m" label-position="right" checked><ui-label slot="label">Label</ui-label></ui-switch>
       </div>
       <div class="variant-col items-center">
         <span class="variant-label">Top</span>
-        <ui-switch size="m" label="Label" label-position="top" checked></ui-switch>
+        <ui-switch size="m" label-position="top" checked><ui-label slot="label">Label</ui-label></ui-switch>
       </div>
     </div>
 
     <h3>Interactive (click to toggle)</h3>
     <div class="stack-m">
-      <ui-switch size="l" label="Enable feature" label-position="right"></ui-switch>
-      <ui-switch size="m" label="Auto-save" label-position="right" checked></ui-switch>
-      <ui-switch size="s" label="Compact mode" label-position="right"></ui-switch>
+      <ui-switch size="l" label-position="right"><ui-label slot="label">Enable feature</ui-label></ui-switch>
+      <ui-switch size="m" label-position="right" checked><ui-label slot="label">Auto-save</ui-label></ui-switch>
+      <ui-switch size="s" label-position="right"><ui-label slot="label">Compact mode</ui-label></ui-switch>
     </div>
   `,
 });

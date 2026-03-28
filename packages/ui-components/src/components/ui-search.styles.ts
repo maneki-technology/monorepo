@@ -42,6 +42,10 @@ export const STYLES = /* css */ `
     box-sizing: border-box;
   }
 
+  slot[name="label"] {
+    display: block;
+  }
+
   :host {
     display: block;
     position: relative;

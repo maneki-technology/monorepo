@@ -51,6 +51,9 @@ export class UiSearch extends HTMLElement {
     const shadow = this.attachShadow({ mode: "open" });
     shadow.adoptedStyleSheets = [sheet];
 
+    const labelSlot = document.createElement("slot");
+    labelSlot.name = "label";
+
     // Input wrapper
     const inputWrapper = document.createElement("div");
     inputWrapper.className = "input-wrapper";
@@ -85,7 +88,7 @@ export class UiSearch extends HTMLElement {
     this.#dropdown = document.createElement("div");
     this.#dropdown.className = "dropdown";
 
-    shadow.append(inputWrapper, this.#dropdown);
+    shadow.append(labelSlot, inputWrapper, this.#dropdown);
   }
 
   connectedCallback(): void {
