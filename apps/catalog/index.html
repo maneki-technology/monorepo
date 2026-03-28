@@ -60,9 +60,12 @@
     }
 
     /* Content */
-    #content {
+    #content-scroll {
       flex: 1;
-      overflow-y: auto;
+      min-height: 0;
+    }
+
+    #content {
       padding: 32px 40px;
       background: var(--fd-surface-primary, #fff);
       transition: opacity 0.15s ease;
@@ -319,7 +322,9 @@
         width:100%;display:flex;justify-content:center;
       ">☀️</button>
     </ui-side-panel-menu>
-    <main id="content" tabindex="0"></main>
+    <ui-scrollbar id="content-scroll" emphasis="minimal">
+      <main id="content" tabindex="0"></main>
+    </ui-scrollbar>
   </div>
   <div id="update-banner">
     <span>A new version is available.</span>
