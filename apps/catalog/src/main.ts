@@ -138,7 +138,8 @@ function buildSidebar(): void {
 }
 
 function navigate(pageId: string): void {
-  window.location.hash = pageId;
+  const path = `/${pageId}`;
+  history.pushState(null, "", path);
   renderPage(pageId);
 }
 
@@ -186,9 +187,9 @@ async function renderPage(pageId: string): Promise<void> {
   }
 }
 
-function onHashChange(): void {
-  const hash = window.location.hash.slice(1);
-  renderPage(hash || manifest[0].id);
+function getCurrentPage(): string {
+  const path = window.location.pathname.slice(1).replace(/\/$/, "");
+  return path || manifest[0].id;
 }
 
 // ─── Theme Toggle ─────────────────────────────────────────────────────────
@@ -219,8 +220,21 @@ function initThemeToggle(): void {
 buildSidebar();
 initThemeToggle();
 
-window.addEventListener("hashchange", onHashChange);
-onHashChange();
+// Intercept link clicks for SPA navigation
+document.addEventListener("click", (e) => {
+  const anchor = (e.target as Element).closest("a[href]") as HTMLAnchorElement | null;
+  if (!anchor) return;
+  const href = anchor.getAttribute("href");
+  if (!href || href.startsWith("http") || href.startsWith("mailto:")) return;
+  if (href.startsWith("/")) {
+    e.preventDefault();
+    history.pushState(null, "", href);
+    renderPage(getCurrentPage());
+  }
+});
+
+window.addEventListener("popstate", () => renderPage(getCurrentPage()));
+renderPage(getCurrentPage());
 
 // ─── PWA ─────────────────────────────────────────────────────────────────────
 
