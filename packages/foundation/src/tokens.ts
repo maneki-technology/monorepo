@@ -120,9 +120,6 @@ export function darkElevationToCssProperties(): string {
 export function injectAllTokens(): void {
   if (typeof document === "undefined") return;
 
-  const id = "maneki-foundation-all";
-  if (document.getElementById(id)) return;
-
   const css = [
     colorsToCssProperties(),
     semanticToCssProperties(),
@@ -137,10 +134,42 @@ export function injectAllTokens(): void {
     darkElevationToCssProperties(),
   ].join("\n");
 
+  const id = "maneki-foundation-all";
+  const existing = document.getElementById(id);
+  const cssContent = `:root {\n${css}\n}\n\n[data-theme="dark"] {\n${darkCss}\n}`;
+
+  // In dev mode, replace existing styles so HMR works. In production, skip if already injected.
+  if (existing) {
+    if ((import.meta as any).hot) {
+      existing.textContent = cssContent;
+    }
+    return;
+  }
+
   const style = document.createElement("style");
   style.id = id;
-  style.textContent = `:root {\n${css}\n}\n\n[data-theme="dark"] {\n${darkCss}\n}`;
+  style.textContent = cssContent;
   document.head.appendChild(style);
+}
+
+// HMR: re-inject tokens when any token source file changes
+if ((import.meta as any).hot) {
+  (import.meta as any).hot.accept(
+    [
+      "./colors.js",
+      "./semantic-tokens.js",
+      "./dark-theme.js",
+      "./typography.js",
+      "./spacing.js",
+      "./shape.js",
+    ],
+    () => {
+      // Force re-injection with updated values
+      const el = document.getElementById("maneki-foundation-all");
+      if (el) el.remove();
+      injectAllTokens();
+    },
+  );
 }
 
 /**

@@ -2,12 +2,14 @@ import { defineConfig } from "vite";
 import { markdownPostsPlugin } from "./plugins/markdown-posts.js";
 import { autoUiComponentsPlugin } from "./plugins/auto-ui-components.js";
 import { sitemapPlugin } from "./plugins/sitemap.js";
+import { devAliases } from "../../shared/vite-dev-aliases.js";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   root: ".",
   server: {
     port: 5175,
   },
+  resolve: command === "serve" ? { alias: devAliases } : {},
   appType: "spa",
   plugins: [
     markdownPostsPlugin(),
@@ -54,4 +56,4 @@ export default defineConfig({
       },
     },
   },
-});
+}));
