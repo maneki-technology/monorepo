@@ -101,10 +101,16 @@ export function markdownPostsPlugin(): Plugin {
       .sort()
       .reverse();
 
+    // Filter out drafts in production
     const posts = files.map((file) => {
       const raw = fs.readFileSync(path.join(postsDir, file), "utf-8");
       const { data, content } = matter(raw);
+
+      // Skip drafts
+      if (data.draft) return null;
+
       const slug = file.replace(/\.md$/, "");
+
       const html = md.render(content);
 
       const words = content.split(/\s+/).length;
@@ -136,7 +142,7 @@ export function markdownPostsPlugin(): Plugin {
         headings,
         content: html,
       };
-    });
+    }).filter(Boolean);
 
     return `export const posts = ${JSON.stringify(posts)};`;
   }
