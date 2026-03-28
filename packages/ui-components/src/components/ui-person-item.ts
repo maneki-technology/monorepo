@@ -209,10 +209,10 @@ export class UiPersonItem extends HTMLElement {
         btn.className = "action-icon";
         btn.dataset.action = iconName;
         btn.setAttribute("aria-label", labelMap[iconName]);
-        const i = document.createElement("span");
-        i.className = "material-symbols-outlined";
-        i.textContent = iconMap[iconName];
-        btn.appendChild(i);
+        const icon = document.createElement("ui-icon");
+        icon.setAttribute("name", iconName);
+        icon.setAttribute("size", "l");
+        btn.appendChild(icon);
         this.#actionsEl.appendChild(btn);
       }
     }

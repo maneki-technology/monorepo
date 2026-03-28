@@ -12,10 +12,9 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiSidePanelMenu extends HTMLElement {
-  static readonly observedAttributes = ["state", "overlay", "title", "mobile", "no-collapse"];
+  static readonly observedAttributes = ["state", "overlay", "mobile", "no-collapse"];
 
   private _panel: HTMLElement;
-  private _titleEl: HTMLElement;
   private _menu: HTMLDivElement;
   private _flyout: HTMLDivElement;
   private _flyoutTitle: HTMLDivElement;
@@ -32,11 +31,13 @@ export class UiSidePanelMenu extends HTMLElement {
     // Compose ui-side-panel as the container
     this._panel = document.createElement("ui-side-panel");
 
-    // Title element slotted into panel's header slot
-    this._titleEl = document.createElement("span");
-    this._titleEl.setAttribute("slot", "header");
-    this._titleEl.className = "panel-title";
-    this._panel.appendChild(this._titleEl);
+    // Header passthrough — re-slot consumer's slot="header" into the panel's header slot
+    const headerPassthrough = document.createElement("div");
+    headerPassthrough.setAttribute("slot", "header");
+    const headerSlot = document.createElement("slot");
+    headerSlot.name = "header";
+    headerPassthrough.appendChild(headerSlot);
+    this._panel.appendChild(headerPassthrough);
 
     // Menu area (slotted into the panel)
     const menu = document.createElement("div");
@@ -158,9 +159,6 @@ export class UiSidePanelMenu extends HTMLElement {
       this._syncItemTypes();
       this._closeFlyout();
     }
-    if (name === "title") {
-      this._titleEl.textContent = this.getAttribute("title") ?? "";
-    }
     if (name === "overlay") {
       if (this.hasAttribute("overlay")) this._panel.setAttribute("overlay", "");
       else this._panel.removeAttribute("overlay");
@@ -211,7 +209,6 @@ export class UiSidePanelMenu extends HTMLElement {
 
   private _syncPanelAttributes(): void {
     this._panel.setAttribute("state", this.state);
-    this._titleEl.textContent = this.getAttribute("title") ?? "";
     if (this.hasAttribute("overlay")) this._panel.setAttribute("overlay", "");
     if (this.hasAttribute("mobile")) this._panel.setAttribute("mobile", "");
     if (this.hasAttribute("no-collapse")) this._panel.setAttribute("no-collapse", "");
@@ -405,6 +402,11 @@ export class UiSidePanelMenu extends HTMLElement {
 
     target.setAttribute("selected", "");
     this._markParentSelected(target, allItems);
+
+    // Auto-close sidebar on mobile after selection
+    if (this.mobile) {
+      this.setAttribute("state", "collapsed");
+    }
   }
 
   private _markParentSelected(

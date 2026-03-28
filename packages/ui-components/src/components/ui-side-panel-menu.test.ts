@@ -62,7 +62,7 @@ describe("ui-side-panel-menu", () => {
     const Ctor = customElements.get("ui-side-panel-menu") as unknown as {
       observedAttributes: string[];
     };
-    expect(Ctor.observedAttributes).toEqual(["state", "overlay", "title", "mobile", "no-collapse"]);
+    expect(Ctor.observedAttributes).toEqual(["state", "overlay", "mobile", "no-collapse"]);
   });
 
   // ── State attribute ──────────────────────────────────────────────────────
@@ -103,8 +103,8 @@ describe("ui-side-panel-menu", () => {
   });
 
   it("renders a title via header slot", () => {
-    const title = el.shadowRoot!.querySelector(".panel-title");
-    expect(title).toBeTruthy();
+    const slot = el.shadowRoot!.querySelector("slot[name='header']");
+    expect(slot).toBeTruthy();
   });
 
   it("renders a .header-toggle button", () => {
@@ -131,17 +131,19 @@ describe("ui-side-panel-menu", () => {
 
   // ── Title ────────────────────────────────────────────────────────────────
 
-  it("updates header title from title attribute", () => {
-    el.setAttribute("title", "Navigation");
-    const title = el.shadowRoot!.querySelector(".panel-title");
-    expect(title!.textContent).toBe("Navigation");
+  it("accepts content in header slot", () => {
+    const span = document.createElement("span");
+    span.setAttribute("slot", "header");
+    span.textContent = "Navigation";
+    el.appendChild(span);
+    const slotted = el.querySelector("span[slot='header']");
+    expect(slotted).toBeTruthy();
+    expect(slotted!.textContent).toBe("Navigation");
   });
 
-  it("shows empty title when title attribute is removed", () => {
-    el.setAttribute("title", "Navigation");
-    el.removeAttribute("title");
-    const title = el.shadowRoot!.querySelector(".panel-title");
-    expect(title!.textContent).toBe("");
+  it("renders empty header slot when no content provided", () => {
+    const slot = el.shadowRoot!.querySelector("slot[name='header']");
+    expect(slot).toBeTruthy();
   });
 
   // ── Toggle behavior ──────────────────────────────────────────────────────

@@ -58,6 +58,18 @@
       overflow-y: auto;
       scrollbar-width: thin;
     }
+    #theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      z-index: 50;
+      opacity: 0.4;
+      transition: opacity 0.2s ease;
+    }
+
+    #theme-toggle:hover {
+      opacity: 1;
+    }
 
     /* Content */
     #content-scroll {
@@ -66,6 +78,7 @@
     }
 
     #content {
+      min-height: 100%;
       padding: 32px 40px;
       background: var(--fd-surface-primary, #fff);
       transition: opacity 0.15s ease;
@@ -314,14 +327,10 @@
 <body>
   <a href="#content" class="skip-link">Skip to content</a>
   <div id="app">
-    <ui-side-panel-menu id="sidebar" title="Maneki" state="expanded" no-collapse style="height:100vh">
-      <button slot="footer" id="theme-toggle" aria-label="Toggle dark mode" style="
-        background:none;border:none;cursor:pointer;
-        font-size:18px;padding:8px 12px;border-radius:4px;
-        color:var(--fd-text-secondary,#3e5463);
-        width:100%;display:flex;justify-content:center;
-      ">☀️</button>
+    <ui-side-panel-menu id="sidebar" state="expanded" no-collapse style="height:100vh">
+      <span slot="header" style="font-weight:500;">Maneki</span>
     </ui-side-panel-menu>
+    <button id="theme-toggle" aria-label="Toggle dark mode" style="background:none;border:none;cursor:pointer;font-size:28px;padding:8px;border-radius:8px;color:var(--fd-text-secondary,#3e5463);display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;">☀️</button>
     <ui-scrollbar id="content-scroll" emphasis="minimal">
       <main id="content" tabindex="0"></main>
     </ui-scrollbar>

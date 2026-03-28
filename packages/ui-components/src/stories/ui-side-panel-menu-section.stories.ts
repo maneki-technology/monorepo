@@ -10,7 +10,7 @@ const meta: Meta = {
   decorators: [
     (story) => html`
       <div style="height: 400px; display: flex;">
-        <ui-side-panel-menu title="Navigation" no-collapse>
+        <ui-side-panel-menu no-collapse><span slot="header">Navigation</span>
           ${story()}
         </ui-side-panel-menu>
         <div style="flex: 1; padding: 24px; background: #fff;">

@@ -317,9 +317,9 @@ describe("ui-person-item", () => {
     expect(icon).not.toBeNull();
   });
 
-  it("action icons contain .material-symbols-outlined span", () => {
+  it("action icons contain ui-icon element", () => {
     const icon = el.shadowRoot!.querySelector('[data-action="mail"]');
-    expect(icon!.querySelector(".material-symbols-outlined")).not.toBeNull();
+    expect(icon!.querySelector("ui-icon")).not.toBeNull();
   });
 
   // ── Default avatar ────────────────────────────────────────────────────────
