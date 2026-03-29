@@ -116,33 +116,45 @@ function toSlug(date: string, title: string): string {
   return date ? `${date}-${base}` : base;
 }
 
-// ─── Local draft storage ─────────────────────────────────────────────────────
+// ─── UI state persistence ────────────────────────────────────────────────────
 
-const DRAFTS_KEY = "blog-editor-drafts";
+interface EditorUIState {
+  openTabs: string[];
+  activeTab: string | null;
+  sidebarCollapsed: boolean;
+  theme: string;
+}
 
-function loadLocalDrafts(): Draft[] {
+let uiStateSaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+async function loadUIState(): Promise<EditorUIState | null> {
   try {
-    const raw = localStorage.getItem(DRAFTS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const res = await api.api["ui-state"][":page"].$get({ param: { page: "editor" } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return (data.state ?? null) as EditorUIState | null;
   } catch {
-    return [];
+    return null;
   }
 }
 
-function saveLocalDrafts(drafts: Draft[]): void {
-  localStorage.setItem(DRAFTS_KEY, JSON.stringify(drafts));
-}
-
-function saveLocalDraft(draft: Draft): void {
-  const drafts = loadLocalDrafts();
-  const idx = drafts.findIndex((d) => d.slug === draft.slug);
-  if (idx >= 0) drafts[idx] = draft;
-  else drafts.push(draft);
-  saveLocalDrafts(drafts);
-}
-
-function removeLocalDraft(slug: string): void {
-  saveLocalDrafts(loadLocalDrafts().filter((d) => d.slug !== slug));
+function saveUIState(): void {
+  if (uiStateSaveTimer) clearTimeout(uiStateSaveTimer);
+  uiStateSaveTimer = setTimeout(async () => {
+    const sidebar = document.getElementById("admin-sidebar");
+    const state: EditorUIState = {
+      openTabs: openTabs.map((t) => t.slug),
+      activeTab: currentSlug,
+      sidebarCollapsed: sidebar?.getAttribute("state") === "collapsed",
+      theme: document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light",
+    };
+    try {
+      await api.api["ui-state"][":page"].$put({
+        param: { page: "editor" },
+        json: state as unknown as Record<string, unknown>,
+      });
+    } catch { /* ignore */ }
+  }, 500);
 }
 
 // ─── State ───────────────────────────────────────────────────────────────────
@@ -313,6 +325,7 @@ function renderTabBar(): void {
     const slug = e.detail?.value as string;
     if (!slug) return;
     openTabs = openTabs.filter((d) => d.slug !== slug);
+    saveUIState();
     if (currentSlug === slug) {
       if (openTabs.length > 0) {
         loadDraftIntoEditor(openTabs[openTabs.length - 1]);
@@ -331,6 +344,7 @@ function renderTabBar(): void {
     if (!slug || slug === currentSlug) return;
     const draft = openTabs.find((d) => d.slug === slug);
     if (draft) loadDraftIntoEditor(draft);
+    saveUIState();
   }) as EventListener);
 
   // New draft (via addable "+" button)
@@ -350,6 +364,8 @@ function renderTabBar(): void {
     openTabs.push(draft);
     loadDraftIntoEditor(draft);
     renderSidebar();
+    saveUIState();
+    renderSidebar();
   });
 
   // Theme toggle
@@ -357,12 +373,11 @@ function renderTabBar(): void {
     const dark = document.documentElement.getAttribute("data-theme") === "dark";
     if (dark) {
       document.documentElement.removeAttribute("data-theme");
-      localStorage.setItem("blog-theme", "light");
     } else {
       document.documentElement.setAttribute("data-theme", "dark");
-      localStorage.setItem("blog-theme", "dark");
     }
     renderTabBar();
+    saveUIState();
   });
 }
 
@@ -420,26 +435,12 @@ async function saveCurrent(forceApi = false, statusEl?: HTMLElement | null): Pro
       persisted: currentPost?.persisted ?? false,
     };
 
-    // Temp drafts: save to localStorage only (auto-save)
-    if (!draft.persisted && !forceApi) {
-      saveLocalDraft(draft);
-      const idxAll = allPosts.findIndex((d) => d.slug === currentSlug);
-      const idxTab = openTabs.findIndex((d) => d.slug === currentSlug);
-      if (idxAll >= 0) allPosts[idxAll] = draft;
-      if (idxTab >= 0) openTabs[idxTab] = draft;
-      renderTabBar();
-      renderSidebar();
-      if (statusEl) statusEl.setAttribute("status", "none");
-      return true;
-    }
-
-    // Persist to API
+    // Always persist to API (auto-save and explicit save both go to API)
     const slug = await savePost(draft);
     if (slug) {
       const idxAll = allPosts.findIndex((d) => d.slug === currentSlug);
       const idxTab = openTabs.findIndex((d) => d.slug === currentSlug);
       const saved: Draft = { ...draft, slug, persisted: true };
-      if (!draft.persisted) removeLocalDraft(currentSlug!);
       if (idxAll >= 0) allPosts[idxAll] = saved;
       else allPosts.push(saved);
       if (idxTab >= 0) openTabs[idxTab] = saved;
@@ -447,11 +448,11 @@ async function saveCurrent(forceApi = false, statusEl?: HTMLElement | null): Pro
       currentSlug = slug;
       renderTabBar();
       renderSidebar();
+      saveUIState();
       if (statusEl) {
         statusEl.setAttribute("status", "success");
         setTimeout(() => statusEl.setAttribute("status", "none"), 1500);
       }
-      return true;
     }
     if (statusEl) {
       statusEl.setAttribute("status", "error");
@@ -574,24 +575,56 @@ export const editorRoute: Route = {
     </div>
   `,
   setup: () => {
-    // Load posts from API + merge local drafts
-    fetchDrafts().then((loaded) => {
-      const localDrafts = loadLocalDrafts();
-      // Merge: API posts first, then local drafts that aren't already in API
-      const apiSlugs = new Set(loaded.map((p) => p.slug));
-      const uniqueLocalDrafts = localDrafts.filter((d) => !apiSlugs.has(d.slug));
-      allPosts = [...loaded, ...uniqueLocalDrafts];
+    // Load posts from API + UI state in parallel
+    Promise.all([fetchDrafts(), loadUIState()]).then(([loaded, uiState]) => {
+      allPosts = loaded;
+
+      // Restore UI state
+      if (uiState) {
+        // Restore theme
+        if (uiState.theme === "dark") {
+          document.documentElement.setAttribute("data-theme", "dark");
+        } else {
+          document.documentElement.removeAttribute("data-theme");
+        }
+
+        // Restore sidebar collapsed state
+        const sidebar = document.getElementById("admin-sidebar");
+        if (uiState.sidebarCollapsed && sidebar) {
+          sidebar.setAttribute("state", "collapsed");
+        }
+
+        // Restore open tabs
+        const savedTabs = Array.isArray(uiState.openTabs) ? uiState.openTabs : [];
+        for (const slug of savedTabs) {
+          const post = allPosts.find((p) => p.slug === slug);
+          if (post && !openTabs.find((t) => t.slug === slug)) {
+            openTabs.push(post);
+          }
+        }
+
+        // Restore active tab
+        const activePost = uiState.activeTab ? allPosts.find((p) => p.slug === uiState.activeTab) : null;
+        if (activePost) {
+          if (!openTabs.find((t) => t.slug === activePost.slug)) {
+            openTabs.push(activePost);
+          }
+          loadDraftIntoEditor(activePost);
+        } else if (openTabs.length > 0) {
+          loadDraftIntoEditor(openTabs[0]);
+        }
+      } else if (allPosts.length > 0) {
+        // No saved state — open first post
+        openTabs.push(allPosts[0]);
+        loadDraftIntoEditor(allPosts[0]);
+      }
+
       document.getElementById("admin-loading")!.style.display = "none";
       document.getElementById("admin-editor-main")!.style.display = "";
       document.getElementById("admin-tab-bar")!.style.display = "";
       document.getElementById("admin-sidebar")!.style.display = "";
       renderSidebar();
-      if (allPosts.length > 0) {
-        openTabs.push(allPosts[0]);
-        loadDraftIntoEditor(allPosts[0]);
-      } else {
-        renderTabBar();
-      }
+      if (!currentSlug) renderTabBar();
     });
 
     const textarea = document.getElementById("admin-content") as HTMLTextAreaElement;
@@ -798,8 +831,6 @@ export const editorRoute: Route = {
         const post = allPosts.find((p) => p.slug === pendingDeleteSlug);
         if (post?.persisted) {
           await deletePost(pendingDeleteSlug);
-        } else {
-          removeLocalDraft(pendingDeleteSlug);
         }
         allPosts = allPosts.filter((p) => p.slug !== pendingDeleteSlug);
         openTabs = openTabs.filter((t) => t.slug !== pendingDeleteSlug);
@@ -856,6 +887,12 @@ export const editorRoute: Route = {
         openTabs.push(post);
       }
       loadDraftIntoEditor(post);
+      saveUIState();
     }) as EventListener);
+
+    // Sidebar collapse/expand
+    sidebar.addEventListener("toggle", () => {
+      saveUIState();
+    });
   },
 };
