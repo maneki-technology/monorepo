@@ -6,6 +6,7 @@ on:
     paths:
       - 'packages/foundation/**'
       - 'packages/ui-components/**'
+      - 'packages/charts/**'
       - 'apps/blog/**'
       - 'apps/catalog/**'
       - '.github/workflows/test.yml'
@@ -16,6 +17,7 @@ on:
     paths:
       - 'packages/foundation/**'
       - 'packages/ui-components/**'
+      - 'packages/charts/**'
       - 'apps/blog/**'
       - 'apps/catalog/**'
       - '.github/workflows/test.yml'
@@ -58,3 +60,11 @@ jobs:
       - name: Build blog
         run: npm run build
         working-directory: apps/blog
+
+      - name: Build charts
+        run: npm run build
+        working-directory: packages/charts
+
+      - name: Test charts
+        run: npx vitest --run
+        working-directory: packages/charts

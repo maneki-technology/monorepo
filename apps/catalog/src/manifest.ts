@@ -19,6 +19,7 @@ export const sectionOrder = [
   "Data Display",
   "Calendar & Date",
   "Layouts",
+  "Charts",
 ];
 
 export const manifest: PageMeta[] = [
@@ -87,4 +88,16 @@ export const manifest: PageMeta[] = [
   // Layouts
   { id: "grid-layout", title: "Grid Layout", section: "Layouts" },
   { id: "flex-layout", title: "Flex Layout", section: "Layouts" },
+  // Charts
+  { id: "bar-chart", title: "Bar Chart", section: "Charts" },
+  { id: "line-chart", title: "Line Chart", section: "Charts" },
+  { id: "pie-chart", title: "Pie / Doughnut", section: "Charts" },
+  { id: "radar-chart", title: "Radar", section: "Charts" },
+  { id: "scatter-chart", title: "Scatter / Bubble", section: "Charts" },
+  { id: "horizontal-bar-chart", title: "Horizontal Bar", section: "Charts" },
+  { id: "stacked-bar-chart", title: "Stacked Bar", section: "Charts" },
+  { id: "stacked-horizontal-bar-chart", title: "Stacked Horizontal Bar", section: "Charts" },
+  { id: "polar-chart", title: "Polar Area", section: "Charts" },
+  { id: "multi-line-chart", title: "Multi-Axis Line", section: "Charts" },
+  { id: "multitype-chart", title: "Multitype (Bar + Line)", section: "Charts" },
 ];

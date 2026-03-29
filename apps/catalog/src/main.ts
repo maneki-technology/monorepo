@@ -2,8 +2,6 @@ import { injectAllTokens, registerIconFont, registerGeistFont } from "@maneki/fo
 import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";
 import geistWoff2 from "@maneki/foundation/assets/Geist-Variable.woff2?url";
 
-import { injectAllTokens, registerIconFont } from "@maneki/foundation";
-import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";
 // Sidebar components (created programmatically in buildSidebar)
 import "@maneki/ui-components/components/ui-side-panel-menu.js";
 import "@maneki/ui-components/components/ui-side-panel-menu-item.js";
@@ -77,6 +75,17 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "list": () => import("./pages/list.js"),
   "grid-layout": () => import("./pages/grid-layout.js"),
   "flex-layout": () => import("./pages/flex-layout.js"),
+  "bar-chart": () => import("./pages/bar-chart.js"),
+  "line-chart": () => import("./pages/line-chart.js"),
+  "pie-chart": () => import("./pages/pie-chart.js"),
+  "radar-chart": () => import("./pages/radar-chart.js"),
+  "scatter-chart": () => import("./pages/scatter-chart.js"),
+  "horizontal-bar-chart": () => import("./pages/horizontal-bar-chart.js"),
+  "stacked-bar-chart": () => import("./pages/stacked-bar-chart.js"),
+  "stacked-horizontal-bar-chart": () => import("./pages/stacked-horizontal-bar-chart.js"),
+  "polar-chart": () => import("./pages/polar-chart.js"),
+  "multi-line-chart": () => import("./pages/multi-line-chart.js"),
+  "multitype-chart": () => import("./pages/multitype-chart.js"),
 };
 
 // Track which pages have been loaded
