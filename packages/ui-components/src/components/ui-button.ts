@@ -376,17 +376,27 @@ const STYLES = /* css */ `
     --ui-icon-size: 24px;
   }
 
-  /* When status is active, hide content and show status icon */
+  /* When status is active, hide content visually but keep layout, overlay status icon */
   :host([status="error"]) .content-wrapper,
   :host([status="success"]) .content-wrapper,
   :host([status="loading"]) .content-wrapper {
-    display: none;
+    visibility: hidden;
+  }
+
+  :host([status="error"]) button,
+  :host([status="success"]) button,
+  :host([status="loading"]) button {
+    position: relative;
   }
 
   :host([status="error"]) .status-icon,
   :host([status="success"]) .status-icon,
   :host([status="loading"]) .status-icon {
     display: inline-flex;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
 
   /* Status colors override action */

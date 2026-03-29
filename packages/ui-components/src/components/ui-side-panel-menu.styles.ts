@@ -31,6 +31,7 @@ export const STYLES = /* css */ `
     flex-direction: column;
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
   }
 
   /* ── Flyout submenu (collapsed mode) ─────────────────────────────────────── */

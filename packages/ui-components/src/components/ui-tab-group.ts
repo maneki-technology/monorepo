@@ -15,6 +15,8 @@ import {
   SP_1,
   SP_1_5,
   SP_2,
+  SP_4,
+  SP_5,
   TEXT_LINK,
   TEXT_PRIMARY,
   SURFACE_PRIMARY,
@@ -131,10 +133,12 @@ const STYLES = /* css */ `
   :host .tablist,
   :host([size="m"]) .tablist {
     gap: var(--ui-tab-group-gap, ${SP_2});
+    min-height: ${SP_5};
   }
 
   :host([size="s"]) .tablist {
     gap: var(--ui-tab-group-gap, ${SP_1_5});
+    min-height: ${SP_4};
   }
 
   /* ── More button ───────────────────────────────────────────────────────── */

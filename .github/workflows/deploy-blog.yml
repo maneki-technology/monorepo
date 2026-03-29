@@ -57,4 +57,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy apps/blog/dist --project-name=maneki-blog --branch=${{ github.head_ref || github.ref_name }} --commit-dirty=true
+          command: pages deploy dist --project-name=maneki-blog --branch=${{ github.head_ref || github.ref_name }} --commit-dirty=true
+          workingDirectory: apps/blog

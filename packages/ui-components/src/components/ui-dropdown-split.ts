@@ -8,6 +8,7 @@ export type DropdownSplitAction = "primary" | "secondary" | "destructive" | "inf
 export type DropdownSplitEmphasis = "bold" | "subtle" | "minimal";
 export type DropdownSplitShape = "basic" | "rounded";
 export type DropdownSplitIcon = "text-only" | "leading-icon" | "trailing-icon" | "icon-only";
+export type DropdownSplitStatus = "none" | "loading" | "success" | "error";
 
 // ─── Size mapping for menu items ─────────────────────────────────────────────
 
@@ -37,6 +38,7 @@ export class UiDropdownSplit extends HTMLElement {
     "label",
     "multiple",
     "selectable",
+    "status",
   ];
 
   private _leftBtn!: HTMLButtonElement;
@@ -44,6 +46,8 @@ export class UiDropdownSplit extends HTMLElement {
   private _menu!: HTMLElement;
   private _chevron!: HTMLElement;
   private _textSlot!: HTMLElement;
+  private _contentWrapper!: HTMLElement;
+  private _statusIcon!: HTMLElement;
 
   constructor() {
     super();
@@ -61,26 +65,37 @@ export class UiDropdownSplit extends HTMLElement {
     left.setAttribute("part", "left");
     left.setAttribute("type", "button");
 
+    const contentWrapper = document.createElement("span");
+    contentWrapper.className = "content-wrapper";
+
     const iconStartWrapper = document.createElement("span");
     iconStartWrapper.className = "slot-icon-start";
     const iconStartSlot = document.createElement("slot");
     iconStartSlot.name = "icon-start";
     iconStartWrapper.appendChild(iconStartSlot);
-    left.appendChild(iconStartWrapper);
+    contentWrapper.appendChild(iconStartWrapper);
 
     const textWrapper = document.createElement("span");
     textWrapper.className = "slot-text";
     const textSlot = document.createElement("slot");
     textSlot.name = "text";
     textWrapper.appendChild(textSlot);
-    left.appendChild(textWrapper);
+    contentWrapper.appendChild(textWrapper);
 
     const iconEndWrapper = document.createElement("span");
     iconEndWrapper.className = "slot-icon-end";
     const iconEndSlot = document.createElement("slot");
     iconEndSlot.name = "icon-end";
     iconEndWrapper.appendChild(iconEndSlot);
-    left.appendChild(iconEndWrapper);
+    contentWrapper.appendChild(iconEndWrapper);
+
+    left.appendChild(contentWrapper);
+
+    // Status icon container
+    const statusIcon = document.createElement("span");
+    statusIcon.className = "status-icon";
+    statusIcon.setAttribute("aria-hidden", "true");
+    left.appendChild(statusIcon);
 
     base.appendChild(left);
 
@@ -128,6 +143,8 @@ export class UiDropdownSplit extends HTMLElement {
     this._menu = menu;
     this._chevron = chevron;
     this._textSlot = textWrapper;
+    this._contentWrapper = contentWrapper;
+    this._statusIcon = statusIcon;
 
     // ── Set initial label text ──
     this._syncLabel();
@@ -160,6 +177,7 @@ export class UiDropdownSplit extends HTMLElement {
     document.addEventListener("click", this._handleOutsideClick);
     this.addEventListener("keydown", this._handleKeydown);
     this._propagateSize();
+    this._syncStatus();
   }
 
   disconnectedCallback(): void {
@@ -185,6 +203,9 @@ export class UiDropdownSplit extends HTMLElement {
         break;
       case "size":
         this._propagateSize();
+        break;
+      case "status":
+        this._syncStatus();
         break;
     }
   }
@@ -287,6 +308,19 @@ export class UiDropdownSplit extends HTMLElement {
     }
   }
 
+  get status(): DropdownSplitStatus {
+    return (this.getAttribute("status") as DropdownSplitStatus) ?? "none";
+  }
+
+  set status(value: DropdownSplitStatus) {
+    // Capture width BEFORE attribute change triggers CSS shrink
+    const isActive = value && value !== "none";
+    if (isActive && this._savedLeftWidth === 0 && this._leftBtn) {
+      this._savedLeftWidth = this._leftBtn.getBoundingClientRect().width;
+    }
+    this.setAttribute("status", value);
+  }
+
   get value(): string | string[] {
     const items = this._getSlottedItems();
     const selected = items.filter(el => el.hasAttribute("selected"));
@@ -309,6 +343,58 @@ export class UiDropdownSplit extends HTMLElement {
     this._rightBtn.disabled = this.disabled;
     if (this.disabled) this.setAttribute("aria-disabled", "true");
     else this.removeAttribute("aria-disabled");
+  }
+
+  private _savedLeftWidth = 0;
+
+  private _syncStatus(): void {
+    const status = this.status;
+    const isActive = status && status !== "none";
+
+    // When transitioning TO a status state, save current width first
+    if (isActive && this._savedLeftWidth === 0 && this._leftBtn) {
+      this._savedLeftWidth = this._leftBtn.getBoundingClientRect().width;
+    }
+
+    // Apply or clear min-width
+    if (isActive && this._savedLeftWidth > 0) {
+      this._leftBtn.style.minWidth = `${this._savedLeftWidth}px`;
+    } else {
+      this._leftBtn.style.minWidth = "";
+      this._savedLeftWidth = 0;
+    }
+    switch (status) {
+      case "error": {
+        this._statusIcon.innerHTML = "";
+        const icon = document.createElement("ui-icon") as HTMLElement;
+        icon.setAttribute("name", "error");
+        icon.setAttribute("filled", "");
+        this._statusIcon.appendChild(icon);
+        this._leftBtn.removeAttribute("aria-busy");
+        break;
+      }
+      case "success": {
+        this._statusIcon.innerHTML = "";
+        const icon = document.createElement("ui-icon") as HTMLElement;
+        icon.setAttribute("name", "check_circle");
+        icon.setAttribute("filled", "");
+        this._statusIcon.appendChild(icon);
+        this._leftBtn.removeAttribute("aria-busy");
+        break;
+      }
+      case "loading": {
+        this._statusIcon.innerHTML = "";
+        const icon = document.createElement("ui-icon") as HTMLElement;
+        icon.setAttribute("name", "progress_activity");
+        this._statusIcon.appendChild(icon);
+        this._leftBtn.setAttribute("aria-busy", "true");
+        break;
+      }
+      default:
+        this._statusIcon.innerHTML = "";
+        this._leftBtn.removeAttribute("aria-busy");
+        break;
+    }
   }
 
   private _syncLabel(): void {

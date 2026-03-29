@@ -108,6 +108,8 @@ export const ICON_PRIORITY_HIGH = "\uE645";
 export const ICON_MENU = "\uE5D2";
 /** refresh — U+E5D5 */
 export const ICON_REFRESH = "\uE5D5";
+/** delete (trash) — U+E872 */
+export const ICON_DELETE = "\uE872";
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
   warning: ICON_WARNING,
@@ -157,6 +159,7 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   priority_high: ICON_PRIORITY_HIGH,
   menu: ICON_MENU,
   refresh: ICON_REFRESH,
+  delete: ICON_DELETE,
 };
 
 // ── Font registration ───────────────────────────────────────────────

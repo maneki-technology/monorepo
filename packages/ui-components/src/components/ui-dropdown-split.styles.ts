@@ -21,6 +21,7 @@ import {
   SURFACE_ACTION_CONTRAST,
   SURFACE_DESTRUCTIVE,
   SURFACE_PRIMARY,
+  SURFACE_SUCCESS,
   SURFACE_TERTIARY,
   TEXT_PRIMARY,
   TYPE_BODY_01,
@@ -136,7 +137,7 @@ export const STYLES = /* css */ `
 
   :host([size="s"]) .left {
     ${TYPE_BODY_03}
-    padding: ${SP_0_5} ${SP_1};
+    padding: ${SP_0_5} ${SP_1_5};
   }
 
   :host([size="s"][shape="rounded"]) .left {
@@ -475,6 +476,7 @@ export const STYLES = /* css */ `
     z-index: 1000;
     min-width: 240px;
     padding: ${SP_0_5} 0;
+    background-color: var(--ui-dds-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-dds-menu-shadow, ${ELEVATION_05});
     border-radius: ${RADIUS_SM};
     overflow: visible;
@@ -500,6 +502,95 @@ export const STYLES = /* css */ `
     }
     .menu {
       transition-duration: 0.01ms !important;
+    }
+
+  }
+  /* ── Status indicator ────────────────────────────────────────────────────── */
+
+  .content-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: inherit;
+  }
+
+  .status-icon {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    line-height: 0;
+    --ui-icon-size: 20px;
+  }
+
+  :host([size="s"]) .status-icon {
+    width: 16px;
+    height: 16px;
+    --ui-icon-size: 16px;
+  }
+
+  :host([size="l"]) .status-icon,
+  :host([size="xl"]) .status-icon {
+    width: 24px;
+    height: 24px;
+    --ui-icon-size: 24px;
+  }
+  /* When status is active, hide content visually but keep layout, overlay status icon */
+  :host([status="error"]) .content-wrapper,
+  :host([status="success"]) .content-wrapper,
+  :host([status="loading"]) .content-wrapper {
+    visibility: hidden;
+  }
+
+  :host([status="error"]) .left,
+  :host([status="success"]) .left,
+  :host([status="loading"]) .left {
+    position: relative;
+  }
+
+  :host([status="error"]) .status-icon,
+  :host([status="success"]) .status-icon,
+  :host([status="loading"]) .status-icon {
+    display: inline-flex;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Status colors — apply to left button and base container */
+  :host([status="error"]) .base {
+    background-color: ${SURFACE_DESTRUCTIVE};
+    border-color: ${SURFACE_DESTRUCTIVE};
+  }
+
+  :host([status="error"]) .left {
+    background-color: ${SURFACE_DESTRUCTIVE};
+    color: #ffffff;
+  }
+
+  :host([status="success"]) .base {
+    background-color: ${SURFACE_SUCCESS};
+    border-color: ${SURFACE_SUCCESS};
+  }
+
+  :host([status="success"]) .left {
+    background-color: ${SURFACE_SUCCESS};
+    color: #ffffff;
+  }
+
+  /* Spinner animation */
+  @keyframes ui-dds-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  :host([status="loading"]) .status-icon ui-icon {
+    animation: ui-dds-spin 0.7s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :host([status="loading"]) .status-icon ui-icon {
+      animation-duration: 2s;
     }
   }
 `;
