@@ -76,7 +76,18 @@ async function prerender(): Promise<void> {
     const fontPreload = geistUrl ? `<link rel="preload" href="${geistUrl}" as="font" type="font/woff2" crossorigin />` : "";
     const fontFace = geistUrl ? `<style>@font-face { font-family: 'Geist'; src: url('${geistUrl}') format('woff2'); font-weight: 100 900; font-style: normal; font-display: swap; }</style>` : "";
 
+    // Google Analytics
+    const gaScript = `<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TFK84DSH0B"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-TFK84DSH0B');
+</script>`;
+
     let shell = readFileSync(resolve(root, "dist/index.html"), "utf-8");
+    shell = shell.replace("<head>", `<head>\n${gaScript}`);
     shell = shell.replace("</head>", `${fontPreload}\n${tokenStyle}\n${fontFace}\n</head>`);
 
     console.log(`Prerendering ${routes.length} routes...`);
