@@ -64,6 +64,12 @@ export const STYLES = /* css */ `
     cursor: pointer;
     padding: 0;
     color: ${ICON_PRIMARY};
+    border-radius: ${RADIUS_SM};
+    outline: none;
+  }
+
+  .nav-btn:focus-visible {
+    box-shadow: 0 0 0 2px ${BORDER_FOCUS};
   }
 
   .nav-btn:hover {
@@ -285,9 +291,9 @@ export const STYLES = /* css */ `
   }
 
   :host([size="s"]) .nav-btn {
-    width: 16px;
-    height: 16px;
-    --ui-icon-size: 16px;
+    width: 20px;
+    height: 20px;
+    --ui-icon-size: 20px;
   }
 
   :host([size="s"]) .header-label {
@@ -342,9 +348,9 @@ export const STYLES = /* css */ `
 
   :host([size="m"]) .nav-btn,
   :host(:not([size])) .nav-btn {
-    width: 20px;
-    height: 20px;
-    --ui-icon-size: 20px;
+    width: 24px;
+    height: 24px;
+    --ui-icon-size: 24px;
   }
 
   :host([size="m"]) .header-label,
@@ -404,9 +410,9 @@ export const STYLES = /* css */ `
   }
 
   :host([size="l"]) .nav-btn {
-    width: 24px;
-    height: 24px;
-    --ui-icon-size: 24px;
+    width: 28px;
+    height: 28px;
+    --ui-icon-size: 28px;
   }
 
   :host([size="l"]) .header-label {

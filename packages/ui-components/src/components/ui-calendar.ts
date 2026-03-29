@@ -543,11 +543,11 @@ export class UiCalendar extends HTMLElement {
     if (this.#prevBtn.querySelector("ui-icon")) return;
 
     const prevIcon = document.createElement("ui-icon");
-    prevIcon.setAttribute("name", "arrow_back_ios");
+    prevIcon.setAttribute("name", "chevron_left");
     this.#prevBtn.appendChild(prevIcon);
 
     const nextIcon = document.createElement("ui-icon");
-    nextIcon.setAttribute("name", "arrow_forward_ios");
+    nextIcon.setAttribute("name", "chevron_right");
     this.#nextBtn.appendChild(nextIcon);
   }
 
