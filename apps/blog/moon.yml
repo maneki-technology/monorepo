@@ -9,6 +9,8 @@ dependsOn:
 tasks:
   dev:
     command: 'vite --port 5175'
+    deps:
+      - '^:build'
     preset: 'server'
 
   build:
@@ -22,3 +24,9 @@ tasks:
       - 'dist'
     deps:
       - '^:build'
+
+  dev-pages:
+    command: 'wrangler pages dev dist --compatibility-date 2024-12-01'
+    deps:
+      - '~:build'
+    preset: 'server'

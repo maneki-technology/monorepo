@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/web-components";
 import { html } from "lit";
 import "../components/ui-icon.js";
-import "../components/ui-icon.js";
+import "../components/ui-button.js";
 import "../components/ui-dropdown-split.js";
 import "../components/ui-dropdown-item.js";
 import "../components/ui-dropdown-heading.js";
@@ -299,5 +299,38 @@ export const WithSubmenu: Story = {
         </ui-menu>
       </ui-dropdown-item>
     </ui-dropdown-split>
+  `,
+};
+
+export const StatusStates: Story = {
+  render: () => html`
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <div>
+        <h4 style="margin: 0 0 8px; font-size: 13px; color: #666;">ui-button</h4>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <ui-button action="primary" size="s">Save</ui-button>
+          <ui-button action="primary" size="s" status="loading">Save</ui-button>
+          <ui-button action="primary" size="s" status="success">Save</ui-button>
+          <ui-button action="primary" size="s" status="error">Save</ui-button>
+        </div>
+      </div>
+      <div>
+        <h4 style="margin: 0 0 8px; font-size: 13px; color: #666;">ui-dropdown-split</h4>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <ui-dropdown-split action="primary" size="s" label="Publish">
+            <ui-dropdown-item>Export .md</ui-dropdown-item>
+          </ui-dropdown-split>
+          <ui-dropdown-split action="primary" size="s" label="Publish" status="loading">
+            <ui-dropdown-item>Export .md</ui-dropdown-item>
+          </ui-dropdown-split>
+          <ui-dropdown-split action="primary" size="s" label="Publish" status="success">
+            <ui-dropdown-item>Export .md</ui-dropdown-item>
+          </ui-dropdown-split>
+          <ui-dropdown-split action="primary" size="s" label="Publish" status="error">
+            <ui-dropdown-item>Export .md</ui-dropdown-item>
+          </ui-dropdown-split>
+        </div>
+      </div>
+    </div>
   `,
 };

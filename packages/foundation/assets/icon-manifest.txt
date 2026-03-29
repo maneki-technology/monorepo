@@ -20,6 +20,7 @@ chevron_left
 chevron_right
 close
 download
+delete
 error
 expand_less
 expand_more

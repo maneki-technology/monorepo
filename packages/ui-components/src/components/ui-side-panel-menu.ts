@@ -220,19 +220,21 @@ export class UiSidePanelMenu extends HTMLElement {
     const isCollapsed = this.state === "collapsed";
     const slot = this._menu.querySelector("slot");
     if (!slot) return;
-    const items = slot
-      .assignedElements({ flatten: true })
-      .filter(
-        (el) => el.tagName === "UI-SIDE-PANEL-MENU-ITEM",
-      );
-    for (const item of items) {
-      if (isCollapsed) {
-        item.setAttribute("type", "icon-only");
-        if (item.hasAttribute("expanded")) {
-          item.removeAttribute("expanded");
+    const assigned = slot
+      .assignedElements({ flatten: true });
+    for (const el of assigned) {
+      if (el.tagName === "UI-SIDE-PANEL-MENU-ITEM") {
+        if (isCollapsed) {
+          el.setAttribute("type", "icon-only");
+          if (el.hasAttribute("expanded")) {
+            el.removeAttribute("expanded");
+          }
+        } else {
+          el.removeAttribute("type");
         }
-      } else {
-        item.removeAttribute("type");
+      } else if (el.tagName !== "SLOT") {
+        // Hide sections, divs, and any non-item content when collapsed
+        (el as HTMLElement).style.display = isCollapsed ? "none" : "";
       }
     }
   }

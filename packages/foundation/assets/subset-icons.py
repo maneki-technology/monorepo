@@ -47,6 +47,7 @@ CODEPOINTS: dict[str, int] = {
     "check_circle": 0xE86C,
     "close": 0xE5CD,
     "download": 0xF090,
+    "delete": 0xE872,
     "error": 0xE000,
     "expand_less": 0xE5CE,
     "expand_more": 0xE5CF,

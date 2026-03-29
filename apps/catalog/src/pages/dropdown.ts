@@ -4,6 +4,7 @@ import "@maneki/ui-components/components/ui-dropdown-heading.js";
 import "@maneki/ui-components/components/ui-dropdown-item.js";
 import "@maneki/ui-components/components/ui-dropdown-separator.js";
 import "@maneki/ui-components/components/ui-dropdown-split.js";
+import "@maneki/ui-components/components/ui-button.js";
 
 registerPage("dropdown", {
   title: "Dropdown",
@@ -152,6 +153,47 @@ registerPage("dropdown", {
         <ui-dropdown-item value="a">Option A</ui-dropdown-item>
         <ui-dropdown-item value="b">Option B</ui-dropdown-item>
       </ui-dropdown-split>
+    </div>
+
+    <h3>Split Status States</h3>
+      <div>
+        <span class="variant-label">ui-dropdown-split</span>
+        <div class="variant-row">
+          <ui-dropdown-split action="primary" size="s" label="Publish">
+            <ui-dropdown-item>Export .md</ui-dropdown-item>
+          </ui-dropdown-split>
+          <ui-dropdown-split action="primary" size="s" label="Publish" status="loading">
+            <ui-dropdown-item>Export .md</ui-dropdown-item>
+          </ui-dropdown-split>
+          <ui-dropdown-split action="primary" size="s" label="Publish" status="success">
+            <ui-dropdown-item>Export .md</ui-dropdown-item>
+          </ui-dropdown-split>
+          <ui-dropdown-split action="primary" size="s" label="Publish" status="error">
+            <ui-dropdown-item>Export .md</ui-dropdown-item>
+          </ui-dropdown-split>
+        </div>
+      </div>
+    </div>
+
+    <h3>Dropdown Status States</h3>
+    <div class="variant-row" style="flex-direction:column;gap:16px;">
+      <div>
+        <span class="variant-label">ui-dropdown</span>
+        <div class="variant-row">
+          <ui-dropdown action="primary" size="s" label="Actions">
+            <ui-dropdown-item>Export</ui-dropdown-item>
+          </ui-dropdown>
+          <ui-dropdown action="primary" size="s" label="Actions" status="loading">
+            <ui-dropdown-item>Export</ui-dropdown-item>
+          </ui-dropdown>
+          <ui-dropdown action="primary" size="s" label="Actions" status="success">
+            <ui-dropdown-item>Export</ui-dropdown-item>
+          </ui-dropdown>
+          <ui-dropdown action="primary" size="s" label="Actions" status="error">
+            <ui-dropdown-item>Export</ui-dropdown-item>
+          </ui-dropdown>
+        </div>
+      </div>
     </div>
   `,
 });

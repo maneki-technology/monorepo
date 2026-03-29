@@ -18,7 +18,7 @@ export type DropdownSize = "s" | "m" | "l" | "xl";
 export type DropdownAction = "primary" | "secondary" | "destructive" | "info" | "contrast";
 export type DropdownEmphasis = "bold" | "subtle" | "minimal";
 export type DropdownShape = "basic" | "rounded";
-// ─── Styles ──────────────────────────────────────────────────────────────────
+export type DropdownStatus = "none" | "loading" | "success" | "error";
 
 export const STYLES = /* css */ `
   *,
@@ -59,6 +59,12 @@ export const STYLES = /* css */ `
     transition: transform 0.15s ease;
     line-height: 0;
     --ui-icon-size: 20px;
+  }
+
+  :host([size="s"]) .chevron {
+    width: 16px;
+    height: 16px;
+    --ui-icon-size: 16px;
   }
 
   :host([open]) .chevron {
@@ -129,6 +135,7 @@ export class UiDropdown extends HTMLElement {
     "label",
     "multiple",
     "selectable",
+    "status",
   ];
 
   private _trigger!: HTMLElement;
@@ -231,6 +238,22 @@ export class UiDropdown extends HTMLElement {
       case "shape":
         this._syncTriggerAttr("shape");
         break;
+      case "status": {
+        const s = this.getAttribute("status");
+        const isActive = s && s !== "none";
+        // Save trigger width before status shrinks it
+        if (isActive && this._trigger) {
+          const w = this._trigger.getBoundingClientRect().width;
+          if (w > 0) this._trigger.style.minWidth = `${w}px`;
+        } else if (this._trigger) {
+          this._trigger.style.minWidth = "";
+        }
+        this._syncTriggerAttr("status");
+        if (this._chevron) {
+          this._chevron.style.visibility = isActive ? "hidden" : "";
+        }
+        break;
+      }
     }
   }
 
@@ -324,6 +347,14 @@ export class UiDropdown extends HTMLElement {
     }
   }
 
+  get status(): DropdownStatus {
+    return (this.getAttribute("status") as DropdownStatus) ?? "none";
+  }
+
+  set status(value: DropdownStatus) {
+    this.setAttribute("status", value);
+  }
+
   get value(): string | string[] {
     const items = this._getSlottedItems();
     const selected = items.filter(el => el.hasAttribute("selected"));
@@ -337,7 +368,7 @@ export class UiDropdown extends HTMLElement {
   // ── Private ─────────────────────────────────────────────────────────────
 
   private _syncTrigger(): void {
-    const attrs = ["size", "action", "emphasis", "shape"] as const;
+    const attrs = ["size", "action", "emphasis", "shape", "status"] as const;
     for (const attr of attrs) {
       this._syncTriggerAttr(attr);
     }

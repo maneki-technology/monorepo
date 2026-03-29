@@ -135,6 +135,7 @@ export {
   ICON_PRIORITY_HIGH,
   ICON_MENU,
   ICON_REFRESH,
+  ICON_DELETE,
   ICON_CODEPOINTS,
   registerIconFont,
   registerGeistFont,

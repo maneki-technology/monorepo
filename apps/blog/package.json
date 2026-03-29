@@ -8,13 +8,20 @@
     "dev": "vite --port 5175",
     "build": "vite build && tsx scripts/prerender.ts",
     "preview": "vite preview --port 5175",
-    "new-post": "tsx scripts/new-post.ts"
+    "new-post": "tsx scripts/new-post.ts",
+    "migrate": "tsx scripts/migrate.ts",
+    "dev:pages": "wrangler pages dev dist --compatibility-date 2024-12-01"
   },
   "dependencies": {
+    "@hono/zod-validator": "^0.7.6",
+    "@libsql/client": "^0.17.2",
     "@maneki/foundation": "*",
-    "@maneki/ui-components": "*"
+    "@maneki/ui-components": "*",
+    "hono": "^4.12.9",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260329.1",
     "@shikijs/markdown-it": "^3.23.0",
     "@types/markdown-it": "^14.1.2",
     "geist": "^1.7.0",
@@ -25,6 +32,10 @@
     "tsx": "^4.21.0",
     "typescript": "^5.4.0",
     "vite": "^5.4.0",
-    "vite-plugin-pwa": "^1.2.0"
+    "vite-plugin-pwa": "^1.2.0",
+    "wrangler": "^4.47.0"
+  },
+  "volta": {
+    "node": "22.22.2"
   }
 }

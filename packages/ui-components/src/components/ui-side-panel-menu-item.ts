@@ -193,6 +193,12 @@ const STYLES = /* css */ `
     display: inline-flex;
   }
 
+  .actions {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
   /* ── Expand chevron ──────────────────────────────────────────────────────── */
 
   .expand-icon {
@@ -223,6 +229,7 @@ const STYLES = /* css */ `
 
   :host([type="icon-only"]) span.label,
   :host([type="icon-only"]) span.badge,
+  :host([type="icon-only"]) span.actions,
   :host([type="icon-only"]) span.expand-icon {
     display: none;
   }
@@ -314,6 +321,20 @@ export class UiSidePanelMenuItem extends HTMLElement {
     badge.appendChild(badgeSlot);
     row.appendChild(badge);
 
+    // Actions slot (interactive buttons — clicks don't trigger select)
+    const actions = document.createElement("span");
+    actions.className = "actions";
+    actions.addEventListener("click", (e: MouseEvent) => {
+      e.stopPropagation();
+    });
+    actions.addEventListener("mousedown", (e: MouseEvent) => {
+      e.stopPropagation();
+    });
+    const actionsSlot = document.createElement("slot");
+    actionsSlot.name = "actions";
+    actions.appendChild(actionsSlot);
+    row.appendChild(actions);
+
     // Expand icon
     const expandIcon = document.createElement("span");
     expandIcon.className = "expand-icon";
@@ -338,7 +359,13 @@ export class UiSidePanelMenuItem extends HTMLElement {
     this._expandIcon = expandIcon;
 
     // Click handler
-    row.addEventListener("click", () => this._handleClick());
+    // Stop badge slot clicks from triggering item selection
+    badge.addEventListener("click", (e: MouseEvent) => {
+      e.stopPropagation();
+    });
+    row.addEventListener("click", () => {
+      this._handleClick();
+    });
     row.addEventListener("keydown", (e: KeyboardEvent) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -452,6 +479,18 @@ export class UiSidePanelMenuItem extends HTMLElement {
           composed: true,
         }),
       );
+    }
+
+    // Action items fire "action" event but don't participate in selection
+    if (this.hasAttribute("action-item")) {
+      this.dispatchEvent(
+        new CustomEvent("action", {
+          detail: { value: this.getAttribute("value") ?? "" },
+          bubbles: true,
+          composed: true,
+        }),
+      );
+      return;
     }
 
     this.dispatchEvent(

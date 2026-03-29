@@ -1,0 +1,6 @@
+# Wrangler config for local dev with CF Pages Functions.
+# Usage: npx wrangler pages dev dist --compatibility-date 2024-12-01
+
+name = "maneki-blog"
+compatibility_date = "2024-12-01"
+pages_build_output_dir = "dist"
