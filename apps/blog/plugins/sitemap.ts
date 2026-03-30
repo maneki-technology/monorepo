@@ -1,20 +1,21 @@
 /**
  * Vite plugin that generates a sitemap.xml at build time.
- * Reads posts from content/posts/ and generates URLs for all routes.
+ * Fetches published post slugs from Turso and generates URLs for all routes.
  */
 
 import { type Plugin } from "vite";
 import fs from "node:fs";
 import path from "node:path";
+import { createClient } from "@libsql/client";
 
 import { SITE_URL } from "../src/config.js";
-const POSTS_DIR = "content/posts";
 
 export function sitemapPlugin(): Plugin {
   return {
     name: "sitemap",
-    closeBundle() {
-      const postsDir = path.resolve(process.cwd(), POSTS_DIR);
+    async closeBundle() {
+      const url = process.env.TURSO_URL;
+      const authToken = process.env.TURSO_AUTH_TOKEN;
       const distDir = path.resolve(process.cwd(), "dist");
 
       // Static routes
@@ -26,17 +27,21 @@ export function sitemapPlugin(): Plugin {
         { loc: `${SITE_URL}/about`, priority: "0.5" },
       ];
 
-      // Post routes
-      if (fs.existsSync(postsDir)) {
-        const files = fs.readdirSync(postsDir)
-          .filter((f) => f.endsWith(".md"))
-          .sort()
-          .reverse();
-
-        for (const file of files) {
-          const slug = file.replace(/\.md$/, "");
-          urls.push({ loc: `${SITE_URL}/post/${slug}`, priority: "0.8" });
+      // Post routes from Turso
+      if (url) {
+        try {
+          const db = createClient({ url, authToken: authToken || undefined });
+          const result = await db.execute(
+            "SELECT slug FROM posts WHERE status = 'published' ORDER BY created_at DESC",
+          );
+          for (const row of result.rows) {
+            urls.push({ loc: `${SITE_URL}/post/${row.slug as string}`, priority: "0.8" });
+          }
+        } catch (err) {
+          console.error("[sitemap] Failed to fetch posts from Turso:", err);
         }
+      } else {
+        console.warn("[sitemap] TURSO_URL not set — sitemap will only have static routes");
       }
 
       const today = new Date().toISOString().split("T")[0];
@@ -54,6 +59,7 @@ export function sitemapPlugin(): Plugin {
       ].join("\n");
 
       fs.writeFileSync(path.join(distDir, "sitemap.xml"), xml);
+      console.log(`[sitemap] Generated sitemap.xml with ${urls.length} URLs`);
     },
   };
 }

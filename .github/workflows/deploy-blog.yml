@@ -43,6 +43,9 @@ jobs:
       - name: Build blog
         run: npm run build
         working-directory: apps/blog
+        env:
+          TURSO_URL: ${{ secrets.TURSO_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
 
       - name: Create Cloudflare Pages project (if needed)
         uses: cloudflare/wrangler-action@v3
