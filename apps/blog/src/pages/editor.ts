@@ -7,6 +7,7 @@ import "@maneki/ui-components/components/ui-tag.js";
 import "@maneki/ui-components/components/ui-badge.js";
 import "@maneki/ui-components/components/ui-tab-group.js";
 import "@maneki/ui-components/components/ui-tab-item.js";
+import "@maneki/ui-components/components/ui-scrollbar.js";
 import "@maneki/ui-components/components/ui-input.js";
 import "@maneki/ui-components/components/ui-label.js";
 import "@maneki/ui-components/components/ui-textarea.js";
@@ -34,10 +35,54 @@ interface Draft {
   persisted: boolean;
 }
 
-// ─── Markdown renderer (client-side, no Shiki — keep it fast) ────────────────
+// ─── Markdown renderer (client-side, lazy Shiki for syntax highlighting) ─────
 
-const md = new MarkdownIt({ html: true, linkify: true, typographer: true });
-md.use(anchor, {
+import { createHighlighterCore } from "shiki/core";
+import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
+import { fromHighlighter } from "@shikijs/markdown-it";
+
+let mdReady: Promise<MarkdownIt> | null = null;
+
+function getMd(): Promise<MarkdownIt> {
+  if (mdReady) return mdReady;
+  mdReady = (async () => {
+    const highlighter = await createHighlighterCore({
+      themes: [
+        import("@shikijs/themes/github-light"),
+        import("@shikijs/themes/github-dark"),
+      ],
+      langs: [
+        import("@shikijs/langs/typescript"),
+        import("@shikijs/langs/javascript"),
+        import("@shikijs/langs/html"),
+        import("@shikijs/langs/css"),
+        import("@shikijs/langs/json"),
+        import("@shikijs/langs/bash"),
+        import("@shikijs/langs/markdown"),
+        import("@shikijs/langs/yaml"),
+        import("@shikijs/langs/rust"),
+        import("@shikijs/langs/sql"),
+      ],
+      engine: createJavaScriptRegexEngine(),
+    });
+    const instance = new MarkdownIt({ html: true, linkify: true, typographer: true });
+    type HighlighterParam = Parameters<typeof fromHighlighter>[0];
+    instance.use(fromHighlighter(highlighter as unknown as HighlighterParam, {
+      themes: { light: "github-light", dark: "github-dark" },
+      defaultColor: false,
+    }));
+    instance.use(anchor, {
+      slugify: (s: string) => s.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, ""),
+      permalink: false,
+    });
+    return instance;
+  })();
+  return mdReady;
+}
+
+// Fallback sync md for initial render before Shiki loads
+const mdSync = new MarkdownIt({ html: true, linkify: true, typographer: true });
+mdSync.use(anchor, {
   slugify: (s: string) => s.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, ""),
   permalink: false,
 });
@@ -202,7 +247,19 @@ function insertAtCursor(textarea: HTMLTextAreaElement, text: string): void {
   textarea.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
-// ─── Render ──────────────────────────────────────────────────────────────────
+// Wrap <pre> code blocks in <ui-scrollbar> for horizontal scroll
+function wrapCodeBlocks(container: HTMLElement): void {
+  container.querySelectorAll("pre").forEach((pre) => {
+    if (pre.parentElement?.tagName === "UI-SCROLLBAR") return;
+    const wrapper = document.createElement("ui-scrollbar");
+    wrapper.setAttribute("orientation", "horizontal");
+    wrapper.setAttribute("emphasis", "minimal");
+    pre.parentNode!.insertBefore(wrapper, pre);
+    wrapper.appendChild(pre);
+  });
+}
+
+// ─── Render ────────────────────────────────────────────────────────────────────
 
 function renderPreview(): void {
   const title = (document.getElementById("admin-title") as any)?.value ?? "";
@@ -212,14 +269,14 @@ function renderPreview(): void {
   const preview = document.getElementById("admin-preview");
   if (!preview) return;
 
-  const html = md.render(content);
-      const tagBadges = tags.split(",").map((t) => t.trim()).filter(Boolean)
-        .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
-
+  const tagBadges = tags.split(",").map((t) => t.trim()).filter(Boolean)
+    .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
   const formattedDate = date
     ? new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
     : "";
 
+  // Render with sync md first, then upgrade with Shiki when ready
+  const html = mdSync.render(content);
   preview.innerHTML = `
     <article>
       <h1 class="heading-02">${title || "Untitled"}</h1>
@@ -228,6 +285,22 @@ function renderPreview(): void {
       <div class="post-content mt-4">${html}</div>
     </article>
   `;
+
+  // Re-render with Shiki highlighting (async)
+  getMd().then((mdShiki) => {
+    const highlighted = mdShiki.render(content);
+    if (highlighted !== html) {
+      preview.innerHTML = `
+        <article>
+          <h1 class="heading-02">${title || "Untitled"}</h1>
+          ${formattedDate ? `<div class="post-meta mt-1">${formattedDate}</div>` : ""}
+          ${tagBadges ? `<div class="tags mt-2">${tagBadges}</div>` : ""}
+          <div class="post-content mt-4">${highlighted}</div>
+        </article>
+      `;
+    }
+    wrapCodeBlocks(preview);
+  });
 }
 
 function renderSidebar(): void {
@@ -556,9 +629,11 @@ export const editorRoute: Route = {
           </div>
 
           <div class="admin-split">
-            <textarea id="admin-content" placeholder="Write your post in Markdown..." spellcheck="false"></textarea>
-            <div id="admin-preview" class="admin-preview"></div>
-          </div>
+            <ui-scrollbar emphasis="minimal" class="admin-textarea-wrap">
+              <textarea id="admin-content" placeholder="Write your post in Markdown..." spellcheck="false"></textarea>
+              <div class="admin-textarea-spacer"></div>
+            </ui-scrollbar>
+            <ui-scrollbar emphasis="minimal"><div id="admin-preview" class="admin-preview"></div></ui-scrollbar>
         </div>
 
         <!-- Fullscreen preview overlay -->
@@ -567,10 +642,12 @@ export const editorRoute: Route = {
             <span class="heading-05">Preview</span>
             <ui-button id="admin-preview-close" action="secondary" emphasis="subtle" size="s">Close</ui-button>
           </div>
-          <div class="admin-preview-overlay-content">
-            <div id="admin-preview-full" style="max-width:720px;margin:0 auto;padding:48px 24px;"></div>
-          </div>
-
+          <ui-scrollbar emphasis="minimal">
+            <div class="admin-preview-overlay-content">
+              <div id="admin-preview-full" style="max-width:720px;margin:0 auto;padding:48px 24px;"></div>
+            </div>
+          </ui-scrollbar>
+        </div>
       </div>
     </div>
   `,
@@ -752,23 +829,26 @@ export const editorRoute: Route = {
       const date = (dateInput as any).value;
       const tags = tagsInput.value;
       const content = textarea.value;
-      const html = md.render(content);
-      const tagBadges = tags.split(",").map((t) => t.trim()).filter(Boolean)
-        .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
-      const formattedDate = date
-        ? new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
-        : "";
-
-      previewFull.innerHTML = `
-        <article>
-          <a href="/blog" class="body-02 text-link" style="text-decoration:none;">\u2190 Back to blog</a>
-          <h1 class="heading-02 mt-3">${title || "Untitled"}</h1>
-          ${formattedDate ? `<div class="post-meta mt-1">${formattedDate}</div>` : ""}
-          ${tagBadges ? `<div class="tags mt-2">${tagBadges}</div>` : ""}
-          <div class="post-content mt-4">${html}</div>
-        </article>
-      `;
-      overlay.style.display = "flex";
+      // Use Shiki for fullscreen preview
+      getMd().then((mdShiki) => {
+        const highlighted = mdShiki.render(content);
+        const tagBadges = tags.split(",").map((t) => t.trim()).filter(Boolean)
+          .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
+        const formattedDate = date
+          ? new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+          : "";
+        previewFull.innerHTML = `
+          <article>
+            <a href="/blog" class="body-02 text-link" style="text-decoration:none;">\u2190 Back to blog</a>
+            <h1 class="heading-02 mt-3">${title || "Untitled"}</h1>
+            ${formattedDate ? `<div class="post-meta mt-1">${formattedDate}</div>` : ""}
+            ${tagBadges ? `<div class="tags mt-2">${tagBadges}</div>` : ""}
+            <div class="post-content mt-4">${highlighted}</div>
+          </article>
+        `;
+        wrapCodeBlocks(previewFull);
+        overlay.style.display = "flex";
+      });
     });
 
     document.getElementById("admin-preview-close")?.addEventListener("click", () => {
