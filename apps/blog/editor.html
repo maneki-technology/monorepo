@@ -66,6 +66,8 @@
       display: flex;
       flex-direction: column;
       min-width: 0;
+      min-height: 0;
+      overflow: hidden;
     }
 
     .admin-form {
@@ -179,11 +181,15 @@
       min-height: 0;
     }
 
+    .admin-textarea-wrap {
+      border-right: 1px solid var(--fd-border-minimal, #e4e4e7);
+    }
+
     .admin-split #admin-content {
-      flex: 1;
+      width: 100%;
+      min-height: 100%;
       resize: none;
       border: none;
-      border-right: 1px solid var(--fd-border-minimal, #e4e4e7);
       padding: 16px;
       font-family: 'Roboto Mono', monospace;
       font-size: 13px;
@@ -192,13 +198,22 @@
       color: var(--fd-text-primary, #27272a);
       outline: none;
       tab-size: 2;
+      overflow: hidden;
+      box-sizing: border-box;
+      field-sizing: content;
+    }
+
+    .admin-textarea-spacer {
+      height: 50vh;
     }
 
     .admin-preview {
-      flex: 1;
-      overflow-y: auto;
       padding: 16px 24px;
       background: var(--fd-surface-primary, #fff);
+    }
+
+    .admin-split ui-scrollbar {
+      flex: 1;
     }
 
     .admin-preview-overlay {
@@ -264,6 +279,18 @@
       border-radius: 4px;
     }
     .post-content pre code { background: none; padding: 0; border-radius: 0; }
+
+    /* Shiki dual-theme support */
+    .post-content pre.shiki,
+    .post-content pre.shiki span {
+      color: var(--shiki-light);
+      background-color: var(--shiki-light-bg);
+    }
+    [data-theme="dark"] .post-content pre.shiki,
+    [data-theme="dark"] .post-content pre.shiki span {
+      color: var(--shiki-dark);
+      background-color: var(--shiki-dark-bg);
+    }
     .post-content blockquote {
       border-left: 3px solid var(--fd-border-moderate, #a1a1aa);
       padding-left: 16px;

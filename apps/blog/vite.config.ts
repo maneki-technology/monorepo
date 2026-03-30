@@ -5,12 +5,17 @@ import { autoUiComponentsPlugin } from "./plugins/auto-ui-components.js";
 import { sitemapPlugin } from "./plugins/sitemap.js";
 import { rssFeedPlugin } from "./plugins/rss-feed.js";
 import { devAliases } from "../../shared/vite-dev-aliases.js";
-import { VitePWA } from "vite-plugin-pwa";
-import { markdownPostsPlugin } from "./plugins/markdown-posts.js";
-import { autoUiComponentsPlugin } from "./plugins/auto-ui-components.js";
-import { sitemapPlugin } from "./plugins/sitemap.js";
-import { devAliases } from "../../shared/vite-dev-aliases.js";
+import { readFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
 
+// Load .dev.vars into process.env for Turso-backed plugins in dev mode
+const devVarsPath = resolve(import.meta.dirname, ".dev.vars");
+if (existsSync(devVarsPath)) {
+  for (const line of readFileSync(devVarsPath, "utf-8").split("\n")) {
+    const match = line.match(/^([\w]+)=(.*)$/);
+    if (match && !process.env[match[1]]) process.env[match[1]] = match[2];
+  }
+}
 export default defineConfig(({ command }) => ({
   root: ".",
   server: {
