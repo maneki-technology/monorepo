@@ -40,7 +40,7 @@ const createPostSchema = z.object({
   body_md: z.string(),
   excerpt: z.string().default(""),
   tags: z.array(z.string()).default([]),
-  status: z.enum(["draft", "published", "publishing", "failed"]).default("draft"),
+  status: z.enum(["draft", "published"]).default("draft"),
   date: z.string().optional(),
 });
 
@@ -49,7 +49,7 @@ const updatePostSchema = z.object({
   body_md: z.string().optional(),
   excerpt: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  status: z.enum(["draft", "published", "publishing", "failed"]).optional(),
+  status: z.enum(["draft", "published"]).optional(),
   date: z.string().optional(),
 });
 
@@ -169,8 +169,8 @@ export const posts = new Hono<Env>()
     const ghToken = c.env.GH_DEPLOY_TOKEN;
     const updates = c.req.valid("json");
 
-    // Save content + set publishing in one update
-    const setClauses: string[] = ["status = 'publishing'", "updated_at = datetime('now')"];
+    // Save content + set published immediately (so the build picks it up)
+    const setClauses: string[] = ["status = 'published'", "updated_at = datetime('now')", "published_at = datetime('now')"];
     const args: (string | number | null)[] = [];
 
     if (updates.title !== undefined) { setClauses.push("title = ?"); args.push(updates.title); }

@@ -8,9 +8,10 @@ CREATE TABLE IF NOT EXISTS posts (
   body_md TEXT NOT NULL,
   excerpt TEXT NOT NULL DEFAULT '',
   tags TEXT NOT NULL DEFAULT '[]',
-  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'publishing', 'failed')),
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  published_at TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);

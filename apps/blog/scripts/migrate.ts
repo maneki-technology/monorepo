@@ -23,10 +23,10 @@ console.log("Running migration...");
 const tableInfo = await db.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='posts'");
 if (tableInfo.rows.length > 0) {
   const sql = tableInfo.rows[0].sql as string;
-  if (sql.includes("'publishing'")) {
-    console.log("Posts table already has updated CHECK constraint.");
+  if (sql.includes("published_at")) {
+    console.log("Posts table already up to date.");
   } else {
-    console.log("Migrating posts table — updating CHECK constraint...");
+    console.log("Migrating posts table...");
     await db.executeMultiple(`
       CREATE TABLE IF NOT EXISTS posts_new (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,11 +35,20 @@ if (tableInfo.rows.length > 0) {
         body_md TEXT NOT NULL,
         excerpt TEXT NOT NULL DEFAULT '',
         tags TEXT NOT NULL DEFAULT '[]',
-        status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'publishing', 'failed')),
+        status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
-        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+        published_at TEXT
       );
-      INSERT INTO posts_new SELECT * FROM posts;
+      INSERT INTO posts_new (id, slug, title, body_md, excerpt, tags, status, created_at, updated_at, published_at)
+        SELECT id, slug, title, body_md, excerpt, tags,
+          CASE WHEN status IN ('publishing', 'failed') THEN 'draft' ELSE status END,
+          created_at, updated_at,
+          CASE WHEN status = 'published' THEN updated_at ELSE published_at END
+        FROM posts;
+        SELECT id, slug, title, body_md, excerpt, tags, status, created_at, updated_at,
+          CASE WHEN status = 'published' THEN updated_at ELSE NULL END
+        FROM posts;
       DROP TABLE posts;
       ALTER TABLE posts_new RENAME TO posts;
       CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
@@ -47,7 +56,6 @@ if (tableInfo.rows.length > 0) {
     `);
     console.log("Posts table migrated.");
   }
-} else {
   console.log("Creating fresh schema...");
 }
 
