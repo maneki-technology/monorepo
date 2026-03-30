@@ -101,11 +101,16 @@ export class UiDatetimePickerInput extends HTMLElement {
     if (!this.hasAttribute("tabindex") && !this.hasAttribute("disabled")) {
       this.setAttribute("tabindex", "0");
     }
+
+    this.addEventListener("focus", this.#onFocus);
+    this.addEventListener("blur", this.#onBlur);
   }
 
   disconnectedCallback(): void {
     this.#container.removeEventListener("click", this.#onClick);
     this.removeEventListener("keydown", this.#onKeydown);
+    this.removeEventListener("focus", this.#onFocus);
+    this.removeEventListener("blur", this.#onBlur);
   }
 
   attributeChangedCallback(
@@ -447,6 +452,14 @@ export class UiDatetimePickerInput extends HTMLElement {
       e.preventDefault();
       this.dispatchEvent(new CustomEvent("trigger", { bubbles: true }));
     }
+  };
+
+  #onFocus = (): void => {
+    this.setAttribute("focused", "");
+  };
+
+  #onBlur = (): void => {
+    this.removeAttribute("focused");
   };
 }
 

@@ -36,6 +36,7 @@ export const STYLES = /* css */ `
     flex-direction: column;
     gap: ${SP_0_5};
     font-family: Inter, sans-serif;
+    outline: none;
   }
 
   /* ── Label row ─── */
@@ -65,13 +66,30 @@ export const STYLES = /* css */ `
     overflow: hidden;
   }
 
-  :host(:hover:not([disabled]):not([readonly])) .input-container {
+  :host(:hover:not([disabled]):not([readonly]):not([focused])) .input-container {
     border-color: ${HOVER_BORDER_MODERATE};
   }
 
   :host([focused]) .input-container {
-    border-color: ${BORDER_FOCUS};
-    box-shadow: 0 0 0 1px ${BORDER_FOCUS};
+    border-color: var(--ui-dpi-focus-border, ${BORDER_FOCUS});
+    box-shadow: 0 0 0 1px var(--ui-dpi-focus-border, ${BORDER_FOCUS});
+    outline: none;
+  }
+
+  :host([status="error"][focused]) .input-container,
+  :host([error][focused]) .input-container {
+    border-color: ${STATUS_GENERAL_ERROR};
+    box-shadow: 0 0 0 1px ${STATUS_GENERAL_ERROR};
+  }
+
+  :host([status="warning"][focused]) .input-container {
+    border-color: ${STATUS_GENERAL_WARNING};
+    box-shadow: 0 0 0 1px ${STATUS_GENERAL_WARNING};
+  }
+
+  :host([status="success"][focused]) .input-container {
+    border-color: ${STATUS_GENERAL_SUCCESS};
+    box-shadow: 0 0 0 1px ${STATUS_GENERAL_SUCCESS};
   }
 
   :host([disabled]) .input-container {
