@@ -1,0 +1,23 @@
+{
+  "name": "@maneki/diagrams",
+  "version": "0.1.0",
+  "description": "Web Component diagram library for C4-style architecture diagrams",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist"],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "test": "vitest --run"
+  },
+  "dependencies": {
+    "@maneki/foundation": "^0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "vite": "^6.2.4",
+    "vitest": "^3.1.1"
+  }
+}

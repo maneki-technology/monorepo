@@ -86,6 +86,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "polar-chart": () => import("./pages/polar-chart.js"),
   "multi-line-chart": () => import("./pages/multi-line-chart.js"),
   "multitype-chart": () => import("./pages/multitype-chart.js"),
+  "diagrams": () => import("./pages/diagrams.js"),
 };
 
 // Track which pages have been loaded

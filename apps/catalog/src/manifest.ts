@@ -19,6 +19,8 @@ export const sectionOrder = [
   "Data Display",
   "Calendar & Date",
   "Layouts",
+  "Diagrams",
+  "Charts",
   "Charts",
 ];
 
@@ -88,6 +90,8 @@ export const manifest: PageMeta[] = [
   // Layouts
   { id: "grid-layout", title: "Grid Layout", section: "Layouts" },
   { id: "flex-layout", title: "Flex Layout", section: "Layouts" },
+  // Diagrams
+  { id: "diagrams", title: "Diagrams", section: "Diagrams" },
   // Charts
   { id: "bar-chart", title: "Bar Chart", section: "Charts" },
   { id: "line-chart", title: "Line Chart", section: "Charts" },

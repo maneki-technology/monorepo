@@ -40,4 +40,12 @@ export const devAliases: AliasOptions = [
     find: /^@maneki\/charts$/,
     replacement: resolve(root, "packages/charts/src/index.ts"),
   },
+  {
+    find: /^@maneki\/diagrams$/,
+    replacement: resolve(root, "packages/diagrams/src/index.ts"),
+  },
+  {
+    find: /^@maneki\/diagrams\/components\/(.*)\.js$/,
+    replacement: resolve(root, "packages/diagrams/src/components/$1.ts"),
+  },
 ];
