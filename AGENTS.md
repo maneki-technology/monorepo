@@ -44,10 +44,18 @@ maneki-monorepo/
 │   │   └── playwright.config.ts
 │   └── blog/                # Personal blog + portfolio (@maneki/blog)
 │       ├── editor.html       # Separate entry point for /editor
-│       ├── content/posts/    # Markdown posts with YAML frontmatter
-│       ├── plugins/          # Vite plugins: markdown-posts, auto-ui-components, sitemap
-│       ├── scripts/          # prerender.ts — static prerendering
+│       ├── functions/        # CF Pages Functions (Hono API adapter)
+│       │   └── api/[[route]].ts
+│       ├── plugins/          # Vite plugins: markdown-posts (Turso), auto-ui-components, sitemap, rss-feed
+│       ├── scripts/          # prerender.ts, migrate.ts, seed-posts.ts
+│       ├── wrangler.toml     # CF Pages local dev config
 │       └── src/
+│           ├── api/           # Hono API backend
+│           │   ├── index.ts   # App entry + AppType export for RPC
+│           │   ├── db/        # Turso client + SQL schema
+│           │   ├── middleware/ # CF Access JWT auth
+│           │   └── routes/    # posts CRUD, ui-state persistence
+│           ├── lib/api.ts     # Typed RPC client (hc<AppType>)
 │           ├── config.ts     # Site URL/title config
 │           ├── routes.ts     # Route definitions
 │           ├── editor-entry.ts # Editor entry point
@@ -68,7 +76,11 @@ maneki-monorepo/
 | Flex layout library | `packages/flex-layout/` | Panel-based flex layout, has its own AGENTS.md |
 | Storybook (all packages) | `.storybook/` | Root-level, aggregates foundation + ui-components + grid-layout + flex-layout |
 | Visual catalog + Playwright tests | `apps/catalog/` | 55 pages, 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout). History API routing, workbox caching. |
-| Personal blog + portfolio | `apps/blog/` | Markdown pipeline, static prerendering, History API routing, workbox caching, dark theme, 6 routes + editor |
+| Personal blog + portfolio | `apps/blog/` | Hono API + Turso DB, CF Pages Functions, static prerendering, editor with RPC client |
+| Blog API routes | `apps/blog/src/api/` | Hono: posts CRUD, ui-state persistence, CF Access auth |
+| Blog editor | `apps/blog/src/pages/editor.ts` | Sidebar (ui-side-panel-menu), tabs, Shiki preview, RPC client |
+| Blog Vite plugins | `apps/blog/plugins/` | markdown-posts (Turso), auto-ui-components, sitemap (Turso), rss-feed (Turso) |
+| Blog scripts | `apps/blog/scripts/` | prerender.ts, migrate.ts, seed-posts.ts |
 | Shared Vite config | `shared/` | Dev aliases for cross-package HMR |
 | Linting | `.stylelintrc.json`, `.htmlvalidate.json`, `.husky/` | CSS + HTML linting with pre-commit hook |
 
@@ -130,7 +142,6 @@ Every change — component, fix, refactor, docs — follows this workflow:
 12. **Never push directly to `main`**
 
 ## COMMANDS
-```bash
 # Proto / Moon (run from repo root)
 proto use                    # Install pinned tool versions
 moon run <pkg>:build         # Build a specific package
@@ -145,6 +156,12 @@ npm run storybook:build      # Static build → storybook-static/
 npx vitest --run             # Unit tests
 npx tsc --noEmit             # Type check
 npx vite build               # Build
+
+# Blog (run from apps/blog/)
+moon run blog:dev            # Vite dev server (builds deps first)
+moon run blog:dev-pages      # Full CF Pages dev (builds all → wrangler)
+npm run migrate              # Run Turso DB migrations
+npm run seed-posts           # Seed markdown posts into Turso (one-time)
 ```
 
 ## NOTES
@@ -156,5 +173,5 @@ npx vite build               # Build
 - Node pinned at 22 because Storybook 10 requires Node 20.19+
 - LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead
 - Dark theme: `[data-theme="dark"]` toggles all semantic tokens. Catalog has theme toggle button.
-- ADRs in `docs/adr/` — 15 architectural decision records
-- `apps/blog/` — Personal blog + portfolio. Markdown posts, Vite virtual module plugin, auto-detected UI component imports, static prerendering via `scripts/prerender.ts`, History API routing, workbox service worker (JS/CSS/fonts cached, HTML from network), Shiki syntax highlighting (build-time), SEO meta tags, sitemap generation, FOUC prevention, reading progress bar, client-side search, editor at `/editor` (separate entry), resume page. Port 5175.
+- ADRs in `docs/adr/` — 16 architectural decision records
+- `apps/blog/` — Personal blog + portfolio. Hono API + Turso DB, CF Pages Functions, CF Access auth, typed RPC client (hc<AppType>), static prerendering via `scripts/prerender.ts`, History API routing, workbox service worker (JS/CSS/fonts cached, HTML from network), Shiki syntax highlighting (build-time + editor preview), SEO meta tags, sitemap generation (Turso), RSS feed (Turso), FOUC prevention, reading progress bar, client-side search, editor at `/editor` (separate entry) with sidebar, tabs, delete modal, publish/export split button, UI state persistence, resume page. Port 5175.
