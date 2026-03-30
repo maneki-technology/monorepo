@@ -189,38 +189,80 @@ function saveUIState(): void {
   if (uiStateSaveTimer) clearTimeout(uiStateSaveTimer);
   uiStateSaveTimer = setTimeout(async () => {
     const sidebar = document.getElementById("admin-sidebar");
-    const state: EditorUIState = {
-      openTabs: openTabs.map((t) => t.slug),
-      activeTab: currentSlug,
+    const uiStateData: EditorUIState = {
+      openTabs: state.openTabs.map((t) => t.slug),
+      activeTab: state.currentSlug,
       sidebarCollapsed: sidebar?.getAttribute("state") === "collapsed",
       theme: document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light",
     };
     try {
       await api.api["ui-state"][":page"].$put({
         param: { page: "editor" },
-        json: state as unknown as Record<string, unknown>,
+        json: uiStateData as unknown as Record<string, unknown>,
       });
     } catch { /* ignore */ }
   }, 500);
 }
 
-// ─── State ───────────────────────────────────────────────────────────────────
+// ─── Reactive State ──────────────────────────────────────────────────────────
 
-let allPosts: Draft[] = [];
-let openTabs: Draft[] = [];
-let deployingSlug: string | null = null;
+interface EditorState {
+  allPosts: Draft[];
+  openTabs: Draft[];
+  currentSlug: string | null;
+  saving: boolean;
+  deployingSlug: string | null;
+  pendingDeleteSlug: string | null;
+}
+
+const state: EditorState = {
+  allPosts: [],
+  openTabs: [],
+  currentSlug: null,
+  saving: false,
+  deployingSlug: null,
+  pendingDeleteSlug: null,
+};
+
+let renderScheduled = false;
+let previewDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+const pendingRenders = { sidebar: false, tabbar: false };
+
+const SIDEBAR_DEPS: (keyof EditorState)[] = ["allPosts", "currentSlug", "deployingSlug", "pendingDeleteSlug"];
+const TABBAR_DEPS: (keyof EditorState)[] = ["openTabs", "currentSlug"];
+
+function setState(partial: Partial<EditorState>): void {
+  const keys = Object.keys(partial) as (keyof EditorState)[];
+  Object.assign(state, partial);
+
+  // Empty setState({}) forces both renders (used for in-place mutations)
+  if (keys.length === 0) {
+    pendingRenders.sidebar = true;
+    pendingRenders.tabbar = true;
+  } else {
+    if (keys.some((k) => SIDEBAR_DEPS.includes(k))) pendingRenders.sidebar = true;
+    if (keys.some((k) => TABBAR_DEPS.includes(k))) pendingRenders.tabbar = true;
+  }
+
+  if (!renderScheduled && (pendingRenders.sidebar || pendingRenders.tabbar)) {
+    renderScheduled = true;
+    queueMicrotask(() => {
+      renderScheduled = false;
+      if (pendingRenders.sidebar) renderSidebar();
+      if (pendingRenders.tabbar) renderTabBar();
+      pendingRenders.sidebar = false;
+      pendingRenders.tabbar = false;
+    });
+  }
+}
 
 function hasUnpublishedChanges(post: Draft): boolean {
   if (!post.publishedAt) return post.status === "published";
   return post.updatedAt > post.publishedAt;
 }
-let currentSlug: string | null = null;
-let previewDebounceTimer: ReturnType<typeof setTimeout> | null = null;
-let saving = false;
-let pendingDeleteSlug: string | null = null;
 
 function clearEditor(): void {
-  currentSlug = null;
+  setState({ currentSlug: null });
   const titleInput = document.getElementById("admin-title") as HTMLElement;
   const dateInput = document.getElementById("admin-date") as HTMLElement;
   const tagsInput = document.getElementById("admin-tags") as HTMLInputElement;
@@ -313,7 +355,7 @@ function renderPreview(): void {
 
 function renderSidebar(): void {
   // Toggle toolbar buttons based on deploy state
-  const isDeploying = deployingSlug !== null;
+  const isDeploying = state.deployingSlug !== null;
   const saveBtn = document.getElementById("admin-save-btn");
   const publishSplit = document.getElementById("admin-publish-split");
   if (saveBtn) { if (isDeploying) saveBtn.setAttribute("disabled", ""); else saveBtn.removeAttribute("disabled"); }
@@ -323,10 +365,10 @@ function renderSidebar(): void {
   if (!list) return;
   list.innerHTML = "";
 
-  for (const post of allPosts) {
+  for (const post of state.allPosts) {
     const item = document.createElement("ui-side-panel-menu-item");
     item.setAttribute("value", post.slug);
-    if (post.slug === currentSlug) {
+    if (post.slug === state.currentSlug) {
       item.setAttribute("selected", "");
     }
 
@@ -347,7 +389,7 @@ function renderSidebar(): void {
 
     metaSpan.innerHTML = `${post.date} <ui-badge size="xs" status="${badgeStatus}">${badgeLabel}</ui-badge>`;
 
-    if (deployingSlug === post.slug) {
+    if (state.deployingSlug === post.slug) {
       const spinner = document.createElement("ui-icon");
       spinner.setAttribute("name", "progress_activity");
       spinner.setAttribute("size", "xs");
@@ -365,7 +407,7 @@ function renderSidebar(): void {
 
     // Disable delete during deploy
     const deleteBtn = document.createElement("ui-button");
-    if (deployingSlug === post.slug) deleteBtn.setAttribute("disabled", "");
+    if (state.deployingSlug === post.slug) deleteBtn.setAttribute("disabled", "");
     deleteBtn.setAttribute("action", "destructive");
     deleteBtn.setAttribute("emphasis", "minimal");
     deleteBtn.setAttribute("size", "s");
@@ -379,7 +421,7 @@ function renderSidebar(): void {
     deleteBtn.appendChild(trashIcon);
     deleteBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      pendingDeleteSlug = post.slug;
+      setState({ pendingDeleteSlug: post.slug });
       const modal = document.getElementById("admin-delete-modal") as any;
       if (modal) modal.show();
     });
@@ -402,11 +444,11 @@ function renderTabBar(): void {
   tabGroup.setAttribute("closable", "");
   tabGroup.setAttribute("addable", "");
 
-  for (const d of openTabs) {
+  for (const d of state.openTabs) {
     const tabItem = document.createElement("ui-tab-item");
     tabItem.setAttribute("value", d.slug);
     tabItem.setAttribute("label", (d.title || "Untitled") + (hasUnpublishedChanges(d) ? " *" : ""));
-    if (d.slug === currentSlug) {
+    if (d.slug === state.currentSlug) {
       tabItem.setAttribute("selected", "");
     }
     tabGroup.appendChild(tabItem);
@@ -432,25 +474,22 @@ function renderTabBar(): void {
   tabGroup.addEventListener("tab-close", ((e: CustomEvent) => {
     const slug = e.detail?.value as string;
     if (!slug) return;
-    openTabs = openTabs.filter((d) => d.slug !== slug);
+    setState({ openTabs: state.openTabs.filter((d) => d.slug !== slug) });
     saveUIState();
-    if (currentSlug === slug) {
-      if (openTabs.length > 0) {
-        loadDraftIntoEditor(openTabs[openTabs.length - 1]);
+    if (state.currentSlug === slug) {
+      if (state.openTabs.length > 0) {
+        loadDraftIntoEditor(state.openTabs[state.openTabs.length - 1]);
       } else {
         clearEditor();
-        renderTabBar();
       }
-    } else {
-      renderTabBar();
     }
   }) as EventListener);
 
   // Tab select
   tabGroup.addEventListener("tab-change", ((e: CustomEvent) => {
     const slug = e.detail?.value as string;
-    if (!slug || slug === currentSlug) return;
-    const draft = openTabs.find((d) => d.slug === slug);
+    if (!slug || slug === state.currentSlug) return;
+    const draft = state.openTabs.find((d) => d.slug === slug);
     if (draft) loadDraftIntoEditor(draft);
     saveUIState();
   }) as EventListener);
@@ -469,10 +508,8 @@ function renderTabBar(): void {
       publishedAt: null,
       persisted: false,
     };
-    allPosts.unshift(draft);
-    openTabs.push(draft);
+    setState({ allPosts: [draft, ...state.allPosts], openTabs: [...state.openTabs, draft] });
     loadDraftIntoEditor(draft);
-    renderSidebar();
     saveUIState();
   });
 
@@ -484,13 +521,13 @@ function renderTabBar(): void {
     } else {
       document.documentElement.setAttribute("data-theme", "dark");
     }
-    renderTabBar();
+    setState({});  // trigger render for theme icon update
     saveUIState();
   });
 }
 
 function loadDraftIntoEditor(draft: Draft): void {
-  currentSlug = draft.slug;
+  setState({ currentSlug: draft.slug });
   (document.getElementById("admin-title") as any).value = draft.title;
   (document.getElementById("admin-date") as any).value = draft.date;
   (document.getElementById("admin-tags") as HTMLInputElement).value = draft.tags;
@@ -514,8 +551,6 @@ function loadDraftIntoEditor(draft: Draft): void {
   (document.getElementById("admin-excerpt") as any).value = draft.excerpt;
   (document.getElementById("admin-content") as HTMLTextAreaElement).value = draft.content;
   renderPreview();
-  renderTabBar();
-  renderSidebar();
 }
 
 function getCurrentDraftData(): Omit<Draft, "slug" | "updatedAt" | "publishedAt" | "persisted"> {
@@ -525,19 +560,19 @@ function getCurrentDraftData(): Omit<Draft, "slug" | "updatedAt" | "publishedAt"
     tags: (document.getElementById("admin-tags") as HTMLInputElement)?.value ?? "",
     excerpt: (document.getElementById("admin-excerpt") as any)?.value ?? "",
     content: (document.getElementById("admin-content") as HTMLTextAreaElement)?.value ?? "",
-    status: allPosts.find((p) => p.slug === currentSlug)?.status ?? "draft",
+    status: state.allPosts.find((p) => p.slug === state.currentSlug)?.status ?? "draft",
   };
 }
 
 async function saveCurrent(forceApi = false, statusEl?: HTMLElement | null): Promise<boolean> {
-  if (saving) return false;
-  saving = true;
+  if (state.saving) return false;
+  setState({ saving: true });
   if (statusEl) statusEl.setAttribute("status", "loading");
   try {
-    const currentPost = allPosts.find((p) => p.slug === currentSlug);
+    const currentPost = state.allPosts.find((p) => p.slug === state.currentSlug);
     const data = getCurrentDraftData();
     const draft: Draft = {
-      slug: currentSlug || "",
+      slug: state.currentSlug || "",
       ...data,
       updatedAt: new Date().toISOString(),
       publishedAt: currentPost?.publishedAt ?? null,
@@ -547,16 +582,16 @@ async function saveCurrent(forceApi = false, statusEl?: HTMLElement | null): Pro
     // Always persist to API (auto-save and explicit save both go to API)
     const slug = await savePost(draft);
     if (slug) {
-      const idxAll = allPosts.findIndex((d) => d.slug === currentSlug);
-      const idxTab = openTabs.findIndex((d) => d.slug === currentSlug);
+      const idxAll = state.allPosts.findIndex((d) => d.slug === state.currentSlug);
+      const idxTab = state.openTabs.findIndex((d) => d.slug === state.currentSlug);
       const saved: Draft = { ...draft, slug, persisted: true };
-      if (idxAll >= 0) allPosts[idxAll] = saved;
-      else allPosts.push(saved);
-      if (idxTab >= 0) openTabs[idxTab] = saved;
-      else openTabs.push(saved);
-      currentSlug = slug;
-      renderTabBar();
-      renderSidebar();
+      const newAllPosts = [...state.allPosts];
+      if (idxAll >= 0) newAllPosts[idxAll] = saved;
+      else newAllPosts.push(saved);
+      const newOpenTabs = [...state.openTabs];
+      if (idxTab >= 0) newOpenTabs[idxTab] = saved;
+      else newOpenTabs.push(saved);
+      setState({ allPosts: newAllPosts, openTabs: newOpenTabs, currentSlug: slug });
       saveUIState();
       if (statusEl) {
         statusEl.setAttribute("status", "success");
@@ -570,7 +605,7 @@ async function saveCurrent(forceApi = false, statusEl?: HTMLElement | null): Pro
     }
     return false;
   } finally {
-    saving = false;
+    setState({ saving: false });
   }
 }
 
@@ -692,7 +727,7 @@ export const editorRoute: Route = {
   setup: () => {
     // Load posts from API + UI state in parallel
     Promise.all([fetchDrafts(), loadUIState()]).then(async ([loaded, uiState]) => {
-      allPosts = loaded;
+      setState({ allPosts: loaded });
 
       // Restore UI state
       if (uiState) {
@@ -711,35 +746,38 @@ export const editorRoute: Route = {
 
         // Restore open tabs
         const savedTabs = Array.isArray(uiState.openTabs) ? uiState.openTabs : [];
+        const restoredTabs: Draft[] = [];
         for (const slug of savedTabs) {
-          const post = allPosts.find((p) => p.slug === slug);
-          if (post && !openTabs.find((t) => t.slug === slug)) {
-            openTabs.push(post);
+          const post = state.allPosts.find((p) => p.slug === slug);
+          if (post && !restoredTabs.find((t) => t.slug === slug)) {
+            restoredTabs.push(post);
           }
         }
 
         // Restore active tab
-        const activePost = uiState.activeTab ? allPosts.find((p) => p.slug === uiState.activeTab) : null;
+        const activePost = uiState.activeTab ? state.allPosts.find((p) => p.slug === uiState.activeTab) : null;
         if (activePost) {
-          if (!openTabs.find((t) => t.slug === activePost.slug)) {
-            openTabs.push(activePost);
+          if (!restoredTabs.find((t) => t.slug === activePost.slug)) {
+            restoredTabs.push(activePost);
           }
+          setState({ openTabs: restoredTabs });
           loadDraftIntoEditor(activePost);
-        } else if (openTabs.length > 0) {
-          loadDraftIntoEditor(openTabs[0]);
+        } else if (restoredTabs.length > 0) {
+          setState({ openTabs: restoredTabs });
+          loadDraftIntoEditor(restoredTabs[0]);
+        } else {
+          setState({ openTabs: restoredTabs });
         }
-      } else if (allPosts.length > 0) {
+      } else if (state.allPosts.length > 0) {
         // No saved state — open first post
-        openTabs.push(allPosts[0]);
-        loadDraftIntoEditor(allPosts[0]);
+        setState({ openTabs: [state.allPosts[0]] });
+        loadDraftIntoEditor(state.allPosts[0]);
       }
 
       document.getElementById("admin-loading")!.style.display = "none";
       document.getElementById("admin-editor-main")!.style.display = "";
       document.getElementById("admin-tab-bar")!.style.display = "";
       document.getElementById("admin-sidebar")!.style.display = "";
-      renderSidebar();
-      if (!currentSlug) renderTabBar();
 
       // Resume polling if there's an active deployment
       (async () => {
@@ -748,8 +786,7 @@ export const editorRoute: Route = {
           if (!statusRes.ok) return;
           const { status: deployStatus } = await statusRes.json();
           if (deployStatus === "building" || deployStatus === "deploying") {
-            deployingSlug = currentSlug;
-            renderSidebar();
+            setState({ deployingSlug: state.currentSlug });
             const pollInterval = setInterval(async () => {
               try {
                 const r = await api.api.deploy.status.$get();
@@ -757,13 +794,11 @@ export const editorRoute: Route = {
                 const { status: s } = await r.json();
                 if (s === "success" || s === "failure") {
                   clearInterval(pollInterval);
-                  deployingSlug = null;
-                  renderSidebar();
+                  setState({ deployingSlug: null });
                 }
               } catch {
                 clearInterval(pollInterval);
-                deployingSlug = null;
-                renderSidebar();
+                setState({ deployingSlug: null });
               }
             }, 5000);
           }
@@ -824,11 +859,11 @@ export const editorRoute: Route = {
     // Auto-save on input (debounced)
     let saveTimer: ReturnType<typeof setTimeout> | null = null;
     const autoSave = () => {
-      renderSidebar();
-      renderTabBar();
+      setState({});
+      // trigger render for live preview of unsaved changes
       if (saveTimer) clearTimeout(saveTimer);
       saveTimer = setTimeout(() => {
-        if (currentSlug || textarea.value.trim()) saveCurrent();
+        if (state.currentSlug || textarea.value.trim()) saveCurrent();
       }, 2000);
     };
     textarea.addEventListener("input", autoSave);
@@ -859,9 +894,9 @@ export const editorRoute: Route = {
 
     const saveBtn = document.getElementById("admin-save-btn");
     document.getElementById("admin-save-btn")?.addEventListener("click", async () => {
-      if (saving) {
+      if (state.saving) {
         await new Promise<void>((resolve) => {
-          const check = setInterval(() => { if (!saving) { clearInterval(check); resolve(); } }, 100);
+          const check = setInterval(() => { if (!state.saving) { clearInterval(check); resolve(); } }, 100);
         });
       }
       saveCurrent(true, saveBtn);
@@ -872,7 +907,7 @@ export const editorRoute: Route = {
     publishSplit?.addEventListener("action", async () => {
       if (publishSplit) publishSplit.setAttribute("status", "loading");
       try {
-        if (!currentSlug) {
+        if (!state.currentSlug) {
           if (publishSplit) publishSplit.setAttribute("status", "error");
           setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 2000);
           return;
@@ -882,7 +917,7 @@ export const editorRoute: Route = {
         const data = getCurrentDraftData();
         const tags = data.tags.split(",").map((t: string) => t.trim()).filter(Boolean);
         await api.api.posts[":slug"].publish.$put({
-          param: { slug: currentSlug },
+          param: { slug: state.currentSlug! },
           json: {
             title: data.title,
             body_md: data.content,
@@ -891,12 +926,11 @@ export const editorRoute: Route = {
             date: data.date,
           },
         });
-        const post = allPosts.find((p) => p.slug === currentSlug);
+        const post = state.allPosts.find((p) => p.slug === state.currentSlug);
         if (post) post.status = "published";
-        const tab = openTabs.find((t) => t.slug === currentSlug);
+        const tab = state.openTabs.find((t) => t.slug === state.currentSlug);
         if (tab) tab.status = "published";
-        deployingSlug = currentSlug;
-        renderSidebar();
+        setState({ deployingSlug: state.currentSlug });
 
         // Poll deploy status
         const pollDeploy = async (): Promise<boolean> => {
@@ -906,22 +940,21 @@ export const editorRoute: Route = {
             const { status: deployStatus } = await statusRes.json();
 
             if (deployStatus === "success") {
-              deployingSlug = null;
-              if (currentSlug) {
-                const p = allPosts.find((x) => x.slug === currentSlug);
+              setState({ deployingSlug: null });
+              if (state.currentSlug) {
+                const p = state.allPosts.find((x) => x.slug === state.currentSlug);
                 if (p) p.publishedAt = new Date().toISOString();
-                const t = openTabs.find((x) => x.slug === currentSlug);
+                const t = state.openTabs.find((x) => x.slug === state.currentSlug);
                 if (t) t.publishedAt = new Date().toISOString();
               }
-              renderSidebar();
+              setState({});  // trigger render
               if (publishSplit) {
                 publishSplit.setAttribute("status", "success");
                 setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
               }
               return true;
             } else if (deployStatus === "failure") {
-              deployingSlug = null;
-              renderSidebar();
+              setState({ deployingSlug: null });
               if (publishSplit) {
                 publishSplit.setAttribute("status", "error");
                 setTimeout(() => publishSplit.setAttribute("status", "none"), 2000);
@@ -930,8 +963,7 @@ export const editorRoute: Route = {
             }
             return false;
           } catch {
-            deployingSlug = null;
-            renderSidebar();
+            setState({ deployingSlug: null });
             return true;
           }
         };
@@ -951,16 +983,15 @@ export const editorRoute: Route = {
 
     // Unpublish (dropdown item) — unpublish + poll deploy status
     document.getElementById("admin-unpublish-btn")?.addEventListener("select", async () => {
-      if (!currentSlug) return;
+      if (!state.currentSlug) return;
       if (publishSplit) publishSplit.setAttribute("status", "loading");
       try {
-        await api.api.posts[":slug"].unpublish.$put({ param: { slug: currentSlug } });
-        const post = allPosts.find((p) => p.slug === currentSlug);
+        await api.api.posts[":slug"].unpublish.$put({ param: { slug: state.currentSlug } });
+        const post = state.allPosts.find((p) => p.slug === state.currentSlug);
         if (post) post.status = "draft";
-        const tab = openTabs.find((t) => t.slug === currentSlug);
+        const tab = state.openTabs.find((t) => t.slug === state.currentSlug);
         if (tab) tab.status = "draft";
-        deployingSlug = currentSlug;
-        renderSidebar();
+        setState({ deployingSlug: state.currentSlug });
 
         // Poll deploy status
         const pollUnpublish = async (): Promise<boolean> => {
@@ -969,16 +1000,14 @@ export const editorRoute: Route = {
             if (!statusRes.ok) return false;
             const { status: deployStatus } = await statusRes.json();
             if (deployStatus === "success") {
-              deployingSlug = null;
-              renderSidebar();
+              setState({ deployingSlug: null });
               if (publishSplit) {
                 publishSplit.setAttribute("status", "success");
                 setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
               }
               return true;
             } else if (deployStatus === "failure") {
-              deployingSlug = null;
-              renderSidebar();
+              setState({ deployingSlug: null });
               if (publishSplit) {
                 publishSplit.setAttribute("status", "error");
                 setTimeout(() => publishSplit.setAttribute("status", "none"), 2000);
@@ -987,8 +1016,7 @@ export const editorRoute: Route = {
             }
             return false;
           } catch {
-            deployingSlug = null;
-            renderSidebar();
+            setState({ deployingSlug: null });
             return true;
           }
         };
@@ -1084,7 +1112,7 @@ export const editorRoute: Route = {
     cancelBtn.setAttribute("size", "s");
     cancelBtn.textContent = "Cancel";
     cancelBtn.addEventListener("click", () => {
-      pendingDeleteSlug = null;
+      setState({ pendingDeleteSlug: null });
       (deleteModal as any).close();
     });
     const confirmBtn = document.createElement("ui-button");
@@ -1092,26 +1120,26 @@ export const editorRoute: Route = {
     confirmBtn.setAttribute("size", "s");
     confirmBtn.textContent = "Delete";
     confirmBtn.addEventListener("click", async () => {
-      if (!pendingDeleteSlug) return;
+      if (!state.pendingDeleteSlug) return;
       confirmBtn.setAttribute("status", "loading");
       try {
-        const post = allPosts.find((p) => p.slug === pendingDeleteSlug);
+        const post = state.allPosts.find((p) => p.slug === state.pendingDeleteSlug);
         if (post?.persisted) {
-          await deletePost(pendingDeleteSlug);
+          await deletePost(state.pendingDeleteSlug);
         }
-        allPosts = allPosts.filter((p) => p.slug !== pendingDeleteSlug);
-        openTabs = openTabs.filter((t) => t.slug !== pendingDeleteSlug);
-        if (currentSlug === pendingDeleteSlug) {
-          if (openTabs.length > 0) {
-            loadDraftIntoEditor(openTabs[openTabs.length - 1]);
+        const newAllPosts = state.allPosts.filter((p) => p.slug !== state.pendingDeleteSlug);
+        const newOpenTabs = state.openTabs.filter((t) => t.slug !== state.pendingDeleteSlug);
+        if (state.currentSlug === state.pendingDeleteSlug) {
+          if (newOpenTabs.length > 0) {
+            setState({ allPosts: newAllPosts, openTabs: newOpenTabs, pendingDeleteSlug: null });
+            loadDraftIntoEditor(newOpenTabs[newOpenTabs.length - 1]);
           } else {
+            setState({ allPosts: newAllPosts, openTabs: newOpenTabs, pendingDeleteSlug: null });
             clearEditor();
-            renderTabBar();
           }
+        } else {
+          setState({ allPosts: newAllPosts, openTabs: newOpenTabs, pendingDeleteSlug: null });
         }
-        renderSidebar();
-        renderTabBar();
-        pendingDeleteSlug = null;
         (deleteModal as any).close();
       } finally {
         confirmBtn.setAttribute("status", "none");
@@ -1137,20 +1165,18 @@ export const editorRoute: Route = {
       publishedAt: null,
       persisted: false,
       };
-      allPosts.unshift(draft);
-      openTabs.push(draft);
+      setState({ allPosts: [draft, ...state.allPosts], openTabs: [...state.openTabs, draft] });
       loadDraftIntoEditor(draft);
-      renderSidebar();
     });
     // Sidebar select event (open existing post in tab)
     const sidebar = document.getElementById("admin-sidebar")!;
     sidebar.addEventListener("select", ((e: CustomEvent) => {
       const value = e.detail?.value as string;
       if (!value) return;
-      const post = allPosts.find((p) => p.slug === value);
+      const post = state.allPosts.find((p) => p.slug === value);
       if (!post) return;
-      if (!openTabs.find((t) => t.slug === post.slug)) {
-        openTabs.push(post);
+      if (!state.openTabs.find((t) => t.slug === post.slug)) {
+        setState({ openTabs: [...state.openTabs, post] });
       }
       loadDraftIntoEditor(post);
       saveUIState();
