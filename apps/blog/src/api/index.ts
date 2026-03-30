@@ -10,12 +10,14 @@ import { createDb, type DbEnv } from "./db/client.js";
 import { cfAuth } from "./middleware/auth.js";
 import { posts } from "./routes/posts.js";
 import { uiState } from "./routes/ui-state.js";
+import { deploy } from "./routes/deploy.js";
 
 /** Env bindings available in CF Pages Functions. */
 export type Env = {
   Bindings: DbEnv & {
     CF_ACCESS_TEAM_DOMAIN: string;
     CF_ACCESS_AUD: string;
+    GH_DEPLOY_TOKEN: string;
   };
   Variables: {
     db: Client;
@@ -38,7 +40,8 @@ const app = new Hono<Env>()
   // Auth — all API routes require CF Access
   .use("/*", cfAuth)
   .route("/posts", posts)
-  .route("/ui-state", uiState);
+  .route("/ui-state", uiState)
+  .route("/deploy", deploy);
 
 export type AppType = typeof app;
 export default app;

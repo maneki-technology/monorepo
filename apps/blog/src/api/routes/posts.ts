@@ -6,15 +6,41 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
+import type { Client } from "@libsql/client";
 import type { Env } from "../index.js";
 
+const REPO = "maneki-technology/monorepo";
+
+async function triggerDeploy(db: Client, email: string, ghToken: string): Promise<string> {
+  const deployId = `gh-${Date.now().toString(36)}`;
+
+  if (ghToken) {
+    await fetch(`https://api.github.com/repos/${REPO}/dispatches`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${ghToken}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "maneki-blog",
+      },
+      body: JSON.stringify({ event_type: "deploy-blog" }),
+    });
+  }
+
+  await db.execute({
+    sql: "INSERT INTO deployments (id, triggered_by, status) VALUES (?, ?, 'building')",
+    args: [deployId, email],
+  });
+
+  return deployId;
+}
 const createPostSchema = z.object({
   title: z.string().min(1),
   slug: z.string().min(1).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase kebab-case"),
   body_md: z.string(),
   excerpt: z.string().default(""),
   tags: z.array(z.string()).default([]),
-  status: z.enum(["draft", "published"]).default("draft"),
+  status: z.enum(["draft", "published", "publishing", "failed"]).default("draft"),
   date: z.string().optional(),
 });
 
@@ -23,7 +49,7 @@ const updatePostSchema = z.object({
   body_md: z.string().optional(),
   excerpt: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  status: z.enum(["draft", "published"]).optional(),
+  status: z.enum(["draft", "published", "publishing", "failed"]).optional(),
   date: z.string().optional(),
 });
 
@@ -136,22 +162,46 @@ export const posts = new Hono<Env>()
     return c.json({ ok: true });
   })
 
-  // Publish shortcut
-  .put("/:slug/publish", async (c) => {
+  // Publish — save content + set publishing + trigger deploy
+  .put("/:slug/publish", zValidator("json", updatePostSchema), async (c) => {
     const db = c.get("db");
+    const slug = c.req.param("slug");
+    const ghToken = c.env.GH_DEPLOY_TOKEN;
+    const updates = c.req.valid("json");
+
+    // Save content + set publishing in one update
+    const setClauses: string[] = ["status = 'publishing'", "updated_at = datetime('now')"];
+    const args: (string | number | null)[] = [];
+
+    if (updates.title !== undefined) { setClauses.push("title = ?"); args.push(updates.title); }
+    if (updates.body_md !== undefined) { setClauses.push("body_md = ?"); args.push(updates.body_md); }
+    if (updates.excerpt !== undefined) { setClauses.push("excerpt = ?"); args.push(updates.excerpt); }
+    if (updates.tags !== undefined) { setClauses.push("tags = ?"); args.push(JSON.stringify(updates.tags)); }
+    if (updates.date !== undefined) { setClauses.push("created_at = ?"); args.push(updates.date); }
+
+    args.push(slug);
     await db.execute({
-      sql: "UPDATE posts SET status = 'published', updated_at = datetime('now') WHERE slug = ?",
-      args: [c.req.param("slug")],
+      sql: `UPDATE posts SET ${setClauses.join(", ")} WHERE slug = ?`,
+      args,
     });
-    return c.json({ ok: true });
+
+    // Trigger deploy
+    const deployId = await triggerDeploy(db, c.get("userEmail"), ghToken);
+    return c.json({ ok: true, deploymentId: deployId });
   })
 
-  // Unpublish shortcut
+  // Unpublish — set draft + trigger deploy
   .put("/:slug/unpublish", async (c) => {
     const db = c.get("db");
+    const slug = c.req.param("slug");
+    const ghToken = c.env.GH_DEPLOY_TOKEN;
+
     await db.execute({
       sql: "UPDATE posts SET status = 'draft', updated_at = datetime('now') WHERE slug = ?",
-      args: [c.req.param("slug")],
+      args: [slug],
     });
-    return c.json({ ok: true });
+
+    // Trigger deploy
+    const deployId = await triggerDeploy(db, c.get("userEmail"), ghToken);
+    return c.json({ ok: true, deploymentId: deployId });
   });

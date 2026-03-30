@@ -430,7 +430,10 @@ export class UiDropdownSplit extends HTMLElement {
   private _handleItemSelect = (e: Event): void => {
     const item = e.target as HTMLElement;
     if (item.tagName !== "UI-DROPDOWN-ITEM") return;
-    if (!this.selectable) return;
+    if (!this.selectable) {
+      this.open = false;
+      return;
+    }
 
     if (this.multiple) {
       if (item.hasAttribute("selected")) {
