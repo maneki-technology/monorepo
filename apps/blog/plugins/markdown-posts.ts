@@ -1,14 +1,15 @@
 /**
- * Vite plugin that reads markdown files from content/posts/,
- * parses frontmatter + body, and exposes them as a virtual module.
+ * Vite plugin that fetches published posts from Turso,
+ * renders markdown to HTML, and exposes them as a virtual module.
  *
  * Usage: import { posts } from "virtual:posts";
+ *
+ * Requires TURSO_URL + TURSO_AUTH_TOKEN env vars at build time.
+ * Falls back to empty array if DB is unavailable (dev without DB).
  */
 
 import { type Plugin } from "vite";
-import fs from "node:fs";
-import path from "node:path";
-import matter from "gray-matter";
+import { createClient } from "@libsql/client";
 import MarkdownIt from "markdown-it";
 import anchor from "markdown-it-anchor";
 import { createHighlighter } from "shiki";
@@ -16,7 +17,6 @@ import { fromHighlighter } from "@shikijs/markdown-it";
 
 const VIRTUAL_MODULE_ID = "virtual:posts";
 const RESOLVED_ID = "\0" + VIRTUAL_MODULE_ID;
-const POSTS_DIR = "content/posts";
 
 // Shiki highlighter (created lazily, cached)
 let mdInstance: MarkdownIt | null = null;
@@ -87,64 +87,64 @@ async function getMd(): Promise<MarkdownIt> {
 }
 
 export function markdownPostsPlugin(): Plugin {
-  const postsDir = path.resolve(process.cwd(), POSTS_DIR);
-
   async function loadPosts(): Promise<string> {
-    if (!fs.existsSync(postsDir)) {
+    const url = process.env.TURSO_URL;
+    const authToken = process.env.TURSO_AUTH_TOKEN;
+
+    if (!url) {
+      console.warn("[markdown-posts] TURSO_URL not set — returning empty posts");
       return "export const posts = [];";
     }
 
-    const md = await getMd();
+    try {
+      const db = createClient({ url, authToken: authToken || undefined });
+      const result = await db.execute(
+        "SELECT slug, title, body_md, excerpt, tags, created_at FROM posts WHERE status = 'published' ORDER BY created_at DESC",
+      );
 
-    const files = fs.readdirSync(postsDir)
-      .filter((f) => f.endsWith(".md"))
-      .sort()
-      .reverse();
+      const md = await getMd();
 
-    // Filter out drafts in production
-    const posts = files.map((file) => {
-      const raw = fs.readFileSync(path.join(postsDir, file), "utf-8");
-      const { data, content } = matter(raw);
+      const posts = result.rows.map((row) => {
+        const bodyMd = row.body_md as string;
+        const html = md.render(bodyMd);
 
-      // Skip drafts
-      if (data.draft) return null;
+        const words = bodyMd.split(/\s+/).length;
+        const readTime = Math.max(1, Math.round(words / 200));
 
-      const slug = file.replace(/\.md$/, "");
-
-      const html = md.render(content);
-
-      const words = content.split(/\s+/).length;
-      const readTime = Math.max(1, Math.round(words / 200));
-
-      // Extract headings for TOC
-      const headings: { level: number; text: string; id: string }[] = [];
-      const tokens = md.parse(content, {});
-      for (let i = 0; i < tokens.length; i++) {
-        const token = tokens[i];
-        if (token.type === "heading_open") {
-          const level = parseInt(token.tag.slice(1), 10);
-          const inline = tokens[i + 1];
-          if (inline?.type === "inline" && inline.content) {
-            const text = inline.content;
-            const id = text.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, "");
-            headings.push({ level, text, id });
+        // Extract headings for TOC
+        const headings: { level: number; text: string; id: string }[] = [];
+        const tokens = md.parse(bodyMd, {});
+        for (let i = 0; i < tokens.length; i++) {
+          const token = tokens[i];
+          if (token.type === "heading_open") {
+            const level = parseInt(token.tag.slice(1), 10);
+            const inline = tokens[i + 1];
+            if (inline?.type === "inline" && inline.content) {
+              const text = inline.content;
+              const id = text.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, "");
+              headings.push({ level, text, id });
+            }
           }
         }
-      }
 
-      return {
-        slug,
-        title: data.title ?? slug,
-        date: data.date ?? "",
-        readTime: `${readTime} min read`,
-        excerpt: data.excerpt ?? "",
-        tags: data.tags ?? [],
-        headings,
-        content: html,
-      };
-    }).filter(Boolean);
+        return {
+          slug: row.slug as string,
+          title: row.title as string,
+          date: (row.created_at as string).split("T")[0],
+          readTime: `${readTime} min read`,
+          excerpt: row.excerpt as string,
+          tags: JSON.parse((row.tags as string) || "[]"),
+          headings,
+          content: html,
+        };
+      });
 
-    return `export const posts = ${JSON.stringify(posts)};`;
+      console.log(`[markdown-posts] Loaded ${posts.length} published posts from Turso`);
+      return `export const posts = ${JSON.stringify(posts)};`;
+    } catch (err) {
+      console.error("[markdown-posts] Failed to fetch from Turso:", err);
+      return "export const posts = [];";
+    }
   }
 
   return {
@@ -154,15 +154,6 @@ export function markdownPostsPlugin(): Plugin {
     },
     async load(id) {
       if (id === RESOLVED_ID) return loadPosts();
-    },
-    handleHotUpdate({ file, server }) {
-      if (file.startsWith(postsDir)) {
-        const mod = server.moduleGraph.getModuleById(RESOLVED_ID);
-        if (mod) {
-          server.moduleGraph.invalidateModule(mod);
-          return [mod];
-        }
-      }
     },
   };
 }
