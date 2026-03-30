@@ -826,7 +826,6 @@ export const editorRoute: Route = {
     const autoSave = () => {
       renderSidebar();
       renderTabBar();
-      renderSidebar();
       if (saveTimer) clearTimeout(saveTimer);
       saveTimer = setTimeout(() => {
         if (currentSlug || textarea.value.trim()) saveCurrent();
@@ -867,7 +866,6 @@ export const editorRoute: Route = {
       }
       saveCurrent(true, saveBtn);
     });
-    document.getElementById("admin-save-btn")?.addEventListener("click", () => saveCurrent(true, saveBtn));
 
     // Publish (split button left action) — save, publish (triggers deploy), poll
     const publishSplit = document.getElementById("admin-publish-split");
@@ -1124,8 +1122,6 @@ export const editorRoute: Route = {
     deleteModal.appendChild(modalBody);
     deleteModal.appendChild(modalFooter);
     document.body.appendChild(deleteModal);
-    if (!(dateInput as any).value) (dateInput as any).value = new Date().toISOString().split("T")[0];
-    renderPreview();
 
     // New Post button in sidebar header
     document.getElementById("admin-new-post")?.addEventListener("action", () => {
