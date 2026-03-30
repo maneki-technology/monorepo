@@ -23,7 +23,7 @@ console.log("Running migration...");
 const tableInfo = await db.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='posts'");
 if (tableInfo.rows.length > 0) {
   const sql = tableInfo.rows[0].sql as string;
-  if (sql.includes("published_at")) {
+  if (sql.includes("published_at") && sql.includes("'deleted'")) {
     console.log("Posts table already up to date.");
   } else {
     console.log("Migrating posts table...");
@@ -35,7 +35,7 @@ if (tableInfo.rows.length > 0) {
         body_md TEXT NOT NULL,
         excerpt TEXT NOT NULL DEFAULT '',
         tags TEXT NOT NULL DEFAULT '[]',
-        status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
+        status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'deleted')),
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         updated_at TEXT NOT NULL DEFAULT (datetime('now')),
         published_at TEXT

@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS posts (
   body_md TEXT NOT NULL,
   excerpt TEXT NOT NULL DEFAULT '',
   tags TEXT NOT NULL DEFAULT '[]',
-  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published')),
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'deleted')),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
   published_at TEXT

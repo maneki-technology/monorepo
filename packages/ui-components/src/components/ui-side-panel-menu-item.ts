@@ -156,10 +156,11 @@ const STYLES = /* css */ `
     align-items: center;
     justify-content: center;
     width: ${SP_2_5};
-    height: ${SP_2_5};
+    min-height: ${SP_2_5};
     line-height: 0;
     color: var(--ui-spmi-icon, ${ICON_PRIMARY});
     flex-shrink: 0;
+    align-self: flex-start;
   }
 
   ::slotted(svg) {
