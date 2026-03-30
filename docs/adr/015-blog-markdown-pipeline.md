@@ -1,6 +1,6 @@
 # ADR-015: Blog App — Markdown Pipeline with Static Generation
 
-**Status:** Accepted
+**Status:** Superseded by [ADR-017](017-blog-hono-turso-backend.md)
 **Date:** 2026-03
 
 **Context:** Need a personal blog + portfolio app within the monorepo. Must support mixed content (technical posts with code blocks, prose, images), dark theme, and leverage the existing Maneki design system. The blog should be easy to write for and produce WYSIWYG results.
