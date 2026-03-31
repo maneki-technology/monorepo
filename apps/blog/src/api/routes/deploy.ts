@@ -47,10 +47,11 @@ export const deploy = new Hono<Env>()
       });
     }
 
-    // Poll GitHub Actions for latest workflow run
+    // Poll GitHub Actions for latest workflow run created after our deployment
+    const deployCreatedAt = row.created_at as string;
     try {
       const ghRes = await fetch(
-        `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW}/runs?per_page=1&branch=main`,
+        `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW}/runs?per_page=5&branch=main`,
         {
           headers: {
             Authorization: `Bearer ${ghToken}`,
@@ -73,10 +74,13 @@ export const deploy = new Hono<Env>()
         workflow_runs?: Array<{
           status: string;
           conclusion: string | null;
+          created_at: string;
         }>;
       };
 
-      const run = ghData.workflow_runs?.[0];
+      // Find a run created after our deployment trigger
+      const deployTime = new Date(deployCreatedAt + "Z").getTime();
+      const run = ghData.workflow_runs?.find((r) => new Date(r.created_at).getTime() >= deployTime - 30000);
       let newStatus = dbStatus;
 
       if (run) {
@@ -95,17 +99,6 @@ export const deploy = new Hono<Env>()
           sql: "UPDATE deployments SET status = ? WHERE id = ?",
           args: [newStatus, deployId],
         });
-
-        // Update post statuses when deploy reaches terminal state
-        if (newStatus === "success") {
-          await db.execute(
-            "UPDATE posts SET status = 'published', updated_at = datetime('now') WHERE status = 'publishing'",
-          );
-        } else if (newStatus === "failure") {
-          await db.execute(
-            "UPDATE posts SET status = 'failed', updated_at = datetime('now') WHERE status = 'publishing'",
-          );
-        }
       }
 
       return c.json({

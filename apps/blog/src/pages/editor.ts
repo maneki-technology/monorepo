@@ -32,6 +32,7 @@ interface Draft {
   content: string;
   status: string;
   updatedAt: string;
+  publishedAt: string | null;
   persisted: boolean;
 }
 
@@ -103,6 +104,7 @@ async function fetchDrafts(): Promise<Draft[]> {
       content: p.body_md as string,
       status: p.status as string,
       updatedAt: p.updated_at as string,
+      publishedAt: (p.published_at as string) ?? null,
       persisted: true,
     }));
   } catch {
@@ -206,6 +208,12 @@ function saveUIState(): void {
 
 let allPosts: Draft[] = [];
 let openTabs: Draft[] = [];
+let deployingSlug: string | null = null;
+
+function hasUnpublishedChanges(post: Draft): boolean {
+  if (!post.publishedAt) return post.status === "published";
+  return post.updatedAt > post.publishedAt;
+}
 let currentSlug: string | null = null;
 let previewDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 let saving = false;
@@ -304,6 +312,13 @@ function renderPreview(): void {
 }
 
 function renderSidebar(): void {
+  // Toggle toolbar buttons based on deploy state
+  const isDeploying = deployingSlug !== null;
+  const saveBtn = document.getElementById("admin-save-btn");
+  const publishSplit = document.getElementById("admin-publish-split");
+  if (saveBtn) { if (isDeploying) saveBtn.setAttribute("disabled", ""); else saveBtn.removeAttribute("disabled"); }
+  if (publishSplit) { if (isDeploying) publishSplit.setAttribute("disabled", ""); else publishSplit.removeAttribute("disabled"); }
+
   const list = document.getElementById("admin-post-list");
   if (!list) return;
   list.innerHTML = "";
@@ -321,16 +336,36 @@ function renderSidebar(): void {
 
     const titleSpan = document.createElement("span");
     titleSpan.style.cssText = "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;";
-    titleSpan.textContent = post.title || "Untitled";
+    titleSpan.textContent = (post.title || "Untitled") + (hasUnpublishedChanges(post) ? " *" : "");
 
     const metaSpan = document.createElement("span");
     metaSpan.style.cssText = "font-size:11px;color:var(--fd-text-secondary, #52525b);display:flex;align-items:center;gap:6px;";
-    metaSpan.innerHTML = `${post.date} <ui-badge size="xs" status="${post.status === "published" ? "success" : "warning"}">${post.status}</ui-badge>`;
+
+    let badgeStatus = "warning";
+    let badgeLabel = post.status;
+    if (post.status === "published") badgeStatus = "success";
+
+    metaSpan.innerHTML = `${post.date} <ui-badge size="xs" status="${badgeStatus}">${badgeLabel}</ui-badge>`;
+
+    if (deployingSlug === post.slug) {
+      const spinner = document.createElement("ui-icon");
+      spinner.setAttribute("name", "progress_activity");
+      spinner.setAttribute("size", "xs");
+      spinner.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }], {
+        duration: 700,
+        iterations: Infinity,
+      });
+      metaSpan.appendChild(document.createTextNode(" "));
+      metaSpan.appendChild(spinner);
+    }
 
     label.appendChild(titleSpan);
     label.appendChild(metaSpan);
     item.appendChild(label);
+
+    // Disable delete during deploy
     const deleteBtn = document.createElement("ui-button");
+    if (deployingSlug === post.slug) deleteBtn.setAttribute("disabled", "");
     deleteBtn.setAttribute("action", "destructive");
     deleteBtn.setAttribute("emphasis", "minimal");
     deleteBtn.setAttribute("size", "s");
@@ -370,7 +405,7 @@ function renderTabBar(): void {
   for (const d of openTabs) {
     const tabItem = document.createElement("ui-tab-item");
     tabItem.setAttribute("value", d.slug);
-    tabItem.setAttribute("label", d.title || "Untitled");
+    tabItem.setAttribute("label", (d.title || "Untitled") + (hasUnpublishedChanges(d) ? " *" : ""));
     if (d.slug === currentSlug) {
       tabItem.setAttribute("selected", "");
     }
@@ -431,6 +466,7 @@ function renderTabBar(): void {
       content: "",
       status: "draft",
       updatedAt: new Date().toISOString(),
+      publishedAt: null,
       persisted: false,
     };
     allPosts.unshift(draft);
@@ -438,7 +474,6 @@ function renderTabBar(): void {
     loadDraftIntoEditor(draft);
     renderSidebar();
     saveUIState();
-    renderSidebar();
   });
 
   // Theme toggle
@@ -483,7 +518,7 @@ function loadDraftIntoEditor(draft: Draft): void {
   renderSidebar();
 }
 
-function getCurrentDraftData(): Omit<Draft, "slug" | "updatedAt" | "persisted"> {
+function getCurrentDraftData(): Omit<Draft, "slug" | "updatedAt" | "publishedAt" | "persisted"> {
   return {
     title: (document.getElementById("admin-title") as any)?.value ?? "",
     date: (document.getElementById("admin-date") as any)?.value ?? "",
@@ -505,6 +540,7 @@ async function saveCurrent(forceApi = false, statusEl?: HTMLElement | null): Pro
       slug: currentSlug || "",
       ...data,
       updatedAt: new Date().toISOString(),
+      publishedAt: currentPost?.publishedAt ?? null,
       persisted: currentPost?.persisted ?? false,
     };
 
@@ -526,6 +562,7 @@ async function saveCurrent(forceApi = false, statusEl?: HTMLElement | null): Pro
         statusEl.setAttribute("status", "success");
         setTimeout(() => statusEl.setAttribute("status", "none"), 1500);
       }
+      return true;
     }
     if (statusEl) {
       statusEl.setAttribute("status", "error");
@@ -654,7 +691,7 @@ export const editorRoute: Route = {
   `,
   setup: () => {
     // Load posts from API + UI state in parallel
-    Promise.all([fetchDrafts(), loadUIState()]).then(([loaded, uiState]) => {
+    Promise.all([fetchDrafts(), loadUIState()]).then(async ([loaded, uiState]) => {
       allPosts = loaded;
 
       // Restore UI state
@@ -704,30 +741,34 @@ export const editorRoute: Route = {
       renderSidebar();
       if (!currentSlug) renderTabBar();
 
-      // Resume polling for any posts stuck in 'publishing' state
-      const publishingPosts = allPosts.filter((p) => p.status === "publishing");
-      if (publishingPosts.length > 0) {
-        const pollInterval = setInterval(async () => {
-          try {
-            const statusRes = await api.api.deploy.status.$get();
-            if (!statusRes.ok) return;
-            const { status: deployStatus } = await statusRes.json();
-
-            if (deployStatus === "success" || deployStatus === "failure") {
-              clearInterval(pollInterval);
-              const newStatus = deployStatus === "success" ? "published" : "failed";
-              for (const p of publishingPosts) {
-                p.status = newStatus;
-                const tab = openTabs.find((t) => t.slug === p.slug);
-                if (tab) tab.status = newStatus;
+      // Resume polling if there's an active deployment
+      (async () => {
+        try {
+          const statusRes = await api.api.deploy.status.$get();
+          if (!statusRes.ok) return;
+          const { status: deployStatus } = await statusRes.json();
+          if (deployStatus === "building" || deployStatus === "deploying") {
+            deployingSlug = currentSlug;
+            renderSidebar();
+            const pollInterval = setInterval(async () => {
+              try {
+                const r = await api.api.deploy.status.$get();
+                if (!r.ok) return;
+                const { status: s } = await r.json();
+                if (s === "success" || s === "failure") {
+                  clearInterval(pollInterval);
+                  deployingSlug = null;
+                  renderSidebar();
+                }
+              } catch {
+                clearInterval(pollInterval);
+                deployingSlug = null;
+                renderSidebar();
               }
-              renderSidebar();
-            }
-          } catch {
-            clearInterval(pollInterval);
+            }, 5000);
           }
-        }, 3000);
-      }
+        } catch { /* ignore */ }
+      })();
     });
 
     const textarea = document.getElementById("admin-content") as HTMLTextAreaElement;
@@ -783,6 +824,9 @@ export const editorRoute: Route = {
     // Auto-save on input (debounced)
     let saveTimer: ReturnType<typeof setTimeout> | null = null;
     const autoSave = () => {
+      renderSidebar();
+      renderTabBar();
+      renderSidebar();
       if (saveTimer) clearTimeout(saveTimer);
       saveTimer = setTimeout(() => {
         if (currentSlug || textarea.value.trim()) saveCurrent();
@@ -815,6 +859,14 @@ export const editorRoute: Route = {
     });
 
     const saveBtn = document.getElementById("admin-save-btn");
+    document.getElementById("admin-save-btn")?.addEventListener("click", async () => {
+      if (saving) {
+        await new Promise<void>((resolve) => {
+          const check = setInterval(() => { if (!saving) { clearInterval(check); resolve(); } }, 100);
+        });
+      }
+      saveCurrent(true, saveBtn);
+    });
     document.getElementById("admin-save-btn")?.addEventListener("click", () => saveCurrent(true, saveBtn));
 
     // Publish (split button left action) — save, publish (triggers deploy), poll
@@ -828,7 +880,7 @@ export const editorRoute: Route = {
           return;
         }
 
-        // Publish with latest content (saves + sets publishing + triggers deploy)
+        // Publish with latest content + trigger deploy
         const data = getCurrentDraftData();
         const tags = data.tags.split(",").map((t: string) => t.trim()).filter(Boolean);
         await api.api.posts[":slug"].publish.$put({
@@ -842,48 +894,64 @@ export const editorRoute: Route = {
           },
         });
         const post = allPosts.find((p) => p.slug === currentSlug);
-        if (post) post.status = "publishing";
+        if (post) post.status = "published";
         const tab = openTabs.find((t) => t.slug === currentSlug);
-        if (tab) tab.status = "publishing";
+        if (tab) tab.status = "published";
+        deployingSlug = currentSlug;
         renderSidebar();
 
         // Poll deploy status
-        const pollInterval = setInterval(async () => {
+        const pollDeploy = async (): Promise<boolean> => {
           try {
             const statusRes = await api.api.deploy.status.$get();
-            if (!statusRes.ok) return;
+            if (!statusRes.ok) return false;
             const { status: deployStatus } = await statusRes.json();
 
             if (deployStatus === "success") {
-              clearInterval(pollInterval);
-              if (post) post.status = "published";
-              if (tab) tab.status = "published";
+              deployingSlug = null;
+              if (currentSlug) {
+                const p = allPosts.find((x) => x.slug === currentSlug);
+                if (p) p.publishedAt = new Date().toISOString();
+                const t = openTabs.find((x) => x.slug === currentSlug);
+                if (t) t.publishedAt = new Date().toISOString();
+              }
               renderSidebar();
               if (publishSplit) {
                 publishSplit.setAttribute("status", "success");
                 setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
               }
+              return true;
             } else if (deployStatus === "failure") {
-              clearInterval(pollInterval);
-              if (post) post.status = "failed";
-              if (tab) tab.status = "failed";
+              deployingSlug = null;
               renderSidebar();
               if (publishSplit) {
                 publishSplit.setAttribute("status", "error");
                 setTimeout(() => publishSplit.setAttribute("status", "none"), 2000);
               }
+              return true;
             }
+            return false;
           } catch {
-            clearInterval(pollInterval);
+            deployingSlug = null;
+            renderSidebar();
+            return true;
           }
-        }, 3000);
+        };
+
+        // First poll immediately, then every 5s
+        const done = await pollDeploy();
+        if (!done) {
+          const pollInterval = setInterval(async () => {
+            if (await pollDeploy()) clearInterval(pollInterval);
+          }, 5000);
+        }
       } catch {
         if (publishSplit) publishSplit.setAttribute("status", "error");
         setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 2000);
       }
     });
 
-    // Unpublish (dropdown item) — shows loader, unpublish triggers deploy on backend
+    // Unpublish (dropdown item) — unpublish + poll deploy status
     document.getElementById("admin-unpublish-btn")?.addEventListener("select", async () => {
       if (!currentSlug) return;
       if (publishSplit) publishSplit.setAttribute("status", "loading");
@@ -893,9 +961,45 @@ export const editorRoute: Route = {
         if (post) post.status = "draft";
         const tab = openTabs.find((t) => t.slug === currentSlug);
         if (tab) tab.status = "draft";
+        deployingSlug = currentSlug;
         renderSidebar();
-        if (publishSplit) publishSplit.setAttribute("status", "success");
-        setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 1500);
+
+        // Poll deploy status
+        const pollUnpublish = async (): Promise<boolean> => {
+          try {
+            const statusRes = await api.api.deploy.status.$get();
+            if (!statusRes.ok) return false;
+            const { status: deployStatus } = await statusRes.json();
+            if (deployStatus === "success") {
+              deployingSlug = null;
+              renderSidebar();
+              if (publishSplit) {
+                publishSplit.setAttribute("status", "success");
+                setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
+              }
+              return true;
+            } else if (deployStatus === "failure") {
+              deployingSlug = null;
+              renderSidebar();
+              if (publishSplit) {
+                publishSplit.setAttribute("status", "error");
+                setTimeout(() => publishSplit.setAttribute("status", "none"), 2000);
+              }
+              return true;
+            }
+            return false;
+          } catch {
+            deployingSlug = null;
+            renderSidebar();
+            return true;
+          }
+        };
+        const done = await pollUnpublish();
+        if (!done) {
+          const pollInterval = setInterval(async () => {
+            if (await pollUnpublish()) clearInterval(pollInterval);
+          }, 5000);
+        }
       } catch {
         if (publishSplit) publishSplit.setAttribute("status", "error");
         setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 2000);
@@ -1034,6 +1138,7 @@ export const editorRoute: Route = {
         content: "",
         status: "draft",
       updatedAt: new Date().toISOString(),
+      publishedAt: null,
       persisted: false,
       };
       allPosts.unshift(draft);
