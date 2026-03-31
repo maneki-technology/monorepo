@@ -20,6 +20,7 @@ import "@maneki/ui-components/components/ui-side-panel-menu-section.js";
 import "@maneki/ui-components/components/ui-icon.js";
 import "@maneki/ui-components/components/ui-dropdown-split.js";
 import "@maneki/ui-components/components/ui-dropdown-item.js";
+import "@maneki/ui-components/components/ui-checkbox-item.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -211,8 +212,10 @@ interface EditorState {
   openTabs: Draft[];
   currentSlug: string | null;
   saving: boolean;
-  deployingSlug: string | null;
+  deployingSlugs: Set<string>;
+  deployingAction: "publishing" | "unpublishing" | null;
   pendingDeleteSlug: string | null;
+  selectedSlugs: Set<string>;
 }
 
 const state: EditorState = {
@@ -220,15 +223,17 @@ const state: EditorState = {
   openTabs: [],
   currentSlug: null,
   saving: false,
-  deployingSlug: null,
+  deployingSlugs: new Set(),
+  deployingAction: null,
   pendingDeleteSlug: null,
+  selectedSlugs: new Set(),
 };
 
 let renderScheduled = false;
 let previewDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 const pendingRenders = { sidebar: false, tabbar: false };
 
-const SIDEBAR_DEPS: (keyof EditorState)[] = ["allPosts", "currentSlug", "deployingSlug", "pendingDeleteSlug"];
+const SIDEBAR_DEPS: (keyof EditorState)[] = ["allPosts", "currentSlug", "deployingSlugs", "pendingDeleteSlug", "selectedSlugs"];
 const TABBAR_DEPS: (keyof EditorState)[] = ["openTabs", "currentSlug"];
 
 function setState(partial: Partial<EditorState>): void {
@@ -355,7 +360,7 @@ function renderPreview(): void {
 
 function renderSidebar(): void {
   // Toggle toolbar buttons based on deploy state
-  const isDeploying = state.deployingSlug !== null;
+  const isDeploying = state.deployingSlugs.size > 0;
   const saveBtn = document.getElementById("admin-save-btn");
   const publishSplit = document.getElementById("admin-publish-split");
   if (saveBtn) { if (isDeploying) saveBtn.setAttribute("disabled", ""); else saveBtn.removeAttribute("disabled"); }
@@ -386,10 +391,14 @@ function renderSidebar(): void {
     let badgeStatus = "warning";
     let badgeLabel = post.status;
     if (post.status === "published") badgeStatus = "success";
+    if (state.deployingSlugs.has(post.slug) && state.deployingAction) {
+      badgeStatus = "information";
+      badgeLabel = state.deployingAction;
+    }
 
     metaSpan.innerHTML = `${post.date} <ui-badge size="xs" status="${badgeStatus}">${badgeLabel}</ui-badge>`;
 
-    if (state.deployingSlug === post.slug) {
+    if (state.deployingSlugs.has(post.slug)) {
       const spinner = document.createElement("ui-icon");
       spinner.setAttribute("name", "progress_activity");
       spinner.setAttribute("size", "xs");
@@ -401,13 +410,35 @@ function renderSidebar(): void {
       metaSpan.appendChild(spinner);
     }
 
+    // Checkbox for multi-select
+    const checkbox = document.createElement("ui-checkbox-item");
+    checkbox.setAttribute("size", "s");
+    if (state.selectedSlugs.has(post.slug)) {
+      checkbox.setAttribute("checked", "");
+    }
+    checkbox.style.cssText = (state.selectedSlugs.size > 0
+      ? "flex-shrink:0;"
+      : "flex-shrink:0;opacity:0;transition:opacity 0.15s;") + "align-self:flex-start;margin-top:2px;";
+    checkbox.addEventListener("change", (e) => {
+      e.stopPropagation();
+      const newSelected = new Set(state.selectedSlugs);
+      if (newSelected.has(post.slug)) {
+        newSelected.delete(post.slug);
+      } else {
+        newSelected.add(post.slug);
+      }
+      setState({ selectedSlugs: newSelected });
+    });
+
     label.appendChild(titleSpan);
     label.appendChild(metaSpan);
     item.appendChild(label);
-
+    checkbox.setAttribute("slot", "icon");
+    item.setAttribute("leading-icon", "");
+    item.appendChild(checkbox);
     // Disable delete during deploy
     const deleteBtn = document.createElement("ui-button");
-    if (state.deployingSlug === post.slug) deleteBtn.setAttribute("disabled", "");
+    if (state.deployingSlugs.has(post.slug)) deleteBtn.setAttribute("disabled", "");
     deleteBtn.setAttribute("action", "destructive");
     deleteBtn.setAttribute("emphasis", "minimal");
     deleteBtn.setAttribute("size", "s");
@@ -426,10 +457,159 @@ function renderSidebar(): void {
       if (modal) modal.show();
     });
     item.appendChild(deleteBtn);
-    item.addEventListener("mouseenter", () => { deleteBtn.style.opacity = "1"; });
-    item.addEventListener("mouseleave", () => { deleteBtn.style.opacity = "0"; });
+    item.addEventListener("mouseenter", () => { deleteBtn.style.opacity = "1"; if (state.selectedSlugs.size === 0) checkbox.style.opacity = "1"; });
+    item.addEventListener("mouseleave", () => { deleteBtn.style.opacity = "0"; if (state.selectedSlugs.size === 0) checkbox.style.opacity = "0"; });
 
     list.appendChild(item);
+  }
+
+  // Bulk action bar
+  const existingBar = document.getElementById("admin-bulk-actions");
+  if (existingBar) existingBar.remove();
+
+  if (state.selectedSlugs.size > 0) {
+    const bar = document.createElement("div");
+    bar.id = "admin-bulk-actions";
+    bar.className = "admin-bulk-actions";
+
+    const count = document.createElement("span");
+    count.className = "admin-bulk-count";
+    count.textContent = `${state.selectedSlugs.size} selected`;
+
+    const selectAllBtn = document.createElement("ui-button");
+    selectAllBtn.setAttribute("action", "secondary");
+    selectAllBtn.setAttribute("emphasis", "minimal");
+    selectAllBtn.setAttribute("size", "s");
+    selectAllBtn.textContent = state.selectedSlugs.size === state.allPosts.length ? "Deselect All" : "Select All";
+    selectAllBtn.addEventListener("click", () => {
+      if (state.selectedSlugs.size === state.allPosts.length) {
+        setState({ selectedSlugs: new Set() });
+      } else {
+        setState({ selectedSlugs: new Set(state.allPosts.map((p) => p.slug)) });
+      }
+    });
+
+    const deleteBtn = document.createElement("ui-button");
+    deleteBtn.setAttribute("action", "destructive");
+    deleteBtn.setAttribute("emphasis", "minimal");
+    deleteBtn.setAttribute("size", "s");
+    deleteBtn.setAttribute("icon", "icon-only");
+    deleteBtn.setAttribute("aria-label", "Delete selected");
+    const delIcon = document.createElement("ui-icon");
+    delIcon.setAttribute("name", "delete");
+    delIcon.setAttribute("size", "s");
+    delIcon.setAttribute("slot", "icon-start");
+    deleteBtn.appendChild(delIcon);
+    deleteBtn.addEventListener("click", async () => {
+      const slugs = [...state.selectedSlugs];
+      deleteBtn.setAttribute("status", "loading");
+      try {
+        await api.api.posts.batch.delete.$post({ json: { slugs } });
+        setState({
+          allPosts: state.allPosts.filter((p) => !state.selectedSlugs.has(p.slug)),
+          openTabs: state.openTabs.filter((t) => !state.selectedSlugs.has(t.slug)),
+          selectedSlugs: new Set(),
+          currentSlug: state.selectedSlugs.has(state.currentSlug ?? "")
+            ? (state.openTabs.filter((t) => !state.selectedSlugs.has(t.slug)).pop()?.slug ?? null)
+            : state.currentSlug,
+        });
+      } catch {
+        deleteBtn.setAttribute("status", "error");
+        setTimeout(() => deleteBtn.setAttribute("status", "none"), 2000);
+      }
+    });
+
+    const publishBtn = document.createElement("ui-button");
+    publishBtn.setAttribute("action", "primary");
+    publishBtn.setAttribute("emphasis", "minimal");
+    publishBtn.setAttribute("size", "s");
+    publishBtn.setAttribute("icon", "icon-only");
+    publishBtn.setAttribute("aria-label", "Publish selected");
+    const pubIcon = document.createElement("ui-icon");
+    pubIcon.setAttribute("name", "upload");
+    pubIcon.setAttribute("size", "s");
+    pubIcon.setAttribute("slot", "icon-start");
+    publishBtn.appendChild(pubIcon);
+    publishBtn.addEventListener("click", async () => {
+      const slugs = [...state.selectedSlugs];
+      publishBtn.setAttribute("status", "loading");
+      try {
+        await api.api.posts.batch.publish.$post({ json: { slugs } });
+        for (const p of state.allPosts) {
+          if (state.selectedSlugs.has(p.slug)) {
+            p.status = "published";
+            p.publishedAt = new Date().toISOString();
+          }
+        }
+        setState({ selectedSlugs: new Set(), deployingSlugs: new Set(slugs), deployingAction: "publishing" });
+        const pollInterval = setInterval(async () => {
+          try {
+            const res = await api.api.deploy.status.$get();
+            if (!res.ok) return;
+            const { status: s } = await res.json();
+            if (s === "success" || s === "failure") {
+              clearInterval(pollInterval);
+              setState({ deployingSlugs: new Set(), deployingAction: null });
+            }
+          } catch {
+            clearInterval(pollInterval);
+            setState({ deployingSlugs: new Set(), deployingAction: null });
+          }
+        }, 5000);
+      } catch {
+        publishBtn.setAttribute("status", "error");
+        setTimeout(() => publishBtn.setAttribute("status", "none"), 2000);
+      }
+    });
+
+    const unpublishBtn = document.createElement("ui-button");
+    unpublishBtn.setAttribute("action", "secondary");
+    unpublishBtn.setAttribute("emphasis", "minimal");
+    unpublishBtn.setAttribute("size", "s");
+    unpublishBtn.setAttribute("icon", "icon-only");
+    unpublishBtn.setAttribute("aria-label", "Unpublish selected");
+    const unpubIcon = document.createElement("ui-icon");
+    unpubIcon.setAttribute("name", "download");
+    unpubIcon.setAttribute("size", "s");
+    unpubIcon.setAttribute("slot", "icon-start");
+    unpublishBtn.appendChild(unpubIcon);
+    unpublishBtn.addEventListener("click", async () => {
+      const slugs = [...state.selectedSlugs];
+      unpublishBtn.setAttribute("status", "loading");
+      try {
+        await api.api.posts.batch.unpublish.$post({ json: { slugs } });
+        for (const p of state.allPosts) {
+          if (state.selectedSlugs.has(p.slug)) p.status = "draft";
+        }
+        setState({ selectedSlugs: new Set(), deployingSlugs: new Set(slugs), deployingAction: "unpublishing" });
+        const pollInterval = setInterval(async () => {
+          try {
+            const res = await api.api.deploy.status.$get();
+            if (!res.ok) return;
+            const { status: s } = await res.json();
+            if (s === "success" || s === "failure") {
+              clearInterval(pollInterval);
+              setState({ deployingSlugs: new Set(), deployingAction: null });
+            }
+          } catch {
+            clearInterval(pollInterval);
+            setState({ deployingSlugs: new Set(), deployingAction: null });
+          }
+        }, 5000);
+      } catch {
+        unpublishBtn.setAttribute("status", "error");
+        setTimeout(() => unpublishBtn.setAttribute("status", "none"), 2000);
+      }
+    });
+
+    bar.appendChild(count);
+    bar.appendChild(selectAllBtn);
+    bar.appendChild(deleteBtn);
+    bar.appendChild(publishBtn);
+    bar.appendChild(unpublishBtn);
+
+    const sidebar = document.getElementById("admin-sidebar");
+    if (sidebar) sidebar.appendChild(bar);
   }
 }
 
@@ -786,7 +966,7 @@ export const editorRoute: Route = {
           if (!statusRes.ok) return;
           const { status: deployStatus } = await statusRes.json();
           if (deployStatus === "building" || deployStatus === "deploying") {
-            setState({ deployingSlug: state.currentSlug });
+            setState({ deployingSlugs: new Set([state.currentSlug!]), deployingAction: "publishing" });
             const pollInterval = setInterval(async () => {
               try {
                 const r = await api.api.deploy.status.$get();
@@ -794,11 +974,11 @@ export const editorRoute: Route = {
                 const { status: s } = await r.json();
                 if (s === "success" || s === "failure") {
                   clearInterval(pollInterval);
-                  setState({ deployingSlug: null });
+                  setState({ deployingSlugs: new Set(), deployingAction: null });
                 }
               } catch {
                 clearInterval(pollInterval);
-                setState({ deployingSlug: null });
+                setState({ deployingSlugs: new Set(), deployingAction: null });
               }
             }, 5000);
           }
@@ -930,7 +1110,7 @@ export const editorRoute: Route = {
         if (post) post.status = "published";
         const tab = state.openTabs.find((t) => t.slug === state.currentSlug);
         if (tab) tab.status = "published";
-        setState({ deployingSlug: state.currentSlug });
+        setState({ deployingSlugs: new Set([state.currentSlug!]), deployingAction: "publishing" });
 
         // Poll deploy status
         const pollDeploy = async (): Promise<boolean> => {
@@ -940,7 +1120,7 @@ export const editorRoute: Route = {
             const { status: deployStatus } = await statusRes.json();
 
             if (deployStatus === "success") {
-              setState({ deployingSlug: null });
+              setState({ deployingSlugs: new Set(), deployingAction: null });
               if (state.currentSlug) {
                 const p = state.allPosts.find((x) => x.slug === state.currentSlug);
                 if (p) p.publishedAt = new Date().toISOString();
@@ -954,7 +1134,7 @@ export const editorRoute: Route = {
               }
               return true;
             } else if (deployStatus === "failure") {
-              setState({ deployingSlug: null });
+              setState({ deployingSlugs: new Set(), deployingAction: null });
               if (publishSplit) {
                 publishSplit.setAttribute("status", "error");
                 setTimeout(() => publishSplit.setAttribute("status", "none"), 2000);
@@ -963,7 +1143,7 @@ export const editorRoute: Route = {
             }
             return false;
           } catch {
-            setState({ deployingSlug: null });
+            setState({ deployingSlugs: new Set(), deployingAction: null });
             return true;
           }
         };
@@ -991,7 +1171,7 @@ export const editorRoute: Route = {
         if (post) post.status = "draft";
         const tab = state.openTabs.find((t) => t.slug === state.currentSlug);
         if (tab) tab.status = "draft";
-        setState({ deployingSlug: state.currentSlug });
+        setState({ deployingSlugs: new Set([state.currentSlug!]), deployingAction: "unpublishing" });
 
         // Poll deploy status
         const pollUnpublish = async (): Promise<boolean> => {
@@ -1000,14 +1180,14 @@ export const editorRoute: Route = {
             if (!statusRes.ok) return false;
             const { status: deployStatus } = await statusRes.json();
             if (deployStatus === "success") {
-              setState({ deployingSlug: null });
+              setState({ deployingSlugs: new Set(), deployingAction: null });
               if (publishSplit) {
                 publishSplit.setAttribute("status", "success");
                 setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
               }
               return true;
             } else if (deployStatus === "failure") {
-              setState({ deployingSlug: null });
+              setState({ deployingSlugs: new Set(), deployingAction: null });
               if (publishSplit) {
                 publishSplit.setAttribute("status", "error");
                 setTimeout(() => publishSplit.setAttribute("status", "none"), 2000);
@@ -1016,7 +1196,7 @@ export const editorRoute: Route = {
             }
             return false;
           } catch {
-            setState({ deployingSlug: null });
+            setState({ deployingSlugs: new Set(), deployingAction: null });
             return true;
           }
         };

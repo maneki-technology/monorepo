@@ -325,6 +325,24 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
+    .admin-bulk-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--fd-space-0-75);
+      padding: var(--fd-space-1) var(--fd-space-1-5);
+      border-top: var(--fd-border-width-sm) solid var(--fd-border-minimal);
+      background: var(--fd-surface-secondary);
+      flex-shrink: 0;
+    }
+
+    .admin-bulk-count {
+      font-family: var(--fd-type-body-03-font-family);
+      font-size: var(--fd-type-body-03-font-size);
+      line-height: var(--fd-type-body-03-line-height);
+      color: var(--fd-text-secondary);
+      margin-right: auto;
+    }
   </style>
 </head>
 <body>

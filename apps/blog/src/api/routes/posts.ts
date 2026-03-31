@@ -61,7 +61,7 @@ export const posts = new Hono<Env>()
 
     const sql = status
       ? "SELECT * FROM posts WHERE status = ? ORDER BY created_at DESC"
-      : "SELECT * FROM posts ORDER BY created_at DESC";
+      : "SELECT * FROM posts WHERE status != 'deleted' ORDER BY created_at DESC";
     const args = status ? [status] : [];
 
     const result = await db.execute({ sql, args });
@@ -152,11 +152,11 @@ export const posts = new Hono<Env>()
     return c.json({ ok: true });
   })
 
-  // Delete post by slug
+  // Soft delete post by slug
   .delete("/:slug", async (c) => {
     const db = c.get("db");
     await db.execute({
-      sql: "DELETE FROM posts WHERE slug = ?",
+      sql: "UPDATE posts SET status = 'deleted', updated_at = datetime('now') WHERE slug = ?",
       args: [c.req.param("slug")],
     });
     return c.json({ ok: true });
@@ -204,4 +204,54 @@ export const posts = new Hono<Env>()
     // Trigger deploy
     const deployId = await triggerDeploy(db, c.get("userEmail"), ghToken);
     return c.json({ ok: true, deploymentId: deployId });
+  })
+
+  // ─── Batch operations ────────────────────────────────────────────────────
+
+  // Batch delete
+  .post("/batch/delete", zValidator("json", z.object({ slugs: z.array(z.string()) })), async (c) => {
+    const db = c.get("db");
+    const { slugs } = c.req.valid("json");
+    if (!slugs.length) return c.json({ ok: true, count: 0 });
+
+    const placeholders = slugs.map(() => "?").join(", ");
+    await db.execute({
+      sql: `UPDATE posts SET status = 'deleted', updated_at = datetime('now') WHERE slug IN (${placeholders})`,
+      args: slugs,
+    });
+    return c.json({ ok: true, count: slugs.length });
+  })
+
+  // Batch publish — set all to published + ONE deploy
+  .post("/batch/publish", zValidator("json", z.object({ slugs: z.array(z.string()) })), async (c) => {
+    const db = c.get("db");
+    const { slugs } = c.req.valid("json");
+    const ghToken = c.env.GH_DEPLOY_TOKEN;
+    if (!slugs.length) return c.json({ ok: true, count: 0 });
+
+    const placeholders = slugs.map(() => "?").join(", ");
+    await db.execute({
+      sql: `UPDATE posts SET status = 'published', updated_at = datetime('now'), published_at = datetime('now') WHERE slug IN (${placeholders})`,
+      args: slugs,
+    });
+
+    const deployId = await triggerDeploy(db, c.get("userEmail"), ghToken);
+    return c.json({ ok: true, count: slugs.length, deploymentId: deployId });
+  })
+
+  // Batch unpublish — set all to draft + ONE deploy
+  .post("/batch/unpublish", zValidator("json", z.object({ slugs: z.array(z.string()) })), async (c) => {
+    const db = c.get("db");
+    const { slugs } = c.req.valid("json");
+    const ghToken = c.env.GH_DEPLOY_TOKEN;
+    if (!slugs.length) return c.json({ ok: true, count: 0 });
+
+    const placeholders = slugs.map(() => "?").join(", ");
+    await db.execute({
+      sql: `UPDATE posts SET status = 'draft', updated_at = datetime('now') WHERE slug IN (${placeholders})`,
+      args: slugs,
+    });
+
+    const deployId = await triggerDeploy(db, c.get("userEmail"), ghToken);
+    return c.json({ ok: true, count: slugs.length, deploymentId: deployId });
   });
