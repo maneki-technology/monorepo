@@ -624,6 +624,7 @@ export const editorRoute: Route = {
             <ui-button id="admin-preview-btn" action="secondary" emphasis="subtle" size="s">Preview</ui-button>
             <ui-button id="admin-save-btn" action="primary" size="s">Save</ui-button>
             <ui-dropdown-split id="admin-publish-split" action="primary" size="s" label="Publish">
+              <ui-dropdown-item id="admin-unpublish-btn" value="unpublish">Unpublish</ui-dropdown-item>
               <ui-dropdown-item id="admin-export-btn" value="export">Export .md</ui-dropdown-item>
             </ui-dropdown-split>
           </div>
@@ -702,6 +703,31 @@ export const editorRoute: Route = {
       document.getElementById("admin-sidebar")!.style.display = "";
       renderSidebar();
       if (!currentSlug) renderTabBar();
+
+      // Resume polling for any posts stuck in 'publishing' state
+      const publishingPosts = allPosts.filter((p) => p.status === "publishing");
+      if (publishingPosts.length > 0) {
+        const pollInterval = setInterval(async () => {
+          try {
+            const statusRes = await api.api.deploy.status.$get();
+            if (!statusRes.ok) return;
+            const { status: deployStatus } = await statusRes.json();
+
+            if (deployStatus === "success" || deployStatus === "failure") {
+              clearInterval(pollInterval);
+              const newStatus = deployStatus === "success" ? "published" : "failed";
+              for (const p of publishingPosts) {
+                p.status = newStatus;
+                const tab = openTabs.find((t) => t.slug === p.slug);
+                if (tab) tab.status = newStatus;
+              }
+              renderSidebar();
+            }
+          } catch {
+            clearInterval(pollInterval);
+          }
+        }, 3000);
+      }
     });
 
     const textarea = document.getElementById("admin-content") as HTMLTextAreaElement;
@@ -791,23 +817,82 @@ export const editorRoute: Route = {
     const saveBtn = document.getElementById("admin-save-btn");
     document.getElementById("admin-save-btn")?.addEventListener("click", () => saveCurrent(true, saveBtn));
 
-    // Publish (split button left action)
+    // Publish (split button left action) — save, publish (triggers deploy), poll
     const publishSplit = document.getElementById("admin-publish-split");
     publishSplit?.addEventListener("action", async () => {
       if (publishSplit) publishSplit.setAttribute("status", "loading");
       try {
-        const saved = await saveCurrent(true);
-        if (!saved || !currentSlug) {
+        if (!currentSlug) {
           if (publishSplit) publishSplit.setAttribute("status", "error");
           setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 2000);
           return;
         }
-        await api.api.posts[":slug"].publish.$put({ param: { slug: currentSlug } });
+
+        // Publish with latest content (saves + sets publishing + triggers deploy)
+        const data = getCurrentDraftData();
+        const tags = data.tags.split(",").map((t: string) => t.trim()).filter(Boolean);
+        await api.api.posts[":slug"].publish.$put({
+          param: { slug: currentSlug },
+          json: {
+            title: data.title,
+            body_md: data.content,
+            excerpt: data.excerpt,
+            tags,
+            date: data.date,
+          },
+        });
         const post = allPosts.find((p) => p.slug === currentSlug);
-        if (post) post.status = "published";
+        if (post) post.status = "publishing";
         const tab = openTabs.find((t) => t.slug === currentSlug);
-        if (tab) tab.status = "published";
-        renderTabBar();
+        if (tab) tab.status = "publishing";
+        renderSidebar();
+
+        // Poll deploy status
+        const pollInterval = setInterval(async () => {
+          try {
+            const statusRes = await api.api.deploy.status.$get();
+            if (!statusRes.ok) return;
+            const { status: deployStatus } = await statusRes.json();
+
+            if (deployStatus === "success") {
+              clearInterval(pollInterval);
+              if (post) post.status = "published";
+              if (tab) tab.status = "published";
+              renderSidebar();
+              if (publishSplit) {
+                publishSplit.setAttribute("status", "success");
+                setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
+              }
+            } else if (deployStatus === "failure") {
+              clearInterval(pollInterval);
+              if (post) post.status = "failed";
+              if (tab) tab.status = "failed";
+              renderSidebar();
+              if (publishSplit) {
+                publishSplit.setAttribute("status", "error");
+                setTimeout(() => publishSplit.setAttribute("status", "none"), 2000);
+              }
+            }
+          } catch {
+            clearInterval(pollInterval);
+          }
+        }, 3000);
+      } catch {
+        if (publishSplit) publishSplit.setAttribute("status", "error");
+        setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 2000);
+      }
+    });
+
+    // Unpublish (dropdown item) — shows loader, unpublish triggers deploy on backend
+    document.getElementById("admin-unpublish-btn")?.addEventListener("select", async () => {
+      if (!currentSlug) return;
+      if (publishSplit) publishSplit.setAttribute("status", "loading");
+      try {
+        await api.api.posts[":slug"].unpublish.$put({ param: { slug: currentSlug } });
+        const post = allPosts.find((p) => p.slug === currentSlug);
+        if (post) post.status = "draft";
+        const tab = openTabs.find((t) => t.slug === currentSlug);
+        if (tab) tab.status = "draft";
         renderSidebar();
         if (publishSplit) publishSplit.setAttribute("status", "success");
         setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 1500);
