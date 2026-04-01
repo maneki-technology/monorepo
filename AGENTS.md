@@ -54,12 +54,12 @@ maneki-monorepo/
 │           │   ├── index.ts   # App entry + AppType export for RPC
 │           │   ├── db/        # Turso client + SQL schema
 │           │   ├── middleware/ # CF Access JWT auth
-│           │   └── routes/    # posts CRUD, ui-state persistence
+│           │   └── routes/    # posts CRUD, ui-state, deploy, images (R2)
 │           ├── lib/api.ts     # Typed RPC client (hc<AppType>)
 │           ├── config.ts     # Site URL/title config
 │           ├── routes.ts     # Route definitions
 │           ├── editor-entry.ts # Editor entry point
-│           └── pages/        # 6 routes: home, blog, post, portfolio, resume, about + editor (separate entry)
+│           └── pages/        # 6 routes + editor module (8 files under editor/)
 ```
 
 ## WHERE TO LOOK
@@ -77,8 +77,8 @@ maneki-monorepo/
 | Storybook (all packages) | `.storybook/` | Root-level, aggregates foundation + ui-components + grid-layout + flex-layout |
 | Visual catalog + Playwright tests | `apps/catalog/` | 55 pages, 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout). History API routing, workbox caching. |
 | Personal blog + portfolio | `apps/blog/` | Hono API + Turso DB, CF Pages Functions, static prerendering, editor with RPC client |
-| Blog API routes | `apps/blog/src/api/` | Hono: posts CRUD, ui-state persistence, CF Access auth |
-| Blog editor | `apps/blog/src/pages/editor.ts` | Sidebar (ui-side-panel-menu), tabs, Shiki preview, RPC client |
+| Blog API routes | `apps/blog/src/api/` | Hono: posts CRUD, ui-state, deploy trigger, image upload (R2) |
+| Blog editor | `apps/blog/src/pages/editor/` | 8 modules: state, sidebar, tabbar, preview, toolbar, upload, api, types |
 | Blog Vite plugins | `apps/blog/plugins/` | markdown-posts (Turso), auto-ui-components, sitemap (Turso), rss-feed (Turso) |
 | Blog scripts | `apps/blog/scripts/` | prerender.ts, migrate.ts, seed-posts.ts |
 | Shared Vite config | `shared/` | Dev aliases for cross-package HMR |
@@ -173,5 +173,5 @@ npm run seed-posts           # Seed markdown posts into Turso (one-time)
 - Node pinned at 22 because Storybook 10 requires Node 20.19+
 - LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead
 - Dark theme: `[data-theme="dark"]` toggles all semantic tokens. Catalog has theme toggle button.
-- ADRs in `docs/adr/` — 16 architectural decision records
-- `apps/blog/` — Personal blog + portfolio. Hono API + Turso DB, CF Pages Functions, CF Access auth, typed RPC client (hc<AppType>), static prerendering via `scripts/prerender.ts`, History API routing, workbox service worker (JS/CSS/fonts cached, HTML from network), Shiki syntax highlighting (build-time + editor preview), SEO meta tags, sitemap generation (Turso), RSS feed (Turso), FOUC prevention, reading progress bar, client-side search, editor at `/editor` (separate entry) with sidebar, tabs, delete modal, publish/export split button, UI state persistence, resume page. Port 5175.
+- ADRs in `docs/adr/` — 17 architectural decision records
+- `apps/blog/` — Personal blog + portfolio. Hono API + Turso DB, CF Pages Functions, CF Access auth, typed RPC client (hc<AppType>), static prerendering via `scripts/prerender.ts`, History API routing, workbox service worker (JS/CSS/fonts cached, HTML from network), Shiki syntax highlighting (build-time + editor preview), SEO meta tags, sitemap generation (Turso), RSS feed (Turso), FOUC prevention, reading progress bar, client-side search, editor at `/editor` (separate entry) with modular architecture (8 files), sidebar with multi-select + batch operations, tabs with Map-based DOM patching, reactive store (setState + selective rendering), image upload (R2 + client-side WebP optimization), deploy trigger (GitHub Actions repository_dispatch), soft delete, unpublished changes tracking (published_at), UI state persistence, resume page. Port 5175.
