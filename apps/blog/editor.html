@@ -201,6 +201,11 @@
       overflow: hidden;
       box-sizing: border-box;
       field-sizing: content;
+      transition: background 0.15s ease;
+    }
+
+    .admin-split #admin-content.drag-over {
+      background: var(--fd-surface-secondary, #f4f4f5);
     }
 
     .admin-textarea-spacer {
@@ -279,6 +284,15 @@
       border-radius: 4px;
     }
     .post-content pre code { background: none; padding: 0; border-radius: 0; }
+
+    /* Blog content images — natural sizing, no background */
+    .post-content ui-image {
+      --ui-image-bg: transparent;
+      --ui-image-fit: contain;
+      display: block;
+      max-width: 100%;
+      margin: var(--fd-space-2) 0;
+    }
 
     /* Shiki dual-theme support */
     .post-content pre.shiki,

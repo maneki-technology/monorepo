@@ -40,9 +40,20 @@ export function getMd(): Promise<MarkdownIt> {
       slugify: (s: string) => s.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, ""),
       permalink: false,
     });
+    addImageRenderer(instance);
     return instance;
   })();
   return mdReady;
+}
+
+// Override <img> → <ui-image> for both sync and async renderers
+function addImageRenderer(md: MarkdownIt): void {
+  md.renderer.rules.image = function (tokens, idx) {
+    const token = tokens[idx];
+    const src = token.attrGet("src") ?? "";
+    const alt = token.content ?? "";
+    return `<ui-image src="${src}" alt="${alt}" style="--ui-image-bg:transparent;--ui-image-fit:contain;display:block;max-width:100%;"></ui-image>`;
+  };
 }
 
 // Fallback sync md for initial render before Shiki loads
@@ -51,6 +62,7 @@ mdSync.use(anchor, {
   slugify: (s: string) => s.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, ""),
   permalink: false,
 });
+addImageRenderer(mdSync);
 
 // Wrap <pre> code blocks in <ui-scrollbar> for horizontal scroll
 export function wrapCodeBlocks(container: HTMLElement): void {

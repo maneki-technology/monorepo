@@ -7,6 +7,7 @@ import { renderPreview, triggerPreview, getMd, wrapCodeBlocks } from "./preview.
 import { SidebarRenderer } from "./sidebar.js";
 import { TabBarRenderer } from "./tabbar.js";
 import { setupToolbar, insertAtCursor } from "./toolbar.js";
+import { setupImageUpload } from "./upload.js";
 
 // These components are used in the editor but not detected by auto-import plugin
 import "@maneki/ui-components/components/ui-tag.js";
@@ -268,6 +269,7 @@ export const editorRoute: Route = {
 
     // Toolbar
     setupToolbar(textarea);
+    setupImageUpload(textarea);
 
     const saveBtn = document.getElementById("admin-save-btn");
     document.getElementById("admin-save-btn")?.addEventListener("click", async () => {
