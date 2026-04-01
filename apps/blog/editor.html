@@ -449,6 +449,55 @@
       font-size: var(--fd-type-body-02-font-size);
       color: var(--fd-text-secondary);
     }
+
+    /* Circular context menu */
+    .context-ring {
+      position: fixed;
+      z-index: 100;
+      width: 0;
+      height: 0;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.3);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+
+    .context-ring.open {
+      pointer-events: auto;
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .context-ring-btn {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: var(--fd-border-width-sm) solid var(--fd-border-minimal);
+      background: var(--fd-surface-primary);
+      color: var(--fd-text-primary);
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--fd-type-body-03-font-family);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: -14px;
+      margin-top: -14px;
+      transition: background 0.1s ease, border-color 0.1s ease, box-shadow 0.1s ease;
+      box-shadow: var(--fd-elevation-01);
+    }
+
+    .context-ring-btn:hover {
+      background: var(--fd-surface-secondary);
+      border-color: var(--fd-border-moderate);
+      box-shadow: var(--fd-elevation-02);
+    }
+
+    .context-ring-btn:active {
+      transform: translate(var(--tw-translate-x, 0), var(--tw-translate-y, 0)) scale(0.9);
+    }
   </style>
 </head>
 <body>
