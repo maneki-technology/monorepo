@@ -10,7 +10,7 @@ if (saved === "dark") {
   document.documentElement.setAttribute("data-theme", "dark");
 }
 
-import("./pages/editor.js").then(({ editorRoute }) => {
+import("./pages/editor/index.js").then(({ editorRoute }) => {
   const root = document.getElementById("editor-root");
   if (!root) return;
   root.innerHTML = editorRoute.render();
