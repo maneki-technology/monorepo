@@ -9,6 +9,8 @@ export interface Draft {
   updatedAt: string;
   publishedAt: string | null;
   persisted: boolean;
+  /** Snapshot of content at last publish — used to detect unpublished changes */
+  publishedContent: string | null;
 }
 
 export interface EditorUIState {

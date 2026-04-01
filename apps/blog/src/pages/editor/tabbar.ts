@@ -76,6 +76,7 @@ export class TabBarRenderer {
           updatedAt: new Date().toISOString(),
           publishedAt: null,
           persisted: false,
+          publishedContent: null,
         };
         setState({ allPosts: [draft, ...state.allPosts], openTabs: [...state.openTabs, draft] });
         loadDraftIntoEditor(draft);
