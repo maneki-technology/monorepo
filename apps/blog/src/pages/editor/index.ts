@@ -9,6 +9,7 @@ import { TabBarRenderer } from "./tabbar.js";
 import { setupToolbar, insertAtCursor } from "./toolbar.js";
 import { setupImageUpload } from "./upload.js";
 import { initGallery, toggleGallery } from "./gallery.js";
+import { setupContextMenu } from "./context-menu.js";
 
 // These components are used in the editor but not detected by auto-import plugin
 import "@maneki/ui-components/components/ui-tag.js";
@@ -273,7 +274,7 @@ export const editorRoute: Route = {
     setupToolbar(textarea);
     setupImageUpload(textarea);
     initGallery(textarea);
-    setupImageUpload(textarea);
+    setupContextMenu(textarea);
 
     const saveBtn = document.getElementById("admin-save-btn");
     if (saveBtn) {

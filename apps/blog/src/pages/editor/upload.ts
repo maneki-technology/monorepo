@@ -49,7 +49,7 @@ async function optimizeImage(file: File): Promise<File> {
   });
 }
 
-async function uploadFile(file: File, textarea: HTMLTextAreaElement): Promise<void> {
+export async function uploadFile(file: File, textarea: HTMLTextAreaElement): Promise<void> {
   // Optimize before upload
   const optimized = await optimizeImage(file);
 
