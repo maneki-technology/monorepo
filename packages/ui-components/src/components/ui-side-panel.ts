@@ -14,7 +14,7 @@ sheet.replaceSync(STYLES);
 const MOBILE_QUERY = "(max-width: 767px)";
 
 export class UiSidePanel extends HTMLElement {
-  static readonly observedAttributes = ["state", "overlay", "mobile", "no-collapse", "scrollbar-emphasis"];
+  static readonly observedAttributes = ["state", "overlay", "mobile", "no-collapse", "scrollbar-emphasis", "position", "open", "dismissible"];
 
   #header!: HTMLElement;
   #toggleBtn!: HTMLButtonElement;
@@ -91,7 +91,6 @@ export class UiSidePanel extends HTMLElement {
   connectedCallback(): void {
     if (!this.hasAttribute("state")) this.setAttribute("state", "expanded");
     if (this.hasAttribute("no-collapse")) this.#toggleBtn.style.display = "none";
-    if (!this.hasAttribute("state")) this.setAttribute("state", "expanded");
 
     this.#toggleBtn.addEventListener("click", () => this.toggle());
     this.#mobileTrigger.addEventListener("click", () => this.toggle());
@@ -117,12 +116,18 @@ export class UiSidePanel extends HTMLElement {
       case "scrollbar-emphasis":
         this.#body.setAttribute("emphasis", newValue ?? "minimal");
         break;
+      case "open":
+        if (newValue !== null) {
+          this._onOpen();
+        } else {
+          this._onClose();
+        }
+        break;
     }
   }
 
   // ── Property accessors ──────────────────────────────────────────────────
 
-  // ── Property accessors ──────────────────────────────────────────────────
 
   get state(): SidePanelState {
     return (this.getAttribute("state") as SidePanelState) ?? "expanded";
@@ -137,6 +142,13 @@ export class UiSidePanel extends HTMLElement {
   set overlay(v: boolean) {
     if (v) this.setAttribute("overlay", "");
     else this.removeAttribute("overlay");
+  }
+
+  get position(): "left" | "right" {
+    return (this.getAttribute("position") as "left" | "right") ?? "left";
+  }
+  set position(v: "left" | "right") {
+    this.setAttribute("position", v);
   }
 
   get mobile(): boolean {
@@ -166,7 +178,53 @@ export class UiSidePanel extends HTMLElement {
     );
   }
 
-  // ── Private ─────────────────────────────────────────────────────────────
+  show(): void {
+    // 1. Make visible off-screen
+    this.classList.add("panel-visible");
+    // 2. Force reflow so browser registers off-screen position
+    this.offsetHeight;
+    // 3. Set open — triggers transform transition
+    this.setAttribute("open", "");
+  }
+
+  hide(): void {
+    this.removeAttribute("open");
+  }
+
+  // ── Private ───────────────────────────────────────────────────────────────────────
+
+  #outsideClickHandler: ((e: MouseEvent) => void) | null = null;
+
+  private _onOpen(): void {
+    // Outside click handler (delayed to avoid catching the opening click)
+    setTimeout(() => {
+      this.#outsideClickHandler = (e: MouseEvent) => {
+        if (this.hasAttribute("dismissible") && !this.contains(e.target as Node)) {
+          this.hide();
+        }
+      };
+      document.addEventListener("click", this.#outsideClickHandler);
+    }, 0);
+
+    this.dispatchEvent(new CustomEvent("open", { bubbles: true, composed: true }));
+  }
+
+  private _onClose(): void {
+    if (this.#outsideClickHandler) {
+      document.removeEventListener("click", this.#outsideClickHandler);
+      this.#outsideClickHandler = null;
+    }
+
+    // Wait for slide-out transition, then hide
+    const onEnd = (): void => {
+      this.removeEventListener("transitionend", onEnd);
+      this.classList.remove("panel-visible");
+    };
+    this.addEventListener("transitionend", onEnd);
+    setTimeout(() => this.classList.remove("panel-visible"), 250);
+
+    this.dispatchEvent(new CustomEvent("close", { bubbles: true, composed: true }));
+  }
 
   private _syncToggleIcon(): void {
     const isCollapsed = this.getAttribute("state") === "collapsed";
