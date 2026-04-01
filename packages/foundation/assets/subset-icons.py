@@ -52,6 +52,7 @@ CODEPOINTS: dict[str, int] = {
     "expand_less": 0xE5CE,
     "expand_more": 0xE5CF,
     "group": 0xE7EF,
+    "grid_view": 0xE9B0,
     "home": 0xE88A,
     "info": 0xE88E,
     "mail": 0xE158,

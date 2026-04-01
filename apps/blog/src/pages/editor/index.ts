@@ -8,6 +8,7 @@ import { SidebarRenderer } from "./sidebar.js";
 import { TabBarRenderer } from "./tabbar.js";
 import { setupToolbar, insertAtCursor } from "./toolbar.js";
 import { setupImageUpload } from "./upload.js";
+import { initGallery, toggleGallery } from "./gallery.js";
 
 // These components are used in the editor but not detected by auto-import plugin
 import "@maneki/ui-components/components/ui-tag.js";
@@ -81,6 +82,7 @@ export const editorRoute: Route = {
             <ui-button action="secondary" emphasis="minimal" size="s" data-action="code">&lt;/&gt;</ui-button>
             <ui-button action="secondary" emphasis="minimal" size="s" data-action="codeblock">▤</ui-button>
             <ui-button action="secondary" emphasis="minimal" size="s" data-action="image">🖼</ui-button>
+            <ui-button id="admin-gallery-btn" action="secondary" emphasis="minimal" size="s" icon="icon-only" aria-label="Image gallery"><ui-icon name="grid_view" size="s" slot="icon-start"></ui-icon></ui-button>
             <ui-button action="secondary" emphasis="minimal" size="s" data-action="ul">•</ui-button>
             <ui-button action="secondary" emphasis="minimal" size="s" data-action="ol">1.</ui-button>
             <ui-button action="secondary" emphasis="minimal" size="s" data-action="quote">"</ui-button>
@@ -270,6 +272,8 @@ export const editorRoute: Route = {
     // Toolbar
     setupToolbar(textarea);
     setupImageUpload(textarea);
+    initGallery(textarea);
+    setupImageUpload(textarea);
 
     const saveBtn = document.getElementById("admin-save-btn");
     document.getElementById("admin-save-btn")?.addEventListener("click", async () => {
@@ -416,6 +420,9 @@ export const editorRoute: Route = {
 
     // Fullscreen preview
     const overlay = document.getElementById("admin-preview-overlay")!;
+    // Gallery toggle
+    document.getElementById("admin-gallery-btn")?.addEventListener("click", toggleGallery);
+
     const previewFull = document.getElementById("admin-preview-full")!;
 
     document.getElementById("admin-preview-btn")?.addEventListener("click", () => {

@@ -39,6 +39,8 @@
       display: flex;
       flex-direction: column;
       min-width: 0;
+      position: relative;
+      overflow: hidden;
     }
 
     .admin-tab-bar {
@@ -356,6 +358,96 @@
       line-height: var(--fd-type-body-03-line-height);
       color: var(--fd-text-secondary);
       margin-right: auto;
+    }
+
+    /* Image gallery panel */
+    #admin-gallery {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      z-index: 10;
+      --ui-sp-width: 320px;
+      --ui-sp-bg: var(--fd-surface-primary);
+    }
+
+    .admin-gallery-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--fd-space-1) var(--fd-space-1-5);
+      border-bottom: var(--fd-border-width-sm) solid var(--fd-border-minimal);
+      flex-shrink: 0;
+    }
+
+    .admin-gallery-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--fd-space-1);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--fd-space-1);
+      align-content: start;
+    }
+
+    .gallery-item {
+      display: flex;
+      flex-direction: column;
+      border: var(--fd-border-width-sm) solid var(--fd-border-minimal);
+      border-radius: var(--fd-radius-sm);
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s ease;
+    }
+
+    .gallery-item:hover {
+      border-color: var(--fd-border-moderate);
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      background: var(--fd-surface-secondary);
+    }
+
+    .gallery-item-info {
+      padding: var(--fd-space-0-5);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .gallery-item-name {
+      font-family: var(--fd-type-body-03-font-family);
+      font-size: var(--fd-type-body-03-font-size);
+      color: var(--fd-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .gallery-item-size {
+      font-family: var(--fd-type-body-03-font-family);
+      font-size: 10px;
+      color: var(--fd-text-secondary);
+    }
+
+    .gallery-item-actions {
+      display: flex;
+      gap: var(--fd-space-0-5);
+      padding: var(--fd-space-0-5);
+      border-top: var(--fd-border-width-sm) solid var(--fd-border-minimal);
+    }
+
+    .gallery-loading,
+    .gallery-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: var(--fd-space-3);
+      font-family: var(--fd-type-body-02-font-family);
+      font-size: var(--fd-type-body-02-font-size);
+      color: var(--fd-text-secondary);
     }
   </style>
 </head>

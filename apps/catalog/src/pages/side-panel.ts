@@ -60,5 +60,43 @@ registerPage("side-panel", {
         Main content area
       </div>
     </div>
+    <h3>Right Position</h3>
+    <div style="display: flex; height: 400px; border: 1px solid var(--fd-border-minimal, #dce3e8); border-radius: 4px; overflow: hidden;">
+      <div style="flex: 1; padding: 24px; display: flex; align-items: center; justify-content: center; color: var(--fd-text-tertiary, #7a909e); font-size: 14px;">
+        Main content area
+      </div>
+      <ui-side-panel state="expanded" position="right">
+        <span slot="header">Right Panel</span>
+        <div style="padding: 16px; font-size: 14px; color: var(--fd-text-secondary, #3e5463);">
+          <p style="margin: 0 0 8px;">Panel positioned on the right side.</p>
+          <p style="margin: 0;">Border renders on the left edge.</p>
+        </div>
+      </ui-side-panel>
+    </div>
+
+    <h3>Dismissible (click outside to close)</h3>
+    <div style="display: flex; height: 400px; border: 1px solid var(--fd-border-minimal, #dce3e8); border-radius: 4px; overflow: hidden; position: relative;">
+      <ui-side-panel id="demo-dismissible" position="right" dismissible open no-collapse>
+        <span slot="header">Dismissible</span>
+        <div style="padding: 16px; font-size: 14px; color: var(--fd-text-secondary, #3e5463);">
+          <p style="margin: 0 0 8px;">Click outside this panel to close it.</p>
+          <p style="margin: 0;">Uses slide-in/out animation.</p>
+        </div>
+      </ui-side-panel>
+      <div style="flex: 1; padding: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--fd-text-tertiary, #7a909e); font-size: 14px;">
+        Main content area
+        <ui-button id="demo-dismissible-toggle" action="secondary" size="s">Toggle Panel</ui-button>
+      </div>
+    </div>
   `,
+  setup: () => {
+    requestAnimationFrame(() => {
+      const panel = document.getElementById("demo-dismissible");
+      const btn = document.getElementById("demo-dismissible-toggle");
+      btn?.addEventListener("click", () => {
+        if (panel?.hasAttribute("open")) panel.removeAttribute("open");
+        else panel?.setAttribute("open", "");
+      });
+    });
+  },
 });

@@ -110,6 +110,8 @@ export const ICON_MENU = "\uE5D2";
 export const ICON_REFRESH = "\uE5D5";
 /** delete (trash) — U+E872 */
 export const ICON_DELETE = "\uE872";
+/** grid_view — U+E9B0 */
+export const ICON_GRID_VIEW = "\uE9B0";
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
   warning: ICON_WARNING,
@@ -160,6 +162,7 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   menu: ICON_MENU,
   refresh: ICON_REFRESH,
   delete: ICON_DELETE,
+  grid_view: ICON_GRID_VIEW,
 };
 
 // ── Font registration ───────────────────────────────────────────────

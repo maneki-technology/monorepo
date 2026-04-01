@@ -26,6 +26,7 @@ expand_less
 expand_more
 first_page
 group
+grid_view
 home
 info
 keyboard_double_arrow_left

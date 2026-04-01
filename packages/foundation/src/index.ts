@@ -136,6 +136,7 @@ export {
   ICON_MENU,
   ICON_REFRESH,
   ICON_DELETE,
+  ICON_GRID_VIEW,
   ICON_CODEPOINTS,
   registerIconFont,
   registerGeistFont,

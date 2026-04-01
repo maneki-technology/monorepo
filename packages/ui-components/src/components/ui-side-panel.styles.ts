@@ -36,7 +36,29 @@ export const STYLES = /* css */ `
     background-color: var(--ui-sp-bg, ${SURFACE_SECONDARY});
     font-family: ${FONT_PRIMARY};
     position: relative;
-    transition: width 0.2s ease;
+    transition: width 0.2s ease, transform 0.2s ease;
+  }
+
+  /* ── Dismissible panels: hidden by default, shown via JS ───────────────── */
+
+  :host([dismissible]) {
+    display: none;
+  }
+
+  :host([dismissible].panel-visible) {
+    display: block;
+  }
+
+  :host([dismissible].panel-visible:not([open])) {
+    transform: translateX(-100%);
+  }
+
+  :host([dismissible][position="right"].panel-visible:not([open])) {
+    transform: translateX(100%);
+  }
+
+  :host([dismissible][open].panel-visible) {
+    transform: translateX(0);
   }
 
 
@@ -47,7 +69,25 @@ export const STYLES = /* css */ `
     width: 100%;
   }
 
-  /* ── Right border (inset shadow) ─────────────────────────────────────────── */
+  /* ── Right border (inset shadow) ───────────────────────────────────── */
+
+  :host(:not([overlay]):not([position="right"])) .container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset -1px 0 0 0 var(--ui-sp-border, ${BORDER_SUBTLE});
+  }
+
+  /* ── Right position ───────────────────────────────────────────── */
+
+  :host([position="right"]:not([overlay])) .container::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 1px 0 0 0 var(--ui-sp-border, ${BORDER_SUBTLE});
+  }
 
   :host(:not([overlay])) .container::after {
     content: "";
