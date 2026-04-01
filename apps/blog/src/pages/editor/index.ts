@@ -276,14 +276,16 @@ export const editorRoute: Route = {
     setupImageUpload(textarea);
 
     const saveBtn = document.getElementById("admin-save-btn");
-    document.getElementById("admin-save-btn")?.addEventListener("click", async () => {
-      if (state.saving) {
-        await new Promise<void>((resolve) => {
-          const check = setInterval(() => { if (!state.saving) { clearInterval(check); resolve(); } }, 100);
-        });
-      }
-      saveCurrent(true, saveBtn);
-    });
+    if (saveBtn) {
+      saveBtn.onclick = async () => {
+        if (state.saving) {
+          await new Promise<void>((resolve) => {
+            const check = setInterval(() => { if (!state.saving) { clearInterval(check); resolve(); } }, 100);
+          });
+        }
+        saveCurrent(true, saveBtn);
+      };
+    }
 
     // Publish (split button left action) — save, publish (triggers deploy), poll
     const publishSplit = document.getElementById("admin-publish-split");
@@ -421,40 +423,47 @@ export const editorRoute: Route = {
     // Fullscreen preview
     const overlay = document.getElementById("admin-preview-overlay")!;
     // Gallery toggle
-    document.getElementById("admin-gallery-btn")?.addEventListener("click", toggleGallery);
+    const galleryBtn = document.getElementById("admin-gallery-btn");
+    if (galleryBtn) galleryBtn.onclick = toggleGallery;
 
     const previewFull = document.getElementById("admin-preview-full")!;
 
-    document.getElementById("admin-preview-btn")?.addEventListener("click", () => {
-      const title = (titleInput as any).value;
-      const date = (dateInput as any).value;
-      const tags = tagsInput.value;
-      const content = textarea.value;
-      // Use Shiki for fullscreen preview
-      getMd().then((mdShiki) => {
-        const highlighted = mdShiki.render(content);
-        const tagBadges = tags.split(",").map((t) => t.trim()).filter(Boolean)
-          .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
-        const formattedDate = date
-          ? new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
-          : "";
-        previewFull.innerHTML = `
-          <article>
-            <a href="/blog" class="body-02 text-link" style="text-decoration:none;">← Back to blog</a>
-            <h1 class="heading-02 mt-3">${title || "Untitled"}</h1>
-            ${formattedDate ? `<div class="post-meta mt-1">${formattedDate}</div>` : ""}
-            ${tagBadges ? `<div class="tags mt-2">${tagBadges}</div>` : ""}
-            <div class="post-content mt-4">${highlighted}</div>
-          </article>
-        `;
-        wrapCodeBlocks(previewFull);
-        overlay.style.display = "flex";
-      });
-    });
+    const previewBtn = document.getElementById("admin-preview-btn");
+    if (previewBtn) {
+      previewBtn.onclick = () => {
+        const title = (titleInput as any).value;
+        const date = (dateInput as any).value;
+        const tags = tagsInput.value;
+        const content = textarea.value;
+        // Use Shiki for fullscreen preview
+        getMd().then((mdShiki) => {
+          const highlighted = mdShiki.render(content);
+          const tagBadges = tags.split(",").map((t) => t.trim()).filter(Boolean)
+            .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
+          const formattedDate = date
+            ? new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+            : "";
+          previewFull.innerHTML = `
+            <article>
+              <a href="/blog" class="body-02 text-link" style="text-decoration:none;">← Back to blog</a>
+              <h1 class="heading-02 mt-3">${title || "Untitled"}</h1>
+              ${formattedDate ? `<div class="post-meta mt-1">${formattedDate}</div>` : ""}
+              ${tagBadges ? `<div class="tags mt-2">${tagBadges}</div>` : ""}
+              <div class="post-content mt-4">${highlighted}</div>
+            </article>
+          `;
+          wrapCodeBlocks(previewFull);
+          overlay.style.display = "flex";
+        });
+      };
+    }
 
-    document.getElementById("admin-preview-close")?.addEventListener("click", () => {
-      overlay.style.display = "none";
-    });
+    const previewCloseBtn = document.getElementById("admin-preview-close");
+    if (previewCloseBtn) {
+      previewCloseBtn.onclick = () => {
+        overlay.style.display = "none";
+      };
+    }
 
     // Close preview on Escape
     overlay.addEventListener("keydown", (e) => {
@@ -497,15 +506,15 @@ export const editorRoute: Route = {
     cancelBtn.setAttribute("action", "secondary");
     cancelBtn.setAttribute("size", "s");
     cancelBtn.textContent = "Cancel";
-    cancelBtn.addEventListener("click", () => {
+    cancelBtn.onclick = () => {
       setState({ pendingDeleteSlug: null });
       (deleteModal as any).close();
-    });
+    };
     const confirmBtn = document.createElement("ui-button");
     confirmBtn.setAttribute("action", "destructive");
     confirmBtn.setAttribute("size", "s");
     confirmBtn.textContent = "Delete";
-    confirmBtn.addEventListener("click", async () => {
+    confirmBtn.onclick = async () => {
       if (!state.pendingDeleteSlug) return;
       confirmBtn.setAttribute("status", "loading");
       try {
@@ -530,7 +539,7 @@ export const editorRoute: Route = {
       } finally {
         confirmBtn.setAttribute("status", "none");
       }
-    });
+    };
     modalFooter.appendChild(cancelBtn);
     modalFooter.appendChild(confirmBtn);
     deleteModal.appendChild(modalBody);

@@ -71,19 +71,19 @@ async function renderGallery(): Promise<void> {
     insertBtn.setAttribute("emphasis", "minimal");
     insertBtn.setAttribute("size", "s");
     insertBtn.textContent = "Insert";
-    insertBtn.addEventListener("click", () => {
+    insertBtn.onclick = () => {
       if (textareaRef) {
         insertAtCursor(textareaRef, `![${img.name}](${img.url})`);
       }
       closeGallery();
-    });
+    };
 
     const deleteBtn = document.createElement("ui-button");
     deleteBtn.setAttribute("action", "destructive");
     deleteBtn.setAttribute("emphasis", "minimal");
     deleteBtn.setAttribute("size", "s");
     deleteBtn.textContent = "Delete";
-    deleteBtn.addEventListener("click", async () => {
+    deleteBtn.onclick = async () => {
       deleteBtn.setAttribute("status", "loading");
       try {
         await fetch(`/api/images/${img.name}`, { method: "DELETE" });
@@ -95,7 +95,7 @@ async function renderGallery(): Promise<void> {
         deleteBtn.setAttribute("status", "error");
         setTimeout(() => deleteBtn.setAttribute("status", "none"), 2000);
       }
-    });
+    };
 
     actions.appendChild(insertBtn);
     actions.appendChild(deleteBtn);

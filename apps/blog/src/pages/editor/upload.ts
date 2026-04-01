@@ -121,9 +121,9 @@ export function setupImageUpload(textarea: HTMLTextAreaElement): void {
   });
 
   // Toolbar image button — open file picker
-  const imageBtn = document.querySelector("[data-action='image']");
+  const imageBtn = document.querySelector("[data-action='image']") as HTMLElement;
   if (imageBtn) {
-    imageBtn.addEventListener("click", (e) => {
+    imageBtn.onclick = (e) => {
       e.stopImmediatePropagation(); // prevent toolbar handler
       const input = document.createElement("input");
       input.type = "file";
@@ -136,6 +136,6 @@ export function setupImageUpload(textarea: HTMLTextAreaElement): void {
         }
       });
       input.click();
-    });
+    };
   }
 }
