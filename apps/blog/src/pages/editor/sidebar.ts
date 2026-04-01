@@ -219,15 +219,15 @@ export class SidebarRenderer {
     trashIcon.setAttribute("size", "s");
     trashIcon.setAttribute("slot", "icon-start");
     deleteBtn.appendChild(trashIcon);
-    deleteBtn.addEventListener("click", (e) => {
+    deleteBtn.onclick = (e) => {
       e.stopPropagation();
       setState({ pendingDeleteSlug: post.slug });
       const modal = document.getElementById("admin-delete-modal") as any;
       if (modal) modal.show();
-    });
+    };
     item.appendChild(deleteBtn);
-    item.addEventListener("mouseenter", () => { deleteBtn.style.opacity = "1"; if (state.selectedSlugs.size === 0) checkbox.style.opacity = "1"; });
-    item.addEventListener("mouseleave", () => { deleteBtn.style.opacity = "0"; if (state.selectedSlugs.size === 0) checkbox.style.opacity = "0"; });
+    item.onmouseenter = () => { deleteBtn.style.opacity = "1"; if (state.selectedSlugs.size === 0) checkbox.style.opacity = "1"; };
+    item.onmouseleave = () => { deleteBtn.style.opacity = "0"; if (state.selectedSlugs.size === 0) checkbox.style.opacity = "0"; };
 
     wrapper.appendChild(item);
     return wrapper;
@@ -252,13 +252,13 @@ export class SidebarRenderer {
     selectAllBtn.setAttribute("emphasis", "minimal");
     selectAllBtn.setAttribute("size", "s");
     selectAllBtn.textContent = state.selectedSlugs.size === state.allPosts.length ? "Deselect All" : "Select All";
-    selectAllBtn.addEventListener("click", () => {
+    selectAllBtn.onclick = () => {
       if (state.selectedSlugs.size === state.allPosts.length) {
         setState({ selectedSlugs: new Set() });
       } else {
         setState({ selectedSlugs: new Set(state.allPosts.map((p) => p.slug)) });
       }
-    });
+    };
 
     const deleteBtn = document.createElement("ui-button");
     deleteBtn.setAttribute("action", "destructive");
@@ -271,7 +271,7 @@ export class SidebarRenderer {
     delIcon.setAttribute("size", "s");
     delIcon.setAttribute("slot", "icon-start");
     deleteBtn.appendChild(delIcon);
-    deleteBtn.addEventListener("click", async () => {
+    deleteBtn.onclick = async () => {
       const slugs = [...state.selectedSlugs];
       deleteBtn.setAttribute("status", "loading");
       try {
@@ -288,7 +288,7 @@ export class SidebarRenderer {
         deleteBtn.setAttribute("status", "error");
         setTimeout(() => deleteBtn.setAttribute("status", "none"), 2000);
       }
-    });
+    };
 
     const publishBtn = document.createElement("ui-button");
     publishBtn.setAttribute("action", "primary");
@@ -301,7 +301,7 @@ export class SidebarRenderer {
     pubIcon.setAttribute("size", "s");
     pubIcon.setAttribute("slot", "icon-start");
     publishBtn.appendChild(pubIcon);
-    publishBtn.addEventListener("click", async () => {
+    publishBtn.onclick = async () => {
       const slugs = [...state.selectedSlugs];
       publishBtn.setAttribute("status", "loading");
       try {
@@ -331,7 +331,7 @@ export class SidebarRenderer {
         publishBtn.setAttribute("status", "error");
         setTimeout(() => publishBtn.setAttribute("status", "none"), 2000);
       }
-    });
+    };
 
     const unpublishBtn = document.createElement("ui-button");
     unpublishBtn.setAttribute("action", "secondary");
@@ -344,7 +344,7 @@ export class SidebarRenderer {
     unpubIcon.setAttribute("size", "s");
     unpubIcon.setAttribute("slot", "icon-start");
     unpublishBtn.appendChild(unpubIcon);
-    unpublishBtn.addEventListener("click", async () => {
+    unpublishBtn.onclick = async () => {
       const slugs = [...state.selectedSlugs];
       unpublishBtn.setAttribute("status", "loading");
       try {
@@ -371,7 +371,7 @@ export class SidebarRenderer {
         unpublishBtn.setAttribute("status", "error");
         setTimeout(() => unpublishBtn.setAttribute("status", "none"), 2000);
       }
-    });
+    };
 
     bar.appendChild(count);
     bar.appendChild(selectAllBtn);

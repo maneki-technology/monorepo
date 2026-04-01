@@ -83,7 +83,7 @@ export class TabBarRenderer {
       });
 
       // Theme toggle
-      themeBtn.addEventListener("click", () => {
+      themeBtn.onclick = () => {
         const dark = document.documentElement.getAttribute("data-theme") === "dark";
         if (dark) {
           document.documentElement.removeAttribute("data-theme");
@@ -92,7 +92,7 @@ export class TabBarRenderer {
         }
         setState({});  // trigger render for theme icon update
         saveUIState();
-      });
+      };
     }
 
     const currentSlugs = new Set(state.openTabs.map((t) => t.slug));
