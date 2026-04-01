@@ -10,6 +10,7 @@ import { setupToolbar, insertAtCursor } from "./toolbar.js";
 import { setupImageUpload } from "./upload.js";
 import { initGallery, toggleGallery } from "./gallery.js";
 import { setupContextMenu } from "./context-menu.js";
+import { setupScrollSync } from "./scroll-sync.js";
 
 // These components are used in the editor but not detected by auto-import plugin
 import "@maneki/ui-components/components/ui-tag.js";
@@ -275,6 +276,11 @@ export const editorRoute: Route = {
     setupImageUpload(textarea);
     initGallery(textarea);
     setupContextMenu(textarea);
+
+    // Scroll sync between textarea and preview
+    const textareaWrap = document.querySelector(".admin-textarea-wrap") as HTMLElement;
+    const previewWrap = document.querySelector(".admin-split ui-scrollbar:last-child") as HTMLElement;
+    if (textareaWrap && previewWrap) setupScrollSync(textareaWrap, previewWrap);
 
     const saveBtn = document.getElementById("admin-save-btn");
     if (saveBtn) {
