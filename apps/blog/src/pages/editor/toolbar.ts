@@ -1,0 +1,37 @@
+export function wrapSelection(textarea: HTMLTextAreaElement, before: string, after: string): void {
+  const start = textarea.selectionStart;
+  const end = textarea.selectionEnd;
+  const selected = textarea.value.slice(start, end);
+  const replacement = `${before}${selected || "text"}${after}`;
+  textarea.setRangeText(replacement, start, end, "select");
+  textarea.focus();
+  textarea.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+export function insertAtCursor(textarea: HTMLTextAreaElement, text: string): void {
+  const start = textarea.selectionStart;
+  textarea.setRangeText(text, start, start, "end");
+  textarea.focus();
+  textarea.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+export function setupToolbar(textarea: HTMLTextAreaElement): void {
+  document.querySelector(".admin-toolbar")?.addEventListener("click", (e) => {
+    const btn = (e.target as Element).closest("[data-action]") as HTMLElement | null;
+    if (!btn) return;
+    const action = btn.dataset.action;
+    switch (action) {
+      case "bold": wrapSelection(textarea, "**", "**"); break;
+      case "italic": wrapSelection(textarea, "*", "*"); break;
+      case "h2": insertAtCursor(textarea, "\n## "); break;
+      case "h3": insertAtCursor(textarea, "\n### "); break;
+      case "link": wrapSelection(textarea, "[", "](url)"); break;
+      case "code": wrapSelection(textarea, "`", "`"); break;
+      case "codeblock": insertAtCursor(textarea, "\n```ts\n\n```\n"); break;
+      case "image": insertAtCursor(textarea, "![alt](/images/)"); break;
+      case "ul": insertAtCursor(textarea, "\n- "); break;
+      case "ol": insertAtCursor(textarea, "\n1. "); break;
+      case "quote": insertAtCursor(textarea, "\n> "); break;
+    }
+  });
+}
