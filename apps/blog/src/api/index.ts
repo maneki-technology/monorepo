@@ -11,6 +11,7 @@ import { cfAuth } from "./middleware/auth.js";
 import { posts } from "./routes/posts.js";
 import { uiState } from "./routes/ui-state.js";
 import { deploy } from "./routes/deploy.js";
+import { images } from "./routes/images.js";
 
 /** Env bindings available in CF Pages Functions. */
 export type Env = {
@@ -18,6 +19,8 @@ export type Env = {
     CF_ACCESS_TEAM_DOMAIN: string;
     CF_ACCESS_AUD: string;
     GH_DEPLOY_TOKEN: string;
+    IMAGES_BUCKET: R2Bucket;
+    IMAGES_BASE_URL: string;
   };
   Variables: {
     db: Client;
@@ -41,7 +44,8 @@ const app = new Hono<Env>()
   .use("/*", cfAuth)
   .route("/posts", posts)
   .route("/ui-state", uiState)
-  .route("/deploy", deploy);
+  .route("/deploy", deploy)
+  .route("/images", images);
 
 export type AppType = typeof app;
 export default app;
