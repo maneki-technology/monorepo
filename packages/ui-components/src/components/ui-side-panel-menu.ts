@@ -141,6 +141,12 @@ export class UiSidePanelMenu extends HTMLElement {
     }
     // Scrollable region must be keyboard-focusable
     if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
+
+    // Scroll to initially selected item after layout settles
+    requestAnimationFrame(() => {
+      const selected = this._getAllItems().find((el) => el.hasAttribute("selected"));
+      if (selected) selected.scrollIntoView({ block: "center" });
+    });
   }
 
   disconnectedCallback(): void {
@@ -404,6 +410,9 @@ export class UiSidePanelMenu extends HTMLElement {
 
     target.setAttribute("selected", "");
     this._markParentSelected(target, allItems);
+
+    // Scroll selected item into view
+    target.scrollIntoView({ block: "nearest" });
 
     // Auto-close sidebar on mobile after selection
     if (this.mobile) {
