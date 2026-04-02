@@ -4,6 +4,7 @@
  */
 
 import { wrapSelection, insertAtCursor } from "./toolbar.js";
+import { uploadFile } from "./upload.js";
 
 interface MenuAction {
   label: string;
@@ -26,7 +27,6 @@ const ACTIONS: MenuAction[] = [
     input.accept = "image/*";
     input.onchange = async () => {
       if (!input.files) return;
-      const { uploadFile } = await import("./upload.js");
       for (const file of input.files) {
         uploadFile(file, ta);
       }
