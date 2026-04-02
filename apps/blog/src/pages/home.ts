@@ -1,5 +1,5 @@
 import { posts } from "virtual:posts";
-import { projects } from "../data.js";
+import { pinnedProjects } from "virtual:projects";
 import type { Route } from "../router.js";
 
 function formatDate(dateStr: string): string {
@@ -41,20 +41,22 @@ export const homeRoute: Route = {
         <a href="/portfolio" class="body-02 text-link" style="text-decoration:none;">View all \u2192</a>
       </div>
       <div class="project-grid mt-3">
-        ${projects.slice(0, 2).map((project) => `
-          <ui-card size="m" bordered>
-            <div class="stack gap-1" style="padding:20px;">
-              <h3 class="heading-05">${project.title}</h3>
-              <p class="body-02 text-secondary">${project.description}</p>
-              <div class="tags">
-                ${project.tags.map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
+        ${pinnedProjects.map((project: any) => `
+          <a href="/project/${project.slug}" style="text-decoration:none;color:inherit;">
+            <ui-card size="m" bordered>
+              <div class="stack gap-1" style="padding:20px;">
+                <h3 class="heading-05">${project.title}</h3>
+                <p class="body-02 text-secondary">${project.description}</p>
+                <div class="tags">
+                  ${project.tech.map((t: string) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
+                </div>
+                <div class="row gap-2 mt-1">
+                  ${project.url ? `<ui-link size="s" href="${project.url}" external>Live</ui-link>` : ""}
+                  ${project.repo ? `<ui-link size="s" href="${project.repo}" external>Source</ui-link>` : ""}
+                </div>
               </div>
-              <div class="row gap-2 mt-1">
-                ${project.url ? `<ui-link size="s" href="${project.url}" external>Live</ui-link>` : ""}
-                ${project.repo ? `<ui-link size="s" href="${project.repo}" external>Source</ui-link>` : ""}
-              </div>
-            </div>
-          </ui-card>
+            </ui-card>
+          </a>
         `).join("")}
       </div>
     </section>
