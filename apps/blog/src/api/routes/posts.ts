@@ -179,6 +179,15 @@ export const posts = new Hono<Env>()
     if (updates.tags !== undefined) { setClauses.push("tags = ?"); args.push(JSON.stringify(updates.tags)); }
     if (updates.date !== undefined) { setClauses.push("created_at = ?"); args.push(updates.date); }
 
+    // Regenerate slug if it's a temp slug
+    let newSlug = slug;
+    if (slug.startsWith("draft-") && updates.title) {
+      const base = updates.title.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, "");
+      newSlug = updates.date ? `${updates.date}-${base}` : base;
+      setClauses.push("slug = ?");
+      args.push(newSlug);
+    }
+
     args.push(slug);
     await db.execute({
       sql: `UPDATE posts SET ${setClauses.join(", ")} WHERE slug = ?`,
@@ -187,7 +196,7 @@ export const posts = new Hono<Env>()
 
     // Trigger deploy
     const deployId = await triggerDeploy(db, c.get("userEmail"), ghToken);
-    return c.json({ ok: true, deploymentId: deployId });
+    return c.json({ ok: true, slug: newSlug, deploymentId: deployId });
   })
 
   // Unpublish — set draft + trigger deploy

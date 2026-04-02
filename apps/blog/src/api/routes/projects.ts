@@ -176,6 +176,15 @@ export const projects = new Hono<Env>()
     if (updates.pinned !== undefined) { setClauses.push("pinned = ?"); args.push(updates.pinned ? 1 : 0); }
     if (updates.sort_order !== undefined) { setClauses.push("sort_order = ?"); args.push(updates.sort_order); }
 
+    // Regenerate slug if it's a temp slug
+    let newSlug = slug;
+    if (slug.startsWith("project-") && updates.title) {
+      const base = updates.title.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, "");
+      newSlug = base;
+      setClauses.push("slug = ?");
+      args.push(newSlug);
+    }
+
     args.push(slug);
     await db.execute({
       sql: `UPDATE projects SET ${setClauses.join(", ")} WHERE slug = ?`,
@@ -183,7 +192,7 @@ export const projects = new Hono<Env>()
     });
 
     const deployId = await triggerDeploy(db, c.get("userEmail"), ghToken);
-    return c.json({ ok: true, deploymentId: deployId });
+    return c.json({ ok: true, slug: newSlug, deploymentId: deployId });
   })
 
   // Unpublish — set draft + trigger deploy

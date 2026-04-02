@@ -5,6 +5,7 @@ import { homeRoute } from "./pages/home.js";
 import { blogRoute } from "./pages/blog.js";
 import { postRoutes } from "./pages/post.js";
 import { portfolioRoute } from "./pages/portfolio.js";
+import { projectRoutes } from "./pages/project.js";
 import { resumeRoute } from "./pages/resume.js";
 import { aboutRoute } from "./pages/about.js";
 
@@ -13,6 +14,7 @@ export const routes: Route[] = [
   blogRoute,
   ...postRoutes,
   portfolioRoute,
+  ...projectRoutes,
   resumeRoute,
   aboutRoute,
 ];
