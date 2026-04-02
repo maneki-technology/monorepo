@@ -61,6 +61,9 @@ export function setState(partial: Partial<EditorState>): void {
 }
 
 export function hasUnpublishedChanges(post: Draft): boolean {
-  if (!post.publishedAt) return post.status === "published";
-  return post.updatedAt > post.publishedAt;
+  if (post.status !== "published") return false;
+  if (post.publishedContent === null) return false;
+  // Compare current content fields against published snapshot
+  const current = `${post.title}\n${post.content}\n${post.excerpt}\n${post.tags}\n${post.date}`;
+  return current !== post.publishedContent;
 }

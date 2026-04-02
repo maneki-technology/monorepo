@@ -1,7 +1,7 @@
 import type { Route } from "../../router.js";
 import type { Draft } from "./types.js";
 import { api } from "../../lib/api.js";
-import { state, setState } from "./state.js";
+import { state, setState, hasUnpublishedChanges } from "./state.js";
 import { fetchDrafts, loadUIState, saveUIState, saveCurrent, clearEditor, loadDraftIntoEditor, getCurrentDraftData, deletePost, exportAsMarkdown } from "./api.js";
 import { renderPreview, triggerPreview, getMd, wrapCodeBlocks } from "./preview.js";
 import { SidebarRenderer } from "./sidebar.js";
@@ -11,6 +11,7 @@ import { setupImageUpload } from "./upload.js";
 import { initGallery, toggleGallery } from "./gallery.js";
 import { setupContextMenu } from "./context-menu.js";
 import { setupScrollSync } from "./scroll-sync.js";
+import { setupUndoStack } from "./undo.js";
 
 // These components are used in the editor but not detected by auto-import plugin
 import "@maneki/ui-components/components/ui-tag.js";
@@ -276,6 +277,7 @@ export const editorRoute: Route = {
     setupImageUpload(textarea);
     initGallery(textarea);
     setupContextMenu(textarea);
+    setupUndoStack(textarea);
 
     // Scroll sync between textarea and preview
     const textareaWrap = document.querySelector(".admin-textarea-wrap") as HTMLElement;
@@ -335,9 +337,15 @@ export const editorRoute: Route = {
               setState({ deployingSlugs: new Set(), deployingAction: null });
               if (state.currentSlug) {
                 const p = state.allPosts.find((x) => x.slug === state.currentSlug);
-                if (p) p.publishedAt = new Date().toISOString();
+                if (p) {
+                  p.publishedAt = new Date().toISOString();
+                  p.publishedContent = `${p.title}\n${p.content}\n${p.excerpt}\n${p.tags}\n${p.date}`;
+                }
                 const t = state.openTabs.find((x) => x.slug === state.currentSlug);
-                if (t) t.publishedAt = new Date().toISOString();
+                if (t) {
+                  t.publishedAt = new Date().toISOString();
+                  t.publishedContent = `${t.title}\n${t.content}\n${t.excerpt}\n${t.tags}\n${t.date}`;
+                }
               }
               setState({});  // trigger render
               if (publishSplit) {
@@ -566,6 +574,7 @@ export const editorRoute: Route = {
         updatedAt: new Date().toISOString(),
         publishedAt: null,
         persisted: false,
+        publishedContent: null,
       };
       setState({ allPosts: [draft, ...state.allPosts], openTabs: [...state.openTabs, draft] });
       loadDraftIntoEditor(draft);
@@ -589,5 +598,13 @@ export const editorRoute: Route = {
     sidebar.addEventListener("toggle", () => {
       saveUIState();
     });
+
+    // Warn before accidental refresh if there are unsaved changes
+    window.addEventListener("beforeunload", (e) => {
+      if (state.saving || state.allPosts.some((p) => hasUnpublishedChanges(p))) {
+        e.preventDefault();
+      }
+    });
+
   },
 };

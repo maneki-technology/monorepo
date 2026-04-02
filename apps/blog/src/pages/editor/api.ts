@@ -2,6 +2,7 @@ import { api } from "../../lib/api.js";
 import { state, setState } from "./state.js";
 import type { Draft, EditorUIState } from "./types.js";
 import { renderPreview } from "./preview.js";
+import { resetUndoStack } from "./undo.js";
 
 // ─── API helpers ─────────────────────────────────────────────────────────────
 
@@ -21,6 +22,9 @@ export async function fetchDrafts(): Promise<Draft[]> {
       updatedAt: p.updated_at as string,
       publishedAt: (p.published_at as string) ?? null,
       persisted: true,
+      publishedContent: p.status === "published"
+        ? `${p.title}\n${p.body_md}\n${p.excerpt}\n${(p.tags as string[]).join(", ")}\n${(p.created_at as string).split("T")[0]}`
+        : null,
     }));
   } catch {
     return [];
@@ -114,7 +118,7 @@ export function saveUIState(): void {
 
 // ─── DOM helpers ─────────────────────────────────────────────────────────────
 
-export function getCurrentDraftData(): Omit<Draft, "slug" | "updatedAt" | "publishedAt" | "persisted"> {
+export function getCurrentDraftData(): Omit<Draft, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"> {
   return {
     title: (document.getElementById("admin-title") as any)?.value ?? "",
     date: (document.getElementById("admin-date") as any)?.value ?? "",
@@ -138,6 +142,7 @@ export async function saveCurrent(forceApi = false, statusEl?: HTMLElement | nul
       updatedAt: new Date().toISOString(),
       publishedAt: currentPost?.publishedAt ?? null,
       persisted: currentPost?.persisted ?? false,
+      publishedContent: currentPost?.publishedContent ?? null,
     };
 
     // Always persist to API (auto-save and explicit save both go to API)
@@ -212,6 +217,8 @@ export function loadDraftIntoEditor(draft: Draft): void {
   (document.getElementById("admin-excerpt") as any).value = draft.excerpt;
   (document.getElementById("admin-content") as HTMLTextAreaElement).value = draft.content;
   renderPreview();
+  // Reset undo stack with the loaded content as the initial state
+  resetUndoStack();
 }
 
 export function exportAsMarkdown(): void {
