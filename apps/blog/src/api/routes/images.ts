@@ -55,9 +55,10 @@ export const images = new Hono<Env>()
     const bucket = c.env.IMAGES_BUCKET;
     const listed = await bucket.list({ limit: 500 });
 
+    const baseUrl = c.env.IMAGES_BASE_URL || "/api/images";
     const items = listed.objects.map((obj) => ({
       name: obj.key,
-      url: `/api/images/${obj.key}`,
+      url: `${baseUrl}/${obj.key}`,
       size: obj.size,
       uploaded: obj.uploaded.toISOString(),
       contentType: obj.httpMetadata?.contentType ?? "unknown",
