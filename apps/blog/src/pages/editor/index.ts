@@ -1,17 +1,20 @@
 import type { Route } from "../../router.js";
 import type { Draft } from "./types.js";
-import { api } from "../../lib/api.js";
 import { state, setState, hasUnpublishedChanges } from "./state.js";
-import { fetchDrafts, loadUIState, saveUIState, saveCurrent, clearEditor, loadDraftIntoEditor, getCurrentDraftData, deletePost, exportAsMarkdown } from "./api.js";
-import { renderPreview, triggerPreview, getMd, wrapCodeBlocks } from "./preview.js";
-import { SidebarRenderer } from "./sidebar.js";
-import { TabBarRenderer } from "./tabbar.js";
-import { setupToolbar, insertAtCursor } from "./toolbar.js";
+import { saveUIState, saveCurrent, loadDraftIntoEditor } from "./api.js";
+import { renderPreview, triggerPreview } from "./preview.js";
+import { setupToolbar } from "./toolbar.js";
 import { setupImageUpload } from "./upload.js";
 import { initGallery, toggleGallery } from "./gallery.js";
 import { setupContextMenu } from "./context-menu.js";
 import { setupScrollSync } from "./scroll-sync.js";
 import { setupUndoStack } from "./undo.js";
+import { setupPublish } from "./publish.js";
+import { setupDeleteModal } from "./delete-modal.js";
+import { setupKeyboard } from "./keyboard.js";
+import { setupFullscreenPreview } from "./fullscreen-preview.js";
+import { setupTags } from "./tags.js";
+import { setupInit } from "./init.js";
 
 // These components are used in the editor but not detected by auto-import plugin
 import "@maneki/ui-components/components/ui-tag.js";
@@ -122,96 +125,6 @@ export const editorRoute: Route = {
     </div>
   `,
   setup: () => {
-    const sidebarRenderer = new SidebarRenderer();
-    const tabBarRenderer = new TabBarRenderer();
-
-    // Load posts from API + UI state in parallel
-    Promise.all([fetchDrafts(), loadUIState()]).then(async ([loaded, uiState]) => {
-      setState({ allPosts: loaded });
-
-      // Init renderers after DOM is ready and state is populated
-      const listEl = document.getElementById("admin-post-list");
-      const barEl = document.getElementById("admin-tab-bar");
-      if (listEl) sidebarRenderer.init(listEl);
-      if (barEl) tabBarRenderer.init(barEl);
-
-      // Restore UI state
-      if (uiState) {
-        // Restore theme
-        if (uiState.theme === "dark") {
-          document.documentElement.setAttribute("data-theme", "dark");
-        } else {
-          document.documentElement.removeAttribute("data-theme");
-        }
-
-        // Restore sidebar collapsed state
-        const sidebar = document.getElementById("admin-sidebar");
-        if (uiState.sidebarCollapsed && sidebar) {
-          sidebar.setAttribute("state", "collapsed");
-        }
-
-        // Restore open tabs
-        const savedTabs = Array.isArray(uiState.openTabs) ? uiState.openTabs : [];
-        const restoredTabs: Draft[] = [];
-        for (const slug of savedTabs) {
-          const post = state.allPosts.find((p) => p.slug === slug);
-          if (post && !restoredTabs.find((t) => t.slug === slug)) {
-            restoredTabs.push(post);
-          }
-        }
-
-        // Restore active tab
-        const activePost = uiState.activeTab ? state.allPosts.find((p) => p.slug === uiState.activeTab) : null;
-        if (activePost) {
-          if (!restoredTabs.find((t) => t.slug === activePost.slug)) {
-            restoredTabs.push(activePost);
-          }
-          setState({ openTabs: restoredTabs });
-          loadDraftIntoEditor(activePost);
-        } else if (restoredTabs.length > 0) {
-          setState({ openTabs: restoredTabs });
-          loadDraftIntoEditor(restoredTabs[0]);
-        } else {
-          setState({ openTabs: restoredTabs });
-        }
-      } else if (state.allPosts.length > 0) {
-        // No saved state — open first post
-        setState({ openTabs: [state.allPosts[0]] });
-        loadDraftIntoEditor(state.allPosts[0]);
-      }
-
-      document.getElementById("admin-loading")!.style.display = "none";
-      document.getElementById("admin-editor-main")!.style.display = "";
-      document.getElementById("admin-tab-bar")!.style.display = "";
-      document.getElementById("admin-sidebar")!.style.display = "";
-
-      // Resume polling if there's an active deployment
-      (async () => {
-        try {
-          const statusRes = await api.api.deploy.status.$get();
-          if (!statusRes.ok) return;
-          const { status: deployStatus } = await statusRes.json();
-          if (deployStatus === "building" || deployStatus === "deploying") {
-            setState({ deployingSlugs: new Set([state.currentSlug!]), deployingAction: "publishing" });
-            const pollInterval = setInterval(async () => {
-              try {
-                const r = await api.api.deploy.status.$get();
-                if (!r.ok) return;
-                const { status: s } = await r.json();
-                if (s === "success" || s === "failure") {
-                  clearInterval(pollInterval);
-                  setState({ deployingSlugs: new Set(), deployingAction: null });
-                }
-              } catch {
-                clearInterval(pollInterval);
-                setState({ deployingSlugs: new Set(), deployingAction: null });
-              }
-            }, 5000);
-          }
-        } catch { /* ignore */ }
-      })();
-    });
-
     const textarea = document.getElementById("admin-content") as HTMLTextAreaElement;
     const titleInput = document.getElementById("admin-title") as HTMLElement;
     const dateInput = document.getElementById("admin-date") as HTMLElement;
@@ -219,39 +132,9 @@ export const editorRoute: Route = {
     const tagInput = document.getElementById("admin-tag-input") as HTMLInputElement;
     const tagList = document.getElementById("admin-tag-list")!;
     const excerptInput = document.getElementById("admin-excerpt") as HTMLElement;
+    const publishSplit = document.getElementById("admin-publish-split");
 
-    // Tag management
-    function syncTags(): void {
-      const tags = Array.from(tagList.querySelectorAll("ui-tag")).map((t) => t.textContent?.trim() ?? "");
-      tagsInput.value = tags.join(", ");
-      triggerPreview();
-    }
-
-    function addTag(name: string): void {
-      const trimmed = name.trim();
-      if (!trimmed) return;
-      const existing = Array.from(tagList.querySelectorAll("ui-tag")).map((t) => t.textContent?.trim().toLowerCase());
-      if (existing.includes(trimmed.toLowerCase())) return;
-      const tag = document.createElement("ui-tag");
-      tag.setAttribute("size", "s");
-      tag.setAttribute("emphasis", "subtle");
-      tag.setAttribute("dismissible", "");
-      tag.textContent = trimmed;
-      tag.addEventListener("dismiss", () => { tag.remove(); syncTags(); });
-      tagList.appendChild(tag);
-      syncTags();
-    }
-
-    tagInput.addEventListener("keydown", (e: Event) => {
-      const ke = e as KeyboardEvent;
-      if (ke.key === "Enter") {
-        ke.preventDefault();
-        addTag((tagInput as any).value);
-        (tagInput as any).value = "";
-        tagInput.focus();
-      }
-    });
-
+    // Preview triggers
     textarea.addEventListener("input", triggerPreview);
     titleInput.addEventListener("input", triggerPreview);
     dateInput.addEventListener("change", triggerPreview);
@@ -272,7 +155,7 @@ export const editorRoute: Route = {
     tagsInput.addEventListener("input", autoSave);
     excerptInput.addEventListener("input", autoSave);
 
-    // Toolbar
+    // Toolbar + plugins
     setupToolbar(textarea);
     setupImageUpload(textarea);
     initGallery(textarea);
@@ -284,6 +167,7 @@ export const editorRoute: Route = {
     const previewWrap = document.querySelector(".admin-split ui-scrollbar:last-child") as HTMLElement;
     if (textareaWrap && previewWrap) setupScrollSync(textareaWrap, previewWrap);
 
+    // Save button
     const saveBtn = document.getElementById("admin-save-btn");
     if (saveBtn) {
       saveBtn.onclick = async () => {
@@ -296,270 +180,20 @@ export const editorRoute: Route = {
       };
     }
 
-    // Publish (split button left action) — save, publish (triggers deploy), poll
-    const publishSplit = document.getElementById("admin-publish-split");
-    publishSplit?.addEventListener("action", async () => {
-      if (publishSplit) publishSplit.setAttribute("status", "loading");
-      try {
-        if (!state.currentSlug) {
-          if (publishSplit) publishSplit.setAttribute("status", "error");
-          setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 2000);
-          return;
-        }
-
-        // Publish with latest content + trigger deploy
-        const data = getCurrentDraftData();
-        const tags = data.tags.split(",").map((t: string) => t.trim()).filter(Boolean);
-        await api.api.posts[":slug"].publish.$put({
-          param: { slug: state.currentSlug! },
-          json: {
-            title: data.title,
-            body_md: data.content,
-            excerpt: data.excerpt,
-            tags,
-            date: data.date,
-          },
-        });
-        const post = state.allPosts.find((p) => p.slug === state.currentSlug);
-        if (post) post.status = "published";
-        const tab = state.openTabs.find((t) => t.slug === state.currentSlug);
-        if (tab) tab.status = "published";
-        setState({ deployingSlugs: new Set([state.currentSlug!]), deployingAction: "publishing" });
-
-        // Poll deploy status
-        const pollDeploy = async (): Promise<boolean> => {
-          try {
-            const statusRes = await api.api.deploy.status.$get();
-            if (!statusRes.ok) return false;
-            const { status: deployStatus } = await statusRes.json();
-
-            if (deployStatus === "success") {
-              setState({ deployingSlugs: new Set(), deployingAction: null });
-              if (state.currentSlug) {
-                const p = state.allPosts.find((x) => x.slug === state.currentSlug);
-                if (p) {
-                  p.publishedAt = new Date().toISOString();
-                  p.publishedContent = `${p.title}\n${p.content}\n${p.excerpt}\n${p.tags}\n${p.date}`;
-                }
-                const t = state.openTabs.find((x) => x.slug === state.currentSlug);
-                if (t) {
-                  t.publishedAt = new Date().toISOString();
-                  t.publishedContent = `${t.title}\n${t.content}\n${t.excerpt}\n${t.tags}\n${t.date}`;
-                }
-              }
-              setState({});  // trigger render
-              if (publishSplit) {
-                publishSplit.setAttribute("status", "success");
-                setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
-              }
-              return true;
-            } else if (deployStatus === "failure") {
-              setState({ deployingSlugs: new Set(), deployingAction: null });
-              if (publishSplit) {
-                publishSplit.setAttribute("status", "error");
-                setTimeout(() => publishSplit.setAttribute("status", "none"), 2000);
-              }
-              return true;
-            }
-            return false;
-          } catch {
-            setState({ deployingSlugs: new Set(), deployingAction: null });
-            return true;
-          }
-        };
-
-        // First poll immediately, then every 5s
-        const done = await pollDeploy();
-        if (!done) {
-          const pollInterval = setInterval(async () => {
-            if (await pollDeploy()) clearInterval(pollInterval);
-          }, 5000);
-        }
-      } catch {
-        if (publishSplit) publishSplit.setAttribute("status", "error");
-        setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 2000);
-      }
-    });
-
-    // Unpublish (dropdown item) — unpublish + poll deploy status
-    document.getElementById("admin-unpublish-btn")?.addEventListener("select", async () => {
-      if (!state.currentSlug) return;
-      if (publishSplit) publishSplit.setAttribute("status", "loading");
-      try {
-        await api.api.posts[":slug"].unpublish.$put({ param: { slug: state.currentSlug } });
-        const post = state.allPosts.find((p) => p.slug === state.currentSlug);
-        if (post) post.status = "draft";
-        const tab = state.openTabs.find((t) => t.slug === state.currentSlug);
-        if (tab) tab.status = "draft";
-        setState({ deployingSlugs: new Set([state.currentSlug!]), deployingAction: "unpublishing" });
-
-        // Poll deploy status
-        const pollUnpublish = async (): Promise<boolean> => {
-          try {
-            const statusRes = await api.api.deploy.status.$get();
-            if (!statusRes.ok) return false;
-            const { status: deployStatus } = await statusRes.json();
-            if (deployStatus === "success") {
-              setState({ deployingSlugs: new Set(), deployingAction: null });
-              if (publishSplit) {
-                publishSplit.setAttribute("status", "success");
-                setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
-              }
-              return true;
-            } else if (deployStatus === "failure") {
-              setState({ deployingSlugs: new Set(), deployingAction: null });
-              if (publishSplit) {
-                publishSplit.setAttribute("status", "error");
-                setTimeout(() => publishSplit.setAttribute("status", "none"), 2000);
-              }
-              return true;
-            }
-            return false;
-          } catch {
-            setState({ deployingSlugs: new Set(), deployingAction: null });
-            return true;
-          }
-        };
-        const done = await pollUnpublish();
-        if (!done) {
-          const pollInterval = setInterval(async () => {
-            if (await pollUnpublish()) clearInterval(pollInterval);
-          }, 5000);
-        }
-      } catch {
-        if (publishSplit) publishSplit.setAttribute("status", "error");
-        setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 2000);
-      }
-    });
-
-    // Export (split button dropdown item)
-    document.getElementById("admin-export-btn")?.addEventListener("select", exportAsMarkdown);
-
-    // Fullscreen preview
-    const overlay = document.getElementById("admin-preview-overlay")!;
     // Gallery toggle
     const galleryBtn = document.getElementById("admin-gallery-btn");
     if (galleryBtn) galleryBtn.onclick = toggleGallery;
 
-    const previewFull = document.getElementById("admin-preview-full")!;
-
-    const previewBtn = document.getElementById("admin-preview-btn");
-    if (previewBtn) {
-      previewBtn.onclick = () => {
-        const title = (titleInput as any).value;
-        const date = (dateInput as any).value;
-        const tags = tagsInput.value;
-        const content = textarea.value;
-        // Use Shiki for fullscreen preview
-        getMd().then((mdShiki) => {
-          const highlighted = mdShiki.render(content);
-          const tagBadges = tags.split(",").map((t) => t.trim()).filter(Boolean)
-            .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
-          const formattedDate = date
-            ? new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
-            : "";
-          previewFull.innerHTML = `
-            <article>
-              <a href="/blog" class="body-02 text-link" style="text-decoration:none;">← Back to blog</a>
-              <h1 class="heading-02 mt-3">${title || "Untitled"}</h1>
-              ${formattedDate ? `<div class="post-meta mt-1">${formattedDate}</div>` : ""}
-              ${tagBadges ? `<div class="tags mt-2">${tagBadges}</div>` : ""}
-              <div class="post-content mt-4">${highlighted}</div>
-            </article>
-          `;
-          wrapCodeBlocks(previewFull);
-          overlay.style.display = "flex";
-        });
-      };
-    }
-
-    const previewCloseBtn = document.getElementById("admin-preview-close");
-    if (previewCloseBtn) {
-      previewCloseBtn.onclick = () => {
-        overlay.style.display = "none";
-      };
-    }
-
-    // Close preview on Escape
-    overlay.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") overlay.style.display = "none";
-    });
-
-    // Tab key in textarea (insert 2 spaces instead of changing focus)
-    textarea.addEventListener("keydown", (e) => {
-      if (e.key === "Tab") {
-        e.preventDefault();
-        insertAtCursor(textarea, "  ");
-      }
-    });
-
-    // Ctrl+S to save
-    document.addEventListener("keydown", (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "s") {
-        e.preventDefault();
-        saveCurrent(true, document.getElementById("admin-save-btn"));
-      }
-    });
+    // Module setups
+    setupTags(tagInput, tagList, tagsInput);
+    setupPublish(publishSplit, textarea);
+    setupDeleteModal();
+    setupKeyboard(textarea);
+    setupFullscreenPreview(textarea, titleInput, dateInput, tagsInput);
 
     // Set default date + render initial state
     if (!(dateInput as any).value) (dateInput as any).value = new Date().toISOString().split("T")[0];
     renderPreview();
-
-    // Delete confirmation modal — append to body to avoid stacking context issues
-    const deleteModal = document.createElement("ui-modal");
-    deleteModal.id = "admin-delete-modal";
-    deleteModal.setAttribute("size", "s");
-    deleteModal.setAttribute("dismissible", "");
-    deleteModal.textContent = "Delete Post";
-    const modalBody = document.createElement("div");
-    modalBody.setAttribute("slot", "body");
-    modalBody.textContent = "Are you sure you want to delete this post? This action cannot be undone.";
-    const modalFooter = document.createElement("div");
-    modalFooter.setAttribute("slot", "footer-end");
-    modalFooter.style.cssText = "display:flex;gap:8px;";
-    const cancelBtn = document.createElement("ui-button");
-    cancelBtn.setAttribute("action", "secondary");
-    cancelBtn.setAttribute("size", "s");
-    cancelBtn.textContent = "Cancel";
-    cancelBtn.onclick = () => {
-      setState({ pendingDeleteSlug: null });
-      (deleteModal as any).close();
-    };
-    const confirmBtn = document.createElement("ui-button");
-    confirmBtn.setAttribute("action", "destructive");
-    confirmBtn.setAttribute("size", "s");
-    confirmBtn.textContent = "Delete";
-    confirmBtn.onclick = async () => {
-      if (!state.pendingDeleteSlug) return;
-      confirmBtn.setAttribute("status", "loading");
-      try {
-        const post = state.allPosts.find((p) => p.slug === state.pendingDeleteSlug);
-        if (post?.persisted) {
-          await deletePost(state.pendingDeleteSlug);
-        }
-        const newAllPosts = state.allPosts.filter((p) => p.slug !== state.pendingDeleteSlug);
-        const newOpenTabs = state.openTabs.filter((t) => t.slug !== state.pendingDeleteSlug);
-        if (state.currentSlug === state.pendingDeleteSlug) {
-          if (newOpenTabs.length > 0) {
-            setState({ allPosts: newAllPosts, openTabs: newOpenTabs, pendingDeleteSlug: null });
-            loadDraftIntoEditor(newOpenTabs[newOpenTabs.length - 1]);
-          } else {
-            setState({ allPosts: newAllPosts, openTabs: newOpenTabs, pendingDeleteSlug: null });
-            clearEditor();
-          }
-        } else {
-          setState({ allPosts: newAllPosts, openTabs: newOpenTabs, pendingDeleteSlug: null });
-        }
-        (deleteModal as any).close();
-      } finally {
-        confirmBtn.setAttribute("status", "none");
-      }
-    };
-    modalFooter.appendChild(cancelBtn);
-    modalFooter.appendChild(confirmBtn);
-    deleteModal.appendChild(modalBody);
-    deleteModal.appendChild(modalFooter);
-    document.body.appendChild(deleteModal);
 
     // New Post button in sidebar header
     document.getElementById("admin-new-post")?.addEventListener("action", () => {
@@ -606,5 +240,7 @@ export const editorRoute: Route = {
       }
     });
 
+    // Load posts, restore UI state, resume deploy polling
+    setupInit();
   },
 };
