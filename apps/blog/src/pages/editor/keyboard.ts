@@ -1,4 +1,5 @@
-import { saveCurrent } from "./api.js";
+import { state } from "./state.js";
+import { saveCurrent, saveCurrentProject } from "./api.js";
 import { insertAtCursor } from "./toolbar.js";
 
 export function setupKeyboard(textarea: HTMLTextAreaElement): void {
@@ -10,11 +11,16 @@ export function setupKeyboard(textarea: HTMLTextAreaElement): void {
     }
   });
 
-  // Ctrl+S to save
+  // Ctrl+S to save — routes by activeTabType
   document.addEventListener("keydown", (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === "s") {
       e.preventDefault();
-      saveCurrent(true, document.getElementById("admin-save-btn"));
+      const saveBtn = document.getElementById("admin-save-btn");
+      if (state.activeTabType === "project") {
+        saveCurrentProject(true, saveBtn);
+      } else {
+        saveCurrent(true, saveBtn);
+      }
     }
   });
 }
