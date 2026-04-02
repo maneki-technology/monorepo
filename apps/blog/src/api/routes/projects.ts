@@ -112,6 +112,20 @@ export const projects = new Hono<Env>()
     return c.json({ ok: true, slug }, 201);
   })
 
+
+  // Reorder projects (must be before /:slug to avoid wildcard match)
+  .put("/reorder", zValidator("json", z.object({ slugs: z.array(z.string()) })), async (c) => {
+    const db = c.get("db");
+    const { slugs } = c.req.valid("json");
+    for (let i = 0; i < slugs.length; i++) {
+      await db.execute({
+        sql: "UPDATE projects SET sort_order = ?, updated_at = datetime('now') WHERE slug = ?",
+        args: [i, slugs[i]],
+      });
+    }
+    return c.json({ ok: true });
+  })
+
   // Update project by slug
   .put("/:slug", zValidator("json", updateProjectSchema), async (c) => {
     const slug = c.req.param("slug");

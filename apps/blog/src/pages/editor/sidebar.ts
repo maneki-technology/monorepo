@@ -83,6 +83,12 @@ export class SidebarRenderer {
         }
       }
     }
+
+    // Reorder DOM to match state order
+    for (const project of state.allProjects) {
+      const el = this.projectItems.get(project.slug);
+      if (el) this.projectList.appendChild(el);
+    }
   }
 
   private syncToolbarButtons(): void {

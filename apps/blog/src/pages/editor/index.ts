@@ -3,12 +3,13 @@ import type { Post, Project } from "./types.js";
 import { state, setState, hasUnpublishedChanges } from "./state.js";
 import { saveUIState, saveCurrent, saveCurrentProject, loadPostIntoEditor, loadProjectIntoEditor, showPostForm, showProjectForm } from "./api.js";
 import { renderPreview, triggerPreview } from "./preview.js";
-import { setupToolbar } from "./toolbar.js";
+import { setupToolbar, insertAtCursor } from "./toolbar.js";
 import { setupImageUpload } from "./upload.js";
-import { initGallery, toggleGallery } from "./gallery.js";
+import { initGallery, toggleGallery, openGalleryForPick } from "./gallery.js";
 import { setupContextMenu } from "./context-menu.js";
 import { setupScrollSync } from "./scroll-sync.js";
 import { setupUndoStack } from "./undo.js";
+import { openPortfolioLayout } from "./project-preview.js";
 import { setupPublish } from "./publish.js";
 import { setupDeleteModal } from "./delete-modal.js";
 import { setupKeyboard } from "./keyboard.js";
@@ -102,6 +103,10 @@ export const editorRoute: Route = {
                 </ui-input>
                 <input id="admin-project-tech" type="hidden" />
               </div>
+              <div class="admin-form-row" style="justify-content:flex-start;">
+                <ui-label size="m">📌 Pin to homepage</ui-label>
+                <ui-checkbox-item id="admin-project-pinned" size="l"></ui-checkbox-item>
+              </div>
             </div>
             <div class="admin-form-row-group">
               <div class="admin-form-row">
@@ -111,15 +116,25 @@ export const editorRoute: Route = {
                 <ui-input id="admin-project-repo" placeholder="https://github.com/..." size="m"><ui-label slot="label" size="m">Repo</ui-label></ui-input>
               </div>
             </div>
-            <div class="admin-form-row-group">
               <div class="admin-form-row">
-                <ui-input id="admin-project-image" placeholder="Image URL" size="m"><ui-label slot="label" size="m">Image</ui-label></ui-input>
+                <ui-label size="m">Image</ui-label>
+                <div id="admin-project-image-wrapper" class="project-image-wrapper">
+                  <div id="admin-project-image-empty" style="display:flex;gap:8px;">
+                    <ui-button id="admin-project-image-upload" action="secondary" emphasis="subtle" size="s">Upload</ui-button>
+                    <ui-button id="admin-project-image-gallery" action="secondary" emphasis="subtle" size="s">Gallery</ui-button>
+                  </div>
+                  <div id="admin-project-image-filled" class="project-image-thumb" style="display:none;">
+                    <ui-image id="admin-project-image-preview" style="width:200px;height:120px;--ui-image-bg:var(--fd-surface-secondary);--ui-image-fit:cover;border-radius:var(--fd-radius-sm);"></ui-image>
+                    <div class="project-image-overlay">
+                      <ui-button id="admin-project-image-upload2" action="secondary" emphasis="subtle" size="s">Upload</ui-button>
+                      <ui-button id="admin-project-image-gallery2" action="secondary" emphasis="subtle" size="s">Gallery</ui-button>
+                      <ui-button id="admin-project-image-remove" action="destructive" emphasis="subtle" size="s">Remove</ui-button>
+                    </div>
+                    <span id="admin-project-image-name" class="body-03 text-secondary" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px;"></span>
+                  </div>
+                </div>
+                <input id="admin-project-image" type="hidden" />
               </div>
-            <div class="admin-form-row">
-              <ui-label size="m">📌 Pin to homepage</ui-label>
-              <ui-checkbox-item id="admin-project-pinned" size="l"></ui-checkbox-item>
-            </div>
-            </div>
           </div>
 
           <div class="admin-toolbar">
@@ -137,6 +152,7 @@ export const editorRoute: Route = {
             <ui-button action="secondary" emphasis="minimal" size="s" data-action="quote">"</ui-button>
             <span class="admin-toolbar-spacer"></span>
             <ui-button id="admin-preview-btn" action="secondary" emphasis="subtle" size="s">Preview</ui-button>
+            <ui-button id="admin-portfolio-btn" action="secondary" emphasis="subtle" size="s" style="display:none">Portfolio</ui-button>
             <ui-button id="admin-save-btn" action="primary" size="s">Save</ui-button>
             <ui-dropdown-split id="admin-publish-split" action="primary" size="s" label="Publish">
               <ui-dropdown-item id="admin-unpublish-btn" value="unpublish">Unpublish</ui-dropdown-item>
@@ -188,10 +204,11 @@ export const editorRoute: Route = {
       setState({});
       if (saveTimer) clearTimeout(saveTimer);
       saveTimer = setTimeout(() => {
+        const saveBtn = document.getElementById("admin-save-btn");
         if (state.activeTabType === "project") {
-          if (state.currentSlug) saveCurrentProject();
+          if (state.currentSlug) saveCurrentProject(false, saveBtn);
         } else {
-          if (state.currentSlug || textarea.value.trim()) saveCurrent();
+          if (state.currentSlug || textarea.value.trim()) saveCurrent(false, saveBtn);
         }
       }, 2000);
     };
@@ -212,7 +229,7 @@ export const editorRoute: Route = {
     // Toolbar + plugins
     setupToolbar(textarea);
     setupImageUpload(textarea);
-    initGallery(textarea);
+    initGallery((url, name) => insertAtCursor(textarea, `![${name}](${url})`));
     setupContextMenu(textarea);
     setupUndoStack(textarea);
 
@@ -220,6 +237,7 @@ export const editorRoute: Route = {
     const textareaWrap = document.querySelector(".admin-textarea-wrap") as HTMLElement;
     const previewWrap = document.querySelector(".admin-split ui-scrollbar:last-child") as HTMLElement;
     if (textareaWrap && previewWrap) setupScrollSync(textareaWrap, previewWrap);
+
 
     // Save button — routes by activeTabType
     const saveBtn = document.getElementById("admin-save-btn");
@@ -241,6 +259,62 @@ export const editorRoute: Route = {
     // Gallery toggle
     const galleryBtn = document.getElementById("admin-gallery-btn");
     if (galleryBtn) galleryBtn.onclick = toggleGallery;
+
+    // Portfolio layout button
+    const portfolioBtn = document.getElementById("admin-portfolio-btn");
+    if (portfolioBtn) portfolioBtn.onclick = openPortfolioLayout;
+
+    // Project image upload + gallery picker
+    const imageHidden = document.getElementById("admin-project-image") as HTMLInputElement;
+    const imageName = document.getElementById("admin-project-image-name")!;
+    const imagePreview = document.getElementById("admin-project-image-preview") as HTMLElement;
+    const imageWrapper = document.getElementById("admin-project-image-wrapper")!;
+    const imageEmpty = document.getElementById("admin-project-image-empty")!;
+    const imageFilled = document.getElementById("admin-project-image-filled")!;
+
+    const imageRemoveBtn = document.getElementById("admin-project-image-remove")!;
+
+    function setProjectImage(url: string): void {
+      imageHidden.value = url;
+      imageHidden.dispatchEvent(new Event("input", { bubbles: true }));
+      imageName.textContent = url ? url.split("/").pop() ?? url : "";
+      imagePreview.setAttribute("src", url);
+      imageEmpty.style.display = url ? "none" : "flex";
+      imageFilled.style.display = url ? "" : "none";
+    }
+
+    function openImageUpload(): void {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.onchange = async () => {
+        if (!input.files?.length) return;
+        const formData = new FormData();
+        formData.append("file", input.files[0]);
+        try {
+          const res = await fetch("/api/images", { method: "POST", body: formData });
+          if (!res.ok) return;
+          const data = (await res.json()) as { url: string };
+          setProjectImage(data.url);
+        } catch { /* ignore */ }
+      };
+      input.click();
+    }
+
+    function openImageGallery(): void {
+      openGalleryForPick((url) => setProjectImage(url));
+    }
+
+    // Wire all upload/gallery/remove buttons (empty state + overlay)
+    const uploadBtn1 = document.getElementById("admin-project-image-upload");
+    const uploadBtn2 = document.getElementById("admin-project-image-upload2");
+    const galleryBtn1 = document.getElementById("admin-project-image-gallery");
+    const galleryBtn2 = document.getElementById("admin-project-image-gallery2");
+    if (uploadBtn1) uploadBtn1.onclick = openImageUpload;
+    if (uploadBtn2) uploadBtn2.onclick = openImageUpload;
+    if (galleryBtn1) galleryBtn1.onclick = openImageGallery;
+    if (galleryBtn2) galleryBtn2.onclick = openImageGallery;
+    imageRemoveBtn.onclick = () => setProjectImage("");
 
     // Module setups
     setupTags(tagInput, tagList, tagsInput);

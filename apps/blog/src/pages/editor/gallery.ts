@@ -3,7 +3,6 @@
  * Uses <ui-side-panel> component for the slide-in panel.
  */
 
-import { insertAtCursor } from "./toolbar.js";
 import "@maneki/ui-components/components/ui-side-panel.js";
 import "@maneki/ui-components/components/ui-card.js";
 
@@ -17,7 +16,8 @@ interface GalleryImage {
 
 let panel: HTMLElement | null = null;
 let galleryGrid: HTMLElement | null = null;
-let textareaRef: HTMLTextAreaElement | null = null;
+let onSelect: ((url: string, name: string) => void) | null = null;
+let defaultOnSelect: ((url: string, name: string) => void) | null = null;
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -76,14 +76,11 @@ async function renderGallery(): Promise<void> {
     insertBtn.setAttribute("action", "primary");
     insertBtn.setAttribute("emphasis", "minimal");
     insertBtn.setAttribute("size", "s");
-    insertBtn.textContent = "Insert";
+    insertBtn.textContent = "Select";
     insertBtn.onclick = () => {
-      if (textareaRef) {
-        insertAtCursor(textareaRef, `![${img.name}](${img.url})`);
-      }
+      if (onSelect) onSelect(img.url, img.name);
       closeGallery();
     };
-
     const deleteBtn = document.createElement("ui-button");
     deleteBtn.setAttribute("action", "destructive");
     deleteBtn.setAttribute("emphasis", "minimal");
@@ -174,6 +171,7 @@ function createPanel(): HTMLElement {
 }
 
 export function openGallery(): void {
+  onSelect = defaultOnSelect;
   if (!panel) {
     panel = createPanel();
     document.querySelector(".admin-main")?.appendChild(panel);
@@ -183,9 +181,20 @@ export function openGallery(): void {
   renderGallery();
 }
 
+export function openGalleryForPick(callback: (url: string, name: string) => void): void {
+  onSelect = callback;
+  if (!panel) {
+    panel = createPanel();
+    document.querySelector(".admin-main")?.appendChild(panel);
+    panel.offsetHeight;
+  }
+  (panel as unknown as { show(): void }).show();
+  renderGallery();
+  }
+
 export function closeGallery(): void {
   (panel as unknown as { hide(): void })?.hide();
-}
+  }
 
 export function toggleGallery(): void {
   if (panel?.hasAttribute("open")) {
@@ -195,6 +204,7 @@ export function toggleGallery(): void {
   }
 }
 
-export function initGallery(ta: HTMLTextAreaElement): void {
-  textareaRef = ta;
+export function initGallery(insertFn: (url: string, name: string) => void): void {
+  defaultOnSelect = insertFn;
+  onSelect = defaultOnSelect;
 }

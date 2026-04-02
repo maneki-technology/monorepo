@@ -17,6 +17,7 @@
     "@libsql/client": "^0.17.2",
     "@maneki/foundation": "*",
     "@maneki/ui-components": "*",
+    "@maneki/grid-layout": "*",
     "hono": "^4.12.9",
     "zod": "^4.3.6"
   },
