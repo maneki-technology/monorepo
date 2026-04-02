@@ -12,6 +12,7 @@ import { posts } from "./routes/posts.js";
 import { uiState } from "./routes/ui-state.js";
 import { deploy } from "./routes/deploy.js";
 import { images } from "./routes/images.js";
+import { projects } from "./routes/projects.js";
 
 /** Env bindings available in CF Pages Functions. */
 export type Env = {
@@ -45,7 +46,8 @@ const app = new Hono<Env>()
   .route("/posts", posts)
   .route("/ui-state", uiState)
   .route("/deploy", deploy)
-  .route("/images", images);
+  .route("/images", images)
+  .route("/projects", projects);
 
 export type AppType = typeof app;
 export default app;

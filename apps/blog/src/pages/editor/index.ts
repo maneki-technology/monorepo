@@ -1,7 +1,7 @@
 import type { Route } from "../../router.js";
-import type { Draft } from "./types.js";
+import type { Post, Project } from "./types.js";
 import { state, setState, hasUnpublishedChanges } from "./state.js";
-import { saveUIState, saveCurrent, loadDraftIntoEditor } from "./api.js";
+import { saveUIState, saveCurrent, saveCurrentProject, loadPostIntoEditor, loadProjectIntoEditor, showPostForm, showProjectForm } from "./api.js";
 import { renderPreview, triggerPreview } from "./preview.js";
 import { setupToolbar } from "./toolbar.js";
 import { setupImageUpload } from "./upload.js";
@@ -43,12 +43,20 @@ export const editorRoute: Route = {
     <div class="admin-layout">
       <ui-side-panel-menu id="admin-sidebar" style="display:none">
         <span slot="header">Editor</span>
-        <ui-side-panel-menu-item id="admin-new-post" leading-icon action-item value="__new_post__">
-          <ui-icon name="add" size="m" slot="icon"></ui-icon>
-          New Post
-        </ui-side-panel-menu-item>
-        <ui-side-panel-menu-section separator>Posts</ui-side-panel-menu-section>
+        <ui-side-panel-menu-section separator>
+          <span style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+            Posts
+            <ui-button id="admin-new-post" action="primary" emphasis="minimal" size="s" icon="icon-only" aria-label="New Post"><ui-icon name="add" size="s" slot="icon-start"></ui-icon></ui-button>
+          </span>
+        </ui-side-panel-menu-section>
         <div id="admin-post-list"></div>
+        <ui-side-panel-menu-section separator>
+          <span style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+            Projects
+            <ui-button id="admin-new-project" action="primary" emphasis="minimal" size="s" icon="icon-only" aria-label="New Project"><ui-icon name="add" size="s" slot="icon-start"></ui-icon></ui-button>
+          </span>
+        </ui-side-panel-menu-section>
+        <div id="admin-project-list"></div>
       </ui-side-panel-menu>
       <div class="admin-main">
         <div id="admin-tab-bar" class="admin-tab-bar" style="display:none"></div>
@@ -58,7 +66,7 @@ export const editorRoute: Route = {
         </div>
 
         <div id="admin-editor-main" class="admin-editor" style="display:none">
-          <div class="admin-form">
+          <div id="admin-post-form" class="admin-form">
             <div class="admin-form-row">
               <ui-input id="admin-title" placeholder="Post title" size="m"><ui-label slot="label" size="m">Title</ui-label></ui-input>
             </div>
@@ -76,6 +84,41 @@ export const editorRoute: Route = {
             </div>
             <div class="admin-form-row">
               <ui-textarea id="admin-excerpt" placeholder="Short description for listing pages" size="m" rows="2"><ui-label slot="label" size="m">Excerpt</ui-label></ui-textarea>
+            </div>
+          </div>
+
+          <div id="admin-project-form" class="admin-form" style="display:none">
+            <div class="admin-form-row">
+              <ui-input id="admin-project-title" placeholder="Project title" size="m"><ui-label slot="label" size="m">Title</ui-label></ui-input>
+            </div>
+            <div class="admin-form-row">
+              <ui-textarea id="admin-project-description" placeholder="Short project description" size="m" rows="2"><ui-label slot="label" size="m">Description</ui-label></ui-textarea>
+            </div>
+            <div class="admin-form-row-group">
+              <div class="admin-form-row">
+                <ui-input id="admin-project-tech-input" placeholder="Add tech + Enter" size="m">
+                  <ui-label slot="label" size="m">Tech Stack</ui-label>
+                  <span id="admin-project-tech-list" slot="leading"></span>
+                </ui-input>
+                <input id="admin-project-tech" type="hidden" />
+              </div>
+            </div>
+            <div class="admin-form-row-group">
+              <div class="admin-form-row">
+                <ui-input id="admin-project-url" placeholder="https://..." size="m"><ui-label slot="label" size="m">URL</ui-label></ui-input>
+              </div>
+              <div class="admin-form-row">
+                <ui-input id="admin-project-repo" placeholder="https://github.com/..." size="m"><ui-label slot="label" size="m">Repo</ui-label></ui-input>
+              </div>
+            </div>
+            <div class="admin-form-row-group">
+              <div class="admin-form-row">
+                <ui-input id="admin-project-image" placeholder="Image URL" size="m"><ui-label slot="label" size="m">Image</ui-label></ui-input>
+              </div>
+            <div class="admin-form-row">
+              <ui-label size="m">📌 Pin to homepage</ui-label>
+              <ui-checkbox-item id="admin-project-pinned" size="l"></ui-checkbox-item>
+            </div>
             </div>
           </div>
 
@@ -139,14 +182,17 @@ export const editorRoute: Route = {
     titleInput.addEventListener("input", triggerPreview);
     dateInput.addEventListener("change", triggerPreview);
 
-    // Auto-save on input (debounced)
+    // Auto-save on input (debounced) — routes by activeTabType
     let saveTimer: ReturnType<typeof setTimeout> | null = null;
     const autoSave = () => {
       setState({});
-      // trigger render for live preview of unsaved changes
       if (saveTimer) clearTimeout(saveTimer);
       saveTimer = setTimeout(() => {
-        if (state.currentSlug || textarea.value.trim()) saveCurrent();
+        if (state.activeTabType === "project") {
+          if (state.currentSlug) saveCurrentProject();
+        } else {
+          if (state.currentSlug || textarea.value.trim()) saveCurrent();
+        }
       }, 2000);
     };
     textarea.addEventListener("input", autoSave);
@@ -154,6 +200,14 @@ export const editorRoute: Route = {
     dateInput.addEventListener("change", autoSave);
     tagsInput.addEventListener("input", autoSave);
     excerptInput.addEventListener("input", autoSave);
+
+    // Project form auto-save
+    const projectFields = ["admin-project-title", "admin-project-description", "admin-project-url", "admin-project-repo", "admin-project-image"];
+    for (const id of projectFields) {
+      document.getElementById(id)?.addEventListener("input", autoSave);
+    }
+    document.getElementById("admin-project-pinned")?.addEventListener("change", autoSave);
+    // Project content uses the same textarea (admin-content), already wired above
 
     // Toolbar + plugins
     setupToolbar(textarea);
@@ -167,7 +221,7 @@ export const editorRoute: Route = {
     const previewWrap = document.querySelector(".admin-split ui-scrollbar:last-child") as HTMLElement;
     if (textareaWrap && previewWrap) setupScrollSync(textareaWrap, previewWrap);
 
-    // Save button
+    // Save button — routes by activeTabType
     const saveBtn = document.getElementById("admin-save-btn");
     if (saveBtn) {
       saveBtn.onclick = async () => {
@@ -176,7 +230,11 @@ export const editorRoute: Route = {
             const check = setInterval(() => { if (!state.saving) { clearInterval(check); resolve(); } }, 100);
           });
         }
-        saveCurrent(true, saveBtn);
+        if (state.activeTabType === "project") {
+          saveCurrentProject(true, saveBtn);
+        } else {
+          saveCurrent(true, saveBtn);
+        }
       };
     }
 
@@ -186,6 +244,15 @@ export const editorRoute: Route = {
 
     // Module setups
     setupTags(tagInput, tagList, tagsInput);
+
+    // Project tech tags
+    const projectTechInput = document.getElementById("admin-project-tech-input") as HTMLInputElement;
+    const projectTechList = document.getElementById("admin-project-tech-list")!;
+    const projectTechHidden = document.getElementById("admin-project-tech") as HTMLInputElement;
+    if (projectTechInput && projectTechList && projectTechHidden) {
+      setupTags(projectTechInput, projectTechList, projectTechHidden);
+    }
+
     setupPublish(publishSplit, textarea);
     setupDeleteModal();
     setupKeyboard(textarea);
@@ -195,9 +262,10 @@ export const editorRoute: Route = {
     if (!(dateInput as any).value) (dateInput as any).value = new Date().toISOString().split("T")[0];
     renderPreview();
 
-    // New Post button in sidebar header
-    document.getElementById("admin-new-post")?.addEventListener("action", () => {
-      const draft: Draft = {
+    // New Post button
+    const newPostBtn = document.getElementById("admin-new-post");
+    if (newPostBtn) newPostBtn.onclick = () => {
+      const post: Post = {
         slug: `draft-${Date.now().toString(36)}`,
         title: "",
         date: new Date().toISOString().split("T")[0],
@@ -210,21 +278,59 @@ export const editorRoute: Route = {
         persisted: false,
         publishedContent: null,
       };
-      setState({ allPosts: [draft, ...state.allPosts], openTabs: [...state.openTabs, draft] });
-      loadDraftIntoEditor(draft);
-    });
+      setState({ allPosts: [post, ...state.allPosts], openTabs: [...state.openTabs, post] });
+      loadPostIntoEditor(post);
+    };
 
-    // Sidebar select event (open existing post in tab)
+    // New Project button
+    const newProjectBtn = document.getElementById("admin-new-project");
+    if (newProjectBtn) newProjectBtn.onclick = () => {
+      const project: Project = {
+        slug: `project-${Date.now().toString(36)}`,
+        title: "",
+        description: "",
+        content: "",
+        tech: "",
+        url: "",
+        repo: "",
+        image: "",
+        pinned: false,
+        sortOrder: 0,
+        status: "draft",
+        updatedAt: new Date().toISOString(),
+        publishedAt: null,
+        persisted: false,
+        publishedContent: null,
+      };
+      setState({ allProjects: [project, ...state.allProjects], openProjectTabs: [...state.openProjectTabs, project] });
+      loadProjectIntoEditor(project);
+    };
+
+    // Sidebar select event (open existing post or project in tab)
     const sidebar = document.getElementById("admin-sidebar")!;
     sidebar.addEventListener("select", ((e: CustomEvent) => {
       const value = e.detail?.value as string;
       if (!value) return;
+
+      // Project items have value prefixed with "project:"
+      if (value.startsWith("project:")) {
+        const slug = value.slice(8);
+        const project = state.allProjects.find((p) => p.slug === slug);
+        if (!project) return;
+        if (!state.openProjectTabs.find((t) => t.slug === project.slug)) {
+          setState({ openProjectTabs: [...state.openProjectTabs, project] });
+        }
+        loadProjectIntoEditor(project);
+        saveUIState();
+        return;
+      }
+
       const post = state.allPosts.find((p) => p.slug === value);
       if (!post) return;
       if (!state.openTabs.find((t) => t.slug === post.slug)) {
         setState({ openTabs: [...state.openTabs, post] });
       }
-      loadDraftIntoEditor(post);
+      loadPostIntoEditor(post);
       saveUIState();
     }) as EventListener);
 
@@ -235,7 +341,7 @@ export const editorRoute: Route = {
 
     // Warn before accidental refresh if there are unsaved changes
     window.addEventListener("beforeunload", (e) => {
-      if (state.saving || state.allPosts.some((p) => hasUnpublishedChanges(p))) {
+      if (state.saving || state.allPosts.some((p) => hasUnpublishedChanges(p)) || state.allProjects.some((p) => hasUnpublishedChanges(p))) {
         e.preventDefault();
       }
     });

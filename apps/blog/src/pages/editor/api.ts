@@ -1,12 +1,12 @@
 import { api } from "../../lib/api.js";
 import { state, setState } from "./state.js";
-import type { Draft, EditorUIState } from "./types.js";
+import type { Post, EditorUIState, Project } from "./types.js";
 import { renderPreview } from "./preview.js";
 import { resetUndoStack } from "./undo.js";
 
 // ─── API helpers ─────────────────────────────────────────────────────────────
 
-export async function fetchDrafts(): Promise<Draft[]> {
+export async function fetchPosts(): Promise<Post[]> {
   try {
     const res = await api.api.posts.$get({ query: {} });
     if (!res.ok) return [];
@@ -31,23 +31,21 @@ export async function fetchDrafts(): Promise<Draft[]> {
   }
 }
 
-export async function savePost(draft: Draft): Promise<string | null> {
+export async function savePost(post: Post): Promise<string | null> {
   try {
-    const slug = draft.persisted ? draft.slug : toSlug(draft.date, draft.title);
-    const tags = draft.tags.split(",").map((t) => t.trim()).filter(Boolean);
+    const slug = post.persisted ? post.slug : toSlug(post.date, post.title);
+    const tags = post.tags.split(",").map((t) => t.trim()).filter(Boolean);
 
-    // Try update first, create if 404
-    const existing = await api.api.posts[":slug"].$get({ param: { slug } });
-    if (existing.ok) {
+    if (post.persisted) {
       await api.api.posts[":slug"].$put({
         param: { slug },
         json: {
-          title: draft.title,
-          body_md: draft.content,
-          excerpt: draft.excerpt,
+          title: post.title,
+          body_md: post.content,
+          excerpt: post.excerpt,
           tags,
-          status: draft.status as "draft" | "published",
-          date: draft.date,
+          status: post.status as "draft" | "published",
+          date: post.date,
         },
       });
       return slug;
@@ -55,13 +53,13 @@ export async function savePost(draft: Draft): Promise<string | null> {
 
     await api.api.posts.$post({
       json: {
-        title: draft.title || "Untitled",
+        title: post.title || "Untitled",
         slug,
-        body_md: draft.content,
-        excerpt: draft.excerpt,
+        body_md: post.content,
+        excerpt: post.excerpt,
         tags,
-        status: draft.status as "draft" | "published",
-        date: draft.date,
+        status: post.status as "draft" | "published",
+        date: post.date,
       },
     });
     return slug;
@@ -74,6 +72,80 @@ export async function deletePost(slug: string): Promise<void> {
   try {
     await api.api.posts[":slug"].$delete({ param: { slug } });
   } catch { /* ignore */ }
+}
+
+export async function fetchProjects(): Promise<Project[]> {
+  try {
+    const res = await api.api.projects.$get({ query: {} });
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.projects as Record<string, unknown>[]).map((p) => ({
+      slug: p.slug as string,
+      title: p.title as string,
+      description: (p.description as string) ?? "",
+      content: (p.body_md as string) ?? "",
+      tech: (p.tech as string[]).join(", "),
+      url: (p.url as string) ?? "",
+      repo: (p.repo as string) ?? "",
+      image: (p.image as string) ?? "",
+      pinned: !!p.pinned,
+      sortOrder: (p.sort_order as number) ?? 0,
+      status: p.status as string,
+      updatedAt: p.updated_at as string,
+      publishedAt: (p.published_at as string) ?? null,
+      persisted: true,
+      publishedContent: p.status === "published"
+        ? `${p.title}\n${p.body_md}\n${p.description}\n${(p.tech as string[]).join(", ")}`
+        : null,
+    }));
+  } catch { return []; }
+}
+
+export async function saveProject(project: Project): Promise<string | null> {
+  try {
+    const slug = project.persisted ? project.slug : project.slug || `project-${Date.now().toString(36)}`;
+    const tech = project.tech.split(",").map((t) => t.trim()).filter(Boolean);
+
+    if (project.persisted) {
+      await api.api.projects[":slug"].$put({
+        param: { slug },
+        json: {
+          title: project.title,
+          description: project.description,
+          body_md: project.content,
+          tech,
+          url: project.url || null,
+          repo: project.repo || null,
+          image: project.image || null,
+          pinned: project.pinned,
+          sort_order: project.sortOrder,
+          status: project.status as "draft" | "published",
+        },
+      });
+      return slug;
+    }
+
+    await api.api.projects.$post({
+      json: {
+        title: project.title || "Untitled",
+        slug,
+        description: project.description,
+        body_md: project.content,
+        tech,
+        url: project.url || null,
+        repo: project.repo || null,
+        image: project.image || null,
+        pinned: project.pinned,
+        sort_order: project.sortOrder,
+        status: project.status as "draft" | "published",
+      },
+    });
+    return slug;
+  } catch { return null; }
+}
+
+export async function deleteProject(slug: string): Promise<void> {
+  try { await api.api.projects[":slug"].$delete({ param: { slug } }); } catch { /* ignore */ }
 }
 
 export function toSlug(date: string, title: string): string {
@@ -103,7 +175,9 @@ export function saveUIState(): void {
     const sidebar = document.getElementById("admin-sidebar");
     const uiStateData: EditorUIState = {
       openTabs: state.openTabs.map((t) => t.slug),
+      openProjectTabs: state.openProjectTabs.map((t) => t.slug),
       activeTab: state.currentSlug,
+      activeTabType: state.activeTabType,
       sidebarCollapsed: sidebar?.getAttribute("state") === "collapsed",
       theme: document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light",
     };
@@ -118,7 +192,7 @@ export function saveUIState(): void {
 
 // ─── DOM helpers ─────────────────────────────────────────────────────────────
 
-export function getCurrentDraftData(): Omit<Draft, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"> {
+export function getCurrentPostData(): Omit<Post, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"> {
   return {
     title: (document.getElementById("admin-title") as any)?.value ?? "",
     date: (document.getElementById("admin-date") as any)?.value ?? "",
@@ -135,8 +209,8 @@ export async function saveCurrent(forceApi = false, statusEl?: HTMLElement | nul
   if (statusEl) statusEl.setAttribute("status", "loading");
   try {
     const currentPost = state.allPosts.find((p) => p.slug === state.currentSlug);
-    const data = getCurrentDraftData();
-    const draft: Draft = {
+    const data = getCurrentPostData();
+    const post: Post = {
       slug: state.currentSlug || "",
       ...data,
       updatedAt: new Date().toISOString(),
@@ -146,11 +220,11 @@ export async function saveCurrent(forceApi = false, statusEl?: HTMLElement | nul
     };
 
     // Always persist to API (auto-save and explicit save both go to API)
-    const slug = await savePost(draft);
+    const slug = await savePost(post);
     if (slug) {
       const idxAll = state.allPosts.findIndex((d) => d.slug === state.currentSlug);
       const idxTab = state.openTabs.findIndex((d) => d.slug === state.currentSlug);
-      const saved: Draft = { ...draft, slug, persisted: true };
+      const saved: Post = { ...post, slug, persisted: true };
       const newAllPosts = [...state.allPosts];
       if (idxAll >= 0) newAllPosts[idxAll] = saved;
       else newAllPosts.push(saved);
@@ -192,15 +266,16 @@ export function clearEditor(): void {
   renderPreview();
 }
 
-export function loadDraftIntoEditor(draft: Draft): void {
-  setState({ currentSlug: draft.slug });
-  (document.getElementById("admin-title") as any).value = draft.title;
-  (document.getElementById("admin-date") as any).value = draft.date;
-  (document.getElementById("admin-tags") as HTMLInputElement).value = draft.tags;
+export function loadPostIntoEditor(post: Post): void {
+  setState({ currentSlug: post.slug, activeTabType: "post" });
+  showPostForm();
+  (document.getElementById("admin-title") as any).value = post.title;
+  (document.getElementById("admin-date") as any).value = post.date;
+  (document.getElementById("admin-tags") as HTMLInputElement).value = post.tags;
   const tagList = document.getElementById("admin-tag-list");
   if (tagList) {
     tagList.innerHTML = "";
-    draft.tags.split(",").map((t) => t.trim()).filter(Boolean).forEach((name) => {
+    post.tags.split(",").map((t) => t.trim()).filter(Boolean).forEach((name) => {
       const tag = document.createElement("ui-tag");
       tag.setAttribute("size", "s");
       tag.setAttribute("emphasis", "subtle");
@@ -214,15 +289,15 @@ export function loadDraftIntoEditor(draft: Draft): void {
       tagList.appendChild(tag);
     });
   }
-  (document.getElementById("admin-excerpt") as any).value = draft.excerpt;
-  (document.getElementById("admin-content") as HTMLTextAreaElement).value = draft.content;
+  (document.getElementById("admin-excerpt") as any).value = post.excerpt;
+  (document.getElementById("admin-content") as HTMLTextAreaElement).value = post.content;
   renderPreview();
   // Reset undo stack with the loaded content as the initial state
   resetUndoStack();
 }
 
 export function exportAsMarkdown(): void {
-  const data = getCurrentDraftData();
+  const data = getCurrentPostData();
   const frontmatter = [
     "---",
     `title: ${data.title}`,
@@ -245,4 +320,116 @@ export function exportAsMarkdown(): void {
   a.download = `${slug}.md`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// ─── Project DOM helpers ──────────────────────────────────────────────────────
+
+export function getCurrentProjectData(): Omit<Project, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"> {
+  return {
+    title: (document.getElementById("admin-project-title") as any)?.value ?? "",
+    description: (document.getElementById("admin-project-description") as any)?.value ?? "",
+    content: (document.getElementById("admin-content") as HTMLTextAreaElement)?.value ?? "",
+    tech: (document.getElementById("admin-project-tech") as HTMLInputElement)?.value ?? "",
+    url: (document.getElementById("admin-project-url") as any)?.value ?? "",
+    repo: (document.getElementById("admin-project-repo") as any)?.value ?? "",
+    image: (document.getElementById("admin-project-image") as any)?.value ?? "",
+    pinned: (document.getElementById("admin-project-pinned") as HTMLElement)?.hasAttribute("checked") ?? false,
+    sortOrder: 0,
+    status: state.allProjects.find((p) => p.slug === state.currentSlug)?.status ?? "draft",
+  };
+}
+
+export async function saveCurrentProject(forceApi = false, statusEl?: HTMLElement | null): Promise<boolean> {
+  if (state.saving) return false;
+  setState({ saving: true });
+  if (statusEl) statusEl.setAttribute("status", "loading");
+  try {
+    const currentProject = state.allProjects.find((p) => p.slug === state.currentSlug);
+    const data = getCurrentProjectData();
+    const project: Project = {
+      slug: state.currentSlug || "",
+      ...data,
+      updatedAt: new Date().toISOString(),
+      publishedAt: currentProject?.publishedAt ?? null,
+      persisted: currentProject?.persisted ?? false,
+      publishedContent: currentProject?.publishedContent ?? null,
+    };
+
+    const slug = await saveProject(project);
+    if (slug) {
+      const idxAll = state.allProjects.findIndex((d) => d.slug === state.currentSlug);
+      const idxTab = state.openProjectTabs.findIndex((d) => d.slug === state.currentSlug);
+      const saved: Project = { ...project, slug, persisted: true };
+      const newAllProjects = [...state.allProjects];
+      if (idxAll >= 0) newAllProjects[idxAll] = saved;
+      else newAllProjects.push(saved);
+      const newOpenProjectTabs = [...state.openProjectTabs];
+      if (idxTab >= 0) newOpenProjectTabs[idxTab] = saved;
+      else newOpenProjectTabs.push(saved);
+      setState({ allProjects: newAllProjects, openProjectTabs: newOpenProjectTabs, currentSlug: slug });
+      saveUIState();
+      if (statusEl) {
+        statusEl.setAttribute("status", "success");
+        setTimeout(() => statusEl.setAttribute("status", "none"), 1500);
+      }
+      return true;
+    }
+    if (statusEl) {
+      statusEl.setAttribute("status", "error");
+      setTimeout(() => statusEl.setAttribute("status", "none"), 2000);
+    }
+    return false;
+  } finally {
+    setState({ saving: false });
+  }
+}
+
+export function loadProjectIntoEditor(project: Project): void {
+  setState({ currentSlug: project.slug, activeTabType: "project" });
+  showProjectForm();
+  (document.getElementById("admin-project-title") as any).value = project.title;
+  (document.getElementById("admin-project-description") as any).value = project.description;
+  (document.getElementById("admin-content") as HTMLTextAreaElement).value = project.content;
+  (document.getElementById("admin-project-tech") as HTMLInputElement).value = project.tech;
+  const techList = document.getElementById("admin-project-tech-list");
+  if (techList) {
+    techList.innerHTML = "";
+    project.tech.split(",").map((t) => t.trim()).filter(Boolean).forEach((name) => {
+      const tag = document.createElement("ui-tag");
+      tag.setAttribute("size", "s");
+      tag.setAttribute("emphasis", "subtle");
+      tag.setAttribute("dismissible", "");
+      tag.textContent = name;
+      tag.addEventListener("dismiss", () => {
+        tag.remove();
+        const tags = Array.from(techList.querySelectorAll("ui-tag")).map((t) => t.textContent?.trim() ?? "");
+        (document.getElementById("admin-project-tech") as HTMLInputElement).value = tags.join(", ");
+      });
+      techList.appendChild(tag);
+    });
+  }
+  (document.getElementById("admin-project-url") as any).value = project.url;
+  (document.getElementById("admin-project-repo") as any).value = project.repo;
+  (document.getElementById("admin-project-image") as any).value = project.image;
+  const pinnedEl = document.getElementById("admin-project-pinned") as HTMLElement;
+  if (pinnedEl) {
+    if (project.pinned) pinnedEl.setAttribute("checked", "");
+    else pinnedEl.removeAttribute("checked");
+  }
+  renderPreview();
+  resetUndoStack();
+}
+
+export function showPostForm(): void {
+  const postForm = document.getElementById("admin-post-form");
+  const projectForm = document.getElementById("admin-project-form");
+  if (postForm) postForm.style.display = "";
+  if (projectForm) projectForm.style.display = "none";
+}
+
+export function showProjectForm(): void {
+  const postForm = document.getElementById("admin-post-form");
+  const projectForm = document.getElementById("admin-project-form");
+  if (postForm) postForm.style.display = "none";
+  if (projectForm) projectForm.style.display = "";
 }

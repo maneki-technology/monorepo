@@ -3,6 +3,7 @@ import anchor from "markdown-it-anchor";
 import { createHighlighterCore } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import { fromHighlighter } from "@shikijs/markdown-it";
+import { state } from "./state.js";
 
 // ─── Markdown renderer (client-side, lazy Shiki for syntax highlighting) ─────
 
@@ -86,9 +87,14 @@ export function triggerPreview(): void {
 }
 
 export function renderPreview(): void {
-  const title = (document.getElementById("admin-title") as any)?.value ?? "";
-  const date = (document.getElementById("admin-date") as any)?.value ?? "";
-  const tags = (document.getElementById("admin-tags") as HTMLInputElement)?.value ?? "";
+  const isProject = state.activeTabType === "project";
+  const title = isProject
+    ? (document.getElementById("admin-project-title") as any)?.value ?? ""
+    : (document.getElementById("admin-title") as any)?.value ?? "";
+  const date = isProject ? "" : (document.getElementById("admin-date") as any)?.value ?? "";
+  const tags = isProject
+    ? (document.getElementById("admin-project-tech") as HTMLInputElement)?.value ?? ""
+    : (document.getElementById("admin-tags") as HTMLInputElement)?.value ?? "";
   const content = (document.getElementById("admin-content") as HTMLTextAreaElement)?.value ?? "";
   const preview = document.getElementById("admin-preview");
   if (!preview) return;

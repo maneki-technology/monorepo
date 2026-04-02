@@ -66,6 +66,23 @@ const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .prefix {
+    display: none;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .prefix.has-content {
+    display: inline-flex;
+  }
+
+  .label-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* ── Highlight bar ───────────────────────────────────────────────────────── */
@@ -389,7 +406,19 @@ export class UiTabItem extends HTMLElement {
       trailingIcon.classList.toggle("has-content", hasContent);
     });
 
+    // Prefix slot (icons, indicators before label text)
+    const prefixEl = document.createElement("span");
+    prefixEl.className = "prefix";
+    const prefixSlot = document.createElement("slot");
+    prefixSlot.name = "prefix";
+    prefixEl.appendChild(prefixSlot);
+    prefixSlot.addEventListener("slotchange", () => {
+      const hasContent = prefixSlot.assignedElements().length > 0;
+      prefixEl.classList.toggle("has-content", hasContent);
+    });
+
     labelContainer.appendChild(leadingIcon);
+    labelContainer.appendChild(prefixEl);
     labelContainer.appendChild(labelSpan);
     labelContainer.appendChild(trailingIcon);
     labelContainer.appendChild(chevron);

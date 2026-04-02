@@ -1,8 +1,11 @@
-import type { Draft } from "./types.js";
+import type { Post, Project } from "./types.js";
 
 export interface EditorState {
-  allPosts: Draft[];
-  openTabs: Draft[];
+  allPosts: Post[];
+  openTabs: Post[];
+  allProjects: Project[];
+  openProjectTabs: Project[];
+  activeTabType: "post" | "project" | null;
   currentSlug: string | null;
   saving: boolean;
   deployingSlugs: Set<string>;
@@ -14,6 +17,9 @@ export interface EditorState {
 export const state: EditorState = {
   allPosts: [],
   openTabs: [],
+  allProjects: [],
+  openProjectTabs: [],
+  activeTabType: null,
   currentSlug: null,
   saving: false,
   deployingSlugs: new Set(),
@@ -25,8 +31,8 @@ export const state: EditorState = {
 let renderScheduled = false;
 const pendingRenders = { sidebar: false, tabbar: false };
 
-const SIDEBAR_DEPS: (keyof EditorState)[] = ["allPosts", "currentSlug", "deployingSlugs", "pendingDeleteSlug", "selectedSlugs"];
-const TABBAR_DEPS: (keyof EditorState)[] = ["openTabs", "currentSlug"];
+const SIDEBAR_DEPS: (keyof EditorState)[] = ["allPosts", "allProjects", "currentSlug", "deployingSlugs", "pendingDeleteSlug", "selectedSlugs"];
+const TABBAR_DEPS: (keyof EditorState)[] = ["openTabs", "openProjectTabs", "currentSlug", "activeTabType"];
 
 type RenderCallback = () => void;
 const sidebarCallbacks: RenderCallback[] = [];
@@ -60,10 +66,15 @@ export function setState(partial: Partial<EditorState>): void {
   }
 }
 
-export function hasUnpublishedChanges(post: Draft): boolean {
-  if (post.status !== "published") return false;
-  if (post.publishedContent === null) return false;
-  // Compare current content fields against published snapshot
-  const current = `${post.title}\n${post.content}\n${post.excerpt}\n${post.tags}\n${post.date}`;
-  return current !== post.publishedContent;
+export function hasUnpublishedChanges(item: Post | Project): boolean {
+  if (item.status !== "published") return false;
+  if (item.publishedContent === null) return false;
+  if ("date" in item) {
+    // Post (post)
+    const current = `${item.title}\n${item.content}\n${item.excerpt}\n${item.tags}\n${item.date}`;
+    return current !== item.publishedContent;
+  }
+  // Project
+  const current = `${item.title}\n${item.content}\n${item.description}\n${item.tech}`;
+  return current !== item.publishedContent;
 }

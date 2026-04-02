@@ -49,11 +49,21 @@
       border-bottom: 1px solid var(--fd-border-minimal, #e4e4e7);
       flex-shrink: 0;
       padding: 4px 8px 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+    }
+
+    .admin-tab-bar ui-tab-item {
+      max-width: 180px;
     }
 
     .admin-tab-bar ui-tab-group {
       flex: 1;
       min-width: 0;
+    }
+
+    ui-tab-item {
+      max-width: 180px;
     }
 
     .admin-tab-bar-actions {
@@ -78,6 +88,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+      flex-shrink: 0;
     }
 
     .admin-form-row {
@@ -106,6 +117,12 @@
     }
 
     #admin-tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    #admin-project-tech-list {
       display: flex;
       flex-wrap: wrap;
       gap: 4px;

@@ -181,5 +181,25 @@ registerPage("tabs", {
         </ui-tab-group>
       </div>
     </div>
+    <h3>Prefix Slot</h3>
+    <div class="variant-group stack-m">
+      <div class="variant-col">
+        <span class="variant-label">Type icons + dirty indicator</span>
+        <ui-tab-group size="m" closable>
+          <ui-tab-item label="Building a Design System" selected>
+            <span slot="prefix"><span style="color:var(--fd-surface-destructive, #d91f11)">*</span> 📝</span>
+          </ui-tab-item>
+          <ui-tab-item label="Grid Layout Engine">
+            <span slot="prefix">📝</span>
+          </ui-tab-item>
+          <ui-tab-item label="Maneki Design System">
+            <span slot="prefix"><span style="color:var(--fd-surface-destructive, #d91f11)">*</span> 📦</span>
+          </ui-tab-item>
+          <ui-tab-item label="CLI Tool">
+            <span slot="prefix">📦</span>
+          </ui-tab-item>
+        </ui-tab-group>
+      </div>
+    </div>
   `,
 });

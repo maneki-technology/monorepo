@@ -1,6 +1,6 @@
 import { state, setState, onTabBarRender, hasUnpublishedChanges } from "./state.js";
-import { saveUIState, loadDraftIntoEditor, clearEditor } from "./api.js";
-import type { Draft } from "./types.js";
+import { saveUIState, loadPostIntoEditor, loadProjectIntoEditor, clearEditor } from "./api.js";
+import type { Post, Project } from "./types.js";
 
 export class TabBarRenderer {
   private tabs = new Map<string, HTMLElement>();
@@ -39,33 +39,60 @@ export class TabBarRenderer {
       this.bar.appendChild(this.tabGroup);
       this.bar.appendChild(this.actionsContainer);
 
-      // Tab close — remove from openTabs only (NOT delete from API)
+      // Tab close
       this.tabGroup.addEventListener("tab-close", ((e: CustomEvent) => {
-        const slug = e.detail?.value as string;
-        if (!slug) return;
-        setState({ openTabs: state.openTabs.filter((d) => d.slug !== slug) });
-        saveUIState();
-        if (state.currentSlug === slug) {
-          if (state.openTabs.length > 0) {
-            loadDraftIntoEditor(state.openTabs[state.openTabs.length - 1]);
-          } else {
-            clearEditor();
+        const value = e.detail?.value as string;
+        if (!value) return;
+
+        if (value.startsWith("project:")) {
+          const slug = value.slice(8);
+          setState({ openProjectTabs: state.openProjectTabs.filter((d) => d.slug !== slug) });
+          saveUIState();
+          if (state.currentSlug === slug && state.activeTabType === "project") {
+            if (state.openProjectTabs.length > 0) {
+              loadProjectIntoEditor(state.openProjectTabs[state.openProjectTabs.length - 1]);
+            } else if (state.openTabs.length > 0) {
+              loadPostIntoEditor(state.openTabs[state.openTabs.length - 1]);
+            } else {
+              clearEditor();
+            }
+          }
+        } else {
+          setState({ openTabs: state.openTabs.filter((d) => d.slug !== value) });
+          saveUIState();
+          if (state.currentSlug === value && state.activeTabType === "post") {
+            if (state.openTabs.length > 0) {
+              loadPostIntoEditor(state.openTabs[state.openTabs.length - 1]);
+            } else if (state.openProjectTabs.length > 0) {
+              loadProjectIntoEditor(state.openProjectTabs[state.openProjectTabs.length - 1]);
+            } else {
+              clearEditor();
+            }
           }
         }
       }) as EventListener);
 
       // Tab select
       this.tabGroup.addEventListener("tab-change", ((e: CustomEvent) => {
-        const slug = e.detail?.value as string;
-        if (!slug || slug === state.currentSlug) return;
-        const draft = state.openTabs.find((d) => d.slug === slug);
-        if (draft) loadDraftIntoEditor(draft);
+        const value = e.detail?.value as string;
+        if (!value) return;
+
+        if (value.startsWith("project:")) {
+          const slug = value.slice(8);
+          if (slug === state.currentSlug && state.activeTabType === "project") return;
+          const project = state.openProjectTabs.find((d) => d.slug === slug);
+          if (project) loadProjectIntoEditor(project);
+        } else {
+          if (value === state.currentSlug && state.activeTabType === "post") return;
+          const post = state.openTabs.find((d) => d.slug === value);
+          if (post) loadPostIntoEditor(post);
+        }
         saveUIState();
       }) as EventListener);
 
       // New draft (via addable "+" button)
       this.tabGroup.addEventListener("tab-add", () => {
-        const draft: Draft = {
+        const post: Post = {
           slug: `draft-${Date.now().toString(36)}`,
           title: "",
           date: new Date().toISOString().split("T")[0],
@@ -78,8 +105,8 @@ export class TabBarRenderer {
           persisted: false,
           publishedContent: null,
         };
-        setState({ allPosts: [draft, ...state.allPosts], openTabs: [...state.openTabs, draft] });
-        loadDraftIntoEditor(draft);
+        setState({ allPosts: [post, ...state.allPosts], openTabs: [...state.openTabs, post] });
+        loadPostIntoEditor(post);
         saveUIState();
       });
 
@@ -96,25 +123,40 @@ export class TabBarRenderer {
       };
     }
 
-    const currentSlugs = new Set(state.openTabs.map((t) => t.slug));
+    // Build combined tab list: posts then projects
+    const allTabKeys = new Set<string>();
+    for (const tab of state.openTabs) allTabKeys.add(tab.slug);
+    for (const tab of state.openProjectTabs) allTabKeys.add(`project:${tab.slug}`);
 
     // Remove closed tabs
-    for (const [slug, el] of this.tabs) {
-      if (!currentSlugs.has(slug)) {
+    for (const [key, el] of this.tabs) {
+      if (!allTabKeys.has(key)) {
         el.remove();
-        this.tabs.delete(slug);
+        this.tabs.delete(key);
       }
     }
 
-    // Add new tabs, patch existing
+    // Add/patch post tabs
     for (const tab of state.openTabs) {
       const existing = this.tabs.get(tab.slug);
       if (existing) {
-        this.patchTab(existing, tab);
+        this.patchTab(existing, tab, "post");
       } else {
-        const el = this.createTab(tab);
+        const el = this.createTab(tab, "post");
         this.tabs.set(tab.slug, el);
-        // Insert before the internal add button (last child of tab group)
+        this.tabGroup!.appendChild(el);
+      }
+    }
+
+    // Add/patch project tabs
+    for (const tab of state.openProjectTabs) {
+      const key = `project:${tab.slug}`;
+      const existing = this.tabs.get(key);
+      if (existing) {
+        this.patchTab(existing, tab, "project");
+      } else {
+        const el = this.createTab(tab, "project");
+        this.tabs.set(key, el);
         this.tabGroup!.appendChild(el);
       }
     }
@@ -127,18 +169,38 @@ export class TabBarRenderer {
     }
   }
 
-  private patchTab(el: HTMLElement, draft: Draft): void {
-    const newLabel = (draft.title || "Untitled") + (hasUnpublishedChanges(draft) ? " *" : "");
+  private patchTab(el: HTMLElement, item: Post | Project, type: "post" | "project"): void {
+    const newLabel = item.title || "Untitled";
     if (el.getAttribute("label") !== newLabel) el.setAttribute("label", newLabel);
-    if (draft.slug === state.currentSlug) el.setAttribute("selected", "");
+
+    let prefixEl = el.querySelector("[slot=\"prefix\"]") as HTMLElement;
+    if (!prefixEl) {
+      prefixEl = document.createElement("span");
+      prefixEl.setAttribute("slot", "prefix");
+      el.appendChild(prefixEl);
+    }
+    const icon = type === "project" ? "📦" : "📝";
+    const dirty = hasUnpublishedChanges(item) ? '<span style="color:var(--fd-surface-destructive, #d91f11)">*</span> ' : "";
+    prefixEl.innerHTML = dirty + icon;
+
+    const isActive = item.slug === state.currentSlug && state.activeTabType === type;
+    if (isActive) el.setAttribute("selected", "");
     else el.removeAttribute("selected");
   }
 
-  private createTab(draft: Draft): HTMLElement {
+  private createTab(item: Post | Project, type: "post" | "project"): HTMLElement {
     const tabItem = document.createElement("ui-tab-item");
-    tabItem.setAttribute("value", draft.slug);
-    tabItem.setAttribute("label", (draft.title || "Untitled") + (hasUnpublishedChanges(draft) ? " *" : ""));
-    if (draft.slug === state.currentSlug) {
+    const value = type === "project" ? `project:${item.slug}` : item.slug;
+    tabItem.setAttribute("value", value);
+    const icon = type === "project" ? "📦" : "📝";
+    const dirty = hasUnpublishedChanges(item) ? '<span style="color:var(--fd-surface-destructive, #d91f11)">*</span> ' : "";
+    const prefixEl = document.createElement("span");
+    prefixEl.setAttribute("slot", "prefix");
+    prefixEl.innerHTML = dirty + icon;
+    tabItem.appendChild(prefixEl);
+    tabItem.setAttribute("label", item.title || "Untitled");
+    const isActive = item.slug === state.currentSlug && state.activeTabType === type;
+    if (isActive) {
       tabItem.setAttribute("selected", "");
     }
     return tabItem;

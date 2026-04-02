@@ -1,7 +1,7 @@
 import { api } from "../../lib/api.js";
-import type { Draft } from "./types.js";
+import type { Post, Project } from "./types.js";
 import { state, setState } from "./state.js";
-import { fetchDrafts, loadUIState, loadDraftIntoEditor } from "./api.js";
+import { fetchPosts, fetchProjects, loadUIState, loadPostIntoEditor, loadProjectIntoEditor } from "./api.js";
 import { SidebarRenderer } from "./sidebar.js";
 import { TabBarRenderer } from "./tabbar.js";
 
@@ -9,14 +9,15 @@ export function setupInit(): void {
   const sidebarRenderer = new SidebarRenderer();
   const tabBarRenderer = new TabBarRenderer();
 
-  // Load posts from API + UI state in parallel
-  Promise.all([fetchDrafts(), loadUIState()]).then(async ([loaded, uiState]) => {
-    setState({ allPosts: loaded });
+  // Load posts + projects + UI state in parallel
+  Promise.all([fetchPosts(), fetchProjects(), loadUIState()]).then(async ([posts, projects, uiState]) => {
+    setState({ allPosts: posts, allProjects: projects });
 
     // Init renderers after DOM is ready and state is populated
-    const listEl = document.getElementById("admin-post-list");
+    const postListEl = document.getElementById("admin-post-list");
+    const projectListEl = document.getElementById("admin-project-list");
     const barEl = document.getElementById("admin-tab-bar");
-    if (listEl) sidebarRenderer.init(listEl);
+    if (postListEl && projectListEl) sidebarRenderer.init(postListEl, projectListEl);
     if (barEl) tabBarRenderer.init(barEl);
 
     // Restore UI state
@@ -34,9 +35,9 @@ export function setupInit(): void {
         sidebar.setAttribute("state", "collapsed");
       }
 
-      // Restore open tabs
+      // Restore open post tabs
       const savedTabs = Array.isArray(uiState.openTabs) ? uiState.openTabs : [];
-      const restoredTabs: Draft[] = [];
+      const restoredTabs: Post[] = [];
       for (const slug of savedTabs) {
         const post = state.allPosts.find((p) => p.slug === slug);
         if (post && !restoredTabs.find((t) => t.slug === slug)) {
@@ -44,24 +45,47 @@ export function setupInit(): void {
         }
       }
 
-      // Restore active tab
-      const activePost = uiState.activeTab ? state.allPosts.find((p) => p.slug === uiState.activeTab) : null;
-      if (activePost) {
-        if (!restoredTabs.find((t) => t.slug === activePost.slug)) {
-          restoredTabs.push(activePost);
+      // Restore open project tabs
+      const savedProjectTabs = Array.isArray(uiState.openProjectTabs) ? uiState.openProjectTabs : [];
+      const restoredProjectTabs: Project[] = [];
+      for (const slug of savedProjectTabs) {
+        const project = state.allProjects.find((p) => p.slug === slug);
+        if (project && !restoredProjectTabs.find((t) => t.slug === slug)) {
+          restoredProjectTabs.push(project);
         }
-        setState({ openTabs: restoredTabs });
-        loadDraftIntoEditor(activePost);
+      }
+
+      setState({ openTabs: restoredTabs, openProjectTabs: restoredProjectTabs });
+
+      // Restore active tab
+      const savedType = uiState.activeTabType ?? "post";
+      if (savedType === "project" && uiState.activeTab) {
+        const activeProject = state.allProjects.find((p) => p.slug === uiState.activeTab);
+        if (activeProject) {
+          if (!restoredProjectTabs.find((t) => t.slug === activeProject.slug)) {
+            setState({ openProjectTabs: [...state.openProjectTabs, activeProject] });
+          }
+          loadProjectIntoEditor(activeProject);
+        } else if (restoredTabs.length > 0) {
+          loadPostIntoEditor(restoredTabs[0]);
+        }
+      } else if (uiState.activeTab) {
+        const activePost = state.allPosts.find((p) => p.slug === uiState.activeTab);
+        if (activePost) {
+          if (!restoredTabs.find((t) => t.slug === activePost.slug)) {
+            setState({ openTabs: [...state.openTabs, activePost] });
+          }
+          loadPostIntoEditor(activePost);
+        } else if (restoredTabs.length > 0) {
+          loadPostIntoEditor(restoredTabs[0]);
+        }
       } else if (restoredTabs.length > 0) {
-        setState({ openTabs: restoredTabs });
-        loadDraftIntoEditor(restoredTabs[0]);
-      } else {
-        setState({ openTabs: restoredTabs });
+        loadPostIntoEditor(restoredTabs[0]);
       }
     } else if (state.allPosts.length > 0) {
       // No saved state — open first post
       setState({ openTabs: [state.allPosts[0]] });
-      loadDraftIntoEditor(state.allPosts[0]);
+      loadPostIntoEditor(state.allPosts[0]);
     }
 
     document.getElementById("admin-loading")!.style.display = "none";
