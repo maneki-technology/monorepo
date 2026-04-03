@@ -126,7 +126,7 @@ export class UiAccordionGroup extends HTMLElement {
       return header && header === item.shadowRoot?.activeElement;
     });
     if (currentIndex === -1) return;
-    let nextIndex: number | null = null;
+    let nextIndex: number;
     switch (e.key) {
       case "ArrowDown":
         nextIndex = (currentIndex + 1) % items.length;

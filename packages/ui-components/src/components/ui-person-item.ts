@@ -202,7 +202,7 @@ export class UiPersonItem extends HTMLElement {
     };
     const iconNames = ["mail", "phone", "message"];
     for (const iconName of iconNames) {
-      let existing = this.#actionsEl.querySelector(`[data-action="${iconName}"]`);
+      const existing = this.#actionsEl.querySelector(`[data-action="${iconName}"]`);
       if (!existing) {
         const btn = document.createElement("button");
         btn.type = "button";

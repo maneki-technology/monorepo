@@ -22,7 +22,6 @@ export class UiSidePanel extends HTMLElement {
   #body!: HTMLElement;
   #mql: MediaQueryList | null = null;
   #mqlHandler: ((e: MediaQueryListEvent) => void) | null = null;
-  #userExplicitState = false;
   #mobileTrigger!: HTMLButtonElement;
 
   constructor() {
@@ -159,7 +158,6 @@ export class UiSidePanel extends HTMLElement {
   // ── Public API ──────────────────────────────────────────────────────────
 
   toggle(): void {
-    this.#userExplicitState = true;
     const next = this.state === "expanded" ? "collapsed" : "expanded";
     this.setAttribute("state", next);
 
@@ -253,8 +251,7 @@ export class UiSidePanel extends HTMLElement {
   }
 
   private _syncMobileState(isMobile: boolean): void {
-    // Reset explicit state on mobile/desktop transition so defaults apply
-    this.#userExplicitState = false;
+    // Reset state on mobile/desktop transition so defaults apply
     if (isMobile) {
       this.setAttribute("mobile", "");
       this.setAttribute("state", "collapsed");

@@ -2,7 +2,7 @@ import { api } from "../../lib/api.js";
 import { state, setState } from "./state.js";
 import { getCurrentPostData, getCurrentProjectData } from "./api.js";
 
-export function setupPublish(publishSplit: HTMLElement | null, textarea: HTMLTextAreaElement): void {
+export function setupPublish(publishSplit: HTMLElement | null, _textarea: HTMLTextAreaElement): void {
   // Publish (split button left action) — save, publish (triggers deploy), poll
   publishSplit?.addEventListener("action", async () => {
     if (publishSplit) publishSplit.setAttribute("status", "loading");

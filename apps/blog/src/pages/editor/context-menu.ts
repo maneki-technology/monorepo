@@ -3,7 +3,7 @@
  * Actions arranged in a ring around the selection point.
  */
 
-import { wrapSelection, insertAtCursor } from "./toolbar.js";
+import { wrapSelection } from "./toolbar.js";
 import { uploadFile } from "./upload.js";
 
 interface MenuAction {
@@ -36,7 +36,6 @@ const ACTIONS: MenuAction[] = [
 ];
 
 const RADIUS = 48;
-const BTN_SIZE = 28;
 
 let menuEl: HTMLElement | null = null;
 let textareaRef: HTMLTextAreaElement | null = null;

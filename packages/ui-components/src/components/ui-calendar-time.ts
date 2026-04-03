@@ -182,7 +182,7 @@ export class UiCalendarTime extends HTMLElement {
     const match = val.match(/^(\d{1,2}):(\d{2})$/);
     if (!match) return;
 
-    let h = parseInt(match[1], 10);
+    const h = parseInt(match[1], 10);
     const m = parseInt(match[2], 10);
     if (h < 0 || h > 23 || m < 0 || m > 59) return;
 

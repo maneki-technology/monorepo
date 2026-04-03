@@ -1,7 +1,7 @@
 import type { Route } from "../../router.js";
 import type { Post, Project } from "./types.js";
 import { state, setState, hasUnpublishedChanges } from "./state.js";
-import { saveUIState, saveCurrent, saveCurrentProject, loadPostIntoEditor, loadProjectIntoEditor, showPostForm, showProjectForm } from "./api.js";
+import { saveUIState, saveCurrent, saveCurrentProject, loadPostIntoEditor, loadProjectIntoEditor } from "./api.js";
 import { renderPreview, triggerPreview } from "./preview.js";
 import { setupToolbar, insertAtCursor } from "./toolbar.js";
 import { setupImageUpload } from "./upload.js";
@@ -268,7 +268,6 @@ export const editorRoute: Route = {
     const imageHidden = document.getElementById("admin-project-image") as HTMLInputElement;
     const imageName = document.getElementById("admin-project-image-name")!;
     const imagePreview = document.getElementById("admin-project-image-preview") as HTMLElement;
-    const imageWrapper = document.getElementById("admin-project-image-wrapper")!;
     const imageEmpty = document.getElementById("admin-project-image-empty")!;
     const imageFilled = document.getElementById("admin-project-image-filled")!;
 

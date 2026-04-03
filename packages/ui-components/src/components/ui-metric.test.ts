@@ -255,25 +255,25 @@ describe("ui-metric", () => {
 
   it("CSS sets xs value typography token (body-02)", () => {
     expect(STYLES).toContain(':host([size="xs"]) .value');
-    expect(STYLES).toMatch(/\:host\(\[size="xs"\]\) \.value\s*\{[^}]*var\(--fd-type-body-02-font-size\)/);
+    expect(STYLES).toMatch(/:host\(\[size="xs"\]\) \.value\s*\{[^}]*var\(--fd-type-body-02-font-size\)/);
   });
 
   // ── Size CSS: s ───────────────────────────────────────────────────────────
 
   it("CSS sets s value typography token (body-01)", () => {
-    expect(STYLES).toMatch(/\:host\(\[size="s"\]\) \.value\s*\{[^}]*var\(--fd-type-body-01-font-size\)/);
+    expect(STYLES).toMatch(/:host\(\[size="s"\]\) \.value\s*\{[^}]*var\(--fd-type-body-01-font-size\)/);
   });
 
   // ── Size CSS: m ───────────────────────────────────────────────────────────
 
   it("CSS sets m value typography token (heading-04)", () => {
-    expect(STYLES).toMatch(/\:host\(\[size="m"\]\) \.value\s*\{[^}]*var\(--fd-type-heading-04-font-size\)/);
+    expect(STYLES).toMatch(/:host\(\[size="m"\]\) \.value\s*\{[^}]*var\(--fd-type-heading-04-font-size\)/);
   });
 
   // ── Size CSS: l ───────────────────────────────────────────────────────────
 
   it("CSS sets l value typography token (heading-02)", () => {
-    expect(STYLES).toMatch(/\:host\(\[size="l"\]\) \.value\s*\{[^}]*var\(--fd-type-heading-02-font-size\)/);
+    expect(STYLES).toMatch(/:host\(\[size="l"\]\) \.value\s*\{[^}]*var\(--fd-type-heading-02-font-size\)/);
   });
 
   // ── Orientation attribute ─────────────────────────────────────────────────

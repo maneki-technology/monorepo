@@ -203,7 +203,7 @@ export function getCurrentPostData(): Omit<Post, "slug" | "updatedAt" | "publish
   };
 }
 
-export async function saveCurrent(forceApi = false, statusEl?: HTMLElement | null): Promise<boolean> {
+export async function saveCurrent(_forceApi = false, statusEl?: HTMLElement | null): Promise<boolean> {
   if (state.saving) return false;
   setState({ saving: true });
   if (statusEl) statusEl.setAttribute("status", "loading");
@@ -339,7 +339,7 @@ export function getCurrentProjectData(): Omit<Project, "slug" | "updatedAt" | "p
   };
 }
 
-export async function saveCurrentProject(forceApi = false, statusEl?: HTMLElement | null): Promise<boolean> {
+export async function saveCurrentProject(_forceApi = false, statusEl?: HTMLElement | null): Promise<boolean> {
   if (state.saving) return false;
   setState({ saving: true });
   if (statusEl) statusEl.setAttribute("status", "loading");
@@ -410,7 +410,6 @@ export function loadProjectIntoEditor(project: Project): void {
   }
   (document.getElementById("admin-project-url") as any).value = project.url;
   (document.getElementById("admin-project-repo") as any).value = project.repo;
-  const imageWrapper = document.getElementById("admin-project-image-wrapper");
   const imageName = document.getElementById("admin-project-image-name");
   const imagePreview = document.getElementById("admin-project-image-preview");
   if (imageName) imageName.textContent = project.image ? project.image.split("/").pop() ?? project.image : "";

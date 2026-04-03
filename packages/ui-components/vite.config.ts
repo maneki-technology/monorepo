@@ -4,8 +4,8 @@ import { readdirSync } from "node:fs";
 
 import { minifyCss } from "./src/css-minify.js";
 /**
- * Vite plugin that minifies CSS inside template literals tagged with `/* css *​/`.
- * Strips comments, collapses whitespace, removes trailing semicolons before `}`.
+ * Vite plugin that minifies CSS inside template literals tagged with a css comment marker.
+ * Strips comments, collapses whitespace, removes trailing semicolons before closing brace.
  * Only runs during build (not dev/test) to keep DX intact.
  */
 function minifyCssLiterals(): Plugin {
