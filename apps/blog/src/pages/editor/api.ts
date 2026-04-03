@@ -268,7 +268,6 @@ export function clearEditor(): void {
 
 export function loadPostIntoEditor(post: Post): void {
   setState({ currentSlug: post.slug, activeTabType: "post" });
-  showPostForm();
   (document.getElementById("admin-title") as any).value = post.title;
   (document.getElementById("admin-date") as any).value = post.date;
   (document.getElementById("admin-tags") as HTMLInputElement).value = post.tags;
@@ -386,7 +385,6 @@ export async function saveCurrentProject(_forceApi = false, statusEl?: HTMLEleme
 
 export function loadProjectIntoEditor(project: Project): void {
   setState({ currentSlug: project.slug, activeTabType: "project" });
-  showProjectForm();
   (document.getElementById("admin-project-title") as any).value = project.title;
   (document.getElementById("admin-project-description") as any).value = project.description;
   (document.getElementById("admin-content") as HTMLTextAreaElement).value = project.content;
@@ -427,20 +425,3 @@ export function loadProjectIntoEditor(project: Project): void {
   resetUndoStack();
 }
 
-export function showPostForm(): void {
-  const postForm = document.getElementById("admin-post-form");
-  const projectForm = document.getElementById("admin-project-form");
-  const portfolioBtn = document.getElementById("admin-portfolio-btn");
-  if (postForm) postForm.style.display = "";
-  if (projectForm) projectForm.style.display = "none";
-  if (portfolioBtn) portfolioBtn.style.display = "none";
-}
-
-export function showProjectForm(): void {
-  const postForm = document.getElementById("admin-post-form");
-  const projectForm = document.getElementById("admin-project-form");
-  const portfolioBtn = document.getElementById("admin-portfolio-btn");
-  if (postForm) postForm.style.display = "none";
-  if (projectForm) projectForm.style.display = "";
-  if (portfolioBtn) portfolioBtn.style.display = "";
-}
