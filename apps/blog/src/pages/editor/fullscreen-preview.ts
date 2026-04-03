@@ -34,6 +34,7 @@ export function setupFullscreenPreview(
                 ${project?.url ? `<ui-link size="s" href="${project.url}" external>Live</ui-link>` : ""}
                 ${project?.repo ? `<ui-link size="s" href="${project.repo}" external>Source</ui-link>` : ""}
               </div>
+              ${project?.image ? `<ui-image src="${project.image}" alt="${title}" style="width:100%;max-height:400px;--ui-image-fit:cover;--ui-image-bg:var(--fd-surface-secondary);border-radius:var(--fd-radius-md);margin-top:var(--fd-space-3);"></ui-image>` : ""}
               ${highlighted ? `<div class="post-content mt-4">${highlighted}</div>` : ""}
             </article>
           `;

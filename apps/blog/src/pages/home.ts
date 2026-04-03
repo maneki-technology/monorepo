@@ -44,6 +44,7 @@ export const homeRoute: Route = {
         ${pinnedProjects.map((project: any) => `
           <a href="/project/${project.slug}" style="text-decoration:none;color:inherit;">
             <ui-card size="m" bordered>
+              ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" slot="image" style="width:100%;height:180px;--ui-image-fit:cover;"></ui-image>` : ""}
               <div class="stack gap-1" style="padding:20px;">
                 <h3 class="heading-05">${project.title}</h3>
                 <p class="body-02 text-secondary">${project.description}</p>
