@@ -410,7 +410,15 @@ export function loadProjectIntoEditor(project: Project): void {
   }
   (document.getElementById("admin-project-url") as any).value = project.url;
   (document.getElementById("admin-project-repo") as any).value = project.repo;
-  (document.getElementById("admin-project-image") as any).value = project.image;
+  const imageWrapper = document.getElementById("admin-project-image-wrapper");
+  const imageName = document.getElementById("admin-project-image-name");
+  const imagePreview = document.getElementById("admin-project-image-preview");
+  if (imageName) imageName.textContent = project.image ? project.image.split("/").pop() ?? project.image : "";
+  if (imagePreview) imagePreview.setAttribute("src", project.image);
+  const imageEmpty = document.getElementById("admin-project-image-empty");
+  const imageFilled = document.getElementById("admin-project-image-filled");
+  if (imageEmpty) imageEmpty.style.display = project.image ? "none" : "flex";
+  if (imageFilled) imageFilled.style.display = project.image ? "" : "none";
   const pinnedEl = document.getElementById("admin-project-pinned") as HTMLElement;
   if (pinnedEl) {
     if (project.pinned) pinnedEl.setAttribute("checked", "");
@@ -423,13 +431,17 @@ export function loadProjectIntoEditor(project: Project): void {
 export function showPostForm(): void {
   const postForm = document.getElementById("admin-post-form");
   const projectForm = document.getElementById("admin-project-form");
+  const portfolioBtn = document.getElementById("admin-portfolio-btn");
   if (postForm) postForm.style.display = "";
   if (projectForm) projectForm.style.display = "none";
+  if (portfolioBtn) portfolioBtn.style.display = "none";
 }
 
 export function showProjectForm(): void {
   const postForm = document.getElementById("admin-post-form");
   const projectForm = document.getElementById("admin-project-form");
+  const portfolioBtn = document.getElementById("admin-portfolio-btn");
   if (postForm) postForm.style.display = "none";
   if (projectForm) projectForm.style.display = "";
+  if (portfolioBtn) portfolioBtn.style.display = "";
 }
