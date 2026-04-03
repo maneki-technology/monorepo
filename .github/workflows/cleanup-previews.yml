@@ -1,0 +1,81 @@
+name: Cleanup CF Pages Preview Deployments
+
+on:
+  workflow_dispatch:
+    inputs:
+      keep_count:
+        description: "Number of recent preview deployments to keep"
+        required: false
+        default: "5"
+      dry_run:
+        description: "Dry run (list but do not delete)"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+      project:
+        description: "CF Pages project to clean up"
+        required: false
+        default: "maneki-blog"
+        type: choice
+        options:
+          - "maneki-blog"
+          - "maneki-catalog"
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup old preview deployments
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PROJECT_NAME: ${{ inputs.project }}
+          KEEP_COUNT: ${{ inputs.keep_count }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          echo "Fetching deployments for $PROJECT_NAME..."
+
+          DEPLOYMENTS=$(curl -s \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?per_page=100" \
+            | jq -r '.result')
+
+          # Filter preview deployments (non-production), sort by created_on desc
+          PREVIEW_DEPLOYMENTS=$(echo "$DEPLOYMENTS" | jq -r '[.[] | select(.environment == "preview")] | sort_by(.created_on) | reverse')
+
+          TOTAL=$(echo "$PREVIEW_DEPLOYMENTS" | jq 'length')
+          echo "Found $TOTAL preview deployments, keeping $KEEP_COUNT most recent"
+
+          if [ "$TOTAL" -le "$KEEP_COUNT" ]; then
+            echo "Nothing to delete ($TOTAL <= $KEEP_COUNT)"
+            exit 0
+          fi
+
+          # Get deployments to delete (skip the first KEEP_COUNT)
+          TO_DELETE=$(echo "$PREVIEW_DEPLOYMENTS" | jq ".[$KEEP_COUNT:]")
+          DELETE_COUNT=$(echo "$TO_DELETE" | jq 'length')
+
+          echo "Will delete $DELETE_COUNT preview deployments"
+          echo ""
+
+          echo "$TO_DELETE" | jq -r '.[] | "  \(.id) | \(.created_on) | \(.deployment_trigger.metadata.branch // "unknown")"'
+          echo ""
+
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "DRY RUN — no deletions performed"
+            exit 0
+          fi
+
+          echo "Deleting..."
+          echo "$TO_DELETE" | jq -r '.[].id' | while read -r ID; do
+            echo "  Deleting $ID..."
+            curl -s -X DELETE \
+              -H "Authorization: Bearer $CF_API_TOKEN" \
+              "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments/$ID" \
+              | jq -r '.success'
+          done
+
+          echo "Done. Deleted $DELETE_COUNT preview deployments."

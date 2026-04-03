@@ -42,6 +42,29 @@ registerPage("image", {
         </div>
       </ui-card>
     </div>
+
+    <h3>Caption Slot</h3>
+    <div class="variant-row gap-24">
+      <div class="flex-1">
+        <span class="variant-label">With caption</span>
+        <ui-image ratio="16:9" src="${landscapeSvg}" alt="landscape">
+          <span slot="caption">Figure 1: A beautiful landscape scene</span>
+        </ui-image>
+      </div>
+      <div class="flex-1">
+        <span class="variant-label">Without caption</span>
+        <ui-image ratio="16:9" src="${landscapeSvg}" alt="landscape"></ui-image>
+      </div>
+    </div>
+
+    <h3>Caption with custom styling</h3>
+    <div class="variant-row gap-24">
+      <div class="flex-1">
+        <ui-image ratio="3:2" src="${landscapeSvg}" alt="landscape" style="--ui-image-caption-color:var(--fd-text-primary);">
+          <span slot="caption"><strong>Figure 2:</strong> Caption with primary text color</span>
+        </ui-image>
+      </div>
+    </div>
   `,
   setup: () => {
     const png = createLandscapePng();

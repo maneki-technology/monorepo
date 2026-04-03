@@ -177,11 +177,6 @@ export class UiSidePanel extends HTMLElement {
   }
 
   show(): void {
-    // 1. Make visible off-screen
-    this.classList.add("panel-visible");
-    // 2. Force reflow so browser registers off-screen position
-    this.offsetHeight;
-    // 3. Set open — triggers transform transition
     this.setAttribute("open", "");
   }
 
@@ -189,12 +184,11 @@ export class UiSidePanel extends HTMLElement {
     this.removeAttribute("open");
   }
 
-  // ── Private ───────────────────────────────────────────────────────────────────────
+  // ── Private ─────────────────────────────────────────────────────────────────────
 
   #outsideClickHandler: ((e: MouseEvent) => void) | null = null;
 
   private _onOpen(): void {
-    // Outside click handler (delayed to avoid catching the opening click)
     setTimeout(() => {
       this.#outsideClickHandler = (e: MouseEvent) => {
         if (this.hasAttribute("dismissible") && !this.contains(e.target as Node)) {
@@ -212,14 +206,6 @@ export class UiSidePanel extends HTMLElement {
       document.removeEventListener("click", this.#outsideClickHandler);
       this.#outsideClickHandler = null;
     }
-
-    // Wait for slide-out transition, then hide
-    const onEnd = (): void => {
-      this.removeEventListener("transitionend", onEnd);
-      this.classList.remove("panel-visible");
-    };
-    this.addEventListener("transitionend", onEnd);
-    setTimeout(() => this.classList.remove("panel-visible"), 250);
 
     this.dispatchEvent(new CustomEvent("close", { bubbles: true, composed: true }));
   }

@@ -39,26 +39,35 @@ export const STYLES = /* css */ `
     transition: width 0.2s ease, transform 0.2s ease;
   }
 
-  /* ── Dismissible panels: hidden by default, shown via JS ───────────────── */
+  /* ── Dismissible panels: animate from display:none via @starting-style ── */
 
   :host([dismissible]) {
     display: none;
   }
 
-  :host([dismissible].panel-visible) {
+  :host([dismissible][open]) {
     display: block;
+    transform: translateX(0);
+    transition: transform 0.2s ease, display 0.2s ease allow-discrete;
   }
 
-  :host([dismissible].panel-visible:not([open])) {
+  :host([dismissible]:not([open])) {
+    display: block;
     transform: translateX(-100%);
+    transition: transform 0.2s ease, display 0.2s ease allow-discrete;
   }
 
-  :host([dismissible][position="right"].panel-visible:not([open])) {
+  :host([dismissible][position="right"]:not([open])) {
     transform: translateX(100%);
   }
 
-  :host([dismissible][open].panel-visible) {
-    transform: translateX(0);
+  @starting-style {
+    :host([dismissible][open]) {
+      transform: translateX(-100%);
+    }
+    :host([dismissible][position="right"][open]) {
+      transform: translateX(100%);
+    }
   }
 
 
