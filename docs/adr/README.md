@@ -22,3 +22,8 @@ This directory contains Architectural Decision Records (ADRs) for the Maneki des
 | [015](015-blog-markdown-pipeline.md) | Blog App — Markdown Pipeline with Static Generation | Superseded by 017 | 2026-03 |
 | [016](016-ui-components-tree-shaking.md) | UI Components Tree-Shaking with Auto-Detection | Accepted | 2026-03 |
 | [017](017-blog-hono-turso-backend.md) | Blog Backend — Hono API + Turso DB | Accepted | 2026-03 |
+| [018](018-editor-architecture.md) | Editor Architecture — Reactive Store + Modular Split | Accepted | 2026-04 |
+| [019](019-portfolio-management.md) | Portfolio Management — Dual Content Types | Accepted | 2026-04 |
+| [020](020-image-pipeline.md) | Image Pipeline — R2 Storage + Client Optimization | Accepted | 2026-04 |
+| [021](021-deploy-flow.md) | Deploy Flow — GitHub Actions + Status Polling | Accepted | 2026-04 |
+| [022](022-eslint-prettier.md) | ESLint + Prettier — Monorepo Linting | Accepted | 2026-04 |
