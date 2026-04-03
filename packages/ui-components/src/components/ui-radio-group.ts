@@ -197,7 +197,7 @@ export class UiRadioGroup extends HTMLElement {
     const currentIndex = items.indexOf(document.activeElement as Element);
     if (currentIndex === -1) return;
 
-    let nextIndex: number | null = null;
+    let nextIndex: number;
 
     switch (e.key) {
       case "ArrowDown":

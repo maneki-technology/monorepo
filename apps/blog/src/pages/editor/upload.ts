@@ -3,7 +3,6 @@
  * Uploads to POST /api/images, inserts markdown at cursor.
  */
 
-import { api } from "../../lib/api.js";
 import { insertAtCursor } from "./toolbar.js";
 
 const MAX_WIDTH = 1200;

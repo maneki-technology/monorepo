@@ -551,7 +551,7 @@ export class UiSelect extends HTMLElement {
     const active = items.findIndex(
       (el) => el === document.activeElement || el.matches(":focus"),
     );
-    let next: number | null = null;
+    let next: number;
 
     switch (ke.key) {
       case "ArrowDown":

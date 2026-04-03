@@ -33,7 +33,6 @@ export const images = new Hono<Env>()
     }
 
     // Generate unique filename: timestamp-originalname
-    const ext = file.name.split(".").pop() ?? "bin";
     const name = `${Date.now().toString(36)}-${file.name.replace(/[^\w.-]/g, "_")}`;
 
     await bucket.put(name, await file.arrayBuffer(), {

@@ -280,7 +280,7 @@ export class UiSlider extends HTMLElement {
   private _onKeyDown(e: KeyboardEvent, handle: "low" | "high"): void {
     if (this.disabled) return;
     const step = this.step;
-    let delta = 0;
+    let delta: number;
 
     switch (e.key) {
       case "ArrowRight":

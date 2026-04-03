@@ -150,13 +150,12 @@ export class UiCarousel extends HTMLElement {
   ];
 
   #track: HTMLDivElement;
-  #actionsBar: HTMLDivElement;
   #indicators: HTMLDivElement;
   #arrowGroup: HTMLDivElement;
+  #actionsBar!: HTMLDivElement;
   #prevBtn: HTMLButtonElement;
   #nextBtn: HTMLButtonElement;
   #defaultSlot: HTMLSlotElement;
-  #observer: IntersectionObserver | null = null;
   #autoPlayTimer: number | null = null;
   #activeIndex = 0;
   #pausedByInteraction = false;
@@ -435,7 +434,7 @@ export class UiCarousel extends HTMLElement {
   #goToSlide(index: number): void {
     const items = this.#getItems();
     if (items.length === 0) return;
-    let target = index;
+    let target: number;
     if (this.loop) {
       target = ((index % items.length) + items.length) % items.length;
     } else {

@@ -506,7 +506,7 @@ export class UiDropdown extends HTMLElement {
     const items = this._getSlottedItems().filter((el) => !el.hasAttribute("disabled")) as HTMLElement[];
     if (items.length === 0) return;
     const active = items.findIndex((el) => el === document.activeElement || el.shadowRoot?.activeElement);
-    let next: number | null = null;
+    let next: number;
     switch (ke.key) {
       case "ArrowDown":
         next = active < 0 ? 0 : (active + 1) % items.length;

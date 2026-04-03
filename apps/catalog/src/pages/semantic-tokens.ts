@@ -15,7 +15,6 @@ function renderSwatch(name: string, cssVar: string, value: any, mode: string): s
   const resolved = resolveSemanticValue(value);
   const isLight = resolved === "#ffffff" || resolved === "rgba(28, 43, 54, 0.8)";
 
-  let swatchHtml = "";
   if (mode === "surface") {
     swatchHtml = `<div style="width:44px;height:44px;border-radius:6px;flex-shrink:0;background:${resolved};${isLight ? "border:1px solid #dce3e8;" : ""}"></div>`;
   } else if (mode === "border") {
