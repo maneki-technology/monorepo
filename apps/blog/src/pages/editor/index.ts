@@ -1,6 +1,6 @@
 import type { Route } from "../../router.js";
 import type { Post, Project } from "./types.js";
-import { state, setState, hasUnpublishedChanges } from "./state.js";
+import { state, setState, hasUnpublishedChanges, onFormRender } from "./state.js";
 import { saveUIState, saveCurrent, saveCurrentProject, loadPostIntoEditor, loadProjectIntoEditor } from "./api.js";
 import { renderPreview, triggerPreview } from "./preview.js";
 import { setupToolbar, insertAtCursor } from "./toolbar.js";
@@ -16,6 +16,25 @@ import { setupKeyboard } from "./keyboard.js";
 import { setupFullscreenPreview } from "./fullscreen-preview.js";
 import { setupTags } from "./tags.js";
 import { setupInit } from "./init.js";
+
+function renderForm(): void {
+  const loading = document.getElementById("admin-loading");
+  const editorMain = document.getElementById("admin-editor-main");
+  const sidebar = document.getElementById("admin-sidebar");
+  const tabBar = document.getElementById("admin-tab-bar");
+  const postForm = document.getElementById("admin-post-form");
+  const projectForm = document.getElementById("admin-project-form");
+  const portfolioBtn = document.getElementById("admin-portfolio-btn");
+
+  if (loading) loading.style.display = state.loaded ? "none" : "";
+  if (editorMain) editorMain.style.display = state.loaded ? "" : "none";
+  if (sidebar) sidebar.style.display = state.loaded ? "" : "none";
+  if (tabBar) tabBar.style.display = state.loaded ? "" : "none";
+
+  if (postForm) postForm.style.display = state.activeTabType === "project" ? "none" : "";
+  if (projectForm) projectForm.style.display = state.activeTabType === "project" ? "" : "none";
+  if (portfolioBtn) portfolioBtn.style.display = state.activeTabType === "project" ? "" : "none";
+}
 
 // These components are used in the editor but not detected by auto-import plugin
 import "@maneki/ui-components/components/ui-tag.js";
@@ -419,7 +438,8 @@ export const editorRoute: Route = {
       }
     });
 
-    // Load posts, restore UI state, resume deploy polling
+    // Register form visibility callback + load posts, restore UI state, resume deploy polling
+    onFormRender(renderForm);
     setupInit();
   },
 };

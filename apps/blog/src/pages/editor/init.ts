@@ -88,10 +88,7 @@ export function setupInit(): void {
       loadPostIntoEditor(state.allPosts[0]);
     }
 
-    document.getElementById("admin-loading")!.style.display = "none";
-    document.getElementById("admin-editor-main")!.style.display = "";
-    document.getElementById("admin-tab-bar")!.style.display = "";
-    document.getElementById("admin-sidebar")!.style.display = "";
+    setState({ loaded: true });
 
     // Resume polling if there's an active deployment
     (async () => {
