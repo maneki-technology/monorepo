@@ -305,6 +305,19 @@
       margin: 0 0 var(--fd-space-2);
     }
 
+    /* Callouts */
+    .callout {
+      padding: var(--fd-space-2) var(--fd-space-2-5);
+      margin: var(--fd-space-2) 0;
+      border-left: 3px solid;
+      border-radius: var(--fd-radius-sm);
+      font-size: var(--fd-type-body-02-font-size);
+      line-height: var(--fd-type-body-02-line-height);
+    }
+    .callout-info { border-color: var(--fd-surface-action); background: color-mix(in srgb, var(--fd-surface-action) 8%, transparent); }
+    .callout-tip { border-color: var(--fd-surface-success); background: color-mix(in srgb, var(--fd-surface-success) 8%, transparent); }
+    .callout-warning { border-color: var(--fd-status-general-warning); background: color-mix(in srgb, var(--fd-status-general-warning) 8%, transparent); }
+    .callout-error { border-color: var(--fd-surface-destructive); background: color-mix(in srgb, var(--fd-surface-destructive) 8%, transparent); }
     /* ─── Portfolio ─── */
 
     .project-grid {

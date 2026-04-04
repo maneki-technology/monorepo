@@ -10,6 +10,7 @@ import { setupContextMenu } from "./context-menu.js";
 import { setupScrollSync } from "./scroll-sync.js";
 import { setupUndoStack } from "./undo.js";
 import { openPortfolioLayout } from "./project-preview.js";
+import { setupComponentToolbar } from "./component-toolbar.js";
 import { setupPublish } from "./publish.js";
 import { setupDeleteModal } from "./delete-modal.js";
 import { setupKeyboard } from "./keyboard.js";
@@ -179,6 +180,7 @@ export const editorRoute: Route = {
               <ui-dropdown-item id="admin-export-btn" value="export">Export .md</ui-dropdown-item>
             </ui-dropdown-split>
           </div>
+          <div id="admin-component-toolbar" class="admin-toolbar admin-component-toolbar"></div>
 
           <div class="admin-split">
             <ui-scrollbar emphasis="minimal" class="admin-textarea-wrap">
@@ -252,6 +254,7 @@ export const editorRoute: Route = {
     initGallery((url, name) => insertAtCursor(textarea, `![${name}](${url})`));
     setupContextMenu(textarea);
     setupUndoStack(textarea);
+    setupComponentToolbar(textarea);
 
     // Scroll sync between textarea and preview
     const textareaWrap = document.querySelector(".admin-textarea-wrap") as HTMLElement;
