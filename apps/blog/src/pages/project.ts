@@ -15,6 +15,7 @@ export const projectRoutes: Route[] = projects.map((project) => ({
         ${project.url ? `<ui-link size="s" href="${project.url}" external>Live</ui-link>` : ""}
         ${project.repo ? `<ui-link size="s" href="${project.repo}" external>Source</ui-link>` : ""}
       </div>
+      ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" style="width:100%;max-height:400px;--ui-image-fit:cover;--ui-image-bg:var(--fd-surface-secondary);border-radius:var(--fd-radius-md);margin-top:var(--fd-space-3);"></ui-image>` : ""}
       ${project.content ? `<div class="post-content mt-4">${project.content}</div>` : ""}
       <div style="border-top:1px solid var(--fd-border-minimal,#e4e4e7);padding-top:24px;margin-top:48px;">
         <a href="/portfolio" class="body-02 text-link" style="text-decoration:none;">\u2190 Back to all projects</a>

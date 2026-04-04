@@ -58,13 +58,13 @@ function renderProjectCards(): void {
         <span class="heading-05">${project.title || "Untitled"}</span>
         <span class="pin-toggle" role="button" tabindex="0" aria-label="Pin to homepage" style="cursor:pointer;font-size:16px;opacity:${project.pinned ? "1" : "0.3"};transition:opacity 0.15s;">\ud83d\udccc</span>
       </div>
+      ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" style="width:100%;height:100px;--ui-image-fit:cover;--ui-image-bg:var(--fd-surface-secondary);border-radius:var(--fd-radius-sm);margin:var(--fd-space-1) 0;"></ui-image>` : ""}
       <p class="body-02 text-secondary">${project.description}</p>
       <div class="tags mt-1">
         ${project.tech.split(",").map((t: string) => t.trim()).filter(Boolean).map((t: string) => `<ui-badge size="xs" emphasis="subtle">${t}</ui-badge>`).join("")}
       </div>
       <div class="project-preview-card-status">
         <ui-badge size="xs" status="${project.status === "published" ? "success" : "warning"}">${project.status}</ui-badge>
-        ${project.pinned ? '<ui-badge size="xs" status="information">pinned</ui-badge>' : ""}
       </div>
     `;
 
@@ -76,13 +76,6 @@ function renderProjectCards(): void {
         const newPinned = !project.pinned;
         project.pinned = newPinned;
         pinBtn.style.opacity = newPinned ? "1" : "0.3";
-        const statusDiv = card.querySelector(".project-preview-card-status")!;
-        const pinnedBadge = statusDiv.querySelector("[status='information']");
-        if (newPinned && !pinnedBadge) {
-          statusDiv.insertAdjacentHTML("beforeend", '<ui-badge size="xs" status="information">pinned</ui-badge>');
-        } else if (!newPinned && pinnedBadge) {
-          pinnedBadge.remove();
-        }
         try {
           await api.api.projects[":slug"].$put({
             param: { slug: project.slug },
