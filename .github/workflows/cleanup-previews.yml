@@ -36,25 +36,30 @@ jobs:
           KEEP_COUNT: ${{ inputs.keep_count }}
           DRY_RUN: ${{ inputs.dry_run }}
         run: |
-          echo "Fetching deployments for $PROJECT_NAME..."
+          # Fetch ALL preview deployments with pagination
+          ALL_PREVIEWS="[]"
+          PAGE=1
+          while true; do
+            RESPONSE=$(curl -s \
+              -H "Authorization: Bearer $CF_API_TOKEN" \
+              "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?per_page=25&page=$PAGE")
 
-          RESPONSE=$(curl -s \
-            -H "Authorization: Bearer $CF_API_TOKEN" \
-            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?per_page=25")
+            SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
+            if [ "$SUCCESS" != "true" ]; then
+              echo "API error on page $PAGE:"
+              echo "$RESPONSE" | jq -r '.errors'
+              exit 1
+            fi
 
-          # Check for API errors
-          SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
-          if [ "$SUCCESS" != "true" ]; then
-            echo "API error:"
-            echo "$RESPONSE" | jq -r '.errors'
-            exit 1
-          fi
+            PAGE_RESULTS=$(echo "$RESPONSE" | jq -r '[(.result // [])[] | select(.environment == "preview")]')
+            COUNT=$(echo "$PAGE_RESULTS" | jq 'length')
+            if [ "$COUNT" -eq 0 ]; then break; fi
 
-          DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.result // []')
+            ALL_PREVIEWS=$(echo "$ALL_PREVIEWS $PAGE_RESULTS" | jq -s 'add')
+            PAGE=$((PAGE + 1))
+          done
 
-          # Filter preview deployments (non-production), sort by created_on desc
-          PREVIEW_DEPLOYMENTS=$(echo "$DEPLOYMENTS" | jq -r '[.[] | select(.environment == "preview")] | sort_by(.created_on) | reverse')
-
+          PREVIEW_DEPLOYMENTS=$(echo "$ALL_PREVIEWS" | jq 'sort_by(.created_on) | reverse')
           TOTAL=$(echo "$PREVIEW_DEPLOYMENTS" | jq 'length')
           echo "Found $TOTAL preview deployments, keeping $KEEP_COUNT most recent"
 
@@ -63,7 +68,6 @@ jobs:
             exit 0
           fi
 
-          # Get deployments to delete (skip the first KEEP_COUNT)
           TO_DELETE=$(echo "$PREVIEW_DEPLOYMENTS" | jq ".[$KEEP_COUNT:]")
           DELETE_COUNT=$(echo "$TO_DELETE" | jq 'length')
 
@@ -74,17 +78,17 @@ jobs:
           echo ""
 
           if [ "$DRY_RUN" = "true" ]; then
-            echo "DRY RUN — no deletions performed"
+            echo "DRY RUN \u2014 no deletions performed"
             exit 0
           fi
 
-          echo "Deleting..."
-          echo "$TO_DELETE" | jq -r '.[].id' | while read -r ID; do
-            echo "  Deleting $ID..."
+          echo "Deleting in parallel (10 at a time)..."
+          echo "$TO_DELETE" | jq -r '.[].id' | xargs -P 10 -I {} sh -c '
+            echo "  Deleting {}..."
             curl -s -X DELETE \
-              -H "Authorization: Bearer $CF_API_TOKEN" \
-              "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments/$ID" \
-              | jq -r '.success'
-          done
+              -H "Authorization: Bearer '"$CF_API_TOKEN"'" \
+              "https://api.cloudflare.com/client/v4/accounts/'"$CF_ACCOUNT_ID"'/pages/projects/'"$PROJECT_NAME"'/deployments/{}" \
+              | jq -r ".success"
+          '
 
           echo "Done. Deleted $DELETE_COUNT preview deployments."
