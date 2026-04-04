@@ -40,7 +40,7 @@ jobs:
 
           RESPONSE=$(curl -s \
             -H "Authorization: Bearer $CF_API_TOKEN" \
-            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?per_page=100")
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?per_page=25")
 
           # Check for API errors
           SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
