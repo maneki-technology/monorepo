@@ -38,10 +38,19 @@ jobs:
         run: |
           echo "Fetching deployments for $PROJECT_NAME..."
 
-          DEPLOYMENTS=$(curl -s \
+          RESPONSE=$(curl -s \
             -H "Authorization: Bearer $CF_API_TOKEN" \
-            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?per_page=100" \
-            | jq -r '.result')
+            "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/$PROJECT_NAME/deployments?per_page=25")
+
+          # Check for API errors
+          SUCCESS=$(echo "$RESPONSE" | jq -r '.success')
+          if [ "$SUCCESS" != "true" ]; then
+            echo "API error:"
+            echo "$RESPONSE" | jq -r '.errors'
+            exit 1
+          fi
+
+          DEPLOYMENTS=$(echo "$RESPONSE" | jq -r '.result // []')
 
           # Filter preview deployments (non-production), sort by created_on desc
           PREVIEW_DEPLOYMENTS=$(echo "$DEPLOYMENTS" | jq -r '[.[] | select(.environment == "preview")] | sort_by(.created_on) | reverse')
