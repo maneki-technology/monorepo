@@ -143,17 +143,18 @@ export const editorRoute: Route = {
                     <ui-button id="admin-project-image-gallery" action="secondary" emphasis="subtle" size="s">Gallery</ui-button>
                   </div>
                   <div id="admin-project-image-filled" class="project-image-thumb" style="display:none;">
-                    <ui-image id="admin-project-image-preview" style="width:200px;height:120px;--ui-image-bg:var(--fd-surface-secondary);--ui-image-fit:cover;border-radius:var(--fd-radius-sm);"></ui-image>
+                    <ui-image id="admin-project-image-preview" style="width:200px;--ui-image-height:120px;--ui-image-bg:var(--fd-surface-secondary);--ui-image-fit:cover;border-radius:var(--fd-radius-sm);">
+                      <span id="admin-project-image-caption" slot="caption"></span>
+                    </ui-image>
                     <div class="project-image-overlay">
-                      <ui-button id="admin-project-image-upload2" action="secondary" emphasis="subtle" size="s">Upload</ui-button>
-                      <ui-button id="admin-project-image-gallery2" action="secondary" emphasis="subtle" size="s">Gallery</ui-button>
-                      <ui-button id="admin-project-image-remove" action="destructive" emphasis="subtle" size="s">Remove</ui-button>
+                      <ui-button id="admin-project-image-upload2" action="secondary" emphasis="subtle" size="m" icon="icon-only" aria-label="Upload"><ui-icon name="upload" size="m" slot="icon-start"></ui-icon></ui-button>
+                      <ui-button id="admin-project-image-gallery2" action="secondary" emphasis="subtle" size="m" icon="icon-only" aria-label="Gallery"><ui-icon name="grid_view" size="m" slot="icon-start"></ui-icon></ui-button>
+                      <ui-button id="admin-project-image-remove" action="destructive" emphasis="subtle" size="m" icon="icon-only" aria-label="Remove"><ui-icon name="delete" size="m" slot="icon-start"></ui-icon></ui-button>
                     </div>
-                    <span id="admin-project-image-name" class="body-03 text-secondary" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:4px;"></span>
                   </div>
-                </div>
                 <input id="admin-project-image" type="hidden" />
               </div>
+            </div>
           </div>
 
           <div class="admin-toolbar">
@@ -285,17 +286,18 @@ export const editorRoute: Route = {
 
     // Project image upload + gallery picker
     const imageHidden = document.getElementById("admin-project-image") as HTMLInputElement;
-    const imageName = document.getElementById("admin-project-image-name")!;
     const imagePreview = document.getElementById("admin-project-image-preview") as HTMLElement;
     const imageEmpty = document.getElementById("admin-project-image-empty")!;
     const imageFilled = document.getElementById("admin-project-image-filled")!;
 
     const imageRemoveBtn = document.getElementById("admin-project-image-remove")!;
+    const imageCaption = document.getElementById("admin-project-image-caption")!;
 
     function setProjectImage(url: string): void {
       imageHidden.value = url;
       imageHidden.dispatchEvent(new Event("input", { bubbles: true }));
-      imageName.textContent = url ? url.split("/").pop() ?? url : "";
+      const filename = url ? url.split("/").pop() ?? url : "";
+      imageCaption.textContent = filename;
       imagePreview.setAttribute("src", url);
       imageEmpty.style.display = url ? "none" : "flex";
       imageFilled.style.display = url ? "" : "none";

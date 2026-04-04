@@ -25,12 +25,12 @@ const STYLES = /* css */ `
 
   :host {
     display: block;
-    overflow: hidden;
   }
 
   .container {
     position: relative;
     width: 100%;
+    overflow: hidden;
     background-color: var(--ui-image-bg, ${SURFACE_SECONDARY});
   }
 
@@ -74,6 +74,21 @@ const STYLES = /* css */ `
   :host([src]) .fallback {
     display: none;
   }
+
+  /* ── Caption slot ────────────────────────────────────────────────────── */
+
+  .caption {
+    display: none;
+    padding: var(--ui-image-caption-padding, 8px 0 0);
+    font-family: var(--fd-type-body-03-font-family);
+    font-size: var(--fd-type-body-03-font-size);
+    line-height: var(--fd-type-body-03-line-height);
+    color: var(--ui-image-caption-color, var(--fd-text-secondary));
+  }
+
+  .caption.has-content {
+    display: block;
+  }
 `;
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -116,6 +131,24 @@ export class UiImage extends HTMLElement {
     this._container = container;
     this._img = img;
     this._fallback = fallback;
+
+    // Caption slot
+    const caption = document.createElement("div");
+    caption.className = "caption";
+    const captionSlot = document.createElement("slot");
+    captionSlot.name = "caption";
+    captionSlot.addEventListener("slotchange", () => {
+      this._syncCaption(caption, captionSlot);
+    });
+    // Also observe text changes in slotted elements
+    const observer = new MutationObserver(() => this._syncCaption(caption, captionSlot));
+    captionSlot.addEventListener("slotchange", () => {
+      for (const node of captionSlot.assignedNodes()) {
+        observer.observe(node, { characterData: true, childList: true, subtree: true });
+      }
+    });
+    caption.appendChild(captionSlot);
+    shadow.appendChild(caption);
 
     this._syncRatio();
     this._syncSrc();
@@ -200,6 +233,11 @@ export class UiImage extends HTMLElement {
   private _syncFit(): void {
     const fit = this.fit;
     this._container.style.setProperty("--ui-image-fit", fit);
+  }
+
+  private _syncCaption(caption: HTMLDivElement, slot: HTMLSlotElement): void {
+    const hasContent = slot.assignedNodes().some((n) => n.textContent?.trim());
+    caption.classList.toggle("has-content", hasContent);
   }
 }
 

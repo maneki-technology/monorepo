@@ -408,9 +408,10 @@ export function loadProjectIntoEditor(project: Project): void {
   }
   (document.getElementById("admin-project-url") as any).value = project.url;
   (document.getElementById("admin-project-repo") as any).value = project.repo;
-  const imageName = document.getElementById("admin-project-image-name");
   const imagePreview = document.getElementById("admin-project-image-preview");
-  if (imageName) imageName.textContent = project.image ? project.image.split("/").pop() ?? project.image : "";
+  const imageCaption = document.getElementById("admin-project-image-caption");
+  const filename = project.image ? project.image.split("/").pop() ?? project.image : "";
+  if (imageCaption) imageCaption.textContent = filename;
   if (imagePreview) imagePreview.setAttribute("src", project.image);
   const imageEmpty = document.getElementById("admin-project-image-empty");
   const imageFilled = document.getElementById("admin-project-image-filled");
