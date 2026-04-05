@@ -2,6 +2,7 @@ import {
   ELEVATION_05,
   RADIUS_SM,
   SP_0_5,
+  SP_0_25,
   SURFACE_PRIMARY,
 } from "@maneki/foundation";
 
@@ -23,6 +24,7 @@ export const STYLES = /* css */ `
     z-index: 1000;
     min-width: var(--ui-menu-min-width, 240px);
     padding: ${SP_0_5} 0;
+    margin-top: var(--ui-menu-gap, ${SP_0_25});
     background-color: var(--ui-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-menu-shadow, ${ELEVATION_05});
     border-radius: var(--ui-menu-radius, ${RADIUS_SM});
@@ -31,6 +33,7 @@ export const STYLES = /* css */ `
     transform: translateY(-4px);
     transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
     pointer-events: none;
+    overflow: clip;
   }
 
   :host([open]) {

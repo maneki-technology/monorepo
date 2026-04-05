@@ -66,7 +66,7 @@ const STYLES = /* css */ `
     flex-direction: column;
     background-color: var(--ui-modal-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-modal-shadow, ${ELEVATION_06});
-    border-radius: ${RADIUS_SM};
+    border-radius: var(--ui-modal-radius, ${RADIUS_SM});
     font-family: ${FONT_PRIMARY};
     color: ${TEXT_PRIMARY};
     width: var(--ui-modal-width, 441px);
@@ -85,6 +85,11 @@ const STYLES = /* css */ `
   :host([layout="fluid"]) .dialog {
     width: var(--ui-modal-width, 630px);
     height: var(--ui-modal-height, 405px);
+  }
+
+  :host([layout="fluid"]) .content {
+    flex: 1;
+    min-height: 0;
   }
 
   :host([layout="fluid"]) .body {
@@ -155,6 +160,7 @@ const STYLES = /* css */ `
     color: ${ICON_PRIMARY};
     line-height: 0;
     flex-shrink: 0;
+    border-radius: var(--ui-modal-close-radius, 0);
   }
 
   :host([dismissible]) .close-btn {
@@ -173,6 +179,8 @@ const STYLES = /* css */ `
     display: none;
     align-items: center;
     justify-content: space-between;
+    border-top: var(--ui-modal-footer-border, none);
+    padding-top: var(--ui-modal-footer-pt, 0);
   }
 
   :host([has-footer]) .footer {
@@ -195,8 +203,8 @@ const STYLES = /* css */ `
 
   :host .dialog,
   :host([size="m"]) .dialog {
-    padding: ${SP_2};
-    gap: ${SP_3};
+    padding: var(--ui-modal-padding, ${SP_2});
+    gap: var(--ui-modal-gap, ${SP_3});
   }
 
   :host .content,
@@ -245,8 +253,8 @@ const STYLES = /* css */ `
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .dialog {
-    padding: ${SP_2_5};
-    gap: ${SP_3};
+    padding: var(--ui-modal-padding-l, ${SP_2_5});
+    gap: var(--ui-modal-gap, ${SP_3});
   }
 
   :host([size="l"]) .content {

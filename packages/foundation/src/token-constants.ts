@@ -20,6 +20,7 @@ import {
   radiusVar,
   borderWidthVar,
   elevationVar,
+  shadowVar,
   typeBlock,
 } from "./tokens.js";
 
@@ -34,6 +35,7 @@ export const TEXT_LINK_ACTIVE = semanticVar("text", "linkActive");
 export const TEXT_VISITED = semanticVar("text", "visited");
 export const TEXT_SELECTED = semanticVar("text", "selected");
 export const TEXT_REVERSED = semanticVar("text", "reversed");
+export const TEXT_ACTION_CONTRAST = semanticVar("text", "actionContrast");
 
 // ─── Surface ────────────────────────────────────────────────────────────────
 
@@ -42,8 +44,10 @@ export const SURFACE_SECONDARY = semanticVar("surface", "secondary");
 export const SURFACE_TERTIARY = semanticVar("surface", "tertiary");
 export const SURFACE_BOLD = semanticVar("surface", "bold");
 export const SURFACE_ACTION = semanticVar("surface", "action");
+export const SURFACE_ACTION_HOVER = semanticVar("surface", "actionHover");
 export const SURFACE_ACTION_CONTRAST = semanticVar("surface", "actionContrast");
 export const SURFACE_DESTRUCTIVE = semanticVar("surface", "destructive");
+export const SURFACE_DESTRUCTIVE_HOVER = semanticVar("surface", "destructiveHover");
 export const SURFACE_SUCCESS = semanticVar("surface", "success");
 export const SURFACE_CONTRAST = semanticVar("surface", "contrast");
 export const SURFACE_OVERLAY = semanticVar("surface", "overlay");
@@ -288,8 +292,10 @@ export const SP_10 = spaceVar("10");        // 80px
 // ─── Radius ─────────────────────────────────────────────────────────────────
 
 export const RADIUS_NONE = radiusVar("none");
+export const RADIUS_XS = radiusVar("xs");
 export const RADIUS_SM = radiusVar("sm");
 export const RADIUS_MD = radiusVar("md");
+export const RADIUS_LG = radiusVar("lg");
 export const RADIUS_PILL = radiusVar("pill");
 export const RADIUS_CIRCLE = radiusVar("circle");
 
@@ -308,6 +314,17 @@ export const ELEVATION_04 = elevationVar("04");
 export const ELEVATION_05 = elevationVar("05");
 export const ELEVATION_06 = elevationVar("06");
 
+// ─── Shadow ─────────────────────────────────────────────────────────────────
+
+export const SHADOW_FIELD = shadowVar("field");
+export const SHADOW_SURFACE = shadowVar("surface");
+export const SHADOW_OVERLAY = shadowVar("overlay");
+
+// ─── Default ────────────────────────────────────────────────────────────────
+
+export const DEFAULT_DEFAULT = semanticVar("defaultTokens", "default");
+export const DEFAULT_FOREGROUND = semanticVar("defaultTokens", "defaultForeground");
+export const DEFAULT_HOVER = semanticVar("defaultTokens", "defaultHover");
 // ─── Font Family ────────────────────────────────────────────────────────────
 
 export const FONT_PRIMARY = "'Geist', sans-serif";

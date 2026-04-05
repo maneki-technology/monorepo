@@ -15,9 +15,9 @@ describe("ui-button-group", () => {
     expect(customElements.get("ui-button-group")).toBeDefined();
   });
 
-  it("renders a shadow DOM with a slot", () => {
-    const slot = el.shadowRoot?.querySelector("slot");
-    expect(slot).toBeTruthy();
+  it("renders a shadow DOM with container", () => {
+    const container = el.shadowRoot?.getElementById("c");
+    expect(container).toBeTruthy();
   });
 
   it("has observedAttributes for size, action, emphasis, shape", () => {
@@ -79,7 +79,7 @@ describe("ui-button-group", () => {
 
     (el as unknown as { size: string | null }).size = "l";
     // Call private method directly since happy-dom may not fire slotchange
-    (el as unknown as { _propagateAttributes: () => void })._propagateAttributes();
+    (el as unknown as { _rebuild: () => void })._rebuild();
 
     expect(btn1.getAttribute("size")).toBe("l");
     expect(btn2.getAttribute("size")).toBe("l");
@@ -92,7 +92,7 @@ describe("ui-button-group", () => {
     el.appendChild(btn2);
 
     (el as unknown as { action: string | null }).action = "destructive";
-    (el as unknown as { _propagateAttributes: () => void })._propagateAttributes();
+    (el as unknown as { _rebuild: () => void })._rebuild();
 
     expect(btn1.getAttribute("action")).toBe("destructive");
     expect(btn2.getAttribute("action")).toBe("destructive");
@@ -105,7 +105,7 @@ describe("ui-button-group", () => {
     el.appendChild(btn2);
 
     (el as unknown as { emphasis: string | null }).emphasis = "subtle";
-    (el as unknown as { _propagateAttributes: () => void })._propagateAttributes();
+    (el as unknown as { _rebuild: () => void })._rebuild();
 
     expect(btn1.getAttribute("emphasis")).toBe("subtle");
     expect(btn2.getAttribute("emphasis")).toBe("subtle");
@@ -119,12 +119,12 @@ describe("ui-button-group", () => {
 
     // Set attribute
     (el as unknown as { size: string | null }).size = "l";
-    (el as unknown as { _propagateAttributes: () => void })._propagateAttributes();
+    (el as unknown as { _rebuild: () => void })._rebuild();
     expect(btn1.getAttribute("size")).toBe("l");
 
     // Remove attribute
     (el as unknown as { size: string | null }).size = null;
-    (el as unknown as { _propagateAttributes: () => void })._propagateAttributes();
+    (el as unknown as { _rebuild: () => void })._rebuild();
     expect(btn1.getAttribute("size")).toBeNull();
     expect(btn2.getAttribute("size")).toBeNull();
   });
@@ -136,7 +136,7 @@ describe("ui-button-group", () => {
     el.appendChild(btn2);
 
     (el as unknown as { shape: string | null }).shape = "rounded";
-    (el as unknown as { _propagateAttributes: () => void })._propagateAttributes();
+    (el as unknown as { _rebuild: () => void })._rebuild();
 
     expect(btn1.getAttribute("shape")).toBeNull();
     expect(btn2.getAttribute("shape")).toBeNull();

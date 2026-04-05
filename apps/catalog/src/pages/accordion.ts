@@ -130,5 +130,43 @@ registerPage("accordion", {
         Content for section three.
       </ui-accordion-item>
     </ui-accordion-group>
+
+    <h3>Variants</h3>
+    <div class="stack-l">
+      <div>
+        <span class="variant-label">Default (flat)</span>
+        <ui-accordion-group>
+          <ui-accordion-item expanded>
+            <span slot="label">Default Item One</span>
+            Content for default item one.
+          </ui-accordion-item>
+          <ui-accordion-item>
+            <span slot="label">Default Item Two</span>
+            Content for default item two.
+          </ui-accordion-item>
+          <ui-accordion-item>
+            <span slot="label">Default Item Three</span>
+            Content for default item three.
+          </ui-accordion-item>
+        </ui-accordion-group>
+      </div>
+      <div>
+        <span class="variant-label">Secondary (card)</span>
+        <ui-accordion-group variant="secondary">
+          <ui-accordion-item expanded>
+            <span slot="label">Secondary Item One</span>
+            Content for secondary item one.
+          </ui-accordion-item>
+          <ui-accordion-item>
+            <span slot="label">Secondary Item Two</span>
+            Content for secondary item two.
+          </ui-accordion-item>
+          <ui-accordion-item>
+            <span slot="label">Secondary Item Three</span>
+            Content for secondary item three.
+          </ui-accordion-item>
+        </ui-accordion-group>
+      </div>
+    </div>
   `,
 });

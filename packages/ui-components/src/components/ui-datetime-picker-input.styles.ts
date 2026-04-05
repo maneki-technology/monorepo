@@ -4,6 +4,7 @@ import {
   DISABLED_BORDER,
   DISABLED_TEXT,
   FORM_INPUT_BORDER,
+  SHADOW_FIELD,
   HOVER_BORDER_MODERATE,
   RADIUS_SM,
   SP_0_5,
@@ -61,9 +62,9 @@ export const STYLES = /* css */ `
     border: 1px solid var(--ui-dpi-border, ${FORM_INPUT_BORDER});
     border-radius: ${RADIUS_SM};
     background-color: var(--ui-dpi-bg, ${SURFACE_PRIMARY});
+    box-shadow: ${SHADOW_FIELD};
     cursor: pointer;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    overflow: hidden;
   }
 
   :host(:hover:not([disabled]):not([readonly]):not([focused])) .input-container {
@@ -72,24 +73,24 @@ export const STYLES = /* css */ `
 
   :host([focused]) .input-container {
     border-color: var(--ui-dpi-focus-border, ${BORDER_FOCUS});
-    box-shadow: 0 0 0 1px var(--ui-dpi-focus-border, ${BORDER_FOCUS});
+    outline: 1px solid var(--ui-dpi-focus-border, ${BORDER_FOCUS});
     outline: none;
   }
 
   :host([status="error"][focused]) .input-container,
   :host([error][focused]) .input-container {
     border-color: ${STATUS_GENERAL_ERROR};
-    box-shadow: 0 0 0 1px ${STATUS_GENERAL_ERROR};
+    outline: 1px solid ${STATUS_GENERAL_ERROR};
   }
 
   :host([status="warning"][focused]) .input-container {
     border-color: ${STATUS_GENERAL_WARNING};
-    box-shadow: 0 0 0 1px ${STATUS_GENERAL_WARNING};
+    outline: 1px solid ${STATUS_GENERAL_WARNING};
   }
 
   :host([status="success"][focused]) .input-container {
     border-color: ${STATUS_GENERAL_SUCCESS};
-    box-shadow: 0 0 0 1px ${STATUS_GENERAL_SUCCESS};
+    outline: 1px solid ${STATUS_GENERAL_SUCCESS};
   }
 
   :host([disabled]) .input-container {

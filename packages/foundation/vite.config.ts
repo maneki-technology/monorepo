@@ -4,9 +4,11 @@ import { resolve } from "path";
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
+      entry: {
+        index: resolve(__dirname, "src/index.ts"),
+        "heroui-theme": resolve(__dirname, "src/heroui-theme.ts"),
+      },
       name: "ManekiFoundation",
-      fileName: "index",
       formats: ["es"],
     },
     outDir: "dist",

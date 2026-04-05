@@ -19,10 +19,14 @@ export {
   radiusVar,
   borderWidthToCssProperties,
   borderWidthVar,
+  shadowToCssProperties,
+  darkShadowToCssProperties,
+  shadowVar,
 } from "./tokens.js";
 export {
   surface,
   elevation,
+  shadow,
   border,
   text,
   icon,
@@ -39,6 +43,7 @@ export {
   tag,
   button,
   gridRow,
+  defaultTokens,
   semanticTokens,
   resolveSemanticValue,
   type SemanticValue,
@@ -46,6 +51,17 @@ export {
   type ElevationToken,
   type SemanticTokenGroup,
 } from "./semantic-tokens.js";
+  export {
+  injectHerouiTheme,
+  herouiSemanticTokens,
+  herouiElevation,
+  herouiDarkSemanticTokens,
+  herouiDarkElevation,
+  herouiShadow,
+  herouiDarkShadow,
+  herouiDefaultTokens,
+  herouiDarkDefaultTokens,
+} from "./heroui-theme.js";
 export {
   fontFamilies,
   fontWeights,

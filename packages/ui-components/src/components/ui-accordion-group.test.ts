@@ -42,7 +42,7 @@ describe("ui-accordion-group", () => {
     const Ctor = customElements.get("ui-accordion-group") as unknown as {
       observedAttributes: string[];
     };
-    expect(Ctor.observedAttributes).toEqual(["size", "emphasis", "exclusive"]);
+    expect(Ctor.observedAttributes).toEqual(["size", "emphasis", "exclusive", "variant"]);
   });
 
   // ── Size propagation ──────────────────────────────────────────────────

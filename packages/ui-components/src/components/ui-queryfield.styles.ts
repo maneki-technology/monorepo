@@ -3,10 +3,12 @@ import {
   BORDER_MODERATE,
   ELEVATION_03,
   FONT_PRIMARY,
+  FORM_INPUT_BORDER,
   HOVER_BORDER_MODERATE,
   HOVER_MINIMAL,
   ICON_SECONDARY,
   RADIUS_SM,
+  SHADOW_FIELD,
   SP_0_25,
   SP_0_5,
   SP_0_75,
@@ -57,9 +59,10 @@ export const FIELD_STYLES = /* css */ `
     align-items: center;
     flex-wrap: wrap;
     gap: ${SP_0_5} ${SP_1};
-    border: 1px solid ${BORDER_MODERATE};
-    background: ${SURFACE_PRIMARY};
-    transition: border-color 0.15s ease;
+    border: 1px solid var(--ui-qf-border, ${FORM_INPUT_BORDER});
+    background: var(--ui-qf-bg, ${SURFACE_PRIMARY});
+    box-shadow: ${SHADOW_FIELD};
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
   .wrapper:hover {
@@ -202,10 +205,11 @@ export const FIELD_STYLES = /* css */ `
     min-width: 168px;
     max-width: 280px;
     background: ${SURFACE_PRIMARY};
-    border-radius: ${RADIUS_SM};
+    border-radius: var(--ui-qf-menu-radius, ${RADIUS_SM});
     box-shadow: ${ELEVATION_03};
     padding: ${SP_0_5} 0;
-    margin-top: ${SP_0_25};
+    overflow: clip;
+    margin-top: var(--ui-qf-menu-gap, ${SP_0_25});
     opacity: 0;
     transform: translateY(-4px);
     transition: opacity 0.15s ease, transform 0.15s ease;

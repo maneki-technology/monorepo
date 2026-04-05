@@ -8,6 +8,7 @@ import {
   FONT_PRIMARY,
   RADIUS_NONE,
   RADIUS_SM,
+  RADIUS_LG,
   SP_1,
   SP_1_5,
   SP_2,
@@ -15,6 +16,7 @@ import {
   SP_3,
   SURFACE_PRIMARY,
   TEXT_PRIMARY,
+  SHADOW_SURFACE,
 } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -41,10 +43,21 @@ const STYLES = /* css */ `
     display: flex;
     flex-direction: column;
     width: 100%;
-    border-radius: var(--ui-card-radius, ${RADIUS_SM});
+    border-radius: var(--ui-card-radius, ${RADIUS_LG});
     background-color: var(--ui-card-bg, ${SURFACE_PRIMARY});
     color: var(--ui-card-color, ${TEXT_PRIMARY});
     overflow: hidden;
+    position: relative;
+  }
+
+  /* Inset shadow layer for surface depth (HeroUI: inset border effect, default: none) */
+  .base::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: ${SHADOW_SURFACE};
+    pointer-events: none;
   }
 
   /* ── Elevation ───────────────────────────────────────────────────────────── */

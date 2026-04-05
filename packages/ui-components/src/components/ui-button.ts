@@ -18,7 +18,9 @@ import {
   HOVER_BOLD,
   HOVER_SUBTLE,
   RADIUS_PILL,
+  RADIUS_LG,
   RADIUS_SM,
+  RADIUS_MD,
   SP_0_5,
   SP_0_75,
   SP_1,
@@ -28,13 +30,16 @@ import {
   SP_3,
   SP_4,
   SURFACE_ACTION,
+  SURFACE_ACTION_HOVER,
   SURFACE_ACTION_CONTRAST,
   SURFACE_CONTRAST,
   SURFACE_DESTRUCTIVE,
+  SURFACE_DESTRUCTIVE_HOVER,
   SURFACE_PRIMARY,
   SURFACE_SUCCESS,
   SURFACE_TERTIARY,
   TEXT_PRIMARY,
+  TEXT_ACTION_CONTRAST,
   TYPE_BODY_01,
   TYPE_BODY_02,
   TYPE_BODY_03,
@@ -73,7 +78,8 @@ const STYLES = /* css */ `
       background var(--ui-btn-transition-duration, 0.15s) ease,
       border-color var(--ui-btn-transition-duration, 0.15s) ease,
       box-shadow var(--ui-btn-transition-duration, 0.15s) ease,
-      opacity var(--ui-btn-transition-duration, 0.15s) ease;
+      opacity var(--ui-btn-transition-duration, 0.15s) ease,
+      transform var(--ui-btn-transition-duration, 0.15s) ease;
   }
 
   /* ── Size: m (default) ───────────────────────────────────────────────────── */
@@ -144,11 +150,15 @@ const STYLES = /* css */ `
   /* ── Shape ───────────────────────────────────────────────────────────────── */
 
   :host button {
-    border-radius: var(--ui-btn-radius, ${RADIUS_SM});
+    border-radius: var(--ui-btn-radius, ${RADIUS_LG});
   }
 
   :host([shape="rounded"]) button {
     border-radius: var(--ui-btn-radius, ${RADIUS_PILL});
+  }
+
+  :host([size="s"]) button {
+    border-radius: var(--ui-btn-radius, ${RADIUS_MD});
   }
 
   /* ── Action × Emphasis: PRIMARY ──────────────────────────────────────────── */
@@ -231,13 +241,13 @@ const STYLES = /* css */ `
 
   :host([action="info"][emphasis="subtle"]) button {
     background-color: transparent;
-    color: var(--ui-btn-color, ${SURFACE_ACTION_CONTRAST});
-    border-color: var(--ui-btn-border-color, ${SURFACE_ACTION_CONTRAST});
+    color: var(--ui-btn-color, ${TEXT_ACTION_CONTRAST});
+    border-color: var(--ui-btn-border-color, ${TEXT_ACTION_CONTRAST});
   }
 
   :host([action="info"][emphasis="minimal"]) button {
     background-color: transparent;
-    color: var(--ui-btn-color, ${SURFACE_ACTION_CONTRAST});
+    color: var(--ui-btn-color, ${TEXT_ACTION_CONTRAST});
     border-color: transparent;
   }
 
@@ -264,7 +274,28 @@ const STYLES = /* css */ `
 
   /* ── Hover state ─────────────────────────────────────────────────────────── */
 
-  button:hover {
+  /* bold hover — each action has its own hover */
+  :host([action="primary"]:not([emphasis="subtle"]):not([emphasis="minimal"])) button:hover,
+  :host(:not([action]):not([status]):not([emphasis="subtle"]):not([emphasis="minimal"])) button:hover,
+  :host(:not([action])[status="none"]:not([emphasis="subtle"]):not([emphasis="minimal"])) button:hover {
+    background-color: var(--ui-btn-bg-hover, ${SURFACE_ACTION_HOVER});
+    background-image: none;
+  }
+
+  :host([action="destructive"]:not([emphasis="subtle"]):not([emphasis="minimal"])) button:hover {
+    background-color: var(--ui-btn-bg-hover, ${SURFACE_DESTRUCTIVE_HOVER});
+    background-image: none;
+  }
+
+  :host([action="secondary"]:not([emphasis="subtle"]):not([emphasis="minimal"])) button:hover {
+    background-image: linear-gradient(${HOVER_BOLD}, ${HOVER_BOLD});
+  }
+
+  :host([action="info"]:not([emphasis="subtle"]):not([emphasis="minimal"])) button:hover {
+    background-image: linear-gradient(rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.15));
+  }
+
+  :host([action="contrast"]:not([emphasis="subtle"]):not([emphasis="minimal"])) button:hover {
     background-image: linear-gradient(${HOVER_BOLD}, ${HOVER_BOLD});
   }
 
@@ -279,35 +310,37 @@ const STYLES = /* css */ `
 
   button:active {
     background-image: linear-gradient(${ACTIVE_BOLD}, ${ACTIVE_BOLD});
+    transform: scale(0.98);
   }
 
   :host([emphasis="subtle"]) button:active,
   :host([emphasis="minimal"]) button:active {
     background-image: none;
     background-color: ${ACTIVE_SUBTLE};
+    transform: scale(0.98);
   }
 
   /* ── Focus-visible (double ring) ─────────────────────────────────────────── */
 
   button:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 ${BW_SM} ${WHITE}, 0 0 0 ${BW_MD} ${BORDER_FOCUS};
+    box-shadow: 0 0 0 var(--ui-ring-offset, ${BW_SM}) ${WHITE}, 0 0 0 var(--ui-ring-width, ${BW_MD}) ${BORDER_FOCUS};
   }
 
   :host([action="secondary"]) button:focus-visible {
-    box-shadow: 0 0 0 ${BW_SM} ${WHITE}, 0 0 0 ${BW_MD} ${TEXT_PRIMARY};
+    box-shadow: 0 0 0 var(--ui-ring-offset, ${BW_SM}) ${WHITE}, 0 0 0 var(--ui-ring-width, ${BW_MD}) ${TEXT_PRIMARY};
   }
 
   :host([action="destructive"]) button:focus-visible {
-    box-shadow: 0 0 0 ${BW_SM} ${WHITE}, 0 0 0 ${BW_MD} ${SURFACE_DESTRUCTIVE};
+    box-shadow: 0 0 0 var(--ui-ring-offset, ${BW_SM}) ${WHITE}, 0 0 0 var(--ui-ring-width, ${BW_MD}) ${SURFACE_DESTRUCTIVE};
   }
 
   :host([action="info"]) button:focus-visible {
-    box-shadow: 0 0 0 ${BW_SM} ${WHITE}, 0 0 0 ${BW_MD} ${SURFACE_ACTION_CONTRAST};
+    box-shadow: 0 0 0 var(--ui-ring-offset, ${BW_SM}) ${WHITE}, 0 0 0 var(--ui-ring-width, ${BW_MD}) ${SURFACE_ACTION_CONTRAST};
   }
 
   :host([action="contrast"]) button:focus-visible {
-    box-shadow: 0 0 0 ${BW_SM} ${TEXT_PRIMARY}, 0 0 0 ${BW_MD} ${WHITE};
+    box-shadow: 0 0 0 var(--ui-ring-offset, ${BW_SM}) ${TEXT_PRIMARY}, 0 0 0 var(--ui-ring-width, ${BW_MD}) ${WHITE};
   }
 
   /* ── Disabled ────────────────────────────────────────────────────────────── */
@@ -315,7 +348,7 @@ const STYLES = /* css */ `
   :host([disabled]) button {
     cursor: not-allowed;
     pointer-events: none;
-    opacity: 0.3;
+    opacity: var(--ui-disabled-opacity, 0.3);
   }
 
   :host([disabled]) button ::slotted(*),

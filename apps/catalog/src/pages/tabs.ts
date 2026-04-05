@@ -201,5 +201,25 @@ registerPage("tabs", {
         </ui-tab-group>
       </div>
     </div>
+
+    <h3>Secondary (Underline)</h3>
+    <div class="variant-group stack-m">
+      <div class="variant-col">
+        <span class="variant-label">Horizontal</span>
+        <ui-tab-group style="--ui-tab-group-bg:transparent;--ui-tab-group-radius:0;--ui-tab-group-padding:0;--ui-tab-group-border-shadow:inset 0 -1px 0 var(--fd-border-minimal,#dce3e8);--ui-tab-group-align:stretch;--ui-tab-radius:0;--ui-tab-unselected-radius:0;--ui-tab-selected-bg:transparent;--ui-tab-selected-shadow:none;--ui-tab-selected-inset:0;--ui-tab-highlight-color:initial;--ui-tab-padding:4px 12px 6px;--ui-tab-padding-y:initial;--ui-tab-font-size:14px;--ui-tab-font-weight:500;--ui-tab-text-color:var(--fd-text-secondary);--ui-tab-selected-color:var(--fd-text-primary)">
+          <ui-tab-item label="Overview" selected></ui-tab-item>
+          <ui-tab-item label="Details"></ui-tab-item>
+          <ui-tab-item label="Settings"></ui-tab-item>
+        </ui-tab-group>
+      </div>
+      <div class="variant-col">
+        <span class="variant-label">Vertical</span>
+        <ui-tab-group orientation="vertical" style="height:160px;--ui-tab-group-bg:transparent;--ui-tab-group-radius:0;--ui-tab-group-padding:0;--ui-tab-group-padding-v:0;--ui-tab-group-border-shadow:none;--ui-tab-group-border-shadow-v:inset 1px 0 0 var(--fd-border-minimal,#dce3e8);--ui-tab-group-align-v:stretch;--ui-tab-radius:0;--ui-tab-unselected-radius:0;--ui-tab-selected-bg:transparent;--ui-tab-selected-shadow:none;--ui-tab-selected-inset-v:0;--ui-tab-highlight-color:initial;--ui-tab-padding:12px 4px 12px 6px;--ui-tab-padding-y:initial;--ui-tab-font-size:14px;--ui-tab-font-weight:500;--ui-tab-text-color:var(--fd-text-secondary);--ui-tab-selected-color:var(--fd-text-primary)">
+          <ui-tab-item label="Overview" selected></ui-tab-item>
+          <ui-tab-item label="Details"></ui-tab-item>
+          <ui-tab-item label="Settings"></ui-tab-item>
+        </ui-tab-group>
+      </div>
+    </div>
   `,
 });

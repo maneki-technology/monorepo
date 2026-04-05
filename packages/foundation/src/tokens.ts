@@ -2,11 +2,12 @@ import { colors, type ColorFamily } from "./colors.js";
 import {
   semanticTokens,
   elevation,
+  shadow,
   resolveSemanticValue,
   type SemanticValue,
   type SemanticTokenGroup,
 } from "./semantic-tokens.js";
-import { darkSemanticTokens, darkElevation } from "./dark-theme.js";
+import { darkSemanticTokens, darkElevation, darkShadow } from "./dark-theme.js";
 
 /**
  * Generates CSS custom properties string from the color tokens.
@@ -113,6 +114,31 @@ export function darkElevationToCssProperties(): string {
   }
   return lines.join("\n");
 }
+
+/**
+ * Generates CSS custom properties for shadow tokens (box-shadow).
+ *
+ * Output format: `--fd-shadow-{name}: {box-shadow};`
+ */
+export function shadowToCssProperties(): string {
+  const lines: string[] = [];
+  for (const [name, token] of Object.entries(shadow)) {
+    lines.push(`--fd-shadow-${toKebab(name)}: ${token.boxShadow};`);
+  }
+  return lines.join("\n");
+}
+
+/**
+ * Generates CSS custom properties for dark theme shadow overrides.
+ */
+export function darkShadowToCssProperties(): string {
+  const lines: string[] = [];
+  for (const [name, token] of Object.entries(darkShadow)) {
+    lines.push(`--fd-shadow-${toKebab(name)}: ${token.boxShadow};`);
+  }
+  return lines.join("\n");
+}
+
 /**
  * Injects all foundation tokens (palette + semantic + elevation) on :root.
  * Call once at app startup.
@@ -128,10 +154,12 @@ export function injectAllTokens(): void {
     spacingToCssProperties(),
     radiusToCssProperties(),
     borderWidthToCssProperties(),
+    shadowToCssProperties(),
   ].join("\n");
   const darkCss = [
     darkSemanticToCssProperties(),
     darkElevationToCssProperties(),
+    darkShadowToCssProperties(),
   ].join("\n");
 
   const id = "maneki-foundation-all";
@@ -193,6 +221,13 @@ export function semanticVar<G extends SemanticTokenGroup>(
  */
 export function elevationVar(level: keyof typeof elevation): string {
   return `var(--fd-elevation-${level})`;
+}
+
+/**
+ * Returns a CSS `var()` reference for a shadow token.
+ */
+export function shadowVar(name: keyof typeof shadow): string {
+  return `var(--fd-shadow-${toKebab(name)})`;
 }
 
 // ---------------------------------------------------------------------------

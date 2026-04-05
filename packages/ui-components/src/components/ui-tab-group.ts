@@ -65,28 +65,17 @@ const STYLES = /* css */ `
   :host([orientation="horizontal"]) .tablist {
     display: flex;
     flex-direction: row;
-    align-items: stretch;
+    align-items: var(--ui-tab-group-align, stretch);
+    position: relative;
+    overflow: clip;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
     border-bottom: var(--ui-tab-group-border, none);
     box-shadow: var(--ui-tab-group-border-shadow, inset 0 -1px 0 ${BORDER_MINIMAL});
-    flex: 1 1 0%;
-    min-width: 0;
-  }
-
-  :host .tablist ::slotted(*) {
-    flex: 0 0 auto;
-  }
-  :host([orientation="horizontal"]) .tablist {
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    border-bottom: var(--ui-tab-group-border, none);
-    box-shadow: var(--ui-tab-group-border-shadow, inset 0 -1px 0 ${BORDER_MINIMAL});
+    background: var(--ui-tab-group-bg, transparent);
+    border-radius: var(--ui-tab-group-radius, 0);
+    padding: var(--ui-tab-group-padding, 0);
     flex: 1 1 0%;
     min-width: 0;
   }
@@ -113,13 +102,17 @@ const STYLES = /* css */ `
   :host([orientation="vertical"]) .tablist {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+    align-items: var(--ui-tab-group-align-v, stretch);
+    position: relative;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: none;
     border-bottom: none;
     border-left: none;
-    box-shadow: var(--ui-tab-group-border-shadow, inset 1px 0 0 ${BORDER_MINIMAL});
+    box-shadow: var(--ui-tab-group-border-shadow-v, var(--ui-tab-group-border-shadow, inset 1px 0 0 ${BORDER_MINIMAL}));
+    background: var(--ui-tab-group-bg, transparent);
+    border-radius: var(--ui-tab-group-radius, 0);
+    padding: var(--ui-tab-group-padding-v, var(--ui-tab-group-padding, 0));
     flex: 1 1 0%;
     min-height: 0;
   }
@@ -286,7 +279,8 @@ const STYLES = /* css */ `
     outline: ${BW_MD} solid ${BORDER_FOCUS};
     outline-offset: calc(-1 * ${BW_MD});
   }
-`;
+
+  `;
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -376,6 +370,7 @@ export class UiTabGroup extends HTMLElement {
       this._propagateAttributes();
       this._syncTabindex();
       this._updateOverflow();
+
     });
 
     // Listen for tab-select events for mutual exclusion
@@ -409,6 +404,7 @@ export class UiTabGroup extends HTMLElement {
       this._propagateAttributes();
       this._syncTabindex();
       this._updateOverflow();
+
     });
 
     if (this.overflow === "menu") {
@@ -435,6 +431,7 @@ export class UiTabGroup extends HTMLElement {
     if (name === "orientation") {
       this._syncAriaOrientation();
       this._updateOverflow();
+
     }
     if (name === "overflow") {
       if (this.overflow === "menu") {
@@ -548,6 +545,7 @@ export class UiTabGroup extends HTMLElement {
 
     this._closeOverflowMenu();
     this._updateOverflow();
+
   }
 
   /** Handle tab-close: remove the tab and select a neighbor if it was selected. */
@@ -590,6 +588,7 @@ export class UiTabGroup extends HTMLElement {
       this._tablist.setAttribute("aria-orientation", this.orientation);
     }
   }
+
 
   // ── Overflow menu logic ────────────────────────────────────────────────
 

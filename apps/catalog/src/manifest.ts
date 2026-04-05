@@ -53,6 +53,7 @@ export const manifest: PageMeta[] = [
   { id: "slider", title: "Slider", section: "Form Controls" },
   { id: "switch", title: "Switch", section: "Form Controls" },
   // Containers
+  { id: "button-group", title: "Button Group", section: "Containers" },
   { id: "card", title: "Card", section: "Containers" },
   { id: "carousel", title: "Carousel", section: "Containers" },
   { id: "accordion", title: "Accordion", section: "Containers" },

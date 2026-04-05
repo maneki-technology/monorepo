@@ -54,11 +54,13 @@ export const surface = {
   bold: ref("gray", 40),
   strong: ref("gray", 60),
   action: ref("blue", 60),
+  actionHover: ref("blue", 70),          // primary bold hover
   actionContrast: ref("blue", 100),
   destructive: ref("red", 60),
+  destructiveHover: ref("red", 70),      // destructive bold hover
   success: ref("green", 60),
   contrast: ref("gray", 110),
-  overlay: "rgba(28, 43, 54, 0.8)", // Gray 90 @80%
+  overlay: "rgba(28, 43, 54, 0.8)",     // Gray 90 @80%
   light: "#ffffff",
   dark: ref("gray", 110),
 } as const satisfies Record<string, SemanticValue>;
@@ -104,6 +106,26 @@ export const elevation = {
 } as const satisfies Record<string, ElevationToken>;
 
 // ---------------------------------------------------------------------------
+// General — Shadow (semantic box-shadow tokens for component types)
+// ---------------------------------------------------------------------------
+
+export const shadow = {
+  /** Field shadow — inputs, selects, textareas */
+  field: {
+    boxShadow: "none",
+  },
+  /** Surface shadow — cards, panels, elevated surfaces */
+  surface: {
+    boxShadow: "none",
+  },
+  /** Overlay shadow — modals, popovers, dropdowns */
+  overlay: {
+    boxShadow:
+      "0px 8px 10px 1px rgba(0,0,0,0.14), 0px 3px 14px 2px rgba(0,0,0,0.12), 0px 5px 5px -3px rgba(0,0,0,0.2)",
+  },
+} as const satisfies Record<string, ElevationToken>;
+
+// ---------------------------------------------------------------------------
 // General — Border
 // ---------------------------------------------------------------------------
 
@@ -132,6 +154,7 @@ export const text = {
   visited: ref("purple", 60),
   selected: ref("blue", 60),
   destructive: ref("red", 60),
+  actionContrast: ref("blue", 100),    // info subtle/minimal text (dark navy on light bg)
   reversed: "#ffffff",
   light: "#ffffff",
   dark: ref("gray", 110),
@@ -314,6 +337,16 @@ export const gridRow = {
 } as const satisfies Record<string, SemanticValue>;
 
 // ---------------------------------------------------------------------------
+// General — Default (neutral/default component tokens)
+// ---------------------------------------------------------------------------
+
+export const defaultTokens = {
+  default: ref("gray", 20),               // #DCE3E8 — default background (chips, secondary buttons)
+  defaultForeground: ref("gray", 90),     // #1C2B36 — text on default background
+  defaultHover: ref("gray", 30),           // #C4CDD5 — hover state
+} as const satisfies Record<string, SemanticValue>;
+
+// ---------------------------------------------------------------------------
 // Aggregate — all semantic color token groups
 // ---------------------------------------------------------------------------
 
@@ -335,6 +368,7 @@ export const semanticTokens = {
   tag,
   button,
   gridRow,
+  defaultTokens,
 } as const;
 
 export type SemanticTokenGroup = keyof typeof semanticTokens;

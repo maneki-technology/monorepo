@@ -57,17 +57,51 @@
       overflow-y: auto;
       scrollbar-width: thin;
     }
-    #theme-toggle {
+    #theme-controls {
       position: fixed;
-      top: 20px;
+      top: 16px;
       right: 24px;
       z-index: 50;
+      display: flex;
+      gap: 6px;
+      align-items: center;
       opacity: 0.4;
       transition: opacity 0.2s ease;
     }
 
-    #theme-toggle:hover {
+    #theme-controls:hover,
+    #theme-controls:focus-within {
       opacity: 1;
+    }
+
+    #theme-select {
+      appearance: none;
+      background: var(--fd-surface-primary, #fff);
+      color: var(--fd-text-primary, #1c2b36);
+      border: 1px solid var(--fd-border-minimal, #dce3e8);
+      border-radius: 6px;
+      padding: 4px 24px 4px 8px;
+      font-size: 12px;
+      font-family: Geist, 'Geist Fallback', sans-serif;
+      cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='%235b7282' stroke-width='1.5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 6px center;
+    }
+
+    #theme-toggle {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 28px;
+      padding: 8px;
+      border-radius: 8px;
+      color: var(--fd-text-secondary, #3e5463);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
     }
 
     /* Content */
@@ -80,7 +114,12 @@
       min-height: 100%;
       padding: 32px 40px;
       background: var(--fd-surface-primary, #fff);
-      transition: opacity 0.15s ease;
+      transition: opacity 0.15s ease, background-color 0.2s ease;
+    }
+
+    [data-theme="heroui"] #content,
+    [data-theme="heroui-dark"] #content {
+      background: var(--fd-surface-secondary, #f5f5f5);
     }
 
     #content.loading {
@@ -315,8 +354,7 @@
       #sidebar ui-side-panel-menu-item {
         min-height: 44px;
       }
-      #theme-toggle {
-        min-width: 44px;
+      #theme-controls {
         min-height: 44px;
       }
     }
@@ -329,7 +367,13 @@
     <ui-side-panel-menu id="sidebar" state="expanded" no-collapse style="height:100vh">
       <span slot="header" style="font-weight:500;">Maneki</span>
     </ui-side-panel-menu>
-    <button id="theme-toggle" aria-label="Toggle dark mode" style="background:none;border:none;cursor:pointer;font-size:28px;padding:8px;border-radius:8px;color:var(--fd-text-secondary,#3e5463);display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;">☀️</button>
+    <div id="theme-controls">
+      <select id="theme-select" aria-label="Theme">
+        <option value="default">Default</option>
+        <option value="heroui">HeroUI</option>
+      </select>
+      <button id="theme-toggle" aria-label="Toggle dark mode">☀️</button>
+    </div>
     <ui-scrollbar id="content-scroll" emphasis="minimal">
       <main id="content" tabindex="0"></main>
     </ui-scrollbar>
