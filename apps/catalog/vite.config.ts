@@ -71,7 +71,7 @@ export default defineConfig(({ command }) => ({
   build: {
     outDir: "dist",
     emptyOutDir: true,
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         manualChunks(id) {
           // Vendor chunk: all @maneki packages

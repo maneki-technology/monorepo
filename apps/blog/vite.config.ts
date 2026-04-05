@@ -56,7 +56,7 @@ export default defineConfig(({ command }) => ({
   build: {
     outDir: "dist",
     emptyOutDir: true,
-    rollupOptions: {
+    rolldownOptions: {
       input: {
         main: "index.html",
         editor: "editor.html",
