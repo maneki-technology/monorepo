@@ -2,8 +2,6 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import "./ui-icon.js";
 import { STYLES } from "./ui-icon.js";
 import { registerIcon, clearIcons, hasIcon, unregisterIcon } from "@maneki/foundation";
-import "./ui-icon.js";
-import { STYLES } from "./ui-icon.js";
 
 describe("ui-icon", () => {
   let el: HTMLElement;

@@ -48,7 +48,7 @@ export default defineConfig({
     },
     outDir: "dist",
     sourcemap: true,
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         preserveModules: false,
         entryFileNames: "[name].js",
