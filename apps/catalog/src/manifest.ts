@@ -57,6 +57,7 @@ export const manifest: PageMeta[] = [
   { id: "card", title: "Card", section: "Containers" },
   { id: "carousel", title: "Carousel", section: "Containers" },
   { id: "accordion", title: "Accordion", section: "Containers" },
+  { id: "toolbar", title: "Toolbar", section: "Containers" },
   // Menus & Dropdowns
   { id: "dropdown", title: "Dropdown", section: "Menus & Dropdowns" },
   { id: "menu", title: "Menu", section: "Menus & Dropdowns" },
