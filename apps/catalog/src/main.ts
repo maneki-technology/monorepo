@@ -76,6 +76,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "list": () => import("./pages/list.js"),
   "grid-layout": () => import("./pages/grid-layout.js"),
   "flex-layout": () => import("./pages/flex-layout.js"),
+  "toolbar": () => import("./pages/toolbar.js"),
   "bar-chart": () => import("./pages/bar-chart.js"),
   "line-chart": () => import("./pages/line-chart.js"),
   "pie-chart": () => import("./pages/pie-chart.js"),

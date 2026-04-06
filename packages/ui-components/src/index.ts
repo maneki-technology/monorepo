@@ -61,6 +61,10 @@ export type { TextareaSize, TextareaStatus } from "./components/ui-textarea.js";
 export { UiCard } from "./components/ui-card.js";
 export type { CardSize, CardElevation } from "./components/ui-card.js";
 export { UiButtonGroup } from "./components/ui-button-group.js";
+export { UiToolbar } from "./components/ui-toolbar.js";
+export type { ToolbarOrientation } from "./components/ui-toolbar.js";
+export { UiToolbarSeparator } from "./components/ui-toolbar-separator.js";
+export type { ToolbarSeparatorOrientation } from "./components/ui-toolbar-separator.js";
 
 // ─── Navigation ─────────────────────────────────────────────────────────────
 

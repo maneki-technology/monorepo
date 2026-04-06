@@ -12,6 +12,11 @@ const STYLES = `
     overflow: clip;
     border-radius: var(--ui-btn-group-radius, ${RADIUS_LG});
     background: var(--ui-btn-group-bg, ${SURFACE_ACTION});
+    flex-direction: row;
+  }
+
+  :host([orientation="vertical"]) {
+    flex-direction: column;
   }
 
   :host([shape="rounded"]) {
@@ -25,6 +30,10 @@ const STYLES = `
   :host([action="info"]) { --ui-btn-group-bg: ${SURFACE_ACTION_CONTRAST}; }
   :host([action="contrast"]) { --ui-btn-group-bg: ${SURFACE_PRIMARY}; }
 
+  /* Override button bg to match group bg */
+  :host([action="secondary"]) ::slotted(ui-button) { --ui-btn-bg: ${DEFAULT_DEFAULT}; }
+  :host([action="contrast"]) ::slotted(ui-button) { --ui-btn-bg: ${SURFACE_PRIMARY}; }
+
   /* Subtle/minimal: transparent bg (no fill) */
   :host([emphasis="subtle"]),
   :host([emphasis="minimal"]) {
@@ -35,6 +44,7 @@ const STYLES = `
     display: inline-flex;
     align-items: stretch;
     width: 100%;
+    flex-direction: inherit;
   }
 
   /* Kill individual button borders; group handles visual separation */
@@ -44,13 +54,26 @@ const STYLES = `
     flex: 0 0 auto;
   }
 
-  /* Divider: short centered line (50% height, matches Figma) */
+  /* Divider */
   .divider {
-    width: 1px;
     align-self: center;
+    background: var(--ui-btn-group-divider, rgba(255, 255, 255, 0.3));
+    flex-shrink: 0;
+  }
+
+  :host([action="secondary"]) .divider,
+  :host([action="contrast"]) .divider {
+    background: var(--ui-btn-group-divider, rgba(0, 0, 0, 0.1));
+  }
+
+  :host(:not([orientation="vertical"])) .divider {
+    width: 1px;
     height: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    flex: 0 0 1px;
+  }
+
+  :host([orientation="vertical"]) .divider {
+    height: 1px;
+    width: 50%;
   }
 
   /* Subtle: container border + opaque dividers */
@@ -72,11 +95,12 @@ const STYLES = `
     --ui-btn-bg-hover: unset;
   }
 
-  ::slotted(ui-button:first-of-type) {
+  /* Horizontal: first/last radius */
+  :host(:not([orientation="vertical"])) ::slotted(ui-button:first-of-type) {
     --ui-btn-radius: var(--ui-btn-group-radius, ${RADIUS_LG}) 0 0 var(--ui-btn-group-radius, ${RADIUS_LG});
   }
 
-  ::slotted(ui-button:last-of-type) {
+  :host(:not([orientation="vertical"])) ::slotted(ui-button:last-of-type) {
     --ui-btn-radius: 0 var(--ui-btn-group-radius, ${RADIUS_LG}) var(--ui-btn-group-radius, ${RADIUS_LG}) 0;
   }
 
@@ -84,20 +108,37 @@ const STYLES = `
     --ui-btn-radius: var(--ui-btn-group-radius, ${RADIUS_LG});
   }
 
-  :host([shape="rounded"]) ::slotted(ui-button:first-of-type) {
+  /* Vertical: first/last radius */
+  :host([orientation="vertical"]) ::slotted(ui-button:first-of-type) {
+    --ui-btn-radius: var(--ui-btn-group-radius, ${RADIUS_LG}) var(--ui-btn-group-radius, ${RADIUS_LG}) 0 0;
+  }
+
+  :host([orientation="vertical"]) ::slotted(ui-button:last-of-type) {
+    --ui-btn-radius: 0 0 var(--ui-btn-group-radius, ${RADIUS_LG}) var(--ui-btn-group-radius, ${RADIUS_LG});
+  }
+
+  :host([shape="rounded"]:not([orientation="vertical"])) ::slotted(ui-button:first-of-type) {
     --ui-btn-radius: var(--ui-btn-group-radius, ${RADIUS_PILL}) 0 0 var(--ui-btn-group-radius, ${RADIUS_PILL});
   }
 
-  :host([shape="rounded"]) ::slotted(ui-button:last-of-type) {
+  :host([shape="rounded"]:not([orientation="vertical"])) ::slotted(ui-button:last-of-type) {
     --ui-btn-radius: 0 var(--ui-btn-group-radius, ${RADIUS_PILL}) var(--ui-btn-group-radius, ${RADIUS_PILL}) 0;
   }
 
   :host([shape="rounded"]) ::slotted(ui-button:only-of-type) {
     --ui-btn-radius: var(--ui-btn-group-radius, ${RADIUS_PILL});
   }
+
+  :host([shape="rounded"][orientation="vertical"]) ::slotted(ui-button:first-of-type) {
+    --ui-btn-radius: var(--ui-btn-group-radius, ${RADIUS_PILL}) var(--ui-btn-group-radius, ${RADIUS_PILL}) 0 0;
+  }
+
+  :host([shape="rounded"][orientation="vertical"]) ::slotted(ui-button:last-of-type) {
+    --ui-btn-radius: 0 0 var(--ui-btn-group-radius, ${RADIUS_PILL}) var(--ui-btn-group-radius, ${RADIUS_PILL});
+  }
 `;
 
-const PROPAGATED_ATTRS = ["size", "action", "emphasis"] as const;
+const PROPAGATED_ATTRS = ["size", "action", "emphasis", "orientation"] as const;
 
 export class UiButtonGroup extends HTMLElement {
   static readonly observedAttributes = [
@@ -105,6 +146,7 @@ export class UiButtonGroup extends HTMLElement {
     "action",
     "emphasis",
     "shape",
+    "orientation",
     "aria-label",
   ];
 
