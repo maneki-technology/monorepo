@@ -83,9 +83,9 @@ export const STYLES = /* css */ `
     border-width: ${BW_SM};
     border-style: solid;
     border-color: var(--ui-textarea-border, ${FORM_INPUT_BORDER});
-    border-radius: ${RADIUS_SM};
+    border-radius: var(--ui-textarea-radius, ${RADIUS_SM});
     background-color: var(--ui-textarea-bg, ${SURFACE_PRIMARY});
-    box-shadow: ${SHADOW_FIELD};
+    box-shadow: var(--ui-textarea-shadow, ${SHADOW_FIELD});
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;

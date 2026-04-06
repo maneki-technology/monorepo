@@ -24,9 +24,9 @@ export function setupInit(): void {
     if (uiState) {
       // Restore theme
       if (uiState.theme === "dark") {
-        document.documentElement.setAttribute("data-theme", "dark");
+        document.documentElement.setAttribute("data-theme", "heroui-dark");
       } else {
-        document.documentElement.removeAttribute("data-theme");
+        document.documentElement.setAttribute("data-theme", "heroui");
       }
 
       // Restore sidebar collapsed state
