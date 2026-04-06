@@ -6,6 +6,7 @@ import {
   DISABLED_TEXT,
   FONT_PRIMARY,
   FORM_INPUT_BORDER,
+  SHADOW_FIELD,
   HOVER_BORDER_MODERATE,
   ICON_PRIMARY,
   RADIUS_SM,
@@ -71,8 +72,9 @@ export const STYLES = /* css */ `
     border-width: ${BW_SM};
     border-style: solid;
     border-color: var(--ui-input-border, ${FORM_INPUT_BORDER});
-    border-radius: ${RADIUS_SM};
+    border-radius: var(--ui-input-radius, ${RADIUS_SM});
     background-color: var(--ui-input-bg, ${SURFACE_PRIMARY});
+    box-shadow: var(--ui-input-shadow, ${SHADOW_FIELD});
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;
@@ -362,7 +364,7 @@ export const STYLES = /* css */ `
 
   :host(:focus-within:not([disabled]):not([readonly])) .input-container {
     border-color: var(--ui-input-focus-border, ${BORDER_FOCUS});
-    box-shadow: 0 0 0 1px var(--ui-input-focus-border, ${BORDER_FOCUS});
+    outline: 1px solid var(--ui-input-focus-border, ${BORDER_FOCUS});
   }
 
   /* ── Error state ───────────────────────────────────────────────────────── */
@@ -375,7 +377,7 @@ export const STYLES = /* css */ `
   :host([status="error"]:focus-within) .input-container,
   :host([error]:focus-within) .input-container {
     border-color: ${STATUS_GENERAL_ERROR};
-    box-shadow: 0 0 0 1px ${STATUS_GENERAL_ERROR};
+    outline: 1px solid ${STATUS_GENERAL_ERROR};
   }
 
   /* ── Warning state ─────────────────────────────────────────────────────── */
@@ -386,7 +388,7 @@ export const STYLES = /* css */ `
 
   :host([status="warning"]:focus-within) .input-container {
     border-color: ${STATUS_GENERAL_WARNING};
-    box-shadow: 0 0 0 1px ${STATUS_GENERAL_WARNING};
+    outline: 1px solid ${STATUS_GENERAL_WARNING};
   }
 
   /* ── Success state ─────────────────────────────────────────────────────── */
@@ -397,7 +399,7 @@ export const STYLES = /* css */ `
 
   :host([status="success"]:focus-within) .input-container {
     border-color: ${STATUS_GENERAL_SUCCESS};
-    box-shadow: 0 0 0 1px ${STATUS_GENERAL_SUCCESS};
+    outline: 1px solid ${STATUS_GENERAL_SUCCESS};
   }
 
   /* ── Disabled ──────────────────────────────────────────────────────────── */

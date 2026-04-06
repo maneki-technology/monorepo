@@ -59,7 +59,7 @@ const STYLES = /* css */ `
     display: none;
     background: ${GRAY_110};
     color: #ffffff;
-    border-radius: ${RADIUS_SM};
+    border-radius: var(--ui-tooltip-radius, ${RADIUS_SM});
     white-space: nowrap;
     pointer-events: none;
   }

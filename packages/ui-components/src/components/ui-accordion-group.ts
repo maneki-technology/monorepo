@@ -5,15 +5,23 @@ const STYLES = `
     display: flex;
     flex-direction: column;
   }
+
+  :host([variant="secondary"]) {
+    background: var(--ui-acc-group-bg, transparent);
+    border-radius: var(--ui-acc-group-radius, 0);
+    box-shadow: var(--ui-acc-group-shadow, none);
+    overflow: var(--ui-acc-group-overflow, visible);
+  }
 `;
 
-const PROPAGATED_ATTRS = ["size", "emphasis"] as const;
+const PROPAGATED_ATTRS = ["size", "emphasis", "variant"] as const;
 
 export class UiAccordionGroup extends HTMLElement {
   static readonly observedAttributes = [
     "size",
     "emphasis",
     "exclusive",
+    "variant",
   ];
 
   constructor() {

@@ -3,10 +3,13 @@ import {
   BORDER_MODERATE,
   ELEVATION_03,
   FONT_PRIMARY,
+  FORM_INPUT_BORDER,
   HOVER_MINIMAL,
   ICON_SECONDARY,
   RADIUS_PILL,
   RADIUS_SM,
+  SHADOW_FIELD,
+  SP_0_25,
   SP_0_5,
   SP_0_75,
   SP_1,
@@ -58,10 +61,11 @@ export const STYLES = /* css */ `
   .input-wrapper {
     display: flex;
     align-items: center;
-    border: 1px solid ${BORDER_MODERATE};
-    background: ${SURFACE_PRIMARY};
+    border: 1px solid var(--ui-search-border, ${FORM_INPUT_BORDER});
+    background: var(--ui-search-bg, ${SURFACE_PRIMARY});
     border-radius: ${RADIUS_SM};
-    transition: border-color 0.15s ease;
+    box-shadow: ${SHADOW_FIELD};
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
   }
 
   .input-wrapper:focus-within {
@@ -144,11 +148,13 @@ export const STYLES = /* css */ `
     display: none;
     flex-direction: column;
     background: ${SURFACE_PRIMARY};
-    border-radius: ${RADIUS_SM};
+    border-radius: var(--ui-search-dropdown-radius, ${RADIUS_SM});
     box-shadow: ${ELEVATION_03};
     padding: ${SP_0_5} 0;
+    margin-top: var(--ui-search-dropdown-gap, ${SP_0_25});
     max-height: 400px;
     overflow-y: auto;
+    overflow-x: clip;
     opacity: 0;
     transform: translateY(-4px);
     transition: opacity 0.15s ease, transform 0.15s ease;
@@ -166,7 +172,7 @@ export const STYLES = /* css */ `
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: ${SURFACE_SECONDARY};
+    background: var(--ui-search-category-bg, ${SURFACE_SECONDARY});
     font-weight: 500;
     color: ${TEXT_SECONDARY};
     text-transform: uppercase;
@@ -199,7 +205,7 @@ export const STYLES = /* css */ `
   }
 
   .result-item:hover {
-    background: ${HOVER_MINIMAL};
+    background: var(--ui-search-item-hover-bg, ${HOVER_MINIMAL});
   }
 
   .result-leading {

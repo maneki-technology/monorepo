@@ -28,6 +28,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "semantic-tokens": () => import("./pages/semantic-tokens.js"),
   "badge": () => import("./pages/badge.js"),
   "button": () => import("./pages/button.js"),
+  "button-group": () => import("./pages/button-group.js"),
   "avatar": () => import("./pages/avatar.js"),
   "alert": () => import("./pages/alert.js"),
   "icon": () => import("./pages/icon.js"),
@@ -196,33 +197,66 @@ function getCurrentPage(): string {
   return path || manifest[0].id;
 }
 
-// ─── Theme Toggle ─────────────────────────────────────────────────────────
+// ─── Theme Switcher ───────────────────────────────────────────────────────
 
-function initThemeToggle(): void {
-  const btn = document.getElementById("theme-toggle")!;
-  const saved = localStorage.getItem("maneki-theme");
-  if (saved === "dark") {
-    document.documentElement.setAttribute("data-theme", "dark");
-    btn.textContent = "\u263E";
+type ThemeName = "default" | "heroui";
+type ModeName = "light" | "dark";
+
+const DATA_THEME_MAP: Record<`${ThemeName}-${ModeName}`, string | null> = {
+  "default-light": null,
+  "default-dark": "dark",
+  "heroui-light": "heroui",
+  "heroui-dark": "heroui-dark",
+};
+
+let herouiInjected = false;
+
+async function ensureHerouiTheme(): Promise<void> {
+  if (herouiInjected) return;
+  const { injectHerouiTheme } = await import("@maneki/foundation/heroui-theme.js");
+  injectHerouiTheme();
+  herouiInjected = true;
+}
+
+async function applyTheme(theme: ThemeName, mode: ModeName): Promise<void> {
+  if (theme === "heroui") await ensureHerouiTheme();
+  const attr = DATA_THEME_MAP[`${theme}-${mode}`];
+  if (attr) {
+    document.documentElement.setAttribute("data-theme", attr);
+  } else {
+    document.documentElement.removeAttribute("data-theme");
   }
+  localStorage.setItem("maneki-theme", theme);
+  localStorage.setItem("maneki-mode", mode);
+}
+
+function initThemeSwitcher(): void {
+  const themeSelect = document.getElementById("theme-select") as HTMLSelectElement;
+  const btn = document.getElementById("theme-toggle")!;
+
+  const savedTheme = (localStorage.getItem("maneki-theme") || "default") as ThemeName;
+  const savedMode = (localStorage.getItem("maneki-mode") || "light") as ModeName;
+
+  let currentMode = savedMode;
+  themeSelect.value = savedTheme;
+  btn.textContent = savedMode === "dark" ? "\u263E" : "\u2600\uFE0F";
+  applyTheme(savedTheme, savedMode);
+
+  themeSelect.addEventListener("change", () => {
+    applyTheme(themeSelect.value as ThemeName, currentMode);
+  });
+
   btn.addEventListener("click", () => {
-    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-    if (isDark) {
-      document.documentElement.removeAttribute("data-theme");
-      localStorage.setItem("maneki-theme", "light");
-      btn.textContent = "\u2600\uFE0F";
-    } else {
-      document.documentElement.setAttribute("data-theme", "dark");
-      localStorage.setItem("maneki-theme", "dark");
-      btn.textContent = "\u263E";
-    }
+    currentMode = currentMode === "dark" ? "light" : "dark";
+    btn.textContent = currentMode === "dark" ? "\u263E" : "\u2600\uFE0F";
+    applyTheme(themeSelect.value as ThemeName, currentMode);
   });
 }
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 
 buildSidebar();
-initThemeToggle();
+initThemeSwitcher();
 
 // Intercept link clicks for SPA navigation
 document.addEventListener("click", (e) => {

@@ -47,6 +47,11 @@ const STYLES = /* css */ `
   .separator {
     height: 1px;
     background: var(--ui-acc-separator-color, ${BORDER_MODERATE});
+    margin: var(--ui-acc-separator-margin, 0);
+  }
+
+  :host(:last-child) .separator {
+    display: none;
   }
 
   :host([emphasis="bold"]) .separator {
@@ -67,6 +72,7 @@ const STYLES = /* css */ `
     margin: 0;
     font-family: ${FONT_PRIMARY};
     color: var(--ui-acc-label-color, ${TEXT_PRIMARY});
+    border-radius: var(--ui-acc-header-radius, 0);
     transition: background 0.15s ease;
   }
 
@@ -182,8 +188,7 @@ const STYLES = /* css */ `
 
   :host .header,
   :host([size="m"]) .header {
-    padding-top: 9px;
-    padding-bottom: ${SP_1_25};
+    padding: var(--ui-acc-header-padding, 9px 0 ${SP_1_25});
   }
 
   :host .content-left,
@@ -194,6 +199,8 @@ const STYLES = /* css */ `
   :host .label,
   :host([size="m"]) .label {
     ${TYPE_BODY_02}
+    font-size: var(--ui-acc-label-font-size, inherit);
+    font-weight: var(--ui-acc-label-font-weight, 500);
   }
 
   :host .leading-icon,
@@ -218,15 +225,13 @@ const STYLES = /* css */ `
 
   :host .content-body,
   :host([size="m"]) .content-body {
-    padding-top: ${SP_1_5};
-    padding-bottom: ${SP_2_5};
+    padding: var(--ui-acc-content-padding, ${SP_1_5} 0 ${SP_2_5});
     ${TYPE_BODY_02}
   }
   /* ── Size: s ────────────────────────────────────────────────────────────── */
 
   :host([size="s"]) .header {
-    padding-top: 7px;
-    padding-bottom: ${SP_1};
+    padding: var(--ui-acc-header-padding, 7px 0 ${SP_1});
   }
 
   :host([size="s"]) .content-left {
@@ -235,6 +240,8 @@ const STYLES = /* css */ `
 
   :host([size="s"]) .label {
     ${TYPE_BODY_03}
+    font-size: var(--ui-acc-label-font-size, inherit);
+    font-weight: var(--ui-acc-label-font-weight, 500);
   }
 
   :host([size="s"]) .leading-icon {
@@ -255,15 +262,13 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .content-body {
-    padding-top: ${SP_1};
-    padding-bottom: ${SP_2};
+    padding: var(--ui-acc-content-padding, ${SP_1} 0 ${SP_2});
     ${TYPE_BODY_03}
   }
   /* ── Size: l ────────────────────────────────────────────────────────────── */
 
   :host([size="l"]) .header {
-    padding-top: 9px;
-    padding-bottom: ${SP_1_25};
+    padding: var(--ui-acc-header-padding, 9px 0 ${SP_1_25});
   }
 
   :host([size="l"]) .content-left {
@@ -272,6 +277,8 @@ const STYLES = /* css */ `
 
   :host([size="l"]) .label {
     ${TYPE_BODY_01}
+    font-size: var(--ui-acc-label-font-size, inherit);
+    font-weight: var(--ui-acc-label-font-weight, 500);
   }
 
   :host([size="l"]) .leading-icon {
@@ -292,8 +299,7 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .content-body {
-    padding-top: ${SP_1_5};
-    padding-bottom: ${SP_3};
+    padding: var(--ui-acc-content-padding, ${SP_1_5} 0 ${SP_3});
     ${TYPE_BODY_01}
   }
   /* ── Disabled ───────────────────────────────────────────────────────────── */
@@ -360,10 +366,6 @@ export class UiAccordionItem extends HTMLElement {
 
     shadow.adoptedStyleSheets = [sheet];
 
-    // Separator
-    const separator = document.createElement("div");
-    separator.className = "separator";
-    shadow.appendChild(separator);
 
     // Header
     const header = document.createElement("div");
@@ -433,6 +435,11 @@ export class UiAccordionItem extends HTMLElement {
     contentInner.appendChild(contentBody);
     contentPanel.appendChild(contentInner);
     shadow.appendChild(contentPanel);
+
+    // Separator (bottom border)
+    const separator = document.createElement("div");
+    separator.className = "separator";
+    shadow.appendChild(separator);
 
     this._header = header;
     this._contentPanel = contentPanel;

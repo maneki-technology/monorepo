@@ -6,9 +6,12 @@ import {
   DISABLED_TEXT,
   FONT_PRIMARY,
   FORM_INPUT_BORDER,
+  SHADOW_FIELD,
   HOVER_BORDER_MODERATE,
   RADIUS_CIRCLE,
   SELECTED_BOLD,
+  SURFACE_ACTION,
+  SURFACE_ACTION_HOVER,
   SP_0_75,
   SP_1,
   SP_1_5,
@@ -71,6 +74,7 @@ const STYLES = /* css */ `
     border: 1px solid var(--ui-radio-border, ${FORM_INPUT_BORDER});
     border-radius: ${RADIUS_CIRCLE};
     background-color: var(--ui-radio-bg, ${SURFACE_PRIMARY});
+    box-shadow: ${SHADOW_FIELD};
     transition:
       background-color 0.15s ease,
       border-color 0.15s ease;
@@ -81,7 +85,7 @@ const STYLES = /* css */ `
   .dot {
     display: none;
     border-radius: ${RADIUS_CIRCLE};
-    background-color: var(--ui-radio-dot-color, ${SELECTED_BOLD});
+    background-color: var(--ui-radio-dot-color, #ffffff);
   }
 
   :host([checked]) .dot {
@@ -198,8 +202,8 @@ const STYLES = /* css */ `
   /* ── Checked fill ───────────────────────────────────────────────────────── */
 
   :host([checked]) .radio {
-    border-color: var(--ui-radio-checked-border, ${BORDER_CONTRAST});
-    background-color: var(--ui-radio-bg, ${SURFACE_PRIMARY});
+    border-color: transparent;
+    background-color: var(--ui-radio-checked-bg, ${SURFACE_ACTION});
   }
 
   /* ── Hover ──────────────────────────────────────────────────────────────── */
@@ -209,7 +213,8 @@ const STYLES = /* css */ `
   }
 
   :host([checked]:hover) .radio {
-    border-color: var(--ui-radio-checked-border, ${BORDER_CONTRAST});
+    border-color: transparent;
+    background-color: var(--ui-radio-checked-bg, ${SURFACE_ACTION_HOVER});
   }
 
   /* ── Focus ──────────────────────────────────────────────────────────────── */

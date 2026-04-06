@@ -20,6 +20,7 @@ import {
   TEXT_PRIMARY,
   TYPE_BODY_02,
   TYPE_BODY_03,
+  TYPE_CAPTION_01,
 } from "@maneki/foundation";
 import "./ui-icon.js";
 
@@ -56,10 +57,39 @@ const STYLES = /* css */ `
     width: 100%;
     flex: 1 1 0%;
     font-family: ${FONT_PRIMARY};
+    font-size: var(--ui-tab-font-size, inherit);
     font-weight: var(--ui-tab-font-weight, var(--_tab-font-weight, 400));
     color: var(--ui-tab-text-color, var(--_tab-text-color, ${TEXT_PRIMARY}));
+    background: var(--ui-tab-bg, transparent);
+    border-radius: var(--ui-tab-unselected-radius, var(--ui-tab-radius, 0));
+    padding: var(--ui-tab-padding, 0);
     position: relative;
-    transition: color 0.15s ease, font-weight 0.15s ease;
+    z-index: 1;
+    transition: color 0.15s ease, font-weight 0.15s ease, background 0.15s ease;
+  }
+
+  .base::before {
+    content: "";
+    position: absolute;
+    inset: var(--ui-tab-selected-inset, 0);
+    border-radius: var(--ui-tab-radius, 0);
+    background: var(--ui-tab-selected-bg, transparent);
+    box-shadow: var(--ui-tab-selected-shadow, none);
+    z-index: -1;
+    opacity: 0;
+    transform: scaleX(0.85);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+  }
+
+  :host([orientation="vertical"]) .base::before {
+    inset: var(--ui-tab-selected-inset-v, 0);
+    transform: scaleY(0.85);
+  }
+
+  :host([selected]) .base::before {
+    opacity: 1;
+    transform: scale(1);
   }
 
   .label-container {
@@ -175,8 +205,10 @@ const STYLES = /* css */ `
   :host .base,
   :host([size="m"]) .base {
     ${TYPE_BODY_02}
-    padding-top: ${SP_0_5};
-    padding-bottom: ${SP_0_5};
+    font-size: var(--ui-tab-font-size, inherit);
+    font-weight: var(--ui-tab-font-weight, var(--_tab-font-weight, 400));
+    padding-top: var(--ui-tab-padding-y, ${SP_0_5});
+    padding-bottom: var(--ui-tab-padding-y, ${SP_0_5});
   }
 
   :host .label-container,
@@ -203,9 +235,11 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .base {
-    ${TYPE_BODY_03}
-    padding-top: ${SP_0_5};
-    padding-bottom: ${SP_0_5};
+    ${TYPE_CAPTION_01}
+    font-size: var(--ui-tab-font-size, inherit);
+    font-weight: var(--ui-tab-font-weight, var(--_tab-font-weight, 400));
+    padding-top: var(--ui-tab-padding-y, ${SP_0_5});
+    padding-bottom: var(--ui-tab-padding-y, ${SP_0_5});
   }
 
   :host([size="s"]) .label-container {
@@ -243,6 +277,13 @@ const STYLES = /* css */ `
     --_tab-font-weight: 500;
     --_tab-highlight-color: ${SELECTED_BOLD};
   }
+
+  :host([selected]) .base {
+    color: var(--ui-tab-selected-color, var(--_tab-text-color, ${TEXT_LINK}));
+    position: relative;
+    z-index: 1;
+  }
+
 
   :host([selected]) .leading-icon,
   :host([selected]) .trailing-icon,

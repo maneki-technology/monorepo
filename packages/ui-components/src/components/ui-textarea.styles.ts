@@ -6,6 +6,7 @@ import {
   DISABLED_TEXT,
   FONT_PRIMARY,
   FORM_INPUT_BORDER,
+  SHADOW_FIELD,
   HOVER_BORDER_MODERATE,
   RADIUS_SM,
   SP_0_5,
@@ -84,10 +85,10 @@ export const STYLES = /* css */ `
     border-color: var(--ui-textarea-border, ${FORM_INPUT_BORDER});
     border-radius: ${RADIUS_SM};
     background-color: var(--ui-textarea-bg, ${SURFACE_PRIMARY});
+    box-shadow: ${SHADOW_FIELD};
     transition:
       border-color 0.15s ease,
       box-shadow 0.15s ease;
-    overflow: hidden;
     flex: 1;
     min-height: 0;
   }
@@ -211,7 +212,7 @@ export const STYLES = /* css */ `
 
   :host(:focus-within:not([disabled]):not([readonly])) .textarea-container {
     border-color: var(--ui-textarea-focus-border, ${BORDER_FOCUS});
-    box-shadow: 0 0 0 1px var(--ui-textarea-focus-border, ${BORDER_FOCUS});
+    outline: 1px solid var(--ui-textarea-focus-border, ${BORDER_FOCUS});
   }
 
   /* ── Error state ───────────────────────────────────────────────────────── */
@@ -224,7 +225,7 @@ export const STYLES = /* css */ `
   :host([status="error"]:focus-within) .textarea-container,
   :host([error]:focus-within) .textarea-container {
     border-color: ${STATUS_GENERAL_ERROR};
-    box-shadow: 0 0 0 1px ${STATUS_GENERAL_ERROR};
+    outline: 1px solid ${STATUS_GENERAL_ERROR};
   }
 
   /* ── Warning state ─────────────────────────────────────────────────────── */
@@ -235,7 +236,7 @@ export const STYLES = /* css */ `
 
   :host([status="warning"]:focus-within) .textarea-container {
     border-color: ${STATUS_GENERAL_WARNING};
-    box-shadow: 0 0 0 1px ${STATUS_GENERAL_WARNING};
+    outline: 1px solid ${STATUS_GENERAL_WARNING};
   }
 
   /* ── Success state ─────────────────────────────────────────────────────── */
@@ -246,7 +247,7 @@ export const STYLES = /* css */ `
 
   :host([status="success"]:focus-within) .textarea-container {
     border-color: ${STATUS_GENERAL_SUCCESS};
-    box-shadow: 0 0 0 1px ${STATUS_GENERAL_SUCCESS};
+    outline: 1px solid ${STATUS_GENERAL_SUCCESS};
   }
 
   /* ── Disabled ──────────────────────────────────────────────────────────── */

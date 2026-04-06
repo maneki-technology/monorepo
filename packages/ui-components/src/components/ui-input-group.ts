@@ -3,6 +3,7 @@ import {
   BW_SM,
   FONT_PRIMARY,
   FORM_INPUT_BORDER,
+  SHADOW_FIELD,
   HOVER_BORDER_MODERATE,
   RADIUS_SM,
   SP_1,
@@ -38,7 +39,7 @@ const STYLES = /* css */ `
     border-style: solid;
     border-color: var(--ui-ig-border, ${FORM_INPUT_BORDER});
     border-radius: ${RADIUS_SM};
-    overflow: hidden;
+    box-shadow: ${SHADOW_FIELD};
     width: 100%;
     transition: border-color 0.15s ease;
   }
@@ -71,12 +72,14 @@ const STYLES = /* css */ `
   .prefix {
     background-color: var(--ui-ig-prefix-bg, ${SURFACE_SECONDARY});
     color: var(--ui-ig-prefix-color, ${TEXT_SECONDARY});
+    border-radius: ${RADIUS_SM} 0 0 ${RADIUS_SM};
   }
 
   .suffix {
     background-color: var(--ui-ig-suffix-bg, ${SURFACE_TERTIARY});
     color: var(--ui-ig-suffix-color, ${TEXT_PRIMARY});
     font-weight: 500;
+    border-radius: 0 ${RADIUS_SM} ${RADIUS_SM} 0;
   }
 
   /* ── Separators ───────────────────────────────────────────────────────── */
@@ -117,6 +120,9 @@ const STYLES = /* css */ `
     --ui-input-border: transparent;
     --ui-input-hover-border: transparent;
     --ui-input-focus-border: transparent;
+    --ui-input-shadow: none;
+    --ui-input-bg: transparent;
+    --ui-input-radius: 0;
     border: none;
     border-radius: 0;
   }

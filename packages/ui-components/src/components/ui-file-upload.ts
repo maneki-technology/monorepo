@@ -4,10 +4,12 @@ import {
   DISABLED_TEXT,
   FONT_PRIMARY,
   FORM_INPUT_BORDER,
+  SHADOW_FIELD,
   HOVER_BORDER_MODERATE,
   SP_1,
   SP_1_5,
   SURFACE_PRIMARY,
+  RADIUS_SM,
   SURFACE_SECONDARY,
   SURFACE_TERTIARY,
   TEXT_PRIMARY,
@@ -46,9 +48,9 @@ const STYLES = /* css */ `
     display: flex;
     align-items: stretch;
     border: 1px solid var(--ui-fu-border, ${FORM_INPUT_BORDER});
-    border-radius: 2px;
+    border-radius: ${RADIUS_SM};
     background-color: var(--ui-fu-bg, ${SURFACE_PRIMARY});
-    overflow: hidden;
+    box-shadow: ${SHADOW_FIELD};
     cursor: pointer;
     width: 100%;
     transition:
@@ -87,6 +89,7 @@ const STYLES = /* css */ `
     flex-shrink: 0;
     border: none;
     border-left: 1px solid var(--ui-fu-separator, ${FORM_INPUT_BORDER});
+    border-radius: 0 ${RADIUS_SM} ${RADIUS_SM} 0;
     background-color: var(--ui-fu-btn-bg, ${SURFACE_TERTIARY});
     color: var(--ui-fu-btn-color, ${TEXT_PRIMARY});
     font-family: inherit;
@@ -168,7 +171,7 @@ const STYLES = /* css */ `
 
   :host(:focus-within:not([disabled])) .wrapper {
     border-color: var(--ui-fu-focus-border, ${BORDER_FOCUS});
-    box-shadow: 0 0 0 1px var(--ui-fu-focus-border, ${BORDER_FOCUS});
+    outline: 1px solid var(--ui-fu-focus-border, ${BORDER_FOCUS});
   }
 
   /* ── Disabled ──────────────────────────────────────────────────────────── */

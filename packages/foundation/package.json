@@ -6,6 +6,17 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./heroui-theme.js": {
+      "import": "./dist/heroui-theme.js",
+      "types": "./dist/heroui-theme.d.ts"
+    },
+    "./assets/*": "./assets/*"
+  },
   "files": [
     "dist",
     "assets"

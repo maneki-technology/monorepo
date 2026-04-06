@@ -82,8 +82,8 @@ export const STYLES = /* css */ `
     padding: ${SP_0_5} 0;
     background-color: var(--ui-dd-menu-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-dd-menu-shadow, ${ELEVATION_05});
-    border-radius: ${RADIUS_SM};
-    overflow: visible;
+    border-radius: var(--ui-dd-menu-radius, ${RADIUS_SM});
+    overflow: clip;
     opacity: 0;
     visibility: hidden;
     transform: translateY(-4px);

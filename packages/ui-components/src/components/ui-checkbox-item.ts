@@ -7,8 +7,10 @@ import {
   DISABLED_TEXT,
   FONT_PRIMARY,
   FORM_INPUT_BORDER,
+  SHADOW_FIELD,
   HOVER_BORDER_MODERATE,
   RADIUS_SM,
+  RADIUS_XS,
   SELECTED_BOLD,
   SP_0_75,
   SP_1,
@@ -74,8 +76,9 @@ const STYLES = /* css */ `
     border-width: ${BW_SM};
     border-style: solid;
     border-color: var(--ui-cb-border, ${FORM_INPUT_BORDER});
-    border-radius: ${RADIUS_SM};
+    border-radius: ${RADIUS_XS};
     background-color: var(--ui-cb-bg, ${SURFACE_PRIMARY});
+    box-shadow: ${SHADOW_FIELD};
     color: #ffffff;
     transition:
       background-color 0.15s ease,

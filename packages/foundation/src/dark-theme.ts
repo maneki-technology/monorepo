@@ -25,8 +25,10 @@ export const darkSurface = {
   bold: ref("gray", 60),              // #5B7282
   strong: ref("gray", 40),            // #9FB1BD
   action: ref("blue", 60),            // stays
-  actionContrast: ref("blue", 100),   // stays
+  actionHover: ref("blue", 50),       // lighter blue for hover on dark
+  actionContrast: ref("gray", 80),    // #2B3C49 — dark surface for info bold bg
   destructive: ref("red", 60),        // stays
+  destructiveHover: ref("red", 50),   // lighter red for hover on dark
   success: ref("green", 60),          // stays
   contrast: "#ffffff",                 // inverted
   overlay: "rgba(0, 0, 0, 0.7)",      // darker overlay
@@ -59,6 +61,7 @@ export const darkText = {
   visited: ref("purple", 40),         // lighter purple
   selected: ref("blue", 40),
   destructive: ref("red", 40),
+  actionContrast: ref("blue", 40),    // #5BA3F5 — lighter blue for info subtle/minimal on dark bg
   reversed: "#ffffff",                // stays white — used on colored backgrounds that don't change
   light: "#ffffff",
   dark: ref("gray", 110),
@@ -253,6 +256,29 @@ export const darkElevation = {
   },
 } as const satisfies Record<string, ElevationToken>;
 
+// ─── Shadow (Dark) ──────────────────────────────────────────────────────────
+
+export const darkShadow = {
+  field: {
+    boxShadow: "none",
+  },
+  surface: {
+    boxShadow: "none",
+  },
+  overlay: {
+    boxShadow:
+      "0px 8px 10px 1px rgba(0,0,0,0.4), 0px 3px 14px 2px rgba(0,0,0,0.3), 0px 5px 5px -3px rgba(0,0,0,0.5)",
+  },
+} as const satisfies Record<string, ElevationToken>;
+
+
+// ─── Default (Dark) ─────────────────────────────────────────────────────────
+
+export const darkDefaultTokens = {
+  default: ref("gray", 80),               // #2B3C49 — dark default background
+  defaultForeground: "#ffffff",           // white text on dark default
+  defaultHover: ref("gray", 70),           // #3E5463 — hover state
+} as const satisfies Record<string, SemanticValue>;
 // ─── Aggregate ──────────────────────────────────────────────────────────────
 
 export const darkSemanticTokens = {
@@ -272,6 +298,7 @@ export const darkSemanticTokens = {
   stateSelected: darkStateSelected,
   tag: darkTag,
   button: darkButton,
+  defaultTokens: darkDefaultTokens,
   gridRow: darkGridRow,
 } as const;
 

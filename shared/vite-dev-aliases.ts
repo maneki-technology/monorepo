@@ -21,6 +21,10 @@ export const devAliases: AliasOptions = [
     replacement: resolve(root, "packages/foundation/src/index.ts"),
   },
   {
+    find: /^@maneki\/foundation\/heroui-theme\.js$/,
+    replacement: resolve(root, "packages/foundation/src/heroui-theme.ts"),
+  },
+  {
     find: /^@maneki\/ui-components\/components\/(.*)\.js$/,
     replacement: resolve(root, "packages/ui-components/src/components/$1.ts"),
   },

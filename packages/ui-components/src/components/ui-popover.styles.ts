@@ -57,8 +57,9 @@ export const STYLES = /* css */ `
     display: flex;
     align-items: flex-start;
     background: ${GRAY_110};
-    border-radius: ${RADIUS_SM};
+    border-radius: var(--ui-popover-radius, ${RADIUS_SM});
     color: ${TEXT_REVERSED};
+    overflow: clip;
   }
 
   .content {

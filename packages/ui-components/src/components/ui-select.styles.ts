@@ -6,6 +6,7 @@ import {
   ELEVATION_05,
   FONT_PRIMARY,
   FORM_INPUT_BORDER,
+  SHADOW_FIELD,
   HOVER_BORDER_MODERATE,
   ICON_SECONDARY,
   RADIUS_PILL,
@@ -74,16 +75,18 @@ export const STYLES = /* css */ `
     align-items: center;
     border: 1px solid var(--ui-select-border, ${FORM_INPUT_BORDER});
     border-radius: ${RADIUS_SM};
+    background-color: var(--ui-select-bg, ${SURFACE_PRIMARY});
+    box-shadow: ${SHADOW_FIELD};
     transition:
       border-color 0.15s ease,
-      box-shadow 0.15s ease;
-    overflow: hidden;
+      box-shadow 0.15s ease,
+      background-color 0.15s ease;
     cursor: pointer;
     outline: none;
   }
   .trigger:focus-visible {
     border-color: var(--ui-select-focus-border, ${BORDER_FOCUS});
-    box-shadow: 0 0 0 1px var(--ui-select-focus-border, ${BORDER_FOCUS});
+    outline: 1px solid var(--ui-select-focus-border, ${BORDER_FOCUS});
   }
 
   /* ── Display value ─────────────────────────────────────────────────────── */
@@ -238,13 +241,14 @@ export const STYLES = /* css */ `
     padding: ${SP_0_5} 0;
     background: var(--ui-select-panel-bg, ${SURFACE_PRIMARY});
     box-shadow: var(--ui-select-panel-shadow, ${ELEVATION_05});
-    border-radius: ${RADIUS_SM};
-    margin-top: ${SP_0_25};
+    border-radius: var(--ui-select-panel-radius, ${RADIUS_SM});
+    margin-top: var(--ui-select-panel-gap, ${SP_0_25});
     opacity: 0;
     visibility: hidden;
     transform: translateY(-4px);
     transition: opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease;
     pointer-events: none;
+    overflow: clip;
   }
   :host([open]) .panel {
     opacity: 1;
@@ -334,12 +338,13 @@ export const STYLES = /* css */ `
   /* ── Hover ─────────────────────────────────────────────────────────────── */
   :host(:not([disabled]):not([readonly]):not([open])) .trigger:hover {
     border-color: var(--ui-select-hover-border, ${HOVER_BORDER_MODERATE});
+    background-color: var(--ui-select-hover-bg, var(--ui-select-bg, ${SURFACE_PRIMARY}));
   }
 
   /* ── Open / Focus ──────────────────────────────────────────────────────── */
   :host([open]) .trigger {
     border-color: var(--ui-select-focus-border, ${BORDER_FOCUS});
-    box-shadow: 0 0 0 1px var(--ui-select-focus-border, ${BORDER_FOCUS});
+    outline: 1px solid var(--ui-select-focus-border, ${BORDER_FOCUS});
   }
 
   /* ── Error state ───────────────────────────────────────────────────────── */
@@ -352,7 +357,7 @@ export const STYLES = /* css */ `
   :host([error]) .trigger:focus-visible,
   :host([error][open]) .trigger {
     border-color: ${STATUS_GENERAL_ERROR};
-    box-shadow: 0 0 0 1px ${STATUS_GENERAL_ERROR};
+    outline: 1px solid ${STATUS_GENERAL_ERROR};
   }
 
   /* ── Warning state ─────────────────────────────────────────────────────── */
@@ -362,7 +367,7 @@ export const STYLES = /* css */ `
   :host([status="warning"]) .trigger:focus-visible,
   :host([status="warning"][open]) .trigger {
     border-color: ${STATUS_GENERAL_WARNING};
-    box-shadow: 0 0 0 1px ${STATUS_GENERAL_WARNING};
+    outline: 1px solid ${STATUS_GENERAL_WARNING};
   }
 
   /* ── Success state ─────────────────────────────────────────────────────── */
@@ -372,7 +377,7 @@ export const STYLES = /* css */ `
   :host([status="success"]) .trigger:focus-visible,
   :host([status="success"][open]) .trigger {
     border-color: ${STATUS_GENERAL_SUCCESS};
-    box-shadow: 0 0 0 1px ${STATUS_GENERAL_SUCCESS};
+    outline: 1px solid ${STATUS_GENERAL_SUCCESS};
   }
 
   /* ── Disabled ──────────────────────────────────────────────────────────── */
