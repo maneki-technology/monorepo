@@ -34,6 +34,12 @@ export const STYLES = /* css */ `
     overflow-x: hidden;
   }
 
+  .menu ::slotted(div) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ui-spm-item-gap, 0);
+  }
+
   /* ── Flyout submenu (collapsed mode) ─────────────────────────────────────── */
 
   .flyout {

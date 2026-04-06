@@ -32,6 +32,14 @@ const STYLES = /* css */ `
     -webkit-user-select: none;
   }
 
+  ::slotted(*) {
+    margin-bottom: var(--ui-spm-item-gap, 0);
+  }
+
+  ::slotted(*:last-child) {
+    margin-bottom: 0;
+  }
+
   /* Subsequent sections get a separator + spacing */
   :host([separator]) .section {
     padding-top: ${SP_1};

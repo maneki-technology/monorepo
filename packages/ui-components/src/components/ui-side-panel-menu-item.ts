@@ -57,6 +57,8 @@ const STYLES = /* css */ `
     cursor: pointer;
     position: relative;
     text-align: left;
+    border-radius: var(--ui-spmi-row-radius, 0);
+    margin: var(--ui-spmi-row-margin, 0);
     transition: background-color 0.15s ease, color 0.15s ease;
   }
 
@@ -198,6 +200,7 @@ const STYLES = /* css */ `
     display: inline-flex;
     align-items: center;
     flex-shrink: 0;
+    padding-right: var(--ui-spmi-actions-pr, 0);
   }
 
   /* ── Expand chevron ──────────────────────────────────────────────────────── */
