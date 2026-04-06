@@ -4,7 +4,7 @@ import { deletePost, deleteProject, loadPostIntoEditor, loadProjectIntoEditor, c
 export function setupDeleteModal(): void {
   const deleteModal = document.createElement("ui-modal");
   deleteModal.id = "admin-delete-modal";
-  deleteModal.setAttribute("size", "s");
+  deleteModal.setAttribute("size", "m");
   deleteModal.setAttribute("dismissible", "");
   deleteModal.textContent = "Delete Item";
   const modalBody = document.createElement("div");
