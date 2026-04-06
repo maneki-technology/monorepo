@@ -7,8 +7,9 @@ dist/
 # Moon cache
 .moon/cache/
 
-# Storybook
+# Storybook build output (legacy; tool removed — ignore if present locally)
 storybook-static/
+packages/*/storybook-static/
 
 # Vite cache
 .vite/

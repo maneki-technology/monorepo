@@ -7,9 +7,6 @@
     "packages/*"
   ],
   "scripts": {
-    "storybook": "storybook dev -p 6006",
-    "storybook:build": "storybook build -o storybook-static",
-    "test-storybook": "vitest --project=storybook --run",
     "prepare": "husky",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -20,35 +17,23 @@
     "*.html": "html-validate",
     "*.{ts,tsx,js}": ["eslint --fix", "prettier --write"],
     "*.{json,md,yml,yaml,css}": "prettier --write",
-    "packages/ui-components/src/components/!(*.test|*.stories).ts": "stylelint",
+    "packages/ui-components/src/components/!(*.test).ts": "stylelint",
     "packages/ui-components/src/components/*.styles.ts": "stylelint",
-    "packages/foundation/src/!(*.test|*.stories).ts": "stylelint"
+    "packages/foundation/src/!(*.test).ts": "stylelint"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@fontsource-variable/inter": "^5.2.8",
-    "@storybook/addon-a11y": "^10.2.16",
-    "@storybook/addon-docs": "^10.2.17",
-    "@storybook/addon-vitest": "^10.2.17",
-    "@storybook/web-components": "^10.2.16",
-    "@storybook/web-components-vite": "^10.2.16",
-    "@vitest/browser": "^4.0.18",
-    "@vitest/browser-playwright": "^4.0.18",
-    "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.1.8",
     "html-validate": "^9.7.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
-    "lit": "^3.3.2",
     "material-symbols": "^0.40.2",
-    "playwright": "^1.58.2",
     "postcss-lit": "^1.4.1",
     "prettier": "^3.8.1",
-    "storybook": "^10.2.16",
     "stylelint": "^16.26.1",
     "stylelint-config-standard": "^39.0.1",
-    "typescript-eslint": "^8.58.0",
-    "vitest": "^4.0.18"
+    "typescript-eslint": "^8.58.0"
   }
 }

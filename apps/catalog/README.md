@@ -5,7 +5,7 @@ Visual catalog app for the Maneki design system. Renders all foundation tokens a
 - 55 pages (6 foundation + 49 component)
 - 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout)
 - History API routing, sidebar navigation, dark theme toggle
-- Pure Vite + vanilla TypeScript — no Storybook dependency
+- Pure Vite + vanilla TypeScript
 
 ## Quick Start
 

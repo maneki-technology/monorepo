@@ -104,22 +104,13 @@ npm install @maneki/ui-components
 
 ---
 
-## Storybook
-
-```bash
-moon run ui-components:storybook        # Dev server on port 6006
-moon run ui-components:storybook-build  # Static build → storybook-static/
-```
-
-51 components with stories covering all variants, sizes, actions, emphases, shapes, and statuses.
-
----
-
 ## Development
+
+Interactive previews and visual regression coverage live in **`apps/catalog/`** (`moon run catalog:dev` from the repo root).
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (3593 tests)
+moon run ui-components:test   # vitest --run (3564 tests)
 ```
 
 ---

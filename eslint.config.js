@@ -20,7 +20,6 @@ export default tseslint.config(
       "**/dist/**",
       "**/node_modules/**",
       "**/.wrangler/**",
-      "**/storybook-static/**",
       "packages/foundation/assets/**",
       "packages/diagrams/**",
     ],

@@ -209,12 +209,11 @@ export const ICON_CODEPOINTS: Record<string, string> = {
 /**
  * Register the subset Material Symbols Outlined font on the document.
  *
- * Call once at app startup (or in Storybook preview).  Components in
- * Shadow DOM pick up the font via `@font-face { src: local(...) }`.
+ * Call once at app startup. Components in Shadow DOM pick up the font via
+ * `@font-face { src: local(...) }`.
  *
- * @param fontUrl – URL to the subset woff2 file.  In Storybook this is
- *   typically an import with `?url` suffix; in production it depends on
- *   the bundler / asset pipeline.
+ * @param fontUrl – URL to the subset woff2 file — typically an import with
+ *   `?url` suffix; exact shape depends on the bundler / asset pipeline.
  */
 export function registerIconFont(fontUrl: string): Promise<FontFace> {
   const face = new FontFace(

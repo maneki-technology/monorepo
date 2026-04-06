@@ -10,9 +10,6 @@ foundation/
 │   ├── material-symbols-outlined-subset.woff2  # Subsetted icon font (~24 KB)
 │   ├── icon-manifest.txt                       # Icon names included in subset
 │   └── subset-icons.py                         # Script to regenerate subset font
-├── .storybook/
-│   ├── main.ts              # @storybook/web-components-vite
-│   └── preview.ts           # imports injectAllTokens()
 └── src/
     ├── index.ts              # Barrel export (all modules)
     ├── icons.ts              # Icon codepoint constants + registerIconFont()
@@ -26,13 +23,7 @@ foundation/
     ├── shape.ts              # Shape tokens: border-radius + border-width CSS custom properties
     ├── tokens.ts             # CSS custom property generators + var() helpers
     ├── tokens.test.ts        # 32 tests
-    ├── breakpoints.test.ts   # 27 tests
-    └── stories/
-        ├── colors.stories.ts           # Color palette grid (13 families × 10-11 steps)
-        ├── semantic-tokens.stories.ts  # Surface, border, text, icon, global, status
-        ├── typography.stories.ts       # All 7 typography groups with live samples
-        ├── spacing.stories.ts          # Visual spacing scale (17 steps)
-        └── elevation.stories.ts        # Elevation levels with box-shadow samples
+    └── breakpoints.test.ts   # 27 tests
 ```
 
 ## WHERE TO LOOK
@@ -126,10 +117,9 @@ When a Figma design uses a token that doesn't exist in foundation:
 
 ## COMMANDS
 ```bash
-moon run foundation:storybook       # Dev server on port 6007
-moon run foundation:storybook-build  # Static build
 moon run foundation:test            # vitest --run (59 tests)
 moon run foundation:build           # vite build + tsc --emitDeclarationOnly
+moon run catalog:dev                # foundation token pages live in apps/catalog
 ```
 
 ## SOP: Adding a New Icon
@@ -161,5 +151,5 @@ When modifying or adding semantic tokens that need dark theme support:
 1. **Add/update the light value** in `semantic-tokens.ts`.
 2. **Add/update the dark value** in `dark-theme.ts` — ensure the same key exists in both files.
 3. **Run tests** — `npx vitest --run` to verify CSS generation includes both light and dark values.
-4. **Verify visually** — toggle `[data-theme="dark"]` on `:root` in Storybook/catalog and check the token renders correctly.
+4. **Verify visually** — toggle `[data-theme="dark"]` on `:root` in the catalog (`apps/catalog`) and check the token renders correctly.
 5. **Rebuild foundation** — `npx vite build && npx tsc --emitDeclarationOnly`.

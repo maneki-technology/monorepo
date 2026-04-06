@@ -32,19 +32,3 @@ tasks:
   dev:
     command: 'vite'
     preset: 'server'
-
-  storybook:
-    command: 'storybook dev -p 6006'
-    deps:
-      - '^:build'
-    preset: 'server'
-
-  storybook-build:
-    command: 'storybook build -o storybook-static'
-    deps:
-      - '^:build'
-    inputs:
-      - 'src/**/*'
-      - '.storybook/**/*'
-    outputs:
-      - 'storybook-static'
