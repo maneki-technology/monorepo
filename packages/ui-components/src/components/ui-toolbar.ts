@@ -24,6 +24,7 @@ const STYLES = `
     border-radius: var(--ui-toolbar-attached-radius, 32px);
     box-shadow: var(--ui-toolbar-attached-shadow, 0px 2px 8px 0px rgba(0,0,0,0.06), 0px -6px 12px 0px rgba(0,0,0,0.03), 0px 14px 28px 0px rgba(0,0,0,0.08));
     position: relative;
+    isolation: isolate;
   }
 
   /* Frosted glass background for attached */
