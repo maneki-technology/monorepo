@@ -112,11 +112,11 @@ export class TabBarRenderer {
 
       // Theme toggle
       themeBtn.onclick = () => {
-        const dark = document.documentElement.getAttribute("data-theme") === "dark";
+        const dark = document.documentElement.getAttribute("data-theme") === "heroui-dark";
         if (dark) {
-          document.documentElement.removeAttribute("data-theme");
+          document.documentElement.setAttribute("data-theme", "heroui");
         } else {
-          document.documentElement.setAttribute("data-theme", "dark");
+          document.documentElement.setAttribute("data-theme", "heroui-dark");
         }
         setState({});  // trigger render for theme icon update
         saveUIState();
@@ -164,7 +164,7 @@ export class TabBarRenderer {
     // Update theme toggle icon
     const themeBtn = document.getElementById("admin-theme-toggle");
     if (themeBtn) {
-      const themeIcon = document.documentElement.getAttribute("data-theme") === "dark" ? "\u263E" : "\u2600\uFE0F";
+      const themeIcon = document.documentElement.getAttribute("data-theme") === "heroui-dark" ? "\u263E" : "\u2600\uFE0F";
       if (themeBtn.textContent !== themeIcon) themeBtn.textContent = themeIcon;
     }
   }

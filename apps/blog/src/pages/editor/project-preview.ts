@@ -6,6 +6,7 @@
 import { state, setState } from "./state.js";
 import { api } from "../../lib/api.js";
 import type { Project } from "./types.js";
+import "@maneki/ui-components/components/ui-card.js";
 
 let overlay: HTMLElement | null = null;
 
@@ -48,17 +49,18 @@ function renderProjectCards(): void {
   grid.className = "project-preview-sortable";
 
   for (const project of published) {
-    const card = document.createElement("div");
-    card.className = "project-preview-card";
+    const card = document.createElement("ui-card") as HTMLElement;
+    card.setAttribute("bordered", "");
     card.setAttribute("data-slug", project.slug);
     card.setAttribute("draggable", "true");
+    card.style.cursor = "grab";
 
     card.innerHTML = `
       <div class="project-preview-card-header">
         <span class="heading-05">${project.title || "Untitled"}</span>
-        <span class="pin-toggle" role="button" tabindex="0" aria-label="Pin to homepage" style="cursor:pointer;font-size:16px;opacity:${project.pinned ? "1" : "0.3"};transition:opacity 0.15s;">\ud83d\udccc</span>
+        <span class="pin-toggle" role="button" tabindex="0" aria-label="Pin to homepage" style="cursor:pointer;font-size:16px;opacity:${project.pinned ? "1" : "0.3"};transition:opacity 0.15s;">\uD83D\uDCCC</span>
       </div>
-      ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" style="width:100%;height:100px;--ui-image-fit:cover;--ui-image-bg:var(--fd-surface-secondary);border-radius:var(--fd-radius-sm);margin:var(--fd-space-1) 0;"></ui-image>` : ""}
+      ${project.image ? `<ui-image slot="image" src="${project.image}" alt="${project.title}" style="width:100%;height:100px;--ui-image-fit:cover;--ui-image-bg:var(--fd-surface-secondary);"></ui-image>` : ""}
       <p class="body-02 text-secondary">${project.description}</p>
       <div class="tags mt-1">
         ${project.tech.split(",").map((t: string) => t.trim()).filter(Boolean).map((t: string) => `<ui-badge size="xs" emphasis="subtle">${t}</ui-badge>`).join("")}
@@ -118,7 +120,7 @@ function renderProjectCards(): void {
   // Save order on drop
   grid.addEventListener("drop", async (e) => {
     e.preventDefault();
-    const cards = grid.querySelectorAll(".project-preview-card");
+    const cards = grid.querySelectorAll("ui-card[data-slug]");
     const slugs: string[] = [];
     cards.forEach((c) => slugs.push(c.getAttribute("data-slug")!));
 

@@ -21,7 +21,8 @@
   <script>
     (function() {
       var t = localStorage.getItem('blog-theme');
-      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'heroui-dark');
+      else document.documentElement.setAttribute('data-theme', 'heroui');
     })();
   </script>
   <style>
@@ -274,8 +275,8 @@
     /* Shiki dual-theme: show light theme by default, dark when [data-theme="dark"] */
     .shiki { background-color: var(--shiki-light-bg); color: var(--shiki-light); }
     .shiki span { color: var(--shiki-light); }
-    [data-theme="dark"] .shiki { background-color: var(--shiki-dark-bg); color: var(--shiki-dark, #e4e4e7); }
-    [data-theme="dark"] .shiki span { color: var(--shiki-dark, #e4e4e7); }
+    [data-theme="heroui-dark"] .shiki { background-color: var(--shiki-dark-bg); color: var(--shiki-dark, #e4e4e7); }
+    [data-theme="heroui-dark"] .shiki span { color: var(--shiki-dark, #e4e4e7); }
 
     .post-content code {
       font-family: 'Roboto Mono', monospace;

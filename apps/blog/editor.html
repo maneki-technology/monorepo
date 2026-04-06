@@ -8,7 +8,8 @@
   <script>
     (function() {
       var t = localStorage.getItem('blog-theme');
-      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+      if (t === 'dark') document.documentElement.setAttribute('data-theme', 'heroui-dark');
+      else document.documentElement.setAttribute('data-theme', 'heroui');
     })();
   </script>
   <style>
@@ -23,7 +24,7 @@
     body {
       font-family: Geist, sans-serif;
       color: var(--fd-text-primary, #27272a);
-      background: var(--fd-surface-primary, #fff);
+      background: var(--fd-surface-secondary, #fff);
     }
 
     .admin-layout {
@@ -46,7 +47,7 @@
     .admin-tab-bar {
       display: flex;
       align-items: center;
-      border-bottom: 1px solid var(--fd-border-minimal, #e4e4e7);
+      border-bottom: none;
       flex-shrink: 0;
       padding: 4px 8px 0;
       overflow-x: auto;
@@ -202,6 +203,16 @@
 
     .admin-textarea-wrap {
       border-right: 1px solid var(--fd-border-minimal, #e4e4e7);
+      background: var(--fd-surface-primary, #fff);
+    }
+
+    .admin-textarea-wrap ui-textarea {
+      --ui-textarea-border: transparent;
+      --ui-textarea-bg: var(--fd-surface-primary, #fff);
+      --ui-textarea-radius: 0;
+      --ui-textarea-shadow: none;
+      --ui-textarea-hover-border: transparent;
+      --ui-textarea-focus-border: transparent;
     }
 
     .admin-split #admin-content {
@@ -229,6 +240,7 @@
 
     .admin-textarea-spacer {
       height: 25vh;
+      background: var(--fd-surface-primary, #fff);
     }
 
     .admin-preview {
@@ -319,8 +331,8 @@
       color: var(--shiki-light);
       background-color: var(--shiki-light-bg);
     }
-    [data-theme="dark"] .post-content pre.shiki,
-    [data-theme="dark"] .post-content pre.shiki span {
+    [data-theme="heroui-dark"] .post-content pre.shiki,
+    [data-theme="heroui-dark"] .post-content pre.shiki span {
       color: var(--shiki-dark);
       background-color: var(--shiki-dark-bg);
     }
@@ -346,7 +358,7 @@
       border-radius: 50%;
     }
 
-    [data-theme="dark"] .admin-loading-icon {
+    [data-theme="heroui-dark"] .admin-loading-icon {
       filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 40px rgba(255, 255, 255, 0.15));
     }
 
@@ -524,10 +536,11 @@
     }
 
     .project-preview-card {
-      border: var(--fd-border-width-sm) solid var(--fd-border-minimal);
-      border-radius: var(--fd-radius-md);
+      border: var(--ui-project-card-border, var(--fd-border-width-sm) solid var(--fd-border-minimal));
+      border-radius: var(--fd-radius-sm);
       padding: var(--fd-space-2);
       background: var(--fd-surface-primary);
+      box-shadow: var(--fd-shadow-surface, none);
       cursor: grab;
       transition: box-shadow 0.15s ease, opacity 0.15s ease;
     }

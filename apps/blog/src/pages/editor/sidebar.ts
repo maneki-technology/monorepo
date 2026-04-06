@@ -154,8 +154,6 @@ export class SidebarRenderer {
 
       if (state.selectedSlugs.size > 0) {
         checkbox.style.cssText = "flex-shrink:0;align-self:flex-start;margin-top:2px;";
-      } else {
-        checkbox.style.cssText = "flex-shrink:0;opacity:0;transition:opacity 0.15s;align-self:flex-start;margin-top:2px;";
       }
     }
 
@@ -259,8 +257,8 @@ export class SidebarRenderer {
       if (modal) modal.show();
     };
     item.appendChild(deleteBtn);
-    item.onmouseenter = () => { deleteBtn.style.opacity = "1"; if (state.selectedSlugs.size === 0) checkbox.style.opacity = "1"; };
-    item.onmouseleave = () => { deleteBtn.style.opacity = "0"; if (state.selectedSlugs.size === 0) checkbox.style.opacity = "0"; };
+    item.onmouseenter = () => { deleteBtn.style.opacity = "1"; checkbox.style.opacity = "1"; };
+    item.onmouseleave = () => { deleteBtn.style.opacity = "0"; if (state.selectedSlugs.size === 0 && !checkbox.hasAttribute("checked")) checkbox.style.opacity = "0"; };
 
     wrapper.appendChild(item);
     return wrapper;
@@ -307,8 +305,6 @@ export class SidebarRenderer {
 
       if (state.selectedSlugs.size > 0) {
         checkbox.style.cssText = "flex-shrink:0;align-self:flex-start;";
-      } else {
-        checkbox.style.cssText = "flex-shrink:0;opacity:0;transition:opacity 0.15s;align-self:flex-start;";
       }
     }
   }
@@ -394,8 +390,8 @@ export class SidebarRenderer {
       if (modal) modal.show();
     };
     item.appendChild(deleteBtn);
-    item.onmouseenter = () => { deleteBtn.style.opacity = "1"; if (state.selectedSlugs.size === 0) checkbox.style.opacity = "1"; };
-    item.onmouseleave = () => { deleteBtn.style.opacity = "0"; if (state.selectedSlugs.size === 0) checkbox.style.opacity = "0"; };
+    item.onmouseenter = () => { deleteBtn.style.opacity = "1"; checkbox.style.opacity = "1"; };
+    item.onmouseleave = () => { deleteBtn.style.opacity = "0"; if (state.selectedSlugs.size === 0 && !checkbox.hasAttribute("checked")) checkbox.style.opacity = "0"; };
 
     wrapper.appendChild(item);
     return wrapper;

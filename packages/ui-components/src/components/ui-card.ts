@@ -82,7 +82,7 @@ const STYLES = /* css */ `
   /* ── Bordered ────────────────────────────────────────────────────────────── */
 
   :host([bordered]) .base {
-    border-width: ${BW_SM};
+    border-width: var(--ui-card-border-width, ${BW_SM});
     border-style: solid;
     border-color: var(--ui-card-border-color, ${BORDER_MINIMAL});
   }

@@ -179,7 +179,7 @@ export function saveUIState(): void {
       activeTab: state.currentSlug,
       activeTabType: state.activeTabType,
       sidebarCollapsed: sidebar?.getAttribute("state") === "collapsed",
-      theme: document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light",
+      theme: document.documentElement.getAttribute("data-theme")?.includes("dark") ? "dark" : "light",
     };
     try {
       await api.api["ui-state"][":page"].$put({

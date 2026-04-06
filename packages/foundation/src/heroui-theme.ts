@@ -634,6 +634,7 @@ const herouiComponentCssShared = [
   "--ui-acc-group-radius: 24px;",
   "--ui-acc-group-shadow: var(--fd-shadow-surface, none);",
   "--ui-acc-group-overflow: clip;",
+  "--ui-card-border-width: 0;",
   "--ui-acc-separator-color: #dedee0;",
   "--ui-acc-separator-margin: 0 16px;",
   "--ui-acc-header-padding: 16px;",
@@ -676,6 +677,8 @@ const herouiComponentCssLight = [
   "--ui-tab-text-color: #71717a;",
   "--ui-tab-selected-bg: #ffffff;",
   "--ui-tab-selected-shadow: 0px 2px 8px 0px rgba(0,0,0,0.06);",
+  "--ui-project-card-border: none;",
+  "--ui-cb-border: #dedee0;",
 ].join("\n");
 
 // Dark-only component overrides
@@ -688,6 +691,8 @@ const herouiComponentCssDark = [
   "--ui-tab-text-color: #a1a1aa;",
   "--ui-tab-selected-bg: #3f3f46;",
   "--ui-tab-selected-shadow: none;",
+  "--ui-card-border-width: 1px;",
+  "--ui-cb-border: #3f3f46;",
 ].join("\n");
 
 const STYLE_ID = "maneki-heroui-theme";
