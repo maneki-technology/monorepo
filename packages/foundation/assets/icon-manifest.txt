@@ -19,6 +19,16 @@ check_circle
 chevron_left
 chevron_right
 close
+code
+code_blocks
+format_bold
+format_h2
+format_h3
+format_italic
+format_list_bulleted
+format_list_numbered
+format_quote
+format_underlined
 download
 delete
 error
@@ -28,6 +38,8 @@ first_page
 group
 grid_view
 home
+image
+link
 info
 keyboard_double_arrow_left
 keyboard_double_arrow_right
@@ -48,6 +60,7 @@ schedule
 search
 settings
 share
+title
 upload
 visibility
 visibility_off

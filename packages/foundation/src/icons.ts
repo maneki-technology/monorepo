@@ -112,6 +112,32 @@ export const ICON_REFRESH = "\uE5D5";
 export const ICON_DELETE = "\uE872";
 /** grid_view — U+E9B0 */
 export const ICON_GRID_VIEW = "\uE9B0";
+/** code — U+E86F */
+export const ICON_CODE = "\uE86F";
+/** code_blocks — U+F84D */
+export const ICON_CODE_BLOCKS = "\uF84D";
+/** format_bold — U+E238 */
+export const ICON_FORMAT_BOLD = "\uE238";
+/** format_h2 — U+F85E */
+export const ICON_FORMAT_H2 = "\uF85E";
+/** format_h3 — U+F85F */
+export const ICON_FORMAT_H3 = "\uF85F";
+/** format_italic — U+E23F */
+export const ICON_FORMAT_ITALIC = "\uE23F";
+/** format_list_bulleted — U+E241 */
+export const ICON_FORMAT_LIST_BULLETED = "\uE241";
+/** format_list_numbered — U+E242 */
+export const ICON_FORMAT_LIST_NUMBERED = "\uE242";
+/** format_quote — U+E244 */
+export const ICON_FORMAT_QUOTE = "\uE244";
+/** format_underlined — U+E249 */
+export const ICON_FORMAT_UNDERLINED = "\uE249";
+/** image — U+E3F4 */
+export const ICON_IMAGE = "\uE3F4";
+/** link — U+E250 */
+export const ICON_LINK = "\uE250";
+/** title — U+E264 */
+export const ICON_TITLE = "\uE264";
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
   warning: ICON_WARNING,
@@ -163,6 +189,19 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   refresh: ICON_REFRESH,
   delete: ICON_DELETE,
   grid_view: ICON_GRID_VIEW,
+  code: ICON_CODE,
+  code_blocks: ICON_CODE_BLOCKS,
+  format_bold: ICON_FORMAT_BOLD,
+  format_h2: ICON_FORMAT_H2,
+  format_h3: ICON_FORMAT_H3,
+  format_italic: ICON_FORMAT_ITALIC,
+  format_list_bulleted: ICON_FORMAT_LIST_BULLETED,
+  format_list_numbered: ICON_FORMAT_LIST_NUMBERED,
+  format_quote: ICON_FORMAT_QUOTE,
+  format_underlined: ICON_FORMAT_UNDERLINED,
+  image: ICON_IMAGE,
+  link: ICON_LINK,
+  title: ICON_TITLE,
 };
 
 // ── Font registration ───────────────────────────────────────────────

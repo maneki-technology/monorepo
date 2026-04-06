@@ -13,6 +13,9 @@ import { openPortfolioLayout } from "./project-preview.js";
 import { setupPublish } from "./publish.js";
 import { setupDeleteModal } from "./delete-modal.js";
 import { setupKeyboard } from "./keyboard.js";
+import "@maneki/ui-components/components/ui-toolbar.js";
+import "@maneki/ui-components/components/ui-toolbar-separator.js";
+import "@maneki/ui-components/components/ui-button-group.js";
 import { setupFullscreenPreview } from "./fullscreen-preview.js";
 import { setupTags } from "./tags.js";
 import { setupInit } from "./init.js";
@@ -157,20 +160,28 @@ export const editorRoute: Route = {
             </div>
           </div>
 
-          <div class="admin-toolbar">
-            <ui-button action="secondary" emphasis="minimal" size="s" data-action="bold">B</ui-button>
-            <ui-button action="secondary" emphasis="minimal" size="s" data-action="italic">I</ui-button>
-            <ui-button action="secondary" emphasis="minimal" size="s" data-action="h2">H2</ui-button>
-            <ui-button action="secondary" emphasis="minimal" size="s" data-action="h3">H3</ui-button>
-            <ui-button action="secondary" emphasis="minimal" size="s" data-action="link">🔗</ui-button>
-            <ui-button action="secondary" emphasis="minimal" size="s" data-action="code">&lt;/&gt;</ui-button>
-            <ui-button action="secondary" emphasis="minimal" size="s" data-action="codeblock">▤</ui-button>
-            <ui-button action="secondary" emphasis="minimal" size="s" data-action="image">🖼</ui-button>
-            <ui-button id="admin-gallery-btn" action="secondary" emphasis="minimal" size="s" icon="icon-only" aria-label="Image gallery"><ui-icon name="grid_view" size="s" slot="icon-start"></ui-icon></ui-button>
-            <ui-button action="secondary" emphasis="minimal" size="s" data-action="ul">•</ui-button>
-            <ui-button action="secondary" emphasis="minimal" size="s" data-action="ol">1.</ui-button>
-            <ui-button action="secondary" emphasis="minimal" size="s" data-action="quote">"</ui-button>
-            <span class="admin-toolbar-spacer"></span>
+          <ui-toolbar class="admin-toolbar" aria-label="Editor toolbar">
+            <ui-button-group action="secondary">
+              <ui-button icon="icon-only" data-action="bold" aria-label="Bold"><ui-icon name="format_bold" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button icon="icon-only" data-action="italic" aria-label="Italic"><ui-icon name="format_italic" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button icon="icon-only" data-action="h2" aria-label="Heading 2"><ui-icon name="format_h2" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button icon="icon-only" data-action="h3" aria-label="Heading 3"><ui-icon name="format_h3" size="s" slot="icon-start"></ui-icon></ui-button>
+            </ui-button-group>
+            <ui-toolbar-separator></ui-toolbar-separator>
+            <ui-button-group action="secondary">
+              <ui-button icon="icon-only" data-action="link" aria-label="Link"><ui-icon name="link" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button icon="icon-only" data-action="code" aria-label="Inline code"><ui-icon name="code" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button icon="icon-only" data-action="codeblock" aria-label="Code block"><ui-icon name="code_blocks" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button icon="icon-only" data-action="image" aria-label="Image"><ui-icon name="image" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button icon="icon-only" id="admin-gallery-btn" aria-label="Image gallery"><ui-icon name="grid_view" size="s" slot="icon-start"></ui-icon></ui-button>
+            </ui-button-group>
+            <ui-toolbar-separator></ui-toolbar-separator>
+            <ui-button-group action="secondary">
+              <ui-button icon="icon-only" data-action="ul" aria-label="Bullet list"><ui-icon name="format_list_bulleted" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button icon="icon-only" data-action="ol" aria-label="Numbered list"><ui-icon name="format_list_numbered" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button icon="icon-only" data-action="quote" aria-label="Quote"><ui-icon name="format_quote" size="s" slot="icon-start"></ui-icon></ui-button>
+            </ui-button-group>
+            <span style="flex:1"></span>
             <ui-button id="admin-preview-btn" action="secondary" emphasis="subtle" size="s">Preview</ui-button>
             <ui-button id="admin-portfolio-btn" action="secondary" emphasis="subtle" size="s" style="display:none">Portfolio</ui-button>
             <ui-button id="admin-save-btn" action="primary" size="s">Save</ui-button>
@@ -178,7 +189,7 @@ export const editorRoute: Route = {
               <ui-dropdown-item id="admin-unpublish-btn" value="unpublish">Unpublish</ui-dropdown-item>
               <ui-dropdown-item id="admin-export-btn" value="export">Export .md</ui-dropdown-item>
             </ui-dropdown-split>
-          </div>
+          </ui-toolbar>
 
           <div class="admin-split">
             <ui-scrollbar emphasis="minimal" class="admin-textarea-wrap">

@@ -1,6 +1,6 @@
 
 import {
-  RADIUS_LG, RADIUS_PILL, BORDER_MINIMAL,
+  RADIUS_LG, RADIUS_MD, RADIUS_PILL, BORDER_MINIMAL,
   SURFACE_ACTION, SURFACE_ACTION_CONTRAST, SURFACE_DESTRUCTIVE,
   SURFACE_PRIMARY, DEFAULT_DEFAULT,
 } from "@maneki/foundation";
@@ -15,6 +15,10 @@ const STYLES = `
     flex-direction: row;
   }
 
+  :host([size="s"]) {
+    --ui-btn-group-radius: ${RADIUS_MD};
+    border-radius: ${RADIUS_MD};
+  }
   :host([orientation="vertical"]) {
     flex-direction: column;
   }
