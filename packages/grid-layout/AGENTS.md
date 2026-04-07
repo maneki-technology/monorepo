@@ -9,7 +9,6 @@ Zero-dependency Web Component grid layout library (`<grid-layout>`, `<grid-item>
 ├── src/
 │   ├── core/          # Pure logic engine (no DOM). Types, math, collision, compaction, layout engine, responsive utils
 │   ├── components/    # Web Components with Shadow DOM. grid-item, grid-layout, responsive-grid-layout
-│   ├── stories/       # Storybook stories (basic, compaction, resize-handles, responsive, theming, accessibility)
 │   └── index.ts       # Barrel export — all types, utilities, and components
 ├── e2e/
 │   ├── fixtures.html  # Test fixture page with 8 grid scenarios
@@ -75,7 +74,4 @@ npm run test:visual:update  # regenerate baseline snapshots
 - `grid-layout.ts` is the largest file (~923 lines) — contains drag/resize, keyboard nav, external drop, and ARIA logic
 - Keyboard state tracked via `_kbDragActive`, `_kbResizeActive`, `_kbFocusedItemId`, `_kbOldLayout` private fields
 - External drop state tracked via `_isDroppable`, `_droppingItem`, `_externalDragOver`, `_externalPlaceholderItem` private fields
-- Storybook stories in `src/stories/` — 6 files, 16 stories covering basic usage, compaction modes, resize handles, responsive breakpoints, CSS theming (with foundation tokens), and accessibility
-- Stories use `import type` + side-effect `import "../components/grid-layout.js"` pattern — named imports get tree-shaken by Vite if only used as TypeScript type generics
-- Storybook keyboard shortcuts (S, A, D, etc.) can intercept keys before they reach the iframe — click inside the story preview first to give the iframe focus
 - `responsive-grid-layout.ts` `layouts` setter directly applies layout for current breakpoint instead of going through `onWidthChange` — fixes race condition where ResizeObserver fires before `setTimeout(0)` sets layouts

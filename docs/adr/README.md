@@ -27,3 +27,4 @@ This directory contains Architectural Decision Records (ADRs) for the Maneki des
 | [020](020-image-pipeline.md) | Image Pipeline — R2 Storage + Client Optimization | Accepted | 2026-04 |
 | [021](021-deploy-flow.md) | Deploy Flow — GitHub Actions + Status Polling | Accepted | 2026-04 |
 | [022](022-eslint-prettier.md) | ESLint + Prettier — Monorepo Linting | Accepted | 2026-04 |
+| [023](023-remove-storybook.md) | Remove Storybook | Accepted | 2026-04 |

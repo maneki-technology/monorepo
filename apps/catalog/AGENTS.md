@@ -1,7 +1,7 @@
 # apps/catalog — Visual Catalog & Playwright Regression Tests
 
 ## OVERVIEW
-Dedicated visual catalog app for the Maneki design system. Renders all foundation tokens and UI components with key variants on static pages. Used as the target for Playwright screenshot-based visual regression tests (visual + accessibility). No Storybook dependency — pure Vite + vanilla TS.
+Dedicated visual catalog app for the Maneki design system. Renders all foundation tokens and UI components with key variants on static pages. Used as the target for Playwright screenshot-based visual regression tests (visual + accessibility). Pure Vite + vanilla TypeScript.
 
 ## STRUCTURE
 ```
@@ -108,7 +108,7 @@ Per-page a11y tests using `@axe-core/playwright`. Each page is loaded and scanne
 - **1% pixel diff threshold** — `maxDiffPixelRatio: 0.01` in Playwright config.
 
 ## ANTI-PATTERNS
-- **Don't use Storybook patterns** — no lit html, no CSF3, no decorators. Plain HTML strings only.
+- **Don't use framework-style story patterns** — no lit `html`, no CSF, no decorators. Plain HTML strings only.
 - **Don't open dropdowns/modals by default** — they overlay other content and break screenshots.
 - **Don't use external images** — they cause flaky tests. Use colored divs or inline SVGs.
 - **Don't forget to add new pages to `main.ts` imports, AND the `pages` array in `e2e/helpers.ts`** (drives both visual.spec.ts and a11y.spec.ts).

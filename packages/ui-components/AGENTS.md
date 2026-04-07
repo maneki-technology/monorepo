@@ -1,7 +1,7 @@
 # packages/ui-components — Design System Components
 
 ## OVERVIEW
-Web Component library for the Maneki design system. Shadow DOM, CSS custom properties, TypeScript, Storybook 10. Currently ships:
+Web Component library for the Maneki design system. Shadow DOM, CSS custom properties, TypeScript. Currently ships:
 
 **Primitives:**
 - `<ui-badge>` — label/tag with 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses, uppercase text
@@ -85,9 +85,6 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 ## STRUCTURE
 ```
 ui-components/
-├── .storybook/
-│   ├── main.ts              # @storybook/web-components-vite
-│   └── preview.ts           # imports injectAllTokens() from @maneki/foundation
 ├── src/
 │   ├── index.ts             # Barrel export + custom element registration
 │   ├── components/
@@ -144,19 +141,15 @@ ui-components/
 │   │   ├── ui-popover.ts           + ui-popover.styles.ts
 │   │   ├── ui-tooltip.ts
 │   │   └── *.test.ts            # Co-located tests
-│   └── stories/
-│       └── *.stories.ts     # CSF3 + lit html
-└── storybook-static/        # Built Storybook output
 ```
 
 ## WHERE TO LOOK
 | Task | Location | Notes |
 |------|----------|-------|
 | Add new component | `src/components/` | Create `ui-foo.ts` + `ui-foo.test.ts` |
-| Add stories | `src/stories/` | CSF3 format with `@storybook/web-components` |
+| Visual preview / regression | `apps/catalog/` | Static pages + Playwright (see `apps/catalog/AGENTS.md`) |
 | Register element | `src/index.ts` | `customElements.define()` + re-export |
 | Add new icon | See foundation SOP | Add to foundation, use `<ui-icon>` in components |
-| Storybook config | `.storybook/main.ts` | Framework: `@storybook/web-components-vite` |
 
 ## COMPONENT PATTERN
 Follow `ui-button.ts` or `ui-alert.ts` as reference implementations:
@@ -183,7 +176,7 @@ const SP_2 = spaceVar(2);
 Token constants are defined at module level and interpolated into the CSS template literal. Invalid token references are compile errors.
 
 ## ICONS
-Components use a **subsetted Material Symbols Outlined font** (~24 KB) shipped in `@maneki/foundation/assets/`. The font is registered globally via `registerIconFont()` in Storybook preview; components access it through `@font-face { src: local("Material Symbols Outlined") }` in Shadow DOM.
+Components use a **subsetted Material Symbols Outlined font** (~24 KB) shipped in `@maneki/foundation/assets/`. Apps call `registerIconFont()` once at startup; components access the font through `@font-face { src: local("Material Symbols Outlined") }` in Shadow DOM.
 
 Icons are referenced by **Unicode codepoint constants** (not ligature text) imported from `@maneki/foundation`:
 ```ts
@@ -200,7 +193,7 @@ Shadow DOM requires a local `@font-face` declaration to access the globally-load
 ```
 
 Available icon constants: `ICON_WARNING`, `ICON_ERROR`, `ICON_CHECK_CIRCLE`, `ICON_PROGRESS_ACTIVITY`, `ICON_CLOSE`, `ICON_CANCEL`, `ICON_EXPAND_MORE`, `ICON_EXPAND_LESS`, `ICON_VISIBILITY`, `ICON_VISIBILITY_OFF`, `ICON_ARROW_DROP_UP`, `ICON_ARROW_DROP_DOWN`, `ICON_ARROW_BACK_IOS`, `ICON_ARROW_FORWARD_IOS`, `ICON_INFO`, `ICON_NOTIFICATIONS`, `ICON_SEARCH`, `ICON_ATTACH_MONEY`, `ICON_MAIL`, `ICON_ACCOUNT_CIRCLE`, `ICON_ADD_CIRCLE`, `ICON_SHARE`, `ICON_DOWNLOAD`, `ICON_UPLOAD`, `ICON_MORE_VERT`, `ICON_HOME`, `ICON_PERSON`, `ICON_BAR_CHART`, `ICON_SETTINGS`, `ICON_GROUP`, `ICON_CHEVRON_RIGHT`, `ICON_CHEVRON_LEFT`.
-For stories, use `ICON_CODEPOINTS` record for dynamic lookup: `ICON_CODEPOINTS["home"]`.
+Use the `ICON_CODEPOINTS` record for dynamic lookup: `ICON_CODEPOINTS["home"]`.
 Status icons use filled variant: `font-variation-settings: 'FILL' 1`.
 Chevron icon: `ICON_EXPAND_MORE` (not `ICON_ARROW_DROP_DOWN`). Clear button: `ICON_CANCEL` with filled variant.
 Chevron and clear button use `semanticVar("icon", "secondary")` token.
@@ -220,11 +213,8 @@ export type AlertStatus    = 'none' | 'information' | 'success' | 'error' | 'war
 
 Property accessors use these types. Invalid values are compile errors.
 
-## STORY PATTERN
-- CSF3 format (export const Story = { args: {...} })
-- Use `@storybook/web-components` types
-- Render with lit `html` tagged template
-- One story file per component in `src/stories/`
+## VISUAL PREVIEW
+Component demos and Playwright regression coverage live in **`apps/catalog/`**. When adding a component, wire a catalog page and tests per `apps/catalog/AGENTS.md`.
 
 ## PANEL TRANSITIONS
 Dropdown, menu, and select panels use smooth open/close animation:
@@ -243,19 +233,13 @@ Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, u
 - **Component prefix:** `ui-*` for element names
 - **Shadow DOM:** Always. No light DOM components.
 - **Tests co-located:** `ui-button.ts` → `ui-button.test.ts` in same directory
-- **Storybook 10:** Consolidated — no separate `@storybook/addon-essentials` or `@storybook/blocks` needed
 - **`@maneki/foundation` is a production dependency.** Tokens are consumed via CSS custom property references (`var(--fd-*)`) and type-safe JS helpers (`colorVar`, `spaceVar`). Foundation code is bundled into the built output.
 - **Multi-entry build.** Vite emits both a barrel (`dist/index.js`) and per-component files (`dist/components/ui-*.js`). Consumers can import everything or cherry-pick. Shared foundation code is deduped into `dist/shared/` chunks.
 - **Deep imports via exports map.** `import "@maneki/ui-components/components/ui-badge.js"` imports only that component + its dependencies. Use for apps that need a subset (e.g., the blog app uses 4 of 75 components).
-- **Component prefix:** `ui-*` for element names
-- **Shadow DOM:** Always. No light DOM components.
-- **Tests co-located:** `ui-button.ts` → `ui-button.test.ts` in same directory
-- **Storybook 10:** Consolidated — no separate `@storybook/addon-essentials` or `@storybook/blocks` needed
-- **`@maneki/foundation` is a production dependency.** Tokens are consumed via CSS custom property references (`var(--fd-*)`) and type-safe JS helpers (`colorVar`, `spaceVar`). Foundation code is bundled into the built output.
 - **All components MUST use type-safe foundation tokens.** No hardcoded color hex values, spacing pixel values, or typography values. Use `colorVar()`, `spaceVar()`, `typeVar()`, `semanticVar()`, `elevationVar()` from `@maneki/foundation`. The only exceptions are: `#ffffff` (white, not in palette), `rgba()` overlays for hover/active/focus states, and shape constants like `2px`/`999px` border-radius that have no token equivalent.
 - **Branch per component.** Every new component implementation MUST happen on a dedicated branch (e.g., `feat/ui-checkbox`). Do not implement directly on `main`.
-- **Visual Figma verification required.** Before a component is considered done, visually compare the Storybook rendering against the Figma source using the Playwright/browser tool. Verify sizes, colors, spacing, and states match. No component ships without this step.
-- **Reuse existing primitives.** When adding a new component, review existing components and stories to check if they should consume the new component instead of duplicating markup (e.g., stories using inline `<button>` elements should use `<ui-button>` once it exists). Applies to both component implementations and Storybook stories.
+- **Visual Figma verification required.** Before a component is considered done, visually compare the catalog (or local dev) against the Figma source using the Playwright/browser tool. Verify sizes, colors, spacing, and states match. No component ships without this step.
+- **Reuse existing primitives.** When adding a new component, review existing components and catalog pages to check if they should consume the new component instead of duplicating markup.
 - **No direct pushes to `main`.** All changes go through feature branches and PRs. Use `jj bookmark set <name> -r @` + `jj git push --bookmark <name>` then `gh pr create`.
 - **Import token constants from `@maneki/foundation`** — no local `const X = semanticVar(...)` definitions. Use pre-computed constants like `TEXT_PRIMARY`, `SP_1`, etc.
 - **Typography via `${TYPE_BODY_02}`** — emits font-family + font-size + line-height + font-weight in one interpolation via `typeBlock()` from foundation.
@@ -332,13 +316,12 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
    - `README.md` (root) — no test counts currently, but verify package descriptions
 2. **Component count** — if a new component was added:
    - `README.md` (root) → Packages table ("N Web Components")
-   - `packages/ui-components/README.md` → Components table + story count
+   - `packages/ui-components/README.md` → Components table
    - `packages/ui-components/AGENTS.md` → OVERVIEW component list
 3. **Icon constants** — if new icons were added to foundation:
    - `packages/ui-components/AGENTS.md` → ICONS section → "Available icon constants" list
    - `packages/foundation/AGENTS.md` — no icon list (covered by SOP)
-4. **AGENTS.md structure trees** — if new files were added (components, styles, stories)
-5. **Storybook config** — if a new package was added to root `.storybook/main.ts`
+4. **AGENTS.md structure trees** — if new files were added (components, styles)
 
 ### Quick Checklist
 ```
@@ -351,8 +334,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 
 ## COMMANDS
 ```bash
-moon run ui-components:storybook       # Dev server on port 6006
-moon run ui-components:storybook-build  # Static build
-moon run ui-components:test            # vitest --run (3593 tests)
+moon run ui-components:test            # vitest --run (3564 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
+moon run catalog:dev                   # visual catalog (apps/catalog)
 ```

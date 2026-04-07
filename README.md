@@ -22,13 +22,12 @@ Design system monorepo with Web Components and design tokens extracted from Figm
 maneki-monorepo/
 ├── .prototools              # node 22.16.0, moon 2.0.4
 ├── .moon/                   # Moon workspace + toolchain config
-├── .storybook/              # Root Storybook config (aggregates all packages)
 ├── docs/                    # ADRs + lessons learned
 ├── shared/                  # Dev aliases for cross-package HMR
-├── package.json             # npm workspaces root + Storybook scripts
+├── package.json             # npm workspaces root
 ├── packages/
 │   ├── foundation/          # Design tokens (@maneki/foundation)
-│   ├── ui-components/       # Web Components + Storybook (@maneki/ui-components)
+│   ├── ui-components/       # Web Components (@maneki/ui-components)
 │   ├── grid-layout/         # Grid layout library (@maneki/grid-layout)
 │   └── flex-layout/         # Panel-based flex layout (@maneki/flex-layout)
 ├── apps/
@@ -43,7 +42,7 @@ maneki-monorepo/
 | Package | npm name | Description |
 |---|---|---|
 | `foundation` | `@maneki/foundation` | Design tokens: 131 colors, semantic tokens, typography, spacing, elevation, breakpoints, dark theme, shape, token constants |
-| `ui-components` | `@maneki/ui-components` | 50 Web Components (button, badge, image, icon, tag, avatar, alert, label, link, checkbox, radio, input, textarea, file-upload, select, card, breadcrumb, accordion, dropdown, menu, modal, side-panel-menu, tabs, table, carousel, calendar, calendar-quicklinks, calendar-time, datetime-picker, clock, list-item, list-header, list-group) with Storybook 10 |
+| `ui-components` | `@maneki/ui-components` | 50 Web Components (button, badge, image, icon, tag, avatar, alert, label, link, checkbox, radio, input, textarea, file-upload, select, card, breadcrumb, accordion, dropdown, menu, modal, side-panel-menu, tabs, table, carousel, calendar, calendar-quicklinks, calendar-time, datetime-picker, clock, list-item, list-header, list-group) |
 | `grid-layout` | `@maneki/grid-layout` | Zero-dep drag/resize grid layout (220 tests) |
 | `flex-layout` | `@maneki/flex-layout` | Panel-based flex layout for dashboard-style interfaces (3 components, 50 tests) |
 
@@ -74,9 +73,8 @@ moon run ui-components:test
 moon run grid-layout:test
 moon run flex-layout:test
 
-# Storybook (all packages)
-npm run storybook            # Dev server on port 6006
-npm run storybook:build      # Static build → storybook-static/
+# Visual catalog (dev)
+moon run catalog:dev
 ```
 
 ---
@@ -88,7 +86,7 @@ npm run storybook:build      # Static build → storybook-static/
 - CSS custom properties, prefixed per package: `--fd-*`, `--ui-*`, `--grid-*`, `--flex-*`
 - TypeScript strict mode, ES2022 target
 - Tests co-located: `foo.ts` → `foo.test.ts`
-- Moon tasks in kebab-case: `build`, `test`, `test-watch`, `dev`, `storybook`
+- Moon tasks in kebab-case: `build`, `test`, `test-watch`, `dev`, `test-visual`
 - Dark theme support via `[data-theme="dark"]` attribute
 - Architectural Decision Records in `docs/adr/`
 

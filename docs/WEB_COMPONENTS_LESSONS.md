@@ -8,7 +8,7 @@ After building 50+ components, a catalog app, dark theme, and accessibility audi
 
 - **Style isolation is bulletproof.** No CSS conflicts across 50+ components, ever. Consumer stylesheets cannot break component internals.
 - **CSS custom properties pierce the boundary.** Dark mode was implemented as a pure token swap — no component code changes needed for the core theme switch.
-- **True portability.** Components work identically in the catalog app, Storybook, and any consumer application. No framework adapter needed.
+- **True portability.** Components work identically in the catalog app and any consumer application. No framework adapter needed.
 - **Composition via slots.** `<slot>` elements provide clean content projection without inheritance hierarchies.
 
 ### What causes recurring pain

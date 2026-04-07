@@ -14,9 +14,6 @@ flex-layout/
 │   │   ├── flex-panel.test.ts
 │   │   ├── flex-panel-header.ts     # <flex-panel-header> title/tabs header
 │   │   └── flex-panel-header.test.ts
-│   ├── stories/
-│   │   ├── basic.stories.ts         # Size variants (Large, Medium, Small)
-│   │   └── title-options.stories.ts # Header variants (Tabs, Title, Title+Tabs)
 │   └── index.ts                     # Barrel export
 ├── package.json
 ├── tsconfig.json
