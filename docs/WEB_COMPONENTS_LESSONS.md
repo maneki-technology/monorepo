@@ -135,3 +135,59 @@ For content-heavy sites where FOUC is unacceptable, Web Components with Shadow D
 2. **Declarative Shadow DOM** support is improving in browsers. When all target browsers support it, a build-time pre-renderer could generate static Shadow DOM without Lit.
 3. **CSS `@scope`** (shipping in Chrome/Edge) may eventually replace Shadow DOM for style encapsulation without the integration pain points.
 4. **`ElementInternals`** can improve form participation — custom elements can participate in native `<form>` validation without wrapper hacks.
+
+## Shadow DOM vs Light DOM: The Theming Tax
+
+### The problem
+
+Shadow DOM blocks global CSS cascade. This means app-level theme overrides (like `[data-theme="heroui-dark"]`) cannot reach into component internals. Every themeable property must be explicitly exposed as a CSS custom property (`--ui-search-bg`, `--ui-search-border`, etc.).
+
+We hit this concretely when the blog's `ui-search` input became invisible in dark mode — its `surface-primary` background matched the page background exactly. The fix required adding a dark mode override in the consuming app:
+
+```css
+/* Consumer must know which custom properties exist and override them */
+[data-theme="heroui-dark"] ui-search {
+  --ui-search-bg: var(--fd-surface-tertiary);
+  --ui-search-border: var(--fd-border-minimal);
+}
+```
+
+This is a per-component, per-context fix. Every component on every page may need its own dark mode overrides depending on what surface it sits on. The component library can't anticipate every consumer's surface hierarchy.
+
+### Light DOM alternative
+
+Custom elements without Shadow DOM (`this.innerHTML = ...` instead of `attachShadow()`) let global CSS cascade naturally. The dark mode search fix would have been unnecessary — `[data-theme="heroui-dark"] .input-wrapper { background: ... }` just works.
+
+```js
+class MySearch extends HTMLElement {
+  connectedCallback() {
+    this.innerHTML = `<div class="ui-search__wrapper">...</div>`;
+  }
+}
+```
+
+**Tradeoffs:**
+
+| | Shadow DOM | Light DOM |
+|---|---|---|
+| Style encapsulation | Bulletproof | Requires naming convention (BEM, prefixes) |
+| Global theming | Blocked — needs explicit `--custom-prop` hooks | Just works — CSS cascade applies |
+| Font inheritance | Broken — `@font-face` must be re-declared per component | Works naturally |
+| Form participation | Needs `ElementInternals` | Native |
+| SSR | Painful (Declarative Shadow DOM) | Trivial |
+| DOM queries | Blocked at shadow boundary | Normal |
+| Consumer CSS accidents | Impossible | Possible without discipline |
+| Debugging | Extra clicks in DevTools | Normal |
+
+### Hybrid approach (worth considering)
+
+Use Shadow DOM selectively based on component complexity:
+
+- **Shadow DOM** for complex interactive components (dropdown, modal, select, popover) where encapsulation prevents real bugs — consumer CSS accidentally breaking focus traps, overlay z-index, or internal state indicators.
+- **Light DOM** for simpler/presentational components (badge, card, alert, label, link) where global theming is more valuable than isolation, and there's little internal state to protect.
+
+Libraries like Lit support both modes per-component via `static shadowRootOptions`. This would let us migrate incrementally without rewriting everything.
+
+### Current decision
+
+We stay with Shadow DOM across all components (ADR-002) for consistency. The theming tax is real but manageable via CSS custom property hooks. If the number of per-context overrides grows significantly, revisit the hybrid approach.
