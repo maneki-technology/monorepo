@@ -57,6 +57,11 @@
       scrollbar-width: none;
     }
 
+    /* HeroUI light: use surface-secondary (#f5f5f5) for softer blog shell background */
+    [data-theme="heroui"] #app {
+      background: var(--fd-surface-secondary);
+    }
+
     /* Dark mode: search input shares surface-primary bg — elevate to tertiary for separation */
     [data-theme="heroui-dark"] ui-search {
       --ui-search-bg: var(--fd-surface-tertiary);
