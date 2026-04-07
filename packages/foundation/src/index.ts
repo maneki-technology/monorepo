@@ -53,6 +53,7 @@ export {
 } from "./semantic-tokens.js";
   export {
   injectHerouiTheme,
+  generateHerouiCss,
   herouiSemanticTokens,
   herouiElevation,
   herouiDarkSemanticTokens,

@@ -5,6 +5,7 @@ import { portfolioProjectsPlugin } from "./plugins/portfolio-projects.js";
 import { autoUiComponentsPlugin } from "./plugins/auto-ui-components.js";
 import { sitemapPlugin } from "./plugins/sitemap.js";
 import { rssFeedPlugin } from "./plugins/rss-feed.js";
+import { injectTokensPlugin } from "./plugins/inject-tokens.js";
 import { devAliases } from "../../shared/vite-dev-aliases.js";
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
@@ -25,6 +26,7 @@ export default defineConfig(({ command }) => ({
   resolve: command === "serve" ? { alias: devAliases } : {},
   appType: "spa",
   plugins: [
+    injectTokensPlugin(),
     markdownPostsPlugin(),
     portfolioProjectsPlugin(),
     autoUiComponentsPlugin(),

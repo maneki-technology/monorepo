@@ -34,6 +34,7 @@ export const STYLES = /* css */ `
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    padding-bottom: ${SP_0_5};
   }
 
   .menu ::slotted(div) {
