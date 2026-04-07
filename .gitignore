@@ -34,6 +34,9 @@ test-results/
 e2e/test-results/
 playwright-report/
 
+# Playwright MCP sessions
+.playwright-mcp/
+
 # Proto
 .proto/
 
