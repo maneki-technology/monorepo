@@ -10,6 +10,7 @@ import {
   ICON_PRIMARY,
   SELECTED_MINIMAL,
   SELECTED_OVERLAY,
+  SHADOW_FIELD,
   SP_1,
   SP_1_25,
   SP_1_5,
@@ -82,6 +83,7 @@ const STYLES = /* css */ `
   :host([selected]) .row {
     background-color: var(--ui-spmi-selected-bg, ${SELECTED_MINIMAL});
     color: var(--ui-spmi-active-text, ${ICON_ACTION});
+    box-shadow: var(--ui-spmi-selected-shadow, ${SHADOW_FIELD});
   }
 
   :host([selected]) .leading-icon {

@@ -3,6 +3,7 @@ import {
   BW_SM,
   ELEVATION_03,
   FONT_PRIMARY,
+  SP_0_5,
   SP_1_25,
   SP_2,
   SP_5,
@@ -29,6 +30,7 @@ export const STYLES = /* css */ `
   .menu {
     display: flex;
     flex-direction: column;
+    gap: var(--ui-spm-item-gap, ${SP_0_5});
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
@@ -37,7 +39,7 @@ export const STYLES = /* css */ `
   .menu ::slotted(div) {
     display: flex;
     flex-direction: column;
-    gap: var(--ui-spm-item-gap, 0);
+    gap: var(--ui-spm-item-gap, ${SP_0_5});
   }
 
   /* ── Flyout submenu (collapsed mode) ─────────────────────────────────────── */
