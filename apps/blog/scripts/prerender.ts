@@ -31,13 +31,28 @@ async function prerender(): Promise<void> {
       SITE_URL: string;
       SITE_TITLE: string;
     };
-    const { routes } = await vite.ssrLoadModule("/src/routes.ts") as {
-      routes: Array<{
-        id: string;
-        render: () => string;
-        meta?: { title?: string; description?: string };
-      }>;
-    };
+    // Load page modules directly for prerendering (routes.ts uses lazy loading for browser)
+    const { homeRoute } = await vite.ssrLoadModule("/src/pages/home.ts") as any;
+    const { blogRoute } = await vite.ssrLoadModule("/src/pages/blog.ts") as any;
+    const { postRoutes } = await vite.ssrLoadModule("/src/pages/post.ts") as any;
+    const { portfolioRoute } = await vite.ssrLoadModule("/src/pages/portfolio.ts") as any;
+    const { projectRoutes } = await vite.ssrLoadModule("/src/pages/project.ts") as any;
+    const { resumeRoute } = await vite.ssrLoadModule("/src/pages/resume.ts") as any;
+    const { aboutRoute } = await vite.ssrLoadModule("/src/pages/about.ts") as any;
+
+    const allRoutes: Array<{
+      id: string;
+      render: () => string;
+      meta?: { title?: string; description?: string };
+    }> = [
+      homeRoute,
+      blogRoute,
+      ...postRoutes,
+      portfolioRoute,
+      ...projectRoutes,
+      resumeRoute,
+      aboutRoute,
+    ];
 
     // Generate foundation token CSS to inline in <head>
     const tokens = await vite.ssrLoadModule("@maneki/foundation") as {
@@ -67,14 +82,23 @@ async function prerender(): Promise<void> {
     ].join("\n");
     const tokenStyle = `<style id="maneki-foundation-all">:root {\n${tokenCss}\n}\n\n[data-theme="dark"] {\n${darkTokenCss}\n}</style>`;
 
-    // Find the Geist font asset URL in the built output
+    // Find font asset URLs in the built output
     const distDir = resolve(root, "dist/assets");
     const geistFile = readdirSync(distDir).find((f) => f.startsWith("Geist-Variable") && f.endsWith(".woff2"));
     const geistUrl = geistFile ? `/assets/${geistFile}` : "";
+    const iconsFile = readdirSync(distDir).find((f) => f.startsWith("material-symbols-outlined-subset") && f.endsWith(".woff2"));
+    const iconsUrl = iconsFile ? `/assets/${iconsFile}` : "";
 
     // Inject tokens + preload + @font-face into <head>
-    const fontPreload = geistUrl ? `<link rel="preload" href="${geistUrl}" as="font" type="font/woff2" crossorigin />` : "";
-    const fontFace = geistUrl ? `<style>@font-face { font-family: 'Geist'; src: url('${geistUrl}') format('woff2'); font-weight: 100 900; font-style: normal; font-display: swap; }</style>` : "";
+    const fontPreload = [
+      geistUrl ? `<link rel="preload" href="${geistUrl}" as="font" type="font/woff2" crossorigin />` : "",
+      iconsUrl ? `<link rel="preload" href="${iconsUrl}" as="font" type="font/woff2" crossorigin />` : "",
+    ].filter(Boolean).join("\n");
+    const fontFace = [
+      geistUrl ? `@font-face { font-family: 'Geist'; src: url('${geistUrl}') format('woff2'); font-weight: 100 900; font-style: normal; font-display: swap; }` : "",
+      iconsUrl ? `@font-face { font-family: 'Material Symbols Outlined'; src: url('${iconsUrl}') format('woff2'); font-style: normal; font-display: swap; }` : "",
+    ].filter(Boolean).join("\n");
+    const fontFaceStyle = fontFace ? `<style>${fontFace}</style>` : "";
 
     // Google Analytics
     const gaScript = `<!-- Google tag (gtag.js) -->
@@ -88,11 +112,11 @@ async function prerender(): Promise<void> {
 
     let shell = readFileSync(resolve(root, "dist/index.html"), "utf-8");
     shell = shell.replace("<head>", `<head>\n${gaScript}`);
-    shell = shell.replace("</head>", `${fontPreload}\n${tokenStyle}\n${fontFace}\n</head>`);
+    shell = shell.replace("</head>", `${fontPreload}\n${tokenStyle}\n${fontFaceStyle}\n</head>`);
 
-    console.log(`Prerendering ${routes.length} routes...`);
+    console.log(`Prerendering ${allRoutes.length} routes...`);
 
-    for (const route of routes) {
+    for (const route of allRoutes) {
       const html = route.render();
       const pageTitle = route.meta?.title
         ? `${route.meta.title} \u2014 ${SITE_TITLE}`
@@ -152,7 +176,7 @@ async function prerender(): Promise<void> {
     writeFileSync(resolve(root, "dist/404.html"), notFoundHtml);
     console.log("  \u2713 /404.html");
 
-    console.log(`\nPrerendered ${routes.length} pages + 404.`);
+    console.log(`\nPrerendered ${allRoutes.length} pages + 404.`);
   } finally {
     await vite.close();
   }

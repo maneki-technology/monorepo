@@ -10,11 +10,22 @@ import("@maneki/foundation/heroui-theme.js").then(({ injectHerouiTheme }) => inj
 registerIconFont(materialSymbolsWoff2);
 registerGeistFont(geistWoff2);
 
-// Register all routes
+// Register all routes (lazy-loaded)
 import { routes } from "./routes.js";
-import { registerRoute, initRouter } from "./router.js";
+import { registerRoute, registerPatternRoute, initRouter } from "./router.js";
 
 routes.forEach(registerRoute);
+
+// Dynamic routes: post/* and project/* are loaded on-demand
+registerPatternRoute({
+  prefix: "post/",
+  load: (id) => import("./pages/post.js").then((m) => m.findPostRoute(id)),
+});
+registerPatternRoute({
+  prefix: "project/",
+  load: (id) => import("./pages/project.js").then((m) => m.findProjectRoute(id)),
+});
+
 // ─── Theme Toggle ─────────────────────────────────────────────────────────
 
 function initThemeToggle(): void {
@@ -22,7 +33,7 @@ function initThemeToggle(): void {
   const saved = localStorage.getItem("blog-theme");
   if (saved === "dark") {
     document.documentElement.setAttribute("data-theme", "heroui-dark");
-    btn.textContent = "\u263E";
+    btn.textContent = "☾";
   } else {
     document.documentElement.setAttribute("data-theme", "heroui");
   }
@@ -31,11 +42,11 @@ function initThemeToggle(): void {
     if (isDark) {
       document.documentElement.setAttribute("data-theme", "heroui");
       localStorage.setItem("blog-theme", "light");
-      btn.textContent = "\u2600\uFE0F";
+      btn.textContent = "☀️";
     } else {
       document.documentElement.setAttribute("data-theme", "heroui-dark");
       localStorage.setItem("blog-theme", "dark");
-      btn.textContent = "\u263E";
+      btn.textContent = "☾";
     }
   });
 }
@@ -44,12 +55,16 @@ function initThemeToggle(): void {
 
 function initReadingProgress(): void {
   const bar = document.getElementById("reading-progress") as HTMLElement;
-  window.addEventListener("scroll", () => {
-    const scrollTop = window.scrollY;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
-    bar.setAttribute("value", String(progress));
-  }, { passive: true });
+  window.addEventListener(
+    "scroll",
+    () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? Math.round((scrollTop / docHeight) * 100) : 0;
+      bar.setAttribute("value", String(progress));
+    },
+    { passive: true },
+  );
 }
 
 // ─── Init ──────────────────────────────────────────────────────────────────

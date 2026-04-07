@@ -69,12 +69,6 @@ export default defineConfig(({ command }) => ({
           ) {
             return "vendor-foundation";
           }
-          if (
-            id.includes("packages/ui-components/") ||
-            id.includes("@maneki/ui-components")
-          ) {
-            return "vendor-ui";
-          }
         },
       },
     },

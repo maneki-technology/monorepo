@@ -58,6 +58,8 @@ import "@maneki/ui-components/components/ui-icon.js";
 import "@maneki/ui-components/components/ui-dropdown-split.js";
 import "@maneki/ui-components/components/ui-dropdown-item.js";
 import "@maneki/ui-components/components/ui-checkbox-item.js";
+import "@maneki/ui-components/components/ui-image.js";
+import "@maneki/ui-components/components/ui-link.js";
 
 export const editorRoute: Route = {
   id: "editor",

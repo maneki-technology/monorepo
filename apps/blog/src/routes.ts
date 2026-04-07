@@ -1,20 +1,50 @@
 /** Shared route manifest — importable by both browser and Node prerender script. */
 
 import type { Route } from "./router.js";
-import { homeRoute } from "./pages/home.js";
-import { blogRoute } from "./pages/blog.js";
-import { postRoutes } from "./pages/post.js";
-import { portfolioRoute } from "./pages/portfolio.js";
-import { projectRoutes } from "./pages/project.js";
-import { resumeRoute } from "./pages/resume.js";
-import { aboutRoute } from "./pages/about.js";
 
+/**
+ * Browser routes use lazy loading — page modules are only fetched on navigation.
+ * The prerender script (scripts/prerender.ts) imports pages directly and doesn't use this file.
+ *
+ * Route metadata (id, meta, showProgress) is eagerly available for nav highlighting and meta tags.
+ * The render/setup functions are loaded on-demand via dynamic import().
+ */
 export const routes: Route[] = [
-  homeRoute,
-  blogRoute,
-  ...postRoutes,
-  portfolioRoute,
-  ...projectRoutes,
-  resumeRoute,
-  aboutRoute,
+  {
+    id: "home",
+    meta: {
+      title: "Home",
+      description: "Senior Software Engineer. Distributed systems, micro-frontend architecture, and design systems.",
+    },
+    load: () => import("./pages/home.js").then((m) => m.homeRoute),
+  },
+  {
+    id: "blog",
+    meta: { title: "Blog", description: "Posts about fullstack development, design systems, and the web." },
+    load: () => import("./pages/blog.js").then((m) => m.blogRoute),
+  },
+  {
+    id: "portfolio",
+    meta: { title: "Portfolio", description: "Things I've built — from design systems to CLI tools." },
+    load: () => import("./pages/portfolio.js").then((m) => m.portfolioRoute),
+  },
+  {
+    id: "resume",
+    meta: {
+      title: "Resume",
+      description:
+        "Senior Software Engineer with 14+ years of experience. Go, TypeScript, Java, Python. Distributed systems, micro-frontends, fine-grained authorization.",
+    },
+    showProgress: true,
+    load: () => import("./pages/resume.js").then((m) => m.resumeRoute),
+  },
+  {
+    id: "about",
+    meta: {
+      title: "About",
+      description:
+        "Senior Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization.",
+    },
+    load: () => import("./pages/about.js").then((m) => m.aboutRoute),
+  },
 ];
