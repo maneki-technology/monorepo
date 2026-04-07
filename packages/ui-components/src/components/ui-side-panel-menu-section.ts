@@ -33,7 +33,7 @@ const STYLES = /* css */ `
   }
 
   ::slotted(*) {
-    margin-bottom: var(--ui-spm-item-gap, 0);
+    margin-bottom: var(--ui-spm-item-gap, ${SP_0_5});
   }
 
   ::slotted(*:last-child) {
