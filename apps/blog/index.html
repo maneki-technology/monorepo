@@ -59,6 +59,8 @@
 
     [data-theme="heroui"] #app {
       background: var(--fd-surface-secondary);
+      /* Darken text-secondary for WCAG AA contrast on surface-secondary (#f5f5f5) */
+      --fd-text-secondary: #636369;
     }
 
     /* Dark mode: search input shares surface-primary bg — elevate to tertiary for separation */
