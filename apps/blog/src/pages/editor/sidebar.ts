@@ -425,7 +425,7 @@ export class SidebarRenderer {
 
     const selectAllBtn = document.createElement("ui-button");
     selectAllBtn.setAttribute("action", "secondary");
-    selectAllBtn.setAttribute("emphasis", "minimal");
+    selectAllBtn.setAttribute("emphasis", "subtle");
     selectAllBtn.setAttribute("size", "s");
     const allItems = isProject ? state.allProjects : state.allPosts;
     selectAllBtn.textContent = state.selectedSlugs.size === allItems.length ? "Deselect All" : "Select All";
@@ -438,8 +438,8 @@ export class SidebarRenderer {
     };
 
     const deleteBtn = document.createElement("ui-button");
-    deleteBtn.setAttribute("action", "destructive");
-    deleteBtn.setAttribute("emphasis", "minimal");
+    deleteBtn.setAttribute("action", "secondary");
+    deleteBtn.setAttribute("emphasis", "subtle");
     deleteBtn.setAttribute("size", "s");
     deleteBtn.setAttribute("icon", "icon-only");
     deleteBtn.setAttribute("aria-label", "Delete selected");
@@ -447,6 +447,7 @@ export class SidebarRenderer {
     delIcon.setAttribute("name", "delete");
     delIcon.setAttribute("size", "s");
     delIcon.setAttribute("slot", "icon-start");
+    delIcon.style.setProperty("--ui-icon-color", "var(--fd-text-destructive)");
     deleteBtn.appendChild(delIcon);
     deleteBtn.onclick = async () => {
       const slugs = [...state.selectedSlugs];
@@ -480,8 +481,8 @@ export class SidebarRenderer {
     };
 
     const publishBtn = document.createElement("ui-button");
-    publishBtn.setAttribute("action", "primary");
-    publishBtn.setAttribute("emphasis", "minimal");
+    publishBtn.setAttribute("action", "secondary");
+    publishBtn.setAttribute("emphasis", "subtle");
     publishBtn.setAttribute("size", "s");
     publishBtn.setAttribute("icon", "icon-only");
     publishBtn.setAttribute("aria-label", "Publish selected");
@@ -489,6 +490,7 @@ export class SidebarRenderer {
     pubIcon.setAttribute("name", "upload");
     pubIcon.setAttribute("size", "s");
     pubIcon.setAttribute("slot", "icon-start");
+    pubIcon.style.setProperty("--ui-icon-color", "var(--fd-icon-action)");
     publishBtn.appendChild(pubIcon);
     publishBtn.onclick = async () => {
       const slugs = [...state.selectedSlugs];
@@ -534,7 +536,7 @@ export class SidebarRenderer {
 
     const unpublishBtn = document.createElement("ui-button");
     unpublishBtn.setAttribute("action", "secondary");
-    unpublishBtn.setAttribute("emphasis", "minimal");
+    unpublishBtn.setAttribute("emphasis", "subtle");
     unpublishBtn.setAttribute("size", "s");
     unpublishBtn.setAttribute("icon", "icon-only");
     unpublishBtn.setAttribute("aria-label", "Unpublish selected");
@@ -579,11 +581,30 @@ export class SidebarRenderer {
       }
     };
 
+    const toolbar = document.createElement("ui-toolbar");
+    toolbar.setAttribute("aria-label", "Bulk actions");
+
+    const selectGroup = document.createElement("ui-button-group");
+    selectGroup.setAttribute("action", "secondary");
+    selectGroup.setAttribute("emphasis", "subtle");
+    selectGroup.setAttribute("size", "s");
+    selectGroup.appendChild(selectAllBtn);
+    toolbar.appendChild(selectGroup);
+
+    const sep = document.createElement("ui-toolbar-separator");
+    toolbar.appendChild(sep);
+
+    const actionGroup = document.createElement("ui-button-group");
+    actionGroup.setAttribute("action", "secondary");
+    actionGroup.setAttribute("emphasis", "subtle");
+    actionGroup.setAttribute("size", "s");
+    actionGroup.appendChild(deleteBtn);
+    actionGroup.appendChild(publishBtn);
+    actionGroup.appendChild(unpublishBtn);
+    toolbar.appendChild(actionGroup);
+
     bar.appendChild(count);
-    bar.appendChild(selectAllBtn);
-    bar.appendChild(deleteBtn);
-    bar.appendChild(publishBtn);
-    bar.appendChild(unpublishBtn);
+    bar.appendChild(toolbar);
 
     const sidebar = document.getElementById("admin-sidebar");
     if (sidebar) sidebar.appendChild(bar);

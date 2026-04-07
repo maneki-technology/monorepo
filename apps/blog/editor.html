@@ -373,12 +373,13 @@
 
     .admin-bulk-actions {
       display: flex;
+      flex-direction: row;
       align-items: center;
       gap: var(--fd-space-0-75);
-      padding: var(--fd-space-1) var(--fd-space-1-5);
-      border-top: var(--fd-border-width-sm) solid var(--fd-border-minimal);
+      padding: var(--fd-space-0-75) var(--fd-space-1);
       background: var(--fd-surface-secondary);
       flex-shrink: 0;
+      overflow: hidden;
     }
 
     .admin-bulk-count {
