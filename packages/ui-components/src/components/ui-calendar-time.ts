@@ -9,6 +9,7 @@ export type CalendarTimeSize = "s" | "m" | "l";
 const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
+/** @deprecated Use `<maneki-calendar-time>` from `@maneki/calendar` instead. */
 export class UiCalendarTime extends HTMLElement {
   static readonly observedAttributes = ["size", "value"];
 

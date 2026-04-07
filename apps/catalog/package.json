@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@maneki/flex-layout": "*",
+    "@maneki/calendar": "*",
     "@maneki/foundation": "*",
     "@maneki/grid-layout": "*",
     "@maneki/ui-components": "*",

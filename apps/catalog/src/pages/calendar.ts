@@ -1,8 +1,5 @@
 import { registerPage } from "../registry.js";
-import "@maneki/ui-components/components/ui-calendar.js";
-import "@maneki/ui-components/components/ui-calendar-panel.js";
-import "@maneki/ui-components/components/ui-calendar-quicklinks.js";
-import "@maneki/ui-components/components/ui-calendar-time.js";
+import "@maneki/calendar";
 
 registerPage("calendar", {
   title: "Calendar",
@@ -10,108 +7,115 @@ registerPage("calendar", {
   render: () => `
     <h3>Sizes</h3>
     <div class="variant-row row-start-wrap">
-      ${["s", "m", "l"].map(size => `
+      ${["s", "m", "l"]
+        .map(
+          (size) => `
         <div class="variant-col">
           <span class="variant-label">Size ${size}</span>
-          <ui-calendar size="${size}" value="2024-06-15"></ui-calendar>
+          <maneki-calendar size="${size}" value="2024-06-15"></maneki-calendar>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
 
     <h3>Range Selection</h3>
     <div class="variant-row row-start-wrap">
-      ${["s", "m", "l"].map(size => `
+      ${["s", "m", "l"]
+        .map(
+          (size) => `
         <div class="variant-col">
           <span class="variant-label">Size ${size}</span>
-          <ui-calendar id="cal-range-${size}" size="${size}" mode="range"></ui-calendar>
+          <maneki-calendar id="cal-range-${size}" size="${size}" range range-start="2024-06-10" range-end="2024-06-20"></maneki-calendar>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
 
     <h3>Monthly View</h3>
     <div class="variant-row row-start-wrap">
-      ${["s", "m", "l"].map(size => `
+      ${["s", "m", "l"]
+        .map(
+          (size) => `
         <div class="variant-col">
           <span class="variant-label">Size ${size}</span>
-          <ui-calendar size="${size}" view="monthly" value="2024-06-15"></ui-calendar>
+          <maneki-calendar size="${size}" view="months" value="2024-06-15"></maneki-calendar>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
+    </div>
+
+    <h3>Year View</h3>
+    <div class="variant-row row-start-wrap">
+      ${["s", "m", "l"]
+        .map(
+          (size) => `
+        <div class="variant-col">
+          <span class="variant-label">Size ${size}</span>
+          <maneki-calendar size="${size}" view="years" value="2024-06-15"></maneki-calendar>
+        </div>
+      `,
+        )
+        .join("")}
     </div>
 
     <h3>With Min/Max Constraints</h3>
-    <ui-calendar size="m" value="2024-06-15" min="2024-06-10" max="2024-06-20"></ui-calendar>
+    <maneki-calendar size="m" value="2024-06-15" min="2024-06-10" max="2024-06-20"></maneki-calendar>
 
     <h3>With Events</h3>
-    <ui-calendar id="cal-events-demo" size="m" value="2024-06-15"></ui-calendar>
+    <maneki-calendar id="cal-events-demo" size="m" value="2024-06-15"></maneki-calendar>
 
-    <h3>Quicklinks — Side</h3>
-    <ui-calendar-panel size="m">
-      <ui-calendar-quicklinks id="cal-ql-side" slot="side" orientation="side"></ui-calendar-quicklinks>
-      <ui-calendar value="2024-06-15"></ui-calendar>
-    </ui-calendar-panel>
+    <h3>Panel with Time</h3>
+    <maneki-calendar-panel>
+      <maneki-calendar value="2024-06-15"></maneki-calendar>
+      <maneki-calendar-time slot="time" value="14:30:00"></maneki-calendar-time>
+    </maneki-calendar-panel>
 
-    <h3>Quicklinks — Bottom</h3>
-    <ui-calendar-panel size="m">
-      <ui-calendar value="2024-06-15"></ui-calendar>
-      <ui-calendar-quicklinks id="cal-ql-bottom" slot="bottom" orientation="bottom"></ui-calendar-quicklinks>
-    </ui-calendar-panel>
+    <h3>Panel with Actions</h3>
+    <maneki-calendar-panel show-actions>
+      <maneki-calendar value="2024-06-15"></maneki-calendar>
+      <maneki-calendar-time slot="time" value="10:00:00"></maneki-calendar-time>
+    </maneki-calendar-panel>
 
-    <h3>Inline Time Panel</h3>
-    <ui-calendar-panel size="m">
-      <ui-calendar value="2024-06-15"></ui-calendar>
-      <ui-calendar-time slot="bottom" value="14:30"></ui-calendar-time>
-    </ui-calendar-panel>
+    <h3>CalendarPopover (Figma spec)</h3>
+    <maneki-calendar-panel>
+      <div slot="top" style="display:flex;flex-direction:column;gap:0;">
+        <ui-button-group size="m" action="secondary" emphasis="bold" style="width:100%;--ui-btn-group-radius:16px;">
+          <ui-button>Today</ui-button>
+          <ui-button>Week</ui-button>
+          <ui-button>Month</ui-button>
+        </ui-button-group>
+      </div>
+      <maneki-calendar value="2024-06-16"></maneki-calendar>
+      <maneki-calendar-time slot="time" value="10:30:00" use-12-hour timezone="EDT"></maneki-calendar-time>
+      <div slot="bottom" style="display:flex;flex-wrap:wrap;gap:6px;">
+        <ui-tag size="s" type="selectable" emphasis="bold" selected>Exact dates</ui-tag>
+        <ui-tag size="s" type="selectable" emphasis="bold">1 day</ui-tag>
+        <ui-tag size="s" type="selectable" emphasis="bold">2 days</ui-tag>
+        <ui-tag size="s" type="selectable" emphasis="bold">7 days</ui-tag>
+      </div>
+    </maneki-calendar-panel>
 
-    <h3>Inline Time Panel with Actions</h3>
-    <ui-calendar-panel size="m" show-actions>
-      <ui-calendar value="2024-06-15"></ui-calendar>
-      <ui-calendar-time slot="bottom" value="14:30"></ui-calendar-time>
-    </ui-calendar-panel>
+    <h3>Today Highlight</h3>
+    <maneki-calendar size="m"></maneki-calendar>
+
+    <h3>Outside Days Hidden</h3>
+    <maneki-calendar size="m" value="2024-06-15" show-outside-days="false"></maneki-calendar>
   `,
   setup: () => {
-    for (const size of ["s", "m", "l"]) {
-      const cal = document.getElementById(`cal-range-${size}`) as HTMLElement | null;
-      if (cal && "rangeStart" in cal) {
-        (cal as any).rangeStart = "2024-06-10";
-        (cal as any).rangeEnd = "2024-06-20";
-      }
-    }
-
-    const qlSide = document.getElementById("cal-ql-side") as HTMLElement | null;
-    if (qlSide && "setItems" in qlSide) {
-      (qlSide as any).setItems([
-        { label: "Today", value: "today" },
-        { label: "Yesterday", value: "yesterday" },
-        { label: "Last 7 days", value: "last-7" },
-        { label: "Last 30 days", value: "last-30" },
-      ]);
-    }
-
-    const qlBottom = document.getElementById("cal-ql-bottom") as HTMLElement | null;
-    if (qlBottom && "setItems" in qlBottom) {
-      (qlBottom as any).setItems([
-        { label: "Today", value: "today" },
-        { label: "Yesterday", value: "yesterday" },
-        { label: "Last 7 days", value: "last-7" },
-        { label: "Last 30 days", value: "last-30" },
-      ]);
-    }
-
-    const calEvents = document.getElementById("cal-events-demo") as HTMLElement | null;
-    if (calEvents && "setEvents" in calEvents) {
-      const events = new Map();
-      events.set("2024-06-10", [{ color: "#FC9162", label: "Meeting" }]);
-      events.set("2024-06-15", [
-        { color: "#FC9162", label: "Meeting" },
-        { color: "#4EBFB9", label: "Holiday" },
-      ]);
-      events.set("2024-06-20", [
-        { color: "#FC9162", label: "Meeting" },
-        { color: "#4EBFB9", label: "Holiday" },
-        { color: "#C89AFC", label: "Birthday" },
-      ]);
-      events.set("2024-06-25", [{ color: "#4EBFB9", label: "Holiday" }]);
-      (calEvents as any).setEvents(events);
+    const calEvents = document.querySelector("#cal-events-demo") as HTMLElement | null;
+    if (calEvents && "events" in calEvents) {
+      (calEvents as any).events = [
+        { date: "2024-06-10", color: "#FC9162" },
+        { date: "2024-06-15", color: "#FC9162" },
+        { date: "2024-06-15", color: "#4EBFB9" },
+        { date: "2024-06-20", color: "#FC9162" },
+        { date: "2024-06-20", color: "#4EBFB9" },
+        { date: "2024-06-20", color: "#C89AFC" },
+        { date: "2024-06-25", color: "#4EBFB9" },
+      ];
     }
   },
 });

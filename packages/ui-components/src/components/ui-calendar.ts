@@ -56,6 +56,7 @@ function generateMonthGrid(year: number, month: number): Date[] {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
+/** @deprecated Use `<maneki-calendar>` from `@maneki/calendar` instead. */
 export class UiCalendar extends HTMLElement {
   static readonly observedAttributes = ["size", "value", "min", "max", "mode", "range-start", "range-end", "view"];
 
