@@ -152,9 +152,9 @@ export const editorRoute: Route = {
                       <span id="admin-project-image-caption" slot="caption"></span>
                     </ui-image>
                     <div class="project-image-overlay">
-                      <ui-button id="admin-project-image-upload2" action="secondary" emphasis="subtle" size="m" icon="icon-only" aria-label="Upload"><ui-icon name="upload" size="m" slot="icon-start"></ui-icon></ui-button>
-                      <ui-button id="admin-project-image-gallery2" action="secondary" emphasis="subtle" size="m" icon="icon-only" aria-label="Gallery"><ui-icon name="grid_view" size="m" slot="icon-start"></ui-icon></ui-button>
-                      <ui-button id="admin-project-image-remove" action="destructive" emphasis="subtle" size="m" icon="icon-only" aria-label="Remove"><ui-icon name="delete" size="m" slot="icon-start"></ui-icon></ui-button>
+                      <ui-button id="admin-project-image-upload2" action="contrast" emphasis="minimal" size="m" icon="icon-only" aria-label="Upload"><ui-icon name="upload" size="m" slot="icon-start"></ui-icon></ui-button>
+                      <ui-button id="admin-project-image-gallery2" action="contrast" emphasis="minimal" size="m" icon="icon-only" aria-label="Gallery"><ui-icon name="grid_view" size="m" slot="icon-start"></ui-icon></ui-button>
+                      <ui-button id="admin-project-image-remove" action="destructive" emphasis="minimal" size="m" icon="icon-only" aria-label="Remove"><ui-icon name="delete" size="m" slot="icon-start"></ui-icon></ui-button>
                     </div>
                   </div>
                 <input id="admin-project-image" type="hidden" />
