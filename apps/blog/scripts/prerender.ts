@@ -54,34 +54,6 @@ async function prerender(): Promise<void> {
       aboutRoute,
     ];
 
-    // Generate foundation token CSS to inline in <head>
-    const tokens = await vite.ssrLoadModule("@maneki/foundation") as {
-      colorsToCssProperties: () => string;
-      semanticToCssProperties: () => string;
-      elevationToCssProperties: () => string;
-      typographyToCssProperties: () => string;
-      spacingToCssProperties: () => string;
-      radiusToCssProperties: () => string;
-      borderWidthToCssProperties: () => string;
-      darkSemanticToCssProperties: () => string;
-      darkElevationToCssProperties: () => string;
-    };
-
-    const tokenCss = [
-      tokens.colorsToCssProperties(),
-      tokens.semanticToCssProperties(),
-      tokens.elevationToCssProperties(),
-      tokens.typographyToCssProperties(),
-      tokens.spacingToCssProperties(),
-      tokens.radiusToCssProperties(),
-      tokens.borderWidthToCssProperties(),
-    ].join("\n");
-    const darkTokenCss = [
-      tokens.darkSemanticToCssProperties(),
-      tokens.darkElevationToCssProperties(),
-    ].join("\n");
-    const tokenStyle = `<style id="maneki-foundation-all">:root {\n${tokenCss}\n}\n\n[data-theme="dark"] {\n${darkTokenCss}\n}</style>`;
-
     // Find font asset URLs in the built output
     const distDir = resolve(root, "dist/assets");
     const geistFile = readdirSync(distDir).find((f) => f.startsWith("Geist-Variable") && f.endsWith(".woff2"));
@@ -89,7 +61,7 @@ async function prerender(): Promise<void> {
     const iconsFile = readdirSync(distDir).find((f) => f.startsWith("material-symbols-outlined-subset") && f.endsWith(".woff2"));
     const iconsUrl = iconsFile ? `/assets/${iconsFile}` : "";
 
-    // Inject tokens + preload + @font-face into <head>
+    // Inject font preload + @font-face into <head> (tokens already injected by Vite plugin)
     const fontPreload = [
       geistUrl ? `<link rel="preload" href="${geistUrl}" as="font" type="font/woff2" crossorigin />` : "",
       iconsUrl ? `<link rel="preload" href="${iconsUrl}" as="font" type="font/woff2" crossorigin />` : "",
@@ -112,8 +84,7 @@ async function prerender(): Promise<void> {
 
     let shell = readFileSync(resolve(root, "dist/index.html"), "utf-8");
     shell = shell.replace("<head>", `<head>\n${gaScript}`);
-    shell = shell.replace("</head>", `${fontPreload}\n${tokenStyle}\n${fontFaceStyle}\n</head>`);
-
+    shell = shell.replace("</head>", `${fontPreload}\n${fontFaceStyle}\n</head>`);
     console.log(`Prerendering ${allRoutes.length} routes...`);
 
     for (const route of allRoutes) {

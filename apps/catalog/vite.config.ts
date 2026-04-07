@@ -2,6 +2,7 @@ import { defineConfig, type Plugin } from "vite";
 import { ViteMinifyPlugin } from "vite-plugin-minify";
 import { VitePWA } from "vite-plugin-pwa";
 import { devAliases } from "../../shared/vite-dev-aliases.js";
+import { injectTokensPlugin } from "../blog/plugins/inject-tokens.js";
 
 /** Injects <link rel="preload"> + @font-face for .woff2 assets into the HTML head. */
 function fontPlugin(): Plugin {
@@ -43,6 +44,7 @@ export default defineConfig(({ command }) => ({
   root: ".",
   resolve: command === "serve" ? { alias: devAliases } : {},
   plugins: [
+    injectTokensPlugin(),
     fontPlugin(),
     VitePWA({
       registerType: "prompt",

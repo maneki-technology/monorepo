@@ -739,3 +739,13 @@ export function injectHerouiTheme(): void {
   style.textContent = cssContent;
   document.head.appendChild(style);
 }
+
+/**
+ * Generates HeroUI theme CSS string (for build-time injection).
+ * Returns the full CSS with [data-theme="heroui"] and [data-theme="heroui-dark"] blocks.
+ */
+export function generateHerouiCss(): string {
+  const herouiCss = [semanticTokensToCss(herouiSemanticTokens), elevationToCss(herouiElevation), shadowToCss(herouiShadow), radiusToCss(herouiRadius), herouiComponentCssShared, herouiComponentCssLight].join("\n");
+  const herouiDarkCss = [semanticTokensToCss(herouiDarkSemanticTokens), elevationToCss(herouiDarkElevation), shadowToCss(herouiDarkShadow), radiusToCss(herouiDarkRadius), herouiComponentCssShared, herouiComponentCssDark].join("\n");
+  return `[data-theme="heroui"] {\n${herouiCss}\n}\n\n[data-theme="heroui-dark"] {\n${herouiDarkCss}\n}`;
+}

@@ -1,12 +1,12 @@
-import { injectAllTokens, registerIconFont, registerGeistFont } from "@maneki/foundation";
+import { registerIconFont, registerGeistFont } from "@maneki/foundation";
 import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";
 import geistWoff2 from "@maneki/foundation/assets/Geist-Variable.woff2?url";
 // Auto-detect and import only the <ui-*> components used in source files
 import "virtual:ui-components";
 
-// Inject foundation tokens + heroui theme + fonts
-injectAllTokens();
-import("@maneki/foundation/heroui-theme.js").then(({ injectHerouiTheme }) => injectHerouiTheme());
+// Tokens injected at build time by inject-tokens plugin — just register fonts
+registerIconFont(materialSymbolsWoff2);
+registerGeistFont(geistWoff2);
 registerIconFont(materialSymbolsWoff2);
 registerGeistFont(geistWoff2);
 

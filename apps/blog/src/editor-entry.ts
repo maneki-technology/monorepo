@@ -1,8 +1,7 @@
-import { injectAllTokens, registerIconFont } from "@maneki/foundation";
+import { registerIconFont } from "@maneki/foundation";
 import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";
 
-injectAllTokens();
-import("@maneki/foundation/heroui-theme.js").then(({ injectHerouiTheme }) => injectHerouiTheme());
+// Tokens injected at build time by inject-tokens plugin — just register fonts
 registerIconFont(materialSymbolsWoff2);
 
 // Theme toggle (reuse same localStorage key as blog)

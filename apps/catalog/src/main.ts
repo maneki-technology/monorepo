@@ -1,4 +1,4 @@
-import { injectAllTokens, registerIconFont, registerGeistFont } from "@maneki/foundation";
+import { registerIconFont, registerGeistFont } from "@maneki/foundation";
 import materialSymbolsWoff2 from "@maneki/foundation/assets/material-symbols-outlined-subset.woff2?url";
 import geistWoff2 from "@maneki/foundation/assets/Geist-Variable.woff2?url";
 
@@ -8,8 +8,7 @@ import "@maneki/ui-components/components/ui-side-panel-menu-item.js";
 import "@maneki/ui-components/components/ui-side-panel-menu-section.js";
 import "@maneki/ui-components/components/ui-scrollbar.js";
 
-// Inject foundation tokens + fonts
-injectAllTokens();
+// Tokens injected at build time by inject-tokens plugin — just register fonts
 registerIconFont(materialSymbolsWoff2);
 registerGeistFont(geistWoff2);
 
@@ -210,17 +209,9 @@ const DATA_THEME_MAP: Record<`${ThemeName}-${ModeName}`, string | null> = {
   "heroui-dark": "heroui-dark",
 };
 
-let herouiInjected = false;
-
-async function ensureHerouiTheme(): Promise<void> {
-  if (herouiInjected) return;
-  const { injectHerouiTheme } = await import("@maneki/foundation/heroui-theme.js");
-  injectHerouiTheme();
-  herouiInjected = true;
-}
+// HeroUI theme CSS is injected at build time — no lazy loading needed
 
 async function applyTheme(theme: ThemeName, mode: ModeName): Promise<void> {
-  if (theme === "heroui") await ensureHerouiTheme();
   const attr = DATA_THEME_MAP[`${theme}-${mode}`];
   if (attr) {
     document.documentElement.setAttribute("data-theme", attr);
