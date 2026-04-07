@@ -16,7 +16,7 @@ if (saved === "dark") {
 import("./pages/editor/index.js").then(({ editorRoute }) => {
   const root = document.getElementById("editor-root");
   if (!root) return;
-  root.innerHTML = editorRoute.render();
+  root.innerHTML = editorRoute.render!();
   setTimeout(() => {
     if (editorRoute.setup) editorRoute.setup();
   }, 0);

@@ -33,3 +33,8 @@ export const postRoutes: Route[] = posts.map((post) => ({
   },
   showProgress: true,
 }));
+
+/** Lookup a single post route by ID — used by lazy router. */
+export function findPostRoute(id: string): Route | undefined {
+  return postRoutes.find((r) => r.id === id);
+}

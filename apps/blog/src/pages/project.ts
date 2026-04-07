@@ -27,3 +27,8 @@ export const projectRoutes: Route[] = projects.map((project) => ({
     description: project.description,
   },
 }));
+
+/** Lookup a single project route by ID — used by lazy router. */
+export function findProjectRoute(id: string): Route | undefined {
+  return projectRoutes.find((r) => r.id === id);
+}
