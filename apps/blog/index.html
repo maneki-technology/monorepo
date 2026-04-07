@@ -57,6 +57,12 @@
       scrollbar-width: none;
     }
 
+    /* Dark mode: search input shares surface-primary bg — elevate to tertiary for separation */
+    [data-theme="heroui-dark"] ui-search {
+      --ui-search-bg: var(--fd-surface-tertiary);
+      --ui-search-border: var(--fd-border-minimal);
+    }
+
     body::-webkit-scrollbar {
       display: none;
     }
