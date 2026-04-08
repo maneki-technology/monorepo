@@ -7,8 +7,6 @@ import "virtual:ui-components";
 // Tokens injected at build time by inject-tokens plugin — just register fonts
 registerIconFont(materialSymbolsWoff2);
 registerGeistFont(geistWoff2);
-registerIconFont(materialSymbolsWoff2);
-registerGeistFont(geistWoff2);
 
 // Register all routes (lazy-loaded)
 import { routes } from "./routes.js";
@@ -72,3 +70,24 @@ function initReadingProgress(): void {
 initThemeToggle();
 initReadingProgress();
 initRouter();
+
+// ─── Scroll Reveal ──────────────────────────────────────────────────────
+
+const revealObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("revealed");
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
+);
+
+function observeReveals(): void {
+  document.querySelectorAll(".reveal:not(.revealed)").forEach((el) => revealObserver.observe(el));
+}
+
+observeReveals();
+window.addEventListener("route-changed", observeReveals);

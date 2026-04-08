@@ -14,19 +14,19 @@ export const homeRoute: Route = {
   id: "home",
   meta: { title: "Home", description: "Senior Software Engineer. Distributed systems, micro-frontend architecture, and design systems." },
   render: () => `
-    <section class="mb-6">
-      <h1 class="display-03">Hey, I'm <strong>Kien Nguyen</strong></h1>
+    <section class="mb-6 reveal">
+      <h1 class="display-03">Hey, I'm <strong class="hero-accent">Kien Nguyen</strong></h1>
       <p class="body-01 text-secondary mt-2">Senior Software Engineer. Distributed systems, micro-frontends, and design systems.</p>
     </section>
 
-    <section class="mb-6">
+    <section class="mb-6 reveal">
       <div class="row items-center" style="justify-content:space-between;">
         <h2 class="heading-05">Recent posts</h2>
         <a href="/blog" class="body-02 text-link" style="text-decoration:none;">View all \u2192</a>
       </div>
-      <div class="stack mt-3">
+      <div class="stack mt-3 reveal-stagger">
         ${posts.slice(0, 3).map((post) => `
-          <div class="post-card">
+          <div class="post-card reveal">
             <a class="post-card-title" href="/post/${post.slug}">${post.title}</a>
             <div class="post-meta">${formatDate(post.date)} \u00b7 ${post.readTime}</div>
             <p class="post-excerpt">${post.excerpt}</p>
@@ -35,13 +35,14 @@ export const homeRoute: Route = {
       </div>
     </section>
 
-    <section>
+    <section class="reveal">
       <div class="row items-center" style="justify-content:space-between;">
         <h2 class="heading-05">Featured projects</h2>
         <a href="/portfolio" class="body-02 text-link" style="text-decoration:none;">View all \u2192</a>
       </div>
-      <div class="project-grid mt-3">
+      <div class="project-grid mt-3 reveal-stagger">
         ${pinnedProjects.map((project: any) => `
+          <div class="reveal">
             <ui-card size="m" bordered>
               ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" slot="image" style="width:100%;height:180px;--ui-image-fit:cover;"></ui-image>` : ""}
               <div class="stack gap-1" style="padding:20px;">
@@ -56,6 +57,7 @@ export const homeRoute: Route = {
                 </div>
               </div>
             </ui-card>
+          </div>
         `).join("")}
       </div>
     </section>

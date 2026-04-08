@@ -5,7 +5,7 @@ export const projectRoutes: Route[] = projects.map((project) => ({
   id: `project/${project.slug}`,
   render: () => `
     <article>
-      <a href="/portfolio" class="body-02 text-link" style="text-decoration:none;">\u2190 Back to portfolio</a>
+      <a href="/portfolio" class="inline-link body-02">← <span class="link-text">Back to portfolio</span></a>
       <h1 class="heading-02 mt-3">${project.title}</h1>
       <p class="body-01 text-secondary mt-1">${project.description}</p>
       <div class="tags mt-2">
@@ -16,9 +16,9 @@ export const projectRoutes: Route[] = projects.map((project) => ({
         ${project.repo ? `<ui-link size="s" href="${project.repo}" external>Source</ui-link>` : ""}
       </div>
       ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" style="width:100%;max-height:400px;--ui-image-fit:cover;--ui-image-bg:var(--fd-surface-secondary);border-radius:var(--fd-radius-md);margin-top:var(--fd-space-3);"></ui-image>` : ""}
-      ${project.content ? `<div class="post-content mt-4">${project.content}</div>` : ""}
+      ${project.content ? `<div class="post-content mt-4 reveal">${project.content}</div>` : ""}
       <div style="border-top:1px solid var(--fd-border-minimal,#e4e4e7);padding-top:24px;margin-top:48px;">
-        <a href="/portfolio" class="body-02 text-link" style="text-decoration:none;">\u2190 Back to all projects</a>
+        <a href="/portfolio" class="inline-link body-02">← <span class="link-text">Back to all projects</span></a>
       </div>
     </article>
   `,

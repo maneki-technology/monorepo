@@ -94,13 +94,22 @@ export async function renderRoute(): Promise<void> {
     }
   } else {
     content.dataset.hydrated = "true";
+    // Exit animation
+    content.classList.add("page-exit");
+    await new Promise((r) => setTimeout(r, 150));
     content.innerHTML = route.render!();
+    content.classList.remove("page-exit");
+    // Re-trigger enter animation
+    content.style.animation = "none";
+    content.offsetHeight; // force reflow
+    content.style.animation = "";
     if (route.setup) {
       requestAnimationFrame(() => route.setup!());
     }
   }
 
   updateMeta(routeId, route);
+  window.dispatchEvent(new Event("route-changed"));
 }
 
 function updateMeta(routeId: string, route: Route | undefined): void {
@@ -120,13 +129,29 @@ function updateMeta(routeId: string, route: Route | undefined): void {
   // Toggle reading progress based on route config
   document.body.toggleAttribute("data-show-progress", !!route?.showProgress);
 
-  // Update active nav link
-  document.querySelectorAll("nav a[data-route]").forEach((a) => {
-    const el = a as HTMLAnchorElement;
+  // Update active nav link with directional underline
+  const navLinks = Array.from(document.querySelectorAll("nav a[data-route]")) as HTMLAnchorElement[];
+  const oldIndex = navLinks.findIndex((a) => a.classList.contains("active"));
+  let newIndex = -1;
+  navLinks.forEach((el, i) => {
     const isActive =
       el.dataset.route === routeId ||
       (routeId === "home" && !el.dataset.route) ||
       (routeId.startsWith("post/") && el.dataset.route === "blog");
+    if (isActive) newIndex = i;
+  });
+  const dir = oldIndex >= 0 && newIndex >= 0 && oldIndex !== newIndex ? (newIndex > oldIndex ? "right" : "left") : null;
+  navLinks.forEach((el, i) => {
+    const isActive =
+      el.dataset.route === routeId ||
+      (routeId === "home" && !el.dataset.route) ||
+      (routeId.startsWith("post/") && el.dataset.route === "blog");
+    if (dir) {
+      // Outgoing: shrink toward the new item. Incoming: grow from the old item.
+      el.dataset.navDir = i === oldIndex ? dir : i === newIndex ? (dir === "right" ? "left" : "right") : "";
+    } else {
+      el.dataset.navDir = "";
+    }
     el.classList.toggle("active", isActive);
   });
 

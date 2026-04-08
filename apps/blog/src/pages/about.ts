@@ -6,7 +6,7 @@ export const aboutRoute: Route = {
   render: () => `
     <h1 class="heading-02 mb-4">About</h1>
 
-    <div class="post-content">
+    <div class="post-content reveal">
       <p>Senior Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization. Comfortable owning systems end-to-end \u2014 from API design and data modeling to CI/CD pipelines and observability.</p>
 
       <p>Currently at Xendit, building mission-critical authorization services and leading frontend development for cross-border financial products across Southeast Asia.</p>

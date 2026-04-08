@@ -261,7 +261,6 @@
       flex-wrap: wrap;
       gap: var(--fd-space-0-75);
       margin-top: var(--fd-space-1-5);
-      margin-top: 12px;
     }
 
     /* ─── Post content ─── */
@@ -323,7 +322,9 @@
     .project-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 24px;
+      gap: var(--fd-space-4);
+      padding: var(--fd-space-2);
+      margin: calc(-1 * var(--fd-space-2));
     }
 
     @media (min-width: 600px) {
@@ -332,17 +333,6 @@
       }
     }
 
-    .project-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 24px;
-    }
-
-    @media (min-width: 600px) {
-      .project-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
 
     /* ─── Reading Progress ─── */
 
@@ -368,6 +358,194 @@
       nav { gap: 16px; }
       .display-03 { font-size: var(--fd-type-heading-02-font-size); line-height: var(--fd-type-heading-02-line-height); }
     }
+
+    /* ─── Route transition ─── */
+
+    @keyframes page-enter {
+      from { opacity: 0; filter: blur(4px); }
+      to { opacity: 1; filter: blur(0); }
+    }
+
+    #content {
+      animation: page-enter 250ms ease-out;
+    }
+
+    #content.page-exit {
+      opacity: 0;
+      filter: blur(4px);
+      transition: opacity 150ms ease-in, filter 150ms ease-in;
+    }
+
+    /* ─── Scroll reveal ─── */
+
+    .reveal {
+      opacity: 0;
+      filter: blur(4px);
+      transition: opacity 400ms ease-out, filter 400ms ease-out;
+    }
+
+    .reveal.revealed {
+      opacity: 1;
+      filter: blur(0);
+    }
+
+    .reveal-stagger > .reveal:nth-child(1) { transition-delay: 0ms; }
+    .reveal-stagger > .reveal:nth-child(2) { transition-delay: 60ms; }
+    .reveal-stagger > .reveal:nth-child(3) { transition-delay: 120ms; }
+    .reveal-stagger > .reveal:nth-child(4) { transition-delay: 180ms; }
+    .reveal-stagger > .reveal:nth-child(5) { transition-delay: 240ms; }
+    .reveal-stagger > .reveal:nth-child(6) { transition-delay: 300ms; }
+
+    /* ─── Card hover ─── */
+
+    ui-card {
+      border-radius: var(--ui-card-radius, var(--fd-radius-lg));
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+
+    ui-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    [data-theme="heroui-dark"] ui-card:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+    }
+
+    ui-card ui-image {
+      transition: transform 300ms ease;
+    }
+
+    ui-card:hover ui-image {
+      transform: scale(1.03);
+    }
+
+    /* ─── Nav link underline slide ─── */
+
+    nav a {
+      position: relative;
+      transition: color 150ms ease;
+    }
+
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 1.5px;
+      background: var(--fd-text-primary, #27272a);
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform 200ms ease;
+    }
+
+    nav a:hover::after,
+    nav a.active::after {
+      transform: scaleX(1);
+    }
+
+    /* Directional underline: shrink/grow toward the correct side */
+    nav a[data-nav-dir="left"]::after { transform-origin: left; }
+    nav a[data-nav-dir="right"]::after { transform-origin: right; }
+
+    /* ─── Link transitions ─── */
+
+    .post-card-title,
+    .site-name,
+    footer ui-link {
+      transition: color 150ms ease;
+    }
+
+    /* Inline link — foreground text, no underline on the <a> itself */
+    .inline-link {
+      color: var(--fd-text-primary, #18181b);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    /* Underline only on the text portion */
+    .inline-link .link-text {
+      text-decoration: underline;
+      text-decoration-color: #cdcdce;
+      text-underline-offset: 2px;
+      text-decoration-thickness: 1px;
+      text-decoration-skip-ink: none;
+      transition: text-decoration-color 150ms ease;
+    }
+
+    .inline-link:hover .link-text {
+      text-decoration-color: var(--fd-text-primary, #18181b);
+    }
+
+    /* ─── Full-bleed ─── */
+
+    .full-bleed {
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+    }
+
+    /* ─── Post hero image ─── */
+
+    .post-hero {
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      right: 50%;
+      margin-left: -50vw;
+      margin-right: -50vw;
+      max-height: 400px;
+      overflow: hidden;
+      margin-bottom: var(--fd-space-4);
+    }
+
+    .post-hero img,
+    .post-hero ui-image {
+      width: 100%;
+      height: 100%;
+      --ui-image-fit: cover;
+      display: block;
+    }
+
+    /* ─── Hero signature underline ─── */
+
+    .hero-accent {
+      position: relative;
+      display: inline-block;
+    }
+
+    .hero-accent::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--fd-text-primary, #27272a);
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: signature-draw 600ms ease-out 400ms forwards;
+    }
+
+    @keyframes signature-draw {
+      to { transform: scaleX(1); }
+    }
+
+    /* ─── Reduced motion ─── */
+
+    @media (prefers-reduced-motion: reduce) {
+      #content { animation: none; }
+      #content.page-exit { transition: none; }
+      .reveal { opacity: 1; filter: none; transition: none; }
+      .hero-accent::after { animation: none; transform: scaleX(1); }
+      ui-card { transition: none; }
+      ui-card ui-image { transition: none; }
+      nav a::after { transition: none; }
+    }
   </style>
 </head>
 <body>
@@ -384,7 +562,7 @@
     </header>
     <main id="content">
       <section class="mb-6">
-        <h1 class="display-03">Hey, I'm <strong>Kien Nguyen</strong></h1>
+        <h1 class="display-03">Hey, I'm <strong class="hero-accent">Kien Nguyen</strong></h1>
         <p class="body-01 text-secondary mt-2">Senior Software Engineer. Distributed systems, micro-frontends, and design systems.</p>
       </section>
     </main>
