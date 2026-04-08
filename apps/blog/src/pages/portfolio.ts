@@ -7,8 +7,9 @@ export const portfolioRoute: Route = {
   render: () => `
     <h1 class="heading-02 mb-2">Portfolio</h1>
     <p class="body-01 text-secondary mb-4">Things I've built \u2014 from design systems to CLI tools.</p>
-    <div class="project-grid">
+    <div class="project-grid reveal-stagger">
       ${projects.map((project: any) => `
+        <div class="reveal">
           <ui-card size="m" bordered>
             ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" slot="image" style="width:100%;height:180px;--ui-image-fit:cover;"></ui-image>` : ""}
             <div class="stack gap-1" style="padding:20px;">
@@ -23,6 +24,7 @@ export const portfolioRoute: Route = {
               </div>
             </div>
           </ui-card>
+        </div>
       `).join("")}
     </div>
   `,

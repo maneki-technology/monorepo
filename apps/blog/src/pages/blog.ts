@@ -15,9 +15,9 @@ export const blogRoute: Route = {
   render: () => `
     <h1 class="heading-02 mb-2">Blog</h1>
     <ui-search id="post-search" placeholder="Search posts..." size="m" class="mb-4"></ui-search>
-    <div id="post-list" class="stack">
+    <div id="post-list" class="stack reveal-stagger">
       ${posts.map((post) => `
-        <div class="post-card" data-title="${post.title.toLowerCase()}" data-tags="${post.tags.join(",").toLowerCase()}" data-excerpt="${post.excerpt.toLowerCase()}">
+        <div class="post-card reveal" data-title="${post.title.toLowerCase()}" data-tags="${post.tags.join(",").toLowerCase()}" data-excerpt="${post.excerpt.toLowerCase()}">
           <a class="post-card-title" href="/post/${post.slug}">${post.title}</a>
           <div class="post-meta">${formatDate(post.date)} \u00b7 ${post.readTime}</div>
           <p class="post-excerpt">${post.excerpt}</p>

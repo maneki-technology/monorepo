@@ -17,7 +17,7 @@ export const resumeRoute: Route = {
       <p>Senior Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer (Go, TypeScript, Java, Python) specializing in distributed systems, micro-frontend architecture, and fine-grained authorization.</p>
 
       <h2>Skills</h2>
-      <div class="stack gap-2">
+      <div class="stack gap-2 reveal">
         <div>
           <p class="heading-05 mb-1">System Design</p>
           <div class="row gap-1" style="flex-wrap:wrap;">
@@ -134,8 +134,11 @@ export const resumeRoute: Route = {
       <p>Built an enterprise service bus for Alliance Bernstein (UK) and a foreign exchange management system for BIDV bank.</p>
 
       <h2>Education</h2>
+      <div class="reveal">
       <p><strong>Bachelor of Engineering, Information Technology</strong></p>
       <p class="body-02 text-secondary">Post and Telecommunication Institute of Technology, Hanoi</p>
+      </div>
+
 
       <h2>Training</h2>
       <p>Essential DDD \u2014 Paul Rayner</p>
