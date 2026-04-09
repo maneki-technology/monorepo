@@ -1,4 +1,5 @@
 import { SITE_URL, SITE_TITLE } from "./config.js";
+import { prepareWithSegments, measureNaturalWidth } from "@chenglou/pretext";
 /** Minimal History API router for the blog app. */
 
 export interface Route {
@@ -77,7 +78,8 @@ async function resolveRoute(routeId: string): Promise<Route | undefined> {
 
 type FlipDirection = "forward" | "reverse";
 
-/** FLIP shared element: animate signature between hero and header site-name. */
+/** FLIP shared element: animate signature between hero and header site-name.
+ *  Uses Pretext for precise text measurement + GPU-composited transform animation. */
 function flipSignature(
   clone: HTMLElement,
   sourceRect: DOMRect,
@@ -99,28 +101,40 @@ function flipSignature(
   const sourceStyles = getComputedStyle(clone);
   const sourceFontFamily = sourceStyles.fontFamily;
   const sourceColor = sourceStyles.color;
+  const sourceFontSize = sourceStyles.fontSize;
+  const targetFontSize = targetStyles.fontSize;
 
-  // Strip classes that apply text-stroke (hero-accent, site-name) to avoid CSS conflicts
+  // Use Pretext for precise width measurement at both sizes (no DOM reflow)
+  const fontBase = sourceFontFamily.split(",")[0].replace(/["']/g, "").trim();
+  const sourcePrep = prepareWithSegments("Kien Nguyen", `${sourceFontSize} ${fontBase}`);
+  const targetPrep = prepareWithSegments("Kien Nguyen", `${targetFontSize} ${fontBase}`);
+  const sourceWidth = measureNaturalWidth(sourcePrep);
+  const targetWidth = measureNaturalWidth(targetPrep);
+
+  // Precise scale ratios from Pretext measurements
+  const scaleX = targetWidth / sourceWidth;
+  const scaleY = parseFloat(targetFontSize) / parseFloat(sourceFontSize);
+
+  // Strip classes that apply text-stroke to avoid CSS conflicts
   clone.classList.remove("hero-accent", "site-name");
 
-  // Forward: stroke looks disproportionately thick on shrinking text, so zero it.
-  // Reverse: target stroke (2px) looks natural on growing text.
+  // Forward: zero stroke (looks thick on shrinking text). Reverse: target stroke.
   const targetStroke = direction === "forward" ? "0" : (targetStyles.webkitTextStrokeWidth || "0");
-  clone.classList.remove("hero-accent", "site-name");
 
-  // Style the clone as fixed overlay at source position
   Object.assign(clone.style, {
-    top: `${sourceRect.top}px`,
-    left: `${sourceRect.left}px`,
+    top: "0",
+    left: "0",
     margin: "0",
     zIndex: "9999",
     pointerEvents: "none",
-    willChange: "font-size, top, left",
+    willChange: "transform",
     lineHeight: "1",
     fontFamily: sourceFontFamily,
+    fontSize: sourceFontSize,
     color: sourceColor,
     textDecoration: "none",
     visibility: "visible",
+    transformOrigin: "left top",
     webkitTextStrokeWidth: targetStroke,
     webkitTextStrokeColor: "currentColor",
   });
@@ -141,19 +155,11 @@ function flipSignature(
   const duration = 400;
   const easing = "cubic-bezier(0.33, 0, 0.2, 1)";
 
-  const sourceFontSize = `${sourceRect.height}px`;
+  // GPU-composited animation: transform only (no layout reflow per frame)
   const anim = clone.animate(
     [
-      {
-        fontSize: sourceFontSize,
-        top: `${sourceRect.top}px`,
-        left: `${sourceRect.left}px`,
-      },
-      {
-        fontSize: targetStyles.fontSize,
-        top: `${targetRect.top}px`,
-        left: `${targetRect.left}px`,
-      },
+      { transform: `translate(${sourceRect.left}px, ${sourceRect.top}px) scale(1)` },
+      { transform: `translate(${targetRect.left}px, ${targetRect.top}px) scale(${scaleX}, ${scaleY})` },
     ],
     { duration, easing, fill: "forwards" },
   );
