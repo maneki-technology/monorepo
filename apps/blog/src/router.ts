@@ -142,8 +142,9 @@ function flipSignature(
   const duration = 400;
   const easing = "cubic-bezier(0.33, 0, 0.2, 1)";
 
-  // Use actual computed font-size, not bounding box height (which includes line-height)
-  const sourceFontSize = sourceStyles.fontSize;
+  // Forward: use computed fontSize (hero's 1.8em resolves wrong on <body>)
+  // Reverse: use bounding box height (matches the visual size of the source element)
+  const sourceFontSize = direction === "forward" ? sourceStyles.fontSize : `${sourceRect.height}px`;
   const anim = clone.animate(
     [
       {
