@@ -26,6 +26,14 @@
     })();
   </script>
   <style>
+    @font-face {
+      font-family: 'Homeland';
+      src: url('/fonts/Homeland-subset.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; }
 
     /* Prevent FOUC — hide Web Components until JS registers them */
@@ -516,23 +524,31 @@
     .hero-accent {
       position: relative;
       display: inline-block;
+      font-family: 'Homeland', cursive;
+      font-size: 1.8em;
+      margin-left: 0.35em;
+      line-height: 1;
+      vertical-align: baseline;
+      -webkit-text-stroke: 2px currentColor;
     }
 
-    .hero-accent::after {
-      content: '';
+    .hero-accent .sig-underline {
       position: absolute;
-      bottom: 2px;
-      left: 0;
-      width: 100%;
-      height: 2px;
-      background: var(--fd-text-primary, #27272a);
-      transform: scaleX(0);
-      transform-origin: left;
-      animation: signature-draw 600ms ease-out 400ms forwards;
+      bottom: -2px;
+      left: -4%;
+      width: 115%;
+      height: 12px;
+      overflow: visible;
     }
 
-    @keyframes signature-draw {
-      to { transform: scaleX(1); }
+    .hero-accent .sig-underline path {
+      fill: var(--fd-text-primary, #27272a);
+      clip-path: inset(0 100% 0 0);
+      animation: sig-write 800ms ease-out 400ms forwards;
+    }
+
+    @keyframes sig-write {
+      to { clip-path: inset(0 0 0 0); }
     }
 
     /* ─── Reduced motion ─── */
@@ -541,7 +557,7 @@
       #content { animation: none; }
       #content.page-exit { transition: none; }
       .reveal { opacity: 1; filter: none; transition: none; }
-      .hero-accent::after { animation: none; transform: scaleX(1); }
+      .hero-accent .sig-underline path { animation: none; clip-path: inset(0 0 0 0); }
       ui-card { transition: none; }
       ui-card ui-image { transition: none; }
       nav a::after { transition: none; }
@@ -562,7 +578,7 @@
     </header>
     <main id="content">
       <section class="mb-6">
-        <h1 class="display-03">Hey, I'm <strong class="hero-accent">Kien Nguyen</strong></h1>
+        <h1 class="display-03" style="margin-bottom:var(--fd-space-3);">Hey, I'm <strong class="hero-accent">Kien Nguyen<svg class="sig-underline" viewBox="0 0 200 18" preserveAspectRatio="none"><path d="M0 16 C25 14, 45 15, 70 12 S110 8, 140 9 S175 4, 200 3 L200 1.5 C175 2.5, 140 6, 110 5 S70 8, 45 11 S25 9, 0 11 Z"/></svg></strong></h1>
         <p class="body-01 text-secondary mt-2">Senior Software Engineer. Distributed systems, micro-frontends, and design systems.</p>
       </section>
     </main>
