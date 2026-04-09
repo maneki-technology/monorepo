@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260329.1",
+    "@playwright/test": "^1.59.1",
     "@shikijs/markdown-it": "^3.23.0",
     "@types/markdown-it": "^14.1.2",
     "geist": "^1.7.0",
