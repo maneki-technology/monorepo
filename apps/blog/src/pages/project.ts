@@ -5,7 +5,7 @@ export const projectRoutes: Route[] = projects.map((project) => ({
   id: `project/${project.slug}`,
   render: () => `
     <article>
-      <a href="/portfolio" class="inline-link body-02">← <span class="link-text">Back to portfolio</span></a>
+      <a href="/portfolio" class="inline-link body-02 arrow-link"><span class="arrow-left">←</span> <span class="link-text">Back to portfolio</span></a>
       <h1 class="heading-02 mt-3">${project.title}</h1>
       <p class="body-01 text-secondary mt-1">${project.description}</p>
       <div class="tags mt-2">
