@@ -75,105 +75,120 @@ async function resolveRoute(routeId: string): Promise<Route | undefined> {
   return undefined;
 }
 
-/** FLIP shared element: animate hero signature → header site-name on leaving home. */
-function animateHeroToHeader(hero: HTMLElement): void {
-  // Respect reduced motion preference
+type FlipDirection = "forward" | "reverse";
+
+/** FLIP shared element: animate signature between hero and header site-name. */
+function flipSignature(
+  clone: HTMLElement,
+  sourceRect: DOMRect,
+  targetEl: HTMLElement,
+  direction: FlipDirection,
+  onComplete?: () => void,
+): void {
   if (!matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
 
-  const siteName = document.querySelector(".site-name") as HTMLElement | null;
-  if (!siteName) return;
+  const targetRect = targetEl.getBoundingClientRect();
+  const targetStyles = getComputedStyle(targetEl);
 
-  // F — First: capture source and target rects
-  const heroRect = hero.getBoundingClientRect();
-  const targetRect = siteName.getBoundingClientRect();
-  const heroColor = getComputedStyle(hero).color;
-  const heroFontSize = getComputedStyle(hero).fontSize;
-  const targetFontSize = getComputedStyle(siteName).fontSize;
+  // Temporarily append clone to read computed styles (detached elements return defaults)
+  clone.style.position = "fixed";
+  clone.style.visibility = "hidden";
+  document.body.appendChild(clone);
 
-  // Scale based on font-size ratio (more accurate than bounding rect ratio)
-  const scale = parseFloat(targetFontSize) / parseFloat(heroFontSize);
+  // Capture source computed styles while classes are still applied
+  const sourceStyles = getComputedStyle(clone);
+  const sourceFontFamily = sourceStyles.fontFamily;
+  const sourceColor = sourceStyles.color;
 
-  // Build the clone — single Homeland span (no font cross-fade needed)
-  const clone = document.createElement("div");
-  clone.className = "sig-clone";
-  clone.style.transformOrigin = "left top";
-  clone.style.color = heroColor;
+  // Strip classes that apply text-stroke (hero-accent, site-name) to avoid CSS conflicts
+  clone.classList.remove("hero-accent", "site-name");
 
-  const textSpan = document.createElement("span");
-  textSpan.className = "sig-text sig-text-homeland";
-  textSpan.textContent = "Kien Nguyen";
-  textSpan.style.fontSize = heroFontSize;
-  textSpan.style.lineHeight = "1";
-  textSpan.style.position = "relative";
+  // Forward: stroke looks disproportionately thick on shrinking text, so zero it.
+  // Reverse: target stroke (2px) looks natural on growing text.
+  const targetStroke = direction === "forward" ? "0" : (targetStyles.webkitTextStrokeWidth || "0");
+  clone.classList.remove("hero-accent", "site-name");
 
-  // Clone the SVG underline if present
-  const svgUnderline = hero.querySelector(".sig-underline") as SVGElement | null;
-  let svgClone: SVGElement | null = null;
-  if (svgUnderline) {
-    svgClone = svgUnderline.cloneNode(true) as SVGElement;
-    const path = svgClone.querySelector("path");
+  // Style the clone as fixed overlay at source position
+  Object.assign(clone.style, {
+    top: `${sourceRect.top}px`,
+    left: `${sourceRect.left}px`,
+    margin: "0",
+    zIndex: "9999",
+    pointerEvents: "none",
+    willChange: "font-size, top, left",
+    lineHeight: "1",
+    fontFamily: sourceFontFamily,
+    color: sourceColor,
+    textDecoration: "none",
+    visibility: "visible",
+    webkitTextStrokeWidth: targetStroke,
+    webkitTextStrokeColor: "currentColor",
+  });
+
+  // Ensure SVG underline in clone is fully visible (no clip-path animation)
+  const svgInClone = clone.querySelector(".sig-underline") as SVGElement | null;
+  if (svgInClone) {
+    const path = svgInClone.querySelector("path");
     if (path) {
       path.style.clipPath = "inset(0 0 0 0)";
       path.style.animation = "none";
-      path.style.fill = heroColor;
     }
-    svgClone.style.position = "absolute";
-    svgClone.style.bottom = "-2px";
-    svgClone.style.left = "-4%";
-    svgClone.style.width = "115%";
-    svgClone.style.height = "12px";
-    svgClone.style.overflow = "visible";
-    textSpan.appendChild(svgClone);
   }
 
-  clone.appendChild(textSpan);
+  // Hide target (clone is already in DOM)
+  targetEl.style.opacity = "0";
 
-  // Position clone at hero's viewport location
-  clone.style.transform = `translate(${heroRect.left}px, ${heroRect.top}px)`;
-  document.body.appendChild(clone);
+  const duration = 400;
+  const easing = "cubic-bezier(0.33, 0, 0.2, 1)";
 
-  // Hide originals
-  hero.style.visibility = "hidden";
-  siteName.style.opacity = "0";
-
-  const duration = 450;
-  const easing = "cubic-bezier(0.25, 0.1, 0.25, 1)";
-
-  // P — Play: animate position + scale from hero to header
-  const containerAnim = clone.animate(
+  const sourceFontSize = `${sourceRect.height}px`;
+  const anim = clone.animate(
     [
-      { transform: `translate(${heroRect.left}px, ${heroRect.top}px) scale(1)` },
-      { transform: `translate(${targetRect.left}px, ${targetRect.top}px) scale(${scale})` },
+      {
+        fontSize: sourceFontSize,
+        top: `${sourceRect.top}px`,
+        left: `${sourceRect.left}px`,
+      },
+      {
+        fontSize: targetStyles.fontSize,
+        top: `${targetRect.top}px`,
+        left: `${targetRect.left}px`,
+      },
     ],
     { duration, easing, fill: "forwards" },
   );
 
-  // Fade clone out in the last third for smooth handoff
-  clone.animate(
-    [{ opacity: 1 }, { opacity: 1, offset: 0.65 }, { opacity: 0 }],
-    { duration, fill: "forwards" },
-  );
-
-  // Fade site-name in, overlapping with clone fade-out
-  const siteNameAnim = siteName.animate(
-    [{ opacity: 0 }, { opacity: 0, offset: 0.55 }, { opacity: 1 }],
-    { duration, fill: "forwards" },
-  );
-
-  // Fade out SVG underline during flight
-  if (svgClone) {
-    svgClone.animate(
-      [{ opacity: 1 }, { opacity: 0 }],
-      { duration: 200, easing: "ease-in", fill: "forwards" },
+  // SVG underline: fade out on forward, fade in on reverse
+  if (svgInClone) {
+    const isForward = direction === "forward";
+    svgInClone.animate(
+      [{ opacity: isForward ? 1 : 0 }, { opacity: isForward ? 0 : 1 }],
+      {
+        duration: 200,
+        delay: isForward ? 0 : 200,
+        easing: isForward ? "ease-out" : "ease-in",
+        fill: "forwards",
+      },
     );
   }
 
-  // Cleanup
-  containerAnim.finished.then(
-    () => { clone.remove(); siteNameAnim.cancel(); siteName.style.opacity = ""; },
-    () => { clone.remove(); siteNameAnim.cancel(); siteName.style.opacity = ""; },
-  );
-  }
+  // Instant handoff: show target, remove clone
+  const cleanup = () => {
+    targetEl.style.opacity = "";
+    clone.remove();
+    // On reverse, re-trigger SVG underline draw animation on the hero
+    if (direction === "reverse") {
+      const heroSvgPath = targetEl.querySelector(".sig-underline path") as SVGElement | null;
+      if (heroSvgPath) {
+        heroSvgPath.style.animation = "none";
+        targetEl.offsetHeight;
+        heroSvgPath.style.animation = "";
+      }
+    }
+    onComplete?.();
+  };
+  anim.finished.then(cleanup, cleanup);
+}
 
 export async function renderRoute(): Promise<void> {
   const content = document.getElementById("content")!;
@@ -198,11 +213,20 @@ export async function renderRoute(): Promise<void> {
   } else {
     content.dataset.hydrated = "true";
 
-    // FLIP shared element: hero signature → header site-name
     const isLeavingHome = prevRoute === "home";
-    const heroEl = isLeavingHome ? document.querySelector(".hero-accent") as HTMLElement | null : null;
-    if (heroEl) {
-      animateHeroToHeader(heroEl);
+    const isGoingHome = routeId === "home";
+    const siteName = document.querySelector(".site-name") as HTMLElement | null;
+
+    // Forward: capture hero clone + rect BEFORE content swap destroys it
+    let forwardClone: HTMLElement | null = null;
+    let forwardSourceRect: DOMRect | null = null;
+    if (isLeavingHome && siteName) {
+      const heroEl = document.querySelector(".hero-accent") as HTMLElement | null;
+      if (heroEl) {
+        forwardSourceRect = heroEl.getBoundingClientRect();
+        forwardClone = heroEl.cloneNode(true) as HTMLElement;
+        heroEl.style.visibility = "hidden";
+      }
     }
 
     // Exit animation
@@ -217,8 +241,27 @@ export async function renderRoute(): Promise<void> {
     if (route.setup) {
       requestAnimationFrame(() => route.setup!());
     }
-  }
 
+    // Fire FLIP after content swap
+    if (forwardClone && forwardSourceRect && siteName) {
+      // Forward: hero flies to header site-name
+      flipSignature(forwardClone, forwardSourceRect, siteName, "forward");
+    } else if (isGoingHome && siteName) {
+      // Reverse: header site-name flies to hero
+      const newHero = content.querySelector(".hero-accent") as HTMLElement | null;
+      if (newHero) {
+        const siteNameRect = siteName.getBoundingClientRect();
+        const siteNameClone = siteName.cloneNode(true) as HTMLElement;
+        newHero.style.opacity = "0";
+        siteName.style.opacity = "0";
+        const revealParent = newHero.closest(".reveal");
+        if (revealParent) revealParent.classList.add("revealed");
+        flipSignature(siteNameClone, siteNameRect, newHero, "reverse", () => {
+          siteName.style.opacity = "";
+        });
+      }
+    }
+  }
   updateMeta(routeId, route);
   window.dispatchEvent(new Event("route-changed"));
   previousRoute = routeId;
@@ -243,7 +286,7 @@ function updateMeta(routeId: string, route: Route | undefined): void {
 
   // Toggle page identifier for conditional styling (e.g., hide site-name on home)
   document.documentElement.dataset.page = routeId === "home" ? "home" : "";
-  document.body.toggleAttribute("data-show-progress", !!route?.showProgress);
+
 
   // Update active nav link with directional underline
   const navLinks = Array.from(document.querySelectorAll("nav a[data-route]")) as HTMLAnchorElement[];
