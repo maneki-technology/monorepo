@@ -91,6 +91,8 @@ function flipSignature(
   const targetStyles = getComputedStyle(targetEl);
 
   // Temporarily append clone to read computed styles (detached elements return defaults)
+  clone.classList.add("sig-clone");
+  clone.style.position = "fixed";
   clone.style.position = "fixed";
   clone.style.visibility = "hidden";
   document.body.appendChild(clone);
@@ -106,7 +108,6 @@ function flipSignature(
   // Forward: stroke looks disproportionately thick on shrinking text, so zero it.
   // Reverse: target stroke (2px) looks natural on growing text.
   const targetStroke = direction === "forward" ? "0" : (targetStyles.webkitTextStrokeWidth || "0");
-  clone.classList.remove("hero-accent", "site-name");
 
   // Style the clone as fixed overlay at source position
   Object.assign(clone.style, {
@@ -141,7 +142,8 @@ function flipSignature(
   const duration = 400;
   const easing = "cubic-bezier(0.33, 0, 0.2, 1)";
 
-  const sourceFontSize = `${sourceRect.height}px`;
+  // Use actual computed font-size, not bounding box height (which includes line-height)
+  const sourceFontSize = sourceStyles.fontSize;
   const anim = clone.animate(
     [
       {
@@ -218,6 +220,7 @@ export async function renderRoute(): Promise<void> {
     const siteName = document.querySelector(".site-name") as HTMLElement | null;
 
     // Forward: capture hero clone + rect BEFORE content swap destroys it
+    // Fire FLIP immediately — don't wait for exit animation
     let forwardClone: HTMLElement | null = null;
     let forwardSourceRect: DOMRect | null = null;
     if (isLeavingHome && siteName) {
@@ -225,11 +228,16 @@ export async function renderRoute(): Promise<void> {
       if (heroEl) {
         forwardSourceRect = heroEl.getBoundingClientRect();
         forwardClone = heroEl.cloneNode(true) as HTMLElement;
+        // Capture computed font-size while hero is still in its original context
+        // (1.8em resolves differently on <body> vs inside <h1>)
+        forwardClone.style.fontSize = getComputedStyle(heroEl).fontSize;
         heroEl.style.visibility = "hidden";
+        // Start FLIP immediately — clone flies while page blurs out underneath
+        flipSignature(forwardClone, forwardSourceRect, siteName, "forward");
       }
     }
 
-    // Exit animation
+    // Exit animation (runs in parallel with FLIP on forward)
     content.classList.add("page-exit");
     await new Promise((r) => setTimeout(r, 150));
     content.innerHTML = route.render!();
@@ -242,12 +250,8 @@ export async function renderRoute(): Promise<void> {
       requestAnimationFrame(() => route.setup!());
     }
 
-    // Fire FLIP after content swap
-    if (forwardClone && forwardSourceRect && siteName) {
-      // Forward: hero flies to header site-name
-      flipSignature(forwardClone, forwardSourceRect, siteName, "forward");
-    } else if (isGoingHome && siteName) {
-      // Reverse: header site-name flies to hero
+    // Reverse: fire FLIP after content swap (hero needs to exist first)
+    if (isGoingHome && siteName) {
       const newHero = content.querySelector(".hero-accent") as HTMLElement | null;
       if (newHero) {
         const siteNameRect = siteName.getBoundingClientRect();
