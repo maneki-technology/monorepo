@@ -31,14 +31,22 @@ export function sitemapPlugin(): Plugin {
       if (url) {
         try {
           const db = createClient({ url, authToken: authToken || undefined });
-          const result = await db.execute(
+
+          const posts = await db.execute(
             "SELECT slug FROM posts WHERE status = 'published' ORDER BY created_at DESC",
           );
-          for (const row of result.rows) {
+          for (const row of posts.rows) {
             urls.push({ loc: `${SITE_URL}/post/${row.slug as string}`, priority: "0.8" });
           }
+
+          const projects = await db.execute(
+            "SELECT slug FROM projects WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
+          );
+          for (const row of projects.rows) {
+            urls.push({ loc: `${SITE_URL}/project/${row.slug as string}`, priority: "0.7" });
+          }
         } catch (err) {
-          console.error("[sitemap] Failed to fetch posts from Turso:", err);
+          console.error("[sitemap] Failed to fetch from Turso:", err);
         }
       } else {
         console.warn("[sitemap] TURSO_URL not set — sitemap will only have static routes");
