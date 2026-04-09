@@ -13,7 +13,7 @@ export const postRoutes: Route[] = posts.map((post) => ({
   id: `post/${post.slug}`,
   render: () => `
     <article>
-      <a href="/blog" class="inline-link body-02">← <span class="link-text">Back to blog</span></a>
+      <a href="/blog" class="inline-link body-02 arrow-link"><span class="arrow-left">←</span> <span class="link-text">Back to blog</span></a>
       <h1 class="heading-02 mt-3">${post.title}</h1>
       <div class="post-meta mt-1">${formatDate(post.date)} · ${post.readTime}</div>
       <div class="tags mt-2">
