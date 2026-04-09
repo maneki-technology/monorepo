@@ -24,6 +24,7 @@ const routes: Record<string, Route> = {};
 const patternRoutes: PatternRoute[] = [];
 /** Cache for resolved lazy routes — load() is called at most once per route. */
 const loadCache: Record<string, Route> = {};
+let previousRoute = "";
 
 export function registerRoute(route: Route): void {
   routes[route.id] = route;
@@ -74,14 +75,116 @@ async function resolveRoute(routeId: string): Promise<Route | undefined> {
   return undefined;
 }
 
+/** FLIP shared element: animate hero signature → header site-name on leaving home. */
+function animateHeroToHeader(hero: HTMLElement): void {
+  // Respect reduced motion preference
+  if (!matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
+
+  const siteName = document.querySelector(".site-name") as HTMLElement | null;
+  if (!siteName) return;
+
+  // F — First: capture source and target rects
+  const heroRect = hero.getBoundingClientRect();
+  const targetRect = siteName.getBoundingClientRect();
+  const heroColor = getComputedStyle(hero).color;
+  const heroFontSize = getComputedStyle(hero).fontSize;
+  const targetFontSize = getComputedStyle(siteName).fontSize;
+
+  // Scale based on font-size ratio (more accurate than bounding rect ratio)
+  const scale = parseFloat(targetFontSize) / parseFloat(heroFontSize);
+
+  // Build the clone — single Homeland span (no font cross-fade needed)
+  const clone = document.createElement("div");
+  clone.className = "sig-clone";
+  clone.style.transformOrigin = "left top";
+  clone.style.color = heroColor;
+
+  const textSpan = document.createElement("span");
+  textSpan.className = "sig-text sig-text-homeland";
+  textSpan.textContent = "Kien Nguyen";
+  textSpan.style.fontSize = heroFontSize;
+  textSpan.style.lineHeight = "1";
+  textSpan.style.position = "relative";
+
+  // Clone the SVG underline if present
+  const svgUnderline = hero.querySelector(".sig-underline") as SVGElement | null;
+  let svgClone: SVGElement | null = null;
+  if (svgUnderline) {
+    svgClone = svgUnderline.cloneNode(true) as SVGElement;
+    const path = svgClone.querySelector("path");
+    if (path) {
+      path.style.clipPath = "inset(0 0 0 0)";
+      path.style.animation = "none";
+      path.style.fill = heroColor;
+    }
+    svgClone.style.position = "absolute";
+    svgClone.style.bottom = "-2px";
+    svgClone.style.left = "-4%";
+    svgClone.style.width = "115%";
+    svgClone.style.height = "12px";
+    svgClone.style.overflow = "visible";
+    textSpan.appendChild(svgClone);
+  }
+
+  clone.appendChild(textSpan);
+
+  // Position clone at hero's viewport location
+  clone.style.transform = `translate(${heroRect.left}px, ${heroRect.top}px)`;
+  document.body.appendChild(clone);
+
+  // Hide originals
+  hero.style.visibility = "hidden";
+  siteName.style.opacity = "0";
+
+  const duration = 450;
+  const easing = "cubic-bezier(0.25, 0.1, 0.25, 1)";
+
+  // P — Play: animate position + scale from hero to header
+  const containerAnim = clone.animate(
+    [
+      { transform: `translate(${heroRect.left}px, ${heroRect.top}px) scale(1)` },
+      { transform: `translate(${targetRect.left}px, ${targetRect.top}px) scale(${scale})` },
+    ],
+    { duration, easing, fill: "forwards" },
+  );
+
+  // Fade clone out in the last third for smooth handoff
+  clone.animate(
+    [{ opacity: 1 }, { opacity: 1, offset: 0.65 }, { opacity: 0 }],
+    { duration, fill: "forwards" },
+  );
+
+  // Fade site-name in, overlapping with clone fade-out
+  const siteNameAnim = siteName.animate(
+    [{ opacity: 0 }, { opacity: 0, offset: 0.55 }, { opacity: 1 }],
+    { duration, fill: "forwards" },
+  );
+
+  // Fade out SVG underline during flight
+  if (svgClone) {
+    svgClone.animate(
+      [{ opacity: 1 }, { opacity: 0 }],
+      { duration: 200, easing: "ease-in", fill: "forwards" },
+    );
+  }
+
+  // Cleanup
+  containerAnim.finished.then(
+    () => { clone.remove(); siteNameAnim.cancel(); siteName.style.opacity = ""; },
+    () => { clone.remove(); siteNameAnim.cancel(); siteName.style.opacity = ""; },
+  );
+  }
+
 export async function renderRoute(): Promise<void> {
   const content = document.getElementById("content")!;
   const routeId = getCurrentRoute();
+  const prevRoute = previousRoute;
   const route = await resolveRoute(routeId);
 
   if (!route) {
     content.innerHTML = `<p class="body-01 text-secondary">Page not found.</p>`;
     updateMeta(routeId, undefined);
+    previousRoute = routeId;
     return;
   }
   const isPrerendered = content.hasAttribute("data-prerendered") && !content.dataset.hydrated;
@@ -94,6 +197,14 @@ export async function renderRoute(): Promise<void> {
     }
   } else {
     content.dataset.hydrated = "true";
+
+    // FLIP shared element: hero signature → header site-name
+    const isLeavingHome = prevRoute === "home";
+    const heroEl = isLeavingHome ? document.querySelector(".hero-accent") as HTMLElement | null : null;
+    if (heroEl) {
+      animateHeroToHeader(heroEl);
+    }
+
     // Exit animation
     content.classList.add("page-exit");
     await new Promise((r) => setTimeout(r, 150));
@@ -110,6 +221,7 @@ export async function renderRoute(): Promise<void> {
 
   updateMeta(routeId, route);
   window.dispatchEvent(new Event("route-changed"));
+  previousRoute = routeId;
 }
 
 function updateMeta(routeId: string, route: Route | undefined): void {
@@ -127,6 +239,10 @@ function updateMeta(routeId: string, route: Route | undefined): void {
   if (ogUrl) ogUrl.setAttribute("content", url);
 
   // Toggle reading progress based on route config
+  document.body.toggleAttribute("data-show-progress", !!route?.showProgress);
+
+  // Toggle page identifier for conditional styling (e.g., hide site-name on home)
+  document.documentElement.dataset.page = routeId === "home" ? "home" : "";
   document.body.toggleAttribute("data-show-progress", !!route?.showProgress);
 
   // Update active nav link with directional underline
@@ -160,6 +276,9 @@ function updateMeta(routeId: string, route: Route | undefined): void {
 }
 
 export function initRouter(): void {
+  // Set initial route so first SPA navigation knows where we came from
+  previousRoute = getCurrentRoute();
+
   // Handle browser back/forward
   window.addEventListener("popstate", () => {
     renderRoute();
