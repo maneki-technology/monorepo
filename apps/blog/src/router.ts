@@ -161,18 +161,25 @@ function flipSignature(
     { duration, easing, fill: "forwards" },
   );
 
-  // SVG underline: fade out on forward, fade in on reverse
+  // SVG underline: retract on forward (un-draw right-to-left), fade in on reverse
   if (svgInClone) {
     const isForward = direction === "forward";
-    svgInClone.animate(
-      [{ opacity: isForward ? 1 : 0 }, { opacity: isForward ? 0 : 1 }],
-      {
-        duration: 200,
-        delay: isForward ? 0 : 200,
-        easing: isForward ? "ease-out" : "ease-in",
-        fill: "forwards",
-      },
-    );
+    if (isForward) {
+      // Retract the underline — clip from right, thin out, and fade
+      svgInClone.style.transformOrigin = "left bottom";
+      svgInClone.animate(
+        [
+          { clipPath: "inset(0 0 0 0)", transform: "scaleY(1)", opacity: 1 },
+          { clipPath: "inset(0 100% 0 0)", transform: "scaleY(0.05)", opacity: 0 },
+        ],
+        { duration: 250, easing: "ease-in", fill: "forwards" },
+      );
+    } else {
+      svgInClone.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration: 200, delay: 200, easing: "ease-in", fill: "forwards" },
+      );
+    }
   }
 
   // Instant handoff: show target, remove clone
@@ -185,7 +192,8 @@ function flipSignature(
       if (heroSvgPath) {
         heroSvgPath.style.animation = "none";
         targetEl.offsetHeight;
-        heroSvgPath.style.animation = "";
+        // Skip the 400ms delay — underline should draw immediately after FLIP lands
+        heroSvgPath.style.animation = "sig-write 800ms ease-out forwards";
       }
     }
     onComplete?.();
