@@ -93,7 +93,6 @@ function flipSignature(
   // Temporarily append clone to read computed styles (detached elements return defaults)
   clone.classList.add("sig-clone");
   clone.style.position = "fixed";
-  clone.style.position = "fixed";
   clone.style.visibility = "hidden";
   document.body.appendChild(clone);
 
@@ -105,9 +104,9 @@ function flipSignature(
   // Strip classes that apply text-stroke (hero-accent, site-name) to avoid CSS conflicts
   clone.classList.remove("hero-accent", "site-name");
 
-  // Forward: stroke looks disproportionately thick on shrinking text, so zero it.
-  // Reverse: target stroke (2px) looks natural on growing text.
-  const targetStroke = direction === "forward" ? "0" : (targetStyles.webkitTextStrokeWidth || "0");
+  // Use target's stroke — seamless handoff at landing
+  const targetStrokePx = parseFloat(targetStyles.webkitTextStrokeWidth || "0");
+  const flightStroke = `${targetStrokePx}px`;
 
   // Style the clone as fixed overlay at source position
   Object.assign(clone.style, {
@@ -122,7 +121,7 @@ function flipSignature(
     color: sourceColor,
     textDecoration: "none",
     visibility: "visible",
-    webkitTextStrokeWidth: targetStroke,
+    webkitTextStrokeWidth: flightStroke,
     webkitTextStrokeColor: "currentColor",
   });
 
@@ -161,6 +160,7 @@ function flipSignature(
     { duration, easing, fill: "forwards" },
   );
 
+
   // SVG underline: retract on forward (un-draw right-to-left), fade in on reverse
   if (svgInClone) {
     const isForward = direction === "forward";
@@ -192,7 +192,6 @@ function flipSignature(
       if (heroSvgPath) {
         heroSvgPath.style.animation = "none";
         targetEl.offsetHeight;
-        // Skip the 400ms delay — underline should draw immediately after FLIP lands
         heroSvgPath.style.animation = "sig-write 800ms ease-out forwards";
       }
     }
