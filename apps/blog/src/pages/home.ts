@@ -15,7 +15,7 @@ export const homeRoute: Route = {
   meta: { title: "Home", description: "Senior Software Engineer. Distributed systems, micro-frontend architecture, and design systems." },
   render: () => `
     <section class="mb-6 reveal">
-      <h1 class="display-03">Hey, I'm <strong class="hero-accent">Kien Nguyen</strong></h1>
+      <h1 class="display-03" style="margin-bottom:var(--fd-space-3);">Hey, I'm <strong class="hero-accent">Kien Nguyen<svg class="sig-underline" viewBox="0 0 200 18" preserveAspectRatio="none"><path d="M0 16 C25 14, 45 15, 70 12 S110 8, 140 9 S175 4, 200 3 L200 1.5 C175 2.5, 140 6, 110 5 S70 8, 45 11 S25 9, 0 11 Z"/></svg></strong></h1>
       <p class="body-01 text-secondary mt-2">Senior Software Engineer. Distributed systems, micro-frontends, and design systems.</p>
     </section>
 
