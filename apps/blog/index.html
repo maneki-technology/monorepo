@@ -465,17 +465,19 @@
 
     ui-card {
       --ui-card-radius: var(--fd-radius-md);
+      --ui-card-shadow: none;
+      --ui-card-surface-shadow: none;
       border-radius: var(--fd-radius-md);
       transition: transform 200ms ease, box-shadow 200ms ease;
     }
 
     ui-card:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     }
 
     [data-theme="heroui-dark"] ui-card:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     ui-card ui-image {
