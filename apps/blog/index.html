@@ -255,7 +255,7 @@
       margin-right: calc(-1 * var(--fd-space-2));
       position: relative;
       isolation: isolate;
-      border-radius: var(--fd-radius-sm);
+      border-radius: var(--fd-radius-md);
     }
 
     .post-card::before,
@@ -464,7 +464,8 @@
     /* ─── Card hover ─── */
 
     ui-card {
-      border-radius: var(--ui-card-radius, var(--fd-radius-lg));
+      --ui-card-radius: var(--fd-radius-md);
+      border-radius: var(--fd-radius-md);
       transition: transform 200ms ease, box-shadow 200ms ease;
     }
 
