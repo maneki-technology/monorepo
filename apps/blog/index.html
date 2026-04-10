@@ -481,6 +481,22 @@
       transition: transform 300ms ease;
     }
 
+    /* Project card title + badge hover — accent color consistency */
+    .project-card-title {
+      text-decoration: none;
+      color: var(--fd-text-primary, #27272a);
+      transition: color 200ms ease;
+    }
+
+    .project-card-title:hover {
+      color: var(--blog-accent);
+    }
+
+    ui-card:hover ui-badge {
+      --ui-badge-bg: var(--blog-accent-subtle);
+      transition: --ui-badge-bg 200ms ease;
+    }
+
     ui-card:hover ui-image {
       transform: scale(1.03);
     }
