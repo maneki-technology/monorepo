@@ -56,7 +56,7 @@ const STYLES = /* css */ `
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    box-shadow: ${SHADOW_SURFACE};
+    box-shadow: var(--ui-card-surface-shadow, ${SHADOW_SURFACE});
     pointer-events: none;
   }
 
