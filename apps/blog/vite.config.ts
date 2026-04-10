@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { markdownPostsPlugin } from "./plugins/markdown-posts.js";
 import { portfolioProjectsPlugin } from "./plugins/portfolio-projects.js";
+import { photographyPlugin } from "./plugins/photography.js";
 import { autoUiComponentsPlugin } from "./plugins/auto-ui-components.js";
 import { sitemapPlugin } from "./plugins/sitemap.js";
 import { rssFeedPlugin } from "./plugins/rss-feed.js";
@@ -29,6 +30,7 @@ export default defineConfig(({ command }) => ({
     injectTokensPlugin(),
     markdownPostsPlugin(),
     portfolioProjectsPlugin(),
+    photographyPlugin(),
     autoUiComponentsPlugin(),
     sitemapPlugin(),
     rssFeedPlugin(),

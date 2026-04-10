@@ -13,6 +13,8 @@ import { uiState } from "./routes/ui-state.js";
 import { deploy } from "./routes/deploy.js";
 import { images } from "./routes/images.js";
 import { projects } from "./routes/projects.js";
+import { photos } from "./routes/photos.js";
+import { albums } from "./routes/albums.js";
 
 /** Env bindings available in CF Pages Functions. */
 export type Env = {
@@ -47,7 +49,9 @@ const app = new Hono<Env>()
   .route("/ui-state", uiState)
   .route("/deploy", deploy)
   .route("/images", images)
-  .route("/projects", projects);
+  .route("/projects", projects)
+  .route("/photos", photos)
+  .route("/albums", albums);
 
 export type AppType = typeof app;
 export default app;

@@ -23,6 +23,7 @@ export function sitemapPlugin(): Plugin {
         { loc: `${SITE_URL}/`, priority: "1.0" },
         { loc: `${SITE_URL}/blog`, priority: "0.9" },
         { loc: `${SITE_URL}/portfolio`, priority: "0.7" },
+        { loc: `${SITE_URL}/photography`, priority: "0.7" },
         { loc: `${SITE_URL}/resume`, priority: "0.6" },
         { loc: `${SITE_URL}/about`, priority: "0.5" },
       ];
@@ -46,7 +47,20 @@ export function sitemapPlugin(): Plugin {
             urls.push({ loc: `${SITE_URL}/project/${row.slug as string}`, priority: "0.7" });
           }
         } catch (err) {
-          console.error("[sitemap] Failed to fetch from Turso:", err);
+          console.error("[sitemap] Failed to fetch posts/projects from Turso:", err);
+        }
+
+        // Albums query is separate — table may not exist yet
+        try {
+          const db = createClient({ url, authToken: authToken || undefined });
+          const albumsResult = await db.execute(
+            "SELECT slug FROM albums WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
+          );
+          for (const row of albumsResult.rows) {
+            urls.push({ loc: `${SITE_URL}/photography/${row.slug as string}`, priority: "0.6" });
+          }
+        } catch {
+          // albums table may not exist yet — silently skip
         }
       } else {
         console.warn("[sitemap] TURSO_URL not set — sitemap will only have static routes");

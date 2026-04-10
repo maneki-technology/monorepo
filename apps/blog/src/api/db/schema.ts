@@ -52,4 +52,42 @@ CREATE TABLE IF NOT EXISTS projects (
 
 CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);
 CREATE INDEX IF NOT EXISTS idx_projects_slug ON projects(slug);
+
+CREATE TABLE IF NOT EXISTS albums (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  cover_photo_id INTEGER,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'deleted')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_albums_status ON albums(status);
+CREATE INDEX IF NOT EXISTS idx_albums_slug ON albums(slug);
+
+CREATE TABLE IF NOT EXISTS photos (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  r2_key TEXT NOT NULL,
+  url TEXT NOT NULL,
+  title TEXT NOT NULL DEFAULT '',
+  caption TEXT NOT NULL DEFAULT '',
+  album_id INTEGER REFERENCES albums(id),
+  category TEXT NOT NULL DEFAULT '',
+  width INTEGER NOT NULL DEFAULT 0,
+  height INTEGER NOT NULL DEFAULT 0,
+  thumbhash TEXT NOT NULL DEFAULT '',
+  exif_json TEXT NOT NULL DEFAULT '{}',
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  featured INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'deleted')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_photos_status ON photos(status);
+CREATE INDEX IF NOT EXISTS idx_photos_album ON photos(album_id);
+CREATE INDEX IF NOT EXISTS idx_photos_featured ON photos(featured);
 `;
