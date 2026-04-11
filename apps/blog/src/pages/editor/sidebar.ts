@@ -1,613 +1,479 @@
+import { LitElement, html, nothing } from "lit";
+import { customElement } from "lit/decorators.js";
+import { repeat } from "lit/directives/repeat.js";
 import { api } from "../../lib/api.js";
-import { state, setState, onSidebarRender, hasUnpublishedChanges } from "./state.js";
+import { state, setState, hasUnpublishedChanges } from "./state.js";
 import type { Post, Project } from "./types.js";
+import { EditorStoreController } from "./editor-store.js";
 
-export class SidebarRenderer {
-  private postItems = new Map<string, HTMLElement>();
-  private projectItems = new Map<string, HTMLElement>();
-  private postList: HTMLElement | null = null;
-  private projectList: HTMLElement | null = null;
+// Inject deploy-spinner keyframes once into the document
+if (!document.getElementById("editor-sidebar-styles")) {
+  const style = document.createElement("style");
+  style.id = "editor-sidebar-styles";
+  style.textContent = `@keyframes editor-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } .deploy-spinner { animation: editor-spin 700ms linear infinite; }`;
+  document.head.appendChild(style);
+}
 
-  init(postListEl: HTMLElement, projectListEl: HTMLElement): void {
-    this.postList = postListEl;
-    this.projectList = projectListEl;
-    onSidebarRender(() => this.sync());
+@customElement("editor-sidebar")
+export class EditorSidebar extends LitElement {
+  private store = new EditorStoreController(this);
+
+  createRenderRoot(): this {
+    this.style.display = "contents";
+    return this;
   }
 
-  sync(): void {
-    this.syncPosts();
-    this.syncProjects();
-    this.syncBulkBar();
-    this.syncToolbarButtons();
+  // ─── Render ──────────────────────────────────────────────────────────────────
+
+  protected render(): unknown {
+    const s = this.store.state;
+    return html`
+      <ui-side-panel-menu-section separator>
+        <span style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+          Posts
+          <ui-button
+            id="admin-new-post"
+            action="primary"
+            emphasis="minimal"
+            size="s"
+            icon="icon-only"
+            aria-label="New Post"
+            ><ui-icon name="add" size="s" slot="icon-start"></ui-icon
+          ></ui-button>
+        </span>
+      </ui-side-panel-menu-section>
+      <div id="admin-post-list">
+        ${repeat(
+          s.allPosts,
+          (p) => p.slug,
+          (post) => this.renderPostItem(post),
+        )}
+      </div>
+      <ui-side-panel-menu-section separator>
+        <span style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+          Projects
+          <ui-button
+            id="admin-new-project"
+            action="primary"
+            emphasis="minimal"
+            size="s"
+            icon="icon-only"
+            aria-label="New Project"
+            ><ui-icon name="add" size="s" slot="icon-start"></ui-icon
+          ></ui-button>
+        </span>
+      </ui-side-panel-menu-section>
+      <div id="admin-project-list">
+        ${repeat(
+          s.allProjects,
+          (p) => p.slug,
+          (project) => this.renderProjectItem(project),
+        )}
+      </div>
+      ${this.renderBulkBar()}
+    `;
   }
 
-  private syncPosts(): void {
-    if (!this.postList) return;
-    const currentSlugs = new Set(state.allPosts.map((p) => p.slug));
+  // ─── Post item ───────────────────────────────────────────────────────────────
 
-    // Remove items no longer in allPosts
-    for (const [slug, el] of this.postItems) {
-      if (!currentSlugs.has(slug)) {
-        el.remove();
-        this.postItems.delete(slug);
-      }
-    }
-
-    // Add new items or patch existing
-    for (let i = 0; i < state.allPosts.length; i++) {
-      const post = state.allPosts[i];
-      const existing = this.postItems.get(post.slug);
-      if (existing) {
-        this.patchPostItem(existing, post);
-      } else {
-        const el = this.createPostItem(post);
-        this.postItems.set(post.slug, el);
-        const nextSibling = i + 1 < state.allPosts.length
-          ? this.postItems.get(state.allPosts[i + 1].slug) ?? null
-          : null;
-        if (nextSibling) {
-          this.postList.insertBefore(el, nextSibling);
-        } else {
-          this.postList.appendChild(el);
-        }
-      }
-    }
-  }
-
-  private syncProjects(): void {
-    if (!this.projectList) return;
-    const currentSlugs = new Set(state.allProjects.map((p) => p.slug));
-
-    for (const [slug, el] of this.projectItems) {
-      if (!currentSlugs.has(slug)) {
-        el.remove();
-        this.projectItems.delete(slug);
-      }
-    }
-
-    for (let i = 0; i < state.allProjects.length; i++) {
-      const project = state.allProjects[i];
-      const existing = this.projectItems.get(project.slug);
-      if (existing) {
-        this.patchProjectItem(existing, project);
-      } else {
-        const el = this.createProjectItem(project);
-        this.projectItems.set(project.slug, el);
-        const nextSibling = i + 1 < state.allProjects.length
-          ? this.projectItems.get(state.allProjects[i + 1].slug) ?? null
-          : null;
-        if (nextSibling) {
-          this.projectList.insertBefore(el, nextSibling);
-        } else {
-          this.projectList.appendChild(el);
-        }
-      }
-    }
-
-    // Reorder DOM to match state order
-    for (const project of state.allProjects) {
-      const el = this.projectItems.get(project.slug);
-      if (el) this.projectList.appendChild(el);
-    }
-  }
-
-  private syncToolbarButtons(): void {
-    const isDeploying = state.deployingSlugs.size > 0;
-    const saveBtn = document.getElementById("admin-save-btn");
-    const publishSplit = document.getElementById("admin-publish-split");
-    if (saveBtn) { if (isDeploying) saveBtn.setAttribute("disabled", ""); else saveBtn.removeAttribute("disabled"); }
-    if (publishSplit) { if (isDeploying) publishSplit.setAttribute("disabled", ""); else publishSplit.removeAttribute("disabled"); }
-  }
-
-  // ─── Post item helpers ──────────────────────────────────────────────────────
-
-  private patchPostItem(wrapper: HTMLElement, post: Post): void {
-    const item = wrapper.querySelector("ui-side-panel-menu-item") as HTMLElement;
-    if (!item) return;
-
-    if (post.slug === state.currentSlug && state.activeTabType === "post") item.setAttribute("selected", "");
-    else item.removeAttribute("selected");
-
-    const titleEl = wrapper.querySelector(".sidebar-title") as HTMLElement;
-    const newTitle = (post.title || "Untitled") + (hasUnpublishedChanges(post) ? " *" : "");
-    if (titleEl && titleEl.textContent !== newTitle) titleEl.textContent = newTitle;
-
-    const badge = wrapper.querySelector("ui-badge") as HTMLElement;
-    if (badge) {
-      let badgeStatus = "warning";
-      let badgeLabel: string = post.status;
-      if (post.status === "published") badgeStatus = "success";
-      if (state.deployingSlugs.has(post.slug) && state.deployingAction) {
-        badgeStatus = "information";
-        badgeLabel = state.deployingAction;
-      }
-      if (badge.getAttribute("status") !== badgeStatus) badge.setAttribute("status", badgeStatus);
-      if (badge.textContent !== badgeLabel) badge.textContent = badgeLabel;
-    }
-
-    const metaSpan = wrapper.querySelector(".sidebar-meta") as HTMLElement;
-    const existingSpinner = wrapper.querySelector(".deploy-spinner");
-    const shouldSpin = state.deployingSlugs.has(post.slug);
-    if (shouldSpin && !existingSpinner && metaSpan) {
-      const spinner = document.createElement("ui-icon");
-      spinner.setAttribute("name", "progress_activity");
-      spinner.setAttribute("size", "xs");
-      spinner.className = "deploy-spinner";
-      spinner.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }], {
-        duration: 700,
-        iterations: Infinity,
-      });
-      metaSpan.appendChild(document.createTextNode(" "));
-      metaSpan.appendChild(spinner);
-    } else if (!shouldSpin && existingSpinner) {
-      if (existingSpinner.previousSibling?.nodeType === Node.TEXT_NODE) {
-        existingSpinner.previousSibling.remove();
-      }
-      existingSpinner.remove();
-    }
-
-    const checkbox = wrapper.querySelector("ui-checkbox-item") as HTMLElement;
-    if (checkbox) {
-      const isChecked = state.selectedSlugs.has(post.slug);
-      if (isChecked && !checkbox.hasAttribute("checked")) checkbox.setAttribute("checked", "");
-      else if (!isChecked && checkbox.hasAttribute("checked")) checkbox.removeAttribute("checked");
-
-      if (state.selectedSlugs.size > 0) {
-        checkbox.style.cssText = "flex-shrink:0;align-self:flex-start;margin-top:2px;";
-      }
-    }
-
-    const deleteBtn = wrapper.querySelector("[slot='actions']") as HTMLElement;
-    if (deleteBtn) {
-      if (state.deployingSlugs.has(post.slug)) deleteBtn.setAttribute("disabled", "");
-      else deleteBtn.removeAttribute("disabled");
-    }
-  }
-
-  private createPostItem(post: Post): HTMLElement {
-    const wrapper = document.createElement("div");
-    wrapper.setAttribute("data-slug", post.slug);
-    wrapper.setAttribute("data-type", "post");
-
-    const item = document.createElement("ui-side-panel-menu-item");
-    item.setAttribute("value", post.slug);
-    if (post.slug === state.currentSlug && state.activeTabType === "post") {
-      item.setAttribute("selected", "");
-    }
-
-    const label = document.createElement("span");
-    label.style.cssText = "display:flex;flex-direction:column;gap:2px;overflow:hidden;";
-
-    const titleSpan = document.createElement("span");
-    titleSpan.className = "sidebar-title";
-    titleSpan.style.cssText = "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;";
-    titleSpan.textContent = (post.title || "Untitled") + (hasUnpublishedChanges(post) ? " *" : "");
-
-    const metaSpan = document.createElement("span");
-    metaSpan.className = "sidebar-meta";
-    metaSpan.style.cssText = "font-size:11px;color:var(--fd-text-secondary, #52525b);display:flex;align-items:center;gap:6px;";
+  private renderPostItem(post: Post): unknown {
+    const s = this.store.state;
+    const isSelected = post.slug === s.currentSlug && s.activeTabType === "post";
+    const isChecked = s.selectedSlugs.has(post.slug);
+    const deploying = s.deployingSlugs.has(post.slug);
+    const title = (post.title || "Untitled") + (hasUnpublishedChanges(post) ? " *" : "");
 
     let badgeStatus = "warning";
     let badgeLabel: string = post.status;
     if (post.status === "published") badgeStatus = "success";
-    if (state.deployingSlugs.has(post.slug) && state.deployingAction) {
+    if (deploying && s.deployingAction) {
       badgeStatus = "information";
-      badgeLabel = state.deployingAction;
+      badgeLabel = s.deployingAction;
     }
 
-    metaSpan.innerHTML = `${post.date} <ui-badge size="xs" status="${badgeStatus}">${badgeLabel}</ui-badge>`;
+    const checkboxStyle =
+      (s.selectedSlugs.size > 0 ? "flex-shrink:0;" : "flex-shrink:0;opacity:0;transition:opacity 0.15s;") +
+      "align-self:flex-start;margin-top:2px;";
 
-    if (state.deployingSlugs.has(post.slug)) {
-      const spinner = document.createElement("ui-icon");
-      spinner.setAttribute("name", "progress_activity");
-      spinner.setAttribute("size", "xs");
-      spinner.className = "deploy-spinner";
-      spinner.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }], {
-        duration: 700,
-        iterations: Infinity,
-      });
-      metaSpan.appendChild(document.createTextNode(" "));
-      metaSpan.appendChild(spinner);
-    }
-
-    // Checkbox for multi-select
-    const checkbox = document.createElement("ui-checkbox-item");
-    checkbox.setAttribute("size", "s");
-    if (state.selectedSlugs.has(post.slug)) {
-      checkbox.setAttribute("checked", "");
-    }
-    checkbox.style.cssText = (state.selectedSlugs.size > 0
-      ? "flex-shrink:0;"
-      : "flex-shrink:0;opacity:0;transition:opacity 0.15s;") + "align-self:flex-start;margin-top:2px;";
-    checkbox.addEventListener("change", (e) => {
-      e.stopPropagation();
-      const newSelected = new Set(state.selectedSlugs);
-      if (newSelected.has(post.slug)) {
-        newSelected.delete(post.slug);
-      } else {
-        newSelected.add(post.slug);
-      }
-      setState({ selectedSlugs: newSelected });
-    });
-
-    label.appendChild(titleSpan);
-    label.appendChild(metaSpan);
-    item.appendChild(label);
-    checkbox.setAttribute("slot", "icon");
-    item.setAttribute("leading-icon", "");
-    item.appendChild(checkbox);
-
-    const deleteBtn = document.createElement("ui-button");
-    if (state.deployingSlugs.has(post.slug)) deleteBtn.setAttribute("disabled", "");
-    deleteBtn.setAttribute("action", "destructive");
-    deleteBtn.setAttribute("emphasis", "minimal");
-    deleteBtn.setAttribute("size", "s");
-    deleteBtn.setAttribute("icon", "icon-only");
-    deleteBtn.setAttribute("slot", "actions");
-    deleteBtn.style.cssText = "flex-shrink:0;opacity:0;transition:opacity 0.15s;";
-    const trashIcon = document.createElement("ui-icon");
-    trashIcon.setAttribute("name", "delete");
-    trashIcon.setAttribute("size", "s");
-    trashIcon.setAttribute("slot", "icon-start");
-    deleteBtn.appendChild(trashIcon);
-    deleteBtn.onclick = (e) => {
-      e.stopPropagation();
-      setState({ pendingDeleteSlug: post.slug });
-      const modal = document.getElementById("admin-delete-modal") as any;
-      if (modal) modal.show();
-    };
-    item.appendChild(deleteBtn);
-    item.onmouseenter = () => { deleteBtn.style.opacity = "1"; checkbox.style.opacity = "1"; };
-    item.onmouseleave = () => { deleteBtn.style.opacity = "0"; if (state.selectedSlugs.size === 0 && !checkbox.hasAttribute("checked")) checkbox.style.opacity = "0"; };
-
-    wrapper.appendChild(item);
-    return wrapper;
+    return html`
+      <div data-slug=${post.slug} data-type="post">
+        <ui-side-panel-menu-item
+          value=${post.slug}
+          ?selected=${isSelected}
+          leading-icon
+          @mouseenter=${this.handleItemMouseEnter}
+          @mouseleave=${this.handleItemMouseLeave}
+        >
+          <ui-checkbox-item
+            slot="icon"
+            size="s"
+            ?checked=${isChecked}
+            style=${checkboxStyle}
+            @change=${(e: Event) => this.handleCheckboxChange(e, post.slug)}
+          ></ui-checkbox-item>
+          <span style="display:flex;flex-direction:column;gap:2px;overflow:hidden;">
+            <span class="sidebar-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+              >${title}</span
+            >
+            <span
+              class="sidebar-meta"
+              style="font-size:11px;color:var(--fd-text-secondary, #52525b);display:flex;align-items:center;gap:6px;"
+            >
+              ${post.date}
+              <ui-badge size="xs" status=${badgeStatus}>${badgeLabel}</ui-badge>
+              ${deploying
+                ? html`<ui-icon name="progress_activity" size="xs" class="deploy-spinner"></ui-icon>`
+                : nothing}
+            </span>
+          </span>
+          <ui-button
+            slot="actions"
+            action="destructive"
+            emphasis="minimal"
+            size="s"
+            icon="icon-only"
+            ?disabled=${deploying}
+            style="flex-shrink:0;opacity:0;transition:opacity 0.15s;"
+            @click=${(e: Event) => this.handleDelete(e, post.slug)}
+          >
+            <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
+          </ui-button>
+        </ui-side-panel-menu-item>
+      </div>
+    `;
   }
 
-  // ─── Project item helpers ───────────────────────────────────────────────────
+  // ─── Project item ────────────────────────────────────────────────────────────
 
-  private patchProjectItem(wrapper: HTMLElement, project: Project): void {
-    const item = wrapper.querySelector("ui-side-panel-menu-item") as HTMLElement;
-    if (!item) return;
-
-    if (project.slug === state.currentSlug && state.activeTabType === "project") item.setAttribute("selected", "");
-    else item.removeAttribute("selected");
-
-    const titleEl = wrapper.querySelector(".sidebar-title") as HTMLElement;
+  private renderProjectItem(project: Project): unknown {
+    const s = this.store.state;
+    const isSelected = project.slug === s.currentSlug && s.activeTabType === "project";
+    const isChecked = s.selectedSlugs.has(project.slug);
+    const deploying = s.deployingSlugs.has(project.slug);
     const prefix = project.pinned ? "📌 " : "";
-    const newTitle = prefix + (project.title || "Untitled") + (hasUnpublishedChanges(project) ? " *" : "");
-    if (titleEl && titleEl.textContent !== newTitle) titleEl.textContent = newTitle;
-
-    const badge = wrapper.querySelector("ui-badge") as HTMLElement;
-    if (badge) {
-      let badgeStatus = "warning";
-      let badgeLabel: string = project.status;
-      if (project.status === "published") badgeStatus = "success";
-      if (state.deployingSlugs.has(project.slug) && state.deployingAction) {
-        badgeStatus = "information";
-        badgeLabel = state.deployingAction;
-      }
-      if (badge.getAttribute("status") !== badgeStatus) badge.setAttribute("status", badgeStatus);
-      if (badge.textContent !== badgeLabel) badge.textContent = badgeLabel;
-    }
-
-    const deleteBtn = wrapper.querySelector("[slot='actions']") as HTMLElement;
-    if (deleteBtn) {
-      if (state.deployingSlugs.has(project.slug)) deleteBtn.setAttribute("disabled", "");
-      else deleteBtn.removeAttribute("disabled");
-    }
-
-    const checkbox = wrapper.querySelector("ui-checkbox-item") as HTMLElement;
-    if (checkbox) {
-      const isChecked = state.selectedSlugs.has(project.slug);
-      if (isChecked && !checkbox.hasAttribute("checked")) checkbox.setAttribute("checked", "");
-      else if (!isChecked && checkbox.hasAttribute("checked")) checkbox.removeAttribute("checked");
-
-      if (state.selectedSlugs.size > 0) {
-        checkbox.style.cssText = "flex-shrink:0;align-self:flex-start;";
-      }
-    }
-  }
-
-  private createProjectItem(project: Project): HTMLElement {
-    const wrapper = document.createElement("div");
-    wrapper.setAttribute("data-slug", project.slug);
-    wrapper.setAttribute("data-type", "project");
-
-    const item = document.createElement("ui-side-panel-menu-item");
-    item.setAttribute("value", `project:${project.slug}`);
-    if (project.slug === state.currentSlug && state.activeTabType === "project") {
-      item.setAttribute("selected", "");
-    }
-
-    const label = document.createElement("span");
-    label.style.cssText = "display:flex;flex-direction:column;gap:2px;overflow:hidden;";
-
-    const titleSpan = document.createElement("span");
-    titleSpan.className = "sidebar-title";
-    titleSpan.style.cssText = "white-space:nowrap;overflow:hidden;text-overflow:ellipsis;";
-    const prefix = project.pinned ? "📌 " : "";
-    titleSpan.textContent = prefix + (project.title || "Untitled") + (hasUnpublishedChanges(project) ? " *" : "");
-
-    const metaSpan = document.createElement("span");
-    metaSpan.className = "sidebar-meta";
-    metaSpan.style.cssText = "font-size:11px;color:var(--fd-text-secondary, #52525b);display:flex;align-items:center;gap:6px;";
+    const title = prefix + (project.title || "Untitled") + (hasUnpublishedChanges(project) ? " *" : "");
 
     let badgeStatus = "warning";
     let badgeLabel: string = project.status;
     if (project.status === "published") badgeStatus = "success";
-    if (state.deployingSlugs.has(project.slug) && state.deployingAction) {
+    if (deploying && s.deployingAction) {
       badgeStatus = "information";
-      badgeLabel = state.deployingAction;
+      badgeLabel = s.deployingAction;
     }
 
-    metaSpan.innerHTML = `<ui-badge size="xs" status="${badgeStatus}">${badgeLabel}</ui-badge>`;
+    const checkboxStyle =
+      (s.selectedSlugs.size > 0 ? "flex-shrink:0;" : "flex-shrink:0;opacity:0;transition:opacity 0.15s;") +
+      "align-self:flex-start;";
 
-    // Checkbox for multi-select
-    const checkbox = document.createElement("ui-checkbox-item");
-    checkbox.setAttribute("size", "s");
-    if (state.selectedSlugs.has(project.slug)) {
-      checkbox.setAttribute("checked", "");
-    }
-    checkbox.style.cssText = (state.selectedSlugs.size > 0
-      ? "flex-shrink:0;"
-      : "flex-shrink:0;opacity:0;transition:opacity 0.15s;") + "align-self:flex-start;";
-    checkbox.addEventListener("change", (e) => {
-      e.stopPropagation();
-      const newSelected = new Set(state.selectedSlugs);
-      if (newSelected.has(project.slug)) {
-        newSelected.delete(project.slug);
-      } else {
-        newSelected.add(project.slug);
-      }
-      setState({ selectedSlugs: newSelected });
-    });
-    checkbox.setAttribute("slot", "icon");
-    item.setAttribute("leading-icon", "");
-    item.appendChild(checkbox);
-
-    label.appendChild(titleSpan);
-    label.appendChild(metaSpan);
-    item.appendChild(label);
-
-    const deleteBtn = document.createElement("ui-button");
-    if (state.deployingSlugs.has(project.slug)) deleteBtn.setAttribute("disabled", "");
-    deleteBtn.setAttribute("action", "destructive");
-    deleteBtn.setAttribute("emphasis", "minimal");
-    deleteBtn.setAttribute("size", "s");
-    deleteBtn.setAttribute("icon", "icon-only");
-    deleteBtn.setAttribute("slot", "actions");
-    deleteBtn.style.cssText = "flex-shrink:0;opacity:0;transition:opacity 0.15s;";
-    const trashIcon = document.createElement("ui-icon");
-    trashIcon.setAttribute("name", "delete");
-    trashIcon.setAttribute("size", "s");
-    trashIcon.setAttribute("slot", "icon-start");
-    deleteBtn.appendChild(trashIcon);
-    deleteBtn.onclick = (e) => {
-      e.stopPropagation();
-      setState({ pendingDeleteSlug: `project:${project.slug}` });
-      const modal = document.getElementById("admin-delete-modal") as any;
-      if (modal) modal.show();
-    };
-    item.appendChild(deleteBtn);
-    item.onmouseenter = () => { deleteBtn.style.opacity = "1"; checkbox.style.opacity = "1"; };
-    item.onmouseleave = () => { deleteBtn.style.opacity = "0"; if (state.selectedSlugs.size === 0 && !checkbox.hasAttribute("checked")) checkbox.style.opacity = "0"; };
-
-    wrapper.appendChild(item);
-    return wrapper;
+    return html`
+      <div data-slug=${project.slug} data-type="project">
+        <ui-side-panel-menu-item
+          value=${"project:" + project.slug}
+          ?selected=${isSelected}
+          leading-icon
+          @mouseenter=${this.handleItemMouseEnter}
+          @mouseleave=${this.handleItemMouseLeave}
+        >
+          <ui-checkbox-item
+            slot="icon"
+            size="s"
+            ?checked=${isChecked}
+            style=${checkboxStyle}
+            @change=${(e: Event) => this.handleCheckboxChange(e, project.slug)}
+          ></ui-checkbox-item>
+          <span style="display:flex;flex-direction:column;gap:2px;overflow:hidden;">
+            <span class="sidebar-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+              >${title}</span
+            >
+            <span
+              class="sidebar-meta"
+              style="font-size:11px;color:var(--fd-text-secondary, #52525b);display:flex;align-items:center;gap:6px;"
+            >
+              <ui-badge size="xs" status=${badgeStatus}>${badgeLabel}</ui-badge>
+            </span>
+          </span>
+          <ui-button
+            slot="actions"
+            action="destructive"
+            emphasis="minimal"
+            size="s"
+            icon="icon-only"
+            ?disabled=${deploying}
+            style="flex-shrink:0;opacity:0;transition:opacity 0.15s;"
+            @click=${(e: Event) => this.handleDelete(e, "project:" + project.slug)}
+          >
+            <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
+          </ui-button>
+        </ui-side-panel-menu-item>
+      </div>
+    `;
   }
 
-  // ─── Bulk actions (posts and projects) ──────────────────────────────────────────────
+  // ─── Bulk actions bar ────────────────────────────────────────────────────────
 
-  private syncBulkBar(): void {
-    const existingBar = document.getElementById("admin-bulk-actions");
-    if (existingBar) existingBar.remove();
-
-    if (state.selectedSlugs.size === 0) return;
+  private renderBulkBar(): unknown {
+    const s = this.store.state;
+    if (s.selectedSlugs.size === 0) return nothing;
 
     // Determine if selected items are posts or projects
-    let isProject = false;
-    for (const slug of state.selectedSlugs) {
-      const wrapper = document.querySelector(`[data-slug="${slug}"]`);
-      if (wrapper?.getAttribute("data-type") === "project") {
-        isProject = true;
-        break;
+    const isProject = s.allProjects.some((p) => s.selectedSlugs.has(p.slug));
+    const allItems = isProject ? s.allProjects : s.allPosts;
+    const selectAllLabel = s.selectedSlugs.size === allItems.length ? "Deselect All" : "Select All";
+
+    return html`
+      <div id="admin-bulk-actions" class="admin-bulk-actions">
+        <span class="admin-bulk-count">${s.selectedSlugs.size} selected</span>
+        <ui-toolbar aria-label="Bulk actions">
+          <ui-button-group action="secondary" emphasis="subtle" size="s">
+            <ui-button action="secondary" emphasis="subtle" size="s" @click=${() => this.handleSelectAll(allItems)}
+              >${selectAllLabel}</ui-button
+            >
+          </ui-button-group>
+          <ui-toolbar-separator></ui-toolbar-separator>
+          <ui-button-group action="secondary" emphasis="subtle" size="s">
+            <ui-button
+              action="secondary"
+              emphasis="subtle"
+              size="s"
+              icon="icon-only"
+              aria-label="Delete selected"
+              @click=${() => this.handleBulkDelete(isProject)}
+            >
+              <ui-icon
+                name="delete"
+                size="s"
+                slot="icon-start"
+                style="--ui-icon-color: var(--fd-text-destructive)"
+              ></ui-icon>
+            </ui-button>
+            <ui-button
+              action="secondary"
+              emphasis="subtle"
+              size="s"
+              icon="icon-only"
+              aria-label="Publish selected"
+              @click=${() => this.handleBulkPublish(isProject)}
+            >
+              <ui-icon
+                name="upload"
+                size="s"
+                slot="icon-start"
+                style="--ui-icon-color: var(--fd-icon-action)"
+              ></ui-icon>
+            </ui-button>
+            <ui-button
+              action="secondary"
+              emphasis="subtle"
+              size="s"
+              icon="icon-only"
+              aria-label="Unpublish selected"
+              @click=${() => this.handleBulkUnpublish(isProject)}
+            >
+              <ui-icon name="download" size="s" slot="icon-start"></ui-icon>
+            </ui-button>
+          </ui-button-group>
+        </ui-toolbar>
+      </div>
+    `;
+  }
+
+  // ─── Toolbar button sync ─────────────────────────────────────────────────────
+
+  protected updated(): void {
+    const isDeploying = this.store.state.deployingSlugs.size > 0;
+    const saveBtn = document.getElementById("admin-save-btn");
+    const publishSplit = document.getElementById("admin-publish-split");
+    if (saveBtn) {
+      if (isDeploying) saveBtn.setAttribute("disabled", "");
+      else saveBtn.removeAttribute("disabled");
+    }
+    if (publishSplit) {
+      if (isDeploying) publishSplit.setAttribute("disabled", "");
+      else publishSplit.removeAttribute("disabled");
+    }
+  }
+
+  // ─── Event handlers ──────────────────────────────────────────────────────────
+
+  private handleItemMouseEnter(e: Event): void {
+    const item = e.currentTarget as HTMLElement;
+    const deleteBtn = item.querySelector("[slot='actions']") as HTMLElement | null;
+    const checkbox = item.querySelector("ui-checkbox-item") as HTMLElement | null;
+    if (deleteBtn) deleteBtn.style.opacity = "1";
+    if (checkbox) checkbox.style.opacity = "1";
+  }
+
+  private handleItemMouseLeave(e: Event): void {
+    const item = e.currentTarget as HTMLElement;
+    const deleteBtn = item.querySelector("[slot='actions']") as HTMLElement | null;
+    const checkbox = item.querySelector("ui-checkbox-item") as HTMLElement | null;
+    if (deleteBtn) deleteBtn.style.opacity = "0";
+    if (checkbox && state.selectedSlugs.size === 0 && !checkbox.hasAttribute("checked")) {
+      checkbox.style.opacity = "0";
+    }
+  }
+
+  private handleCheckboxChange(e: Event, slug: string): void {
+    e.stopPropagation();
+    const newSelected = new Set(state.selectedSlugs);
+    if (newSelected.has(slug)) newSelected.delete(slug);
+    else newSelected.add(slug);
+    setState({ selectedSlugs: newSelected });
+  }
+
+  private handleDelete(e: Event, slug: string): void {
+    e.stopPropagation();
+    setState({ pendingDeleteSlug: slug });
+    const modal = document.getElementById("admin-delete-modal") as (HTMLElement & { show(): void }) | null;
+    if (modal) modal.show();
+  }
+
+  private handleSelectAll(allItems: (Post | Project)[]): void {
+    if (state.selectedSlugs.size === allItems.length) {
+      setState({ selectedSlugs: new Set() });
+    } else {
+      setState({ selectedSlugs: new Set(allItems.map((p) => p.slug)) });
+    }
+  }
+
+  // ─── Bulk operations ─────────────────────────────────────────────────────────
+
+  private async handleBulkDelete(isProject: boolean): Promise<void> {
+    const slugs = [...state.selectedSlugs];
+    const btn = this.querySelector("#admin-bulk-actions ui-button[aria-label='Delete selected']") as HTMLElement | null;
+    if (btn) btn.setAttribute("status", "loading");
+    try {
+      if (isProject) {
+        await api.api.projects.batch.delete.$post({ json: { slugs } });
+        setState({
+          allProjects: state.allProjects.filter((p) => !state.selectedSlugs.has(p.slug)),
+          openProjectTabs: state.openProjectTabs.filter((t) => !state.selectedSlugs.has(t.slug)),
+          selectedSlugs: new Set(),
+          currentSlug: state.selectedSlugs.has(state.currentSlug ?? "")
+            ? (state.openProjectTabs.filter((t) => !state.selectedSlugs.has(t.slug)).pop()?.slug ?? null)
+            : state.currentSlug,
+        });
+      } else {
+        await api.api.posts.batch.delete.$post({ json: { slugs } });
+        setState({
+          allPosts: state.allPosts.filter((p) => !state.selectedSlugs.has(p.slug)),
+          openTabs: state.openTabs.filter((t) => !state.selectedSlugs.has(t.slug)),
+          selectedSlugs: new Set(),
+          currentSlug: state.selectedSlugs.has(state.currentSlug ?? "")
+            ? (state.openTabs.filter((t) => !state.selectedSlugs.has(t.slug)).pop()?.slug ?? null)
+            : state.currentSlug,
+        });
+      }
+    } catch {
+      if (btn) {
+        btn.setAttribute("status", "error");
+        setTimeout(() => btn.setAttribute("status", "none"), 2000);
       }
     }
+  }
 
-    const bar = document.createElement("div");
-    bar.id = "admin-bulk-actions";
-    bar.className = "admin-bulk-actions";
-
-    const count = document.createElement("span");
-    count.className = "admin-bulk-count";
-    count.textContent = `${state.selectedSlugs.size} selected`;
-
-    const selectAllBtn = document.createElement("ui-button");
-    selectAllBtn.setAttribute("action", "secondary");
-    selectAllBtn.setAttribute("emphasis", "subtle");
-    selectAllBtn.setAttribute("size", "s");
-    const allItems = isProject ? state.allProjects : state.allPosts;
-    selectAllBtn.textContent = state.selectedSlugs.size === allItems.length ? "Deselect All" : "Select All";
-    selectAllBtn.onclick = () => {
-      if (state.selectedSlugs.size === allItems.length) {
-        setState({ selectedSlugs: new Set() });
+  private async handleBulkPublish(isProject: boolean): Promise<void> {
+    const slugs = [...state.selectedSlugs];
+    const btn = this.querySelector(
+      "#admin-bulk-actions ui-button[aria-label='Publish selected']",
+    ) as HTMLElement | null;
+    if (btn) btn.setAttribute("status", "loading");
+    try {
+      if (isProject) {
+        await api.api.projects.batch.publish.$post({ json: { slugs } });
+        for (const p of state.allProjects) {
+          if (state.selectedSlugs.has(p.slug)) {
+            p.status = "published";
+            p.publishedAt = new Date().toISOString();
+          }
+        }
       } else {
-        setState({ selectedSlugs: new Set(allItems.map((p) => p.slug)) });
-      }
-    };
-
-    const deleteBtn = document.createElement("ui-button");
-    deleteBtn.setAttribute("action", "secondary");
-    deleteBtn.setAttribute("emphasis", "subtle");
-    deleteBtn.setAttribute("size", "s");
-    deleteBtn.setAttribute("icon", "icon-only");
-    deleteBtn.setAttribute("aria-label", "Delete selected");
-    const delIcon = document.createElement("ui-icon");
-    delIcon.setAttribute("name", "delete");
-    delIcon.setAttribute("size", "s");
-    delIcon.setAttribute("slot", "icon-start");
-    delIcon.style.setProperty("--ui-icon-color", "var(--fd-text-destructive)");
-    deleteBtn.appendChild(delIcon);
-    deleteBtn.onclick = async () => {
-      const slugs = [...state.selectedSlugs];
-      deleteBtn.setAttribute("status", "loading");
-      try {
-        if (isProject) {
-          await api.api.projects.batch.delete.$post({ json: { slugs } });
-          setState({
-            allProjects: state.allProjects.filter((p) => !state.selectedSlugs.has(p.slug)),
-            openProjectTabs: state.openProjectTabs.filter((t) => !state.selectedSlugs.has(t.slug)),
-            selectedSlugs: new Set(),
-            currentSlug: state.selectedSlugs.has(state.currentSlug ?? "")
-              ? (state.openProjectTabs.filter((t) => !state.selectedSlugs.has(t.slug)).pop()?.slug ?? null)
-              : state.currentSlug,
-          });
-        } else {
-          await api.api.posts.batch.delete.$post({ json: { slugs } });
-          setState({
-            allPosts: state.allPosts.filter((p) => !state.selectedSlugs.has(p.slug)),
-            openTabs: state.openTabs.filter((t) => !state.selectedSlugs.has(t.slug)),
-            selectedSlugs: new Set(),
-            currentSlug: state.selectedSlugs.has(state.currentSlug ?? "")
-              ? (state.openTabs.filter((t) => !state.selectedSlugs.has(t.slug)).pop()?.slug ?? null)
-              : state.currentSlug,
-          });
-        }
-      } catch {
-        deleteBtn.setAttribute("status", "error");
-        setTimeout(() => deleteBtn.setAttribute("status", "none"), 2000);
-      }
-    };
-
-    const publishBtn = document.createElement("ui-button");
-    publishBtn.setAttribute("action", "secondary");
-    publishBtn.setAttribute("emphasis", "subtle");
-    publishBtn.setAttribute("size", "s");
-    publishBtn.setAttribute("icon", "icon-only");
-    publishBtn.setAttribute("aria-label", "Publish selected");
-    const pubIcon = document.createElement("ui-icon");
-    pubIcon.setAttribute("name", "upload");
-    pubIcon.setAttribute("size", "s");
-    pubIcon.setAttribute("slot", "icon-start");
-    pubIcon.style.setProperty("--ui-icon-color", "var(--fd-icon-action)");
-    publishBtn.appendChild(pubIcon);
-    publishBtn.onclick = async () => {
-      const slugs = [...state.selectedSlugs];
-      publishBtn.setAttribute("status", "loading");
-      try {
-        if (isProject) {
-          await api.api.projects.batch.publish.$post({ json: { slugs } });
-          for (const p of state.allProjects) {
-            if (state.selectedSlugs.has(p.slug)) {
-              p.status = "published";
-              p.publishedAt = new Date().toISOString();
-            }
-          }
-        } else {
-          await api.api.posts.batch.publish.$post({ json: { slugs } });
-          for (const p of state.allPosts) {
-            if (state.selectedSlugs.has(p.slug)) {
-              p.status = "published";
-              p.publishedAt = new Date().toISOString();
-            }
+        await api.api.posts.batch.publish.$post({ json: { slugs } });
+        for (const p of state.allPosts) {
+          if (state.selectedSlugs.has(p.slug)) {
+            p.status = "published";
+            p.publishedAt = new Date().toISOString();
           }
         }
-        setState({ selectedSlugs: new Set(), deployingSlugs: new Set(slugs), deployingAction: "publishing" });
-        const pollInterval = setInterval(async () => {
-          try {
-            const res = await api.api.deploy.status.$get();
-            if (!res.ok) return;
-            const { status: s } = await res.json();
-            if (s === "success" || s === "failure") {
-              clearInterval(pollInterval);
-              setState({ deployingSlugs: new Set(), deployingAction: null });
-            }
-          } catch {
-            clearInterval(pollInterval);
-            setState({ deployingSlugs: new Set(), deployingAction: null });
-          }
-        }, 5000);
-      } catch {
-        publishBtn.setAttribute("status", "error");
-        setTimeout(() => publishBtn.setAttribute("status", "none"), 2000);
       }
-    };
+      setState({ selectedSlugs: new Set(), deployingSlugs: new Set(slugs), deployingAction: "publishing" });
+      this.pollDeployStatus();
+    } catch {
+      if (btn) {
+        btn.setAttribute("status", "error");
+        setTimeout(() => btn.setAttribute("status", "none"), 2000);
+      }
+    }
+  }
 
-    const unpublishBtn = document.createElement("ui-button");
-    unpublishBtn.setAttribute("action", "secondary");
-    unpublishBtn.setAttribute("emphasis", "subtle");
-    unpublishBtn.setAttribute("size", "s");
-    unpublishBtn.setAttribute("icon", "icon-only");
-    unpublishBtn.setAttribute("aria-label", "Unpublish selected");
-    const unpubIcon = document.createElement("ui-icon");
-    unpubIcon.setAttribute("name", "download");
-    unpubIcon.setAttribute("size", "s");
-    unpubIcon.setAttribute("slot", "icon-start");
-    unpublishBtn.appendChild(unpubIcon);
-    unpublishBtn.onclick = async () => {
-      const slugs = [...state.selectedSlugs];
-      unpublishBtn.setAttribute("status", "loading");
-      try {
-        if (isProject) {
-          await api.api.projects.batch.unpublish.$post({ json: { slugs } });
-          for (const p of state.allProjects) {
-            if (state.selectedSlugs.has(p.slug)) p.status = "draft";
-          }
-        } else {
-          await api.api.posts.batch.unpublish.$post({ json: { slugs } });
-          for (const p of state.allPosts) {
-            if (state.selectedSlugs.has(p.slug)) p.status = "draft";
-          }
+  private async handleBulkUnpublish(isProject: boolean): Promise<void> {
+    const slugs = [...state.selectedSlugs];
+    const btn = this.querySelector(
+      "#admin-bulk-actions ui-button[aria-label='Unpublish selected']",
+    ) as HTMLElement | null;
+    if (btn) btn.setAttribute("status", "loading");
+    try {
+      if (isProject) {
+        await api.api.projects.batch.unpublish.$post({ json: { slugs } });
+        for (const p of state.allProjects) {
+          if (state.selectedSlugs.has(p.slug)) p.status = "draft";
         }
-        setState({ selectedSlugs: new Set(), deployingSlugs: new Set(slugs), deployingAction: "unpublishing" });
-        const pollInterval = setInterval(async () => {
-          try {
-            const res = await api.api.deploy.status.$get();
-            if (!res.ok) return;
-            const { status: s } = await res.json();
-            if (s === "success" || s === "failure") {
-              clearInterval(pollInterval);
-              setState({ deployingSlugs: new Set(), deployingAction: null });
-            }
-          } catch {
-            clearInterval(pollInterval);
-            setState({ deployingSlugs: new Set(), deployingAction: null });
-          }
-        }, 5000);
-      } catch {
-        unpublishBtn.setAttribute("status", "error");
-        setTimeout(() => unpublishBtn.setAttribute("status", "none"), 2000);
+      } else {
+        await api.api.posts.batch.unpublish.$post({ json: { slugs } });
+        for (const p of state.allPosts) {
+          if (state.selectedSlugs.has(p.slug)) p.status = "draft";
+        }
       }
-    };
+      setState({ selectedSlugs: new Set(), deployingSlugs: new Set(slugs), deployingAction: "unpublishing" });
+      this.pollDeployStatus();
+    } catch {
+      if (btn) {
+        btn.setAttribute("status", "error");
+        setTimeout(() => btn.setAttribute("status", "none"), 2000);
+      }
+    }
+  }
 
-    const toolbar = document.createElement("ui-toolbar");
-    toolbar.setAttribute("aria-label", "Bulk actions");
-
-    const selectGroup = document.createElement("ui-button-group");
-    selectGroup.setAttribute("action", "secondary");
-    selectGroup.setAttribute("emphasis", "subtle");
-    selectGroup.setAttribute("size", "s");
-    selectGroup.appendChild(selectAllBtn);
-    toolbar.appendChild(selectGroup);
-
-    const sep = document.createElement("ui-toolbar-separator");
-    toolbar.appendChild(sep);
-
-    const actionGroup = document.createElement("ui-button-group");
-    actionGroup.setAttribute("action", "secondary");
-    actionGroup.setAttribute("emphasis", "subtle");
-    actionGroup.setAttribute("size", "s");
-    actionGroup.appendChild(deleteBtn);
-    actionGroup.appendChild(publishBtn);
-    actionGroup.appendChild(unpublishBtn);
-    toolbar.appendChild(actionGroup);
-
-    bar.appendChild(count);
-    bar.appendChild(toolbar);
-
-    const sidebar = document.getElementById("admin-sidebar");
-    if (sidebar) sidebar.appendChild(bar);
+  private pollDeployStatus(): void {
+    const pollInterval = setInterval(async () => {
+      try {
+        const res = await api.api.deploy.status.$get();
+        if (!res.ok) return;
+        const { status: s } = await res.json();
+        if (s === "success" || s === "failure") {
+          clearInterval(pollInterval);
+          setState({ deployingSlugs: new Set(), deployingAction: null });
+        }
+      } catch {
+        clearInterval(pollInterval);
+        setState({ deployingSlugs: new Set(), deployingAction: null });
+      }
+    }, 5000);
+  }
 }
 
+// ─── Backward compatibility wrapper ──────────────────────────────────────────
+
+export class SidebarRenderer {
+  init(postListEl: HTMLElement, projectListEl: HTMLElement): void {
+    const sidebar = postListEl.closest("ui-side-panel-menu");
+    if (!sidebar) return;
+
+    // Remove the static section headers and list containers — the Lit component renders them
+    const header = sidebar.querySelector("[slot='header']");
+    const sections = sidebar.querySelectorAll("ui-side-panel-menu-section");
+    sections.forEach((s) => s.remove());
+    postListEl.remove();
+    projectListEl.remove();
+
+    // Insert the Lit component (renders sections + items + bulk bar)
+    const el = document.createElement("editor-sidebar");
+
+    // Insert after the header slot
+    if (header && header.nextSibling) {
+      sidebar.insertBefore(el, header.nextSibling);
+    } else {
+      sidebar.appendChild(el);
+    }
+  }
 }
