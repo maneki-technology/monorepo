@@ -21,6 +21,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-input>` — text input: 3 sizes (s/m/l), 4 types (text/numeric/clearable/password), 7 states (enabled/hover/focus/active/filled/disabled/readonly), 5 statuses (none/warning/error/success/loading), label, secondary label, supportive text, leading/trailing slots
 - `<ui-input-group>` — input group wrapper: 3 sizes (s/m/l), prefix/suffix slots with separators, composes `<ui-input>`
 - `<ui-file-upload>` — file upload input: 3 sizes (s/m/l), Browse button, accept/multiple attributes, disabled state
+- `<ui-dropzone>` — drag-and-drop file upload zone: 3 sizes (s/m/l), drag-over visual feedback, accept/multiple filtering, browse link, hint text, label slot, disabled state
 - `<ui-select>` — select dropdown: 3 sizes (s/m/l), 7 states, 5 statuses, single/multi-select with tag pills, WAI-ARIA combobox pattern, leading slot, clearable, label/supportive text
 - `<ui-textarea>` — textarea: 3 sizes (s/m/l), 7 states (enabled/hover/focus/active/filled/disabled/readonly), 5 statuses (none/warning/error/success/loading), label with char count, secondary label, resize handle
 
@@ -103,6 +104,7 @@ ui-components/
 │   │   ├── ui-input.ts          + ui-input.styles.ts
 │   │   ├── ui-input-group.ts
 │   │   ├── ui-file-upload.ts
+│   │   ├── ui-dropzone.ts
 │   │   ├── ui-select.ts         + ui-select.styles.ts
 │   │   ├── ui-textarea.ts        + ui-textarea.styles.ts
 │   │   ├── ui-card.ts

@@ -47,6 +47,7 @@ npm install @maneki/ui-components
 | `<ui-input>` | Text input: 3 sizes, 4 types (text/numeric/clearable/password), 7 states, 5 statuses, label/supportive |
 | `<ui-input-group>` | Input group wrapper: 3 sizes, prefix/suffix slots with separators |
 | `<ui-file-upload>` | File upload: 3 sizes, Browse button, accept/multiple, disabled |
+| `<ui-dropzone>` | Drag-and-drop file upload zone: 3 sizes, accept/multiple filtering, browse link, hint, label slot |
 | `<ui-select>` | Select dropdown: 3 sizes, 7 states, 5 statuses, single/multi-select, tag pills, combobox ARIA |
 | `<ui-textarea>` | Textarea: 3 sizes, 7 states, 5 statuses, label with char count, secondary label, resize |
 | | **Containers** |
