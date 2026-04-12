@@ -309,6 +309,7 @@ function updateMeta(routeId: string, route: Route | undefined): void {
       el.dataset.route === routeId ||
       (routeId === "home" && !el.dataset.route) ||
       (routeId.startsWith("post/") && el.dataset.route === "blog");
+      (routeId.startsWith("photography/") && el.dataset.route === "photography");
     if (isActive) newIndex = i;
   });
   const dir = oldIndex >= 0 && newIndex >= 0 && oldIndex !== newIndex ? (newIndex > oldIndex ? "right" : "left") : null;
@@ -317,6 +318,7 @@ function updateMeta(routeId: string, route: Route | undefined): void {
       el.dataset.route === routeId ||
       (routeId === "home" && !el.dataset.route) ||
       (routeId.startsWith("post/") && el.dataset.route === "blog");
+      (routeId.startsWith("photography/") && el.dataset.route === "photography");
     if (dir) {
       // Outgoing: shrink toward the new item. Incoming: grow from the old item.
       el.dataset.navDir = i === oldIndex ? dir : i === newIndex ? (dir === "right" ? "left" : "right") : "";
