@@ -67,7 +67,13 @@ export const editorRoute: Route = {
   render: () => `
     <div class="admin-layout">
       <ui-side-panel-menu id="admin-sidebar" style="display:none">
-        <span slot="header">Editor</span>
+        <span slot="header" style="display:flex;align-items:center;gap:8px;">
+  <ui-button action="secondary" emphasis="minimal" size="s" onclick="window.location.href='/admin'">
+    <ui-icon name="chevron_left" size="s" slot="icon-start"></ui-icon>
+    Admin
+  </ui-button>
+  <span style="font-size:13px;font-weight:600;">Editor</span>
+</span>
         <ui-side-panel-menu-section separator>
           <span style="display:flex;align-items:center;justify-content:space-between;width:100%;">
             Posts
@@ -86,9 +92,7 @@ export const editorRoute: Route = {
       <div class="admin-main">
         <div id="admin-tab-bar" class="admin-tab-bar" style="display:none"></div>
 
-        <div id="admin-loading" class="admin-loading">
-          <img src="/favicon.png" alt="Loading" class="admin-loading-icon" />
-        </div>
+        <loading-bounce id="admin-loading"></loading-bounce>
 
         <div id="admin-editor-main" class="admin-editor" style="display:none">
           <div id="admin-post-form" class="admin-form">

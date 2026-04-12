@@ -53,6 +53,14 @@ export class UiInput extends HTMLElement {
     secondaryLabelSlot.name = "secondary-label";
     labelRow.appendChild(secondaryLabelSlot);
 
+    // Show label row only when label content is slotted
+    const updateLabelVisibility = () => {
+      const hasContent = labelSlot.assignedNodes().length > 0 || secondaryLabelSlot.assignedNodes().length > 0;
+      labelRow.classList.toggle("has-label", hasContent);
+    };
+    labelSlot.addEventListener("slotchange", updateLabelVisibility);
+    secondaryLabelSlot.addEventListener("slotchange", updateLabelVisibility);
+
     shadow.appendChild(labelRow);
 
     // ── Input container ────────────────────────────────────────────────

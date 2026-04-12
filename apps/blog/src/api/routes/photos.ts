@@ -22,6 +22,7 @@ const createPhotoSchema = z.object({
   sort_order: z.number().default(0),
   featured: z.boolean().default(false),
   status: z.enum(["draft", "published"]).default("draft"),
+  tag_ids: z.array(z.number()).default([]),
 });
 
 const updatePhotoSchema = z.object({
@@ -36,6 +37,7 @@ const updatePhotoSchema = z.object({
   sort_order: z.number().optional(),
   featured: z.boolean().optional(),
   status: z.enum(["draft", "published"]).optional(),
+  tag_ids: z.array(z.number()).optional(),
 });
 
 export const photos = new Hono<Env>()
@@ -44,12 +46,19 @@ export const photos = new Hono<Env>()
     const status = c.req.query("status");
     const albumSlug = c.req.query("album");
     const category = c.req.query("category");
+    const tagSlug = c.req.query("tag");
     const db = c.get("db");
 
     let sql: string;
     const args: (string | number)[] = [];
 
-    if (albumSlug) {
+    if (tagSlug) {
+      sql = status
+        ? "SELECT DISTINCT p.* FROM photos p JOIN photo_tags pt ON p.id = pt.photo_id JOIN tags t ON pt.tag_id = t.id WHERE t.slug = ? AND p.status = ? ORDER BY p.sort_order ASC, p.created_at DESC"
+        : "SELECT DISTINCT p.* FROM photos p JOIN photo_tags pt ON p.id = pt.photo_id JOIN tags t ON pt.tag_id = t.id WHERE t.slug = ? AND p.status != 'deleted' ORDER BY p.sort_order ASC, p.created_at DESC";
+      args.push(tagSlug);
+      if (status) args.push(status);
+    } else if (albumSlug) {
       sql = status
         ? "SELECT p.* FROM photos p JOIN albums a ON p.album_id = a.id WHERE a.slug = ? AND p.status = ? ORDER BY p.sort_order ASC, p.created_at DESC"
         : "SELECT p.* FROM photos p JOIN albums a ON p.album_id = a.id WHERE a.slug = ? AND p.status != 'deleted' ORDER BY p.sort_order ASC, p.created_at DESC";
@@ -74,6 +83,23 @@ export const photos = new Hono<Env>()
       featured: !!r.featured,
       exif_json: JSON.parse((r.exif_json as string) || "{}"),
     }));
+    // Attach tags to each photo
+    if (rows.length > 0) {
+      const ids = rows.map((r: any) => r.id);
+      const tagResult = await db.execute({
+        sql: `SELECT pt.photo_id, t.id, t.name, t.slug FROM photo_tags pt JOIN tags t ON pt.tag_id = t.id WHERE pt.photo_id IN (${ids.map(() => "?").join(",")})`,
+        args: ids,
+      });
+      const tagMap = new Map<number, Array<{ id: number; name: string; slug: string }>>();
+      for (const tr of tagResult.rows) {
+        const pid = tr.photo_id as number;
+        if (!tagMap.has(pid)) tagMap.set(pid, []);
+        tagMap.get(pid)!.push({ id: tr.id as number, name: tr.name as string, slug: tr.slug as string });
+      }
+      for (const row of rows) {
+        (row as any).tags = tagMap.get((row as any).id as number) ?? [];
+      }
+    }
     return c.json({ photos: rows });
   })
 
@@ -92,6 +118,12 @@ export const photos = new Hono<Env>()
       featured: !!result.rows[0].featured,
       exif_json: JSON.parse((result.rows[0].exif_json as string) || "{}"),
     };
+    // Attach tags
+    const tagResult = await db.execute({
+      sql: "SELECT t.id, t.name, t.slug FROM photo_tags pt JOIN tags t ON pt.tag_id = t.id WHERE pt.photo_id = ?",
+      args: [Number(c.req.param("id"))],
+    });
+    (photo as any).tags = tagResult.rows.map((t) => ({ id: t.id as number, name: t.name as string, slug: t.slug as string }));
     return c.json({ photo });
   })
 
@@ -119,6 +151,17 @@ export const photos = new Hono<Env>()
         data.status,
       ],
     });
+    // Insert tag associations
+    if (data.tag_ids.length > 0) {
+      const lastId = await db.execute("SELECT last_insert_rowid() as id");
+      const photoId = lastId.rows[0].id as number;
+      for (const tagId of data.tag_ids) {
+        await db.execute({
+          sql: "INSERT OR IGNORE INTO photo_tags (photo_id, tag_id) VALUES (?, ?)",
+          args: [photoId, tagId],
+        });
+      }
+    }
     return c.json({ ok: true }, 201);
   })
 
@@ -187,6 +230,16 @@ export const photos = new Hono<Env>()
       sql: `UPDATE photos SET ${setClauses.join(", ")} WHERE id = ?`,
       args,
     });
+    // Replace tag associations if provided
+    if (updates.tag_ids !== undefined) {
+      await db.execute({ sql: "DELETE FROM photo_tags WHERE photo_id = ?", args: [id] });
+      for (const tagId of updates.tag_ids) {
+        await db.execute({
+          sql: "INSERT OR IGNORE INTO photo_tags (photo_id, tag_id) VALUES (?, ?)",
+          args: [id, tagId],
+        });
+      }
+    }
     return c.json({ ok: true });
   })
 

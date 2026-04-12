@@ -38,12 +38,10 @@ export const albums = new Hono<Env>()
   .get("/", async (c) => {
     const status = c.req.query("status");
     const db = c.get("db");
-
     const sql = status
-      ? "SELECT a.*, (SELECT COUNT(*) FROM photos p WHERE p.album_id = a.id AND p.status = 'published') AS photo_count FROM albums a WHERE a.status = ? ORDER BY a.sort_order ASC, a.created_at DESC"
-      : "SELECT a.*, (SELECT COUNT(*) FROM photos p WHERE p.album_id = a.id AND p.status = 'published') AS photo_count FROM albums a WHERE a.status != 'deleted' ORDER BY a.sort_order ASC, a.created_at DESC";
-    const args = status ? [status] : [];
-
+      ? "SELECT a.*, (SELECT COUNT(*) FROM photos p WHERE p.album_id = a.id AND p.status = ?) AS photo_count FROM albums a WHERE a.status = ? ORDER BY a.sort_order ASC, a.created_at DESC"
+      : "SELECT a.*, (SELECT COUNT(*) FROM photos p WHERE p.album_id = a.id AND p.status != 'deleted') AS photo_count FROM albums a WHERE a.status != 'deleted' ORDER BY a.sort_order ASC, a.created_at DESC";
+    const args = status ? [status, status] : [];
     const result = await db.execute({ sql, args });
     return c.json({ albums: result.rows });
   })
@@ -52,7 +50,7 @@ export const albums = new Hono<Env>()
   .get("/:slug", async (c) => {
     const db = c.get("db");
     const result = await db.execute({
-      sql: "SELECT a.*, (SELECT COUNT(*) FROM photos p WHERE p.album_id = a.id AND p.status = 'published') AS photo_count FROM albums a WHERE a.slug = ?",
+      sql: "SELECT a.*, (SELECT COUNT(*) FROM photos p WHERE p.album_id = a.id AND p.status != 'deleted') AS photo_count FROM albums a WHERE a.slug = ?",
       args: [c.req.param("slug")],
     });
     if (!result.rows.length) {

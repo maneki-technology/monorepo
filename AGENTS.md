@@ -40,10 +40,13 @@ maneki-monorepo/
 │   │   ├── e2e/             # Playwright visual + a11y specs + baseline snapshots
 │   │   └── playwright.config.ts
 │   └── blog/                # Personal blog + portfolio (@maneki/blog)
-│       ├── editor.html       # Separate entry point for /editor
+│       ├── admin.html            # Admin hub entry point (/admin)
+│       ├── admin/                # Admin sub-pages
+│       │   ├── editor.html       # Editor entry point (/admin/editor)
+│       │   └── gallery.html      # Gallery entry point (/admin/gallery)
 │       ├── functions/        # CF Pages Functions (Hono API adapter)
 │       │   └── api/[[route]].ts
-│       ├── plugins/          # Vite plugins: markdown-posts (Turso), auto-ui-components, sitemap, rss-feed
+│       ├── plugins/          # Vite plugins: markdown-posts (Turso), auto-ui-components, sitemap, rss-feed, photography (virtual:photos, virtual:albums)
 │       ├── scripts/          # prerender.ts, migrate.ts, seed-posts.ts
 │       ├── wrangler.toml     # CF Pages local dev config
 │       └── src/
@@ -51,12 +54,21 @@ maneki-monorepo/
 │           │   ├── index.ts   # App entry + AppType export for RPC
 │           │   ├── db/        # Turso client + SQL schema
 │           │   ├── middleware/ # CF Access JWT auth
-│           │   └── routes/    # posts CRUD, ui-state, deploy, images (R2)
-│           ├── lib/api.ts     # Typed RPC client (hc<AppType>)
+│           │   └── routes/    # posts CRUD, ui-state, deploy, images (R2), photos CRUD, albums CRUD
+│           ├── admin/            # Admin pages (Lit components)
+│           │   ├── hub.ts        # <admin-hub> hub page
+│           │   ├── gallery.ts    # <admin-gallery> photo/album CRUD
+│           │   ├── theme.ts      # Shared theme utility (backend persistence)
+│           │   ├── hub-entry.ts  # Hub bootstrap
+│           │   ├── editor-entry.ts # Editor bootstrap
+│           │   └── gallery-entry.ts # Gallery bootstrap
+│           ├── components/       # Shared vanilla Web Components
+│           │   └── theme-toggle.ts # <theme-toggle> theme switch button
+│           ├── lib/              # Shared utilities
+│           │   └── api.ts        # Typed RPC client (hc<AppType>)
 │           ├── config.ts     # Site URL/title config
 │           ├── routes.ts     # Route definitions
-│           ├── editor-entry.ts # Editor entry point
-│           └── pages/        # 6 routes + editor module (8 files under editor/)
+│           └── pages/        # 6 routes + editor module (Lit sidebar + tabbar, 18 files under editor/)
 ```
 
 ## WHERE TO LOOK
@@ -72,13 +84,17 @@ maneki-monorepo/
 | Grid layout library | `packages/grid-layout/` | Has its own detailed AGENTS.md |
 | Flex layout library | `packages/flex-layout/` | Panel-based flex layout, has its own AGENTS.md |
 | Visual catalog + Playwright tests | `apps/catalog/` | 55 pages, 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout). History API routing, workbox caching. |
-| Personal blog + portfolio | `apps/blog/` | Hono API + Turso DB, CF Pages Functions, static prerendering, editor with RPC client |
-| Blog API routes | `apps/blog/src/api/` | Hono: posts CRUD, ui-state, deploy trigger, image upload (R2) |
-| Blog editor | `apps/blog/src/pages/editor/` | 8 modules: state, sidebar, tabbar, preview, toolbar, upload, api, types |
-| Blog Vite plugins | `apps/blog/plugins/` | markdown-posts (Turso), auto-ui-components, sitemap (Turso), rss-feed (Turso) |
+| Personal blog + portfolio | `apps/blog/` | Hono API + Turso DB, CF Pages Functions, static prerendering, admin system at /admin, editor with RPC client |
+| Blog API routes | `apps/blog/src/api/` | Hono: posts CRUD, ui-state, deploy trigger, image upload (R2), photos CRUD, albums CRUD |
+| Blog editor | `apps/blog/src/pages/editor/` | 18 modules: state, sidebar (Lit), tabbar (Lit), preview, toolbar, upload, api, types + more |
+| Blog Vite plugins | `apps/blog/plugins/` | markdown-posts (Turso), auto-ui-components, sitemap (Turso), rss-feed (Turso), photography (virtual:photos, virtual:albums) |
 | Blog scripts | `apps/blog/scripts/` | prerender.ts, migrate.ts, seed-posts.ts |
 | Shared Vite config | `shared/` | Dev aliases for cross-package HMR |
 | Linting | `.stylelintrc.json`, `.htmlvalidate.json`, `.husky/` | CSS + HTML linting with pre-commit hook |
+| Admin hub | `apps/blog/admin.html` | Hub with Editor, Gallery, View Site cards |
+| Admin gallery | `apps/blog/admin/gallery.html` | Photo/album management (Lit component) |
+| Admin editor | `apps/blog/admin/editor.html` | Editor at /admin/editor (new URL) |
+| Photography backend | `apps/blog/src/api/routes/photos.ts`, `albums.ts` | CRUD for photos + albums, Zod validation, soft delete |
 
 ## CONVENTIONS
 - **Zero runtime deps** (except `ui-components`, `grid-layout`, and `flex-layout` → `@maneki/foundation`). Foundation has zero production dependencies.
@@ -101,6 +117,12 @@ maneki-monorepo/
 - **Dev aliases.** `@maneki/*` resolves to source in dev mode for instant HMR (via `shared/vite-dev-aliases.ts`).
 - **Geist font.** Lives in `@maneki/foundation/assets/`, registered via `registerGeistFont()`.
 - **Pre-commit hook.** husky + lint-staged runs html-validate + stylelint on staged files.
+- **Lit for admin components.** Admin pages use Lit (`lit@3.3.2`) for reactive rendering. Public blog pages do NOT import Lit.
+- **`<theme-toggle>` for theme switching.** Vanilla Web Component shared across all pages (public + admin). Uses `ui-button` internally, no Lit dependency.
+- **Admin as static HTML files.** Each admin page (`/admin`, `/admin/editor`, `/admin/gallery`) has its own HTML file and entry script. No SPA routing — CF Pages serves them as static files.
+- **Blog accent color.** `--blog-accent` (terracotta) used for post card hover, nav underline, post title hover. Light: `#c2785c`, dark: `#d4956e`.
+- **FLIP signature animation.** Hero "Kien Nguyen" animates to header site-name on leaving home. Uses `font-size` interpolation (not `transform: scale`) for crisp text rendering.
+- **Homeland signature font.** Self-hosted subset woff2 (4.6KB, "Kien Nguyen" chars only), preloaded. Used for hero and header site-name.
 
 ## ANTI-PATTERNS
 - **No `as any`, `@ts-ignore`, `@ts-expect-error`** — never suppress types
@@ -164,5 +186,5 @@ npm run seed-posts           # Seed markdown posts into Turso (one-time)
 - Node pinned at 22 (see `.prototools`) for the toolchain (Vite 8, Vitest 4, etc.)
 - LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead
 - Dark theme: `[data-theme="dark"]` toggles all semantic tokens. Catalog has theme toggle button.
-- ADRs in `docs/adr/` — 23 architectural decision records
-- `apps/blog/` — Personal blog + portfolio. Hono API + Turso DB, CF Pages Functions, CF Access auth, typed RPC client (hc<AppType>), static prerendering via `scripts/prerender.ts`, History API routing, workbox service worker (JS/CSS/fonts cached, HTML from network), Shiki syntax highlighting (build-time + editor preview), SEO meta tags, sitemap generation (Turso), RSS feed (Turso), FOUC prevention, reading progress bar, client-side search, editor at `/editor` (separate entry) with modular architecture (18 files), sidebar with multi-select + batch operations for posts and projects, tabs with Map-based DOM patching + prefix slot (📝/📦), reactive store (setState + selective rendering), image upload (R2 + client-side WebP optimization + gallery side panel), deploy trigger (GitHub Actions repository_dispatch + status polling), portfolio management (projects CRUD + reorder + pin), soft delete, unpublished changes tracking (published_at + content comparison), custom undo/redo stack, scroll sync, circular context menu, UI state persistence, resume page. Port 5175. ESLint + Prettier for linting/formatting.
+- ADRs in `docs/adr/` — 27 architectural decision records
+- `apps/blog/` — Personal blog + portfolio. Hono API + Turso DB, CF Pages Functions, CF Access auth, typed RPC client (hc<AppType>), static prerendering via `scripts/prerender.ts`, History API routing, workbox service worker (JS/CSS/fonts cached, HTML from network), Shiki syntax highlighting (build-time + editor preview), SEO meta tags, sitemap generation (Turso), RSS feed (Turso), FOUC prevention, reading progress bar, client-side search, editor at `/admin/editor` with modular architecture (18 files, Lit sidebar + tabbar), sidebar with multi-select + batch operations for posts and projects, tabs with Map-based DOM patching + prefix slot (📝/📦), reactive store (setState + selective rendering), image upload (R2 + client-side WebP optimization + gallery side panel), deploy trigger (GitHub Actions repository_dispatch + status polling), portfolio management (projects CRUD + reorder + pin), soft delete, unpublished changes tracking (published_at + content comparison), custom undo/redo stack, scroll sync, circular context menu, UI state persistence, resume page, admin system at /admin (hub, editor, gallery), photography backend (albums + photos tables in Turso), FLIP signature animation (hero to header, 16 Playwright e2e tests), blur-to-sharp micro-interactions, terracotta accent color (`--blog-accent`), Homeland signature font (self-hosted subset woff2). Port 5175. ESLint + Prettier for linting/formatting.

@@ -27,6 +27,22 @@ export default defineConfig(({ command }) => ({
   resolve: command === "serve" ? { alias: devAliases } : {},
   appType: "spa",
   plugins: [
+    // Serve admin HTML files before SPA fallback rewrites them to index.html
+    {
+      name: "admin-html-routes",
+      configureServer(server) {
+        server.middlewares.use((req, _res, next) => {
+          const adminRoutes: Record<string, string> = {
+            "/admin/editor": "/admin/editor.html",
+            "/admin/gallery": "/admin/gallery.html",
+            "/admin": "/admin.html",
+          };
+          const rewrite = adminRoutes[req.url?.split("?")[0] ?? ""];
+          if (rewrite) req.url = rewrite;
+          next();
+        });
+      },
+    },
     injectTokensPlugin(),
     markdownPostsPlugin(),
     portfolioProjectsPlugin(),
@@ -43,19 +59,6 @@ export default defineConfig(({ command }) => ({
         navigateFallback: null,
       },
     }),
-    {
-      name: "editor-rewrite",
-      configureServer(server) {
-        return () => {
-          server.middlewares.use((req, _res, next) => {
-            if (req.url?.startsWith("/editor")) {
-              req.url = "/editor.html";
-            }
-            next();
-          });
-        };
-      },
-    },
   ],
   build: {
     outDir: "dist",
@@ -63,7 +66,9 @@ export default defineConfig(({ command }) => ({
     rolldownOptions: {
       input: {
         main: "index.html",
-        editor: "editor.html",
+        admin: "admin.html",
+        "admin-editor": "admin/editor.html",
+        "admin-gallery": "admin/gallery.html",
       },
       output: {
         manualChunks(id) {

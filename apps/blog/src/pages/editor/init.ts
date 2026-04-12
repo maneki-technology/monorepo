@@ -22,12 +22,8 @@ export function setupInit(): void {
 
     // Restore UI state
     if (uiState) {
-      // Restore theme
-      if (uiState.theme === "dark") {
-        document.documentElement.setAttribute("data-theme", "heroui-dark");
-      } else {
-        document.documentElement.setAttribute("data-theme", "heroui");
-      }
+      // Theme is already applied by the FOUC prevention script in admin.html
+      // from localStorage — no need to override from backend
 
       // Restore sidebar collapsed state
       const sidebar = document.getElementById("admin-sidebar");

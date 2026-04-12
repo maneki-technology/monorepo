@@ -90,4 +90,21 @@ CREATE TABLE IF NOT EXISTS photos (
 CREATE INDEX IF NOT EXISTS idx_photos_status ON photos(status);
 CREATE INDEX IF NOT EXISTS idx_photos_album ON photos(album_id);
 CREATE INDEX IF NOT EXISTS idx_photos_featured ON photos(featured);
+CREATE TABLE IF NOT EXISTS tags (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT UNIQUE NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_tags_slug ON tags(slug);
+
+CREATE TABLE IF NOT EXISTS photo_tags (
+  photo_id INTEGER NOT NULL REFERENCES photos(id) ON DELETE CASCADE,
+  tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (photo_id, tag_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_photo_tags_photo ON photo_tags(photo_id);
+CREATE INDEX IF NOT EXISTS idx_photo_tags_tag ON photo_tags(tag_id);
 `;

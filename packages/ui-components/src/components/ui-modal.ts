@@ -187,6 +187,10 @@ const STYLES = /* css */ `
     display: flex;
   }
 
+  :host([has-footer]) .dialog {
+    padding-bottom: 0;
+  }
+
   .footer-start {
     display: flex;
     align-items: center;

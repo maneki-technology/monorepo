@@ -28,3 +28,7 @@ This directory contains Architectural Decision Records (ADRs) for the Maneki des
 | [021](021-deploy-flow.md) | Deploy Flow — GitHub Actions + Status Polling | Accepted | 2026-04 |
 | [022](022-eslint-prettier.md) | ESLint + Prettier — Monorepo Linting | Accepted | 2026-04 |
 | [023](023-remove-storybook.md) | Remove Storybook | Accepted | 2026-04 |
+| [024](024-blog-micro-interactions.md) | Blog Micro-Interactions + Signature Animation | Accepted | 2026-04 |
+| [025](025-photography-backend.md) | Photography Backend — Albums + Photos in Turso | Accepted | 2026-04 |
+| [026](026-editor-lit-migration.md) | Editor Lit Migration — Sidebar + Tabbar | Accepted | 2026-04 |
+| [027](027-admin-static-html.md) | Admin Static HTML Architecture | Accepted | 2026-04 |
