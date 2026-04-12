@@ -41,6 +41,7 @@ const pageLoaders: Record<string, () => Promise<unknown>> = {
   "input": () => import("./pages/input.js"),
   "textarea": () => import("./pages/textarea.js"),
   "file-upload": () => import("./pages/file-upload.js"),
+  "dropzone": () => import("./pages/dropzone.js"),
   "select": () => import("./pages/select.js"),
   "queryfield": () => import("./pages/queryfield.js"),
   "search": () => import("./pages/search.js"),

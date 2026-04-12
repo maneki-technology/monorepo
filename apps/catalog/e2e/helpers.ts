@@ -25,6 +25,7 @@ export const pages = [
   "input",
   "textarea",
   "file-upload",
+  "dropzone",
   "select",
   "queryfield",
   "search",

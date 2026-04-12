@@ -34,6 +34,8 @@ Thumbs.db
 test-results/
 e2e/test-results/
 playwright-report/
+.playwright-mcp/
+
 
 # Playwright MCP sessions
 .playwright-mcp/

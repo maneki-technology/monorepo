@@ -42,7 +42,7 @@ maneki-monorepo/
 | Package | npm name | Description |
 |---|---|---|
 | `foundation` | `@maneki/foundation` | Design tokens: 131 colors, semantic tokens, typography, spacing, elevation, breakpoints, dark theme, shape, token constants |
-| `ui-components` | `@maneki/ui-components` | 50 Web Components (button, badge, image, icon, tag, avatar, alert, label, link, checkbox, radio, input, textarea, file-upload, select, card, breadcrumb, accordion, dropdown, menu, modal, side-panel-menu, tabs, table, carousel, calendar, calendar-quicklinks, calendar-time, datetime-picker, clock, list-item, list-header, list-group) |
+| `ui-components` | `@maneki/ui-components` | 51 Web Components (button, badge, image, icon, tag, avatar, alert, label, link, checkbox, radio, input, textarea, file-upload, dropzone, select, card, breadcrumb, accordion, dropdown, menu, modal, side-panel-menu, tabs, table, carousel, calendar, calendar-quicklinks, calendar-time, datetime-picker, clock, list-item, list-header, list-group) |
 | `grid-layout` | `@maneki/grid-layout` | Zero-dep drag/resize grid layout (220 tests) |
 | `flex-layout` | `@maneki/flex-layout` | Panel-based flex layout for dashboard-style interfaces (3 components, 50 tests) |
 

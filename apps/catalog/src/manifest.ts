@@ -47,6 +47,7 @@ export const manifest: PageMeta[] = [
   { id: "input", title: "Input", section: "Form Controls" },
   { id: "textarea", title: "Textarea", section: "Form Controls" },
   { id: "file-upload", title: "File Upload", section: "Form Controls" },
+  { id: "dropzone", title: "Dropzone", section: "Form Controls" },
   { id: "select", title: "Select", section: "Form Controls" },
   { id: "queryfield", title: "Queryfield", section: "Form Controls" },
   { id: "search", title: "Search", section: "Form Controls" },
