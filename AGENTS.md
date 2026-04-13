@@ -159,6 +159,16 @@ Every change — component, fix, refactor, docs — follows this workflow:
 11. **Visual review** — verify in the catalog app, run Playwright visual tests
 12. **Never push directly to `main`**
 
+## SOP: Upgrading Dependencies
+
+1. **Never run `npm audit fix --force`** — it downgrades packages, adds spurious deps to wrong packages, and mangles version ranges
+2. **Upgrade one package at a time** — `npm install <pkg>@latest` in the correct workspace
+3. **Run `npm audit`** to identify vulnerabilities, then upgrade the specific vulnerable package
+4. **Run `npm update`** for safe semver-range updates across the monorepo
+5. **Verify after each upgrade** — `moon run foundation:build && moon run ui-components:build && npx vitest --run`
+6. **Check `npm outdated`** for remaining upgrades
+7. **Accept unfixable transitive vulnerabilities** if they're build-time only (e.g., `workbox-build` → `serialize-javascript`) — note them in the PR description
+
 ## COMMANDS
 # Proto / Moon (run from repo root)
 proto use                    # Install pinned tool versions

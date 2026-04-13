@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@maneki/ui-components": "*",
-    "happy-dom": "^17.6.1",
+    "happy-dom": "^20.8.9",
     "typescript": "^5.4.0",
     "vite": "^8.0.0",
     "vitest": "^4.0.18"
