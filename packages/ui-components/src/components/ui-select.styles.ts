@@ -19,6 +19,7 @@ import {
   STATUS_GENERAL_SUCCESS,
   STATUS_GENERAL_WARNING,
   SURFACE_PRIMARY,
+  FORM_INPUT_BG,
   SURFACE_SECONDARY,
   TAG_SUBTLE,
   TAG_TEXT_SUBTLE,
@@ -75,7 +76,7 @@ export const STYLES = /* css */ `
     align-items: center;
     border: 1px solid var(--ui-select-border, ${FORM_INPUT_BORDER});
     border-radius: ${RADIUS_SM};
-    background-color: var(--ui-select-bg, ${SURFACE_PRIMARY});
+    background-color: var(--ui-select-bg, ${FORM_INPUT_BG});
     box-shadow: ${SHADOW_FIELD};
     transition:
       border-color 0.15s ease,
@@ -338,7 +339,7 @@ export const STYLES = /* css */ `
   /* ── Hover ─────────────────────────────────────────────────────────────── */
   :host(:not([disabled]):not([readonly]):not([open])) .trigger:hover {
     border-color: var(--ui-select-hover-border, ${HOVER_BORDER_MODERATE});
-    background-color: var(--ui-select-hover-bg, var(--ui-select-bg, ${SURFACE_PRIMARY}));
+    background-color: var(--ui-select-hover-bg, var(--ui-select-bg, ${FORM_INPUT_BG}));
   }
 
   /* ── Open / Focus ──────────────────────────────────────────────────────── */

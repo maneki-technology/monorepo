@@ -19,6 +19,7 @@ import {
   SP_3,
   SURFACE_BOLD,
   SURFACE_PRIMARY,
+  FORM_INPUT_BG,
   SURFACE_SECONDARY,
   TEXT_PRIMARY,
   TEXT_SECONDARY,
@@ -62,7 +63,7 @@ export const STYLES = /* css */ `
     display: flex;
     align-items: center;
     border: 1px solid var(--ui-search-border, ${FORM_INPUT_BORDER});
-    background: var(--ui-search-bg, ${SURFACE_PRIMARY});
+    background: var(--ui-search-bg, ${FORM_INPUT_BG});
     border-radius: ${RADIUS_SM};
     box-shadow: ${SHADOW_FIELD};
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;

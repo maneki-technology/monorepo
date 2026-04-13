@@ -21,7 +21,7 @@ import {
   TEXT_SECONDARY,
   TEXT_TERTIARY,
   TYPE_CAPTION_01,
-  SURFACE_PRIMARY,
+  FORM_INPUT_BG,
 } from "@maneki/foundation";
 
 // ─── Status icon map ─────────────────────────────────────────────────────────
@@ -77,7 +77,7 @@ export const STYLES = /* css */ `
     border-style: solid;
     border-color: var(--ui-input-border, ${FORM_INPUT_BORDER});
     border-radius: var(--ui-input-radius, ${RADIUS_SM});
-    background-color: var(--ui-input-bg, ${SURFACE_PRIMARY});
+    background-color: var(--ui-input-bg, ${FORM_INPUT_BG});
     box-shadow: var(--ui-input-shadow, ${SHADOW_FIELD});
     transition:
       border-color 0.15s ease,

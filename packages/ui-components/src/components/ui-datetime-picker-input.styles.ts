@@ -20,7 +20,7 @@ import {
   TYPE_BODY_02,
   TYPE_BODY_03,
   TYPE_CAPTION_01,
-  SURFACE_PRIMARY,
+  FORM_INPUT_BG,
 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -61,7 +61,7 @@ export const STYLES = /* css */ `
     align-items: center;
     border: 1px solid var(--ui-dpi-border, ${FORM_INPUT_BORDER});
     border-radius: ${RADIUS_SM};
-    background-color: var(--ui-dpi-bg, ${SURFACE_PRIMARY});
+    background-color: var(--ui-dpi-bg, ${FORM_INPUT_BG});
     box-shadow: ${SHADOW_FIELD};
     cursor: pointer;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;

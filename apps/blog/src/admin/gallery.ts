@@ -965,6 +965,7 @@ export class AdminGallery extends LitElement {
         <span>Upload Photos</span>
         <div slot="body">
           <ui-wizard
+            headless
             layout="horizontal"
             current-step=${this._wizardStep}
             status=${this._uploading ? "loading" : "none"}
@@ -990,6 +991,17 @@ export class AdminGallery extends LitElement {
             ${this._wizardStep === 3 ? this._renderStep3() : nothing}
             ${this._wizardStep === 4 ? this._renderStep4() : nothing}
           </ui-wizard>
+        </div>
+        <div slot="footer-start">
+          <ui-button action="secondary" emphasis="subtle" size="s" ?disabled=${this._wizardStep <= 1} @click=${() => { if (this._wizardStep > 1) this._wizardStep--; }}>Previous</ui-button>
+        </div>
+        <div slot="footer-end" style="display:flex;gap:8px">
+          <ui-button action="secondary" emphasis="subtle" size="s" @click=${() => { this._showUpload = false; this._resetUploadWizard(); }}>Cancel</ui-button>
+          ${this._wizardStep < 4 ? html`
+            <ui-button action="primary" size="s" ?disabled=${this._wizardStep === 1 && this._uploadFiles.length === 0} @click=${() => { this._wizardStep++; }}>Next</ui-button>
+          ` : html`
+            <ui-button action="primary" size="s" status=${this._uploading ? "loading" : "none"} @click=${() => this._executeUpload()}>Upload</ui-button>
+          `}
         </div>
       </ui-modal>
     `;
