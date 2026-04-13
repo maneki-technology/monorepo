@@ -1,4 +1,6 @@
 
+import "./ui-button.js";
+import "./ui-icon.js";
 import {
   ELEVATION_06,
   FONT_PRIMARY,
@@ -151,21 +153,11 @@ const STYLES = /* css */ `
 
   .close-btn {
     display: none;
-    align-items: center;
-    justify-content: center;
-    background-color: transparent;
-    border: none;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
-    color: ${ICON_PRIMARY};
-    line-height: 0;
     flex-shrink: 0;
-    border-radius: var(--ui-modal-close-radius, 0);
   }
 
   :host([dismissible]) .close-btn {
-    display: inline-flex;
+    display: block;
   }
 
   /* ── Body ─────────────────────────────────────────────────────────────────── */
@@ -229,10 +221,6 @@ const STYLES = /* css */ `
     padding: ${SP_2} ${SP_2} ${SP_2};
   }
 
-  :host .close-btn,
-  :host([size="m"]) .close-btn {
-    --ui-icon-size: 20px;
-  }
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
 
@@ -257,9 +245,6 @@ const STYLES = /* css */ `
     padding: ${SP_1_5} ${SP_1_5} ${SP_1_5};
   }
 
-  :host([size="s"]) .close-btn {
-    --ui-icon-size: 16px;
-  }
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
 
@@ -284,9 +269,6 @@ const STYLES = /* css */ `
     padding: ${SP_2_5} ${SP_2_5} ${SP_2_5};
   }
 
-  :host([size="l"]) .close-btn {
-    --ui-icon-size: 20px;
-  }
 
   /* ── Reduced motion ──────────────────────────────────────────────────────── */
 
@@ -361,11 +343,17 @@ export class UiModal extends HTMLElement {
 
     header.appendChild(titleGroup);
 
-    const closeBtn = document.createElement("button");
+    const closeBtn = document.createElement("ui-button") as HTMLElement;
     closeBtn.className = "close-btn";
+    closeBtn.setAttribute("action", "secondary");
+    closeBtn.setAttribute("emphasis", "minimal");
+    closeBtn.setAttribute("size", "s");
+    closeBtn.setAttribute("icon", "icon-only");
     closeBtn.setAttribute("aria-label", "Close");
     const closeIcon = document.createElement("ui-icon") as HTMLElement;
     closeIcon.setAttribute("name", "close");
+    closeIcon.setAttribute("size", "s");
+    closeIcon.setAttribute("slot", "icon-start");
     closeBtn.addEventListener("click", () => this.close());
     closeBtn.appendChild(closeIcon);
     header.appendChild(closeBtn);
