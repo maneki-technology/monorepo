@@ -12,11 +12,11 @@
     "test:visual:update": "playwright test --update-snapshots"
   },
   "dependencies": {
+    "@maneki/charts": "*",
     "@maneki/flex-layout": "*",
     "@maneki/foundation": "*",
     "@maneki/grid-layout": "*",
-    "@maneki/ui-components": "*",
-    "@maneki/charts": "*"
+    "@maneki/ui-components": "*"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
