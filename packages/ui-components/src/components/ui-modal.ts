@@ -70,6 +70,7 @@ const STYLES = /* css */ `
     font-family: ${FONT_PRIMARY};
     color: ${TEXT_PRIMARY};
     width: var(--ui-modal-width, 441px);
+    overflow: hidden;
     opacity: 0;
     transform: translateY(-8px);
     transition: opacity 0.2s ease, transform 0.2s ease;
@@ -187,9 +188,6 @@ const STYLES = /* css */ `
     display: flex;
   }
 
-  :host([has-footer]) .dialog {
-    padding-bottom: 0;
-  }
 
   .footer-start {
     display: flex;
@@ -205,10 +203,9 @@ const STYLES = /* css */ `
 
   /* ── Size: m (default) ───────────────────────────────────────────────────── */
 
-  :host .dialog,
-  :host([size="m"]) .dialog {
-    padding: var(--ui-modal-padding, ${SP_2});
-    gap: var(--ui-modal-gap, ${SP_3});
+  :host .header,
+  :host([size="m"]) .header {
+    padding: ${SP_2} ${SP_2} 0;
   }
 
   :host .content,
@@ -223,7 +220,13 @@ const STYLES = /* css */ `
 
   :host .body,
   :host([size="m"]) .body {
+    padding: ${SP_1_5} ${SP_2} ${SP_2};
     ${TYPE_BODY_02}
+  }
+
+  :host .footer,
+  :host([size="m"]) .footer {
+    padding: ${SP_2} ${SP_2} ${SP_2};
   }
 
   :host .close-btn,
@@ -233,9 +236,8 @@ const STYLES = /* css */ `
 
   /* ── Size: s ─────────────────────────────────────────────────────────────── */
 
-  :host([size="s"]) .dialog {
-    padding: ${SP_1_5};
-    gap: ${SP_2_5};
+  :host([size="s"]) .header {
+    padding: ${SP_1_5} ${SP_1_5} 0;
   }
 
   :host([size="s"]) .content {
@@ -247,7 +249,12 @@ const STYLES = /* css */ `
   }
 
   :host([size="s"]) .body {
+    padding: ${SP_1} ${SP_1_5} ${SP_1_5};
     ${TYPE_BODY_03}
+  }
+
+  :host([size="s"]) .footer {
+    padding: ${SP_1_5} ${SP_1_5} ${SP_1_5};
   }
 
   :host([size="s"]) .close-btn {
@@ -256,9 +263,8 @@ const STYLES = /* css */ `
 
   /* ── Size: l ─────────────────────────────────────────────────────────────── */
 
-  :host([size="l"]) .dialog {
-    padding: var(--ui-modal-padding-l, ${SP_2_5});
-    gap: var(--ui-modal-gap, ${SP_3});
+  :host([size="l"]) .header {
+    padding: ${SP_2_5} ${SP_2_5} 0;
   }
 
   :host([size="l"]) .content {
@@ -270,7 +276,12 @@ const STYLES = /* css */ `
   }
 
   :host([size="l"]) .body {
+    padding: ${SP_2} ${SP_2_5} ${SP_2_5};
     ${TYPE_BODY_02}
+  }
+
+  :host([size="l"]) .footer {
+    padding: ${SP_2_5} ${SP_2_5} ${SP_2_5};
   }
 
   :host([size="l"]) .close-btn {
@@ -485,15 +496,8 @@ export class UiModal extends HTMLElement {
   }
 
   close(): void {
-    const event = new CustomEvent("close", {
-      bubbles: true,
-      composed: true,
-      cancelable: true,
-    });
-    this.dispatchEvent(event);
-    if (!event.defaultPrevented) {
-      this._animateOut();
-    }
+    if (!this.open) return;
+    this._animateOut();
   }
 
   // ── Private ─────────────────────────────────────────────────────────────
@@ -520,17 +524,19 @@ export class UiModal extends HTMLElement {
 
   private _animateOut(): void {
     this._backdrop.classList.remove("visible");
+    let fired = false;
     const onEnd = () => {
+      if (fired) return;
+      fired = true;
       this._backdrop.removeEventListener("transitionend", onEnd);
       this.removeAttribute("open");
-      // Return focus to previously focused element
       if (this._previouslyFocused && this._previouslyFocused instanceof HTMLElement) {
         this._previouslyFocused.focus();
         this._previouslyFocused = null;
       }
+      this.dispatchEvent(new CustomEvent("close", { bubbles: true, composed: true }));
     };
     this._backdrop.addEventListener("transitionend", onEnd, { once: true });
-    // Fallback if transitionend doesn't fire (e.g. reduced motion, no transition)
     setTimeout(onEnd, 250);
   }
 

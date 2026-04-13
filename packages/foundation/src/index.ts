@@ -155,6 +155,7 @@ export {
   ICON_DELETE,
   ICON_GRID_VIEW,
   ICON_PHOTO_ALBUM,
+  ICON_LOCATION_ON,
   ICON_CODEPOINTS,
   registerIconFont,
   registerGeistFont,

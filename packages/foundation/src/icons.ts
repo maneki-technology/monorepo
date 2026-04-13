@@ -136,6 +136,8 @@ export const ICON_FORMAT_UNDERLINED = "\uE249";
 export const ICON_IMAGE = "\uE3F4";
 /** photo_album — U+E411 */
 export const ICON_PHOTO_ALBUM = "\uE411";
+/** location_on — U+E0C8 */
+export const ICON_LOCATION_ON = "\uE0C8";
 /** link — U+E250 */
 export const ICON_LINK = "\uE250";
 /** title — U+E264 */
@@ -203,6 +205,7 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   format_underlined: ICON_FORMAT_UNDERLINED,
   image: ICON_IMAGE,
   photo_album: ICON_PHOTO_ALBUM,
+  location_on: ICON_LOCATION_ON,
   link: ICON_LINK,
   title: ICON_TITLE,
 };
