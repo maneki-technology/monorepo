@@ -15,6 +15,9 @@ const createPhotoSchema = z.object({
   caption: z.string().default(""),
   album_id: z.number().nullable().default(null),
   category: z.string().default(""),
+  location: z.string().default(""),
+  latitude: z.number().nullable().default(null),
+  longitude: z.number().nullable().default(null),
   width: z.number().default(0),
   height: z.number().default(0),
   thumbhash: z.string().default(""),
@@ -30,6 +33,9 @@ const updatePhotoSchema = z.object({
   caption: z.string().optional(),
   album_id: z.number().nullable().optional(),
   category: z.string().optional(),
+  location: z.string().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
   width: z.number().optional(),
   height: z.number().optional(),
   thumbhash: z.string().optional(),
@@ -133,8 +139,8 @@ export const photos = new Hono<Env>()
     const db = c.get("db");
 
     await db.execute({
-      sql: `INSERT INTO photos (r2_key, url, title, caption, album_id, category, width, height, thumbhash, exif_json, sort_order, featured, status, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+      sql: `INSERT INTO photos (r2_key, url, title, caption, album_id, category, location, latitude, longitude, width, height, thumbhash, exif_json, sort_order, featured, status, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
       args: [
         data.r2_key,
         data.url,
@@ -142,6 +148,9 @@ export const photos = new Hono<Env>()
         data.caption,
         data.album_id,
         data.category,
+        data.location,
+        data.latitude,
+        data.longitude,
         data.width,
         data.height,
         data.thumbhash,
@@ -189,6 +198,18 @@ export const photos = new Hono<Env>()
     if (updates.category !== undefined) {
       setClauses.push("category = ?");
       args.push(updates.category);
+    }
+    if (updates.location !== undefined) {
+      setClauses.push("location = ?");
+      args.push(updates.location);
+    }
+    if (updates.latitude !== undefined) {
+      setClauses.push("latitude = ?");
+      args.push(updates.latitude);
+    }
+    if (updates.longitude !== undefined) {
+      setClauses.push("longitude = ?");
+      args.push(updates.longitude);
     }
     if (updates.width !== undefined) {
       setClauses.push("width = ?");

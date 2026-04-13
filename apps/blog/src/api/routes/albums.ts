@@ -15,6 +15,9 @@ const createAlbumSchema = z.object({
     .min(1)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase kebab-case"),
   description: z.string().default(""),
+  location: z.string().default(""),
+  latitude: z.number().nullable().default(null),
+  longitude: z.number().nullable().default(null),
   cover_photo_id: z.number().nullable().default(null),
   sort_order: z.number().default(0),
   status: z.enum(["draft", "published"]).default("draft"),
@@ -28,6 +31,9 @@ const updateAlbumSchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
     .optional(),
   description: z.string().optional(),
+  location: z.string().optional(),
+  latitude: z.number().nullable().optional(),
+  longitude: z.number().nullable().optional(),
   cover_photo_id: z.number().nullable().optional(),
   sort_order: z.number().optional(),
   status: z.enum(["draft", "published"]).optional(),
@@ -61,14 +67,30 @@ export const albums = new Hono<Env>()
 
   // Create album
   .post("/", zValidator("json", createAlbumSchema), async (c) => {
-    const { title, slug, description, cover_photo_id, sort_order, status } = c.req.valid("json");
+    const { title, slug, description, location, latitude, longitude, cover_photo_id, sort_order, status } = c.req.valid("json");
     const db = c.get("db");
 
-    await db.execute({
-      sql: `INSERT INTO albums (title, slug, description, cover_photo_id, sort_order, status, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
-      args: [title, slug, description, cover_photo_id, sort_order, status],
+    // Check for existing non-deleted album with same slug
+    const existing = await db.execute({
+      sql: "SELECT id FROM albums WHERE slug = ? AND status != 'deleted'",
+      args: [slug],
     });
+    if (existing.rows.length > 0) {
+      return c.json({ error: "An album with this name already exists" }, 409);
+    }
+
+    try {
+      await db.execute({
+        sql: `INSERT INTO albums (title, slug, description, location, latitude, longitude, cover_photo_id, sort_order, status, updated_at)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+        args: [title, slug, description, location, latitude, longitude, cover_photo_id, sort_order, status],
+      });
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message.includes("UNIQUE constraint")) {
+        return c.json({ error: "An album with this name already exists" }, 409);
+      }
+      throw e;
+    }
     return c.json({ ok: true, slug }, 201);
   })
 
@@ -92,6 +114,18 @@ export const albums = new Hono<Env>()
     if (updates.description !== undefined) {
       setClauses.push("description = ?");
       args.push(updates.description);
+    }
+    if (updates.location !== undefined) {
+      setClauses.push("location = ?");
+      args.push(updates.location);
+    }
+    if (updates.latitude !== undefined) {
+      setClauses.push("latitude = ?");
+      args.push(updates.latitude);
+    }
+    if (updates.longitude !== undefined) {
+      setClauses.push("longitude = ?");
+      args.push(updates.longitude);
     }
     if (updates.cover_photo_id !== undefined) {
       setClauses.push("cover_photo_id = ?");
@@ -122,10 +156,13 @@ export const albums = new Hono<Env>()
 
   // Soft delete album by slug
   .delete("/:slug", async (c) => {
+    const slug = c.req.param("slug");
     const db = c.get("db");
+    // Rename slug to free it for reuse, then soft-delete
+    const deletedSlug = `${slug}__deleted_${Date.now()}`;
     await db.execute({
-      sql: "UPDATE albums SET status = 'deleted', updated_at = datetime('now') WHERE slug = ?",
-      args: [c.req.param("slug")],
+      sql: "UPDATE albums SET slug = ?, status = 'deleted', updated_at = datetime('now') WHERE slug = ?",
+      args: [deletedSlug, slug],
     });
     return c.json({ ok: true });
   });

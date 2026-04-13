@@ -112,23 +112,24 @@ describe("ui-modal", () => {
     expect(el.hasAttribute("open")).toBe(false);
   });
 
-  it("close() dispatches close event before removing attribute", () => {
+  it("close() dispatches close event after animation", () => {
     (el as unknown as { open: boolean }).open = true;
     let eventFired = false;
     el.addEventListener("close", () => {
       eventFired = true;
     });
     (el as unknown as { close: () => void }).close();
+    expect(eventFired).toBe(false);
+    vi.advanceTimersByTime(250);
     expect(eventFired).toBe(true);
   });
 
-  it("close() does not remove open if close event is prevented", () => {
+  it("close() removes open attribute after animation", () => {
     (el as unknown as { open: boolean }).open = true;
-    el.addEventListener("close", (e: Event) => {
-      e.preventDefault();
-    });
     (el as unknown as { close: () => void }).close();
     expect(el.hasAttribute("open")).toBe(true);
+    vi.advanceTimersByTime(250);
+    expect(el.hasAttribute("open")).toBe(false);
   });
 
   // ── Dismissible attribute ───────────────────────────────────────────────
@@ -172,8 +173,8 @@ describe("ui-modal", () => {
       eventFired = true;
     });
     closeBtn.click();
-    expect(eventFired).toBe(true);
     vi.advanceTimersByTime(250);
+    expect(eventFired).toBe(true);
     expect(el.hasAttribute("open")).toBe(false);
   });
 
@@ -244,20 +245,21 @@ describe("ui-modal", () => {
       event = e as CustomEvent;
     });
     (el as unknown as { close: () => void }).close();
+    vi.advanceTimersByTime(250);
     expect(event).toBeTruthy();
     expect(event!.bubbles).toBe(true);
     expect(event!.composed).toBe(true);
   });
 
-  it("close event is cancelable", () => {
+  it("close event is not cancelable (fires after animation)", () => {
     el.setAttribute("open", "");
     let event: CustomEvent | null = null;
     el.addEventListener("close", (e: Event) => {
       event = e as CustomEvent;
     });
     (el as unknown as { close: () => void }).close();
+    vi.advanceTimersByTime(250);
     expect(event).toBeTruthy();
-    expect(event!.cancelable).toBe(true);
   });
 
   it("close event dispatched on escape key dismiss", () => {
@@ -268,6 +270,7 @@ describe("ui-modal", () => {
       eventFired = true;
     });
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    vi.advanceTimersByTime(250);
     expect(eventFired).toBe(true);
   });
 
@@ -281,29 +284,29 @@ describe("ui-modal", () => {
     const shadow = el.shadowRoot!;
     const backdrop = shadow.querySelector(".backdrop") as HTMLElement;
     backdrop.click();
+    vi.advanceTimersByTime(250);
     expect(eventFired).toBe(true);
   });
 
-  it("preventing close event on escape keeps modal open", () => {
+  it("escape key starts close animation", () => {
     el.setAttribute("dismissible", "");
     el.setAttribute("open", "");
-    el.addEventListener("close", (e: Event) => {
-      e.preventDefault();
-    });
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    // open still true during animation
     expect(el.hasAttribute("open")).toBe(true);
+    vi.advanceTimersByTime(250);
+    expect(el.hasAttribute("open")).toBe(false);
   });
 
-  it("preventing close event on backdrop click keeps modal open", () => {
+  it("backdrop click starts close animation", () => {
     el.setAttribute("dismissible", "");
     el.setAttribute("open", "");
-    el.addEventListener("close", (e: Event) => {
-      e.preventDefault();
-    });
     const shadow = el.shadowRoot!;
     const backdrop = shadow.querySelector(".backdrop") as HTMLElement;
     backdrop.click();
     expect(el.hasAttribute("open")).toBe(true);
+    vi.advanceTimersByTime(250);
+    expect(el.hasAttribute("open")).toBe(false);
   });
 
   // ── Slot detection ──────────────────────────────────────────────────────

@@ -1,8 +1,10 @@
 import { LitElement, html, css, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import ExifReader from "exifreader";
+import { generateThumbHash, thumbHashBase64ToDataURL } from "../lib/thumbhash.js";
 import "../components/theme-toggle.js";
 import "../components/loading-bounce.js";
+import "../components/map-picker.js";
 import { loadAdminState, saveThemeToBackend, getGalleryTab, setGalleryTab } from "./theme.js";
 import "@maneki/ui-components/components/ui-button.js";
 import "@maneki/ui-components/components/ui-icon.js";
@@ -21,6 +23,7 @@ import "@maneki/ui-components/components/ui-tag.js";
 import "@maneki/ui-components/components/ui-wizard.js";
 import "@maneki/ui-components/components/ui-step-group.js";
 import "@maneki/ui-components/components/ui-step-item.js";
+import "@maneki/ui-components/components/ui-alert.js";
 
 interface Photo {
   id: number;
@@ -34,6 +37,9 @@ interface Photo {
   height: number;
   thumbhash: string;
   exif_json: string;
+  location: string;
+  latitude: number | null;
+  longitude: number | null;
   sort_order: number;
   featured: number;
   status: string;
@@ -45,6 +51,9 @@ interface Album {
   slug: string;
   title: string;
   description: string;
+  location: string;
+  latitude: number | null;
+  longitude: number | null;
   cover_photo_id: number | null;
   sort_order: number;
   status: string;
@@ -106,8 +115,12 @@ export class AdminGallery extends LitElement {
   @state() private _showUpload = false;
   @state() private _editingPhoto: Photo | null = null;
   @state() private _editingAlbum: Album | null = null;
-  @state() private _loading = true;
+  @state() private _loading = false;
+  @state() private _initializing = true;
   @state() private _uploading = false;
+  @state() private _savingAction: "none" | "saving" | "deleting" = "none";
+  @state() private _saved = false;
+  @state() private _saveError = "";
   @state() private _wizardStep = 1;
   @state() private _uploadFiles: File[] = [];
   @state() private _uploadMeta: Array<{ title: string; caption: string }> = [];
@@ -115,7 +128,10 @@ export class AdminGallery extends LitElement {
   @state() private _batchCategory = "";
   @state() private _batchStatus = "draft";
   @state() private _batchFeatured = false;
+  @state() private _batchLocation = "";
   @state() private _creatingAlbum = false;
+  @state() private _batchLatitude: number | null = null;
+  @state() private _batchLongitude: number | null = null;
   @state() private _newAlbumTitle = "";
   @state() private _viewingAlbum: Album | null = null;
   @state() private _albumPhotos: Photo[] = [];
@@ -189,12 +205,20 @@ export class AdminGallery extends LitElement {
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     }
 
-    .photo-card img {
+    .photo-card-img {
       width: 100%;
       height: 150px;
+      position: relative;
+      background-size: cover;
+      background-center: center;
+      background-color: var(--fd-surface-secondary, #f4f4f5);
+    }
+
+    .photo-card-img img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
       display: block;
-      background: var(--fd-surface-secondary, #f4f4f5);
     }
 
     .photo-card-overlay {
@@ -260,6 +284,27 @@ export class AdminGallery extends LitElement {
     .album-card:hover {
       border-color: var(--fd-border-moderate, #a1a1aa);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .album-card { position: relative; overflow: hidden; }
+
+    .album-card-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.5);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .album-card:hover .album-card-overlay {
+      opacity: 1;
+      pointer-events: auto;
     }
 
     .album-card-cover {
@@ -414,7 +459,7 @@ export class AdminGallery extends LitElement {
     window.addEventListener("theme-change", () => saveThemeToBackend());
     loadAdminState().then((s) => {
       this._activeTab = s.galleryTab;
-      this._fetchAll();
+      this._fetchAll().then(() => { this._initializing = false; });
     });
   }
 
@@ -465,7 +510,7 @@ export class AdminGallery extends LitElement {
       const file = this._uploadFiles[i];
       if (!file.type.startsWith("image/")) continue;
 
-      // Extract EXIF from original file before optimization strips it
+      // Extract EXIF from original file (minus GPS — location is manual)
       let exif: Record<string, unknown> = {};
       let width = 0;
       let height = 0;
@@ -482,17 +527,17 @@ export class AdminGallery extends LitElement {
           if (tags.exif.ISOSpeedRatings) exif.ISO = tags.exif.ISOSpeedRatings.description;
           if (tags.exif.DateTimeOriginal) exif.DateTimeOriginal = tags.exif.DateTimeOriginal.description;
         }
-        if (tags.gps) {
-          if (tags.gps.Latitude !== undefined) exif.GPSLatitude = tags.gps.Latitude;
-          if (tags.gps.Longitude !== undefined) exif.GPSLongitude = tags.gps.Longitude;
-        }
         if (tags.file) {
           if (tags.file["Image Width"]) width = Number(tags.file["Image Width"].value);
           if (tags.file["Image Height"]) height = Number(tags.file["Image Height"].value);
         }
       } catch { /* EXIF extraction failed */ }
 
+      let thumbhash = "";
+      try { thumbhash = await generateThumbHash(file); } catch { /* thumbhash failed */ }
+
       const optimized = await optimizeImage(file);
+
       const formData = new FormData();
       formData.append("file", optimized);
       try {
@@ -511,11 +556,15 @@ export class AdminGallery extends LitElement {
             caption: meta.caption,
             album_id: this._batchAlbumId,
             category: this._batchCategory,
-            status: this._batchStatus,
+            location: this._batchLocation,
+            latitude: this._batchLatitude,
+            longitude: this._batchLongitude,
             width,
             height,
             exif_json: JSON.stringify(exif),
+            status: this._batchStatus,
             featured: this._batchFeatured,
+            thumbhash,
             tag_ids: this._batchTagIds,
           }),
         });
@@ -530,28 +579,43 @@ export class AdminGallery extends LitElement {
   private async _savePhoto() {
     const p = this._editingPhoto;
     if (!p) return;
-    await fetch(`/api/photos/${p.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "same-origin",
-      body: JSON.stringify({
-        title: p.title,
-        caption: p.caption,
-        album_id: p.album_id,
-        category: p.category,
-        featured: !!p.featured,
-        status: p.status,
-        tag_ids: this._editingPhotoTagIds,
-      }),
-    });
-    this._editingPhoto = null;
-    await this._fetchPhotos();
+    this._savingAction = "saving";
+    try {
+      await fetch(`/api/photos/${p.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          title: p.title,
+          caption: p.caption,
+          album_id: p.album_id,
+          category: p.category,
+          featured: !!p.featured,
+          status: p.status,
+          tag_ids: this._editingPhotoTagIds,
+          location: p.location,
+          latitude: p.latitude ?? null,
+          longitude: p.longitude ?? null,
+        }),
+      });
+      (this.shadowRoot!.querySelector('.photo-edit-modal') as HTMLElement & { close(): void })?.close();
+      this._saved = true;
+      setTimeout(() => { this._saved = false; }, 2000);
+      await this._fetchPhotos();
+    } finally {
+      this._savingAction = "none";
+    }
   }
 
   private async _deletePhoto(id: number) {
-    await fetch(`/api/photos/${id}`, { method: "DELETE", credentials: "same-origin" });
-    this._editingPhoto = null;
-    await this._fetchAll();
+    this._savingAction = "deleting";
+    try {
+      await fetch(`/api/photos/${id}`, { method: "DELETE", credentials: "same-origin" });
+      (this.shadowRoot!.querySelector('.photo-edit-modal') as HTMLElement & { close(): void })?.close();
+      await this._fetchAll();
+    } finally {
+      this._savingAction = "none";
+    }
   }
 
   // ── Album CRUD ──
@@ -562,6 +626,9 @@ export class AdminGallery extends LitElement {
       slug: "",
       title: "",
       description: "",
+      location: "",
+      latitude: null,
+      longitude: null,
       cover_photo_id: null,
       sort_order: 0,
       status: "draft",
@@ -572,45 +639,103 @@ export class AdminGallery extends LitElement {
   private async _saveAlbum() {
     const a = this._editingAlbum;
     if (!a) return;
-    if (a.id === 0) {
-      await fetch("/api/albums", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({
-          title: a.title,
-          slug: a.slug || slugify(a.title),
-          description: a.description,
-          status: a.status,
-        }),
-      });
-    } else {
-      const original = this._albums.find((x) => x.id === a.id);
-      if (!original) return;
-      await fetch(`/api/albums/${original.slug}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({
-          title: a.title,
-          slug: a.slug,
-          description: a.description,
-          status: a.status,
-        }),
-      });
+    this._savingAction = "saving";
+    this._saveError = "";
+    try {
+      if (a.id === 0) {
+        let slug = a.slug || slugify(a.title);
+        let res = await fetch("/api/albums", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({
+            title: a.title, slug, description: a.description, status: a.status,
+            location: a.location, latitude: a.latitude ?? null, longitude: a.longitude ?? null,
+          }),
+        });
+        // Auto-resolve slug conflict by appending suffix
+        if (!res.ok && res.status === 409) {
+          for (let i = 2; i <= 10; i++) {
+            slug = `${slugify(a.title)}-${i}`;
+            res = await fetch("/api/albums", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              credentials: "same-origin",
+              body: JSON.stringify({
+                title: a.title, slug, description: a.description, status: a.status,
+                location: a.location, latitude: a.latitude ?? null, longitude: a.longitude ?? null,
+              }),
+            });
+            if (res.ok || res.status !== 409) break;
+          }
+        }
+        if (!res.ok) {
+          this._saveError = "Could not create album. Please try a different name.";
+          return;
+        }
+      } else {
+        const original = this._albums.find((x) => x.id === a.id);
+        if (!original) return;
+        const res = await fetch(`/api/albums/${original.slug}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify({
+            title: a.title,
+            slug: a.slug,
+            description: a.description,
+            status: a.status,
+            location: a.location,
+            latitude: a.latitude ?? null,
+            longitude: a.longitude ?? null,
+          }),
+        });
+        if (!res.ok) {
+          this._saveError = "Could not update album. Please try again.";
+          return;
+        }
+      }
+      (this.shadowRoot!.querySelector('.album-edit-modal') as HTMLElement & { close(): void })?.close();
+      this._saved = true;
+      setTimeout(() => { this._saved = false; }, 2000);
+      await this._fetchAlbums();
+    } finally {
+      this._savingAction = "none";
     }
-    this._editingAlbum = null;
-    await this._fetchAlbums();
   }
 
   private async _deleteAlbum(slug: string) {
-    await fetch(`/api/albums/${slug}`, { method: "DELETE", credentials: "same-origin" });
-    if (this._viewingAlbum?.slug === slug) {
-      this._viewingAlbum = null;
-      this._albumPhotos = [];
+    this._savingAction = "deleting";
+    try {
+      await fetch(`/api/albums/${slug}`, { method: "DELETE", credentials: "same-origin" });
+      if (this._viewingAlbum?.slug === slug) {
+        this._viewingAlbum = null;
+        this._albumPhotos = [];
+      }
+      (this.shadowRoot!.querySelector('.album-edit-modal') as HTMLElement & { close(): void })?.close();
+      await this._fetchAlbums();
+    } finally {
+      this._savingAction = "none";
     }
-    this._editingAlbum = null;
-    await this._fetchAlbums();
+  }
+
+  private async _setAlbumCover(photoId: number) {
+    if (!this._viewingAlbum) return;
+    this._loading = true;
+    try {
+      await fetch(`/api/albums/${this._viewingAlbum.slug}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ cover_photo_id: photoId }),
+      });
+      await this._fetchAlbums();
+      if (this._viewingAlbum) {
+        const updated = this._albums.find((a) => a.slug === this._viewingAlbum!.slug);
+        if (updated) this._viewingAlbum = updated;
+      }
+    } catch { /* error */ }
+    this._loading = false;
   }
 
 
@@ -632,7 +757,7 @@ export class AdminGallery extends LitElement {
   render() {
     return html`
       ${this._renderHeader()}
-      ${this._loading ? html`<loading-bounce></loading-bounce>` : html`
+      ${this._initializing ? html`<loading-bounce></loading-bounce>` : html`
       <ui-tab-group @tab-change=${this._onTabChange}>
         <ui-tab-item label="Photos" ?selected=${this._activeTab === "photos"} value="photos"></ui-tab-item>
         <ui-tab-item label="Albums" ?selected=${this._activeTab === "albums"} value="albums"></ui-tab-item>
@@ -640,9 +765,9 @@ export class AdminGallery extends LitElement {
       ${this._renderContent()}
       `}
       ${this._renderUploadOverlay()}
-      ${this._editingPhoto ? this._renderPhotoModal() : nothing}
+      ${this._renderPhotoModal()}
       ${this._renderPhotoDetail()}
-      ${this._editingAlbum ? this._renderAlbumModal() : nothing}
+      ${this._renderAlbumModal()}
     `;
   }
 
@@ -664,6 +789,7 @@ export class AdminGallery extends LitElement {
           </ui-button>
         </a>
         <span class="header-title">Gallery</span>
+        ${this._saved ? html`<ui-badge size="xs" status="success">Saved</ui-badge>` : nothing}
         <theme-toggle></theme-toggle>
       </div>
     `;
@@ -705,9 +831,12 @@ export class AdminGallery extends LitElement {
 
   private _renderPhotoCard(p: Photo) {
     const albumName = this._albums.find((a) => a.id === p.album_id)?.title;
+    const placeholder = p.thumbhash ? thumbHashBase64ToDataURL(p.thumbhash) : "";
     return html`
       <div class="photo-card">
-        <img src=${p.url} alt=${p.title || "Photo"} loading="lazy" />
+        <div class="photo-card-img" style=${placeholder ? `background-image:url(${placeholder})` : ""}>
+          <img src=${p.url} alt=${p.title || "Photo"} loading="lazy" />
+        </div>
         <div class="photo-card-overlay">
           <ui-button action="contrast" emphasis="bold" size="s" @click=${() => { this._viewingPhoto = { ...p }; }}>
             <ui-icon name="visibility" size="s" slot="icon-start"></ui-icon>
@@ -720,6 +849,16 @@ export class AdminGallery extends LitElement {
             <ui-icon name="settings" size="s" slot="icon-start"></ui-icon>
             Edit
           </ui-button>
+          <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._deletePhoto(p.id); }}>
+            <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
+            Delete
+          </ui-button>
+          ${this._viewingAlbum ? html`
+            <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._setAlbumCover(p.id); }}>
+              <ui-icon name="image" size="s" slot="icon-start"></ui-icon>
+              Cover
+            </ui-button>
+          ` : nothing}
         </div>
         <div class="photo-info">
           <span class="photo-title">${p.title || p.r2_key}</span>
@@ -757,7 +896,21 @@ export class AdminGallery extends LitElement {
     return html`
       <div class="album-card" @click=${() => this._viewAlbum(a)}>
         <div class="album-card-cover">
-          ${coverPhoto ? html`<img src=${coverPhoto.url} alt=${a.title} />` : html`<ui-icon name="photo_album" size="l"></ui-icon>`}
+          ${coverPhoto ? html`<img src=${coverPhoto.url} alt=${a.title} style=${coverPhoto.thumbhash ? `background-image:url(${thumbHashBase64ToDataURL(coverPhoto.thumbhash)});background-size:cover` : ""} />` : html`<ui-icon name="photo_album" size="l"></ui-icon>`}
+        </div>
+        <div class="album-card-overlay">
+          <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._viewAlbum(a); }}>
+            <ui-icon name="visibility" size="s" slot="icon-start"></ui-icon>
+            View
+          </ui-button>
+          <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._editingAlbum = { ...a }; }}>
+            <ui-icon name="settings" size="s" slot="icon-start"></ui-icon>
+            Edit
+          </ui-button>
+          <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._deleteAlbum(a.slug); }}>
+            <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
+            Delete
+          </ui-button>
         </div>
         <div class="album-card-body">
           <div class="album-card-title">${a.title}</div>
@@ -814,7 +967,7 @@ export class AdminGallery extends LitElement {
           <ui-wizard
             layout="horizontal"
             current-step=${this._wizardStep}
-            ?loading=${this._uploading}
+            status=${this._uploading ? "loading" : "none"}
             @wizard-next=${(e: Event) => {
               if (this._wizardStep === 1 && this._uploadFiles.length === 0) {
                 e.preventDefault();
@@ -932,6 +1085,20 @@ export class AdminGallery extends LitElement {
             .value=${this._batchCategory}
             @input=${(e: Event) => { this._batchCategory = (e.target as HTMLInputElement).value; }}
           ><ui-label slot="label" size="m">Category</ui-label></ui-input>
+          <div>
+            <ui-label size="m">Location</ui-label>
+            <map-picker
+              .location=${this._batchLocation}
+              .latitude=${this._batchLatitude}
+              .longitude=${this._batchLongitude}
+              @location-picked=${(e: CustomEvent) => {
+                const d = e.detail as { location: string; latitude: number | null; longitude: number | null };
+                this._batchLocation = d.location;
+                this._batchLatitude = d.latitude;
+                this._batchLongitude = d.longitude;
+              }}
+            ></map-picker>
+          </div>
           <div class="field-row">
             <ui-select
               size="m"
@@ -1039,6 +1206,10 @@ export class AdminGallery extends LitElement {
           <div class="summary-value">${this._batchCategory || "—"}</div>
         </div>
         <div class="summary-section">
+          <div class="summary-label">Location</div>
+          <div class="summary-value">${this._batchLocation || "None"}${this._batchLatitude != null ? ` (${this._batchLatitude.toFixed(4)}, ${this._batchLongitude!.toFixed(4)})` : ""}</div>
+        </div>
+        <div class="summary-section">
           <div class="summary-label">Status</div>
           <div class="summary-value">${this._batchStatus}</div>
         </div>
@@ -1083,6 +1254,9 @@ export class AdminGallery extends LitElement {
           slug: slugify(this._newAlbumTitle.trim()),
           description: "",
           status: "draft",
+          location: "",
+          latitude: null,
+          longitude: null,
         }),
       });
       if (res.ok) {
@@ -1125,16 +1299,18 @@ export class AdminGallery extends LitElement {
     this._creatingAlbum = false;
     this._newAlbumTitle = "";
     this._batchTagIds = [];
+    this._batchLocation = "";
+    this._batchLatitude = null;
+    this._batchLongitude = null;
     this._creatingTag = false;
     this._newTagName = "";
   }
 
   private _renderPhotoDetail() {
-    if (!this._viewingPhoto) return nothing;
+    if (!this._viewingPhoto) return html`<ui-modal size="l" style="--ui-modal-width: 900px" dismissible></ui-modal>`;
     const p = this._viewingPhoto;
     const albumName = this._albums.find((a) => a.id === p.album_id)?.title ?? "None";
     const tags = (p as Photo & { tags?: Array<{ id: number; name: string }> }).tags ?? [];
-    const exif = typeof p.exif_json === "string" ? JSON.parse(p.exif_json || "{}") : (p.exif_json || {});
 
     return html`
       <ui-modal size="l" style="--ui-modal-width: 900px" open dismissible @close=${() => { this._viewingPhoto = null; }}>
@@ -1178,6 +1354,18 @@ export class AdminGallery extends LitElement {
                 <div class="detail-value detail-tags">${tags.map((t) => html`<ui-tag size="xs" emphasis="subtle">${t.name}</ui-tag>`)}</div>
               </div>
             ` : nothing}
+            ${p.location ? html`
+              <div class="detail-section">
+                <div class="detail-label">Location</div>
+                <div class="detail-value">
+                  <a href=${p.latitude != null
+                    ? `https://www.google.com/maps?q=${p.latitude},${p.longitude}`
+                    : `https://www.google.com/maps?q=${encodeURIComponent(p.location)}`}
+                    target="_blank" rel="noopener" style="color:var(--fd-text-link);text-decoration:none">${p.location}</a>
+                </div>
+                </div>
+              </div>
+            ` : nothing}
             <div class="detail-row">
               <div class="detail-section">
                 <div class="detail-label">Dimensions</div>
@@ -1188,21 +1376,23 @@ export class AdminGallery extends LitElement {
                 <div class="detail-value">${p.created_at ? new Date(p.created_at).toLocaleDateString() : "—"}</div>
               </div>
             </div>
-            ${Object.keys(exif).length > 0 ? html`
-              <div class="detail-section">
-                <div class="detail-label">EXIF / Metadata</div>
-                <div class="detail-exif">
-                  ${exif.Make || exif.make ? html`<div class="exif-row"><span class="exif-key">Camera</span><span class="exif-val">${exif.Make || exif.make}${exif.Model || exif.model ? ` ${exif.Model || exif.model}` : ""}</span></div>` : nothing}
-                  ${exif.LensModel || exif.lensModel ? html`<div class="exif-row"><span class="exif-key">Lens</span><span class="exif-val">${exif.LensModel || exif.lensModel}</span></div>` : nothing}
-                  ${exif.FocalLength || exif.focalLength ? html`<div class="exif-row"><span class="exif-key">Focal Length</span><span class="exif-val">${exif.FocalLength || exif.focalLength}mm</span></div>` : nothing}
-                  ${exif.FNumber || exif.fNumber ? html`<div class="exif-row"><span class="exif-key">Aperture</span><span class="exif-val">f/${exif.FNumber || exif.fNumber}</span></div>` : nothing}
-                  ${exif.ExposureTime || exif.exposureTime ? html`<div class="exif-row"><span class="exif-key">Shutter</span><span class="exif-val">${exif.ExposureTime || exif.exposureTime}s</span></div>` : nothing}
-                  ${exif.ISO || exif.iso ? html`<div class="exif-row"><span class="exif-key">ISO</span><span class="exif-val">${exif.ISO || exif.iso}</span></div>` : nothing}
-                  ${exif.DateTimeOriginal || exif.dateTimeOriginal ? html`<div class="exif-row"><span class="exif-key">Date Taken</span><span class="exif-val">${exif.DateTimeOriginal || exif.dateTimeOriginal}</span></div>` : nothing}
-                  ${exif.GPSLatitude || exif.gpsLatitude ? html`<div class="exif-row"><span class="exif-key">GPS</span><span class="exif-val">${exif.GPSLatitude || exif.gpsLatitude}, ${exif.GPSLongitude || exif.gpsLongitude}</span></div>` : nothing}
+            ${(() => {
+              const exif = typeof p.exif_json === "string" ? JSON.parse(p.exif_json || "{}") : (p.exif_json || {});
+              return Object.keys(exif).length > 0 ? html`
+                <div class="detail-section">
+                  <div class="detail-label">Camera Info</div>
+                  <div class="detail-exif">
+                    ${exif.Make ? html`<div class="exif-row"><span class="exif-key">Camera</span><span class="exif-val">${exif.Make}${exif.Model ? ` ${exif.Model}` : ""}</span></div>` : nothing}
+                    ${exif.LensModel ? html`<div class="exif-row"><span class="exif-key">Lens</span><span class="exif-val">${exif.LensModel}</span></div>` : nothing}
+                    ${exif.FocalLength ? html`<div class="exif-row"><span class="exif-key">Focal Length</span><span class="exif-val">${exif.FocalLength}mm</span></div>` : nothing}
+                    ${exif.FNumber ? html`<div class="exif-row"><span class="exif-key">Aperture</span><span class="exif-val">${String(exif.FNumber).startsWith("f/") ? exif.FNumber : `f/${exif.FNumber}`}</span></div>` : nothing}
+                    ${exif.ExposureTime ? html`<div class="exif-row"><span class="exif-key">Shutter</span><span class="exif-val">${exif.ExposureTime}s</span></div>` : nothing}
+                    ${exif.ISO ? html`<div class="exif-row"><span class="exif-key">ISO</span><span class="exif-val">${exif.ISO}</span></div>` : nothing}
+                    ${exif.DateTimeOriginal ? html`<div class="exif-row"><span class="exif-key">Date Taken</span><span class="exif-val">${exif.DateTimeOriginal}</span></div>` : nothing}
+                  </div>
                 </div>
-              </div>
-            ` : nothing}
+              ` : nothing;
+            })()}
           </div>
         </div>
         <div slot="footer-end">
@@ -1218,9 +1408,10 @@ export class AdminGallery extends LitElement {
   }
 
   private _renderPhotoModal() {
-    const p = this._editingPhoto!;
+    if (!this._editingPhoto) return html`<ui-modal size="m" dismissible></ui-modal>`;
+    const p = this._editingPhoto;
     return html`
-      <ui-modal size="m" open dismissible @close=${() => { this._editingPhoto = null; }}>
+      <ui-modal class="photo-edit-modal" size="m" open dismissible @close=${() => { this._editingPhoto = null; }}>
         <span>Edit Photo</span>
         <div slot="body" class="modal-form">
           <ui-input
@@ -1252,6 +1443,18 @@ export class AdminGallery extends LitElement {
               .value=${p.category}
               @input=${(e: Event) => { this._editingPhoto = { ...p, category: (e.target as HTMLInputElement).value }; }}
             ><ui-label slot="label" size="m">Category</ui-label></ui-input>
+          </div>
+          <div>
+            <ui-label size="m">Location</ui-label>
+            <map-picker
+              .location=${p.location || ""}
+              .latitude=${p.latitude ?? null}
+              .longitude=${p.longitude ?? null}
+              @location-picked=${(e: CustomEvent) => {
+                const d = e.detail as { location: string; latitude: number | null; longitude: number | null };
+                this._editingPhoto = { ...p, location: d.location, latitude: d.latitude, longitude: d.longitude };
+              }}
+            ></map-picker>
           </div>
           <div class="field-row">
             <ui-select
@@ -1312,22 +1515,24 @@ export class AdminGallery extends LitElement {
           </div>
         </div>
         </div>
-        <ui-button slot="footer-start" action="destructive" emphasis="minimal" size="s" @click=${() => this._deletePhoto(p.id)}>Delete</ui-button>
+        <ui-button slot="footer-start" action="destructive" emphasis="minimal" size="s" status=${this._savingAction === "deleting" ? "loading" : "none"} ?disabled=${this._savingAction === "saving"} @click=${() => this._deletePhoto(p.id)}>Delete</ui-button>
         <div slot="footer-end" class="modal-actions-right">
-          <ui-button action="secondary" emphasis="subtle" size="s" @click=${() => { this._editingPhoto = null; }}>Cancel</ui-button>
-          <ui-button action="primary" size="s" @click=${this._savePhoto}>Save</ui-button>
+          <ui-button action="secondary" emphasis="subtle" size="s" ?disabled=${this._savingAction !== "none"} @click=${() => { (this.shadowRoot!.querySelector('.photo-edit-modal') as HTMLElement & { close(): void })?.close(); }}>Cancel</ui-button>
+          <ui-button action="primary" size="s" status=${this._savingAction === "saving" ? "loading" : "none"} ?disabled=${this._savingAction === "deleting"} @click=${this._savePhoto}>Save</ui-button>
         </div>
       </ui-modal>
     `;
   }
 
   private _renderAlbumModal() {
-    const a = this._editingAlbum!;
+    if (!this._editingAlbum) return html`<ui-modal size="m" dismissible></ui-modal>`;
+    const a = this._editingAlbum;
     const isNew = a.id === 0;
     return html`
-      <ui-modal size="m" open dismissible @close=${() => { this._editingAlbum = null; }}>
+      <ui-modal class="album-edit-modal" size="m" open dismissible @close=${() => { this._editingAlbum = null; this._saveError = ""; }}>
         <span>${isNew ? "New Album" : "Edit Album"}</span>
         <div slot="body" class="modal-form">
+          ${this._saveError ? html`<ui-alert status="error" size="s" dismissible @dismiss=${() => { this._saveError = ""; }}>${this._saveError}</ui-alert>` : nothing}
           <ui-input
             size="m"
             .value=${a.title}
@@ -1349,6 +1554,18 @@ export class AdminGallery extends LitElement {
             .value=${a.description}
             @input=${(e: Event) => { this._editingAlbum = { ...a, description: (e.target as HTMLTextAreaElement).value }; }}
           ><ui-label slot="label" size="m">Description</ui-label></ui-textarea>
+          <div>
+            <ui-label size="m">Location</ui-label>
+            <map-picker
+              .location=${a.location || ""}
+              .latitude=${a.latitude ?? null}
+              .longitude=${a.longitude ?? null}
+              @location-picked=${(e: CustomEvent) => {
+                const d = e.detail as { location: string; latitude: number | null; longitude: number | null };
+                this._editingAlbum = { ...a, location: d.location, latitude: d.latitude, longitude: d.longitude };
+              }}
+            ></map-picker>
+          </div>
           <ui-select
             size="m"
             .value=${a.status}
@@ -1359,10 +1576,10 @@ export class AdminGallery extends LitElement {
             <ui-dropdown-item value="published">Published</ui-dropdown-item>
           </ui-select>
         </div>
-        ${isNew ? html`<div slot="footer-start"></div>` : html`<ui-button slot="footer-start" action="destructive" emphasis="minimal" size="s" @click=${() => this._deleteAlbum(a.slug)}>Delete</ui-button>`}
+        ${isNew ? html`<div slot="footer-start"></div>` : html`<ui-button slot="footer-start" action="destructive" emphasis="minimal" size="s" status=${this._savingAction === "deleting" ? "loading" : "none"} ?disabled=${this._savingAction === "saving"} @click=${() => this._deleteAlbum(a.slug)}>Delete</ui-button>`}
         <div slot="footer-end" class="modal-actions-right">
-          <ui-button action="secondary" emphasis="subtle" size="s" @click=${() => { this._editingAlbum = null; }}>Cancel</ui-button>
-          <ui-button action="primary" size="s" @click=${this._saveAlbum}>${isNew ? "Create" : "Save"}</ui-button>
+          <ui-button action="secondary" emphasis="subtle" size="s" ?disabled=${this._savingAction !== "none"} @click=${() => { (this.shadowRoot!.querySelector('.album-edit-modal') as HTMLElement & { close(): void })?.close(); }}>Cancel</ui-button>
+          <ui-button action="primary" size="s" status=${this._savingAction === "saving" ? "loading" : "none"} ?disabled=${this._savingAction === "deleting"} @click=${this._saveAlbum}>${isNew ? "Create" : "Save"}</ui-button>
         </div>
       </ui-modal>
     `;

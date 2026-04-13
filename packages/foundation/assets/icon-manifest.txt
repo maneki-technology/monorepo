@@ -40,6 +40,7 @@ grid_view
 home
 image
 link
+location_on
 info
 keyboard_double_arrow_left
 keyboard_double_arrow_right

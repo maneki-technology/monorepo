@@ -59,6 +59,29 @@ if (tableInfo.rows.length > 0) {
   console.log("Creating fresh schema...");
 }
 
-// Create any missing tables (ui_state, deployments)
+// Add location column to photos and albums if missing
+try {
+  await db.execute("ALTER TABLE photos ADD COLUMN location TEXT NOT NULL DEFAULT ''");
+  console.log("Added location column to photos.");
+} catch { console.log("photos.location already exists."); }
+
+try {
+  await db.execute("ALTER TABLE albums ADD COLUMN location TEXT NOT NULL DEFAULT ''");
+  console.log("Added location column to albums.");
+} catch { console.log("albums.location already exists."); }
+
+// Add latitude/longitude columns
+for (const table of ["photos", "albums"]) {
+  try {
+    await db.execute(`ALTER TABLE ${table} ADD COLUMN latitude REAL`);
+    console.log(`Added latitude column to ${table}.`);
+  } catch { console.log(`${table}.latitude already exists.`); }
+  try {
+    await db.execute(`ALTER TABLE ${table} ADD COLUMN longitude REAL`);
+    console.log(`Added longitude column to ${table}.`);
+  } catch { console.log(`${table}.longitude already exists.`); }
+}
+
+// Create any missing tables
 await db.executeMultiple(SCHEMA);
 console.log("Done.");
