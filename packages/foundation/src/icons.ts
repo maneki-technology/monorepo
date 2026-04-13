@@ -134,6 +134,8 @@ export const ICON_FORMAT_QUOTE = "\uE244";
 export const ICON_FORMAT_UNDERLINED = "\uE249";
 /** image — U+E3F4 */
 export const ICON_IMAGE = "\uE3F4";
+/** photo_album — U+E411 */
+export const ICON_PHOTO_ALBUM = "\uE411";
 /** link — U+E250 */
 export const ICON_LINK = "\uE250";
 /** title — U+E264 */
@@ -200,6 +202,7 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   format_quote: ICON_FORMAT_QUOTE,
   format_underlined: ICON_FORMAT_UNDERLINED,
   image: ICON_IMAGE,
+  photo_album: ICON_PHOTO_ALBUM,
   link: ICON_LINK,
   title: ICON_TITLE,
 };

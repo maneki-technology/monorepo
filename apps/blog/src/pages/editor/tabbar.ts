@@ -19,8 +19,6 @@ export class EditorTabbar extends LitElement {
 
   protected render(): unknown {
     const s = this.store.state;
-    const isDark = document.documentElement.getAttribute("data-theme") === "heroui-dark";
-    const themeIcon = isDark ? "\u263E" : "\u2600\uFE0F";
 
     return html`
       <ui-tab-group
@@ -43,15 +41,8 @@ export class EditorTabbar extends LitElement {
         )}
       </ui-tab-group>
       <div class="admin-tab-bar-actions">
-        <ui-button
-          id="admin-theme-toggle"
-          action="secondary"
-          emphasis="minimal"
-          size="s"
-          aria-label="Toggle dark mode"
-          @click=${this._toggleTheme}
-          >${themeIcon}</ui-button
-        >
+        <theme-toggle></theme-toggle>
+      </div>
       </div>
     `;
   }
@@ -156,16 +147,6 @@ export class EditorTabbar extends LitElement {
     saveUIState();
   }
 
-  private _toggleTheme(): void {
-    const dark = document.documentElement.getAttribute("data-theme") === "heroui-dark";
-    if (dark) {
-      document.documentElement.setAttribute("data-theme", "heroui");
-    } else {
-      document.documentElement.setAttribute("data-theme", "heroui-dark");
-    }
-    setState({}); // trigger render for theme icon update
-    saveUIState();
-  }
 }
 
 // ─── Backward compatibility wrapper ──────────────────────────────────────────

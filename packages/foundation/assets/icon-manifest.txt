@@ -51,6 +51,7 @@ more_horiz
 more_vert
 notifications
 person
+photo_album
 phone
 priority_high
 progress_activity

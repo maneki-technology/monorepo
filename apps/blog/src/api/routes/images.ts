@@ -34,7 +34,6 @@ export const images = new Hono<Env>()
 
     // Generate unique filename: timestamp-originalname
     const name = `${Date.now().toString(36)}-${file.name.replace(/[^\w.-]/g, "_")}`;
-
     await bucket.put(name, await file.arrayBuffer(), {
       httpMetadata: { contentType: file.type },
       customMetadata: {
@@ -45,8 +44,7 @@ export const images = new Hono<Env>()
 
     const baseUrl = c.env.IMAGES_BASE_URL || "/api/images";
     const url = `${baseUrl}/${name}`;
-    return c.json({ ok: true, name, url }, 201);
-    return c.json({ ok: true, name, url }, 201);
+    return c.json({ ok: true, name, url, r2_key: name }, 201);
   })
 
   // List all images

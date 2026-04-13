@@ -52,9 +52,13 @@ export const STYLES = /* css */ `
   /* ── Label row ─────────────────────────────────────────────────────────── */
 
   .label-row {
-    display: flex;
+    display: none;
     align-items: baseline;
     gap: ${SP_1};
+  }
+
+  .label-row.has-label {
+    display: flex;
   }
 
 

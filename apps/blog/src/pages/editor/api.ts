@@ -160,7 +160,7 @@ let uiStateSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
 export async function loadUIState(): Promise<EditorUIState | null> {
   try {
-    const res = await api.api["ui-state"][":page"].$get({ param: { page: "editor" } });
+    const res = await api.api["ui-state"][":page"].$get({ param: { page: "admin" } });
     if (!res.ok) return null;
     const data = await res.json();
     return (data.state ?? null) as EditorUIState | null;
@@ -173,7 +173,7 @@ export function saveUIState(): void {
   if (uiStateSaveTimer) clearTimeout(uiStateSaveTimer);
   uiStateSaveTimer = setTimeout(async () => {
     const sidebar = document.getElementById("admin-sidebar");
-    const uiStateData: EditorUIState = {
+    const editorFields = {
       openTabs: state.openTabs.map((t) => t.slug),
       openProjectTabs: state.openProjectTabs.map((t) => t.slug),
       activeTab: state.currentSlug,
@@ -182,9 +182,16 @@ export function saveUIState(): void {
       theme: document.documentElement.getAttribute("data-theme")?.includes("dark") ? "dark" : "light",
     };
     try {
+      // Read existing state to preserve gallery fields
+      let existing: Record<string, unknown> = {};
+      const res = await api.api["ui-state"][":page"].$get({ param: { page: "admin" } });
+      if (res.ok) {
+        const data = await res.json();
+        existing = (data.state ?? {}) as Record<string, unknown>;
+      }
       await api.api["ui-state"][":page"].$put({
-        param: { page: "editor" },
-        json: uiStateData as unknown as Record<string, unknown>,
+        param: { page: "admin" },
+        json: { ...existing, ...editorFields } as unknown as Record<string, unknown>,
       });
     } catch { /* ignore */ }
   }, 500);

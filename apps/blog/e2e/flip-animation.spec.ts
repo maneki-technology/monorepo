@@ -23,8 +23,7 @@ test.describe("FLIP signature animation", () => {
     await page.click('nav a[data-route="blog"]');
 
     // Clone should appear briefly during animation
-    const clone = page.locator(".sig-clone");
-    // Wait a tiny bit for the clone to be inserted
+    const clone = page.locator("strong.sig-clone");
     await expect(clone).toBeAttached({ timeout: 500 });
   });
 
@@ -181,9 +180,10 @@ test.describe("FLIP signature animation", () => {
     const clonePos = await page.evaluate(() => {
       return new Promise<{ top: number; left: number } | null>((resolve) => {
         const check = () => {
-          const clone = document.querySelector(".sig-clone") as HTMLElement;
-          if (clone && clone.style.visibility === "visible") {
-            resolve({ top: parseFloat(clone.style.top), left: parseFloat(clone.style.left) });
+          const clone = document.querySelector("strong.sig-clone") as HTMLElement;
+          if (clone) {
+            const r = clone.getBoundingClientRect();
+            resolve({ top: r.top, left: r.left });
           } else {
             requestAnimationFrame(check);
           }

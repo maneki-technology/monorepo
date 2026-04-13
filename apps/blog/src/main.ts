@@ -26,28 +26,7 @@ registerPatternRoute({
 
 // ─── Theme Toggle ─────────────────────────────────────────────────────────
 
-function initThemeToggle(): void {
-  const btn = document.getElementById("theme-toggle")!;
-  const saved = localStorage.getItem("blog-theme");
-  if (saved === "dark") {
-    document.documentElement.setAttribute("data-theme", "heroui-dark");
-    btn.textContent = "☾";
-  } else {
-    document.documentElement.setAttribute("data-theme", "heroui");
-  }
-  btn.addEventListener("click", () => {
-    const isDark = document.documentElement.getAttribute("data-theme") === "heroui-dark";
-    if (isDark) {
-      document.documentElement.setAttribute("data-theme", "heroui");
-      localStorage.setItem("blog-theme", "light");
-      btn.textContent = "☀️";
-    } else {
-      document.documentElement.setAttribute("data-theme", "heroui-dark");
-      localStorage.setItem("blog-theme", "dark");
-      btn.textContent = "☾";
-    }
-  });
-}
+import "./components/theme-toggle.js";
 
 // ─── Reading Progress ─────────────────────────────────────────────────────────
 
@@ -67,7 +46,6 @@ function initReadingProgress(): void {
 
 // ─── Init ──────────────────────────────────────────────────────────────────
 
-initThemeToggle();
 initReadingProgress();
 initRouter();
 
