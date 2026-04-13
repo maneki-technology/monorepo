@@ -158,6 +158,11 @@ export const albums = new Hono<Env>()
   .delete("/:slug", async (c) => {
     const slug = c.req.param("slug");
     const db = c.get("db");
+    // Unlink photos from this album (preserve them)
+    const album = await db.execute({ sql: "SELECT id FROM albums WHERE slug = ?", args: [slug] });
+    if (album.rows.length > 0) {
+      await db.execute({ sql: "UPDATE photos SET album_id = NULL WHERE album_id = ?", args: [album.rows[0].id as number] });
+    }
     // Rename slug to free it for reuse, then soft-delete
     const deletedSlug = `${slug}__deleted_${Date.now()}`;
     await db.execute({
