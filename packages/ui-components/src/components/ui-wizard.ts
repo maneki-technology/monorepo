@@ -12,8 +12,6 @@ import {
   SP_5,
   SP_7,
   SP_8,
-  SURFACE_PRIMARY,
-  SURFACE_SECONDARY,
   TEXT_PRIMARY,
   TYPE_BODY_02,
   TYPE_HEADING_04,
@@ -41,7 +39,7 @@ const STYLES = /* css */ `
     font-family: ${FONT_PRIMARY};
     width: 100%;
     height: 100%;
-    background: ${SURFACE_PRIMARY};
+    background: transparent;
     overflow: hidden;
   }
 
@@ -56,7 +54,7 @@ const STYLES = /* css */ `
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    background: ${SURFACE_PRIMARY};
+    background: transparent;
   }
 
   .header-title {
@@ -79,7 +77,7 @@ const STYLES = /* css */ `
   .steps-sidebar {
     display: none;
     flex-direction: column;
-    background: ${SURFACE_SECONDARY};
+    background: transparent;
     flex-shrink: 0;
     position: relative;
   }
@@ -104,7 +102,7 @@ const STYLES = /* css */ `
     display: none;
     align-items: center;
     justify-content: center;
-    background: ${SURFACE_PRIMARY};
+    background: transparent;
     flex-shrink: 0;
     border-bottom: ${BW_SM} solid ${BORDER_MINIMAL};
   }
@@ -119,11 +117,11 @@ const STYLES = /* css */ `
     flex: 1;
     min-width: 0;
     overflow-y: auto;
-    background: ${SURFACE_PRIMARY};
+    background: transparent;
   }
 
   :host([layout="horizontal"]) .content {
-    background: ${SURFACE_SECONDARY};
+    background: transparent;
   }
 
   /* ── Footer ──────────────────────────────────────────────────────────────── */
@@ -134,7 +132,7 @@ const STYLES = /* css */ `
     justify-content: flex-end;
     gap: ${SP_1};
     flex-shrink: 0;
-    background: ${SURFACE_PRIMARY};
+    background: transparent;
   }
 
   /* ── Horizontal layout ───────────────────────────────────────────────────── */
@@ -154,8 +152,7 @@ const STYLES = /* css */ `
   }
 
   :host([layout="horizontal"]) .footer {
-    height: ${SP_7};
-    padding: 0 ${SP_1_5};
+    padding: ${SP_1} ${SP_1_5};
   }
 
   /* ── Vertical layout ─────────────────────────────────────────────────────── */
@@ -175,8 +172,16 @@ const STYLES = /* css */ `
   }
 
   :host([layout="vertical"]) .footer {
-    height: ${SP_7};
-    padding: 0 ${SP_1_5};
+    padding: ${SP_1} ${SP_1_5};
+  }
+
+  /* ── Headless mode (embedded in modal) ─────────────────────────────────── */
+
+  :host([headless]) .header,
+  :host([headless]) .header + ui-separator,
+  :host([headless]) .footer,
+  :host([headless]) .footer-sep {
+    display: none;
   }
 `;
 
@@ -186,7 +191,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiWizard extends HTMLElement {
-  static readonly observedAttributes = ["layout", "title", "current-step", "loading"];
+  static readonly observedAttributes = ["layout", "title", "current-step", "loading", "headless"];
 
   #headerTitle!: HTMLElement;
   #stepsSidebar!: HTMLElement;
@@ -241,6 +246,7 @@ export class UiWizard extends HTMLElement {
     // Footer
     const footerSep = document.createElement("ui-separator");
     footerSep.setAttribute("emphasis", "minimal");
+    footerSep.className = "footer-sep";
 
     const footer = document.createElement("div");
     footer.className = "footer";

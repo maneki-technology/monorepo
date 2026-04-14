@@ -33,7 +33,7 @@ describe("ui-wizard", () => {
 
   it("declares observedAttributes", () => {
     const Ctor = customElements.get("ui-wizard") as unknown as { observedAttributes: string[] };
-    expect(Ctor.observedAttributes).toEqual(["layout", "title", "current-step", "loading"]);
+    expect(Ctor.observedAttributes).toEqual(["layout", "title", "current-step", "loading", "headless"]);
   });
 
   // ── Default rendering ─────────────────────────────────────────────────────

@@ -71,6 +71,7 @@ export const BORDER_FOCUS = semanticVar("border", "focus");
 // ─── Form ───────────────────────────────────────────────────────────────────
 
 export const FORM_INPUT_BORDER = semanticVar("form", "inputBorder");
+export const FORM_INPUT_BG = semanticVar("form", "inputBackground");
 
 // ─── Button ─────────────────────────────────────────────────────────────────
 

@@ -257,7 +257,7 @@ Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, u
 - **No inline SVG icons in new components** — use Material Symbols font instead (see ICONS section)
 - **Read Figma semantic tokens carefully.** Figma uses domain-specific token names (e.g., `Form/input-border`, `State/Selected/Surface/selected-bold`) that map to foundation tokens. Always check the Figma design context for the exact token names and map them to the closest foundation equivalent:
   - `Form/input-border` → `semanticVar("form", "inputBorder")` (`#9FB1BD`) — form control border
-  - `Form/input-background` → `#ffffff` (white, no token needed)
+  - `Form/input-background` → `FORM_INPUT_BG` / `semanticVar("form", "inputBackground")` — form control background. **Never use `SURFACE_PRIMARY` for form input backgrounds** — it's invisible in dark mode. Enforced by `form-bg-lint.test.ts`.
   - `Border/border-contrast` → `semanticVar("border", "contrast")` (`#1C2B36`)
   - `State/Hover/Border/border-moderate-hover` → `semanticVar("stateHover", "borderModerate")` (`#7A909E`) — hover border
   - `State/Selected/Surface/selected-bold` → `semanticVar("stateSelected", "surfaceBold")` (`#186ADE`) — checked/selected fill

@@ -164,6 +164,7 @@ const STYLES = /* css */ `
 
   .body {
     color: ${TEXT_PRIMARY};
+    background-color: var(--ui-modal-body-bg, transparent);
   }
 
   /* ── Footer ──────────────────────────────────────────────────────────────── */

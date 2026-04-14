@@ -158,7 +158,7 @@ export const herouiStateDisabled = {
 
 export const herouiForm = {
   inputBorder: "rgba(222, 222, 224, 0)", // field/border (transparent — shadow provides boundary)
-  inputBackground: "#ffffff", // --field-background
+  inputBackground: "#ffffff", // pure white for clean input fields
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── State — Hover ──────────────────────────────────────────────────────────
@@ -445,8 +445,8 @@ export const herouiDarkStateDisabled = {
 // ─── Form (Dark) ────────────────────────────────────────────────────────
 
 export const herouiDarkForm = {
-  inputBorder: "rgba(40, 40, 44, 0)",    // field/border (dark, transparent — bg contrast is sufficient)
-  inputBackground: "#18181b",            // --surface (dark)
+  inputBorder: "#3f3f46",               // zinc-700 — subtle visible border in dark
+  inputBackground: "#3f3f46",            // zinc-700 — lighter than modal body (#27272a)
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── State — Hover (Dark) ───────────────────────────────────────────────
@@ -629,6 +629,7 @@ const herouiComponentCssShared = [
   "--ui-modal-radius: 24px;",
   "--ui-qf-menu-gap: 8px;",
   "--ui-modal-padding: 24px;",
+  "--ui-modal-body-bg: #fafafa;",  // zinc-50 — subtle tint for modal body
   "--ui-qf-menu-radius: 20px;",
   "--ui-acc-group-bg: var(--fd-surface-primary, #ffffff);",
   "--ui-acc-group-radius: 24px;",
@@ -704,6 +705,7 @@ const herouiComponentCssDark = [
   "--ui-tab-selected-bg: #3f3f46;",
   "--ui-tab-selected-shadow: none;",
   "--ui-card-border-width: 1px;",
+  "--ui-modal-body-bg: #27272a;",  // zinc-800 — warmer modal body in dark
   "--ui-cb-border: #3f3f46;",
   "--ui-spmi-hover-bg: rgba(255, 255, 255, 0.06);",
   "--ui-spmi-active-bg: rgba(255, 255, 255, 0.1);",

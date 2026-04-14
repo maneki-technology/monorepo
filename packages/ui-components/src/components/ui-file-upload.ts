@@ -8,7 +8,7 @@ import {
   HOVER_BORDER_MODERATE,
   SP_1,
   SP_1_5,
-  SURFACE_PRIMARY,
+  FORM_INPUT_BG,
   RADIUS_SM,
   SURFACE_SECONDARY,
   SURFACE_TERTIARY,
@@ -49,7 +49,7 @@ const STYLES = /* css */ `
     align-items: stretch;
     border: 1px solid var(--ui-fu-border, ${FORM_INPUT_BORDER});
     border-radius: ${RADIUS_SM};
-    background-color: var(--ui-fu-bg, ${SURFACE_PRIMARY});
+    background-color: var(--ui-fu-bg, ${FORM_INPUT_BG});
     box-shadow: ${SHADOW_FIELD};
     cursor: pointer;
     width: 100%;

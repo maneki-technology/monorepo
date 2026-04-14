@@ -10,7 +10,7 @@ import {
   SP_1_5,
   SP_2,
   SP_3,
-  SURFACE_PRIMARY,
+  FORM_INPUT_BG,
   SURFACE_SECONDARY,
   TEXT_LINK,
   TEXT_PRIMARY,
@@ -74,7 +74,7 @@ const STYLES = /* css */ `
     justify-content: center;
     border: 2px dashed var(--ui-dz-border, ${BORDER_MINIMAL});
     border-radius: ${RADIUS_SM};
-    background-color: var(--ui-dz-bg, ${SURFACE_PRIMARY});
+    background-color: var(--ui-dz-bg, ${FORM_INPUT_BG});
     cursor: pointer;
     text-align: center;
     transition:
