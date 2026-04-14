@@ -51,7 +51,7 @@ export default defineConfig(({ command }) => ({
     sitemapPlugin(),
     rssFeedPlugin(),
     VitePWA({
-      registerType: "prompt",
+      registerType: "autoUpdate",
       manifest: false,
       workbox: {
         // Only cache static assets — HTML always comes from network
