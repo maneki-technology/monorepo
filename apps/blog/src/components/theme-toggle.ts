@@ -5,7 +5,7 @@ import "@maneki/ui-components/components/ui-button.js";
  * Vanilla Web Component — no Lit dependency.
  * Uses <ui-button> from the design system internally.
  * Reads/writes "blog-theme" localStorage key.
- * Shows ☀️ in light mode, ☾ in dark mode.
+ * Shows ☀️ in light mode, 🌙 in dark mode.
  */
 class ThemeToggle extends HTMLElement {
   private _dark = false;
@@ -20,7 +20,7 @@ class ThemeToggle extends HTMLElement {
     btn.setAttribute("emphasis", "minimal");
     btn.setAttribute("size", "s");
     btn.setAttribute("aria-label", "Toggle dark mode");
-    btn.textContent = this._dark ? "☾" : "☀️";
+    btn.textContent = this._dark ? "🌙" : "☀️";
     btn.addEventListener("click", () => this._toggle());
     this._btn = btn;
     this.appendChild(btn);

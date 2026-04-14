@@ -37,6 +37,8 @@ export function toggleTheme(): void {
 
 function applyTheme(theme: Theme): void {
   document.documentElement.setAttribute("data-theme", theme === "dark" ? "heroui-dark" : "heroui");
+  // Set cookie for FOUC prevention on next page load (read synchronously in HTML)
+  document.cookie = `admin-theme=${theme};path=/admin;max-age=31536000;SameSite=Lax`;
 }
 
 // ── Gallery tab ──
