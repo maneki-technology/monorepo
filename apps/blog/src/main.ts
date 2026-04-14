@@ -69,3 +69,6 @@ function observeReveals(): void {
 
 observeReveals();
 window.addEventListener("route-changed", observeReveals);
+
+// Auto-refresh on service worker update (reload when user returns to tab)
+import "./sw-refresh.js";
