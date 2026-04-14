@@ -22,9 +22,10 @@ export async function fetchPosts(): Promise<Post[]> {
       updatedAt: p.updated_at as string,
       publishedAt: (p.published_at as string) ?? null,
       persisted: true,
-      publishedContent: p.status === "published"
-        ? `${p.title}\n${p.body_md}\n${p.excerpt}\n${(p.tags as string[]).join(", ")}\n${(p.created_at as string).split("T")[0]}`
-        : null,
+      publishedContent:
+        p.status === "published"
+          ? `${p.title}\n${p.body_md}\n${p.excerpt}\n${(p.tags as string[]).join(", ")}\n${(p.created_at as string).split("T")[0]}`
+          : null,
     }));
   } catch {
     return [];
@@ -34,7 +35,10 @@ export async function fetchPosts(): Promise<Post[]> {
 export async function savePost(post: Post): Promise<string | null> {
   try {
     const slug = post.persisted ? post.slug : toSlug(post.date, post.title);
-    const tags = post.tags.split(",").map((t) => t.trim()).filter(Boolean);
+    const tags = post.tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     if (post.persisted) {
       await api.api.posts[":slug"].$put({
@@ -71,7 +75,9 @@ export async function savePost(post: Post): Promise<string | null> {
 export async function deletePost(slug: string): Promise<void> {
   try {
     await api.api.posts[":slug"].$delete({ param: { slug } });
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 export async function fetchProjects(): Promise<Project[]> {
@@ -94,17 +100,23 @@ export async function fetchProjects(): Promise<Project[]> {
       updatedAt: p.updated_at as string,
       publishedAt: (p.published_at as string) ?? null,
       persisted: true,
-      publishedContent: p.status === "published"
-        ? `${p.title}\n${p.body_md}\n${p.description}\n${(p.tech as string[]).join(", ")}`
-        : null,
+      publishedContent:
+        p.status === "published"
+          ? `${p.title}\n${p.body_md}\n${p.description}\n${(p.tech as string[]).join(", ")}`
+          : null,
     }));
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
 export async function saveProject(project: Project): Promise<string | null> {
   try {
     const slug = project.persisted ? project.slug : project.slug || `project-${Date.now().toString(36)}`;
-    const tech = project.tech.split(",").map((t) => t.trim()).filter(Boolean);
+    const tech = project.tech
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     if (project.persisted) {
       await api.api.projects[":slug"].$put({
@@ -141,22 +153,36 @@ export async function saveProject(project: Project): Promise<string | null> {
       },
     });
     return slug;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 export async function deleteProject(slug: string): Promise<void> {
-  try { await api.api.projects[":slug"].$delete({ param: { slug } }); } catch { /* ignore */ }
+  try {
+    await api.api.projects[":slug"].$delete({ param: { slug } });
+  } catch {
+    /* ignore */
+  }
 }
 
 export function toSlug(date: string, title: string): string {
   if (!title) return `draft-${Date.now().toString(36)}`;
-  const base = title.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, "");
+  const base = title
+    .toLowerCase()
+    .replace(/[^\w]+/g, "-")
+    .replace(/(^-|-$)/g, "");
   return date ? `${date}-${base}` : base;
 }
 
 // ─── UI state persistence ────────────────────────────────────────────────────
 
 let uiStateSaveTimer: ReturnType<typeof setTimeout> | null = null;
+let _uiStateRoot: ParentNode | null = null;
+
+export function setUIStateRoot(root: ParentNode): void {
+  _uiStateRoot = root;
+}
 
 export async function loadUIState(): Promise<EditorUIState | null> {
   try {
@@ -172,7 +198,8 @@ export async function loadUIState(): Promise<EditorUIState | null> {
 export function saveUIState(): void {
   if (uiStateSaveTimer) clearTimeout(uiStateSaveTimer);
   uiStateSaveTimer = setTimeout(async () => {
-    const sidebar = document.getElementById("admin-sidebar");
+    const root = _uiStateRoot;
+    const sidebar = root?.querySelector("#admin-sidebar") ?? null;
     const editorFields = {
       openTabs: state.openTabs.map((t) => t.slug),
       openProjectTabs: state.openProjectTabs.map((t) => t.slug),
@@ -193,19 +220,31 @@ export function saveUIState(): void {
         param: { page: "admin" },
         json: { ...existing, ...editorFields } as unknown as Record<string, unknown>,
       });
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }, 500);
 }
 
 // ─── DOM helpers ─────────────────────────────────────────────────────────────
 
-export function getCurrentPostData(): Omit<Post, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"> {
+let _domRoot: ParentNode | null = null;
+
+export function setDomRoot(root: ParentNode): void {
+  _domRoot = root;
+}
+
+export function getCurrentPostData(): Omit<
+  Post,
+  "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"
+> {
+  const root = _domRoot!;
   return {
-    title: (document.getElementById("admin-title") as any)?.value ?? "",
-    date: (document.getElementById("admin-date") as any)?.value ?? "",
-    tags: (document.getElementById("admin-tags") as HTMLInputElement)?.value ?? "",
-    excerpt: (document.getElementById("admin-excerpt") as any)?.value ?? "",
-    content: (document.getElementById("admin-content") as HTMLTextAreaElement)?.value ?? "",
+    title: (root.querySelector("#admin-title") as any)?.value ?? "",
+    date: (root.querySelector("#admin-date") as any)?.value ?? "",
+    tags: (root.querySelector("#admin-tags") as HTMLInputElement)?.value ?? "",
+    excerpt: (root.querySelector("#admin-excerpt") as any)?.value ?? "",
+    content: (root.querySelector("#admin-content") as HTMLTextAreaElement)?.value ?? "",
     status: state.allPosts.find((p) => p.slug === state.currentSlug)?.status ?? "draft",
   };
 }
@@ -257,47 +296,53 @@ export async function saveCurrent(_forceApi = false, statusEl?: HTMLElement | nu
 }
 
 export function clearEditor(): void {
+  const root = _domRoot!;
   setState({ currentSlug: null });
-  const titleInput = document.getElementById("admin-title") as HTMLElement;
-  const dateInput = document.getElementById("admin-date") as HTMLElement;
-  const tagsInput = document.getElementById("admin-tags") as HTMLInputElement;
-  const tagList = document.getElementById("admin-tag-list");
-  const excerptInput = document.getElementById("admin-excerpt") as HTMLElement;
-  const textarea = document.getElementById("admin-content") as HTMLTextAreaElement;
+  const titleInput = root.querySelector("#admin-title") as HTMLElement;
+  const dateInput = root.querySelector("#admin-date") as HTMLElement;
+  const tagsInput = root.querySelector("#admin-tags") as HTMLInputElement;
+  const tagList = root.querySelector("#admin-tag-list");
+  const excerptInput = root.querySelector("#admin-excerpt") as HTMLElement;
+  const textarea = root.querySelector("#admin-content") as HTMLTextAreaElement;
   if (titleInput) (titleInput as any).value = "";
   if (dateInput) (dateInput as any).value = new Date().toISOString().split("T")[0];
   if (tagsInput) tagsInput.value = "";
   if (tagList) tagList.innerHTML = "";
   if (excerptInput) (excerptInput as any).value = "";
   if (textarea) textarea.value = "";
-  renderPreview();
+  renderPreview(root);
 }
 
 export function loadPostIntoEditor(post: Post): void {
+  const root = _domRoot!;
   setState({ currentSlug: post.slug, activeTabType: "post" });
-  (document.getElementById("admin-title") as any).value = post.title;
-  (document.getElementById("admin-date") as any).value = post.date;
-  (document.getElementById("admin-tags") as HTMLInputElement).value = post.tags;
-  const tagList = document.getElementById("admin-tag-list");
+  (root.querySelector("#admin-title") as any).value = post.title;
+  (root.querySelector("#admin-date") as any).value = post.date;
+  (root.querySelector("#admin-tags") as HTMLInputElement).value = post.tags;
+  const tagList = root.querySelector("#admin-tag-list");
   if (tagList) {
     tagList.innerHTML = "";
-    post.tags.split(",").map((t) => t.trim()).filter(Boolean).forEach((name) => {
-      const tag = document.createElement("ui-tag");
-      tag.setAttribute("size", "s");
-      tag.setAttribute("emphasis", "subtle");
-      tag.setAttribute("dismissible", "");
-      tag.textContent = name;
-      tag.addEventListener("dismiss", () => {
-        tag.remove();
-        const tags = Array.from(tagList.querySelectorAll("ui-tag")).map((t) => t.textContent?.trim() ?? "");
-        (document.getElementById("admin-tags") as HTMLInputElement).value = tags.join(", ");
+    post.tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean)
+      .forEach((name) => {
+        const tag = document.createElement("ui-tag");
+        tag.setAttribute("size", "s");
+        tag.setAttribute("emphasis", "subtle");
+        tag.setAttribute("dismissible", "");
+        tag.textContent = name;
+        tag.addEventListener("dismiss", () => {
+          tag.remove();
+          const tags = Array.from(tagList.querySelectorAll("ui-tag")).map((t) => t.textContent?.trim() ?? "");
+          (root.querySelector("#admin-tags") as HTMLInputElement).value = tags.join(", ");
+        });
+        tagList.appendChild(tag);
       });
-      tagList.appendChild(tag);
-    });
   }
-  (document.getElementById("admin-excerpt") as any).value = post.excerpt;
-  (document.getElementById("admin-content") as HTMLTextAreaElement).value = post.content;
-  renderPreview();
+  (root.querySelector("#admin-excerpt") as any).value = post.excerpt;
+  (root.querySelector("#admin-content") as HTMLTextAreaElement).value = post.content;
+  renderPreview(root);
   // Reset undo stack with the loaded content as the initial state
   resetUndoStack();
 }
@@ -309,15 +354,23 @@ export function exportAsMarkdown(): void {
     `title: ${data.title}`,
     `date: ${data.date}`,
     `excerpt: "${data.excerpt}"`,
-    `tags: [${data.tags.split(",").map((t) => t.trim()).filter(Boolean).join(", ")}]`,
+    `tags: [${data.tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean)
+      .join(", ")}]`,
     "---",
     "",
     data.content,
   ].join("\n");
 
-  const slug = data.date && data.title
-    ? `${data.date}-${data.title.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, "")}`
-    : "untitled";
+  const slug =
+    data.date && data.title
+      ? `${data.date}-${data.title
+          .toLowerCase()
+          .replace(/[^\w]+/g, "-")
+          .replace(/(^-|-$)/g, "")}`
+      : "untitled";
 
   const blob = new Blob([frontmatter], { type: "text/markdown" });
   const url = URL.createObjectURL(blob);
@@ -330,16 +383,20 @@ export function exportAsMarkdown(): void {
 
 // ─── Project DOM helpers ──────────────────────────────────────────────────────
 
-export function getCurrentProjectData(): Omit<Project, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"> {
+export function getCurrentProjectData(): Omit<
+  Project,
+  "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"
+> {
+  const root = _domRoot!;
   return {
-    title: (document.getElementById("admin-project-title") as any)?.value ?? "",
-    description: (document.getElementById("admin-project-description") as any)?.value ?? "",
-    content: (document.getElementById("admin-content") as HTMLTextAreaElement)?.value ?? "",
-    tech: (document.getElementById("admin-project-tech") as HTMLInputElement)?.value ?? "",
-    url: (document.getElementById("admin-project-url") as any)?.value ?? "",
-    repo: (document.getElementById("admin-project-repo") as any)?.value ?? "",
-    image: (document.getElementById("admin-project-image") as any)?.value ?? "",
-    pinned: (document.getElementById("admin-project-pinned") as HTMLElement)?.hasAttribute("checked") ?? false,
+    title: (root.querySelector("#admin-project-title") as any)?.value ?? "",
+    description: (root.querySelector("#admin-project-description") as any)?.value ?? "",
+    content: (root.querySelector("#admin-content") as HTMLTextAreaElement)?.value ?? "",
+    tech: (root.querySelector("#admin-project-tech") as HTMLInputElement)?.value ?? "",
+    url: (root.querySelector("#admin-project-url") as any)?.value ?? "",
+    repo: (root.querySelector("#admin-project-repo") as any)?.value ?? "",
+    image: (root.querySelector("#admin-project-image") as any)?.value ?? "",
+    pinned: (root.querySelector("#admin-project-pinned") as HTMLElement)?.hasAttribute("checked") ?? false,
     sortOrder: 0,
     status: state.allProjects.find((p) => p.slug === state.currentSlug)?.status ?? "draft",
   };
@@ -391,45 +448,49 @@ export async function saveCurrentProject(_forceApi = false, statusEl?: HTMLEleme
 }
 
 export function loadProjectIntoEditor(project: Project): void {
+  const root = _domRoot!;
   setState({ currentSlug: project.slug, activeTabType: "project" });
-  (document.getElementById("admin-project-title") as any).value = project.title;
-  (document.getElementById("admin-project-description") as any).value = project.description;
-  (document.getElementById("admin-content") as HTMLTextAreaElement).value = project.content;
-  (document.getElementById("admin-project-tech") as HTMLInputElement).value = project.tech;
-  const techList = document.getElementById("admin-project-tech-list");
+  (root.querySelector("#admin-project-title") as any).value = project.title;
+  (root.querySelector("#admin-project-description") as any).value = project.description;
+  (root.querySelector("#admin-content") as HTMLTextAreaElement).value = project.content;
+  (root.querySelector("#admin-project-tech") as HTMLInputElement).value = project.tech;
+  const techList = root.querySelector("#admin-project-tech-list");
   if (techList) {
     techList.innerHTML = "";
-    project.tech.split(",").map((t) => t.trim()).filter(Boolean).forEach((name) => {
-      const tag = document.createElement("ui-tag");
-      tag.setAttribute("size", "s");
-      tag.setAttribute("emphasis", "subtle");
-      tag.setAttribute("dismissible", "");
-      tag.textContent = name;
-      tag.addEventListener("dismiss", () => {
-        tag.remove();
-        const tags = Array.from(techList.querySelectorAll("ui-tag")).map((t) => t.textContent?.trim() ?? "");
-        (document.getElementById("admin-project-tech") as HTMLInputElement).value = tags.join(", ");
+    project.tech
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean)
+      .forEach((name) => {
+        const tag = document.createElement("ui-tag");
+        tag.setAttribute("size", "s");
+        tag.setAttribute("emphasis", "subtle");
+        tag.setAttribute("dismissible", "");
+        tag.textContent = name;
+        tag.addEventListener("dismiss", () => {
+          tag.remove();
+          const tags = Array.from(techList.querySelectorAll("ui-tag")).map((t) => t.textContent?.trim() ?? "");
+          (root.querySelector("#admin-project-tech") as HTMLInputElement).value = tags.join(", ");
+        });
+        techList.appendChild(tag);
       });
-      techList.appendChild(tag);
-    });
   }
-  (document.getElementById("admin-project-url") as any).value = project.url;
-  (document.getElementById("admin-project-repo") as any).value = project.repo;
-  const imagePreview = document.getElementById("admin-project-image-preview");
-  const imageCaption = document.getElementById("admin-project-image-caption");
-  const filename = project.image ? project.image.split("/").pop() ?? project.image : "";
+  (root.querySelector("#admin-project-url") as any).value = project.url;
+  (root.querySelector("#admin-project-repo") as any).value = project.repo;
+  const imagePreview = root.querySelector("#admin-project-image-preview");
+  const imageCaption = root.querySelector("#admin-project-image-caption");
+  const filename = project.image ? (project.image.split("/").pop() ?? project.image) : "";
   if (imageCaption) imageCaption.textContent = filename;
   if (imagePreview) imagePreview.setAttribute("src", project.image);
-  const imageEmpty = document.getElementById("admin-project-image-empty");
-  const imageFilled = document.getElementById("admin-project-image-filled");
+  const imageEmpty = root.querySelector("#admin-project-image-empty") as HTMLElement | null;
+  const imageFilled = root.querySelector("#admin-project-image-filled") as HTMLElement | null;
   if (imageEmpty) imageEmpty.style.display = project.image ? "none" : "flex";
   if (imageFilled) imageFilled.style.display = project.image ? "" : "none";
-  const pinnedEl = document.getElementById("admin-project-pinned") as HTMLElement;
+  const pinnedEl = root.querySelector("#admin-project-pinned") as HTMLElement;
   if (pinnedEl) {
     if (project.pinned) pinnedEl.setAttribute("checked", "");
     else pinnedEl.removeAttribute("checked");
   }
-  renderPreview();
+  renderPreview(root);
   resetUndoStack();
 }
-

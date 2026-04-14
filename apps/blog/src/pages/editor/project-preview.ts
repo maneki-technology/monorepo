@@ -9,6 +9,11 @@ import type { Project } from "./types.js";
 import "@maneki/ui-components/components/ui-card.js";
 
 let overlay: HTMLElement | null = null;
+let _projectPreviewRoot: ParentNode | null = null;
+
+export function setProjectPreviewRoot(root: ParentNode): void {
+  _projectPreviewRoot = root;
+}
 
 function createOverlay(): HTMLElement {
   const el = document.createElement("div");
@@ -29,7 +34,10 @@ function createOverlay(): HTMLElement {
   `;
 
   const closeBtn = el.querySelector("#project-preview-close");
-  if (closeBtn) (closeBtn as HTMLElement).onclick = () => { el.style.display = "none"; };
+  if (closeBtn)
+    (closeBtn as HTMLElement).onclick = () => {
+      el.style.display = "none";
+    };
 
   el.addEventListener("keydown", (e) => {
     if (e.key === "Escape") el.style.display = "none";
@@ -39,7 +47,8 @@ function createOverlay(): HTMLElement {
 }
 
 function renderProjectCards(): void {
-  const container = document.getElementById("project-preview-grid");
+  if (!overlay) return;
+  const container = overlay.querySelector("#project-preview-grid") as HTMLElement | null;
   if (!container) return;
 
   const published = state.allProjects.filter((p) => p.status !== "deleted");
@@ -63,7 +72,12 @@ function renderProjectCards(): void {
       ${project.image ? `<ui-image slot="image" src="${project.image}" alt="${project.title}" style="width:100%;height:100px;--ui-image-fit:cover;--ui-image-bg:var(--fd-surface-secondary);"></ui-image>` : ""}
       <p class="body-02 text-secondary">${project.description}</p>
       <div class="tags mt-1">
-        ${project.tech.split(",").map((t: string) => t.trim()).filter(Boolean).map((t: string) => `<ui-badge size="xs" emphasis="subtle">${t}</ui-badge>`).join("")}
+        ${project.tech
+          .split(",")
+          .map((t: string) => t.trim())
+          .filter(Boolean)
+          .map((t: string) => `<ui-badge size="xs" emphasis="subtle">${t}</ui-badge>`)
+          .join("")}
       </div>
       <div class="project-preview-card-status">
         <ui-badge size="xs" status="${project.status === "published" ? "success" : "warning"}">${project.status}</ui-badge>
@@ -83,7 +97,9 @@ function renderProjectCards(): void {
             param: { slug: project.slug },
             json: { pinned: newPinned },
           });
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
         setState({});
       };
     }
@@ -139,16 +155,19 @@ function renderProjectCards(): void {
 
     try {
       await api.api.projects.reorder.$put({ json: { slugs } });
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   });
 
   container.appendChild(grid);
 }
 
 export function openPortfolioLayout(): void {
+  const root = _projectPreviewRoot;
   if (!overlay) {
     overlay = createOverlay();
-    document.querySelector(".admin-main")?.appendChild(overlay);
+    root?.querySelector(".admin-main")?.appendChild(overlay);
   }
   overlay.style.display = "flex";
   renderProjectCards();

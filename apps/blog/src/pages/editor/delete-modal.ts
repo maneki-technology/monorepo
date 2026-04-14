@@ -1,7 +1,7 @@
 import { state, setState } from "./state.js";
 import { deletePost, deleteProject, loadPostIntoEditor, loadProjectIntoEditor, clearEditor } from "./api.js";
 
-export function setupDeleteModal(): void {
+export function setupDeleteModal(root: ParentNode): void {
   const deleteModal = document.createElement("ui-modal");
   deleteModal.id = "admin-delete-modal";
   deleteModal.setAttribute("size", "m");
@@ -85,5 +85,6 @@ export function setupDeleteModal(): void {
   modalFooter.appendChild(confirmBtn);
   deleteModal.appendChild(modalBody);
   deleteModal.appendChild(modalFooter);
-  document.body.appendChild(deleteModal);
+  // Append to the shadow root instead of document.body
+  root.appendChild(deleteModal);
 }

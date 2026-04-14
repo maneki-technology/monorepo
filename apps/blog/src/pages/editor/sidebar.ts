@@ -6,12 +6,26 @@ import { state, setState, hasUnpublishedChanges } from "./state.js";
 import type { Post, Project } from "./types.js";
 import { EditorStoreController } from "./editor-store.js";
 
-// Inject deploy-spinner keyframes once into the document
-if (!document.getElementById("editor-sidebar-styles")) {
+// Sidebar spinner styles — injected into the editor shadow root via setSidebarRoot()
+let _sidebarRoot: ParentNode | null = null;
+
+export function setSidebarRoot(root: ParentNode): void {
+  _sidebarRoot = root;
+}
+
+function ensureSidebarStyles(): void {
+  const root = _sidebarRoot;
+  if (!root) return;
+  if (root.querySelector("#editor-sidebar-styles")) return;
   const style = document.createElement("style");
   style.id = "editor-sidebar-styles";
   style.textContent = `@keyframes editor-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } } .deploy-spinner { animation: editor-spin 700ms linear infinite; }`;
-  document.head.appendChild(style);
+  // For ShadowRoot, prepend; for Document, use head
+  if (root instanceof ShadowRoot) {
+    root.prepend(style);
+  } else {
+    (root as Document).head.appendChild(style);
+  }
 }
 
 @customElement("editor-sidebar")
@@ -26,6 +40,7 @@ export class EditorSidebar extends LitElement {
   // ─── Render ──────────────────────────────────────────────────────────────────
 
   protected render(): unknown {
+    ensureSidebarStyles();
     const s = this.store.state;
     return html`
       <ui-side-panel-menu-section separator>
@@ -281,8 +296,10 @@ export class EditorSidebar extends LitElement {
 
   protected updated(): void {
     const isDeploying = this.store.state.deployingSlugs.size > 0;
-    const saveBtn = document.getElementById("admin-save-btn");
-    const publishSplit = document.getElementById("admin-publish-split");
+    const root = _sidebarRoot;
+    if (!root) return;
+    const saveBtn = root.querySelector("#admin-save-btn") as HTMLElement | null;
+    const publishSplit = root.querySelector("#admin-publish-split") as HTMLElement | null;
     if (saveBtn) {
       if (isDeploying) saveBtn.setAttribute("disabled", "");
       else saveBtn.removeAttribute("disabled");
@@ -324,7 +341,9 @@ export class EditorSidebar extends LitElement {
   private handleDelete(e: Event, slug: string): void {
     e.stopPropagation();
     setState({ pendingDeleteSlug: slug });
-    const modal = document.getElementById("admin-delete-modal") as (HTMLElement & { show(): void }) | null;
+    const root = _sidebarRoot;
+    if (!root) return;
+    const modal = root.querySelector("#admin-delete-modal") as (HTMLElement & { show(): void }) | null;
     if (modal) modal.show();
   }
 

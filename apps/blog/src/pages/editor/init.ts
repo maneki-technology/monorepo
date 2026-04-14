@@ -5,7 +5,7 @@ import { fetchPosts, fetchProjects, loadUIState, loadPostIntoEditor, loadProject
 import { SidebarRenderer } from "./sidebar.js";
 import { TabBarRenderer } from "./tabbar.js";
 
-export function setupInit(): void {
+export function setupInit(root: ParentNode): void {
   const sidebarRenderer = new SidebarRenderer();
   const tabBarRenderer = new TabBarRenderer();
 
@@ -14,9 +14,9 @@ export function setupInit(): void {
     setState({ allPosts: posts, allProjects: projects });
 
     // Init renderers after DOM is ready and state is populated
-    const postListEl = document.getElementById("admin-post-list");
-    const projectListEl = document.getElementById("admin-project-list");
-    const barEl = document.getElementById("admin-tab-bar");
+    const postListEl = root.querySelector("#admin-post-list") as HTMLElement | null;
+    const projectListEl = root.querySelector("#admin-project-list") as HTMLElement | null;
+    const barEl = root.querySelector("#admin-tab-bar") as HTMLElement | null;
     if (postListEl && projectListEl) sidebarRenderer.init(postListEl, projectListEl);
     if (barEl) tabBarRenderer.init(barEl);
 
@@ -26,7 +26,7 @@ export function setupInit(): void {
       // from localStorage — no need to override from backend
 
       // Restore sidebar collapsed state
-      const sidebar = document.getElementById("admin-sidebar");
+      const sidebar = root.querySelector("#admin-sidebar") as HTMLElement | null;
       if (uiState.sidebarCollapsed && sidebar) {
         sidebar.setAttribute("state", "collapsed");
       }
@@ -109,7 +109,9 @@ export function setupInit(): void {
             }
           }, 5000);
         }
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     })();
   });
 }
