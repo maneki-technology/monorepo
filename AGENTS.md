@@ -103,7 +103,7 @@ maneki-monorepo/
 - **Package naming.** npm: `@maneki/*` scope (e.g., `@maneki/foundation`, `@maneki/ui-components`, `@maneki/grid-layout`, `@maneki/flex-layout`).
 - **Moon tasks.** kebab-case: `build`, `test`, `test-watch`, `dev`, `test-visual`.
 - **Build pipeline.** `vite build && tsc --emitDeclarationOnly` → `dist/`. Vite builds JS first, then tsc generates `.d.ts` files.
-- **Testing.** Vitest with happy-dom. Tests co-located: `foo.ts` → `foo.test.ts`. Visual tests via Playwright in `e2e/`.
+- **Testing.** Vitest with happy-dom. Tests co-located: `foo.ts` → `foo.test.ts`. Visual tests via Playwright in `e2e/`. Tests follow the code — when implementation changes (e.g., sync → async), tests adapt their form accordingly. Never shape code to conform to existing tests.
 - **TypeScript.** Strict mode, ES2022 target, bundler moduleResolution.
 - **Barrel exports.** Each package has `src/index.ts` re-exporting the public API.
 - **Dark theme via `[data-theme="dark"]` attribute on `:root`.** Toggles all semantic tokens to dark values.

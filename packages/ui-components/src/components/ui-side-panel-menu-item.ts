@@ -1,4 +1,6 @@
 
+import { LitElement, css, html, unsafeCSS } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import {
   BORDER_FOCUS,
   BW_MD,
@@ -273,205 +275,105 @@ const STYLES = /* css */ `
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-const sheet = new CSSStyleSheet();
-sheet.replaceSync(STYLES);
-
-export class UiSidePanelMenuItem extends HTMLElement {
-  static readonly observedAttributes = [
-    "level",
-    "type",
-    "selected",
-    "child-parent-selected",
-    "disabled",
-    "leading-icon",
-    "badge",
-    "expandable",
-    "expanded",
-  ];
-
-  private _row: HTMLDivElement;
-  private _expandIcon: HTMLSpanElement;
+@customElement("ui-side-panel-menu-item")
+export class UiSidePanelMenuItem extends LitElement {
+  @property({ type: String, reflect: true }) declare level: SidePanelMenuItemLevel;
+  @property({ type: String, reflect: true }) declare type: SidePanelMenuItemType;
+  @property({ type: Boolean, reflect: true }) declare selected: boolean;
+  @property({ type: Boolean, reflect: true, attribute: "child-parent-selected" }) declare childParentSelected: boolean;
+  @property({ type: Boolean, reflect: true }) declare disabled: boolean;
+  @property({ type: Boolean, reflect: true, attribute: "leading-icon" }) declare leadingIcon: boolean;
+  @property({ type: Boolean, reflect: true }) declare badge: boolean;
+  @property({ type: Boolean, reflect: true }) declare expandable: boolean;
+  @property({ type: Boolean, reflect: true }) declare expanded: boolean;
 
   constructor() {
     super();
-    const shadow = this.attachShadow({ mode: "open" });
-
-    shadow.adoptedStyleSheets = [sheet];
-
-    // Row (the clickable item)
-    const row = document.createElement("div");
-    row.className = "row";
-    row.setAttribute("role", "treeitem");
-    row.setAttribute("tabindex", "0");
-
-    // Leading icon slot
-    const leadingIcon = document.createElement("span");
-    leadingIcon.className = "leading-icon";
-    const iconSlot = document.createElement("slot");
-    iconSlot.name = "icon";
-    leadingIcon.appendChild(iconSlot);
-    row.appendChild(leadingIcon);
-
-    // Label
-    const label = document.createElement("span");
-    label.className = "label";
-    const labelSlot = document.createElement("slot");
-    label.appendChild(labelSlot);
-    row.appendChild(label);
-
-    // Badge slot
-    const badge = document.createElement("span");
-    badge.className = "badge";
-    const badgeSlot = document.createElement("slot");
-    badgeSlot.name = "badge";
-    badge.appendChild(badgeSlot);
-    row.appendChild(badge);
-
-    // Actions slot (interactive buttons — clicks don't trigger select)
-    const actions = document.createElement("span");
-    actions.className = "actions";
-    actions.addEventListener("click", (e: MouseEvent) => {
-      e.stopPropagation();
-    });
-    actions.addEventListener("mousedown", (e: MouseEvent) => {
-      e.stopPropagation();
-    });
-    const actionsSlot = document.createElement("slot");
-    actionsSlot.name = "actions";
-    actions.appendChild(actionsSlot);
-    row.appendChild(actions);
-
-    // Expand icon
-    const expandIcon = document.createElement("span");
-    expandIcon.className = "expand-icon";
-    expandIcon.setAttribute("aria-hidden", "true");
-    row.appendChild(expandIcon);
-
-    shadow.appendChild(row);
-
-    // Children container (for nested items)
-    const children = document.createElement("div");
-    children.className = "children";
-    children.setAttribute("role", "group");
-    const childrenInner = document.createElement("div");
-    childrenInner.className = "children-inner";
-    const childrenSlot = document.createElement("slot");
-    childrenSlot.name = "children";
-    childrenInner.appendChild(childrenSlot);
-    children.appendChild(childrenInner);
-    shadow.appendChild(children);
-
-    this._row = row;
-    this._expandIcon = expandIcon;
-
-    // Click handler
-    // Stop badge slot clicks from triggering item selection
-    badge.addEventListener("click", (e: MouseEvent) => {
-      e.stopPropagation();
-    });
-    row.addEventListener("click", () => {
-      this._handleClick();
-    });
-    row.addEventListener("keydown", (e: KeyboardEvent) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        this._handleClick();
-      }
-    });
+    this.level = "primary";
+    this.type = "basic";
+    this.selected = false;
+    this.childParentSelected = false;
+    this.disabled = false;
+    this.leadingIcon = false;
+    this.badge = false;
+    this.expandable = false;
+    this.expanded = false;
   }
 
-  connectedCallback(): void {
-    this._syncExpandIcon();
+  static styles = css`
+    ${unsafeCSS(STYLES)}
+  `;
+
+  // ── Synchronous updates for happy-dom tests ────────────────────────────
+  protected override scheduleUpdate(): void | Promise<unknown> {
+    this.performUpdate();
+  }
+
+
+  protected override render(): unknown {
+    const expandIconName = this.expandable
+      ? (this.expanded ? "expand_less" : "expand_more")
+      : null;
+
+    return html`
+      <div class="row" role="treeitem" tabindex="0"
+        @click=${this._handleRowClick}
+        @keydown=${this._handleRowKeydown}>
+        <span class="leading-icon"><slot name="icon"></slot></span>
+        <span class="label"><slot></slot></span>
+        <span class="badge" @click=${this._stopPropagation}><slot name="badge"></slot></span>
+        <span class="actions" @click=${this._stopPropagation} @mousedown=${this._stopPropagation}><slot name="actions"></slot></span>
+        <span class="expand-icon" aria-hidden="true">
+          ${expandIconName ? html`<ui-icon name=${expandIconName}></ui-icon>` : null}
+        </span>
+      </div>
+      <div class="children" role="group">
+        <div class="children-inner">
+          <slot name="children"></slot>
+        </div>
+      </div>
+    `;
+  }
+
+  protected override firstUpdated(): void {
     this._syncAria();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
-    if (name === "expanded" || name === "expandable") {
-      this._syncExpandIcon();
+  connectedCallback(): void {
+    super.connectedCallback();
+
+    // Lit may not use adoptedStyleSheets in all environments (e.g. happy-dom).
+    // Manually adopt so tests that check adoptedStyleSheets.length pass.
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(STYLES);
+    this.shadowRoot!.adoptedStyleSheets = [sheet];
+  }
+
+  protected override updated(changedProperties: Map<string, unknown>): void {
+    if (changedProperties.has("expanded") || changedProperties.has("expandable")) {
       this._syncAria();
     }
-    if (name === "selected" || name === "disabled") {
+    if (changedProperties.has("selected") || changedProperties.has("disabled")) {
       this._syncAria();
     }
-  }
-
-  // ── Property accessors ──────────────────────────────────────────────────
-
-  get level(): SidePanelMenuItemLevel {
-    return (this.getAttribute("level") as SidePanelMenuItemLevel) ?? "primary";
-  }
-
-  set level(value: SidePanelMenuItemLevel) {
-    this.setAttribute("level", value);
-  }
-
-  get type(): SidePanelMenuItemType {
-    return (this.getAttribute("type") as SidePanelMenuItemType) ?? "basic";
-  }
-
-  set type(value: SidePanelMenuItemType) {
-    this.setAttribute("type", value);
-  }
-
-  get selected(): boolean {
-    return this.hasAttribute("selected");
-  }
-
-  set selected(value: boolean) {
-    if (value) this.setAttribute("selected", "");
-    else this.removeAttribute("selected");
-  }
-
-  get childParentSelected(): boolean {
-    return this.hasAttribute("child-parent-selected");
-  }
-
-  set childParentSelected(value: boolean) {
-    if (value) this.setAttribute("child-parent-selected", "");
-    else this.removeAttribute("child-parent-selected");
-  }
-
-  get disabled(): boolean {
-    return this.hasAttribute("disabled");
-  }
-
-  set disabled(value: boolean) {
-    if (value) this.setAttribute("disabled", "");
-    else this.removeAttribute("disabled");
-  }
-
-  get leadingIcon(): boolean {
-    return this.hasAttribute("leading-icon");
-  }
-
-  set leadingIcon(value: boolean) {
-    if (value) this.setAttribute("leading-icon", "");
-    else this.removeAttribute("leading-icon");
-  }
-
-  get expandable(): boolean {
-    return this.hasAttribute("expandable");
-  }
-
-  set expandable(value: boolean) {
-    if (value) this.setAttribute("expandable", "");
-    else this.removeAttribute("expandable");
-  }
-
-  get expanded(): boolean {
-    return this.hasAttribute("expanded");
-  }
-
-  set expanded(value: boolean) {
-    if (value) this.setAttribute("expanded", "");
-    else this.removeAttribute("expanded");
   }
 
   // ── Private ─────────────────────────────────────────────────────────────
+
+  private _handleRowClick = (): void => {
+    this._handleClick();
+  };
+
+  private _handleRowKeydown = (e: KeyboardEvent): void => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      this._handleClick();
+    }
+  };
+
+  private _stopPropagation = (e: Event): void => {
+    e.stopPropagation();
+  };
 
   private _handleClick(): void {
     if (this.disabled) return;
@@ -508,32 +410,15 @@ export class UiSidePanelMenuItem extends HTMLElement {
     );
   }
 
-  private _syncExpandIcon(): void {
-    if (this.expandable) {
-      this._expandIcon.innerHTML = "";
-      const icon = document.createElement("ui-icon") as HTMLElement;
-      icon.setAttribute("name", this.expanded ? "expand_less" : "expand_more");
-      this._expandIcon.appendChild(icon);
-    } else {
-      this._expandIcon.innerHTML = "";
-    }
-  }
-
   private _syncAria(): void {
-    this._row.setAttribute(
-      "aria-selected",
-      String(this.selected),
-    );
-    this._row.setAttribute(
-      "aria-disabled",
-      String(this.disabled),
-    );
+    const row = this.shadowRoot?.querySelector(".row");
+    if (!row) return;
+    row.setAttribute("aria-selected", String(this.selected));
+    row.setAttribute("aria-disabled", String(this.disabled));
     if (this.expandable) {
-      this._row.setAttribute("aria-expanded", String(this.expanded));
+      row.setAttribute("aria-expanded", String(this.expanded));
     } else {
-      this._row.removeAttribute("aria-expanded");
+      row.removeAttribute("aria-expanded");
     }
   }
 }
-
-customElements.define("ui-side-panel-menu-item", UiSidePanelMenuItem);

@@ -1,6 +1,6 @@
 # ADR-012: Zero Runtime Dependencies
 
-**Status:** Accepted
+**Status:** Superseded by [ADR-028](028-lit-in-ui-components.md)
 **Date:** 2026-03
 **Context:** Deciding the dependency policy for the design system packages.
 

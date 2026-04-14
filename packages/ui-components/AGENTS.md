@@ -154,7 +154,20 @@ ui-components/
 | Add new icon | See foundation SOP | Add to foundation, use `<ui-icon>` in components |
 
 ## COMPONENT PATTERN
-Follow `ui-button.ts` or `ui-alert.ts` as reference implementations:
+
+### New Components (Lit — required for all new components)
+Follow `ui-side-panel-menu-section.ts` as reference:
+1. Class extends `LitElement`
+2. `@customElement("ui-foo")` decorator for registration
+3. `@property()` decorators for observed attributes
+4. `static styles = css\`...\`` with foundation tokens wrapped in `unsafeCSS()`
+5. `render()` returns `html\`...\`` template
+6. CSS uses nested var pattern: `var(--ui-btn-bg, ${unsafeCSS(BLUE_60)})` — consumer override → foundation token
+7. For large components (700+ lines): extract styles into `ui-foo.styles.ts`
+8. See [ADR-028](../../docs/adr/028-lit-in-ui-components.md) for rationale
+
+### Existing Components (vanilla HTMLElement — no obligation to migrate)
+Follow `ui-button.ts` or `ui-alert.ts` as reference:
 1. Class extends `HTMLElement`
 2. `attachShadow({ mode: "open" })` in constructor
 3. DOM built imperatively with `document.createElement()` (not innerHTML)

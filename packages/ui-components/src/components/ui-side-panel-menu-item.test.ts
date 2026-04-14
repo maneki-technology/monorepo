@@ -80,13 +80,15 @@ describe("ui-side-panel-menu-item", () => {
     expect(el.getAttribute("level")).toBe("primary");
   });
 
-  it("reflects level='secondary' to attribute", () => {
+  it("reflects level='secondary' to attribute", async () => {
     (el as any).level = "secondary";
+    await (el as any).updateComplete;
     expect(el.getAttribute("level")).toBe("secondary");
   });
 
-  it("reflects level='tertiary' to attribute", () => {
+  it("reflects level='tertiary' to attribute", async () => {
     (el as any).level = "tertiary";
+    await (el as any).updateComplete;
     expect(el.getAttribute("level")).toBe("tertiary");
   });
 
@@ -97,15 +99,17 @@ describe("ui-side-panel-menu-item", () => {
     expect(el.getAttribute("type")).toBe("basic");
   });
 
-  it("reflects type='icon-only' to attribute", () => {
+  it("reflects type='icon-only' to attribute", async () => {
     (el as any).type = "icon-only";
+    await (el as any).updateComplete;
     expect(el.getAttribute("type")).toBe("icon-only");
   });
 
   // ── Boolean attributes ───────────────────────────────────────────────────
 
-  it("reflects selected=true to attribute", () => {
+  it("reflects selected=true to attribute", async () => {
     (el as any).selected = true;
+    await (el as any).updateComplete;
     expect(el.hasAttribute("selected")).toBe(true);
   });
 
@@ -115,8 +119,9 @@ describe("ui-side-panel-menu-item", () => {
     expect(el.hasAttribute("selected")).toBe(false);
   });
 
-  it("reflects childParentSelected=true to attribute", () => {
+  it("reflects childParentSelected=true to attribute", async () => {
     (el as any).childParentSelected = true;
+    await (el as any).updateComplete;
     expect(el.hasAttribute("child-parent-selected")).toBe(true);
   });
 
@@ -126,23 +131,27 @@ describe("ui-side-panel-menu-item", () => {
     expect(el.hasAttribute("child-parent-selected")).toBe(false);
   });
 
-  it("reflects disabled=true to attribute", () => {
+  it("reflects disabled=true to attribute", async () => {
     (el as any).disabled = true;
+    await (el as any).updateComplete;
     expect(el.hasAttribute("disabled")).toBe(true);
   });
 
-  it("reflects leadingIcon=true to attribute", () => {
+  it("reflects leadingIcon=true to attribute", async () => {
     (el as any).leadingIcon = true;
+    await (el as any).updateComplete;
     expect(el.hasAttribute("leading-icon")).toBe(true);
   });
 
-  it("reflects expandable=true to attribute", () => {
+  it("reflects expandable=true to attribute", async () => {
     (el as any).expandable = true;
+    await (el as any).updateComplete;
     expect(el.hasAttribute("expandable")).toBe(true);
   });
 
-  it("reflects expanded=true to attribute", () => {
+  it("reflects expanded=true to attribute", async () => {
     (el as any).expanded = true;
+    await (el as any).updateComplete;
     expect(el.hasAttribute("expanded")).toBe(true);
   });
 
@@ -285,17 +294,19 @@ describe("ui-side-panel-menu-item", () => {
     expect(events).toEqual(["toggle", "select"]);
   });
 
-  it("shows expand_more icon when expandable and collapsed", () => {
+  it("shows expand_more icon when expandable and collapsed", async () => {
     (el as any).expandable = true;
+    await (el as any).updateComplete;
     const expandIcon = el.shadowRoot!.querySelector(".expand-icon");
     const icon = expandIcon!.querySelector("ui-icon");
     expect(icon).toBeTruthy();
     expect(icon!.getAttribute("name")).toBe("expand_more");
   });
 
-  it("shows expand_less icon when expandable and expanded", () => {
+  it("shows expand_less icon when expandable and expanded", async () => {
     (el as any).expandable = true;
     (el as any).expanded = true;
+    await (el as any).updateComplete;
     const expandIcon = el.shadowRoot!.querySelector(".expand-icon");
     const icon = expandIcon!.querySelector("ui-icon");
     expect(icon).toBeTruthy();
@@ -304,8 +315,9 @@ describe("ui-side-panel-menu-item", () => {
 
   // ── ARIA ─────────────────────────────────────────────────────────────────
 
-  it("sets aria-selected=true when selected", () => {
+  it("sets aria-selected=true when selected", async () => {
     (el as any).selected = true;
+    await (el as any).updateComplete;
     const row = el.shadowRoot!.querySelector(".row");
     expect(row!.getAttribute("aria-selected")).toBe("true");
   });
@@ -315,18 +327,21 @@ describe("ui-side-panel-menu-item", () => {
     expect(row!.getAttribute("aria-selected")).toBe("false");
   });
 
-  it("sets aria-disabled=true when disabled", () => {
+  it("sets aria-disabled=true when disabled", async () => {
     (el as any).disabled = true;
+    await (el as any).updateComplete;
     const row = el.shadowRoot!.querySelector(".row");
     expect(row!.getAttribute("aria-disabled")).toBe("true");
   });
 
-  it("sets aria-expanded when expandable", () => {
+  it("sets aria-expanded when expandable", async () => {
     (el as any).expandable = true;
+    await (el as any).updateComplete;
     const row = el.shadowRoot!.querySelector(".row");
     expect(row!.getAttribute("aria-expanded")).toBe("false");
 
     (el as any).expanded = true;
+    await (el as any).updateComplete;
     expect(row!.getAttribute("aria-expanded")).toBe("true");
   });
 

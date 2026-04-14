@@ -393,6 +393,7 @@ export const editorRoute: Route = {
       loadPostIntoEditor(post);
     };
 
+
     // New Project button
     const newProjectBtn = document.getElementById("admin-new-project");
     if (newProjectBtn) newProjectBtn.onclick = () => {

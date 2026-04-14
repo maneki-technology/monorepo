@@ -25,7 +25,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@maneki/foundation": "*"
+    "@maneki/foundation": "*",
+    "lit": "^3.3.2"
   },
   "devDependencies": {
     "happy-dom": "^20.8.9",
