@@ -2,14 +2,16 @@ import { api } from "../../lib/api.js";
 import { state, setState } from "./state.js";
 import { getCurrentPostData, getCurrentProjectData } from "./api.js";
 
-export function setupPublish(publishSplit: HTMLElement | null, _textarea: HTMLTextAreaElement): void {
+export function setupPublish(publishSplit: HTMLElement | null, _textarea: HTMLTextAreaElement, root: ParentNode): void {
   // Publish (split button left action) — save, publish (triggers deploy), poll
   publishSplit?.addEventListener("action", async () => {
     if (publishSplit) publishSplit.setAttribute("status", "loading");
     try {
       if (!state.currentSlug) {
         if (publishSplit) publishSplit.setAttribute("status", "error");
-        setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 2000);
+        setTimeout(() => {
+          if (publishSplit) publishSplit.setAttribute("status", "none");
+        }, 2000);
         return;
       }
 
@@ -20,12 +22,15 @@ export function setupPublish(publishSplit: HTMLElement | null, _textarea: HTMLTe
       }
     } catch {
       if (publishSplit) publishSplit.setAttribute("status", "error");
-      setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 2000);
+      setTimeout(() => {
+        if (publishSplit) publishSplit.setAttribute("status", "none");
+      }, 2000);
     }
   });
 
   // Unpublish (dropdown item) — unpublish + poll deploy status
-  document.getElementById("admin-unpublish-btn")?.addEventListener("select", async () => {
+  const unpublishBtn = root.querySelector("#admin-unpublish-btn") as HTMLElement | null;
+  unpublishBtn?.addEventListener("select", async () => {
     if (!state.currentSlug) return;
     if (publishSplit) publishSplit.setAttribute("status", "loading");
     try {
@@ -36,12 +41,15 @@ export function setupPublish(publishSplit: HTMLElement | null, _textarea: HTMLTe
       }
     } catch {
       if (publishSplit) publishSplit.setAttribute("status", "error");
-      setTimeout(() => { if (publishSplit) publishSplit.setAttribute("status", "none"); }, 2000);
+      setTimeout(() => {
+        if (publishSplit) publishSplit.setAttribute("status", "none");
+      }, 2000);
     }
   });
 
   // Export (split button dropdown item)
-  document.getElementById("admin-export-btn")?.addEventListener("select", exportAsMarkdown);
+  const exportBtn = root.querySelector("#admin-export-btn") as HTMLElement | null;
+  exportBtn?.addEventListener("select", exportAsMarkdown);
 }
 
 // Re-export from api.js to keep the import local
@@ -51,7 +59,10 @@ import { exportAsMarkdown } from "./api.js";
 
 async function publishPost(publishSplit: HTMLElement | null): Promise<void> {
   const data = getCurrentPostData();
-  const tags = data.tags.split(",").map((t: string) => t.trim()).filter(Boolean);
+  const tags = data.tags
+    .split(",")
+    .map((t: string) => t.trim())
+    .filter(Boolean);
   await api.api.posts[":slug"].publish.$put({
     param: { slug: state.currentSlug! },
     json: {
@@ -81,7 +92,7 @@ async function publishPost(publishSplit: HTMLElement | null): Promise<void> {
         t.publishedContent = `${t.title}\n${t.content}\n${t.excerpt}\n${t.tags}\n${t.date}`;
       }
     }
-    setState({});  // trigger render
+    setState({}); // trigger render
   });
 }
 
@@ -99,7 +110,10 @@ async function unpublishPost(publishSplit: HTMLElement | null): Promise<void> {
 
 async function publishProject(publishSplit: HTMLElement | null): Promise<void> {
   const data = getCurrentProjectData();
-  const tech = data.tech.split(",").map((t: string) => t.trim()).filter(Boolean);
+  const tech = data.tech
+    .split(",")
+    .map((t: string) => t.trim())
+    .filter(Boolean);
   await api.api.projects[":slug"].publish.$put({
     param: { slug: state.currentSlug! },
     json: {

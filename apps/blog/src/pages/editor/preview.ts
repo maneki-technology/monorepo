@@ -13,10 +13,7 @@ export function getMd(): Promise<MarkdownIt> {
   if (mdReady) return mdReady;
   mdReady = (async () => {
     const highlighter = await createHighlighterCore({
-      themes: [
-        import("@shikijs/themes/github-light"),
-        import("@shikijs/themes/github-dark"),
-      ],
+      themes: [import("@shikijs/themes/github-light"), import("@shikijs/themes/github-dark")],
       langs: [
         import("@shikijs/langs/typescript"),
         import("@shikijs/langs/javascript"),
@@ -33,12 +30,18 @@ export function getMd(): Promise<MarkdownIt> {
     });
     const instance = new MarkdownIt({ html: true, linkify: true, typographer: true });
     type HighlighterParam = Parameters<typeof fromHighlighter>[0];
-    instance.use(fromHighlighter(highlighter as unknown as HighlighterParam, {
-      themes: { light: "github-light", dark: "github-dark" },
-      defaultColor: false,
-    }));
+    instance.use(
+      fromHighlighter(highlighter as unknown as HighlighterParam, {
+        themes: { light: "github-light", dark: "github-dark" },
+        defaultColor: false,
+      }),
+    );
     instance.use(anchor, {
-      slugify: (s: string) => s.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, ""),
+      slugify: (s: string) =>
+        s
+          .toLowerCase()
+          .replace(/[^\w]+/g, "-")
+          .replace(/(^-|-$)/g, ""),
       permalink: false,
     });
     addImageRenderer(instance);
@@ -60,7 +63,11 @@ function addImageRenderer(md: MarkdownIt): void {
 // Fallback sync md for initial render before Shiki loads
 export const mdSync = new MarkdownIt({ html: true, linkify: true, typographer: true });
 mdSync.use(anchor, {
-  slugify: (s: string) => s.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, ""),
+  slugify: (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/[^\w]+/g, "-")
+      .replace(/(^-|-$)/g, ""),
   permalink: false,
 });
 addImageRenderer(mdSync);
@@ -80,27 +87,33 @@ export function wrapCodeBlocks(container: HTMLElement): void {
 // ─── Render ──────────────────────────────────────────────────────────────────
 
 let previewDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+let _previewRoot: ParentNode | null = null;
 
 export function triggerPreview(): void {
   if (previewDebounceTimer) clearTimeout(previewDebounceTimer);
-  previewDebounceTimer = setTimeout(renderPreview, 150);
+  previewDebounceTimer = setTimeout(() => renderPreview(_previewRoot!), 150);
 }
 
-export function renderPreview(): void {
+export function renderPreview(root: ParentNode): void {
+  _previewRoot = root;
   const isProject = state.activeTabType === "project";
   const title = isProject
-    ? (document.getElementById("admin-project-title") as any)?.value ?? ""
-    : (document.getElementById("admin-title") as any)?.value ?? "";
-  const date = isProject ? "" : (document.getElementById("admin-date") as any)?.value ?? "";
+    ? ((root.querySelector("#admin-project-title") as any)?.value ?? "")
+    : ((root.querySelector("#admin-title") as any)?.value ?? "");
+  const date = isProject ? "" : ((root.querySelector("#admin-date") as any)?.value ?? "");
   const tags = isProject
-    ? (document.getElementById("admin-project-tech") as HTMLInputElement)?.value ?? ""
-    : (document.getElementById("admin-tags") as HTMLInputElement)?.value ?? "";
-  const content = (document.getElementById("admin-content") as HTMLTextAreaElement)?.value ?? "";
-  const preview = document.getElementById("admin-preview");
+    ? ((root.querySelector("#admin-project-tech") as HTMLInputElement)?.value ?? "")
+    : ((root.querySelector("#admin-tags") as HTMLInputElement)?.value ?? "");
+  const content = (root.querySelector("#admin-content") as HTMLTextAreaElement)?.value ?? "";
+  const preview = root.querySelector("#admin-preview") as HTMLElement | null;
   if (!preview) return;
 
-  const tagBadges = tags.split(",").map((t) => t.trim()).filter(Boolean)
-    .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
+  const tagBadges = tags
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`)
+    .join("");
   const formattedDate = date
     ? new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
     : "";

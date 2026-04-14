@@ -18,6 +18,7 @@ let panel: HTMLElement | null = null;
 let galleryGrid: HTMLElement | null = null;
 let onSelect: ((url: string, name: string) => void) | null = null;
 let defaultOnSelect: ((url: string, name: string) => void) | null = null;
+let _galleryRoot: ParentNode | null = null;
 
 function formatSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -174,7 +175,7 @@ export function openGallery(): void {
   onSelect = defaultOnSelect;
   if (!panel) {
     panel = createPanel();
-    document.querySelector(".admin-main")?.appendChild(panel);
+    _galleryRoot?.querySelector(".admin-main")?.appendChild(panel);
     panel.offsetHeight;
   }
   (panel as unknown as { show(): void }).show();
@@ -185,16 +186,16 @@ export function openGalleryForPick(callback: (url: string, name: string) => void
   onSelect = callback;
   if (!panel) {
     panel = createPanel();
-    document.querySelector(".admin-main")?.appendChild(panel);
+    _galleryRoot?.querySelector(".admin-main")?.appendChild(panel);
     panel.offsetHeight;
   }
   (panel as unknown as { show(): void }).show();
   renderGallery();
-  }
+}
 
 export function closeGallery(): void {
   (panel as unknown as { hide(): void })?.hide();
-  }
+}
 
 export function toggleGallery(): void {
   if (panel?.hasAttribute("open")) {
@@ -204,7 +205,8 @@ export function toggleGallery(): void {
   }
 }
 
-export function initGallery(insertFn: (url: string, name: string) => void): void {
+export function initGallery(insertFn: (url: string, name: string) => void, root: ParentNode): void {
   defaultOnSelect = insertFn;
   onSelect = defaultOnSelect;
+  _galleryRoot = root;
 }

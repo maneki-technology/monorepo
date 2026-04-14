@@ -9,11 +9,9 @@ import { loadTheme, saveThemeToBackend } from "./theme.js";
 
 const root = document.getElementById("admin-root")!;
 
-import("../pages/editor/index.js").then(({ editorRoute }) => {
-  root.innerHTML = editorRoute.render!();
-  requestAnimationFrame(() => {
-    if (editorRoute.setup) editorRoute.setup();
-  });
+import("../pages/editor/editor-page.js").then(() => {
+  const el = document.createElement("editor-page");
+  root.appendChild(el);
 });
 
 window.addEventListener("theme-change", () => saveThemeToBackend());

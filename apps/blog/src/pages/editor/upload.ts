@@ -82,7 +82,7 @@ export async function uploadFile(file: File, textarea: HTMLTextAreaElement): Pro
   }
 }
 
-export function setupImageUpload(textarea: HTMLTextAreaElement): void {
+export function setupImageUpload(textarea: HTMLTextAreaElement, root: ParentNode): void {
   // Drag & drop
   textarea.addEventListener("dragover", (e) => {
     e.preventDefault();
@@ -120,7 +120,7 @@ export function setupImageUpload(textarea: HTMLTextAreaElement): void {
   });
 
   // Toolbar image button — open file picker
-  const imageBtn = document.querySelector("[data-action='image']") as HTMLElement;
+  const imageBtn = root.querySelector("[data-action='image']") as HTMLElement;
   if (imageBtn) {
     imageBtn.onclick = (e) => {
       e.stopImmediatePropagation(); // prevent toolbar handler

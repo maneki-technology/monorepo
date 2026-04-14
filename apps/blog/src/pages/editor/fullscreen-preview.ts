@@ -6,24 +6,29 @@ export function setupFullscreenPreview(
   titleInput: HTMLElement,
   dateInput: HTMLElement,
   tagsInput: HTMLInputElement,
+  root: ParentNode,
 ): void {
-  const overlay = document.getElementById("admin-preview-overlay")!;
-  const previewFull = document.getElementById("admin-preview-full")!;
+  const overlay = root.querySelector("#admin-preview-overlay") as HTMLElement;
+  const previewFull = root.querySelector("#admin-preview-full") as HTMLElement;
 
-  const previewBtn = document.getElementById("admin-preview-btn");
+  const previewBtn = root.querySelector("#admin-preview-btn") as HTMLElement | null;
   if (previewBtn) {
     previewBtn.onclick = () => {
       if (state.activeTabType === "project") {
-        const title = (document.getElementById("admin-project-title") as any)?.value ?? "";
-        const description = (document.getElementById("admin-project-description") as any)?.value ?? "";
-        const tech = (document.getElementById("admin-project-tech") as HTMLInputElement)?.value ?? "";
+        const title = (root.querySelector("#admin-project-title") as any)?.value ?? "";
+        const description = (root.querySelector("#admin-project-description") as any)?.value ?? "";
+        const tech = (root.querySelector("#admin-project-tech") as HTMLInputElement)?.value ?? "";
         const content = textarea.value;
         const project = state.allProjects.find((p) => p.slug === state.currentSlug);
 
         getMd().then((mdShiki) => {
           const highlighted = content ? mdShiki.render(content) : "";
-          const techBadges = tech.split(",").map((t) => t.trim()).filter(Boolean)
-            .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
+          const techBadges = tech
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
+            .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`)
+            .join("");
           previewFull.innerHTML = `
             <article>
               <a href="/portfolio" class="body-02 text-link" style="text-decoration:none;">← Back to portfolio</a>
@@ -48,8 +53,12 @@ export function setupFullscreenPreview(
         const content = textarea.value;
         getMd().then((mdShiki) => {
           const highlighted = mdShiki.render(content);
-          const tagBadges = tags.split(",").map((t) => t.trim()).filter(Boolean)
-            .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
+          const tagBadges = tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean)
+            .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`)
+            .join("");
           const formattedDate = date
             ? new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
             : "";
@@ -69,7 +78,7 @@ export function setupFullscreenPreview(
     };
   }
 
-  const previewCloseBtn = document.getElementById("admin-preview-close");
+  const previewCloseBtn = root.querySelector("#admin-preview-close") as HTMLElement | null;
   if (previewCloseBtn) {
     previewCloseBtn.onclick = () => {
       overlay.style.display = "none";
