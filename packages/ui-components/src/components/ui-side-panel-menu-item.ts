@@ -13,6 +13,7 @@ import {
   SELECTED_MINIMAL,
   SELECTED_OVERLAY,
   SHADOW_FIELD,
+  SP_0_5,
   SP_1,
   SP_1_25,
   SP_1_5,

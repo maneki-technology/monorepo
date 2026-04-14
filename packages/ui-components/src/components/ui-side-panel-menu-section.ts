@@ -15,7 +15,12 @@ import {
 
 @customElement("ui-side-panel-menu-section")
 export class UiSidePanelMenuSection extends LitElement {
-  @property({ type: Boolean, reflect: true }) separator = false;
+  @property({ type: Boolean, reflect: true }) declare separator: boolean;
+
+  constructor() {
+    super();
+    this.separator = false;
+  }
 
   static styles = css`
     *,
@@ -38,13 +43,6 @@ export class UiSidePanelMenuSection extends LitElement {
       -webkit-user-select: none;
     }
 
-    ::slotted(*) {
-      margin-bottom: var(--ui-spm-item-gap, ${unsafeCSS(SP_0_5)});
-    }
-
-    ::slotted(*:last-child) {
-      margin-bottom: 0;
-    }
 
     /* Subsequent sections get a separator + spacing */
     :host([separator]) .section {
@@ -53,6 +51,7 @@ export class UiSidePanelMenuSection extends LitElement {
       border-top: ${unsafeCSS(BW_SM)} solid var(--ui-spm-section-border, ${unsafeCSS(BORDER_MINIMAL)});
     }
   `;
+
 
   connectedCallback(): void {
     super.connectedCallback();

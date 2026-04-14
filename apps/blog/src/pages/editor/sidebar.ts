@@ -57,13 +57,11 @@ export class EditorSidebar extends LitElement {
           ></ui-button>
         </span>
       </ui-side-panel-menu-section>
-      <div id="admin-post-list">
         ${repeat(
           s.allPosts,
           (p) => p.slug,
           (post) => this.renderPostItem(post),
         )}
-      </div>
       <ui-side-panel-menu-section separator>
         <span style="display:flex;align-items:center;justify-content:space-between;width:100%;">
           Projects
@@ -78,13 +76,11 @@ export class EditorSidebar extends LitElement {
           ></ui-button>
         </span>
       </ui-side-panel-menu-section>
-      <div id="admin-project-list">
         ${repeat(
           s.allProjects,
           (p) => p.slug,
           (project) => this.renderProjectItem(project),
         )}
-      </div>
       ${this.renderBulkBar()}
     `;
   }
@@ -111,50 +107,48 @@ export class EditorSidebar extends LitElement {
       "align-self:flex-start;margin-top:2px;";
 
     return html`
-      <div data-slug=${post.slug} data-type="post">
-        <ui-side-panel-menu-item
-          value=${post.slug}
-          ?selected=${isSelected}
-          leading-icon
-          @mouseenter=${this.handleItemMouseEnter}
-          @mouseleave=${this.handleItemMouseLeave}
-        >
-          <ui-checkbox-item
-            slot="icon"
-            size="s"
-            ?checked=${isChecked}
-            style=${checkboxStyle}
-            @change=${(e: Event) => this.handleCheckboxChange(e, post.slug)}
-          ></ui-checkbox-item>
-          <span style="display:flex;flex-direction:column;gap:2px;overflow:hidden;">
-            <span class="sidebar-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
-              >${title}</span
-            >
-            <span
-              class="sidebar-meta"
-              style="font-size:11px;color:var(--fd-text-secondary, #52525b);display:flex;align-items:center;gap:6px;"
-            >
-              ${post.date}
-              <ui-badge size="xs" status=${badgeStatus}>${badgeLabel}</ui-badge>
-              ${deploying
-                ? html`<ui-icon name="progress_activity" size="xs" class="deploy-spinner"></ui-icon>`
-                : nothing}
-            </span>
-          </span>
-          <ui-button
-            slot="actions"
-            action="destructive"
-            emphasis="minimal"
-            size="s"
-            icon="icon-only"
-            ?disabled=${deploying}
-            style="flex-shrink:0;opacity:0;transition:opacity 0.15s;"
-            @click=${(e: Event) => this.handleDelete(e, post.slug)}
+      <ui-side-panel-menu-item
+        value=${post.slug}
+        ?selected=${isSelected}
+        leading-icon
+        @mouseenter=${this.handleItemMouseEnter}
+        @mouseleave=${this.handleItemMouseLeave}
+      >
+        <ui-checkbox-item
+          slot="icon"
+          size="s"
+          ?checked=${isChecked}
+          style=${checkboxStyle}
+          @change=${(e: Event) => this.handleCheckboxChange(e, post.slug)}
+        ></ui-checkbox-item>
+        <span style="display:flex;flex-direction:column;gap:2px;overflow:hidden;">
+          <span class="sidebar-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+            >${title}</span
           >
-            <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
-          </ui-button>
-        </ui-side-panel-menu-item>
-      </div>
+          <span
+            class="sidebar-meta"
+            style="font-size:11px;color:var(--fd-text-secondary, #52525b);display:flex;align-items:center;gap:6px;"
+          >
+            ${post.date}
+            <ui-badge size="xs" status=${badgeStatus}>${badgeLabel}</ui-badge>
+            ${deploying
+              ? html`<ui-icon name="progress_activity" size="xs" class="deploy-spinner"></ui-icon>`
+              : nothing}
+          </span>
+        </span>
+        <ui-button
+          slot="actions"
+          action="destructive"
+          emphasis="minimal"
+          size="s"
+          icon="icon-only"
+          ?disabled=${deploying}
+          style="flex-shrink:0;opacity:0;transition:opacity 0.15s;"
+          @click=${(e: Event) => this.handleDelete(e, post.slug)}
+        >
+          <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
+        </ui-button>
+      </ui-side-panel-menu-item>
     `;
   }
 
@@ -181,46 +175,44 @@ export class EditorSidebar extends LitElement {
       "align-self:flex-start;";
 
     return html`
-      <div data-slug=${project.slug} data-type="project">
-        <ui-side-panel-menu-item
-          value=${"project:" + project.slug}
-          ?selected=${isSelected}
-          leading-icon
-          @mouseenter=${this.handleItemMouseEnter}
-          @mouseleave=${this.handleItemMouseLeave}
-        >
-          <ui-checkbox-item
-            slot="icon"
-            size="s"
-            ?checked=${isChecked}
-            style=${checkboxStyle}
-            @change=${(e: Event) => this.handleCheckboxChange(e, project.slug)}
-          ></ui-checkbox-item>
-          <span style="display:flex;flex-direction:column;gap:2px;overflow:hidden;">
-            <span class="sidebar-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
-              >${title}</span
-            >
-            <span
-              class="sidebar-meta"
-              style="font-size:11px;color:var(--fd-text-secondary, #52525b);display:flex;align-items:center;gap:6px;"
-            >
-              <ui-badge size="xs" status=${badgeStatus}>${badgeLabel}</ui-badge>
-            </span>
-          </span>
-          <ui-button
-            slot="actions"
-            action="destructive"
-            emphasis="minimal"
-            size="s"
-            icon="icon-only"
-            ?disabled=${deploying}
-            style="flex-shrink:0;opacity:0;transition:opacity 0.15s;"
-            @click=${(e: Event) => this.handleDelete(e, "project:" + project.slug)}
+      <ui-side-panel-menu-item
+        value=${"project:" + project.slug}
+        ?selected=${isSelected}
+        leading-icon
+        @mouseenter=${this.handleItemMouseEnter}
+        @mouseleave=${this.handleItemMouseLeave}
+      >
+        <ui-checkbox-item
+          slot="icon"
+          size="s"
+          ?checked=${isChecked}
+          style=${checkboxStyle}
+          @change=${(e: Event) => this.handleCheckboxChange(e, project.slug)}
+        ></ui-checkbox-item>
+        <span style="display:flex;flex-direction:column;gap:2px;overflow:hidden;">
+          <span class="sidebar-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
+            >${title}</span
           >
-            <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
-          </ui-button>
-        </ui-side-panel-menu-item>
-      </div>
+          <span
+            class="sidebar-meta"
+            style="font-size:11px;color:var(--fd-text-secondary, #52525b);display:flex;align-items:center;gap:6px;"
+          >
+            <ui-badge size="xs" status=${badgeStatus}>${badgeLabel}</ui-badge>
+          </span>
+        </span>
+        <ui-button
+          slot="actions"
+          action="destructive"
+          emphasis="minimal"
+          size="s"
+          icon="icon-only"
+          ?disabled=${deploying}
+          style="flex-shrink:0;opacity:0;transition:opacity 0.15s;"
+          @click=${(e: Event) => this.handleDelete(e, "project:" + project.slug)}
+        >
+          <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
+        </ui-button>
+      </ui-side-panel-menu-item>
     `;
   }
 
@@ -474,21 +466,13 @@ export class EditorSidebar extends LitElement {
 // ─── Backward compatibility wrapper ──────────────────────────────────────────
 
 export class SidebarRenderer {
-  init(postListEl: HTMLElement, projectListEl: HTMLElement): void {
-    const sidebar = postListEl.closest("ui-side-panel-menu");
-    if (!sidebar) return;
-
-    // Remove the static section headers and list containers — the Lit component renders them
+  init(sidebar: Element): void {
+    // Remove static section headers — the Lit component renders them
     const header = sidebar.querySelector("[slot='header']");
-    const sections = sidebar.querySelectorAll("ui-side-panel-menu-section");
-    sections.forEach((s) => s.remove());
-    postListEl.remove();
-    projectListEl.remove();
+    sidebar.querySelectorAll("ui-side-panel-menu-section").forEach((s) => s.remove());
 
     // Insert the Lit component (renders sections + items + bulk bar)
     const el = document.createElement("editor-sidebar");
-
-    // Insert after the header slot
     if (header && header.nextSibling) {
       sidebar.insertBefore(el, header.nextSibling);
     } else {

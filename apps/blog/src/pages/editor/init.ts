@@ -14,10 +14,9 @@ export function setupInit(root: ParentNode): void {
     setState({ allPosts: posts, allProjects: projects });
 
     // Init renderers after DOM is ready and state is populated
-    const postListEl = root.querySelector("#admin-post-list") as HTMLElement | null;
-    const projectListEl = root.querySelector("#admin-project-list") as HTMLElement | null;
+    const sidebar = root.querySelector("#admin-sidebar");
     const barEl = root.querySelector("#admin-tab-bar") as HTMLElement | null;
-    if (postListEl && projectListEl) sidebarRenderer.init(postListEl, projectListEl);
+    if (sidebar) sidebarRenderer.init(sidebar);
     if (barEl) tabBarRenderer.init(barEl);
 
     // Restore UI state
