@@ -692,6 +692,7 @@ const herouiComponentCssLight = [
   "--ui-tab-selected-shadow: 0px 2px 8px 0px rgba(0,0,0,0.06);",
   "--ui-project-card-border: none;",
   "--ui-cb-border: #dedee0;",
+  "--ui-radio-border: #dedee0;",
 ].join("\n");
 
 // Dark-only component overrides
@@ -707,6 +708,7 @@ const herouiComponentCssDark = [
   "--ui-card-border-width: 1px;",
   "--ui-modal-body-bg: #27272a;",  // zinc-800 — warmer modal body in dark
   "--ui-cb-border: #3f3f46;",
+  "--ui-radio-border: #3f3f46;",
   "--ui-spmi-hover-bg: rgba(255, 255, 255, 0.06);",
   "--ui-spmi-active-bg: rgba(255, 255, 255, 0.1);",
   "--ui-spmi-selected-bg: rgba(4, 133, 247, 0.15);",
