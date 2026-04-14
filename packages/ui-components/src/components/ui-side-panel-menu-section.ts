@@ -1,3 +1,5 @@
+import { LitElement, html, css, unsafeCSS } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import {
   BORDER_MINIMAL,
   BW_SM,
@@ -9,69 +11,55 @@ import {
   TYPE_HEADING_07,
 } from "@maneki/foundation";
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
+// ─── Component ─────────────────────────────────────────────────────────────────
 
-const STYLES = /* css */ `
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
+@customElement("ui-side-panel-menu-section")
+export class UiSidePanelMenuSection extends LitElement {
+  @property({ type: Boolean, reflect: true }) separator = false;
 
-  :host {
-    display: block;
-  }
+  static styles = css`
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
 
-  .section {
-    ${TYPE_HEADING_07}
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--ui-spm-section-color, ${TEXT_SECONDARY});
-    padding: ${SP_1_5} ${SP_2} ${SP_0_5} ${SP_2};
-    user-select: none;
-    -webkit-user-select: none;
-  }
+    :host {
+      display: block;
+    }
 
-  ::slotted(*) {
-    margin-bottom: var(--ui-spm-item-gap, ${SP_0_5});
-  }
+    .section {
+      ${unsafeCSS(TYPE_HEADING_07)}
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--ui-spm-section-color, ${unsafeCSS(TEXT_SECONDARY)});
+      padding: ${unsafeCSS(SP_1_5)} ${unsafeCSS(SP_2)} ${unsafeCSS(SP_0_5)} ${unsafeCSS(SP_2)};
+      user-select: none;
+      -webkit-user-select: none;
+    }
 
-  ::slotted(*:last-child) {
-    margin-bottom: 0;
-  }
+    ::slotted(*) {
+      margin-bottom: var(--ui-spm-item-gap, ${unsafeCSS(SP_0_5)});
+    }
 
-  /* Subsequent sections get a separator + spacing */
-  :host([separator]) .section {
-    padding-top: ${SP_1};
-    margin-top: ${SP_0_5};
-    border-top: ${BW_SM} solid var(--ui-spm-section-border, ${BORDER_MINIMAL});
-  }
-`;
+    ::slotted(*:last-child) {
+      margin-bottom: 0;
+    }
 
-// ─── Component ───────────────────────────────────────────────────────────────
-
-const sheet = new CSSStyleSheet();
-sheet.replaceSync(STYLES);
-
-export class UiSidePanelMenuSection extends HTMLElement {
-  constructor() {
-    super();
-    const shadow = this.attachShadow({ mode: "open" });
-    shadow.adoptedStyleSheets = [sheet];
-
-    const section = document.createElement("div");
-    section.className = "section";
-    section.setAttribute("part", "section");
-
-    const slot = document.createElement("slot");
-    section.appendChild(slot);
-
-    shadow.appendChild(section);
-  }
+    /* Subsequent sections get a separator + spacing */
+    :host([separator]) .section {
+      padding-top: ${unsafeCSS(SP_1)};
+      margin-top: ${unsafeCSS(SP_0_5)};
+      border-top: ${unsafeCSS(BW_SM)} solid var(--ui-spm-section-border, ${unsafeCSS(BORDER_MINIMAL)});
+    }
+  `;
 
   connectedCallback(): void {
+    super.connectedCallback();
     this.setAttribute("role", "presentation");
   }
-}
 
-customElements.define("ui-side-panel-menu-section", UiSidePanelMenuSection);
+  protected render(): unknown {
+    return html`<div class="section" part="section"><slot></slot></div>`;
+  }
+}

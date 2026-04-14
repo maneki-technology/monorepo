@@ -111,9 +111,10 @@ describe("ui-side-panel", () => {
     expect(panel.state).toBe("expanded");
   });
 
-  it("state setter updates attribute", () => {
+  it("state setter updates attribute", async () => {
     const panel = el as any;
     panel.state = "collapsed";
+    await panel.updateComplete;
     expect(el.getAttribute("state")).toBe("collapsed");
   });
 
@@ -122,9 +123,10 @@ describe("ui-side-panel", () => {
     expect(panel.overlay).toBe(false);
   });
 
-  it("overlay setter adds attribute when true", () => {
+  it("overlay setter adds attribute when true", async () => {
     const panel = el as any;
     panel.overlay = true;
+    await panel.updateComplete;
     expect(el.hasAttribute("overlay")).toBe(true);
   });
 
@@ -141,14 +143,13 @@ describe("ui-side-panel", () => {
     expect(panel.mobile).toBe(false);
   });
 
-  it("mobile is read-only (no setter)", () => {
+  it("mobile is settable", async () => {
     const panel = el as any;
-    const descriptor = Object.getOwnPropertyDescriptor(
-      Object.getPrototypeOf(panel),
-      "mobile",
-    );
-    expect(descriptor).toBeDefined();
-    expect(descriptor!.set).toBeUndefined();
+    // mobile is now a Lit @property (no longer read-only)
+    expect(panel.mobile).toBe(false);
+    panel.mobile = true;
+    await panel.updateComplete;
+    expect(panel.mobile).toBe(true);
   });
 
   // ── Toggle ────────────────────────────────────────────────────────────────
@@ -159,9 +160,10 @@ describe("ui-side-panel", () => {
     expect(panel.state).toBe("collapsed");
   });
 
-  it("toggle() switches from collapsed to expanded", () => {
+  it("toggle() switches from collapsed to expanded", async () => {
     const panel = el as any;
     panel.state = "collapsed";
+    await panel.updateComplete;
     panel.toggle();
     expect(panel.state).toBe("expanded");
   });
@@ -186,11 +188,12 @@ describe("ui-side-panel", () => {
     expect(event.composed).toBe(true);
   });
 
-  it("clicking toggle button calls toggle", () => {
+  it("clicking toggle button calls toggle", async () => {
     const toggleBtn = el.shadowRoot!.querySelector(
       ".header-toggle",
     ) as HTMLButtonElement;
     toggleBtn.click();
+    await (el as any).updateComplete;
     expect(el.getAttribute("state")).toBe("collapsed");
   });
 
@@ -207,10 +210,11 @@ describe("ui-side-panel", () => {
     expect(icon!.textContent!.length).toBe(1);
   });
 
-  it("updates icon after toggle()", () => {
+  it("updates icon after toggle()", async () => {
     const panel = el as any;
     const iconBefore = el.shadowRoot!.querySelector(".material-symbols-outlined")!.textContent;
     panel.toggle();
+    await panel.updateComplete;
     const iconAfter = el.shadowRoot!.querySelector(".material-symbols-outlined")!.textContent;
     expect(iconAfter).not.toBe(iconBefore);
   });
@@ -244,8 +248,9 @@ describe("ui-side-panel", () => {
     expect(toggleBtn!.getAttribute("aria-label")).toBe("Collapse panel");
   });
 
-  it("toggle button has aria-label when collapsed", () => {
+  it("toggle button has aria-label when collapsed", async () => {
     el.setAttribute("state", "collapsed");
+    await (el as any).updateComplete;
     const toggleBtn = el.shadowRoot!.querySelector(".header-toggle");
     expect(toggleBtn!.getAttribute("aria-label")).toBe("Expand panel");
   });
