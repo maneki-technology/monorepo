@@ -1136,9 +1136,7 @@ export class AdminGallery extends LitElement {
             ${this._tags.map((t) => html`
               <ui-tag
                 size="s"
-                type="selectable"
-                emphasis="subtle"
-                ?selected=${this._batchTagIds.includes(t.id)}
+                emphasis=${this._batchTagIds.includes(t.id) ? "subtle" : "minimal"}
                 @click=${() => {
                   this._batchTagIds = this._batchTagIds.includes(t.id)
                     ? this._batchTagIds.filter((id) => id !== t.id)
@@ -1493,9 +1491,7 @@ export class AdminGallery extends LitElement {
             ${this._tags.map((t) => html`
               <ui-tag
                 size="s"
-                type="selectable"
-                emphasis="subtle"
-                ?selected=${this._editingPhotoTagIds.includes(t.id)}
+                emphasis=${this._editingPhotoTagIds.includes(t.id) ? "subtle" : "minimal"}
                 @click=${() => {
                   this._editingPhotoTagIds = this._editingPhotoTagIds.includes(t.id)
                     ? this._editingPhotoTagIds.filter((id) => id !== t.id)
