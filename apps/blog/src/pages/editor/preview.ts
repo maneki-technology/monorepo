@@ -94,7 +94,7 @@ export function triggerPreview(): void {
   previewDebounceTimer = setTimeout(() => renderPreview(_previewRoot!), 150);
 }
 
-export function renderPreview(root: ParentNode): void {
+export function renderPreview(root: ParentNode, previewEl?: HTMLElement | null): void {
   _previewRoot = root;
   const ep = (root as ShadowRoot).host as any;
   const isProject = state.activeTabType === "project";
@@ -102,7 +102,7 @@ export function renderPreview(root: ParentNode): void {
   const date = isProject ? "" : (ep?.postDate ?? "");
   const tags: string = isProject ? (ep?.projectTech?.join(", ") ?? "") : (ep?.postTags?.join(", ") ?? "");
   const content: string = ep?.postContent ?? "";
-  const preview = root.querySelector("#admin-preview") as HTMLElement | null;
+  const preview = previewEl ?? root.querySelector("#admin-preview") as HTMLElement | null;
   if (!preview) return;
 
   const tagBadges = tags
