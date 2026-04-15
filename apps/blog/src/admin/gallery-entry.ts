@@ -6,6 +6,7 @@ registerIconFont(materialSymbolsWoff2);
 import "../components/theme-toggle.js";
 import "../components/loading-bounce.js";
 import "./gallery.js";
+import "./deploy-fab.js";
 
 const root = document.getElementById("admin-root")!;
 root.appendChild(document.createElement("admin-gallery"));

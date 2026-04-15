@@ -16,9 +16,14 @@ export async function publishCurrent(publishSplit: HTMLElement | null): Promise<
     }
 
     if (state.activeTabType === "project") {
-      await publishProject(publishSplit);
+      await publishProject();
     } else {
-      await publishPost(publishSplit);
+      await publishPost();
+    }
+
+    if (publishSplit) {
+      publishSplit.setAttribute("status", "success");
+      setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
     }
   } catch {
     if (publishSplit) publishSplit.setAttribute("status", "error");
@@ -33,9 +38,14 @@ export async function unpublishCurrent(publishSplit: HTMLElement | null): Promis
   if (publishSplit) publishSplit.setAttribute("status", "loading");
   try {
     if (state.activeTabType === "project") {
-      await unpublishProject(publishSplit);
+      await unpublishProject();
     } else {
-      await unpublishPost(publishSplit);
+      await unpublishPost();
+    }
+
+    if (publishSplit) {
+      publishSplit.setAttribute("status", "success");
+      setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
     }
   } catch {
     if (publishSplit) publishSplit.setAttribute("status", "error");
@@ -47,7 +57,7 @@ export async function unpublishCurrent(publishSplit: HTMLElement | null): Promis
 
 // ─── Post publish/unpublish ─────────────────────────────────────────────────
 
-async function publishPost(publishSplit: HTMLElement | null): Promise<void> {
+async function publishPost(): Promise<void> {
   const data = getCurrentPostData();
   const tags = data.tags
     .split(",")
@@ -64,41 +74,32 @@ async function publishPost(publishSplit: HTMLElement | null): Promise<void> {
     },
   });
   const post = state.allPosts.find((p) => p.slug === state.currentSlug);
-  if (post) post.status = "published";
+  if (post) {
+    post.status = "published";
+    post.publishedAt = new Date().toISOString();
+    post.publishedContent = `${post.title}\n${post.content}\n${post.excerpt}\n${post.tags}\n${post.date}`;
+  }
   const tab = state.openTabs.find((t) => t.slug === state.currentSlug);
-  if (tab) tab.status = "published";
-  setState({ deployingSlugs: new Set([state.currentSlug!]), deployingAction: "publishing" });
-
-  await pollDeployStatus(publishSplit, () => {
-    if (state.currentSlug) {
-      const p = state.allPosts.find((x) => x.slug === state.currentSlug);
-      if (p) {
-        p.publishedAt = new Date().toISOString();
-        p.publishedContent = `${p.title}\n${p.content}\n${p.excerpt}\n${p.tags}\n${p.date}`;
-      }
-      const t = state.openTabs.find((x) => x.slug === state.currentSlug);
-      if (t) {
-        t.publishedAt = new Date().toISOString();
-        t.publishedContent = `${t.title}\n${t.content}\n${t.excerpt}\n${t.tags}\n${t.date}`;
-      }
-    }
-    setState({}); // trigger render
-  });
+  if (tab) {
+    tab.status = "published";
+    tab.publishedAt = new Date().toISOString();
+    tab.publishedContent = `${tab.title}\n${tab.content}\n${tab.excerpt}\n${tab.tags}\n${tab.date}`;
+  }
+  setState({});
 }
 
-async function unpublishPost(publishSplit: HTMLElement | null): Promise<void> {
+async function unpublishPost(): Promise<void> {
   await api.api.posts[":slug"].unpublish.$put({ param: { slug: state.currentSlug! } });
   const post = state.allPosts.find((p) => p.slug === state.currentSlug);
   if (post) post.status = "draft";
   const tab = state.openTabs.find((t) => t.slug === state.currentSlug);
   if (tab) tab.status = "draft";
-  setState({ deployingSlugs: new Set([state.currentSlug!]), deployingAction: "unpublishing" });
-  await pollDeployStatus(publishSplit);
+  setState({});
 }
 
 // ─── Project publish/unpublish ──────────────────────────────────────────────
 
-async function publishProject(publishSplit: HTMLElement | null): Promise<void> {
+async function publishProject(): Promise<void> {
   const data = getCurrentProjectData();
   const tech = data.tech
     .split(",")
@@ -119,74 +120,25 @@ async function publishProject(publishSplit: HTMLElement | null): Promise<void> {
     },
   });
   const project = state.allProjects.find((p) => p.slug === state.currentSlug);
-  if (project) project.status = "published";
+  if (project) {
+    project.status = "published";
+    project.publishedAt = new Date().toISOString();
+    project.publishedContent = `${project.title}\n${project.content}\n${project.description}\n${project.tech}`;
+  }
   const tab = state.openProjectTabs.find((t) => t.slug === state.currentSlug);
-  if (tab) tab.status = "published";
-  setState({ deployingSlugs: new Set([state.currentSlug!]), deployingAction: "publishing" });
-
-  await pollDeployStatus(publishSplit, () => {
-    if (state.currentSlug) {
-      const p = state.allProjects.find((x) => x.slug === state.currentSlug);
-      if (p) {
-        p.publishedAt = new Date().toISOString();
-        p.publishedContent = `${p.title}\n${p.content}\n${p.description}\n${p.tech}`;
-      }
-      const t = state.openProjectTabs.find((x) => x.slug === state.currentSlug);
-      if (t) {
-        t.publishedAt = new Date().toISOString();
-        t.publishedContent = `${t.title}\n${t.content}\n${t.description}\n${t.tech}`;
-      }
-    }
-    setState({});
-  });
+  if (tab) {
+    tab.status = "published";
+    tab.publishedAt = new Date().toISOString();
+    tab.publishedContent = `${tab.title}\n${tab.content}\n${tab.description}\n${tab.tech}`;
+  }
+  setState({});
 }
 
-async function unpublishProject(publishSplit: HTMLElement | null): Promise<void> {
+async function unpublishProject(): Promise<void> {
   await api.api.projects[":slug"].unpublish.$put({ param: { slug: state.currentSlug! } });
   const project = state.allProjects.find((p) => p.slug === state.currentSlug);
   if (project) project.status = "draft";
   const tab = state.openProjectTabs.find((t) => t.slug === state.currentSlug);
   if (tab) tab.status = "draft";
-  setState({ deployingSlugs: new Set([state.currentSlug!]), deployingAction: "unpublishing" });
-  await pollDeployStatus(publishSplit);
-}
-
-// ─── Shared deploy polling ──────────────────────────────────────────────────
-
-async function pollDeployStatus(publishSplit: HTMLElement | null, onSuccess?: () => void): Promise<void> {
-  const poll = async (): Promise<boolean> => {
-    try {
-      const statusRes = await api.api.deploy.status.$get();
-      if (!statusRes.ok) return false;
-      const { status: deployStatus } = await statusRes.json();
-
-      if (deployStatus === "success") {
-        setState({ deployingSlugs: new Set(), deployingAction: null });
-        if (onSuccess) onSuccess();
-        if (publishSplit) {
-          publishSplit.setAttribute("status", "success");
-          setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
-        }
-        return true;
-      } else if (deployStatus === "failure") {
-        setState({ deployingSlugs: new Set(), deployingAction: null });
-        if (publishSplit) {
-          publishSplit.setAttribute("status", "error");
-          setTimeout(() => publishSplit.setAttribute("status", "none"), 2000);
-        }
-        return true;
-      }
-      return false;
-    } catch {
-      setState({ deployingSlugs: new Set(), deployingAction: null });
-      return true;
-    }
-  };
-
-  const done = await poll();
-  if (!done) {
-    const pollInterval = setInterval(async () => {
-      if (await poll()) clearInterval(pollInterval);
-    }, 5000);
-  }
+  setState({});
 }

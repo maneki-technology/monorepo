@@ -9,31 +9,6 @@ import { z } from "zod";
 import type { Client } from "@libsql/client";
 import type { Env } from "../index.js";
 
-const REPO = "maneki-technology/monorepo";
-
-async function triggerDeploy(db: Client, email: string, ghToken: string): Promise<string> {
-  const deployId = `gh-${Date.now().toString(36)}`;
-
-  if (ghToken) {
-    await fetch(`https://api.github.com/repos/${REPO}/dispatches`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${ghToken}`,
-        Accept: "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-        "User-Agent": "maneki-blog",
-      },
-      body: JSON.stringify({ event_type: "deploy-blog" }),
-    });
-  }
-
-  await db.execute({
-    sql: "INSERT INTO deployments (id, triggered_by, status) VALUES (?, ?, 'building')",
-    args: [deployId, email],
-  });
-
-  return deployId;
-}
 const createPostSchema = z.object({
   title: z.string().min(1),
   slug: z.string().min(1).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase kebab-case"),
@@ -210,9 +185,7 @@ export const posts = new Hono<Env>()
       args,
     });
 
-    // Trigger deploy
-    const deployId = await triggerDeploy(db, c.get("userEmail"), ghToken);
-    return c.json({ ok: true, slug: newSlug, deploymentId: deployId });
+    return c.json({ ok: true, slug: newSlug });
   })
 
   // Unpublish — set draft + trigger deploy
@@ -226,9 +199,7 @@ export const posts = new Hono<Env>()
       args: [slug],
     });
 
-    // Trigger deploy
-    const deployId = await triggerDeploy(db, c.get("userEmail"), ghToken);
-    return c.json({ ok: true, deploymentId: deployId });
+    return c.json({ ok: true });
   })
 
   // ─── Batch operations ────────────────────────────────────────────────────
@@ -260,8 +231,7 @@ export const posts = new Hono<Env>()
       args: slugs,
     });
 
-    const deployId = await triggerDeploy(db, c.get("userEmail"), ghToken);
-    return c.json({ ok: true, count: slugs.length, deploymentId: deployId });
+    return c.json({ ok: true, count: slugs.length });
   })
 
   // Batch unpublish — set all to draft + ONE deploy
@@ -277,6 +247,5 @@ export const posts = new Hono<Env>()
       args: slugs,
     });
 
-    const deployId = await triggerDeploy(db, c.get("userEmail"), ghToken);
-    return c.json({ ok: true, count: slugs.length, deploymentId: deployId });
+    return c.json({ ok: true, count: slugs.length });
   });
