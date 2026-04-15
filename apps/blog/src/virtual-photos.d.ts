@@ -1,0 +1,20 @@
+declare module "virtual:photos" {
+  export interface VirtualPhoto {
+    id: number;
+    r2Key: string;
+    url: string;
+    title: string;
+    caption: string;
+    albumId: number | null;
+    category: string;
+    width: number;
+    height: number;
+    thumbhash: string;
+    exif: Record<string, unknown>;
+    sortOrder: number;
+    featured: boolean;
+  }
+  export const photos: VirtualPhoto[];
+  export const featuredPhotos: VirtualPhoto[];
+  export const categories: string[];
+}
