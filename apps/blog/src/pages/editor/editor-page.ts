@@ -4,16 +4,16 @@ import { createRef, ref, type Ref } from "lit/directives/ref.js";
 import type { Post, Project } from "./types.js";
 import { state, setState, hasUnpublishedChanges } from "./state.js";
 import { api } from "../../lib/api.js";
-import { fetchPosts, fetchProjects, loadUIState, setEditorPage, saveUIState, saveCurrent, saveCurrentProject, loadPostIntoEditor, loadProjectIntoEditor } from "./api.js";
+import { fetchPosts, fetchProjects, loadUIState, setEditorPage, saveUIState, saveCurrent, saveCurrentProject, loadPostIntoEditor, loadProjectIntoEditor, exportAsMarkdown } from "./api.js";
 import { renderPreview, triggerPreview } from "./preview.js";
 import { wrapSelection, insertAtCursor } from "./toolbar.js";
-import { setupImageUpload } from "./upload.js";
+import { uploadFile } from "./upload.js";
 import { initGallery, toggleGallery, openGalleryForPick } from "./gallery.js";
 import { setupContextMenu } from "./context-menu.js";
 import { setupScrollSync } from "./scroll-sync.js";
 import { setupUndoStack } from "./undo.js";
 import { openPortfolioLayout, setProjectPreviewRoot } from "./project-preview.js";
-import { setupPublish } from "./publish.js";
+import { publishCurrent, unpublishCurrent } from "./publish.js";
 import { setupDeleteModal } from "./delete-modal.js";
 import { setupFullscreenPreview } from "./fullscreen-preview.js";
 import { SidebarRenderer, setSidebarRoot } from "./sidebar.js";
@@ -297,14 +297,14 @@ export class EditorPage extends LitElement {
               <ui-button id="admin-preview-btn" action="secondary" emphasis="subtle" size="s">Preview</ui-button>
               <ui-button id="admin-portfolio-btn" action="secondary" emphasis="subtle" size="s" style="display:${s.activeTabType === "project" ? "" : "none"}" @click=${openPortfolioLayout}>Portfolio</ui-button>
               <ui-button id="admin-save-btn" ${ref(this._saveBtnRef)} action="primary" size="s" ?disabled=${s.deployingSlugs.size > 0} @click=${() => this._onSave()}>Save</ui-button>
-              <ui-dropdown-split id="admin-publish-split" ${ref(this._publishSplitRef)} action="primary" size="s" label="Publish" ?disabled=${s.deployingSlugs.size > 0}>
-                <ui-dropdown-item id="admin-unpublish-btn" value="unpublish">Unpublish</ui-dropdown-item>
-                <ui-dropdown-item id="admin-export-btn" value="export">Export .md</ui-dropdown-item>
+              <ui-dropdown-split id="admin-publish-split" ${ref(this._publishSplitRef)} action="primary" size="s" label="Publish" ?disabled=${s.deployingSlugs.size > 0} @action=${this._onPublishAction}>
+                <ui-dropdown-item id="admin-unpublish-btn" value="unpublish" @select=${this._onUnpublish}>Unpublish</ui-dropdown-item>
+                <ui-dropdown-item id="admin-export-btn" value="export" @select=${this._onExport}>Export .md</ui-dropdown-item>
               </ui-dropdown-split>
             </ui-toolbar>
             <div class="admin-split">
               <ui-scrollbar emphasis="minimal" class="admin-textarea-wrap">
-                <textarea id="admin-content" ${ref(this._textareaRef)} placeholder="Write your post in Markdown..." spellcheck="false" .value=${this.postContent} @input=${this._onContentInput} @keydown=${this._onTextareaKeydown}></textarea>
+                <textarea id="admin-content" ${ref(this._textareaRef)} placeholder="Write your post in Markdown..." spellcheck="false" .value=${this.postContent} @input=${this._onContentInput} @keydown=${this._onTextareaKeydown} @dragover=${this._onTextareaDragover} @dragleave=${this._onTextareaDragleave} @drop=${this._onTextareaDrop} @paste=${this._onTextareaPaste}></textarea>
                 <div class="admin-textarea-spacer"></div>
               </ui-scrollbar>
               <ui-scrollbar emphasis="minimal"><div id="admin-preview" class="admin-preview"></div></ui-scrollbar>
@@ -351,8 +351,7 @@ export class EditorPage extends LitElement {
     });
 
 
-    // Plugins (toolbar action handled by @click on <ui-toolbar>, keyboard absorbed into editor-page)
-    setupImageUpload(textarea, root);
+    // Plugins
     initGallery((url, name) => insertAtCursor(textarea, `![${name}](${url})`), root);
     setupContextMenu(textarea);
     setupUndoStack(textarea);
@@ -363,7 +362,6 @@ export class EditorPage extends LitElement {
     if (textareaWrap && previewWrap) setupScrollSync(textareaWrap, previewWrap);
 
     setupFullscreenPreview(textarea, root);
-    setupPublish(publishSplit, textarea, root);
     setupDeleteModal(root);
 
     // Project tech tags
@@ -549,7 +547,7 @@ export class EditorPage extends LitElement {
       case "link": wrapSelection(ta, "[", "](url)"); break;
       case "code": wrapSelection(ta, "`", "`"); break;
       case "codeblock": wrapSelection(ta, "\n```ts\n", "\n```\n"); break;
-      case "image": insertAtCursor(ta, "![alt](/images/)"); break;
+      case "image": this._openImageFilePicker(); break;
       case "ul": wrapSelection(ta, "\n- ", "\n"); break;
       case "ol": wrapSelection(ta, "\n1. ", "\n"); break;
       case "quote": wrapSelection(ta, "\n> ", "\n"); break;
@@ -587,6 +585,75 @@ export class EditorPage extends LitElement {
   disconnectedCallback(): void {
     super.disconnectedCallback();
     document.removeEventListener("keydown", this._onDocumentKeydown);
+  }
+  // ─── Image upload via file picker (replaces upload.ts toolbar button handler) ─
+  private _openImageFilePicker(): void {
+    const ta = this._textareaRef.value;
+    if (!ta) return;
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.multiple = true;
+    input.addEventListener("change", () => {
+      if (!input.files) return;
+      for (const file of input.files) {
+        uploadFile(file, ta);
+      }
+    });
+    input.click();
+  }
+
+  // ─── Textarea drag/drop/paste for image upload (replaces setupImageUpload) ──
+  private _onTextareaDragover(e: Event): void {
+    e.preventDefault();
+    (e.target as HTMLTextAreaElement).classList.add("drag-over");
+  }
+
+  private _onTextareaDragleave(e: Event): void {
+    (e.target as HTMLTextAreaElement).classList.remove("drag-over");
+  }
+
+  private _onTextareaDrop(e: Event): void {
+    const de = e as DragEvent;
+    de.preventDefault();
+    (de.target as HTMLTextAreaElement).classList.remove("drag-over");
+    const ta = this._textareaRef.value;
+    if (!ta) return;
+    const files = de.dataTransfer?.files;
+    if (!files) return;
+    for (const file of files) {
+      if (file.type.startsWith("image/")) uploadFile(file, ta);
+    }
+  }
+
+  private _onTextareaPaste(e: Event): void {
+    const ce = e as ClipboardEvent;
+    const items = ce.clipboardData?.items;
+    if (!items) return;
+    const ta = this._textareaRef.value;
+    if (!ta) return;
+    for (const item of items) {
+      if (item.type.startsWith("image/")) {
+        ce.preventDefault();
+        const file = item.getAsFile();
+        if (file) uploadFile(file, ta);
+        return;
+      }
+    }
+  }
+
+  // ─── Publish/unpublish/export (replaces setupPublish) ─────────────────────
+  private async _onPublishAction(): Promise<void> {
+    const el = this._publishSplitRef.value ?? null;
+    await publishCurrent(el);
+  }
+
+  private async _onUnpublish(): Promise<void> {
+    const el = this._publishSplitRef.value ?? null;
+    await unpublishCurrent(el);
+  }
+  private _onExport(): void {
+    exportAsMarkdown();
   }
 
   private _onTagKeydown(e: Event): void {
