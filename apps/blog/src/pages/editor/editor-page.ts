@@ -1,11 +1,12 @@
 import { LitElement, html, css, nothing } from "lit";
 import { customElement, state as litState } from "lit/decorators.js";
+import { createRef, ref, type Ref } from "lit/directives/ref.js";
 import type { Post, Project } from "./types.js";
 import { state, setState, hasUnpublishedChanges } from "./state.js";
 import { api } from "../../lib/api.js";
 import { fetchPosts, fetchProjects, loadUIState, setEditorPage, saveUIState, saveCurrent, saveCurrentProject, loadPostIntoEditor, loadProjectIntoEditor } from "./api.js";
 import { renderPreview, triggerPreview } from "./preview.js";
-import { setupToolbar, insertAtCursor } from "./toolbar.js";
+import { wrapSelection, insertAtCursor } from "./toolbar.js";
 import { setupImageUpload } from "./upload.js";
 import { initGallery, toggleGallery, openGalleryForPick } from "./gallery.js";
 import { setupContextMenu } from "./context-menu.js";
@@ -14,7 +15,6 @@ import { setupUndoStack } from "./undo.js";
 import { openPortfolioLayout, setProjectPreviewRoot } from "./project-preview.js";
 import { setupPublish } from "./publish.js";
 import { setupDeleteModal } from "./delete-modal.js";
-import { setupKeyboard } from "./keyboard.js";
 import { setupFullscreenPreview } from "./fullscreen-preview.js";
 import { SidebarRenderer, setSidebarRoot } from "./sidebar.js";
 import { EditorStoreController } from "./editor-store.js";
@@ -47,6 +47,11 @@ import "@maneki/ui-components/components/ui-link.js";
 @customElement("editor-page")
 export class EditorPage extends LitElement {
   private store = new EditorStoreController(this);
+
+  // ─── Element refs ──────────────────────────────────────────────────────────
+  private _textareaRef: Ref<HTMLTextAreaElement> = createRef();
+  private _saveBtnRef: Ref<HTMLElement> = createRef();
+  private _publishSplitRef: Ref<HTMLElement> = createRef();
 
   // ─── Post form fields (reactive) ─────────────────────────────────────────
   @litState() postTitle = "";
@@ -267,7 +272,7 @@ export class EditorPage extends LitElement {
                 </div>
               </div>
             </div>
-            <ui-toolbar class="admin-toolbar" aria-label="Editor toolbar">
+            <ui-toolbar class="admin-toolbar" aria-label="Editor toolbar" @click=${this._onToolbarAction}>
               <ui-button-group action="secondary">
                 <ui-button icon="icon-only" data-action="bold" aria-label="Bold"><ui-icon name="format_bold" size="s" slot="icon-start"></ui-icon></ui-button>
                 <ui-button icon="icon-only" data-action="italic" aria-label="Italic"><ui-icon name="format_italic" size="s" slot="icon-start"></ui-icon></ui-button>
@@ -291,15 +296,15 @@ export class EditorPage extends LitElement {
               <span style="flex:1"></span>
               <ui-button id="admin-preview-btn" action="secondary" emphasis="subtle" size="s">Preview</ui-button>
               <ui-button id="admin-portfolio-btn" action="secondary" emphasis="subtle" size="s" style="display:${s.activeTabType === "project" ? "" : "none"}" @click=${openPortfolioLayout}>Portfolio</ui-button>
-              <ui-button id="admin-save-btn" action="primary" size="s" @click=${() => this._onSave()}>Save</ui-button>
-              <ui-dropdown-split id="admin-publish-split" action="primary" size="s" label="Publish">
+              <ui-button id="admin-save-btn" ${ref(this._saveBtnRef)} action="primary" size="s" ?disabled=${s.deployingSlugs.size > 0} @click=${() => this._onSave()}>Save</ui-button>
+              <ui-dropdown-split id="admin-publish-split" ${ref(this._publishSplitRef)} action="primary" size="s" label="Publish" ?disabled=${s.deployingSlugs.size > 0}>
                 <ui-dropdown-item id="admin-unpublish-btn" value="unpublish">Unpublish</ui-dropdown-item>
                 <ui-dropdown-item id="admin-export-btn" value="export">Export .md</ui-dropdown-item>
               </ui-dropdown-split>
             </ui-toolbar>
             <div class="admin-split">
               <ui-scrollbar emphasis="minimal" class="admin-textarea-wrap">
-                <textarea id="admin-content" placeholder="Write your post in Markdown..." spellcheck="false" .value=${this.postContent} @input=${this._onContentInput}></textarea>
+                <textarea id="admin-content" ${ref(this._textareaRef)} placeholder="Write your post in Markdown..." spellcheck="false" .value=${this.postContent} @input=${this._onContentInput} @keydown=${this._onTextareaKeydown}></textarea>
                 <div class="admin-textarea-spacer"></div>
               </ui-scrollbar>
               <ui-scrollbar emphasis="minimal"><div id="admin-preview" class="admin-preview"></div></ui-scrollbar>
@@ -331,8 +336,8 @@ export class EditorPage extends LitElement {
     setSidebarRoot(root);
     setProjectPreviewRoot(root);
 
-    const textarea = root.querySelector("#admin-content") as HTMLTextAreaElement;
-    const publishSplit = root.querySelector("#admin-publish-split") as HTMLElement | null;
+    const textarea = this._textareaRef.value!;
+    const publishSplit = this._publishSplitRef.value ?? null;
 
     // Buttons inside ui-side-panel-menu-section — Lit @click doesn't attach listeners,
     // and imperative listeners get lost when EditorStoreController triggers re-renders.
@@ -346,8 +351,7 @@ export class EditorPage extends LitElement {
     });
 
 
-    // Toolbar + plugins
-    setupToolbar(textarea, root);
+    // Plugins (toolbar action handled by @click on <ui-toolbar>, keyboard absorbed into editor-page)
     setupImageUpload(textarea, root);
     initGallery((url, name) => insertAtCursor(textarea, `![${name}](${url})`), root);
     setupContextMenu(textarea);
@@ -361,7 +365,6 @@ export class EditorPage extends LitElement {
     setupFullscreenPreview(textarea, root);
     setupPublish(publishSplit, textarea, root);
     setupDeleteModal(root);
-    setupKeyboard(textarea, root);
 
     // Project tech tags
     // Default date is set via reactive property, render initial preview
@@ -532,6 +535,59 @@ export class EditorPage extends LitElement {
     this._scheduleAutoSave();
     triggerPreview();
   }
+  // ─── Toolbar action handler (replaces setupToolbar) ─────────────────────────
+  private _onToolbarAction(e: Event): void {
+    const btn = (e.target as Element).closest?.("[data-action]") as HTMLElement | null;
+    if (!btn) return;
+    const ta = this._textareaRef.value;
+    if (!ta) return;
+    switch (btn.dataset.action) {
+      case "bold": wrapSelection(ta, "**", "**"); break;
+      case "italic": wrapSelection(ta, "*", "*"); break;
+      case "h2": wrapSelection(ta, "\n## ", "\n"); break;
+      case "h3": wrapSelection(ta, "\n### ", "\n"); break;
+      case "link": wrapSelection(ta, "[", "](url)"); break;
+      case "code": wrapSelection(ta, "`", "`"); break;
+      case "codeblock": wrapSelection(ta, "\n```ts\n", "\n```\n"); break;
+      case "image": insertAtCursor(ta, "![alt](/images/)"); break;
+      case "ul": wrapSelection(ta, "\n- ", "\n"); break;
+      case "ol": wrapSelection(ta, "\n1. ", "\n"); break;
+      case "quote": wrapSelection(ta, "\n> ", "\n"); break;
+    }
+  }
+
+  // ─── Textarea keydown (Tab key — replaces keyboard.ts Tab handler) ──────────
+  private _onTextareaKeydown(e: Event): void {
+    const ke = e as KeyboardEvent;
+    if (ke.key === "Tab") {
+      ke.preventDefault();
+      const ta = this._textareaRef.value;
+      if (ta) insertAtCursor(ta, "  ");
+    }
+  }
+
+  // ─── Ctrl+S keyboard shortcut (replaces keyboard.ts Ctrl+S handler) ────────
+  private _onDocumentKeydown = (e: KeyboardEvent): void => {
+    if ((e.metaKey || e.ctrlKey) && e.key === "s") {
+      e.preventDefault();
+      const saveBtn = this._saveBtnRef.value ?? null;
+      if (state.activeTabType === "project") {
+        saveCurrentProject(true, saveBtn);
+      } else {
+        saveCurrent(true, saveBtn);
+      }
+    }
+  };
+
+  connectedCallback(): void {
+    super.connectedCallback();
+    document.addEventListener("keydown", this._onDocumentKeydown);
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+    document.removeEventListener("keydown", this._onDocumentKeydown);
+  }
 
   private _onTagKeydown(e: Event): void {
     const ke = e as KeyboardEvent;
@@ -606,7 +662,7 @@ export class EditorPage extends LitElement {
     setState({});
     if (this._autoSaveTimer) clearTimeout(this._autoSaveTimer);
     this._autoSaveTimer = setTimeout(() => {
-      const saveBtn = this.shadowRoot!.querySelector("#admin-save-btn") as HTMLElement | null;
+      const saveBtn = this._saveBtnRef.value ?? null;
       if (state.activeTabType === "project") {
         if (state.currentSlug) saveCurrentProject(false, saveBtn);
       } else {
@@ -739,7 +795,7 @@ export class EditorPage extends LitElement {
         }, 100);
       });
     }
-    const saveBtn = this.shadowRoot!.querySelector("#admin-save-btn") as HTMLElement | null;
+    const saveBtn = this._saveBtnRef.value ?? null;
     if (state.activeTabType === "project") {
       saveCurrentProject(true, saveBtn);
     } else {
