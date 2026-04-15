@@ -409,6 +409,7 @@
       cursor: pointer;
     }
 
+
     .polaroid {
       position: absolute;
       top: 50%;
@@ -434,9 +435,32 @@
       border-radius: 1px;
     }
 
-    .polaroid-stack:hover .polaroid {
-      transform:
-        translateX(var(--fan, 0px));
+    .polaroid-stack:hover:not(.fanned) .polaroid {
+      transform: translateX(var(--fan, 0px));
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    .polaroid-stack.fanned {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px 24px;
+      height: auto;
+      min-height: 400px;
+      max-width: min(720px, calc(100vw - 48px));
+      overflow-x: scroll;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .polaroid-stack.fanned::-webkit-scrollbar { display: none; }
+
+    .polaroid-stack.fanned .polaroid {
+      position: static;
+      margin: 0;
+      flex-shrink: 0;
+      transform: rotate(var(--rot, 0deg));
       box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }
 

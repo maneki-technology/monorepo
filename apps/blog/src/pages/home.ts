@@ -108,7 +108,7 @@ export const homeRoute: Route = {
       const count = polaroids.length;
       const w = window.innerWidth;
       const fanSpacing = w <= 480 ? 260 : w <= 768 ? 320 : 460;
-      const defaultSpacing = w <= 480 ? 70 : w <= 768 ? 90 : 120;
+      const defaultSpacing = w <= 480 ? 30 : w <= 768 ? 50 : 120;
 
       polaroids.forEach((el, i) => {
         const order = indices[i];
@@ -128,7 +128,23 @@ export const homeRoute: Route = {
     // Shuffle on load
     shuffle();
 
-    // Reshuffle every 30 seconds
-    setInterval(shuffle, 30000);
+    // Reshuffle every 30 seconds (only when not fanned)
+    setInterval(() => { if (!stack.classList.contains("fanned")) shuffle(); }, 30000);
+
+    // Fan out on hover → switch to scrollable horizontal layout
+    stack.addEventListener("mouseenter", () => {
+      stack.classList.add("fanned");
+      requestAnimationFrame(() => {
+        const scrollWidth = stack.scrollWidth;
+        const clientWidth = stack.clientWidth;
+        stack.scrollLeft = (scrollWidth - clientWidth) / 2;
+      });
+    });
+
+    // Collapse back when mouse leaves
+    stack.addEventListener("mouseleave", () => {
+      stack.classList.remove("fanned");
+      shuffle();
+    });
   },
 };
