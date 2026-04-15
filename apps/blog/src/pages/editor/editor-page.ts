@@ -11,7 +11,6 @@ import { uploadFile } from "./upload.js";
 import "./gallery.js";
 import { setupContextMenu } from "./context-menu.js";
 import { setupScrollSync } from "./scroll-sync.js";
-import { setupUndoStack } from "./undo.js";
 import "./project-preview.js";
 import { publishCurrent, unpublishCurrent } from "./publish.js";
 import "./delete-modal.js";
@@ -338,7 +337,6 @@ export class EditorPage extends LitElement {
 
     // Plugins
     setupContextMenu(textarea);
-    setupUndoStack(textarea);
 
     // Scroll sync between textarea and preview
     const textareaWrap = this._textareaWrapRef.value;

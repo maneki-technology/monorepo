@@ -2,7 +2,6 @@ import { api } from "../../lib/api.js";
 import { state, setState } from "./state.js";
 import type { Post, EditorUIState, Project } from "./types.js";
 import type { EditorPage } from "./editor-page.js";
-import { resetUndoStack } from "./undo.js";
 // ─── API helpers ─────────────────────────────────────────────────────────────
 
 export async function fetchPosts(): Promise<Post[]> {
@@ -292,7 +291,6 @@ export function clearEditor(): void {
 export function loadPostIntoEditor(post: Post): void {
   setState({ currentSlug: post.slug, activeTabType: "post" });
   _editorPage!.loadPost(post);
-  resetUndoStack();
 }
 
 export function exportAsMarkdown(): void {
@@ -382,5 +380,4 @@ export async function saveCurrentProject(_forceApi = false): Promise<"success" |
 export function loadProjectIntoEditor(project: Project): void {
   setState({ currentSlug: project.slug, activeTabType: "project" });
   _editorPage!.loadProject(project);
-  resetUndoStack();
 }
