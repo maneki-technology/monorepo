@@ -15,9 +15,8 @@ import { setupUndoStack } from "./undo.js";
 import { openPortfolioLayout, setProjectPreviewRoot } from "./project-preview.js";
 import { publishCurrent, unpublishCurrent } from "./publish.js";
 import "./delete-modal.js";
-import { SidebarRenderer, setSidebarRoot } from "./sidebar.js";
+import { setSidebarRoot } from "./sidebar.js";
 import { EditorStoreController } from "./editor-store.js";
-import { TabBarRenderer } from "./tabbar.js";
 
 import "@maneki/ui-components/components/ui-toolbar.js";
 import "@maneki/ui-components/components/ui-toolbar-separator.js";
@@ -56,6 +55,9 @@ export class EditorPage extends LitElement {
   private _previewRef: Ref<HTMLElement> = createRef();
   private _previewFullRef: Ref<HTMLElement> = createRef();
   private _previewOverlayRef: Ref<HTMLElement> = createRef();
+  private _sidebarRef: Ref<HTMLElement> = createRef();
+  private _textareaWrapRef: Ref<HTMLElement> = createRef();
+  private _previewWrapRef: Ref<HTMLElement> = createRef();
 
   // ─── Post form fields (reactive) ─────────────────────────────────────────
   @litState() postTitle = "";
@@ -180,27 +182,10 @@ export class EditorPage extends LitElement {
             </ui-button>
             <span style="font-size:13px;font-weight:600;">Editor</span>
           </span>
-          <ui-side-panel-menu-section separator>
-            <span style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-              Posts
-              <ui-button id="admin-new-post" action="primary" emphasis="minimal" size="s" icon="icon-only" aria-label="New Post" @click=${() => this._onNewPost()}>
-                <ui-icon name="add" size="s" slot="icon-start"></ui-icon>
-              </ui-button>
-            </span>
-          </ui-side-panel-menu-section>
-          <div id="admin-post-list"></div>
-          <ui-side-panel-menu-section separator>
-            <span style="display:flex;align-items:center;justify-content:space-between;width:100%;">
-              Projects
-              <ui-button id="admin-new-project" action="primary" emphasis="minimal" size="s" icon="icon-only" aria-label="New Project" @click=${() => this._onNewProject()}>
-                <ui-icon name="add" size="s" slot="icon-start"></ui-icon>
-              </ui-button>
-            </span>
-          </ui-side-panel-menu-section>
-          <div id="admin-project-list"></div>
+          <editor-sidebar ${ref(this._sidebarRef)}></editor-sidebar>
         </ui-side-panel-menu>
         <div class="admin-main">
-          <div id="admin-tab-bar" class="admin-tab-bar" style="display:${s.loaded ? "" : "none"}"></div>
+          <editor-tabbar class="admin-tab-bar" style="display:${s.loaded ? "" : "none"}"></editor-tabbar>
           <loading-bounce id="admin-loading" style="display:${s.loaded ? "none" : ""}"></loading-bounce>
           <div id="admin-editor-main" class="admin-editor" style="display:${s.loaded ? "" : "none"}">
             <div id="admin-post-form" class="admin-form" style="display:${s.activeTabType === "project" ? "none" : ""}">
@@ -307,11 +292,11 @@ export class EditorPage extends LitElement {
               </ui-dropdown-split>
             </ui-toolbar>
             <div class="admin-split">
-              <ui-scrollbar emphasis="minimal" class="admin-textarea-wrap">
+              <ui-scrollbar ${ref(this._textareaWrapRef)} emphasis="minimal" class="admin-textarea-wrap">
                 <textarea id="admin-content" ${ref(this._textareaRef)} placeholder="Write your post in Markdown..." spellcheck="false" .value=${this.postContent} @input=${this._onContentInput} @keydown=${this._onTextareaKeydown} @dragover=${this._onTextareaDragover} @dragleave=${this._onTextareaDragleave} @drop=${this._onTextareaDrop} @paste=${this._onTextareaPaste}></textarea>
                 <div class="admin-textarea-spacer"></div>
               </ui-scrollbar>
-              <ui-scrollbar emphasis="minimal"><div id="admin-preview" ${ref(this._previewRef)} class="admin-preview"></div></ui-scrollbar>
+              <ui-scrollbar ${ref(this._previewWrapRef)} emphasis="minimal"><div id="admin-preview" ${ref(this._previewRef)} class="admin-preview"></div></ui-scrollbar>
             </div>
             <div id="admin-preview-overlay" ${ref(this._previewOverlayRef)} class="admin-preview-overlay" style="display:none;" @keydown=${this._onOverlayKeydown}>
               <div class="admin-preview-overlay-header">
@@ -362,8 +347,8 @@ export class EditorPage extends LitElement {
     setupUndoStack(textarea);
 
     // Scroll sync between textarea and preview
-    const textareaWrap = root.querySelector(".admin-textarea-wrap") as HTMLElement;
-    const previewWrap = root.querySelector(".admin-split ui-scrollbar:last-child") as HTMLElement;
+    const textareaWrap = this._textareaWrapRef.value;
+    const previewWrap = this._previewWrapRef.value;
     if (textareaWrap && previewWrap) setupScrollSync(textareaWrap, previewWrap);
 
 
@@ -418,17 +403,8 @@ export class EditorPage extends LitElement {
   // ─── Init (absorbed from init.ts) ────────────────────────────────────────
 
   private _initEditor(root: ShadowRoot): void {
-    const sidebarRenderer = new SidebarRenderer();
-    const tabBarRenderer = new TabBarRenderer();
-
     Promise.all([fetchPosts(), fetchProjects(), loadUIState()]).then(async ([posts, projects, uiState]) => {
       setState({ allPosts: posts, allProjects: projects });
-
-      // Init renderers
-      const sidebar = root.querySelector("#admin-sidebar");
-      const barEl = root.querySelector("#admin-tab-bar") as HTMLElement | null;
-      if (sidebar) sidebarRenderer.init(sidebar);
-      if (barEl) tabBarRenderer.init(barEl);
 
       // Restore UI state
       if (uiState) {

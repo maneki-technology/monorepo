@@ -148,13 +148,3 @@ export class EditorTabbar extends LitElement {
   }
 
 }
-
-// ─── Backward compatibility wrapper ──────────────────────────────────────────
-
-export class TabBarRenderer {
-  init(barEl: HTMLElement): void {
-    barEl.innerHTML = "";
-    const el = document.createElement("editor-tabbar");
-    barEl.appendChild(el);
-  }
-}
