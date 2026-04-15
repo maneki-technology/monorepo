@@ -109,7 +109,16 @@ export const projects = new Hono<Env>()
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
       args: [title, slug, description, body_md, JSON.stringify(tech), url, repo, image, pinned ? 1 : 0, sort_order, status],
     });
-    return c.json({ ok: true, slug }, 201);
+    const result = await db.execute({
+      sql: "SELECT * FROM projects WHERE slug = ?",
+      args: [slug],
+    });
+    const project = {
+      ...result.rows[0],
+      tech: JSON.parse((result.rows[0].tech as string) || "[]"),
+      pinned: !!result.rows[0].pinned,
+    };
+    return c.json({ ok: true, slug, project }, 201);
   })
 
 
@@ -157,7 +166,16 @@ export const projects = new Hono<Env>()
       sql: `UPDATE projects SET ${setClauses.join(", ")} WHERE slug = ?`,
       args,
     });
-    return c.json({ ok: true });
+    const result = await db.execute({
+      sql: "SELECT * FROM projects WHERE slug = ?",
+      args: [slug],
+    });
+    const project = {
+      ...result.rows[0],
+      tech: JSON.parse((result.rows[0].tech as string) || "[]"),
+      pinned: !!result.rows[0].pinned,
+    };
+    return c.json({ ok: true, project });
   })
 
   // Soft delete project by slug

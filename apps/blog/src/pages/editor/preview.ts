@@ -96,15 +96,12 @@ export function triggerPreview(): void {
 
 export function renderPreview(root: ParentNode): void {
   _previewRoot = root;
+  const ep = (root as ShadowRoot).host as any;
   const isProject = state.activeTabType === "project";
-  const title = isProject
-    ? ((root.querySelector("#admin-project-title") as any)?.value ?? "")
-    : ((root.querySelector("#admin-title") as any)?.value ?? "");
-  const date = isProject ? "" : ((root.querySelector("#admin-date") as any)?.value ?? "");
-  const tags = isProject
-    ? ((root.querySelector("#admin-project-tech") as HTMLInputElement)?.value ?? "")
-    : ((root.querySelector("#admin-tags") as HTMLInputElement)?.value ?? "");
-  const content = (root.querySelector("#admin-content") as HTMLTextAreaElement)?.value ?? "";
+  const title = isProject ? (ep?.projectTitle ?? "") : (ep?.postTitle ?? "");
+  const date = isProject ? "" : (ep?.postDate ?? "");
+  const tags: string = isProject ? (ep?.projectTech?.join(", ") ?? "") : (ep?.postTags?.join(", ") ?? "");
+  const content: string = ep?.postContent ?? "";
   const preview = root.querySelector("#admin-preview") as HTMLElement | null;
   if (!preview) return;
 

@@ -1,9 +1,8 @@
 import { api } from "../../lib/api.js";
 import { state, setState } from "./state.js";
 import type { Post, EditorUIState, Project } from "./types.js";
-import { renderPreview } from "./preview.js";
+import type { EditorPage } from "./editor-page.js";
 import { resetUndoStack } from "./undo.js";
-
 // ─── API helpers ─────────────────────────────────────────────────────────────
 
 export async function fetchPosts(): Promise<Post[]> {
@@ -32,41 +31,51 @@ export async function fetchPosts(): Promise<Post[]> {
   }
 }
 
-export async function savePost(post: Post): Promise<string | null> {
+export async function savePost(post: Post): Promise<{ slug: string; saved: Post } | null> {
   try {
-    const slug = post.persisted ? post.slug : toSlug(post.date, post.title);
-    const tags = post.tags
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
+    const newSlug = toSlug(post.date, post.title || `untitled-${post.slug.split("-").pop()}`);
+    const slug = post.persisted ? post.slug : newSlug;
+    const tags = post.tags.split(",").map((t) => t.trim()).filter(Boolean);
+
+    const mapPost = (p: Record<string, unknown>): Post => ({
+      slug: p.slug as string,
+      title: p.title as string,
+      date: ((p.created_at as string) || "").split("T")[0],
+      tags: Array.isArray(p.tags) ? (p.tags as string[]).join(", ") : "",
+      excerpt: (p.excerpt as string) || "",
+      content: (p.body_md as string) || "",
+      status: p.status as string,
+      updatedAt: (p.updated_at as string) || new Date().toISOString(),
+      publishedAt: (p.published_at as string) || null,
+      persisted: true,
+      publishedContent: p.status === "published"
+        ? `${p.title}\n${p.body_md}\n${p.excerpt}\n${Array.isArray(p.tags) ? (p.tags as string[]).join(", ") : ""}\n${((p.created_at as string) || "").split("T")[0]}`
+        : null,
+    });
 
     if (post.persisted) {
-      await api.api.posts[":slug"].$put({
+      // Draft with changed title → delete old slug, create with new slug
+      if (post.status === "draft" && newSlug !== slug) {
+        await api.api.posts[":slug"].$delete({ param: { slug } });
+        const res = await api.api.posts.$post({
+          json: { title: post.title || "Untitled", slug: newSlug, body_md: post.content, excerpt: post.excerpt, tags, status: post.status as "draft" | "published", date: post.date },
+        });
+        const data = await res.json() as { post: Record<string, unknown> };
+        return { slug: newSlug, saved: mapPost(data.post) };
+      }
+      const res = await api.api.posts[":slug"].$put({
         param: { slug },
-        json: {
-          title: post.title,
-          body_md: post.content,
-          excerpt: post.excerpt,
-          tags,
-          status: post.status as "draft" | "published",
-          date: post.date,
-        },
+        json: { title: post.title || "Untitled", body_md: post.content, excerpt: post.excerpt, tags, status: post.status as "draft" | "published", date: post.date },
       });
-      return slug;
+      const data = await res.json() as { post: Record<string, unknown> };
+      return { slug, saved: mapPost(data.post) };
     }
 
-    await api.api.posts.$post({
-      json: {
-        title: post.title || "Untitled",
-        slug,
-        body_md: post.content,
-        excerpt: post.excerpt,
-        tags,
-        status: post.status as "draft" | "published",
-        date: post.date,
-      },
+    const res = await api.api.posts.$post({
+      json: { title: post.title || "Untitled", slug: newSlug, body_md: post.content, excerpt: post.excerpt, tags, status: post.status as "draft" | "published", date: post.date },
     });
-    return slug;
+    const data = await res.json() as { post: Record<string, unknown> };
+    return { slug: newSlug, saved: mapPost(data.post) };
   } catch {
     return null;
   }
@@ -110,49 +119,45 @@ export async function fetchProjects(): Promise<Project[]> {
   }
 }
 
-export async function saveProject(project: Project): Promise<string | null> {
+export async function saveProject(project: Project): Promise<{ slug: string; saved: Project } | null> {
   try {
     const slug = project.persisted ? project.slug : project.slug || `project-${Date.now().toString(36)}`;
-    const tech = project.tech
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
+    const tech = project.tech.split(",").map((t) => t.trim()).filter(Boolean);
+
+    const mapProject = (p: Record<string, unknown>): Project => ({
+      slug: p.slug as string,
+      title: p.title as string,
+      description: (p.description as string) || "",
+      content: (p.body_md as string) || "",
+      tech: Array.isArray(p.tech) ? (p.tech as string[]).join(", ") : "",
+      url: (p.url as string) || "",
+      repo: (p.repo as string) || "",
+      image: (p.image as string) || "",
+      pinned: !!p.pinned,
+      sortOrder: (p.sort_order as number) || 0,
+      status: p.status as string,
+      updatedAt: (p.updated_at as string) || new Date().toISOString(),
+      publishedAt: (p.published_at as string) || null,
+      persisted: true,
+      publishedContent: p.status === "published"
+        ? `${p.title}\n${p.body_md}\n${p.description}\n${Array.isArray(p.tech) ? (p.tech as string[]).join(", ") : ""}`
+        : null,
+    });
 
     if (project.persisted) {
-      await api.api.projects[":slug"].$put({
+      const res = await api.api.projects[":slug"].$put({
         param: { slug },
-        json: {
-          title: project.title,
-          description: project.description,
-          body_md: project.content,
-          tech,
-          url: project.url || null,
-          repo: project.repo || null,
-          image: project.image || null,
-          pinned: project.pinned,
-          sort_order: project.sortOrder,
-          status: project.status as "draft" | "published",
-        },
+        json: { title: project.title || "Untitled", description: project.description, body_md: project.content, tech, url: project.url || null, repo: project.repo || null, image: project.image || null, pinned: project.pinned, sort_order: project.sortOrder, status: project.status as "draft" | "published" },
       });
-      return slug;
+      const data = await res.json() as { project: Record<string, unknown> };
+      return { slug, saved: mapProject(data.project) };
     }
 
-    await api.api.projects.$post({
-      json: {
-        title: project.title || "Untitled",
-        slug,
-        description: project.description,
-        body_md: project.content,
-        tech,
-        url: project.url || null,
-        repo: project.repo || null,
-        image: project.image || null,
-        pinned: project.pinned,
-        sort_order: project.sortOrder,
-        status: project.status as "draft" | "published",
-      },
+    const res = await api.api.projects.$post({
+      json: { title: project.title || "Untitled", slug, description: project.description, body_md: project.content, tech, url: project.url || null, repo: project.repo || null, image: project.image || null, pinned: project.pinned, sort_order: project.sortOrder, status: project.status as "draft" | "published" },
     });
-    return slug;
+    const data = await res.json() as { project: Record<string, unknown> };
+    return { slug, saved: mapProject(data.project) };
   } catch {
     return null;
   }
@@ -178,11 +183,6 @@ export function toSlug(date: string, title: string): string {
 // ─── UI state persistence ────────────────────────────────────────────────────
 
 let uiStateSaveTimer: ReturnType<typeof setTimeout> | null = null;
-let _uiStateRoot: ParentNode | null = null;
-
-export function setUIStateRoot(root: ParentNode): void {
-  _uiStateRoot = root;
-}
 
 export async function loadUIState(): Promise<EditorUIState | null> {
   try {
@@ -198,7 +198,7 @@ export async function loadUIState(): Promise<EditorUIState | null> {
 export function saveUIState(): void {
   if (uiStateSaveTimer) clearTimeout(uiStateSaveTimer);
   uiStateSaveTimer = setTimeout(async () => {
-    const root = _uiStateRoot;
+    const root = _editorPage?.shadowRoot ?? null;
     const sidebar = root?.querySelector("#admin-sidebar") ?? null;
     const editorFields = {
       openTabs: state.openTabs.map((t) => t.slug),
@@ -226,27 +226,19 @@ export function saveUIState(): void {
   }, 500);
 }
 
-// ─── DOM helpers ─────────────────────────────────────────────────────────────
+// ─── Editor page reference ─────────────────────────────────────────────────
 
-let _domRoot: ParentNode | null = null;
+let _editorPage: EditorPage | null = null;
 
-export function setDomRoot(root: ParentNode): void {
-  _domRoot = root;
+export function setEditorPage(page: EditorPage): void {
+  _editorPage = page;
 }
 
 export function getCurrentPostData(): Omit<
   Post,
   "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"
 > {
-  const root = _domRoot!;
-  return {
-    title: (root.querySelector("#admin-title") as any)?.value ?? "",
-    date: (root.querySelector("#admin-date") as any)?.value ?? "",
-    tags: (root.querySelector("#admin-tags") as HTMLInputElement)?.value ?? "",
-    excerpt: (root.querySelector("#admin-excerpt") as any)?.value ?? "",
-    content: (root.querySelector("#admin-content") as HTMLTextAreaElement)?.value ?? "",
-    status: state.allPosts.find((p) => p.slug === state.currentSlug)?.status ?? "draft",
-  };
+  return _editorPage!.getPostData();
 }
 
 export async function saveCurrent(_forceApi = false, statusEl?: HTMLElement | null): Promise<boolean> {
@@ -265,12 +257,11 @@ export async function saveCurrent(_forceApi = false, statusEl?: HTMLElement | nu
       publishedContent: currentPost?.publishedContent ?? null,
     };
 
-    // Always persist to API (auto-save and explicit save both go to API)
-    const slug = await savePost(post);
-    if (slug) {
+    const result = await savePost(post);
+    if (result) {
+      const { slug, saved } = result;
       const idxAll = state.allPosts.findIndex((d) => d.slug === state.currentSlug);
       const idxTab = state.openTabs.findIndex((d) => d.slug === state.currentSlug);
-      const saved: Post = { ...post, slug, persisted: true };
       const newAllPosts = [...state.allPosts];
       if (idxAll >= 0) newAllPosts[idxAll] = saved;
       else newAllPosts.push(saved);
@@ -278,6 +269,7 @@ export async function saveCurrent(_forceApi = false, statusEl?: HTMLElement | nu
       if (idxTab >= 0) newOpenTabs[idxTab] = saved;
       else newOpenTabs.push(saved);
       setState({ allPosts: newAllPosts, openTabs: newOpenTabs, currentSlug: slug });
+      _editorPage?.loadPost(saved);
       saveUIState();
       if (statusEl) {
         statusEl.setAttribute("status", "success");
@@ -296,54 +288,13 @@ export async function saveCurrent(_forceApi = false, statusEl?: HTMLElement | nu
 }
 
 export function clearEditor(): void {
-  const root = _domRoot!;
   setState({ currentSlug: null });
-  const titleInput = root.querySelector("#admin-title") as HTMLElement;
-  const dateInput = root.querySelector("#admin-date") as HTMLElement;
-  const tagsInput = root.querySelector("#admin-tags") as HTMLInputElement;
-  const tagList = root.querySelector("#admin-tag-list");
-  const excerptInput = root.querySelector("#admin-excerpt") as HTMLElement;
-  const textarea = root.querySelector("#admin-content") as HTMLTextAreaElement;
-  if (titleInput) (titleInput as any).value = "";
-  if (dateInput) (dateInput as any).value = new Date().toISOString().split("T")[0];
-  if (tagsInput) tagsInput.value = "";
-  if (tagList) tagList.innerHTML = "";
-  if (excerptInput) (excerptInput as any).value = "";
-  if (textarea) textarea.value = "";
-  renderPreview(root);
+  _editorPage!.clearPost();
 }
 
 export function loadPostIntoEditor(post: Post): void {
-  const root = _domRoot!;
   setState({ currentSlug: post.slug, activeTabType: "post" });
-  (root.querySelector("#admin-title") as any).value = post.title;
-  (root.querySelector("#admin-date") as any).value = post.date;
-  (root.querySelector("#admin-tags") as HTMLInputElement).value = post.tags;
-  const tagList = root.querySelector("#admin-tag-list");
-  if (tagList) {
-    tagList.innerHTML = "";
-    post.tags
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean)
-      .forEach((name) => {
-        const tag = document.createElement("ui-tag");
-        tag.setAttribute("size", "s");
-        tag.setAttribute("emphasis", "subtle");
-        tag.setAttribute("dismissible", "");
-        tag.textContent = name;
-        tag.addEventListener("dismiss", () => {
-          tag.remove();
-          const tags = Array.from(tagList.querySelectorAll("ui-tag")).map((t) => t.textContent?.trim() ?? "");
-          (root.querySelector("#admin-tags") as HTMLInputElement).value = tags.join(", ");
-        });
-        tagList.appendChild(tag);
-      });
-  }
-  (root.querySelector("#admin-excerpt") as any).value = post.excerpt;
-  (root.querySelector("#admin-content") as HTMLTextAreaElement).value = post.content;
-  renderPreview(root);
-  // Reset undo stack with the loaded content as the initial state
+  _editorPage!.loadPost(post);
   resetUndoStack();
 }
 
@@ -387,19 +338,7 @@ export function getCurrentProjectData(): Omit<
   Project,
   "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"
 > {
-  const root = _domRoot!;
-  return {
-    title: (root.querySelector("#admin-project-title") as any)?.value ?? "",
-    description: (root.querySelector("#admin-project-description") as any)?.value ?? "",
-    content: (root.querySelector("#admin-content") as HTMLTextAreaElement)?.value ?? "",
-    tech: (root.querySelector("#admin-project-tech") as HTMLInputElement)?.value ?? "",
-    url: (root.querySelector("#admin-project-url") as any)?.value ?? "",
-    repo: (root.querySelector("#admin-project-repo") as any)?.value ?? "",
-    image: (root.querySelector("#admin-project-image") as any)?.value ?? "",
-    pinned: (root.querySelector("#admin-project-pinned") as HTMLElement)?.hasAttribute("checked") ?? false,
-    sortOrder: 0,
-    status: state.allProjects.find((p) => p.slug === state.currentSlug)?.status ?? "draft",
-  };
+  return _editorPage!.getProjectData();
 }
 
 export async function saveCurrentProject(_forceApi = false, statusEl?: HTMLElement | null): Promise<boolean> {
@@ -418,11 +357,11 @@ export async function saveCurrentProject(_forceApi = false, statusEl?: HTMLEleme
       publishedContent: currentProject?.publishedContent ?? null,
     };
 
-    const slug = await saveProject(project);
-    if (slug) {
+    const result = await saveProject(project);
+    if (result) {
+      const { slug, saved } = result;
       const idxAll = state.allProjects.findIndex((d) => d.slug === state.currentSlug);
       const idxTab = state.openProjectTabs.findIndex((d) => d.slug === state.currentSlug);
-      const saved: Project = { ...project, slug, persisted: true };
       const newAllProjects = [...state.allProjects];
       if (idxAll >= 0) newAllProjects[idxAll] = saved;
       else newAllProjects.push(saved);
@@ -430,6 +369,7 @@ export async function saveCurrentProject(_forceApi = false, statusEl?: HTMLEleme
       if (idxTab >= 0) newOpenProjectTabs[idxTab] = saved;
       else newOpenProjectTabs.push(saved);
       setState({ allProjects: newAllProjects, openProjectTabs: newOpenProjectTabs, currentSlug: slug });
+      _editorPage?.loadProject(saved);
       saveUIState();
       if (statusEl) {
         statusEl.setAttribute("status", "success");
@@ -448,49 +388,7 @@ export async function saveCurrentProject(_forceApi = false, statusEl?: HTMLEleme
 }
 
 export function loadProjectIntoEditor(project: Project): void {
-  const root = _domRoot!;
   setState({ currentSlug: project.slug, activeTabType: "project" });
-  (root.querySelector("#admin-project-title") as any).value = project.title;
-  (root.querySelector("#admin-project-description") as any).value = project.description;
-  (root.querySelector("#admin-content") as HTMLTextAreaElement).value = project.content;
-  (root.querySelector("#admin-project-tech") as HTMLInputElement).value = project.tech;
-  const techList = root.querySelector("#admin-project-tech-list");
-  if (techList) {
-    techList.innerHTML = "";
-    project.tech
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean)
-      .forEach((name) => {
-        const tag = document.createElement("ui-tag");
-        tag.setAttribute("size", "s");
-        tag.setAttribute("emphasis", "subtle");
-        tag.setAttribute("dismissible", "");
-        tag.textContent = name;
-        tag.addEventListener("dismiss", () => {
-          tag.remove();
-          const tags = Array.from(techList.querySelectorAll("ui-tag")).map((t) => t.textContent?.trim() ?? "");
-          (root.querySelector("#admin-project-tech") as HTMLInputElement).value = tags.join(", ");
-        });
-        techList.appendChild(tag);
-      });
-  }
-  (root.querySelector("#admin-project-url") as any).value = project.url;
-  (root.querySelector("#admin-project-repo") as any).value = project.repo;
-  const imagePreview = root.querySelector("#admin-project-image-preview");
-  const imageCaption = root.querySelector("#admin-project-image-caption");
-  const filename = project.image ? (project.image.split("/").pop() ?? project.image) : "";
-  if (imageCaption) imageCaption.textContent = filename;
-  if (imagePreview) imagePreview.setAttribute("src", project.image);
-  const imageEmpty = root.querySelector("#admin-project-image-empty") as HTMLElement | null;
-  const imageFilled = root.querySelector("#admin-project-image-filled") as HTMLElement | null;
-  if (imageEmpty) imageEmpty.style.display = project.image ? "none" : "flex";
-  if (imageFilled) imageFilled.style.display = project.image ? "" : "none";
-  const pinnedEl = root.querySelector("#admin-project-pinned") as HTMLElement;
-  if (pinnedEl) {
-    if (project.pinned) pinnedEl.setAttribute("checked", "");
-    else pinnedEl.removeAttribute("checked");
-  }
-  renderPreview(root);
+  _editorPage!.loadProject(project);
   resetUndoStack();
 }
