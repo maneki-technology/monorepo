@@ -187,8 +187,12 @@ export class UiDatetimePicker extends HTMLElement {
   }
 
   set open(v: boolean) {
-    if (v) this.setAttribute("open", "");
-    else this.removeAttribute("open");
+    if (v) {
+      this.setAttribute("open", "");
+      this.#positionPanel();
+    } else {
+      this.removeAttribute("open");
+    }
   }
 
 
@@ -338,6 +342,21 @@ export class UiDatetimePicker extends HTMLElement {
     }
   }
 
+  #positionPanel(): void {
+    const rect = this.#inputEl.getBoundingClientRect();
+    const panel = this.#panel;
+    // Position below the input, aligned left
+    panel.style.top = `${rect.bottom + 4}px`;
+    panel.style.left = `${rect.left}px`;
+    // Flip above if not enough space below
+    requestAnimationFrame(() => {
+      const panelRect = panel.getBoundingClientRect();
+      if (panelRect.bottom > window.innerHeight && rect.top > panelRect.height + 4) {
+        panel.style.top = `${rect.top - panelRect.height - 4}px`;
+      }
+    });
+  }
+
   // ─── Open / Close ──────────────────────────────────────────────────────
 
   #onTrigger = (): void => {
@@ -374,7 +393,8 @@ export class UiDatetimePicker extends HTMLElement {
 
   #onOutsideClick = (e: Event): void => {
     if (!this.open) return;
-    if (!this.contains(e.target as Node)) {
+    const path = e.composedPath();
+    if (!path.includes(this)) {
       this.#close();
     }
   };

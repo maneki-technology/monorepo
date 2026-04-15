@@ -714,6 +714,7 @@ const herouiComponentCssDark = [
   "--ui-spmi-selected-bg: rgba(4, 133, 247, 0.15);",
   "--ui-spmi-child-selected-bg: rgba(4, 133, 247, 0.08);",
   "--ui-toolbar-attached-bg: rgba(24, 24, 27, 0.85);",
+  "--ui-dtp-panel-border: #28282c;",  // border/minimal (dark) — visible panel edge
 ].join("\n");
 
 const STYLE_ID = "maneki-heroui-theme";

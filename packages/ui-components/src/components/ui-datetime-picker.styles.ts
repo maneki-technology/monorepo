@@ -63,13 +63,11 @@ export const STYLES = /* css */ `
   /* ── Dropdown panel ─── */
 
   .panel {
-    position: absolute;
-    top: 100%;
-    left: 0;
+    position: fixed;
     z-index: 1000;
-    margin-top: 4px;
     background: ${SURFACE_PRIMARY};
     box-shadow: ${ELEVATION_05};
+    border: 1px solid var(--ui-dtp-panel-border, transparent);
     border-radius: ${RADIUS_SM};
     opacity: 0;
     visibility: hidden;
@@ -93,6 +91,7 @@ export const STYLES = /* css */ `
     transform: translateY(0);
     pointer-events: auto;
   }
+
 
   @media (prefers-reduced-motion: reduce) {
     .panel {
