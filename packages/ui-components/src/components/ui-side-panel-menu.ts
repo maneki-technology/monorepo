@@ -239,40 +239,45 @@ export class UiSidePanelMenu extends LitElement {
     this._closeFlyout();
   }
 
-  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
-    // Skip super — we use noAccessor:true and handle everything manually.
+  protected override willUpdate(changedProperties: Map<string, unknown>): void {
+    // Property-to-property changes (no cascading update)
+    if (changedProperties.has("mobile")) {
+      if (this.mobile) {
+        this.state = "collapsed";
+      } else {
+        this.overlay = false;
+        this.state = "expanded";
+      }
+    }
+  }
+
+  protected override updated(changedProperties: Map<string, unknown>): void {
     const panel = this._getPanel();
-    if (name === "state") {
+    if (changedProperties.has("state")) {
       this._syncingState = true;
       if (panel) panel.setAttribute("state", this.state);
       this._syncingState = false;
       this._syncItemTypes();
       this._closeFlyout();
     }
-    if (name === "overlay") {
+    if (changedProperties.has("overlay")) {
       if (panel) {
-        if (this.hasAttribute("overlay")) panel.setAttribute("overlay", "");
+        if (this.overlay) panel.setAttribute("overlay", "");
         else panel.removeAttribute("overlay");
       }
     }
-    if (name === "mobile") {
-      if (this.hasAttribute("mobile")) {
-        if (panel) panel.setAttribute("mobile", "");
-        // Auto-collapse on mobile
-        this.setAttribute("state", "collapsed");
-      } else {
-        if (panel) {
+    if (changedProperties.has("mobile")) {
+      if (panel) {
+        if (this.mobile) panel.setAttribute("mobile", "");
+        else {
           panel.removeAttribute("mobile");
           panel.removeAttribute("overlay");
         }
-        // Leaving mobile: clear overlay, restore expanded
-        this.removeAttribute("overlay");
-        this.setAttribute("state", "expanded");
       }
     }
-    if (name === "no-collapse") {
+    if (changedProperties.has("noCollapse")) {
       if (panel) {
-        if (this.hasAttribute("no-collapse")) panel.setAttribute("no-collapse", "");
+        if (this.noCollapse) panel.setAttribute("no-collapse", "");
         else panel.removeAttribute("no-collapse");
       }
     }
