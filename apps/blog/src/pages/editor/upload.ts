@@ -1,6 +1,5 @@
 /**
- * Image upload helpers — drag & drop, paste, toolbar button.
- * Uploads to POST /api/images, inserts markdown at cursor.
+ * Image upload helper — optimizes and uploads to POST /api/images, inserts markdown at cursor.
  */
 
 import { insertAtCursor } from "./toolbar.js";
@@ -79,62 +78,5 @@ export async function uploadFile(file: File, textarea: HTMLTextAreaElement): Pro
   } catch {
     textarea.value = textarea.value.replace(placeholder, "![Upload failed]()");
     textarea.dispatchEvent(new Event("input", { bubbles: true }));
-  }
-}
-
-export function setupImageUpload(textarea: HTMLTextAreaElement, root: ParentNode): void {
-  // Drag & drop
-  textarea.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    textarea.classList.add("drag-over");
-  });
-
-  textarea.addEventListener("dragleave", () => {
-    textarea.classList.remove("drag-over");
-  });
-
-  textarea.addEventListener("drop", (e) => {
-    e.preventDefault();
-    textarea.classList.remove("drag-over");
-    const files = e.dataTransfer?.files;
-    if (!files) return;
-    for (const file of files) {
-      if (file.type.startsWith("image/")) {
-        uploadFile(file, textarea);
-      }
-    }
-  });
-
-  // Paste from clipboard
-  textarea.addEventListener("paste", (e) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (const item of items) {
-      if (item.type.startsWith("image/")) {
-        e.preventDefault();
-        const file = item.getAsFile();
-        if (file) uploadFile(file, textarea);
-        return;
-      }
-    }
-  });
-
-  // Toolbar image button — open file picker
-  const imageBtn = root.querySelector("[data-action='image']") as HTMLElement;
-  if (imageBtn) {
-    imageBtn.onclick = (e) => {
-      e.stopImmediatePropagation(); // prevent toolbar handler
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = "image/*";
-      input.multiple = true;
-      input.addEventListener("change", () => {
-        if (!input.files) return;
-        for (const file of input.files) {
-          uploadFile(file, textarea);
-        }
-      });
-      input.click();
-    };
   }
 }

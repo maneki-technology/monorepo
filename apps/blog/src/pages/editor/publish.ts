@@ -2,58 +2,48 @@ import { api } from "../../lib/api.js";
 import { state, setState } from "./state.js";
 import { getCurrentPostData, getCurrentProjectData } from "./api.js";
 
-export function setupPublish(publishSplit: HTMLElement | null, _textarea: HTMLTextAreaElement, root: ParentNode): void {
-  // Publish (split button left action) — save, publish (triggers deploy), poll
-  publishSplit?.addEventListener("action", async () => {
-    if (publishSplit) publishSplit.setAttribute("status", "loading");
-    try {
-      if (!state.currentSlug) {
-        if (publishSplit) publishSplit.setAttribute("status", "error");
-        setTimeout(() => {
-          if (publishSplit) publishSplit.setAttribute("status", "none");
-        }, 2000);
-        return;
-      }
+// ─── Public API (called by editor-page event handlers) ───────────────────────
 
-      if (state.activeTabType === "project") {
-        await publishProject(publishSplit);
-      } else {
-        await publishPost(publishSplit);
-      }
-    } catch {
+export async function publishCurrent(publishSplit: HTMLElement | null): Promise<void> {
+  if (publishSplit) publishSplit.setAttribute("status", "loading");
+  try {
+    if (!state.currentSlug) {
       if (publishSplit) publishSplit.setAttribute("status", "error");
       setTimeout(() => {
         if (publishSplit) publishSplit.setAttribute("status", "none");
       }, 2000);
+      return;
     }
-  });
 
-  // Unpublish (dropdown item) — unpublish + poll deploy status
-  const unpublishBtn = root.querySelector("#admin-unpublish-btn") as HTMLElement | null;
-  unpublishBtn?.addEventListener("select", async () => {
-    if (!state.currentSlug) return;
-    if (publishSplit) publishSplit.setAttribute("status", "loading");
-    try {
-      if (state.activeTabType === "project") {
-        await unpublishProject(publishSplit);
-      } else {
-        await unpublishPost(publishSplit);
-      }
-    } catch {
-      if (publishSplit) publishSplit.setAttribute("status", "error");
-      setTimeout(() => {
-        if (publishSplit) publishSplit.setAttribute("status", "none");
-      }, 2000);
+    if (state.activeTabType === "project") {
+      await publishProject(publishSplit);
+    } else {
+      await publishPost(publishSplit);
     }
-  });
-
-  // Export (split button dropdown item)
-  const exportBtn = root.querySelector("#admin-export-btn") as HTMLElement | null;
-  exportBtn?.addEventListener("select", exportAsMarkdown);
+  } catch {
+    if (publishSplit) publishSplit.setAttribute("status", "error");
+    setTimeout(() => {
+      if (publishSplit) publishSplit.setAttribute("status", "none");
+    }, 2000);
+  }
 }
 
-// Re-export from api.js to keep the import local
-import { exportAsMarkdown } from "./api.js";
+export async function unpublishCurrent(publishSplit: HTMLElement | null): Promise<void> {
+  if (!state.currentSlug) return;
+  if (publishSplit) publishSplit.setAttribute("status", "loading");
+  try {
+    if (state.activeTabType === "project") {
+      await unpublishProject(publishSplit);
+    } else {
+      await unpublishPost(publishSplit);
+    }
+  } catch {
+    if (publishSplit) publishSplit.setAttribute("status", "error");
+    setTimeout(() => {
+      if (publishSplit) publishSplit.setAttribute("status", "none");
+    }, 2000);
+  }
+}
 
 // ─── Post publish/unpublish ─────────────────────────────────────────────────
 
