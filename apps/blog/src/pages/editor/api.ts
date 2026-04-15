@@ -269,6 +269,11 @@ export async function saveCurrent(_forceApi = false, statusEl?: HTMLElement | nu
       if (idxTab >= 0) newOpenTabs[idxTab] = saved;
       else newOpenTabs.push(saved);
       setState({ allPosts: newAllPosts, openTabs: newOpenTabs, currentSlug: slug });
+      // Clear dirty state after successful save
+      const dirty = new Set(state.dirtySlugs);
+      dirty.delete(state.currentSlug || "");
+      dirty.delete(slug);
+      setState({ dirtySlugs: dirty });
       _editorPage?.loadPost(saved);
       saveUIState();
       if (statusEl) {
@@ -369,6 +374,10 @@ export async function saveCurrentProject(_forceApi = false, statusEl?: HTMLEleme
       if (idxTab >= 0) newOpenProjectTabs[idxTab] = saved;
       else newOpenProjectTabs.push(saved);
       setState({ allProjects: newAllProjects, openProjectTabs: newOpenProjectTabs, currentSlug: slug });
+      const dirty = new Set(state.dirtySlugs);
+      dirty.delete(state.currentSlug || "");
+      dirty.delete(slug);
+      setState({ dirtySlugs: dirty });
       _editorPage?.loadProject(saved);
       saveUIState();
       if (statusEl) {

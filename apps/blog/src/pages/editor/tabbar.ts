@@ -51,13 +51,17 @@ export class EditorTabbar extends LitElement {
   private _renderPostTab(tab: Post): unknown {
     const s = this.store.state;
     const isActive = tab.slug === s.currentSlug && s.activeTabType === "post";
-    const dirty = hasUnpublishedChanges(tab)
-      ? html`<span style="color:var(--fd-surface-destructive, #d91f11)">*</span> `
-      : nothing;
+    const unsaved = s.dirtySlugs.has(tab.slug);
+    const unpublished = hasUnpublishedChanges(tab);
+    const indicator = unsaved
+      ? html`<span style="color:var(--fd-status-surface-warning-bold, #f59e0b)">●</span> `
+      : unpublished
+        ? html`<span style="color:var(--fd-surface-destructive, #d91f11)">●</span> `
+        : nothing;
 
     return html`
       <ui-tab-item value=${tab.slug} label=${tab.title || "Untitled"} ?selected=${isActive}>
-        <span slot="prefix">${dirty}📝</span>
+        <span slot="prefix">${indicator}📝</span>
       </ui-tab-item>
     `;
   }
@@ -65,13 +69,17 @@ export class EditorTabbar extends LitElement {
   private _renderProjectTab(tab: Project): unknown {
     const s = this.store.state;
     const isActive = tab.slug === s.currentSlug && s.activeTabType === "project";
-    const dirty = hasUnpublishedChanges(tab)
-      ? html`<span style="color:var(--fd-surface-destructive, #d91f11)">*</span> `
-      : nothing;
+    const unsaved = s.dirtySlugs.has(tab.slug);
+    const unpublished = hasUnpublishedChanges(tab);
+    const indicator = unsaved
+      ? html`<span style="color:var(--fd-status-surface-warning-bold, #f59e0b)">●</span> `
+      : unpublished
+        ? html`<span style="color:var(--fd-surface-destructive, #d91f11)">●</span> `
+        : nothing;
 
     return html`
       <ui-tab-item value=${"project:" + tab.slug} label=${tab.title || "Untitled"} ?selected=${isActive}>
-        <span slot="prefix">${dirty}📦</span>
+        <span slot="prefix">${indicator}📦</span>
       </ui-tab-item>
     `;
   }
