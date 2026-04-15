@@ -108,7 +108,7 @@ export const homeRoute: Route = {
       const count = polaroids.length;
       const w = window.innerWidth;
       const fanSpacing = w <= 480 ? 260 : w <= 768 ? 320 : 460;
-      const defaultSpacing = w <= 480 ? 70 : w <= 768 ? 90 : 120;
+      const defaultSpacing = w <= 480 ? 15 : w <= 768 ? 30 : 120;
 
       polaroids.forEach((el, i) => {
         const order = indices[i];
