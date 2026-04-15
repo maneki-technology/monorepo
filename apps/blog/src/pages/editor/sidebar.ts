@@ -318,7 +318,7 @@ export class EditorSidebar extends LitElement {
     setState({ pendingDeleteSlug: slug });
     const root = _sidebarRoot;
     if (!root) return;
-    const modal = root.querySelector("#admin-delete-modal") as (HTMLElement & { show(): void }) | null;
+    const modal = root.querySelector("editor-delete-modal") as (HTMLElement & { show(): void }) | null;
     if (modal) modal.show();
   }
 
