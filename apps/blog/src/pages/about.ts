@@ -7,7 +7,7 @@ export const aboutRoute: Route = {
     <h1 class="heading-02 mb-4">About</h1>
 
     <div class="post-content reveal">
-      <p>Senior Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization. Comfortable owning systems end-to-end \u2014 from API design and data modeling to CI/CD pipelines and observability.</p>
+      <p>Senior Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization. Comfortable owning systems end-to-end — from API design and data modeling to CI/CD pipelines and observability.</p>
 
       <p>Currently at Xendit, building mission-critical authorization services and leading frontend development for cross-border financial products across Southeast Asia.</p>
 
@@ -20,6 +20,9 @@ export const aboutRoute: Route = {
       <div class="row gap-1" style="flex-wrap:wrap;">
         ${["Distributed Systems", "Micro-Frontends", "Event-Driven Architecture", "DDD", "Fine-Grained Authorization", "Design Systems", "API Design"].map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
       </div>
+
+      <h2>Outside of work</h2>
+      <p>Amateur photographer — mostly street, travel, and landscapes. You can see some of my shots on the <ui-link href="/photography">photography page</ui-link>.</p>
 
       <h2>Get in touch</h2>
       <p>
