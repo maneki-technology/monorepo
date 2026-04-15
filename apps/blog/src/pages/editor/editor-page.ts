@@ -5,7 +5,7 @@ import type { Post, Project } from "./types.js";
 import { state, setState, hasUnpublishedChanges } from "./state.js";
 import { api } from "../../lib/api.js";
 import { fetchPosts, fetchProjects, loadUIState, setEditorPage, saveUIState, saveCurrent, saveCurrentProject, loadPostIntoEditor, loadProjectIntoEditor, exportAsMarkdown } from "./api.js";
-import { renderPreview, triggerPreview } from "./preview.js";
+import { renderPreview, triggerPreview, getMd, wrapCodeBlocks } from "./preview.js";
 import { wrapSelection, insertAtCursor } from "./toolbar.js";
 import { uploadFile } from "./upload.js";
 import "./gallery.js";
@@ -15,7 +15,6 @@ import { setupUndoStack } from "./undo.js";
 import { openPortfolioLayout, setProjectPreviewRoot } from "./project-preview.js";
 import { publishCurrent, unpublishCurrent } from "./publish.js";
 import "./delete-modal.js";
-import { setupFullscreenPreview } from "./fullscreen-preview.js";
 import { SidebarRenderer, setSidebarRoot } from "./sidebar.js";
 import { EditorStoreController } from "./editor-store.js";
 import { TabBarRenderer } from "./tabbar.js";
@@ -54,6 +53,9 @@ export class EditorPage extends LitElement {
   private _publishSplitRef: Ref<HTMLElement> = createRef();
   private _galleryRef: Ref<HTMLElement & { show(cb?: (url: string, name: string) => void): void; hide(): void; toggle(): void }> = createRef();
   private _deleteModalRef: Ref<HTMLElement & { show(): void }> = createRef();
+  private _previewRef: Ref<HTMLElement> = createRef();
+  private _previewFullRef: Ref<HTMLElement> = createRef();
+  private _previewOverlayRef: Ref<HTMLElement> = createRef();
 
   // ─── Post form fields (reactive) ─────────────────────────────────────────
   @litState() postTitle = "";
@@ -296,7 +298,7 @@ export class EditorPage extends LitElement {
                 <ui-button icon="icon-only" data-action="quote" aria-label="Quote"><ui-icon name="format_quote" size="s" slot="icon-start"></ui-icon></ui-button>
               </ui-button-group>
               <span style="flex:1"></span>
-              <ui-button id="admin-preview-btn" action="secondary" emphasis="subtle" size="s">Preview</ui-button>
+              <ui-button id="admin-preview-btn" action="secondary" emphasis="subtle" size="s" @click=${this._openFullscreenPreview}>Preview</ui-button>
               <ui-button id="admin-portfolio-btn" action="secondary" emphasis="subtle" size="s" style="display:${s.activeTabType === "project" ? "" : "none"}" @click=${openPortfolioLayout}>Portfolio</ui-button>
               <ui-button id="admin-save-btn" ${ref(this._saveBtnRef)} action="primary" size="s" ?disabled=${s.deployingSlugs.size > 0} @click=${() => this._onSave()}>Save</ui-button>
               <ui-dropdown-split id="admin-publish-split" ${ref(this._publishSplitRef)} action="primary" size="s" label="Publish" ?disabled=${s.deployingSlugs.size > 0} @action=${this._onPublishAction}>
@@ -309,16 +311,16 @@ export class EditorPage extends LitElement {
                 <textarea id="admin-content" ${ref(this._textareaRef)} placeholder="Write your post in Markdown..." spellcheck="false" .value=${this.postContent} @input=${this._onContentInput} @keydown=${this._onTextareaKeydown} @dragover=${this._onTextareaDragover} @dragleave=${this._onTextareaDragleave} @drop=${this._onTextareaDrop} @paste=${this._onTextareaPaste}></textarea>
                 <div class="admin-textarea-spacer"></div>
               </ui-scrollbar>
-              <ui-scrollbar emphasis="minimal"><div id="admin-preview" class="admin-preview"></div></ui-scrollbar>
+              <ui-scrollbar emphasis="minimal"><div id="admin-preview" ${ref(this._previewRef)} class="admin-preview"></div></ui-scrollbar>
             </div>
-            <div id="admin-preview-overlay" class="admin-preview-overlay" style="display:none;">
+            <div id="admin-preview-overlay" ${ref(this._previewOverlayRef)} class="admin-preview-overlay" style="display:none;" @keydown=${this._onOverlayKeydown}>
               <div class="admin-preview-overlay-header">
                 <span class="heading-05">Preview</span>
-                <ui-button id="admin-preview-close" action="secondary" emphasis="subtle" size="s">Close</ui-button>
+                <ui-button id="admin-preview-close" action="secondary" emphasis="subtle" size="s" @click=${this._closeFullscreenPreview}>Close</ui-button>
               </div>
               <ui-scrollbar emphasis="minimal">
                 <div class="admin-preview-overlay-content">
-                  <div id="admin-preview-full" style="max-width:720px;margin:0 auto;padding:48px 24px;"></div>
+                  <div id="admin-preview-full" ${ref(this._previewFullRef)} style="max-width:720px;margin:0 auto;padding:48px 24px;"></div>
                 </div>
               </ui-scrollbar>
             </div>
@@ -364,11 +366,10 @@ export class EditorPage extends LitElement {
     const previewWrap = root.querySelector(".admin-split ui-scrollbar:last-child") as HTMLElement;
     if (textareaWrap && previewWrap) setupScrollSync(textareaWrap, previewWrap);
 
-    setupFullscreenPreview(textarea, root);
 
     // Project tech tags
     // Default date is set via reactive property, render initial preview
-    renderPreview(root);
+    renderPreview(root, this._previewRef.value);
 
     // Sidebar events
     const sidebar = root.querySelector("#admin-sidebar")!;
@@ -565,6 +566,76 @@ export class EditorPage extends LitElement {
       if (ta) insertAtCursor(ta, "  ");
     }
   }
+  // ─── Fullscreen preview (absorbed from fullscreen-preview.ts) ──────────────
+  private _openFullscreenPreview(): void {
+    const overlay = this._previewOverlayRef.value;
+    const previewFull = this._previewFullRef.value;
+    if (!overlay || !previewFull) return;
+
+    if (state.activeTabType === "project") {
+      const title = this.projectTitle;
+      const description = this.projectDescription;
+      const tech = this.projectTech.join(", ");
+      const content = this.postContent;
+      const project = state.allProjects.find((p) => p.slug === state.currentSlug);
+
+      getMd().then((mdShiki) => {
+        const highlighted = content ? mdShiki.render(content) : "";
+        const techBadges = tech.split(",").map((t) => t.trim()).filter(Boolean)
+          .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
+        previewFull.innerHTML = `
+          <article>
+            <a href="/portfolio" class="body-02 text-link" style="text-decoration:none;">← Back to portfolio</a>
+            <h1 class="heading-02 mt-3">${title || "Untitled"}</h1>
+            <p class="body-01 text-secondary mt-1">${description}</p>
+            ${techBadges ? `<div class="tags mt-2">${techBadges}</div>` : ""}
+            <div class="row gap-2 mt-2">
+              ${project?.url ? `<ui-link size="s" href="${project.url}" external>Live</ui-link>` : ""}
+              ${project?.repo ? `<ui-link size="s" href="${project.repo}" external>Source</ui-link>` : ""}
+            </div>
+            ${project?.image ? `<ui-image src="${project.image}" alt="${title}" style="width:100%;max-height:400px;--ui-image-fit:cover;--ui-image-bg:var(--fd-surface-secondary);border-radius:var(--fd-radius-md);margin-top:var(--fd-space-3);"></ui-image>` : ""}
+            ${highlighted ? `<div class="post-content mt-4">${highlighted}</div>` : ""}
+          </article>
+        `;
+        wrapCodeBlocks(previewFull);
+        overlay.style.display = "flex";
+      });
+    } else {
+      const title = this.postTitle;
+      const date = this.postDate;
+      const tags = this.postTags.join(", ");
+      const content = this.postContent;
+      getMd().then((mdShiki) => {
+        const highlighted = mdShiki.render(content);
+        const tagBadges = tags.split(",").map((t) => t.trim()).filter(Boolean)
+          .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
+        const formattedDate = date
+          ? new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+          : "";
+        previewFull.innerHTML = `
+          <article>
+            <a href="/blog" class="body-02 text-link" style="text-decoration:none;">← Back to blog</a>
+            <h1 class="heading-02 mt-3">${title || "Untitled"}</h1>
+            ${formattedDate ? `<div class="post-meta mt-1">${formattedDate}</div>` : ""}
+            ${tagBadges ? `<div class="tags mt-2">${tagBadges}</div>` : ""}
+            <div class="post-content mt-4">${highlighted}</div>
+          </article>
+        `;
+        wrapCodeBlocks(previewFull);
+        overlay.style.display = "flex";
+      });
+    }
+  }
+
+  private _closeFullscreenPreview(): void {
+    const overlay = this._previewOverlayRef.value;
+    if (overlay) overlay.style.display = "none";
+  }
+
+  private _onOverlayKeydown(e: Event): void {
+    if ((e as KeyboardEvent).key === "Escape") this._closeFullscreenPreview();
+  }
+
 
 
   // ─── Ctrl+S keyboard shortcut (replaces keyboard.ts Ctrl+S handler) ────────
@@ -749,7 +820,7 @@ export class EditorPage extends LitElement {
     this.postTags = post.tags.split(",").map(t => t.trim()).filter(Boolean);
     this.postExcerpt = post.excerpt;
     this.postContent = post.content;
-    renderPreview(this.shadowRoot!);
+    renderPreview(this.shadowRoot!, this._previewRef.value);
   }
 
   getPostData(): Omit<Post, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"> {
@@ -769,7 +840,7 @@ export class EditorPage extends LitElement {
     this.postTags = [];
     this.postExcerpt = "";
     this.postContent = "";
-    renderPreview(this.shadowRoot!);
+    renderPreview(this.shadowRoot!, this._previewRef.value);
   }
 
   loadProject(project: Project): void {
@@ -781,7 +852,7 @@ export class EditorPage extends LitElement {
     this.projectImage = project.image;
     this.projectPinned = project.pinned;
     this.postContent = project.content;
-    renderPreview(this.shadowRoot!);
+    renderPreview(this.shadowRoot!, this._previewRef.value);
   }
 
   getProjectData(): Omit<Project, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"> {
