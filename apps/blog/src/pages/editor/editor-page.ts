@@ -8,13 +8,13 @@ import { fetchPosts, fetchProjects, loadUIState, setEditorPage, saveUIState, sav
 import { renderPreview, triggerPreview } from "./preview.js";
 import { wrapSelection, insertAtCursor } from "./toolbar.js";
 import { uploadFile } from "./upload.js";
-import { initGallery, toggleGallery, openGalleryForPick } from "./gallery.js";
+import "./gallery.js";
 import { setupContextMenu } from "./context-menu.js";
 import { setupScrollSync } from "./scroll-sync.js";
 import { setupUndoStack } from "./undo.js";
 import { openPortfolioLayout, setProjectPreviewRoot } from "./project-preview.js";
 import { publishCurrent, unpublishCurrent } from "./publish.js";
-import { setupDeleteModal } from "./delete-modal.js";
+import "./delete-modal.js";
 import { setupFullscreenPreview } from "./fullscreen-preview.js";
 import { SidebarRenderer, setSidebarRoot } from "./sidebar.js";
 import { EditorStoreController } from "./editor-store.js";
@@ -52,6 +52,8 @@ export class EditorPage extends LitElement {
   private _textareaRef: Ref<HTMLTextAreaElement> = createRef();
   private _saveBtnRef: Ref<HTMLElement> = createRef();
   private _publishSplitRef: Ref<HTMLElement> = createRef();
+  private _galleryRef: Ref<HTMLElement & { show(cb?: (url: string, name: string) => void): void; hide(): void; toggle(): void }> = createRef();
+  private _deleteModalRef: Ref<HTMLElement & { show(): void }> = createRef();
 
   // ─── Post form fields (reactive) ─────────────────────────────────────────
   @litState() postTitle = "";
@@ -285,7 +287,7 @@ export class EditorPage extends LitElement {
                 <ui-button icon="icon-only" data-action="code" aria-label="Inline code"><ui-icon name="code" size="s" slot="icon-start"></ui-icon></ui-button>
                 <ui-button icon="icon-only" data-action="codeblock" aria-label="Code block"><ui-icon name="code_blocks" size="s" slot="icon-start"></ui-icon></ui-button>
                 <ui-button icon="icon-only" data-action="image" aria-label="Image"><ui-icon name="image" size="s" slot="icon-start"></ui-icon></ui-button>
-                <ui-button icon="icon-only" id="admin-gallery-btn" aria-label="Image gallery" @click=${toggleGallery}><ui-icon name="grid_view" size="s" slot="icon-start"></ui-icon></ui-button>
+                <ui-button icon="icon-only" id="admin-gallery-btn" aria-label="Image gallery" @click=${() => this._galleryRef.value?.toggle()}><ui-icon name="grid_view" size="s" slot="icon-start"></ui-icon></ui-button>
               </ui-button-group>
               <ui-toolbar-separator></ui-toolbar-separator>
               <ui-button-group action="secondary">
@@ -320,6 +322,8 @@ export class EditorPage extends LitElement {
                 </div>
               </ui-scrollbar>
             </div>
+          <editor-gallery ${ref(this._galleryRef)} .onSelect=${(url: string, name: string) => { const ta = this._textareaRef.value; if (ta) insertAtCursor(ta, `![${name}](${url})`); }}></editor-gallery>
+          <editor-delete-modal ${ref(this._deleteModalRef)}></editor-delete-modal>
           </div>
         </div>
       </div>
@@ -352,7 +356,6 @@ export class EditorPage extends LitElement {
 
 
     // Plugins
-    initGallery((url, name) => insertAtCursor(textarea, `![${name}](${url})`), root);
     setupContextMenu(textarea);
     setupUndoStack(textarea);
 
@@ -362,7 +365,6 @@ export class EditorPage extends LitElement {
     if (textareaWrap && previewWrap) setupScrollSync(textareaWrap, previewWrap);
 
     setupFullscreenPreview(textarea, root);
-    setupDeleteModal(root);
 
     // Project tech tags
     // Default date is set via reactive property, render initial preview
@@ -554,7 +556,7 @@ export class EditorPage extends LitElement {
     }
   }
 
-  // ─── Textarea keydown (Tab key — replaces keyboard.ts Tab handler) ──────────
+  // ─── Textarea keydown (Tab key + Escape for context menu) ──────────────────
   private _onTextareaKeydown(e: Event): void {
     const ke = e as KeyboardEvent;
     if (ke.key === "Tab") {
@@ -563,6 +565,7 @@ export class EditorPage extends LitElement {
       if (ta) insertAtCursor(ta, "  ");
     }
   }
+
 
   // ─── Ctrl+S keyboard shortcut (replaces keyboard.ts Ctrl+S handler) ────────
   private _onDocumentKeydown = (e: KeyboardEvent): void => {
@@ -892,7 +895,7 @@ export class EditorPage extends LitElement {
   }
 
   private _openImageGallery(): void {
-    openGalleryForPick((url) => {
+    this._galleryRef.value?.show((url) => {
       this.projectImage = url;
       this._scheduleAutoSave();
     });
