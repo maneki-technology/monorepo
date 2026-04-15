@@ -3,32 +3,26 @@ import { state } from "./state.js";
 
 export function setupFullscreenPreview(
   textarea: HTMLTextAreaElement,
-  titleInput: HTMLElement,
-  dateInput: HTMLElement,
-  tagsInput: HTMLInputElement,
   root: ParentNode,
 ): void {
   const overlay = root.querySelector("#admin-preview-overlay") as HTMLElement;
   const previewFull = root.querySelector("#admin-preview-full") as HTMLElement;
+  const ep = (root as ShadowRoot).host as any;
 
   const previewBtn = root.querySelector("#admin-preview-btn") as HTMLElement | null;
   if (previewBtn) {
     previewBtn.onclick = () => {
       if (state.activeTabType === "project") {
-        const title = (root.querySelector("#admin-project-title") as any)?.value ?? "";
-        const description = (root.querySelector("#admin-project-description") as any)?.value ?? "";
-        const tech = (root.querySelector("#admin-project-tech") as HTMLInputElement)?.value ?? "";
-        const content = textarea.value;
+        const title = ep?.projectTitle ?? "";
+        const description = ep?.projectDescription ?? "";
+        const tech: string = ep?.projectTech?.join(", ") ?? "";
+        const content: string = ep?.postContent ?? "";
         const project = state.allProjects.find((p) => p.slug === state.currentSlug);
 
         getMd().then((mdShiki) => {
           const highlighted = content ? mdShiki.render(content) : "";
-          const techBadges = tech
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
-            .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`)
-            .join("");
+          const techBadges = tech.split(",").map((t) => t.trim()).filter(Boolean)
+            .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
           previewFull.innerHTML = `
             <article>
               <a href="/portfolio" class="body-02 text-link" style="text-decoration:none;">← Back to portfolio</a>
@@ -47,18 +41,14 @@ export function setupFullscreenPreview(
           overlay.style.display = "flex";
         });
       } else {
-        const title = (titleInput as any).value;
-        const date = (dateInput as any).value;
-        const tags = tagsInput.value;
-        const content = textarea.value;
+        const title = ep?.postTitle ?? "";
+        const date = ep?.postDate ?? "";
+        const tags: string = ep?.postTags?.join(", ") ?? "";
+        const content: string = ep?.postContent ?? "";
         getMd().then((mdShiki) => {
           const highlighted = mdShiki.render(content);
-          const tagBadges = tags
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
-            .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`)
-            .join("");
+          const tagBadges = tags.split(",").map((t) => t.trim()).filter(Boolean)
+            .map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("");
           const formattedDate = date
             ? new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
             : "";

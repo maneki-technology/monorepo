@@ -1,8 +1,9 @@
-import { LitElement, html, css } from "lit";
-import { customElement } from "lit/decorators.js";
+import { LitElement, html, css, nothing } from "lit";
+import { customElement, state as litState } from "lit/decorators.js";
 import type { Post, Project } from "./types.js";
 import { state, setState, hasUnpublishedChanges } from "./state.js";
-import { setUIStateRoot, setDomRoot, saveUIState, saveCurrent, saveCurrentProject, loadPostIntoEditor, loadProjectIntoEditor } from "./api.js";
+import { api } from "../../lib/api.js";
+import { fetchPosts, fetchProjects, loadUIState, setEditorPage, saveUIState, saveCurrent, saveCurrentProject, loadPostIntoEditor, loadProjectIntoEditor } from "./api.js";
 import { renderPreview, triggerPreview } from "./preview.js";
 import { setupToolbar, insertAtCursor } from "./toolbar.js";
 import { setupImageUpload } from "./upload.js";
@@ -15,10 +16,9 @@ import { setupPublish } from "./publish.js";
 import { setupDeleteModal } from "./delete-modal.js";
 import { setupKeyboard } from "./keyboard.js";
 import { setupFullscreenPreview } from "./fullscreen-preview.js";
-import { setupTags } from "./tags.js";
-import { setupInit } from "./init.js";
+import { SidebarRenderer, setSidebarRoot } from "./sidebar.js";
 import { EditorStoreController } from "./editor-store.js";
-import { setSidebarRoot } from "./sidebar.js";
+import { TabBarRenderer } from "./tabbar.js";
 
 import "@maneki/ui-components/components/ui-toolbar.js";
 import "@maneki/ui-components/components/ui-toolbar-separator.js";
@@ -47,6 +47,22 @@ import "@maneki/ui-components/components/ui-link.js";
 @customElement("editor-page")
 export class EditorPage extends LitElement {
   private store = new EditorStoreController(this);
+
+  // ─── Post form fields (reactive) ─────────────────────────────────────────
+  @litState() postTitle = "";
+  @litState() postDate = new Date().toISOString().split("T")[0];
+  @litState() postTags: string[] = [];
+  @litState() postExcerpt = "";
+  @litState() postContent = "";
+
+  // ─── Project form fields (reactive) ──────────────────────────────────────
+  @litState() projectTitle = "";
+  @litState() projectDescription = "";
+  @litState() projectTech: string[] = [];
+  @litState() projectUrl = "";
+  @litState() projectRepo = "";
+  @litState() projectImage = "";
+  @litState() projectPinned = false;
 
   static styles = css`
     .admin-layout { display: flex; height: 100vh; overflow: hidden; }
@@ -180,70 +196,74 @@ export class EditorPage extends LitElement {
           <div id="admin-editor-main" class="admin-editor" style="display:${s.loaded ? "" : "none"}">
             <div id="admin-post-form" class="admin-form" style="display:${s.activeTabType === "project" ? "none" : ""}">
               <div class="admin-form-row">
-                <ui-input id="admin-title" placeholder="Post title" size="m"><ui-label slot="label" size="m">Title</ui-label></ui-input>
+                <ui-input id="admin-title" placeholder="Post title" size="m" .value=${this.postTitle} @input=${this._onPostTitleInput}><ui-label slot="label" size="m">Title</ui-label></ui-input>
               </div>
               <div class="admin-form-row-group">
                 <div class="admin-form-row">
-                  <ui-datetime-picker id="admin-date" type="single-date" size="m"><ui-label slot="label" size="m">Date</ui-label></ui-datetime-picker>
+                  <ui-datetime-picker id="admin-date" type="single-date" size="m" .value=${this.postDate} @change=${this._onPostDateChange}><ui-label slot="label" size="m">Date</ui-label></ui-datetime-picker>
                 </div>
                 <div class="admin-form-row">
-                  <ui-input id="admin-tag-input" placeholder="Add tag + Enter" size="m">
+                  <ui-input id="admin-tag-input" placeholder="Add tag + Enter" size="m" @keydown=${this._onTagKeydown}>
                     <ui-label slot="label" size="m">Tags</ui-label>
-                    <span id="admin-tag-list" slot="leading"></span>
+                    <span slot="leading" style="display:flex;flex-wrap:wrap;gap:4px">${this.postTags.map(tag => html`
+                      <ui-tag size="s" emphasis="subtle" dismissible @dismiss=${() => this._removeTag(tag)}>${tag}</ui-tag>
+                    `)}</span>
                   </ui-input>
-                  <input id="admin-tags" type="hidden" />
                 </div>
               </div>
               <div class="admin-form-row">
-                <ui-textarea id="admin-excerpt" placeholder="Short description for listing pages" size="m" rows="2"><ui-label slot="label" size="m">Excerpt</ui-label></ui-textarea>
+                <ui-textarea id="admin-excerpt" placeholder="Short description for listing pages" size="m" rows="2" .value=${this.postExcerpt} @input=${this._onPostExcerptInput}><ui-label slot="label" size="m">Excerpt</ui-label></ui-textarea>
               </div>
             </div>
             <div id="admin-project-form" class="admin-form" style="display:${s.activeTabType === "project" ? "" : "none"}">
               <div class="admin-form-row">
-                <ui-input id="admin-project-title" placeholder="Project title" size="m"><ui-label slot="label" size="m">Title</ui-label></ui-input>
+                <ui-input id="admin-project-title" placeholder="Project title" size="m" .value=${this.projectTitle} @input=${this._onProjectTitleInput}><ui-label slot="label" size="m">Title</ui-label></ui-input>
               </div>
               <div class="admin-form-row">
-                <ui-textarea id="admin-project-description" placeholder="Short project description" size="m" rows="2"><ui-label slot="label" size="m">Description</ui-label></ui-textarea>
+                <ui-textarea id="admin-project-description" placeholder="Short project description" size="m" rows="2" .value=${this.projectDescription} @input=${this._onProjectDescriptionInput}><ui-label slot="label" size="m">Description</ui-label></ui-textarea>
               </div>
               <div class="admin-form-row-group">
                 <div class="admin-form-row">
-                  <ui-input id="admin-project-tech-input" placeholder="Add tech + Enter" size="m">
+                  <ui-input id="admin-project-tech-input" placeholder="Add tech + Enter" size="m" @keydown=${this._onProjectTechKeydown}>
                     <ui-label slot="label" size="m">Tech Stack</ui-label>
-                    <span id="admin-project-tech-list" slot="leading"></span>
+                    <span slot="leading" style="display:flex;flex-wrap:wrap;gap:4px">${this.projectTech.map(tag => html`
+                      <ui-tag size="s" emphasis="subtle" dismissible @dismiss=${() => this._removeProjectTech(tag)}>${tag}</ui-tag>
+                    `)}</span>
                   </ui-input>
-                  <input id="admin-project-tech" type="hidden" />
                 </div>
                 <div class="admin-form-row" style="justify-content:flex-start;">
                   <ui-label size="m">📌 Pin to homepage</ui-label>
-                  <ui-checkbox-item id="admin-project-pinned" size="l"></ui-checkbox-item>
+                  <ui-checkbox-item id="admin-project-pinned" size="l" ?checked=${this.projectPinned} @change=${this._onProjectPinnedChange}></ui-checkbox-item>
                 </div>
               </div>
               <div class="admin-form-row-group">
                 <div class="admin-form-row">
-                  <ui-input id="admin-project-url" placeholder="https://..." size="m"><ui-label slot="label" size="m">URL</ui-label></ui-input>
+                  <ui-input id="admin-project-url" placeholder="https://..." size="m" .value=${this.projectUrl} @input=${this._onProjectUrlInput}><ui-label slot="label" size="m">URL</ui-label></ui-input>
                 </div>
                 <div class="admin-form-row">
-                  <ui-input id="admin-project-repo" placeholder="https://github.com/..." size="m"><ui-label slot="label" size="m">Repo</ui-label></ui-input>
+                  <ui-input id="admin-project-repo" placeholder="https://github.com/..." size="m" .value=${this.projectRepo} @input=${this._onProjectRepoInput}><ui-label slot="label" size="m">Repo</ui-label></ui-input>
                 </div>
               </div>
               <div class="admin-form-row">
                 <ui-label size="m">Image</ui-label>
-                <div id="admin-project-image-wrapper" class="project-image-wrapper">
-                  <div id="admin-project-image-empty" style="display:flex;gap:8px;">
-                    <ui-button id="admin-project-image-upload" action="secondary" emphasis="subtle" size="s" @click=${() => this._openImageUpload()}>Upload</ui-button>
-                    <ui-button id="admin-project-image-gallery" action="secondary" emphasis="subtle" size="s" @click=${() => this._openImageGallery()}>Gallery</ui-button>
-                  </div>
-                  <div id="admin-project-image-filled" class="project-image-thumb" style="display:none;">
-                    <ui-image id="admin-project-image-preview" style="width:200px;--ui-image-height:120px;--ui-image-bg:var(--fd-surface-secondary);--ui-image-fit:cover;border-radius:var(--fd-radius-sm);">
-                      <span id="admin-project-image-caption" slot="caption"></span>
-                    </ui-image>
-                    <div class="project-image-overlay">
-                      <ui-button action="contrast" emphasis="minimal" size="m" icon="icon-only" aria-label="Upload" @click=${() => this._openImageUpload()}><ui-icon name="upload" size="m" slot="icon-start"></ui-icon></ui-button>
-                      <ui-button action="contrast" emphasis="minimal" size="m" icon="icon-only" aria-label="Gallery" @click=${() => this._openImageGallery()}><ui-icon name="grid_view" size="m" slot="icon-start"></ui-icon></ui-button>
-                      <ui-button action="destructive" emphasis="minimal" size="m" icon="icon-only" aria-label="Remove" @click=${() => this._setProjectImage("")}><ui-icon name="delete" size="m" slot="icon-start"></ui-icon></ui-button>
+                <div class="project-image-wrapper">
+                  ${this.projectImage ? html`
+                    <div class="project-image-thumb">
+                      <ui-image src=${this.projectImage} style="width:200px;--ui-image-height:120px;--ui-image-bg:var(--fd-surface-secondary);--ui-image-fit:cover;border-radius:var(--fd-radius-sm);">
+                        <span slot="caption">${this.projectImage.split("/").pop() ?? this.projectImage}</span>
+                      </ui-image>
+                      <div class="project-image-overlay">
+                        <ui-button action="contrast" emphasis="minimal" size="m" icon="icon-only" aria-label="Upload" @click=${() => this._openImageUpload()}><ui-icon name="upload" size="m" slot="icon-start"></ui-icon></ui-button>
+                        <ui-button action="contrast" emphasis="minimal" size="m" icon="icon-only" aria-label="Gallery" @click=${() => this._openImageGallery()}><ui-icon name="grid_view" size="m" slot="icon-start"></ui-icon></ui-button>
+                        <ui-button action="destructive" emphasis="minimal" size="m" icon="icon-only" aria-label="Remove" @click=${() => { this.projectImage = ""; this._scheduleAutoSave(); }}><ui-icon name="delete" size="m" slot="icon-start"></ui-icon></ui-button>
+                      </div>
                     </div>
-                  </div>
-                  <input id="admin-project-image" type="hidden" />
+                  ` : html`
+                    <div style="display:flex;gap:8px;">
+                      <ui-button action="secondary" emphasis="subtle" size="s" @click=${() => this._openImageUpload()}>Upload</ui-button>
+                      <ui-button action="secondary" emphasis="subtle" size="s" @click=${() => this._openImageGallery()}>Gallery</ui-button>
+                    </div>
+                  `}
                 </div>
               </div>
             </div>
@@ -279,7 +299,7 @@ export class EditorPage extends LitElement {
             </ui-toolbar>
             <div class="admin-split">
               <ui-scrollbar emphasis="minimal" class="admin-textarea-wrap">
-                <textarea id="admin-content" placeholder="Write your post in Markdown..." spellcheck="false"></textarea>
+                <textarea id="admin-content" placeholder="Write your post in Markdown..." spellcheck="false" .value=${this.postContent} @input=${this._onContentInput}></textarea>
                 <div class="admin-textarea-spacer"></div>
               </ui-scrollbar>
               <ui-scrollbar emphasis="minimal"><div id="admin-preview" class="admin-preview"></div></ui-scrollbar>
@@ -307,20 +327,12 @@ export class EditorPage extends LitElement {
     const root = this.shadowRoot!;
 
     // Set root references for modules that need them
-    setDomRoot(root);
-    setUIStateRoot(root);
+    setEditorPage(this);
     setSidebarRoot(root);
     setProjectPreviewRoot(root);
 
     const textarea = root.querySelector("#admin-content") as HTMLTextAreaElement;
-    const titleInput = root.querySelector("#admin-title") as HTMLElement;
-    const dateInput = root.querySelector("#admin-date") as HTMLElement;
-    const tagsInput = root.querySelector("#admin-tags") as HTMLInputElement;
-    const tagInput = root.querySelector("#admin-tag-input") as HTMLInputElement;
-    const tagList = root.querySelector("#admin-tag-list")!;
-    const excerptInput = root.querySelector("#admin-excerpt") as HTMLElement;
     const publishSplit = root.querySelector("#admin-publish-split") as HTMLElement | null;
-
 
     // Buttons inside ui-side-panel-menu-section — Lit @click doesn't attach listeners,
     // and imperative listeners get lost when EditorStoreController triggers re-renders.
@@ -332,43 +344,7 @@ export class EditorPage extends LitElement {
       if (target.id === "admin-new-post") this._onNewPost();
       if (target.id === "admin-new-project") this._onNewProject();
     });
-    // Preview triggers
-    textarea.addEventListener("input", triggerPreview);
-    titleInput.addEventListener("input", triggerPreview);
-    dateInput.addEventListener("change", triggerPreview);
 
-    // Auto-save on input (debounced) — routes by activeTabType
-    let saveTimer: ReturnType<typeof setTimeout> | null = null;
-    const autoSave = () => {
-      setState({});
-      if (saveTimer) clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => {
-        const saveBtn = root.querySelector("#admin-save-btn") as HTMLElement | null;
-        if (state.activeTabType === "project") {
-          if (state.currentSlug) saveCurrentProject(false, saveBtn);
-        } else {
-          if (state.currentSlug || textarea.value.trim()) saveCurrent(false, saveBtn);
-        }
-      }, 2000);
-    };
-    textarea.addEventListener("input", autoSave);
-    titleInput.addEventListener("input", autoSave);
-    dateInput.addEventListener("change", autoSave);
-    tagsInput.addEventListener("input", autoSave);
-    excerptInput.addEventListener("input", autoSave);
-
-    // Project form auto-save
-    const projectFields = [
-      "admin-project-title",
-      "admin-project-description",
-      "admin-project-url",
-      "admin-project-repo",
-      "admin-project-image",
-    ];
-    for (const id of projectFields) {
-      root.querySelector(`#${id}`)?.addEventListener("input", autoSave);
-    }
-    root.querySelector("#admin-project-pinned")?.addEventListener("change", autoSave);
 
     // Toolbar + plugins
     setupToolbar(textarea, root);
@@ -382,25 +358,13 @@ export class EditorPage extends LitElement {
     const previewWrap = root.querySelector(".admin-split ui-scrollbar:last-child") as HTMLElement;
     if (textareaWrap && previewWrap) setupScrollSync(textareaWrap, previewWrap);
 
-    // Publish + delete + keyboard + fullscreen
+    setupFullscreenPreview(textarea, root);
     setupPublish(publishSplit, textarea, root);
     setupDeleteModal(root);
     setupKeyboard(textarea, root);
-    setupFullscreenPreview(textarea, titleInput, dateInput, tagsInput, root);
-
-    // Tags
-    setupTags(tagInput, tagList as HTMLElement, tagsInput);
 
     // Project tech tags
-    const projectTechInput = root.querySelector("#admin-project-tech-input") as HTMLInputElement;
-    const projectTechList = root.querySelector("#admin-project-tech-list") as HTMLElement;
-    const projectTechHidden = root.querySelector("#admin-project-tech") as HTMLInputElement;
-    if (projectTechInput && projectTechList && projectTechHidden) {
-      setupTags(projectTechInput, projectTechList, projectTechHidden);
-    }
-
-    // Set default date + render initial state
-    if (!(dateInput as any).value) (dateInput as any).value = new Date().toISOString().split("T")[0];
+    // Default date is set via reactive property, render initial preview
     renderPreview(root);
 
     // Sidebar events
@@ -444,7 +408,280 @@ export class EditorPage extends LitElement {
     });
 
     // Load posts, restore UI state, resume deploy polling
-    setupInit(root);
+    this._initEditor(root);
+  }
+
+  // ─── Init (absorbed from init.ts) ────────────────────────────────────────
+
+  private _initEditor(root: ShadowRoot): void {
+    const sidebarRenderer = new SidebarRenderer();
+    const tabBarRenderer = new TabBarRenderer();
+
+    Promise.all([fetchPosts(), fetchProjects(), loadUIState()]).then(async ([posts, projects, uiState]) => {
+      setState({ allPosts: posts, allProjects: projects });
+
+      // Init renderers
+      const sidebar = root.querySelector("#admin-sidebar");
+      const barEl = root.querySelector("#admin-tab-bar") as HTMLElement | null;
+      if (sidebar) sidebarRenderer.init(sidebar);
+      if (barEl) tabBarRenderer.init(barEl);
+
+      // Restore UI state
+      if (uiState) {
+        // Restore sidebar collapsed state
+        const sidebarEl = root.querySelector("#admin-sidebar") as HTMLElement | null;
+        if (uiState.sidebarCollapsed && sidebarEl) {
+          sidebarEl.setAttribute("state", "collapsed");
+        }
+
+        // Restore open post tabs
+        const savedTabs = Array.isArray(uiState.openTabs) ? uiState.openTabs : [];
+        const restoredTabs: Post[] = [];
+        for (const slug of savedTabs) {
+          const post = state.allPosts.find((p) => p.slug === slug);
+          if (post && !restoredTabs.find((t) => t.slug === slug)) restoredTabs.push(post);
+        }
+
+        // Restore open project tabs
+        const savedProjectTabs = Array.isArray(uiState.openProjectTabs) ? uiState.openProjectTabs : [];
+        const restoredProjectTabs: Project[] = [];
+        for (const slug of savedProjectTabs) {
+          const project = state.allProjects.find((p) => p.slug === slug);
+          if (project && !restoredProjectTabs.find((t) => t.slug === slug)) restoredProjectTabs.push(project);
+        }
+
+        setState({ openTabs: restoredTabs, openProjectTabs: restoredProjectTabs });
+
+        // Restore active tab
+        const savedType = uiState.activeTabType ?? "post";
+        if (savedType === "project" && uiState.activeTab) {
+          const activeProject = state.allProjects.find((p) => p.slug === uiState.activeTab);
+          if (activeProject) {
+            if (!restoredProjectTabs.find((t) => t.slug === activeProject.slug)) {
+              setState({ openProjectTabs: [...state.openProjectTabs, activeProject] });
+            }
+            loadProjectIntoEditor(activeProject);
+          } else if (restoredTabs.length > 0) {
+            loadPostIntoEditor(restoredTabs[0]);
+          }
+        } else if (uiState.activeTab) {
+          const activePost = state.allPosts.find((p) => p.slug === uiState.activeTab);
+          if (activePost) {
+            if (!restoredTabs.find((t) => t.slug === activePost.slug)) {
+              setState({ openTabs: [...state.openTabs, activePost] });
+            }
+            loadPostIntoEditor(activePost);
+          } else if (restoredTabs.length > 0) {
+            loadPostIntoEditor(restoredTabs[0]);
+          }
+        } else if (restoredTabs.length > 0) {
+          loadPostIntoEditor(restoredTabs[0]);
+        }
+      } else if (state.allPosts.length > 0) {
+        setState({ openTabs: [state.allPosts[0]] });
+        loadPostIntoEditor(state.allPosts[0]);
+      }
+
+      setState({ loaded: true });
+
+      // Resume polling if there's an active deployment
+      try {
+        const statusRes = await api.api.deploy.status.$get();
+        if (!statusRes.ok) return;
+        const { status: deployStatus } = await statusRes.json();
+        if (deployStatus === "building" || deployStatus === "deploying") {
+          setState({ deployingSlugs: new Set([state.currentSlug!]), deployingAction: "publishing" });
+          const pollInterval = setInterval(async () => {
+            try {
+              const r = await api.api.deploy.status.$get();
+              if (!r.ok) return;
+              const { status: s } = await r.json();
+              if (s === "success" || s === "failure") {
+                clearInterval(pollInterval);
+                setState({ deployingSlugs: new Set(), deployingAction: null });
+              }
+            } catch {
+              clearInterval(pollInterval);
+              setState({ deployingSlugs: new Set(), deployingAction: null });
+            }
+          }, 5000);
+        }
+      } catch { /* ignore */ }
+    });
+  }
+
+  // ─── Post form event handlers ───────────────────────────────────────────
+
+  private _onPostTitleInput(e: Event): void {
+    this.postTitle = (e.target as any).value ?? "";
+    this._scheduleAutoSave();
+  }
+
+  private _onPostDateChange(e: Event): void {
+    this.postDate = (e.target as any).value ?? "";
+    this._scheduleAutoSave();
+  }
+
+  private _onPostExcerptInput(e: Event): void {
+    this.postExcerpt = (e.target as any).value ?? "";
+    this._scheduleAutoSave();
+  }
+
+  private _onContentInput(e: Event): void {
+    this.postContent = (e.target as HTMLTextAreaElement).value;
+    this._scheduleAutoSave();
+    triggerPreview();
+  }
+
+  private _onTagKeydown(e: Event): void {
+    const ke = e as KeyboardEvent;
+    if (ke.key !== "Enter") return;
+    ke.preventDefault();
+    const input = e.target as any;
+    const name = (input.value ?? "").trim();
+    if (!name) return;
+    if (this.postTags.some(t => t.toLowerCase() === name.toLowerCase())) return;
+    this.postTags = [...this.postTags, name];
+    input.value = "";
+    this._scheduleAutoSave();
+    triggerPreview();
+  }
+
+  private _removeTag(name: string): void {
+    this.postTags = this.postTags.filter(t => t !== name);
+    this._scheduleAutoSave();
+    triggerPreview();
+  }
+
+  // ─── Project form event handlers ────────────────────────────────────────
+
+  private _onProjectTitleInput(e: Event): void {
+    this.projectTitle = (e.target as any).value ?? "";
+    this._scheduleAutoSave();
+  }
+
+  private _onProjectDescriptionInput(e: Event): void {
+    this.projectDescription = (e.target as any).value ?? "";
+    this._scheduleAutoSave();
+  }
+
+  private _onProjectUrlInput(e: Event): void {
+    this.projectUrl = (e.target as any).value ?? "";
+    this._scheduleAutoSave();
+  }
+
+  private _onProjectRepoInput(e: Event): void {
+    this.projectRepo = (e.target as any).value ?? "";
+    this._scheduleAutoSave();
+  }
+
+  private _onProjectPinnedChange(e: Event): void {
+    this.projectPinned = (e.target as HTMLElement).hasAttribute("checked");
+    this._scheduleAutoSave();
+  }
+
+  private _onProjectTechKeydown(e: Event): void {
+    const ke = e as KeyboardEvent;
+    if (ke.key !== "Enter") return;
+    ke.preventDefault();
+    const input = e.target as any;
+    const name = (input.value ?? "").trim();
+    if (!name) return;
+    if (this.projectTech.some(t => t.toLowerCase() === name.toLowerCase())) return;
+    this.projectTech = [...this.projectTech, name];
+    input.value = "";
+    this._scheduleAutoSave();
+  }
+
+  private _removeProjectTech(name: string): void {
+    this.projectTech = this.projectTech.filter(t => t !== name);
+    this._scheduleAutoSave();
+  }
+
+  // ─── Auto-save ─────────────────────────────────────────────────────────
+
+  private _autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+  private _scheduleAutoSave(): void {
+    setState({});
+    if (this._autoSaveTimer) clearTimeout(this._autoSaveTimer);
+    this._autoSaveTimer = setTimeout(() => {
+      const saveBtn = this.shadowRoot!.querySelector("#admin-save-btn") as HTMLElement | null;
+      if (state.activeTabType === "project") {
+        if (state.currentSlug) saveCurrentProject(false, saveBtn);
+      } else {
+        if (state.currentSlug || this.postContent.trim()) saveCurrent(false, saveBtn);
+      }
+    }, 2000);
+  }
+
+  // ─── Public API (called by api.ts) ───────────────────────────────────────
+
+  loadPost(post: Post): void {
+    this.postTitle = post.title;
+    this.postDate = post.date;
+    this.postTags = post.tags.split(",").map(t => t.trim()).filter(Boolean);
+    this.postExcerpt = post.excerpt;
+    this.postContent = post.content;
+    renderPreview(this.shadowRoot!);
+  }
+
+  getPostData(): Omit<Post, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"> {
+    return {
+      title: this.postTitle,
+      date: this.postDate,
+      tags: this.postTags.join(", "),
+      excerpt: this.postExcerpt,
+      content: this.postContent,
+      status: state.allPosts.find(p => p.slug === state.currentSlug)?.status ?? "draft",
+    };
+  }
+
+  clearPost(): void {
+    this.postTitle = "";
+    this.postDate = new Date().toISOString().split("T")[0];
+    this.postTags = [];
+    this.postExcerpt = "";
+    this.postContent = "";
+    renderPreview(this.shadowRoot!);
+  }
+
+  loadProject(project: Project): void {
+    this.projectTitle = project.title;
+    this.projectDescription = project.description;
+    this.projectTech = project.tech.split(",").map(t => t.trim()).filter(Boolean);
+    this.projectUrl = project.url;
+    this.projectRepo = project.repo;
+    this.projectImage = project.image;
+    this.projectPinned = project.pinned;
+    this.postContent = project.content;
+    renderPreview(this.shadowRoot!);
+  }
+
+  getProjectData(): Omit<Project, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"> {
+    return {
+      title: this.projectTitle,
+      description: this.projectDescription,
+      content: this.postContent,
+      tech: this.projectTech.join(", "),
+      url: this.projectUrl,
+      repo: this.projectRepo,
+      image: this.projectImage,
+      pinned: this.projectPinned,
+      sortOrder: 0,
+      status: state.allProjects.find(p => p.slug === state.currentSlug)?.status ?? "draft",
+    };
+  }
+
+  clearProject(): void {
+    this.projectTitle = "";
+    this.projectDescription = "";
+    this.projectTech = [];
+    this.projectUrl = "";
+    this.projectRepo = "";
+    this.projectImage = "";
+    this.projectPinned = false;
+    this.postContent = "";
   }
 
   // ─── Event handlers ──────────────────────────────────────────────────────────
@@ -465,6 +702,7 @@ export class EditorPage extends LitElement {
     };
     setState({ allPosts: [post, ...state.allPosts], openTabs: [...state.openTabs, post] });
     loadPostIntoEditor(post);
+    this._scheduleAutoSave();
   }
 
   private _onNewProject(): void {
@@ -487,6 +725,7 @@ export class EditorPage extends LitElement {
     };
     setState({ allProjects: [project, ...state.allProjects], openProjectTabs: [...state.openProjectTabs, project] });
     loadProjectIntoEditor(project);
+    this._scheduleAutoSave();
   }
 
   private async _onSave(): Promise<void> {
@@ -510,23 +749,6 @@ export class EditorPage extends LitElement {
 
   // ─── Project image helpers ───────────────────────────────────────────────────
 
-  private _setProjectImage(url: string): void {
-    const root = this.shadowRoot!;
-    const imageHidden = root.querySelector("#admin-project-image") as HTMLInputElement;
-    const imagePreview = root.querySelector("#admin-project-image-preview") as HTMLElement;
-    const imageEmpty = root.querySelector("#admin-project-image-empty") as HTMLElement;
-    const imageFilled = root.querySelector("#admin-project-image-filled") as HTMLElement;
-    const imageCaption = root.querySelector("#admin-project-image-caption") as HTMLElement;
-
-    imageHidden.value = url;
-    imageHidden.dispatchEvent(new Event("input", { bubbles: true }));
-    const filename = url ? (url.split("/").pop() ?? url) : "";
-    imageCaption.textContent = filename;
-    imagePreview.setAttribute("src", url);
-    imageEmpty.style.display = url ? "none" : "flex";
-    imageFilled.style.display = url ? "" : "none";
-  }
-
   private _openImageUpload(): void {
     const input = document.createElement("input");
     input.type = "file";
@@ -539,15 +761,17 @@ export class EditorPage extends LitElement {
         const res = await fetch("/api/images", { method: "POST", body: formData });
         if (!res.ok) return;
         const data = (await res.json()) as { url: string };
-        this._setProjectImage(data.url);
-      } catch {
-        /* ignore */
-      }
+        this.projectImage = data.url;
+        this._scheduleAutoSave();
+      } catch { /* ignore */ }
     };
     input.click();
   }
 
   private _openImageGallery(): void {
-    openGalleryForPick((url) => this._setProjectImage(url));
+    openGalleryForPick((url) => {
+      this.projectImage = url;
+      this._scheduleAutoSave();
+    });
   }
 }

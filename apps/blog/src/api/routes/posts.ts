@@ -60,8 +60,8 @@ export const posts = new Hono<Env>()
     const db = c.get("db");
 
     const sql = status
-      ? "SELECT * FROM posts WHERE status = ? ORDER BY created_at DESC"
-      : "SELECT * FROM posts WHERE status != 'deleted' ORDER BY created_at DESC";
+      ? "SELECT * FROM posts WHERE status = ? ORDER BY updated_at DESC"
+      : "SELECT * FROM posts WHERE status != 'deleted' ORDER BY updated_at DESC";
     const args = status ? [status] : [];
 
     const result = await db.execute({ sql, args });
@@ -100,7 +100,15 @@ export const posts = new Hono<Env>()
             VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
       args: [title, slug, body_md, excerpt, JSON.stringify(tags), status, createdAt],
     });
-    return c.json({ ok: true, slug }, 201);
+    const result = await db.execute({
+      sql: "SELECT * FROM posts WHERE slug = ?",
+      args: [slug],
+    });
+    const post = {
+      ...result.rows[0],
+      tags: JSON.parse((result.rows[0].tags as string) || "[]"),
+    };
+    return c.json({ ok: true, slug, post }, 201);
   })
 
   // Update post by slug
@@ -149,7 +157,15 @@ export const posts = new Hono<Env>()
       sql: `UPDATE posts SET ${setClauses.join(", ")} WHERE slug = ?`,
       args,
     });
-    return c.json({ ok: true });
+    const result = await db.execute({
+      sql: "SELECT * FROM posts WHERE slug = ?",
+      args: [slug],
+    });
+    const post = {
+      ...result.rows[0],
+      tags: JSON.parse((result.rows[0].tags as string) || "[]"),
+    };
+    return c.json({ ok: true, post });
   })
 
   // Soft delete post by slug
