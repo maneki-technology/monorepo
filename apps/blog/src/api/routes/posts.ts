@@ -26,6 +26,7 @@ const updatePostSchema = z.object({
   tags: z.array(z.string()).optional(),
   status: z.enum(["draft", "published"]).optional(),
   date: z.string().optional(),
+  new_slug: z.string().min(1).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase kebab-case").optional(),
 });
 
 export const posts = new Hono<Env>()
@@ -120,6 +121,13 @@ export const posts = new Hono<Env>()
       setClauses.push("created_at = ?");
       args.push(updates.date);
     }
+    // Atomic slug rename — single UPDATE instead of DELETE + CREATE
+    let newSlug = slug;
+    if (updates.new_slug !== undefined && updates.new_slug !== slug) {
+      setClauses.push("slug = ?");
+      args.push(updates.new_slug);
+      newSlug = updates.new_slug;
+    }
 
     if (setClauses.length === 0) {
       return c.json({ error: "no fields to update" }, 400);
@@ -134,13 +142,13 @@ export const posts = new Hono<Env>()
     });
     const result = await db.execute({
       sql: "SELECT * FROM posts WHERE slug = ?",
-      args: [slug],
+      args: [newSlug],
     });
     const post = {
       ...result.rows[0],
       tags: JSON.parse((result.rows[0].tags as string) || "[]"),
     };
-    return c.json({ ok: true, post });
+    return c.json({ ok: true, slug: newSlug, post });
   })
 
   // Soft delete post by slug
