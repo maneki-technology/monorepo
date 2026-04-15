@@ -445,21 +445,3 @@ export class EditorSidebar extends LitElement {
     }, 5000);
   }
 }
-
-// ─── Backward compatibility wrapper ──────────────────────────────────────────
-
-export class SidebarRenderer {
-  init(sidebar: Element): void {
-    // Remove static section headers — the Lit component renders them
-    const header = sidebar.querySelector("[slot='header']");
-    sidebar.querySelectorAll("ui-side-panel-menu-section").forEach((s) => s.remove());
-
-    // Insert the Lit component (renders sections + items + bulk bar)
-    const el = document.createElement("editor-sidebar");
-    if (header && header.nextSibling) {
-      sidebar.insertBefore(el, header.nextSibling);
-    } else {
-      sidebar.appendChild(el);
-    }
-  }
-}
