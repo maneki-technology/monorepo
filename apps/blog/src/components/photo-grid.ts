@@ -18,6 +18,16 @@ styles.replaceSync(/*css*/ `
     border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+    break-inside: avoid;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
     background-size: cover;
     background-position: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -35,16 +45,41 @@ styles.replaceSync(/*css*/ `
     border-radius: 8px;
   }
 
+  .grid-item-info {
+    padding: 8px 10px;
+    font-family: var(--fd-type-body-03-font-family, sans-serif);
+    font-size: 11px;
+    color: #fff;
+    line-height: 1.4;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    border-radius: 0 0 8px 8px;
+    padding: 24px 10px 8px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  .grid-item:hover .grid-item-info { opacity: 1; }
+
+  .grid-item-info:empty { display: none; }
+
+  .grid-item-info span { white-space: nowrap; }
+
+  .grid-item-title { font-size: 13px; font-weight: 600; width: 100%; white-space: normal; }
+
   @media (max-width: 1024px) {
-    .grid {
-      columns: 2;
-    }
+    .grid { columns: 2; }
   }
 
   @media (max-width: 600px) {
-    .grid {
-      columns: 1;
-    }
+    .grid { columns: 1; }
   }
 `);
 
@@ -109,6 +144,25 @@ class PhotoGrid extends HTMLElement {
       };
 
       item.appendChild(img);
+
+      // EXIF caption
+      const exif = photo.exif || {};
+      const parts: string[] = [];
+      if (exif.Make || exif.Model) parts.push(String(exif.Make && exif.Model ? `${exif.Make} ${exif.Model}` : exif.Make || exif.Model));
+      if (exif.FocalLength) parts.push(`${exif.FocalLength}mm`);
+      if (exif.FNumber != null) parts.push(`ƒ/${exif.FNumber}`);
+      if (exif.ExposureTime) parts.push(`${exif.ExposureTime}s`);
+      if (exif.ISO) parts.push(`ISO ${exif.ISO}`);
+
+      if (photo.title || parts.length > 0) {
+        const info = document.createElement("div");
+        info.className = "grid-item-info";
+        const titleHtml = photo.title ? `<span class="grid-item-title">${photo.title}</span>` : "";
+        const exifHtml = parts.map((p) => `<span>${p}</span>`).join("");
+        info.innerHTML = titleHtml + exifHtml;
+        item.appendChild(info);
+      }
+
       this._container.appendChild(item);
     }
   }

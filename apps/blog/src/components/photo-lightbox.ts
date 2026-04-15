@@ -61,25 +61,52 @@ styles.replaceSync(/*css*/ `
     z-index: 2;
   }
 
+  .info-btn {
+    position: absolute;
+    top: var(--fd-space-3, 12px);
+    right: 80px;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-family: serif;
+    font-style: italic;
+    font-weight: 600;
+    z-index: 4;
+    opacity: 0.7;
+    transition: opacity 0.15s ease, background 0.15s ease;
+  }
+
+  .info-btn:hover, .info-btn.active { opacity: 1; background: rgba(255, 255, 255, 0.2); }
+
   .close-btn {
     position: absolute;
     top: var(--fd-space-3, 12px);
     right: var(--fd-space-4, 16px);
-    background: none;
+    background: rgba(255, 255, 255, 0.1);
     border: none;
     color: #fff;
-    font-size: 32px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
     cursor: pointer;
-    padding: var(--fd-space-2, 8px);
-    line-height: 1;
-    z-index: 2;
-    opacity: 0.8;
-    transition: opacity 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    z-index: 4;
+    opacity: 0.7;
+    transition: opacity 0.15s ease, background 0.15s ease;
   }
 
-  .close-btn:hover {
-    opacity: 1;
-  }
+  .close-btn:hover { opacity: 1; background: rgba(255, 255, 255, 0.2); }
 
   .nav-btn {
     position: absolute;
@@ -202,6 +229,7 @@ class PhotoLightbox extends HTMLElement {
       <div class="backdrop"></div>
       <div class="container">
         <span class="counter"></span>
+        <button class="info-btn" aria-label="Toggle photo info">i</button>
         <button class="close-btn" aria-label="Close lightbox">&times;</button>
         <button class="nav-btn nav-prev" aria-label="Previous photo"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
         <div class="image-wrapper">
@@ -217,6 +245,7 @@ class PhotoLightbox extends HTMLElement {
     this._exifPanel = shadow.querySelector(".exif-panel")!;
 
     shadow.querySelector(".backdrop")!.addEventListener("click", () => this.close());
+    shadow.querySelector(".info-btn")!.addEventListener("click", () => this._toggleExif());
     shadow.querySelector(".close-btn")!.addEventListener("click", () => this.close());
     shadow.querySelector(".nav-prev")!.addEventListener("click", () => this._navigate(-1));
     shadow.querySelector(".nav-next")!.addEventListener("click", () => this._navigate(1));
@@ -326,10 +355,15 @@ class PhotoLightbox extends HTMLElement {
         this._navigate(1);
         break;
       case "i":
-        this._exifOpen = !this._exifOpen;
-        this._exifPanel.classList.toggle("open", this._exifOpen);
+        this._toggleExif();
         break;
     }
+  }
+
+  private _toggleExif(): void {
+    this._exifOpen = !this._exifOpen;
+    this._exifPanel.classList.toggle("open", this._exifOpen);
+    this.shadowRoot!.querySelector(".info-btn")?.classList.toggle("active", this._exifOpen);
   }
 
   private _onPointerDown(e: PointerEvent): void {
