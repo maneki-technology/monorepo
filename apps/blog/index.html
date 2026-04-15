@@ -441,8 +441,13 @@
     }
 
     @media (max-width: 768px) {
-      .polaroid-stack { height: 380px; }
-      .polaroid { width: 300px; margin-left: -150px; margin-top: -170px; }
+      .polaroid-stack { height: 400px; }
+      .polaroid { width: 280px; margin-left: -140px; margin-top: -160px; padding: 8px 8px 28px; }
+    }
+
+    @media (max-width: 480px) {
+      .polaroid-stack { height: 340px; }
+      .polaroid { width: 240px; margin-left: -120px; margin-top: -140px; padding: 6px 6px 24px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -467,10 +472,12 @@
     /* ─── Responsive ─── */
 
     @media (max-width: 600px) {
-      header { padding: 16px 16px 0; }
+      header { padding: 16px 16px 0; flex-wrap: wrap; gap: 8px; }
+      .site-name { white-space: nowrap; font-size: 24px; }
       main { padding: 32px 16px; }
       footer { padding: 16px; }
-      nav { gap: 16px; }
+      nav { gap: 12px; }
+      nav a { font-size: 13px; }
       .display-03 { font-size: var(--fd-type-heading-02-font-size); line-height: var(--fd-type-heading-02-line-height); }
     }
 
@@ -734,7 +741,7 @@
     <main id="content">
       <section class="mb-6">
         <h1 class="display-03" style="margin-bottom:var(--fd-space-3);">Hey, I'm <strong class="hero-accent">Kien Nguyen<svg class="sig-underline" viewBox="0 0 200 18" preserveAspectRatio="none"><path d="M0 16 C25 14, 45 15, 70 12 S110 8, 140 9 S175 4, 200 3 L200 1.5 C175 2.5, 140 6, 110 5 S70 8, 45 11 S25 9, 0 11 Z"/></svg></strong></h1>
-        <p class="body-01 text-secondary mt-2">Senior Software Engineer. Distributed systems, micro-frontends, and design systems.</p>
+        <p class="body-01 text-secondary mt-2">Senior Software Engineer. Distributed systems, micro-frontends, and design systems. Amateur photographer.</p>
       </section>
     </main>
     <footer>
