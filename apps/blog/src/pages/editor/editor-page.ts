@@ -174,7 +174,7 @@ export class EditorPage extends LitElement {
     const s = this.store.state;
     return html`
       <div class="admin-layout">
-        <ui-side-panel-menu id="admin-sidebar" style="display:${s.loaded ? "" : "none"}">
+        <ui-side-panel-menu id="admin-sidebar" style="display:${s.loaded ? "" : "none"}" @select=${this._onSidebarSelect} @toggle=${() => saveUIState()} @click=${this._onSidebarClick}>
           <span slot="header" style="display:flex;align-items:center;gap:8px;">
             <ui-button action="secondary" emphasis="minimal" size="s" @click=${() => { window.location.href = "/admin"; }}>
               <ui-icon name="chevron_left" size="s" slot="icon-start"></ui-icon>
@@ -330,17 +330,6 @@ export class EditorPage extends LitElement {
     const textarea = this._textareaRef.value!;
     const publishSplit = this._publishSplitRef.value ?? null;
 
-    // Buttons inside ui-side-panel-menu-section — Lit @click doesn't attach listeners,
-    // and imperative listeners get lost when EditorStoreController triggers re-renders.
-    // Use event delegation on the sidebar (stable node) instead.
-    const sidebarEl = root.querySelector("#admin-sidebar")!;
-    sidebarEl.addEventListener("click", (e: Event) => {
-      const target = (e.target as Element).closest?.("ui-button[id]");
-      if (!target) return;
-      if (target.id === "admin-new-post") this._onNewPost();
-      if (target.id === "admin-new-project") this._onNewProject();
-    });
-
 
     // Plugins
     setupContextMenu(textarea);
@@ -351,40 +340,8 @@ export class EditorPage extends LitElement {
     const previewWrap = this._previewWrapRef.value;
     if (textareaWrap && previewWrap) setupScrollSync(textareaWrap, previewWrap);
 
-
-    // Project tech tags
     // Default date is set via reactive property, render initial preview
     renderPreview(root, this._previewRef.value);
-
-    // Sidebar events
-    const sidebar = root.querySelector("#admin-sidebar")!;
-    sidebar.addEventListener("select", ((e: CustomEvent) => {
-      const value = e.detail?.value as string;
-      if (!value) return;
-
-      if (value.startsWith("project:")) {
-        const slug = value.slice(8);
-        const project = state.allProjects.find((p) => p.slug === slug);
-        if (!project) return;
-        if (!state.openProjectTabs.find((t) => t.slug === project.slug)) {
-          setState({ openProjectTabs: [...state.openProjectTabs, project] });
-        }
-        loadProjectIntoEditor(project);
-        saveUIState();
-        return;
-      }
-
-      const post = state.allPosts.find((p) => p.slug === value);
-      if (!post) return;
-      if (!state.openTabs.find((t) => t.slug === post.slug)) {
-        setState({ openTabs: [...state.openTabs, post] });
-      }
-      loadPostIntoEditor(post);
-      saveUIState();
-    }) as EventListener);
-
-    sidebar.addEventListener("toggle", () => saveUIState());
-
     // Warn before accidental refresh
     window.addEventListener("beforeunload", (e) => {
       if (
@@ -408,7 +365,6 @@ export class EditorPage extends LitElement {
 
       // Restore UI state
       if (uiState) {
-        // Restore sidebar collapsed state
         const sidebarEl = root.querySelector("#admin-sidebar") as HTMLElement | null;
         if (uiState.sidebarCollapsed && sidebarEl) {
           sidebarEl.setAttribute("state", "collapsed");
@@ -613,6 +569,39 @@ export class EditorPage extends LitElement {
   }
 
 
+
+  // ─── Sidebar event handlers (replaces imperative addEventListener) ────────
+  private _onSidebarSelect(e: Event): void {
+    const value = (e as CustomEvent).detail?.value as string;
+    if (!value) return;
+
+    if (value.startsWith("project:")) {
+      const slug = value.slice(8);
+      const project = state.allProjects.find((p) => p.slug === slug);
+      if (!project) return;
+      if (!state.openProjectTabs.find((t) => t.slug === project.slug)) {
+        setState({ openProjectTabs: [...state.openProjectTabs, project] });
+      }
+      loadProjectIntoEditor(project);
+      saveUIState();
+      return;
+    }
+
+    const post = state.allPosts.find((p) => p.slug === value);
+    if (!post) return;
+    if (!state.openTabs.find((t) => t.slug === post.slug)) {
+      setState({ openTabs: [...state.openTabs, post] });
+    }
+    loadPostIntoEditor(post);
+    saveUIState();
+  }
+
+  private _onSidebarClick(e: Event): void {
+    const target = (e.target as Element).closest?.("ui-button[id]");
+    if (!target) return;
+    if ((target as HTMLElement).id === "admin-new-post") this._onNewPost();
+    if ((target as HTMLElement).id === "admin-new-project") this._onNewProject();
+  }
 
   // ─── Ctrl+S keyboard shortcut (replaces keyboard.ts Ctrl+S handler) ────────
   private _onDocumentKeydown = (e: KeyboardEvent): void => {
