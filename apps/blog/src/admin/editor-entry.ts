@@ -5,6 +5,7 @@ registerIconFont(materialSymbolsWoff2);
 
 import "../components/theme-toggle.js";
 import "../components/loading-bounce.js";
+import "./deploy-fab.js";
 import { loadTheme, saveThemeToBackend } from "./theme.js";
 
 const root = document.getElementById("admin-root")!;
