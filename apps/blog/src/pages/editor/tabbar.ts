@@ -11,7 +11,6 @@ export class EditorTabbar extends LitElement {
   private store = new EditorStoreController(this);
 
   createRenderRoot(): this {
-    this.style.display = "contents";
     return this;
   }
 

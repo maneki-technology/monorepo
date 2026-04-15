@@ -16,6 +16,7 @@ import { openPortfolioLayout, setProjectPreviewRoot } from "./project-preview.js
 import { publishCurrent, unpublishCurrent } from "./publish.js";
 import "./delete-modal.js";
 import { setSidebarRoot } from "./sidebar.js";
+import "./tabbar.js";
 import { EditorStoreController } from "./editor-store.js";
 
 import "@maneki/ui-components/components/ui-toolbar.js";
