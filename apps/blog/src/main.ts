@@ -14,6 +14,26 @@ import { registerRoute, registerPatternRoute, initRouter } from "./router.js";
 
 routes.forEach(registerRoute);
 
+// Photography route — only registered if photos exist at build time
+import { photos } from "virtual:photos";
+if (photos.length > 0) {
+  registerRoute({
+    id: "photography",
+    meta: { title: "Photography", description: "Photos from travels and daily life." },
+    load: () => import("./pages/photography.js").then((m) => m.photographyRoute),
+  });
+  // Add nav link before About
+  const nav = document.querySelector("header nav");
+  const aboutLink = nav?.querySelector('[data-route="about"]');
+  if (nav && aboutLink) {
+    const link = document.createElement("a");
+    link.href = "/photography";
+    link.dataset.route = "photography";
+    link.textContent = "Photography";
+    nav.insertBefore(link, aboutLink);
+  }
+}
+
 // Dynamic routes: post/* and project/* are loaded on-demand
 registerPatternRoute({
   prefix: "post/",

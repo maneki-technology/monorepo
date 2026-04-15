@@ -1,5 +1,6 @@
 import { posts } from "virtual:posts";
 import { pinnedProjects } from "virtual:projects";
+import { featuredPhotos } from "virtual:photos";
 import type { Route } from "../router.js";
 
 function formatDate(dateStr: string): string {
@@ -18,6 +19,34 @@ export const homeRoute: Route = {
       <h1 class="display-03" style="margin-bottom:var(--fd-space-3);">Hey, I'm <strong class="hero-accent">Kien Nguyen<svg class="sig-underline" viewBox="0 0 200 18" preserveAspectRatio="none"><path d="M0 16 C25 14, 45 15, 70 12 S110 8, 140 9 S175 4, 200 3 L200 1.5 C175 2.5, 140 6, 110 5 S70 8, 45 11 S25 9, 0 11 Z"/></svg></strong></h1>
       <p class="body-01 text-secondary mt-2">Senior Software Engineer. Distributed systems, micro-frontends, and design systems.</p>
     </section>
+
+    ${featuredPhotos.length > 0 ? `
+    <section class="mb-5 reveal">
+      <div class="row items-center" style="justify-content:space-between;">
+        <h2 class="heading-05">Photography</h2>
+        <a href="/photography" class="body-02 text-link arrow-link" style="text-decoration:none;">View all <span class="arrow-right">→</span></a>
+      </div>
+      <a href="/photography" class="polaroid-stack mt-3" id="polaroid-stack" aria-label="View photography">
+        ${(() => {
+          const count = Math.min(featuredPhotos.length, 5);
+          const angles = [-10, 3, 8, -6, 11];
+          const defaultSpacing = 120;
+          const fanSpacing = 460;
+          return featuredPhotos.slice(0, count).map((p, i) => {
+            const fan = (i - (count - 1) / 2) * fanSpacing;
+            const dx = (i - (count - 1) / 2) * defaultSpacing;
+            const dy = [8, -14, 10, -8, 12][i] || 0;
+            return `
+            <div class="polaroid" data-photo-index="${i}" style="--rot:${angles[i]}deg;--ox:${dx}px;--oy:${dy}px;--fan:${fan}px;">
+              <img src="${p.url}" alt="${p.title || ''}"
+                   width="${p.width}" height="${p.height}"
+                   loading="lazy" decoding="async">
+            </div>`;
+          }).join("");
+        })()}
+      </a>
+    </section>
+    ` : ""}
 
     <section class="mb-5 reveal">
       <div class="row items-center" style="justify-content:space-between;">
@@ -62,4 +91,43 @@ export const homeRoute: Route = {
       </div>
     </section>
   `,
+  setup: () => {
+    const stack = document.getElementById("polaroid-stack");
+    if (!stack) return;
+    const polaroids = Array.from(stack.querySelectorAll(".polaroid")) as HTMLElement[];
+    if (polaroids.length < 2) return;
+
+    function shuffle(): void {
+      // Fisher-Yates to get random order
+      const indices = polaroids.map((_, i) => i);
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+
+      const count = polaroids.length;
+      const fanSpacing = 460;
+      const defaultSpacing = 120;
+
+      polaroids.forEach((el, i) => {
+        const order = indices[i];
+        const rot = (Math.random() * 12 - 6);
+        const dx = (order - (count - 1) / 2) * defaultSpacing + (Math.random() * 6 - 3);
+        const dy = Math.random() * 10 - 5;
+        const fan = (order - (count - 1) / 2) * fanSpacing;
+
+        el.style.setProperty("--rot", `${rot}deg`);
+        el.style.setProperty("--ox", `${dx}px`);
+        el.style.setProperty("--oy", `${dy}px`);
+        el.style.setProperty("--fan", `${fan}px`);
+        el.style.zIndex = `${count - order}`;
+      });
+    }
+
+    // Shuffle on load
+    shuffle();
+
+    // Reshuffle every 30 seconds
+    setInterval(shuffle, 30000);
+  },
 };

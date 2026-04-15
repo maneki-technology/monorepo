@@ -398,6 +398,56 @@
       }
     }
 
+    /* ─── Polaroid Stack ─── */
+
+    .polaroid-stack {
+      display: block;
+      position: relative;
+      height: 500px;
+      width: 100%;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .polaroid {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 420px;
+      margin-left: -210px;
+      margin-top: -230px;
+      background: #fff;
+      padding: 10px 10px 36px;
+      border-radius: 2px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+      transform-origin: center center;
+      transform:
+        translate(var(--ox, 0px), var(--oy, 0px))
+        rotate(var(--rot, 0deg));
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
+    }
+
+    .polaroid img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 1px;
+    }
+
+    .polaroid-stack:hover .polaroid {
+      transform:
+        translateX(var(--fan, 0px));
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
+
+    @media (max-width: 768px) {
+      .polaroid-stack { height: 380px; }
+      .polaroid { width: 300px; margin-left: -150px; margin-top: -170px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .polaroid { transition: none; }
+    }
 
     /* ─── Reading Progress ─── */
 
@@ -677,7 +727,6 @@
       <nav>
         <a href="/blog" data-route="blog">Blog</a>
         <a href="/portfolio" data-route="portfolio">Portfolio</a>
-        <a href="/photography" data-route="photography">Photography</a>
         <a href="/about" data-route="about">About</a>
         <theme-toggle></theme-toggle>
       </nav>

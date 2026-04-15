@@ -29,11 +29,6 @@ export const routes: Route[] = [
     load: () => import("./pages/portfolio.js").then((m) => m.portfolioRoute),
   },
   {
-    id: "photography",
-    meta: { title: "Photography", description: "Photos from travels and daily life." },
-    load: () => import("./pages/photography.js").then((m) => m.photographyRoute),
-  },
-  {
     id: "resume",
     meta: {
       title: "Resume",
