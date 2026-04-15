@@ -284,23 +284,6 @@ export class EditorSidebar extends LitElement {
     `;
   }
 
-  // ─── Toolbar button sync ─────────────────────────────────────────────────────
-
-  protected updated(): void {
-    const isDeploying = this.store.state.deployingSlugs.size > 0;
-    const root = _sidebarRoot;
-    if (!root) return;
-    const saveBtn = root.querySelector("#admin-save-btn") as HTMLElement | null;
-    const publishSplit = root.querySelector("#admin-publish-split") as HTMLElement | null;
-    if (saveBtn) {
-      if (isDeploying) saveBtn.setAttribute("disabled", "");
-      else saveBtn.removeAttribute("disabled");
-    }
-    if (publishSplit) {
-      if (isDeploying) publishSplit.setAttribute("disabled", "");
-      else publishSplit.removeAttribute("disabled");
-    }
-  }
 
   // ─── Event handlers ──────────────────────────────────────────────────────────
 
