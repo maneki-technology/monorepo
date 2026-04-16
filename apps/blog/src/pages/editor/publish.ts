@@ -4,15 +4,10 @@ import { getCurrentPostData, getCurrentProjectData } from "./api.js";
 
 // ─── Public API (called by editor-page event handlers) ───────────────────────
 
-export async function publishCurrent(publishSplit: HTMLElement | null): Promise<void> {
-  if (publishSplit) publishSplit.setAttribute("status", "loading");
+export async function publishCurrent(): Promise<"success" | "error"> {
   try {
     if (!state.currentSlug) {
-      if (publishSplit) publishSplit.setAttribute("status", "error");
-      setTimeout(() => {
-        if (publishSplit) publishSplit.setAttribute("status", "none");
-      }, 2000);
-      return;
+      return "error";
     }
 
     if (state.activeTabType === "project") {
@@ -21,21 +16,14 @@ export async function publishCurrent(publishSplit: HTMLElement | null): Promise<
       await publishPost();
     }
 
-    if (publishSplit) {
-      publishSplit.setAttribute("status", "success");
-      setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
-    }
+    return "success";
   } catch {
-    if (publishSplit) publishSplit.setAttribute("status", "error");
-    setTimeout(() => {
-      if (publishSplit) publishSplit.setAttribute("status", "none");
-    }, 2000);
+    return "error";
   }
 }
 
-export async function unpublishCurrent(publishSplit: HTMLElement | null): Promise<void> {
-  if (!state.currentSlug) return;
-  if (publishSplit) publishSplit.setAttribute("status", "loading");
+export async function unpublishCurrent(): Promise<"success" | "error"> {
+  if (!state.currentSlug) return "error";
   try {
     if (state.activeTabType === "project") {
       await unpublishProject();
@@ -43,15 +31,9 @@ export async function unpublishCurrent(publishSplit: HTMLElement | null): Promis
       await unpublishPost();
     }
 
-    if (publishSplit) {
-      publishSplit.setAttribute("status", "success");
-      setTimeout(() => publishSplit.setAttribute("status", "none"), 1500);
-    }
+    return "success";
   } catch {
-    if (publishSplit) publishSplit.setAttribute("status", "error");
-    setTimeout(() => {
-      if (publishSplit) publishSplit.setAttribute("status", "none");
-    }, 2000);
+    return "error";
   }
 }
 

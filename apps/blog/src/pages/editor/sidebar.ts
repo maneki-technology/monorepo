@@ -1,5 +1,5 @@
 import { LitElement, html, nothing } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, state as litState } from "lit/decorators.js";
 import { repeat } from "lit/directives/repeat.js";
 import { api } from "../../lib/api.js";
 import { state, setState, hasUnpublishedChanges } from "./state.js";
@@ -31,6 +31,11 @@ function ensureSidebarStyles(): void {
 @customElement("editor-sidebar")
 export class EditorSidebar extends LitElement {
   private store = new EditorStoreController(this);
+
+  // ─── Bulk action status (reactive) ─────────────────────────────────────────
+  @litState() private _bulkDeleteStatus = "none";
+  @litState() private _bulkPublishStatus = "none";
+  @litState() private _bulkUnpublishStatus = "none";
 
   createRenderRoot(): this {
     this.style.display = "contents";
@@ -244,6 +249,7 @@ export class EditorSidebar extends LitElement {
               size="s"
               icon="icon-only"
               aria-label="Delete selected"
+              status=${this._bulkDeleteStatus}
               @click=${() => this.handleBulkDelete(isProject)}
             >
               <ui-icon
@@ -259,6 +265,7 @@ export class EditorSidebar extends LitElement {
               size="s"
               icon="icon-only"
               aria-label="Publish selected"
+              status=${this._bulkPublishStatus}
               @click=${() => this.handleBulkPublish(isProject)}
             >
               <ui-icon
@@ -274,6 +281,7 @@ export class EditorSidebar extends LitElement {
               size="s"
               icon="icon-only"
               aria-label="Unpublish selected"
+              status=${this._bulkUnpublishStatus}
               @click=${() => this.handleBulkUnpublish(isProject)}
             >
               <ui-icon name="download" size="s" slot="icon-start"></ui-icon>
@@ -334,8 +342,7 @@ export class EditorSidebar extends LitElement {
 
   private async handleBulkDelete(isProject: boolean): Promise<void> {
     const slugs = [...state.selectedSlugs];
-    const btn = this.querySelector("#admin-bulk-actions ui-button[aria-label='Delete selected']") as HTMLElement | null;
-    if (btn) btn.setAttribute("status", "loading");
+    this._bulkDeleteStatus = "loading";
     try {
       if (isProject) {
         await api.api.projects.batch.delete.$post({ json: { slugs } });
@@ -359,19 +366,14 @@ export class EditorSidebar extends LitElement {
         });
       }
     } catch {
-      if (btn) {
-        btn.setAttribute("status", "error");
-        setTimeout(() => btn.setAttribute("status", "none"), 2000);
-      }
+      this._bulkDeleteStatus = "error";
+      setTimeout(() => { this._bulkDeleteStatus = "none"; }, 2000);
     }
   }
 
   private async handleBulkPublish(isProject: boolean): Promise<void> {
     const slugs = [...state.selectedSlugs];
-    const btn = this.querySelector(
-      "#admin-bulk-actions ui-button[aria-label='Publish selected']",
-    ) as HTMLElement | null;
-    if (btn) btn.setAttribute("status", "loading");
+    this._bulkPublishStatus = "loading";
     try {
       if (isProject) {
         await api.api.projects.batch.publish.$post({ json: { slugs } });
@@ -393,19 +395,14 @@ export class EditorSidebar extends LitElement {
       setState({ selectedSlugs: new Set(), deployingSlugs: new Set(slugs), deployingAction: "publishing" });
       this.pollDeployStatus();
     } catch {
-      if (btn) {
-        btn.setAttribute("status", "error");
-        setTimeout(() => btn.setAttribute("status", "none"), 2000);
-      }
+      this._bulkPublishStatus = "error";
+      setTimeout(() => { this._bulkPublishStatus = "none"; }, 2000);
     }
   }
 
   private async handleBulkUnpublish(isProject: boolean): Promise<void> {
     const slugs = [...state.selectedSlugs];
-    const btn = this.querySelector(
-      "#admin-bulk-actions ui-button[aria-label='Unpublish selected']",
-    ) as HTMLElement | null;
-    if (btn) btn.setAttribute("status", "loading");
+    this._bulkUnpublishStatus = "loading";
     try {
       if (isProject) {
         await api.api.projects.batch.unpublish.$post({ json: { slugs } });
@@ -421,10 +418,8 @@ export class EditorSidebar extends LitElement {
       setState({ selectedSlugs: new Set(), deployingSlugs: new Set(slugs), deployingAction: "unpublishing" });
       this.pollDeployStatus();
     } catch {
-      if (btn) {
-        btn.setAttribute("status", "error");
-        setTimeout(() => btn.setAttribute("status", "none"), 2000);
-      }
+      this._bulkUnpublishStatus = "error";
+      setTimeout(() => { this._bulkUnpublishStatus = "none"; }, 2000);
     }
   }
 
