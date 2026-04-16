@@ -1,5 +1,6 @@
 import type { Photo } from "./photo-types.js";
 import { thumbHashBase64ToDataURL } from "../lib/thumbhash.js";
+import "@maneki/ui-components/components/ui-image.js";
 
 const styles = new CSSStyleSheet();
 styles.replaceSync(/*css*/ `
@@ -38,10 +39,9 @@ styles.replaceSync(/*css*/ `
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   }
 
-  .grid-item img {
+  .grid-item ui-image {
     display: block;
     width: 100%;
-    height: auto;
     border-radius: 8px;
   }
 
@@ -122,28 +122,18 @@ class PhotoGrid extends HTMLElement {
         item.style.aspectRatio = `${photo.width} / ${photo.height}`;
       }
 
+      let placeholder = "";
       if (photo.thumbhash) {
-        try {
-          const dataUrl = thumbHashBase64ToDataURL(photo.thumbhash);
-          item.style.backgroundImage = `url(${dataUrl})`;
-        } catch {
-        }
+        try { placeholder = thumbHashBase64ToDataURL(photo.thumbhash); } catch { /* ignore */ }
       }
 
-      const img = document.createElement("img");
-      img.src = photo.url;
-      img.alt = photo.title || "";
-      img.loading = "lazy";
-      img.decoding = "async";
-      img.width = photo.width;
-      img.height = photo.height;
+      const uiImage = document.createElement("ui-image");
+      uiImage.setAttribute("src", photo.url);
+      uiImage.setAttribute("alt", photo.title || "");
+      if (placeholder) uiImage.setAttribute("placeholder", placeholder);
+      uiImage.style.setProperty("--ui-image-fit", "cover");
 
-      img.onload = () => {
-        item.style.backgroundImage = "";
-        item.style.aspectRatio = "";
-      };
-
-      item.appendChild(img);
+      item.appendChild(uiImage);
 
       // EXIF caption
       const exif = photo.exif || {};
