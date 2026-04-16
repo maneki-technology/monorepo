@@ -29,7 +29,9 @@ function capture(): UndoEntry | null {
 function restore(entry: UndoEntry): void {
   if (!textareaRef) return;
   programmatic = true;
-  textareaRef.value = entry.value;
+  // Use setRangeText to replace entire content — avoids polluting the browser's
+  // native undo stack (textarea.value = ... resets it and causes state jumps)
+  textareaRef.setRangeText(entry.value, 0, textareaRef.value.length, "preserve");
   textareaRef.setSelectionRange(entry.selectionStart, entry.selectionEnd);
   textareaRef.dispatchEvent(new Event("input", { bubbles: true }));
   programmatic = false;
@@ -46,8 +48,6 @@ export function pushUndo(): void {
   undoStack.push(entry);
   if (undoStack.length > MAX_HISTORY) undoStack.shift();
   redoStack = [];
-  programmatic = true;
-  requestAnimationFrame(() => { programmatic = false; });
 }
 
 export function undo(): void {
