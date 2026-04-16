@@ -4,7 +4,7 @@ language: 'typescript'
 
 tasks:
   build:
-    script: 'tsc && vite build'
+    script: 'vite build && tsc --emitDeclarationOnly'
     inputs:
       - 'src/**/*'
       - 'tsconfig.json'
