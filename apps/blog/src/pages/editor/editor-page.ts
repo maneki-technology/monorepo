@@ -12,7 +12,7 @@ import "./gallery.js";
 import { setupContextMenu } from "./context-menu.js";
 import { setupScrollSync } from "./scroll-sync.js";
 import { setupUndoStack } from "./undo.js";
-import { openPortfolioLayout, setProjectPreviewRoot } from "./project-preview.js";
+import "./project-preview.js";
 import { publishCurrent, unpublishCurrent } from "./publish.js";
 import "./delete-modal.js";
 import { setSidebarRoot } from "./sidebar.js";
@@ -58,6 +58,7 @@ export class EditorPage extends LitElement {
   private _sidebarRef: Ref<HTMLElement> = createRef();
   private _textareaWrapRef: Ref<HTMLElement> = createRef();
   private _previewWrapRef: Ref<HTMLElement> = createRef();
+  private _projectPreviewRef: Ref<HTMLElement & { show(): void; hide(): void }> = createRef();
 
   // ─── Post form fields (reactive) ─────────────────────────────────────────
   @litState() postTitle = "";
@@ -288,7 +289,7 @@ export class EditorPage extends LitElement {
               </ui-button-group>
               <span style="flex:1"></span>
               <ui-button id="admin-preview-btn" action="secondary" emphasis="subtle" size="s" @click=${this._openFullscreenPreview}>Preview</ui-button>
-              <ui-button id="admin-portfolio-btn" action="secondary" emphasis="subtle" size="s" style="display:${s.activeTabType === "project" ? "" : "none"}" @click=${openPortfolioLayout}>Portfolio</ui-button>
+              <ui-button id="admin-portfolio-btn" action="secondary" emphasis="subtle" size="s" style="display:${s.activeTabType === "project" ? "" : "none"}" @click=${() => this._projectPreviewRef.value?.show()}>Portfolio</ui-button>
               <ui-button id="admin-save-btn" action="primary" size="s" status=${this._saveStatus} ?disabled=${s.deployingSlugs.size > 0} @click=${() => this._onSave()}>Save</ui-button>
               <ui-dropdown-split id="admin-publish-split" action="primary" size="s" label="Publish" status=${this._publishStatus} ?disabled=${s.deployingSlugs.size > 0} @action=${this._onPublishAction}>
                 <ui-dropdown-item id="admin-unpublish-btn" value="unpublish" @select=${this._onUnpublish}>Unpublish</ui-dropdown-item>
@@ -315,6 +316,7 @@ export class EditorPage extends LitElement {
             </div>
           <editor-gallery ${ref(this._galleryRef)} .onSelect=${(url: string, name: string) => { const ta = this._textareaRef.value; if (ta) insertAtCursor(ta, `![${name}](${url})`); }}></editor-gallery>
           <editor-delete-modal ${ref(this._deleteModalRef)}></editor-delete-modal>
+          <editor-project-preview ${ref(this._projectPreviewRef)}></editor-project-preview>
           </div>
         </div>
       </div>
@@ -329,7 +331,7 @@ export class EditorPage extends LitElement {
     // Set root references for modules that need them
     setEditorPage(this);
     setSidebarRoot(root);
-    setProjectPreviewRoot(root);
+
 
     const textarea = this._textareaRef.value!;
 
