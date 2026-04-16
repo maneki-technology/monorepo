@@ -193,6 +193,14 @@ export const posts = new Hono<Env>()
       args,
     });
 
+    // Save published snapshot for change detection
+    const snapResult = await db.execute({ sql: "SELECT title, body_md, excerpt, tags, created_at FROM posts WHERE slug = ?", args: [newSlug] });
+    if (snapResult.rows.length) {
+      const r = snapResult.rows[0];
+      const snapshot = JSON.stringify({ title: r.title, body_md: r.body_md, excerpt: r.excerpt, tags: r.tags, date: r.created_at });
+      await db.execute({ sql: "UPDATE posts SET published_snapshot = ? WHERE slug = ?", args: [snapshot, newSlug] });
+    }
+
     return c.json({ ok: true, slug: newSlug });
   })
 
@@ -203,7 +211,7 @@ export const posts = new Hono<Env>()
     const ghToken = c.env.GH_DEPLOY_TOKEN;
 
     await db.execute({
-      sql: "UPDATE posts SET status = 'draft', updated_at = datetime('now') WHERE slug = ?",
+      sql: "UPDATE posts SET status = 'draft', updated_at = datetime('now'), published_snapshot = NULL WHERE slug = ?",
       args: [slug],
     });
 

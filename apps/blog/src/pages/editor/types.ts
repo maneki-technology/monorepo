@@ -9,8 +9,8 @@ export interface Post {
   updatedAt: string;
   publishedAt: string | null;
   persisted: boolean;
-  /** Snapshot of content at last publish — used to detect unpublished changes */
-  publishedContent: string | null;
+  /** JSON snapshot of content at last publish — used to detect unpublished changes */
+  publishedSnapshot: string | null;
 }
 
 export interface Project {
@@ -28,7 +28,24 @@ export interface Project {
   updatedAt: string;
   publishedAt: string | null;
   persisted: boolean;
-  publishedContent: string | null;
+  publishedSnapshot: string | null;
+}
+
+export interface PostSnapshot {
+  type: "post";
+  title: string;
+  body_md: string;
+  excerpt: string;
+  tags: string;
+  date: string;
+}
+
+export interface ProjectSnapshot {
+  type: "project";
+  title: string;
+  body_md: string;
+  description: string;
+  tech: string;
 }
 
 export interface EditorUIState {

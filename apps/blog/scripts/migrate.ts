@@ -82,6 +82,21 @@ for (const table of ["photos", "albums"]) {
   } catch { console.log(`${table}.longitude already exists.`); }
 }
 
+// Add published_snapshot column to posts and projects if missing
+for (const table of ["posts", "projects"]) {
+  try {
+    await db.execute(`ALTER TABLE ${table} ADD COLUMN published_snapshot TEXT`);
+    console.log(`Added published_snapshot column to ${table}.`);
+    // Backfill existing published rows
+    if (table === "posts") {
+      await db.execute(`UPDATE posts SET published_snapshot = json_object('title', title, 'body_md', body_md, 'excerpt', excerpt, 'tags', tags, 'date', created_at) WHERE status = 'published' AND published_snapshot IS NULL`);
+    } else {
+      await db.execute(`UPDATE projects SET published_snapshot = json_object('title', title, 'body_md', body_md, 'description', description, 'tech', tech) WHERE status = 'published' AND published_snapshot IS NULL`);
+    }
+    console.log(`Backfilled published_snapshot for ${table}.`);
+  } catch { console.log(`${table}.published_snapshot already exists.`); }
+}
+
 // Create any missing tables
 await db.executeMultiple(SCHEMA);
 console.log("Done.");

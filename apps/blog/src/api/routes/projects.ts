@@ -198,6 +198,14 @@ export const projects = new Hono<Env>()
       args,
     });
 
+    // Save published snapshot for change detection
+    const snapResult = await db.execute({ sql: "SELECT title, body_md, description, tech FROM projects WHERE slug = ?", args: [newSlug] });
+    if (snapResult.rows.length) {
+      const r = snapResult.rows[0];
+      const snapshot = JSON.stringify({ title: r.title, body_md: r.body_md, description: r.description, tech: r.tech });
+      await db.execute({ sql: "UPDATE projects SET published_snapshot = ? WHERE slug = ?", args: [snapshot, newSlug] });
+    }
+
     return c.json({ ok: true, slug: newSlug });
   })
 
@@ -207,7 +215,7 @@ export const projects = new Hono<Env>()
     const slug = c.req.param("slug");
 
     await db.execute({
-      sql: "UPDATE projects SET status = 'draft', updated_at = datetime('now') WHERE slug = ?",
+      sql: "UPDATE projects SET status = 'draft', updated_at = datetime('now'), published_snapshot = NULL WHERE slug = ?",
       args: [slug],
     });
 

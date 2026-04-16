@@ -147,7 +147,7 @@ export class EditorTabbar extends LitElement {
       updatedAt: new Date().toISOString(),
       publishedAt: null,
       persisted: false,
-      publishedContent: null,
+      publishedSnapshot: null,
     };
     setState({ allPosts: [post, ...state.allPosts], openTabs: [...state.openTabs, post] });
     loadPostIntoEditor(post);

@@ -797,7 +797,7 @@ export class EditorPage extends LitElement {
     renderPreview(this.shadowRoot!, this._previewRef.value);
   }
 
-  getPostData(): Omit<Post, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"> {
+  getPostData(): Omit<Post, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedSnapshot"> {
     return {
       title: this.postTitle,
       date: this.postDate,
@@ -829,7 +829,7 @@ export class EditorPage extends LitElement {
     renderPreview(this.shadowRoot!, this._previewRef.value);
   }
 
-  getProjectData(): Omit<Project, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"> {
+  getProjectData(): Omit<Project, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedSnapshot"> {
     return {
       title: this.projectTitle,
       description: this.projectDescription,
@@ -869,7 +869,7 @@ export class EditorPage extends LitElement {
       updatedAt: new Date().toISOString(),
       publishedAt: null,
       persisted: false,
-      publishedContent: null,
+      publishedSnapshot: null,
     };
     setState({ allPosts: [post, ...state.allPosts], openTabs: [...state.openTabs, post] });
     loadPostIntoEditor(post);
@@ -892,7 +892,7 @@ export class EditorPage extends LitElement {
       updatedAt: new Date().toISOString(),
       publishedAt: null,
       persisted: false,
-      publishedContent: null,
+      publishedSnapshot: null,
     };
     setState({ allProjects: [project, ...state.allProjects], openProjectTabs: [...state.openProjectTabs, project] });
     loadProjectIntoEditor(project);

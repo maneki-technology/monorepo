@@ -59,13 +59,13 @@ async function publishPost(): Promise<void> {
   if (post) {
     post.status = "published";
     post.publishedAt = new Date().toISOString();
-    post.publishedContent = `${post.title}\n${post.content}\n${post.excerpt}\n${post.tags}\n${post.date}`;
+    post.publishedSnapshot = JSON.stringify({ type: "post", title: post.title, body_md: post.content, excerpt: post.excerpt, tags: post.tags, date: post.date });
   }
   const tab = state.openTabs.find((t) => t.slug === state.currentSlug);
   if (tab) {
     tab.status = "published";
     tab.publishedAt = new Date().toISOString();
-    tab.publishedContent = `${tab.title}\n${tab.content}\n${tab.excerpt}\n${tab.tags}\n${tab.date}`;
+    tab.publishedSnapshot = JSON.stringify({ type: "post", title: tab.title, body_md: tab.content, excerpt: tab.excerpt, tags: tab.tags, date: tab.date });
   }
   setState({});
 }
@@ -73,9 +73,9 @@ async function publishPost(): Promise<void> {
 async function unpublishPost(): Promise<void> {
   await api.api.posts[":slug"].unpublish.$put({ param: { slug: state.currentSlug! } });
   const post = state.allPosts.find((p) => p.slug === state.currentSlug);
-  if (post) post.status = "draft";
+  if (post) { post.status = "draft"; post.publishedSnapshot = null; }
   const tab = state.openTabs.find((t) => t.slug === state.currentSlug);
-  if (tab) tab.status = "draft";
+  if (tab) { tab.status = "draft"; tab.publishedSnapshot = null; }
   setState({});
 }
 
@@ -105,13 +105,13 @@ async function publishProject(): Promise<void> {
   if (project) {
     project.status = "published";
     project.publishedAt = new Date().toISOString();
-    project.publishedContent = `${project.title}\n${project.content}\n${project.description}\n${project.tech}`;
+    project.publishedSnapshot = JSON.stringify({ type: "project", title: project.title, body_md: project.content, description: project.description, tech: project.tech });
   }
   const tab = state.openProjectTabs.find((t) => t.slug === state.currentSlug);
   if (tab) {
     tab.status = "published";
     tab.publishedAt = new Date().toISOString();
-    tab.publishedContent = `${tab.title}\n${tab.content}\n${tab.description}\n${tab.tech}`;
+    tab.publishedSnapshot = JSON.stringify({ type: "project", title: tab.title, body_md: tab.content, description: tab.description, tech: tab.tech });
   }
   setState({});
 }
@@ -119,8 +119,8 @@ async function publishProject(): Promise<void> {
 async function unpublishProject(): Promise<void> {
   await api.api.projects[":slug"].unpublish.$put({ param: { slug: state.currentSlug! } });
   const project = state.allProjects.find((p) => p.slug === state.currentSlug);
-  if (project) project.status = "draft";
+  if (project) { project.status = "draft"; project.publishedSnapshot = null; }
   const tab = state.openProjectTabs.find((t) => t.slug === state.currentSlug);
-  if (tab) tab.status = "draft";
+  if (tab) { tab.status = "draft"; tab.publishedSnapshot = null; }
   setState({});
 }
