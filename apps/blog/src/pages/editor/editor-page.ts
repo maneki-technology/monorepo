@@ -66,6 +66,7 @@ export class EditorPage extends LitElement {
   @litState() postTags: string[] = [];
   @litState() postExcerpt = "";
   @litState() postContent = "";
+  @litState() private _fullscreenPreviewOpen = false;
 
   // ─── Project form fields (reactive) ──────────────────────────────────────
   @litState() projectTitle = "";
@@ -303,7 +304,7 @@ export class EditorPage extends LitElement {
               </ui-scrollbar>
               <ui-scrollbar ${ref(this._previewWrapRef)} emphasis="minimal"><div id="admin-preview" ${ref(this._previewRef)} class="admin-preview"></div></ui-scrollbar>
             </div>
-            <div id="admin-preview-overlay" ${ref(this._previewOverlayRef)} class="admin-preview-overlay" style="display:none;" @keydown=${this._onOverlayKeydown}>
+            <div id="admin-preview-overlay" ${ref(this._previewOverlayRef)} class="admin-preview-overlay" style="display:${this._fullscreenPreviewOpen ? 'flex' : 'none'};" @keydown=${this._onOverlayKeydown}>
               <div class="admin-preview-overlay-header">
                 <span class="heading-05">Preview</span>
                 <ui-button id="admin-preview-close" action="secondary" emphasis="subtle" size="s" @click=${this._closeFullscreenPreview}>Close</ui-button>
@@ -534,7 +535,7 @@ export class EditorPage extends LitElement {
           </article>
         `;
         wrapCodeBlocks(previewFull);
-        overlay.style.display = "flex";
+        this._fullscreenPreviewOpen = true;
       });
     } else {
       const title = this.postTitle;
@@ -558,14 +559,13 @@ export class EditorPage extends LitElement {
           </article>
         `;
         wrapCodeBlocks(previewFull);
-        overlay.style.display = "flex";
+        this._fullscreenPreviewOpen = true;
       });
     }
   }
 
   private _closeFullscreenPreview(): void {
-    const overlay = this._previewOverlayRef.value;
-    if (overlay) overlay.style.display = "none";
+    this._fullscreenPreviewOpen = false;
   }
 
   private _onOverlayKeydown(e: Event): void {
