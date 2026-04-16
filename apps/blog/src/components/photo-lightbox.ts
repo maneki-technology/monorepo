@@ -323,7 +323,7 @@ class PhotoLightbox extends HTMLElement {
       ["Camera", exif.Make && exif.Model ? `${exif.Make} ${exif.Model}` : exif.Make || exif.Model],
       ["Lens", exif.LensModel],
       ["Focal Length", exif.FocalLength],
-      ["Aperture", exif.FNumber != null ? `ƒ/${exif.FNumber}` : null],
+      ["Aperture", exif.FNumber != null ? `ƒ/${String(exif.FNumber).replace(/^f\//, "")}` : null],
       ["Shutter Speed", exif.ExposureTime],
       ["ISO", exif.ISO],
     ];

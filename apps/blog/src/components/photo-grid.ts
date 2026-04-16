@@ -150,7 +150,8 @@ class PhotoGrid extends HTMLElement {
       const parts: string[] = [];
       if (exif.Make || exif.Model) parts.push(String(exif.Make && exif.Model ? `${exif.Make} ${exif.Model}` : exif.Make || exif.Model));
       if (exif.FocalLength) parts.push(`${exif.FocalLength}mm`);
-      if (exif.FNumber != null) parts.push(`ƒ/${exif.FNumber}`);
+      if (exif.FNumber != null) parts.push(`ƒ/${String(exif.FNumber).replace(/^f\//, "")}`);
+
       if (exif.ExposureTime) parts.push(`${exif.ExposureTime}s`);
       if (exif.ISO) parts.push(`ISO ${exif.ISO}`);
 
