@@ -8,6 +8,7 @@ import { LitElement, html, css } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import "@maneki/ui-components/components/ui-button.js";
 import "@maneki/ui-components/components/ui-icon.js";
+import "@maneki/ui-components/components/ui-tooltip.js";
 import { api } from "../lib/api.js";
 
 @customElement("deploy-fab")
@@ -93,7 +94,7 @@ export class DeployFab extends LitElement {
       case "failure":
         return "error";
       default:
-        return "upload";
+        return "rocket_launch";
     }
   }
 
@@ -119,7 +120,7 @@ export class DeployFab extends LitElement {
       case "failure":
         return "var(--fd-error, #ef4444)";
       default:
-        return "var(--fd-interactive-primary, #18181b)";
+        return "var(--fd-surface-action, #18181b)";
     }
   }
 
@@ -134,78 +135,57 @@ export class DeployFab extends LitElement {
       gap: 8px;
     }
 
-    .fab {
-      width: 48px;
-      height: 48px;
+    .fab-btn {
+      --ui-btn-radius: 50%;
+      --ui-btn-border-color: transparent;
+      --ui-ring-offset: 0px;
+      --ui-ring-width: 0px;
       border-radius: 50%;
-      border: none;
-      background: var(--fab-bg);
-      color: #fff;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      overflow: hidden;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-      transition:
-        transform 0.2s ease,
-        box-shadow 0.2s ease,
-        background 0.3s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .fab:hover {
+    .fab-btn:hover {
       transform: scale(1.05);
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
     }
 
-    .fab:active {
+    .fab-btn:active {
       transform: scale(0.95);
     }
 
-    .fab[data-loading] {
-      cursor: default;
-    }
-
-    .fab[data-loading] ui-icon {
+    .spinning ui-icon {
       animation: spin 1s linear infinite;
     }
 
     @keyframes spin {
-      from {
-        transform: rotate(0deg);
-      }
-      to {
-        transform: rotate(360deg);
-      }
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     .label {
       background: var(--fd-surface-primary, #fff);
       color: var(--fd-text-primary, #18181b);
-      font-family: Geist, sans-serif;
       font-size: 13px;
       font-weight: 500;
       padding: 6px 12px;
       border-radius: 8px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       white-space: nowrap;
       opacity: 0;
       transform: translateX(8px);
-      transition:
-        opacity 0.2s ease,
-        transform 0.2s ease;
+      transition: opacity 0.2s ease, transform 0.2s ease;
       pointer-events: none;
     }
 
-    :host(:hover) .label,
     .label[data-visible] {
       opacity: 1;
       transform: translateX(0);
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .fab,
-      .fab[data-loading] ui-icon,
-      .label {
+      .fab-btn, .spinning ui-icon, .label {
         transition: none;
         animation: none;
       }
@@ -217,16 +197,19 @@ export class DeployFab extends LitElement {
       <span class="label" ?data-visible=${this._loading || this._status === "success" || this._status === "failure"}
         >${this._label}</span
       >
-      <button
-        class="fab"
-        style="--fab-bg:${this._color}"
-        ?data-loading=${this._loading}
-        aria-label=${this._label}
-        title=${this._label}
-        @click=${() => this._triggerDeploy()}
-      >
-        <ui-icon name=${this._icon} size="m" style="color:#fff;"></ui-icon>
-      </button>
+      <ui-tooltip text=${this._label} position="left">
+        <ui-button
+          class="fab-btn"
+          action="secondary"
+          size="l"
+          icon="icon-only"
+          status=${this._loading ? "loading" : this._status === "success" ? "success" : this._status === "failure" ? "error" : ""}
+          aria-label=${this._label}
+          @click=${() => this._triggerDeploy()}
+        >
+          <ui-icon name=${this._icon} size="m" slot="icon-start"></ui-icon>
+        </ui-button>
+      </ui-tooltip>
     `;
   }
 }

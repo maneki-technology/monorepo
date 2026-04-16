@@ -144,6 +144,8 @@ export const ICON_LINK = "\uE250";
 export const ICON_TITLE = "\uE264";
 /** description — U+E873 */
 export const ICON_DESCRIPTION = "\uE873";
+/** rocket_launch — U+EB9B */
+export const ICON_ROCKET_LAUNCH = "\uEB9B";
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
   warning: ICON_WARNING,
@@ -178,6 +180,7 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   settings: ICON_SETTINGS,
   group: ICON_GROUP,
   remove: ICON_REMOVE,
+  rocket_launch: ICON_ROCKET_LAUNCH,
   check: ICON_CHECK,
   add: ICON_ADD,
   arrow_back_ios: ICON_ARROW_BACK_IOS,
