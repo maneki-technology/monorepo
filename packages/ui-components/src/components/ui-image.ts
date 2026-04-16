@@ -32,6 +32,8 @@ const STYLES = /* css */ `
     width: 100%;
     overflow: hidden;
     background-color: var(--ui-image-bg, ${SURFACE_SECONDARY});
+    background-size: cover;
+    background-position: center;
   }
 
   .container.has-ratio {
@@ -47,6 +49,21 @@ const STYLES = /* css */ `
     width: 100%;
     height: 100%;
     object-fit: var(--ui-image-fit, cover);
+  }
+
+  :host([placeholder]) img {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  :host([placeholder]) img.loaded {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :host([placeholder]) img {
+      transition: none;
+    }
   }
 
   .container.has-ratio img {
@@ -97,7 +114,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiImage extends HTMLElement {
-  static readonly observedAttributes = ["src", "alt", "ratio", "fit"];
+  static readonly observedAttributes = ["src", "alt", "ratio", "fit", "placeholder"];
 
   private _container: HTMLDivElement;
   private _img: HTMLImageElement;
@@ -117,6 +134,8 @@ export class UiImage extends HTMLElement {
     // img
     const img = document.createElement("img");
     img.alt = "";
+    img.addEventListener("load", () => this._onImgLoad());
+    img.addEventListener("error", () => this._onImgError());
     container.appendChild(img);
 
     // fallback slot
@@ -186,6 +205,14 @@ export class UiImage extends HTMLElement {
     this.setAttribute("fit", v);
   }
 
+  get placeholder(): string {
+    return this.getAttribute("placeholder") ?? "";
+  }
+  set placeholder(v: string) {
+    if (v) this.setAttribute("placeholder", v);
+    else this.removeAttribute("placeholder");
+  }
+
   // ── Lifecycle ────────────────────────────────────────────────────────────
 
   attributeChangedCallback(name: string, _old: string | null, _new: string | null): void {
@@ -202,6 +229,9 @@ export class UiImage extends HTMLElement {
       case "fit":
         this._syncFit();
         break;
+      case "placeholder":
+        this._syncPlaceholder();
+        break;
     }
   }
 
@@ -210,11 +240,13 @@ export class UiImage extends HTMLElement {
   private _syncSrc(): void {
     const src = this.src;
     if (src) {
+      this._img.classList.remove("loaded");
       this._img.src = src;
       this._img.style.display = "";
     } else {
       this._img.removeAttribute("src");
       this._img.style.display = "none";
+      this._img.classList.remove("loaded");
     }
   }
 
@@ -233,6 +265,24 @@ export class UiImage extends HTMLElement {
   private _syncFit(): void {
     const fit = this.fit;
     this._container.style.setProperty("--ui-image-fit", fit);
+  }
+
+  private _syncPlaceholder(): void {
+    const ph = this.placeholder;
+    if (ph) {
+      this._container.style.backgroundImage = `url(${ph})`;
+    } else {
+      this._container.style.backgroundImage = "";
+      this._img.classList.add("loaded");
+    }
+  }
+
+  private _onImgLoad(): void {
+    this._img.classList.add("loaded");
+  }
+
+  private _onImgError(): void {
+    this._container.style.backgroundImage = "";
   }
 
   private _syncCaption(caption: HTMLDivElement, slot: HTMLSlotElement): void {
