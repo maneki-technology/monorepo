@@ -16,6 +16,7 @@ import { projects } from "./routes/projects.js";
 import { photos } from "./routes/photos.js";
 import { albums } from "./routes/albums.js";
 import { tags } from "./routes/tags.js";
+import { pages } from "./routes/pages.js";
 
 /** Env bindings available in CF Pages Functions. */
 export type Env = {
@@ -53,7 +54,8 @@ const app = new Hono<Env>()
   .route("/projects", projects)
   .route("/photos", photos)
   .route("/albums", albums)
-  .route("/tags", tags);
+  .route("/tags", tags)
+  .route("/pages", pages);
 
 export type AppType = typeof app;
 export default app;
