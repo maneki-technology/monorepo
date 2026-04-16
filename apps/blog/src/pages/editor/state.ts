@@ -1,4 +1,4 @@
-import type { Post, Project } from "./types.js";
+import type { Post, Project, PostSnapshot, ProjectSnapshot } from "./types.js";
 
 export interface EditorState {
   allPosts: Post[];
@@ -78,6 +78,25 @@ export function setState(partial: Partial<EditorState>): void {
 
 export function hasUnpublishedChanges(item: Post | Project): boolean {
   if (item.status !== "published") return false;
-  if (!item.publishedAt) return false;
-  return item.updatedAt > item.publishedAt;
+  if (!item.publishedSnapshot) return false;
+  try {
+    const snap = JSON.parse(item.publishedSnapshot) as PostSnapshot | ProjectSnapshot;
+    // DB stores tags/tech as JSON arrays; client uses comma-separated strings
+    const norm = (v: string): string => {
+      try { const arr = JSON.parse(v); return Array.isArray(arr) ? arr.join(", ") : v; } catch { return v; }
+    };
+    if (snap.type === "post") {
+      const post = item as Post;
+      return snap.title !== post.title || snap.body_md !== post.content || snap.excerpt !== post.excerpt
+        || norm(snap.tags) !== post.tags || snap.date.split("T")[0] !== post.date;
+    }
+    if (snap.type === "project") {
+      const project = item as Project;
+      return snap.title !== project.title || snap.body_md !== project.content
+        || snap.description !== project.description || norm(snap.tech) !== project.tech;
+    }
+    return false;
+  } catch {
+    return false;
+  }
 }

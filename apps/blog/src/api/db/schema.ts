@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS posts (
   status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'deleted')),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-  published_at TEXT
+  published_at TEXT,
+  published_snapshot TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
@@ -47,7 +48,8 @@ CREATE TABLE IF NOT EXISTS projects (
   status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'deleted')),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
-  published_at TEXT
+  published_at TEXT,
+  published_snapshot TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);

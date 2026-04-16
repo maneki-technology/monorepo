@@ -21,10 +21,7 @@ export async function fetchPosts(): Promise<Post[]> {
       updatedAt: p.updated_at as string,
       publishedAt: (p.published_at as string) ?? null,
       persisted: true,
-      publishedContent:
-        p.status === "published"
-          ? `${p.title}\n${p.body_md}\n${p.excerpt}\n${(p.tags as string[]).join(", ")}\n${(p.created_at as string).split("T")[0]}`
-          : null,
+      publishedSnapshot: p.published_snapshot ? JSON.stringify({ type: "post", ...JSON.parse(p.published_snapshot as string) }) : null,
     }));
   } catch {
     return [];
@@ -48,9 +45,7 @@ export async function savePost(post: Post): Promise<{ slug: string; saved: Post 
       updatedAt: (p.updated_at as string) || new Date().toISOString(),
       publishedAt: (p.published_at as string) || null,
       persisted: true,
-      publishedContent: p.status === "published"
-        ? `${p.title}\n${p.body_md}\n${p.excerpt}\n${Array.isArray(p.tags) ? (p.tags as string[]).join(", ") : ""}\n${((p.created_at as string) || "").split("T")[0]}`
-        : null,
+      publishedSnapshot: p.published_snapshot ? JSON.stringify({ type: "post", ...JSON.parse(p.published_snapshot as string) }) : null,
     });
 
     if (post.persisted) {
@@ -110,10 +105,7 @@ export async function fetchProjects(): Promise<Project[]> {
       updatedAt: p.updated_at as string,
       publishedAt: (p.published_at as string) ?? null,
       persisted: true,
-      publishedContent:
-        p.status === "published"
-          ? `${p.title}\n${p.body_md}\n${p.description}\n${(p.tech as string[]).join(", ")}`
-          : null,
+      publishedSnapshot: p.published_snapshot ? JSON.stringify({ type: "project", ...JSON.parse(p.published_snapshot as string) }) : null,
     }));
   } catch {
     return [];
@@ -140,9 +132,7 @@ export async function saveProject(project: Project): Promise<{ slug: string; sav
       updatedAt: (p.updated_at as string) || new Date().toISOString(),
       publishedAt: (p.published_at as string) || null,
       persisted: true,
-      publishedContent: p.status === "published"
-        ? `${p.title}\n${p.body_md}\n${p.description}\n${Array.isArray(p.tech) ? (p.tech as string[]).join(", ") : ""}`
-        : null,
+      publishedSnapshot: p.published_snapshot ? JSON.stringify({ type: "project", ...JSON.parse(p.published_snapshot as string) }) : null,
     });
 
     if (project.persisted) {
@@ -237,7 +227,7 @@ export function setEditorPage(page: EditorPage): void {
 
 export function getCurrentPostData(): Omit<
   Post,
-  "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"
+  "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedSnapshot"
 > {
   return _editorPage!.getPostData();
 }
@@ -254,7 +244,7 @@ export async function saveCurrent(_forceApi = false): Promise<"success" | "error
       updatedAt: new Date().toISOString(),
       publishedAt: currentPost?.publishedAt ?? null,
       persisted: currentPost?.persisted ?? false,
-      publishedContent: currentPost?.publishedContent ?? null,
+      publishedSnapshot: currentPost?.publishedSnapshot ?? null,
     };
 
     const result = await savePost(post);
@@ -333,7 +323,7 @@ export function exportAsMarkdown(): void {
 
 export function getCurrentProjectData(): Omit<
   Project,
-  "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedContent"
+  "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedSnapshot"
 > {
   return _editorPage!.getProjectData();
 }
@@ -350,7 +340,7 @@ export async function saveCurrentProject(_forceApi = false): Promise<"success" |
       updatedAt: new Date().toISOString(),
       publishedAt: currentProject?.publishedAt ?? null,
       persisted: currentProject?.persisted ?? false,
-      publishedContent: currentProject?.publishedContent ?? null,
+      publishedSnapshot: currentProject?.publishedSnapshot ?? null,
     };
 
     const result = await saveProject(project);
