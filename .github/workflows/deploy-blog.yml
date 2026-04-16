@@ -7,6 +7,7 @@ on:
       - 'apps/blog/**'
       - 'packages/ui-components/**'
       - 'packages/foundation/**'
+      - 'packages/grid-layout/**'
       - '.github/workflows/deploy-blog.yml'
   pull_request:
     branches: [main]
@@ -14,6 +15,7 @@ on:
       - 'apps/blog/**'
       - 'packages/ui-components/**'
       - 'packages/foundation/**'
+      - 'packages/grid-layout/**'
       - '.github/workflows/deploy-blog.yml'
   repository_dispatch:
     types: [deploy-blog]
@@ -41,6 +43,10 @@ jobs:
       - name: Build ui-components
         run: npm run build
         working-directory: packages/ui-components
+
+      - name: Build grid-layout
+        run: npm run build
+        working-directory: packages/grid-layout
 
       - name: Build blog
         run: npm run build

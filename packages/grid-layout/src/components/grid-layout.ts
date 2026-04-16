@@ -431,9 +431,14 @@ export class GridLayoutElement extends HTMLElement {
     const target = e.target;
     if (!(target instanceof HTMLElement)) return;
 
-    // Find the grid-item
-    const gridItem = target.closest?.("grid-item") as GridItemElement | null
-      ?? (target.getRootNode() as ShadowRoot).host as GridItemElement | null;
+    // Find the grid-item — walk composedPath to cross shadow DOM boundaries
+    let gridItem: GridItemElement | null = null;
+    for (const el of e.composedPath()) {
+      if (el instanceof GridItemElement) {
+        gridItem = el;
+        break;
+      }
+    }
 
     if (!gridItem || !(gridItem instanceof GridItemElement)) return;
     if (!gridItem.itemId) return;
@@ -515,9 +520,9 @@ export class GridLayoutElement extends HTMLElement {
       oldItem: { ...item },
     };
     this._dragThresholdMet = false;
-    document.addEventListener("pointermove", this._onPointerMove);
-    document.addEventListener("pointerup", this._onPointerUp);
-    (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
+    this.addEventListener("pointermove", this._onPointerMove);
+    this.addEventListener("pointerup", this._onPointerUp);
+    this.setPointerCapture(e.pointerId);
   }
 
   private onDrag(e: PointerEvent): void {
@@ -586,8 +591,9 @@ export class GridLayoutElement extends HTMLElement {
     this._dragState = null;
     this._dragThresholdMet = false;
     this.clearSessionCaches();
-    document.removeEventListener("pointermove", this._onPointerMove);
-    document.removeEventListener("pointerup", this._onPointerUp);
+    this.removeEventListener("pointermove", this._onPointerMove);
+    this.removeEventListener("pointerup", this._onPointerUp);
+    this.releasePointerCapture(e.pointerId);
   }
 
   // --- Resize ---
@@ -613,8 +619,8 @@ export class GridLayoutElement extends HTMLElement {
     gridItem.toggleAttribute("resizing", true);
     this.toggleAttribute("interacting", true);
     this.emitResizeEvent("resize-start", this._resizeState.oldItem, this._resizeState.oldItem, e, gridItem);
-    document.addEventListener("pointermove", this._onPointerMove);
-    document.addEventListener("pointerup", this._onPointerUp);
+    this.addEventListener("pointermove", this._onPointerMove);
+    this.addEventListener("pointerup", this._onPointerUp);
     e.preventDefault();
     e.stopPropagation();
   }
@@ -684,8 +690,8 @@ export class GridLayoutElement extends HTMLElement {
     this.updatePositions();
     this._resizeState = null;
     this.clearSessionCaches();
-    document.removeEventListener("pointermove", this._onPointerMove);
-    document.removeEventListener("pointerup", this._onPointerUp);
+    this.removeEventListener("pointermove", this._onPointerMove);
+    this.removeEventListener("pointerup", this._onPointerUp);
   }
 
   private clearSessionCaches(): void {

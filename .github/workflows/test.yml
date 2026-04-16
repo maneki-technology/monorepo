@@ -7,6 +7,7 @@ on:
       - 'packages/foundation/**'
       - 'packages/ui-components/**'
       - 'packages/charts/**'
+      - 'packages/grid-layout/**'
       - 'apps/blog/**'
       - 'apps/catalog/**'
       - '.github/workflows/test.yml'
@@ -18,6 +19,7 @@ on:
       - 'packages/foundation/**'
       - 'packages/ui-components/**'
       - 'packages/charts/**'
+      - 'packages/grid-layout/**'
       - 'apps/blog/**'
       - 'apps/catalog/**'
       - '.github/workflows/test.yml'
@@ -52,6 +54,10 @@ jobs:
       - name: Test ui-components
         run: npx vitest --run
         working-directory: packages/ui-components
+
+      - name: Build grid-layout
+        run: npm run build
+        working-directory: packages/grid-layout
 
       - name: Type check blog
         run: npx tsc --noEmit
