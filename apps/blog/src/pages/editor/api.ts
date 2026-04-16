@@ -241,10 +241,9 @@ export function getCurrentPostData(): Omit<
   return _editorPage!.getPostData();
 }
 
-export async function saveCurrent(_forceApi = false, statusEl?: HTMLElement | null): Promise<boolean> {
-  if (state.saving) return false;
+export async function saveCurrent(_forceApi = false): Promise<"success" | "error"> {
+  if (state.saving) return "error";
   setState({ saving: true });
-  if (statusEl) statusEl.setAttribute("status", "loading");
   try {
     const currentPost = state.allPosts.find((p) => p.slug === state.currentSlug);
     const data = getCurrentPostData();
@@ -271,17 +270,9 @@ export async function saveCurrent(_forceApi = false, statusEl?: HTMLElement | nu
       setState({ allPosts: newAllPosts, openTabs: newOpenTabs, currentSlug: slug });
       _editorPage?.loadPost(saved);
       saveUIState();
-      if (statusEl) {
-        statusEl.setAttribute("status", "success");
-        setTimeout(() => statusEl.setAttribute("status", "none"), 1500);
-      }
-      return true;
+      return "success";
     }
-    if (statusEl) {
-      statusEl.setAttribute("status", "error");
-      setTimeout(() => statusEl.setAttribute("status", "none"), 2000);
-    }
-    return false;
+    return "error";
   } finally {
     setState({ saving: false });
   }
@@ -341,10 +332,9 @@ export function getCurrentProjectData(): Omit<
   return _editorPage!.getProjectData();
 }
 
-export async function saveCurrentProject(_forceApi = false, statusEl?: HTMLElement | null): Promise<boolean> {
-  if (state.saving) return false;
+export async function saveCurrentProject(_forceApi = false): Promise<"success" | "error"> {
+  if (state.saving) return "error";
   setState({ saving: true });
-  if (statusEl) statusEl.setAttribute("status", "loading");
   try {
     const currentProject = state.allProjects.find((p) => p.slug === state.currentSlug);
     const data = getCurrentProjectData();
@@ -371,17 +361,9 @@ export async function saveCurrentProject(_forceApi = false, statusEl?: HTMLEleme
       setState({ allProjects: newAllProjects, openProjectTabs: newOpenProjectTabs, currentSlug: slug });
       _editorPage?.loadProject(saved);
       saveUIState();
-      if (statusEl) {
-        statusEl.setAttribute("status", "success");
-        setTimeout(() => statusEl.setAttribute("status", "none"), 1500);
-      }
-      return true;
+      return "success";
     }
-    if (statusEl) {
-      statusEl.setAttribute("status", "error");
-      setTimeout(() => statusEl.setAttribute("status", "none"), 2000);
-    }
-    return false;
+    return "error";
   } finally {
     setState({ saving: false });
   }

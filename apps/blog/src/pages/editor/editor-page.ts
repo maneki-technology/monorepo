@@ -49,8 +49,7 @@ export class EditorPage extends LitElement {
 
   // ─── Element refs ──────────────────────────────────────────────────────────
   private _textareaRef: Ref<HTMLTextAreaElement> = createRef();
-  private _saveBtnRef: Ref<HTMLElement> = createRef();
-  private _publishSplitRef: Ref<HTMLElement> = createRef();
+
   private _galleryRef: Ref<HTMLElement & { show(cb?: (url: string, name: string) => void): void; hide(): void; toggle(): void }> = createRef();
   private _deleteModalRef: Ref<HTMLElement & { show(): void }> = createRef();
   private _previewRef: Ref<HTMLElement> = createRef();
@@ -75,6 +74,10 @@ export class EditorPage extends LitElement {
   @litState() projectRepo = "";
   @litState() projectImage = "";
   @litState() projectPinned = false;
+
+  // ─── Button status (reactive) ──────────────────────────────────────────
+  @litState() private _saveStatus = "none";
+  @litState() private _publishStatus = "none";
 
   static styles = css`
     .admin-layout { display: flex; height: 100vh; overflow: hidden; }
@@ -286,8 +289,8 @@ export class EditorPage extends LitElement {
               <span style="flex:1"></span>
               <ui-button id="admin-preview-btn" action="secondary" emphasis="subtle" size="s" @click=${this._openFullscreenPreview}>Preview</ui-button>
               <ui-button id="admin-portfolio-btn" action="secondary" emphasis="subtle" size="s" style="display:${s.activeTabType === "project" ? "" : "none"}" @click=${openPortfolioLayout}>Portfolio</ui-button>
-              <ui-button id="admin-save-btn" ${ref(this._saveBtnRef)} action="primary" size="s" ?disabled=${s.deployingSlugs.size > 0} @click=${() => this._onSave()}>Save</ui-button>
-              <ui-dropdown-split id="admin-publish-split" ${ref(this._publishSplitRef)} action="primary" size="s" label="Publish" ?disabled=${s.deployingSlugs.size > 0} @action=${this._onPublishAction}>
+              <ui-button id="admin-save-btn" action="primary" size="s" status=${this._saveStatus} ?disabled=${s.deployingSlugs.size > 0} @click=${() => this._onSave()}>Save</ui-button>
+              <ui-dropdown-split id="admin-publish-split" action="primary" size="s" label="Publish" status=${this._publishStatus} ?disabled=${s.deployingSlugs.size > 0} @action=${this._onPublishAction}>
                 <ui-dropdown-item id="admin-unpublish-btn" value="unpublish" @select=${this._onUnpublish}>Unpublish</ui-dropdown-item>
                 <ui-dropdown-item id="admin-export-btn" value="export" @select=${this._onExport}>Export .md</ui-dropdown-item>
               </ui-dropdown-split>
@@ -329,8 +332,6 @@ export class EditorPage extends LitElement {
     setProjectPreviewRoot(root);
 
     const textarea = this._textareaRef.value!;
-    const publishSplit = this._publishSplitRef.value ?? null;
-
 
     // Plugins
     setupContextMenu(textarea);
@@ -608,12 +609,7 @@ export class EditorPage extends LitElement {
   private _onDocumentKeydown = (e: KeyboardEvent): void => {
     if ((e.metaKey || e.ctrlKey) && e.key === "s") {
       e.preventDefault();
-      const saveBtn = this._saveBtnRef.value ?? null;
-      if (state.activeTabType === "project") {
-        saveCurrentProject(true, saveBtn);
-      } else {
-        saveCurrent(true, saveBtn);
-      }
+      this._onSave();
     }
   };
 
@@ -684,13 +680,17 @@ export class EditorPage extends LitElement {
 
   // ─── Publish/unpublish/export (replaces setupPublish) ─────────────────────
   private async _onPublishAction(): Promise<void> {
-    const el = this._publishSplitRef.value ?? null;
-    await publishCurrent(el);
+    this._publishStatus = "loading";
+    const result = await publishCurrent();
+    this._publishStatus = result;
+    setTimeout(() => { this._publishStatus = "none"; }, result === "success" ? 1500 : 2000);
   }
 
   private async _onUnpublish(): Promise<void> {
-    const el = this._publishSplitRef.value ?? null;
-    await unpublishCurrent(el);
+    this._publishStatus = "loading";
+    const result = await unpublishCurrent();
+    this._publishStatus = result;
+    setTimeout(() => { this._publishStatus = "none"; }, result === "success" ? 1500 : 2000);
   }
   private _onExport(): void {
     exportAsMarkdown();
@@ -769,11 +769,10 @@ export class EditorPage extends LitElement {
     setState({});
     if (this._autoSaveTimer) clearTimeout(this._autoSaveTimer);
     this._autoSaveTimer = setTimeout(() => {
-      const saveBtn = this._saveBtnRef.value ?? null;
       if (state.activeTabType === "project") {
-        if (state.currentSlug) saveCurrentProject(false, saveBtn);
+        if (state.currentSlug) this._doSave(false);
       } else {
-        if (state.currentSlug || this.postContent.trim()) saveCurrent(false, saveBtn);
+        if (state.currentSlug || this.postContent.trim()) this._doSave(false);
       }
     }, 2000);
   }
@@ -902,12 +901,16 @@ export class EditorPage extends LitElement {
         }, 100);
       });
     }
-    const saveBtn = this._saveBtnRef.value ?? null;
-    if (state.activeTabType === "project") {
-      saveCurrentProject(true, saveBtn);
-    } else {
-      saveCurrent(true, saveBtn);
-    }
+    this._doSave(true);
+  }
+
+  private async _doSave(forceApi: boolean): Promise<void> {
+    this._saveStatus = "loading";
+    const result = state.activeTabType === "project"
+      ? await saveCurrentProject(forceApi)
+      : await saveCurrent(forceApi);
+    this._saveStatus = result;
+    setTimeout(() => { this._saveStatus = "none"; }, result === "success" ? 1500 : 2000);
   }
 
   // ─── Project image helpers ───────────────────────────────────────────────────
