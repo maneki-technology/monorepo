@@ -54,21 +54,22 @@ export async function savePost(post: Post): Promise<{ slug: string; saved: Post 
     });
 
     if (post.persisted) {
-      // Draft with changed title → delete old slug, create with new slug
-      if (post.status === "draft" && newSlug !== slug) {
-        await api.api.posts[":slug"].$delete({ param: { slug } });
-        const res = await api.api.posts.$post({
-          json: { title: post.title || "Untitled", slug: newSlug, body_md: post.content, excerpt: post.excerpt, tags, status: post.status as "draft" | "published", date: post.date },
-        });
-        const data = await res.json() as { post: Record<string, unknown> };
-        return { slug: newSlug, saved: mapPost(data.post) };
-      }
+      // Use PUT with new_slug for atomic rename (no DELETE + CREATE)
       const res = await api.api.posts[":slug"].$put({
         param: { slug },
-        json: { title: post.title || "Untitled", body_md: post.content, excerpt: post.excerpt, tags, status: post.status as "draft" | "published", date: post.date },
+        json: {
+          title: post.title || "Untitled",
+          body_md: post.content,
+          excerpt: post.excerpt,
+          tags,
+          status: post.status as "draft" | "published",
+          date: post.date,
+          ...(newSlug !== slug ? { new_slug: newSlug } : {}),
+        },
       });
-      const data = await res.json() as { post: Record<string, unknown> };
-      return { slug, saved: mapPost(data.post) };
+      const data = await res.json() as { post: Record<string, unknown>; slug?: string };
+      const savedSlug = (data.slug as string) || slug;
+      return { slug: savedSlug, saved: mapPost(data.post) };
     }
 
     const res = await api.api.posts.$post({
