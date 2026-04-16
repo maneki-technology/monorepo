@@ -82,6 +82,23 @@ for (const table of ["photos", "albums"]) {
   } catch { console.log(`${table}.longitude already exists.`); }
 }
 
+// Create pages table if missing
+await db.executeMultiple(`
+  CREATE TABLE IF NOT EXISTS pages (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    slug TEXT UNIQUE NOT NULL,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL DEFAULT '',
+    description TEXT NOT NULL DEFAULT '',
+    status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'deleted')),
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_pages_status ON pages(status);
+  CREATE INDEX IF NOT EXISTS idx_pages_slug ON pages(slug);
+`);
+console.log("Pages table ready.");
+
 // Add published_snapshot column to posts and projects if missing
 for (const table of ["posts", "projects"]) {
   try {
