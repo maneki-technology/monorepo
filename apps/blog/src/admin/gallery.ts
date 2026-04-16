@@ -1395,7 +1395,7 @@ export class AdminGallery extends LitElement {
                     ${exif.Make ? html`<div class="exif-row"><span class="exif-key">Camera</span><span class="exif-val">${exif.Make}${exif.Model ? ` ${exif.Model}` : ""}</span></div>` : nothing}
                     ${exif.LensModel ? html`<div class="exif-row"><span class="exif-key">Lens</span><span class="exif-val">${exif.LensModel}</span></div>` : nothing}
                     ${exif.FocalLength ? html`<div class="exif-row"><span class="exif-key">Focal Length</span><span class="exif-val">${exif.FocalLength}mm</span></div>` : nothing}
-                    ${exif.FNumber ? html`<div class="exif-row"><span class="exif-key">Aperture</span><span class="exif-val">${String(exif.FNumber).startsWith("f/") ? exif.FNumber : `f/${exif.FNumber}`}</span></div>` : nothing}
+                    ${exif.FNumber ? html`<div class="exif-row"><span class="exif-key">Aperture</span><span class="exif-val">ƒ/${String(exif.FNumber).replace(/^f\//, "")}</span></div>` : nothing}
                     ${exif.ExposureTime ? html`<div class="exif-row"><span class="exif-key">Shutter</span><span class="exif-val">${exif.ExposureTime}s</span></div>` : nothing}
                     ${exif.ISO ? html`<div class="exif-row"><span class="exif-key">ISO</span><span class="exif-val">${exif.ISO}</span></div>` : nothing}
                     ${exif.DateTimeOriginal ? html`<div class="exif-row"><span class="exif-key">Date Taken</span><span class="exif-val">${exif.DateTimeOriginal}</span></div>` : nothing}
