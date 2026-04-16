@@ -12,7 +12,9 @@ function renderAboutPage(): string {
       </div>`;
   }
 
+  const styleTag = page.styles ? `<style>${page.styles}</style>` : "";
   return `
+    ${styleTag}
     <h1 class="heading-02 mb-4">${page.title || "About"}</h1>
     <div class="post-content reveal">
       ${page.content}

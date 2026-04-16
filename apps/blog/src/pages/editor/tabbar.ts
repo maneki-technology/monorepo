@@ -40,7 +40,6 @@ export class EditorTabbar extends LitElement {
         )}
       </ui-tab-group>
       <div class="admin-tab-bar-actions">
-        <theme-toggle></theme-toggle>
       </div>
       </div>
     `;

@@ -13,17 +13,20 @@ const createPageSchema = z.object({
     .string()
     .min(1)
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase kebab-case"),
-  title: z.string().min(1),
+  title: z.string().default(""),
   content: z.string().default(""),
   description: z.string().default(""),
+  styles: z.string().default(""),
   status: z.enum(["draft", "published"]).default("draft"),
 });
 
 const updatePageSchema = z.object({
-  title: z.string().min(1).optional(),
+  title: z.string().optional(),
   content: z.string().optional(),
   description: z.string().optional(),
+  styles: z.string().optional(),
   status: z.enum(["draft", "published"]).optional(),
+  new_slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).optional(),
 });
 
 export const pages = new Hono<Env>()
@@ -60,9 +63,9 @@ export const pages = new Hono<Env>()
     const db = c.get("db");
 
     await db.execute({
-      sql: `INSERT INTO pages (slug, title, content, description, status, updated_at)
-            VALUES (?, ?, ?, ?, ?, datetime('now'))`,
-      args: [data.slug, data.title, data.content, data.description, data.status],
+      sql: `INSERT INTO pages (slug, title, content, description, styles, status, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+      args: [data.slug, data.title, data.content, data.description, data.styles, data.status],
     });
     const result = await db.execute({
       sql: "SELECT * FROM pages WHERE slug = ?",
@@ -92,9 +95,18 @@ export const pages = new Hono<Env>()
       setClauses.push("description = ?");
       args.push(updates.description);
     }
+    if (updates.styles !== undefined) {
+      setClauses.push("styles = ?");
+      args.push(updates.styles);
+    }
     if (updates.status !== undefined) {
       setClauses.push("status = ?");
       args.push(updates.status);
+    }
+    const newSlug = updates.new_slug ?? slug;
+    if (updates.new_slug && updates.new_slug !== slug) {
+      setClauses.push("slug = ?");
+      args.push(updates.new_slug);
     }
 
     if (setClauses.length === 0) {
@@ -110,7 +122,7 @@ export const pages = new Hono<Env>()
     });
     const result = await db.execute({
       sql: "SELECT * FROM pages WHERE slug = ?",
-      args: [slug],
+      args: [newSlug],
     });
     return c.json({ ok: true, page: result.rows[0] });
   })

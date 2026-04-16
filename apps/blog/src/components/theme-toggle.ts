@@ -15,12 +15,14 @@ class ThemeToggle extends HTMLElement {
   connectedCallback() {
     this._dark = document.documentElement.getAttribute("data-theme") === "heroui-dark";
 
+    if (this.hasAttribute("fab")) this._applyFabStyles();
+
     const btn = document.createElement("ui-button");
     btn.setAttribute("action", "secondary");
     btn.setAttribute("emphasis", "minimal");
-    btn.setAttribute("size", "s");
+    btn.setAttribute("size", "m");
     btn.setAttribute("aria-label", "Toggle dark mode");
-    btn.textContent = this._dark ? "🌙" : "☀️";
+    btn.textContent = this._dark ? "\u{1F319}" : "\u{2600}\u{FE0F}";
     btn.addEventListener("click", () => this._toggle());
     this._btn = btn;
     this.appendChild(btn);
@@ -36,6 +38,17 @@ class ThemeToggle extends HTMLElement {
     this._observer?.disconnect();
   }
 
+  private _applyFabStyles() {
+    this.style.position = "fixed";
+    this.style.top = "8px";
+    this.style.right = "8px";
+    this.style.zIndex = "1000";
+    this.style.opacity = "0.3";
+    this.style.transition = "opacity 0.2s ease";
+    this.addEventListener("mouseenter", () => { this.style.opacity = "1"; });
+    this.addEventListener("mouseleave", () => { this.style.opacity = "0.3"; });
+  }
+
   private _toggle() {
     this._dark = !this._dark;
     document.documentElement.setAttribute("data-theme", this._dark ? "heroui-dark" : "heroui");
@@ -45,7 +58,7 @@ class ThemeToggle extends HTMLElement {
   }
 
   private _render() {
-    if (this._btn) this._btn.textContent = this._dark ? "🌙" : "☀️";
+    if (this._btn) this._btn.textContent = this._dark ? "\u{1F319}" : "\u{2600}\u{FE0F}";
   }
 }
 

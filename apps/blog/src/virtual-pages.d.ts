@@ -4,6 +4,7 @@ declare module "virtual:pages" {
     title: string;
     content: string;
     description: string;
+    styles: string;
     updatedAt: string;
   }
   export const pages: VirtualPage[];

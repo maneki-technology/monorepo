@@ -12,7 +12,9 @@ function renderResumePage(): string {
       </div>`;
   }
 
+  const styleTag = page.styles ? `<style>${page.styles}</style>` : "";
   return `
+    ${styleTag}
     <h1 class="heading-02 mb-2">${page.title || "Resume"}</h1>
     <div class="post-content mt-4">
       ${page.content}
