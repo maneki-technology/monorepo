@@ -13,6 +13,7 @@ export interface EditorState {
   deployingAction: "publishing" | "unpublishing" | null;
   pendingDeleteSlug: string | null;
   selectedSlugs: Set<string>;
+  dirtySlugs: Set<string>;
 }
 
 export const state: EditorState = {
@@ -28,13 +29,14 @@ export const state: EditorState = {
   deployingAction: null,
   pendingDeleteSlug: null,
   selectedSlugs: new Set(),
+  dirtySlugs: new Set(),
 };
 
 let renderScheduled = false;
 const pendingRenders = { sidebar: false, tabbar: false, form: false };
 
 const SIDEBAR_DEPS: (keyof EditorState)[] = ["allPosts", "allProjects", "currentSlug", "deployingSlugs", "pendingDeleteSlug", "selectedSlugs"];
-const TABBAR_DEPS: (keyof EditorState)[] = ["openTabs", "openProjectTabs", "currentSlug", "activeTabType"];
+const TABBAR_DEPS: (keyof EditorState)[] = ["openTabs", "openProjectTabs", "currentSlug", "activeTabType", "dirtySlugs"];
 const FORM_DEPS: (keyof EditorState)[] = ["loaded", "activeTabType"];
 
 type RenderCallback = () => void;
@@ -76,13 +78,6 @@ export function setState(partial: Partial<EditorState>): void {
 
 export function hasUnpublishedChanges(item: Post | Project): boolean {
   if (item.status !== "published") return false;
-  if (item.publishedContent === null) return false;
-  if ("date" in item) {
-    // Post (post)
-    const current = `${item.title}\n${item.content}\n${item.excerpt}\n${item.tags}\n${item.date}`;
-    return current !== item.publishedContent;
-  }
-  // Project
-  const current = `${item.title}\n${item.content}\n${item.description}\n${item.tech}`;
-  return current !== item.publishedContent;
+  if (!item.publishedAt) return false;
+  return item.updatedAt > item.publishedAt;
 }

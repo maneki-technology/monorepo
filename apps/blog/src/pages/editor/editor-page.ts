@@ -768,7 +768,14 @@ export class EditorPage extends LitElement {
   private _autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   private _scheduleAutoSave(): void {
-    setState({});
+    // Mark current tab as dirty
+    if (state.currentSlug) {
+      const dirty = new Set(state.dirtySlugs);
+      dirty.add(state.currentSlug);
+      setState({ dirtySlugs: dirty });
+    } else {
+      setState({});
+    }
     if (this._autoSaveTimer) clearTimeout(this._autoSaveTimer);
     this._autoSaveTimer = setTimeout(() => {
       if (state.activeTabType === "project") {
