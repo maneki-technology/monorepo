@@ -48,18 +48,6 @@ export function sitemapPlugin(): Plugin {
         console.error("[sitemap] Failed to fetch posts/projects from Turso:", err);
       }
 
-      // Albums query is separate — table may not exist yet
-      try {
-        const albumsResult = await db.execute(
-          "SELECT slug FROM albums WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
-        );
-        for (const row of albumsResult.rows) {
-          urls.push({ loc: `${SITE_URL}/photography/${row.slug as string}`, priority: "0.6" });
-        }
-      } catch {
-        // albums table may not exist yet — silently skip
-      }
-
       const today = new Date().toISOString().split("T")[0];
       const xml = [
         '<?xml version="1.0" encoding="UTF-8"?>',
