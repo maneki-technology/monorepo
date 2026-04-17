@@ -241,7 +241,11 @@ export async function renderRoute(): Promise<void> {
         forwardClone.style.fontSize = getComputedStyle(heroEl).fontSize;
         heroEl.style.visibility = "hidden";
         // Start FLIP immediately — clone flies while page blurs out underneath
-        flipSignature(forwardClone, forwardSourceRect, siteName, "forward");
+        flipSignature(forwardClone, forwardSourceRect, siteName, "forward", () => {
+          if (routeId === "photography") {
+            setTimeout(() => document.body.classList.add("wide-layout"), 50);
+          }
+        });
       }
     }
 
@@ -253,10 +257,13 @@ export async function renderRoute(): Promise<void> {
 
     // Toggle wide layout — delay when FLIP is active to avoid moving the target
     const hasFlip = isLeavingHome || isGoingHome;
-    if (hasFlip) {
-      setTimeout(() => document.body.classList.toggle("wide-layout", routeId === "photography"), 450);
-    } else {
+    if (!hasFlip) {
       document.body.classList.toggle("wide-layout", routeId === "photography");
+    } else if (!isLeavingHome) {
+      // Going home — remove wide-layout after FLIP finishes
+      setTimeout(() => {
+        document.body.classList.remove("wide-layout");
+      }, 400);
     }
     // Re-trigger enter animation
     content.style.animation = "none";

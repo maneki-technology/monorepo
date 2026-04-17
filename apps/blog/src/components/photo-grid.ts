@@ -9,26 +9,24 @@ styles.replaceSync(/*css*/ `
   }
 
   .grid {
-    columns: 3;
-    column-gap: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .grid-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
   }
 
   .grid-item {
-    break-inside: avoid;
-    margin-bottom: 16px;
     border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
     position: relative;
-    background-size: cover;
-    background-position: center;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-    break-inside: avoid;
-    margin-bottom: 16px;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
     background-size: cover;
     background-position: center;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -73,18 +71,13 @@ styles.replaceSync(/*css*/ `
   .grid-item-info span { white-space: nowrap; }
 
   .grid-item-title { font-size: 13px; font-weight: 600; width: 100%; white-space: normal; }
-
-  @media (max-width: 1024px) {
-    .grid { columns: 2; }
-  }
-
-  @media (max-width: 600px) {
-    .grid { columns: 1; }
-  }
 `);
 
 class PhotoGrid extends HTMLElement {
   private _container!: HTMLDivElement;
+  private _photos: Photo[] = [];
+  private _resizeObserver: ResizeObserver | null = null;
+  private _lastColCount = 0;
 
   constructor() {
     super();
@@ -109,8 +102,50 @@ class PhotoGrid extends HTMLElement {
     });
   }
 
+  connectedCallback(): void {
+    this._resizeObserver = new ResizeObserver(() => {
+      const cols = this._getColumnCount();
+      if (cols !== this._lastColCount) this._layout();
+    });
+    this._resizeObserver.observe(this);
+  }
+
+  disconnectedCallback(): void {
+    this._resizeObserver?.disconnect();
+    this._resizeObserver = null;
+  }
+
+  private _getColumnCount(): number {
+    const w = this.clientWidth;
+    if (w >= 2200) return 6;
+    if (w >= 1400) return 5;
+    if (w >= 1024) return 4;
+    if (w >= 640) return 3;
+    return 2;
+  }
+
   setPhotos(photos: Photo[]): void {
+    this._photos = photos;
+    this._layout();
+  }
+
+  private _layout(): void {
+    const photos = this._photos;
     this._container.innerHTML = "";
+    if (photos.length === 0) return;
+
+    const colCount = this._getColumnCount();
+    this._lastColCount = colCount;
+    const columns: HTMLDivElement[] = [];
+    const heights: number[] = [];
+
+    for (let c = 0; c < colCount; c++) {
+      const col = document.createElement("div");
+      col.className = "grid-column";
+      columns.push(col);
+      heights.push(0);
+      this._container.appendChild(col);
+    }
 
     for (let i = 0; i < photos.length; i++) {
       const photo = photos[i];
@@ -141,7 +176,6 @@ class PhotoGrid extends HTMLElement {
       if (exif.Make || exif.Model) parts.push(String(exif.Make && exif.Model ? `${exif.Make} ${exif.Model}` : exif.Make || exif.Model));
       if (exif.FocalLength) parts.push(`${String(exif.FocalLength).replace(/\s*mm$/i, '')} mm`);
       if (exif.FNumber != null) parts.push(`ƒ/${String(exif.FNumber).replace(/^f\//, "")}`);
-
       if (exif.ExposureTime) parts.push(`${exif.ExposureTime}s`);
       if (exif.ISO) parts.push(`ISO ${exif.ISO}`);
 
@@ -154,7 +188,13 @@ class PhotoGrid extends HTMLElement {
         item.appendChild(info);
       }
 
-      this._container.appendChild(item);
+      // Place in shortest column
+      let shortest = 0;
+      for (let c = 1; c < colCount; c++) {
+        if (heights[c] < heights[shortest]) shortest = c;
+      }
+      columns[shortest].appendChild(item);
+      heights[shortest] += photo.height && photo.width ? photo.height / photo.width : 1;
     }
   }
 }
