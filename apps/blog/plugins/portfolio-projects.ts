@@ -9,23 +9,15 @@
  */
 
 import { type Plugin } from "vite";
-import { createClient } from "@libsql/client";
+import { getDb } from "./db.js";
 
 const VIRTUAL_MODULE_ID = "virtual:projects";
 const RESOLVED_ID = "\0" + VIRTUAL_MODULE_ID;
 
 export function portfolioProjectsPlugin(): Plugin {
   async function loadProjects(): Promise<string> {
-    const url = process.env.TURSO_URL;
-    const authToken = process.env.TURSO_AUTH_TOKEN;
-
-    if (!url) {
-      console.warn("[portfolio-projects] TURSO_URL not set — returning empty projects");
-      return "export const projects = [];\nexport const pinnedProjects = [];";
-    }
-
+    const db = getDb();
     try {
-      const db = createClient({ url, authToken: authToken || undefined });
       const result = await db.execute(
         "SELECT slug, title, description, body_md, tech, url, repo, image, pinned, sort_order FROM projects WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
       );
