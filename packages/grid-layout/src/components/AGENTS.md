@@ -64,7 +64,8 @@ All hooks forwarded from `responsive-grid-layout` → inner `grid-layout`.
 - `responsive-grid-layout` creates `grid-layout` in its shadow DOM and slots children through
 - All events use `bubbles: true, composed: true` to cross shadow boundaries
 - `grid-layout` uses `ResizeObserver` for container width; `responsive-grid-layout` uses its own for breakpoint detection
-- Drag uses pointer events with `setPointerCapture` + threshold before committing
+- Drag uses pointer events with `setPointerCapture` on the grid-layout element itself (not `e.target`) + threshold before committing. `pointermove`/`pointerup` listeners on `this` instead of `document`.
+- `composedPath()` used in `handlePointerDown` to find `grid-item` across shadow DOM boundaries — `closest("grid-item")` can't cross shadow roots
 - Layout setter always clones → correctBounds → compact → updatePositions
 
 ## ACCESSIBILITY

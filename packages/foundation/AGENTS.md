@@ -7,7 +7,7 @@ Design tokens extracted from the "Foundation UI Kit (Community)" Figma file. Gen
 ```
 foundation/
 ├── assets/
-│   ├── material-symbols-outlined-subset.woff2  # Subsetted icon font (~24 KB)
+│   ├── material-symbols-outlined-subset.woff2  # Subsetted icon font (~45 KB)
 │   ├── icon-manifest.txt                       # Icon names included in subset
 │   └── subset-icons.py                         # Script to regenerate subset font
 └── src/

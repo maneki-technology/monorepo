@@ -5,7 +5,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 
 **Primitives:**
 - `<ui-badge>` — label/tag with 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses, uppercase text
-- `<ui-image>` — image container: 5 aspect ratios (16:9/3:2/1:1/3:1/21:9), 4 object-fit modes (cover/contain/fill/none), placeholder background, fallback slot
+- `<ui-image>` — image container: 5 aspect ratios (16:9/3:2/1:1/3:1/21:9), 4 object-fit modes (cover/contain/fill/none), placeholder blur-up (data URL), fallback slot
 - `<ui-button>` — full Figma spec: 5 actions, 3 emphases, 4 sizes, 2 shapes, 4 icon modes, 3 statuses
 - `<ui-avatar>` — avatar component: 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 5 statuses, 14 colors
 - `<ui-alert>` — dismissable alert/toast: 3 sizes, 2 emphases, 5 statuses, footer slot
@@ -191,7 +191,7 @@ const SP_2 = spaceVar(2);
 Token constants are defined at module level and interpolated into the CSS template literal. Invalid token references are compile errors.
 
 ## ICONS
-Components use a **subsetted Material Symbols Outlined font** (~24 KB) shipped in `@maneki/foundation/assets/`. Apps call `registerIconFont()` once at startup; components access the font through `@font-face { src: local("Material Symbols Outlined") }` in Shadow DOM.
+Components use a **subsetted Material Symbols Outlined font** (~45 KB) shipped in `@maneki/foundation/assets/`. Apps call `registerIconFont()` once at startup; components access the font through `@font-face { src: local("Material Symbols Outlined") }` in Shadow DOM.
 
 Icons are referenced by **Unicode codepoint constants** (not ligature text) imported from `@maneki/foundation`:
 ```ts
@@ -207,7 +207,7 @@ Shadow DOM requires a local `@font-face` declaration to access the globally-load
 .material-symbols-outlined { font-family: "Material Symbols Outlined"; font-variation-settings: "FILL" 0; }
 ```
 
-Available icon constants: `ICON_WARNING`, `ICON_ERROR`, `ICON_CHECK_CIRCLE`, `ICON_PROGRESS_ACTIVITY`, `ICON_CLOSE`, `ICON_CANCEL`, `ICON_EXPAND_MORE`, `ICON_EXPAND_LESS`, `ICON_VISIBILITY`, `ICON_VISIBILITY_OFF`, `ICON_ARROW_DROP_UP`, `ICON_ARROW_DROP_DOWN`, `ICON_ARROW_BACK_IOS`, `ICON_ARROW_FORWARD_IOS`, `ICON_INFO`, `ICON_NOTIFICATIONS`, `ICON_SEARCH`, `ICON_ATTACH_MONEY`, `ICON_MAIL`, `ICON_ACCOUNT_CIRCLE`, `ICON_ADD_CIRCLE`, `ICON_SHARE`, `ICON_DOWNLOAD`, `ICON_UPLOAD`, `ICON_MORE_VERT`, `ICON_HOME`, `ICON_PERSON`, `ICON_BAR_CHART`, `ICON_SETTINGS`, `ICON_GROUP`, `ICON_CHEVRON_RIGHT`, `ICON_CHEVRON_LEFT`.
+Available icon constants: `ICON_WARNING`, `ICON_ERROR`, `ICON_CHECK_CIRCLE`, `ICON_PROGRESS_ACTIVITY`, `ICON_CLOSE`, `ICON_CANCEL`, `ICON_EXPAND_MORE`, `ICON_EXPAND_LESS`, `ICON_VISIBILITY`, `ICON_VISIBILITY_OFF`, `ICON_ARROW_DROP_UP`, `ICON_ARROW_DROP_DOWN`, `ICON_ARROW_BACK_IOS`, `ICON_ARROW_FORWARD_IOS`, `ICON_INFO`, `ICON_NOTIFICATIONS`, `ICON_SEARCH`, `ICON_ATTACH_MONEY`, `ICON_MAIL`, `ICON_ACCOUNT_CIRCLE`, `ICON_ADD_CIRCLE`, `ICON_SHARE`, `ICON_DOWNLOAD`, `ICON_UPLOAD`, `ICON_MORE_VERT`, `ICON_HOME`, `ICON_PERSON`, `ICON_BAR_CHART`, `ICON_SETTINGS`, `ICON_GROUP`, `ICON_CHEVRON_RIGHT`, `ICON_CHEVRON_LEFT`, `ICON_DESCRIPTION`, `ICON_ROCKET_LAUNCH`.
 Use the `ICON_CODEPOINTS` record for dynamic lookup: `ICON_CODEPOINTS["home"]`.
 Status icons use filled variant: `font-variation-settings: 'FILL' 1`.
 Chevron icon: `ICON_EXPAND_MORE` (not `ICON_ARROW_DROP_DOWN`). Clear button: `ICON_CANCEL` with filled variant.
