@@ -541,7 +541,7 @@ export class AdminGallery extends LitElement {
       const formData = new FormData();
       formData.append("file", optimized);
       try {
-        const res = await fetch("/api/images", { method: "POST", body: formData, credentials: "same-origin" });
+        const res = await fetch("/api/images?prefix=photos", { method: "POST", body: formData, credentials: "same-origin" });
         if (!res.ok) continue;
         const data = (await res.json()) as { url: string; name: string; r2_key?: string };
         const meta = this._uploadMeta[i] ?? { title: file.name.replace(/\.[^.]+$/, ""), caption: "" };
