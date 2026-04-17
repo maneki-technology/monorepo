@@ -3,14 +3,18 @@ import type { Photo } from "./photo-types.js";
 const styles = new CSSStyleSheet();
 styles.replaceSync(/*css*/ `
   :host {
-    display: none;
+    display: block;
     position: fixed;
     inset: 0;
     z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
   }
 
   :host([open]) {
-    display: block;
+    opacity: 1;
+    visibility: visible;
   }
 
   .backdrop {

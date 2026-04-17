@@ -250,6 +250,14 @@ export async function renderRoute(): Promise<void> {
     await new Promise((r) => setTimeout(r, 150));
     content.innerHTML = route.render!();
     content.classList.remove("page-exit");
+
+    // Toggle wide layout — delay when FLIP is active to avoid moving the target
+    const hasFlip = isLeavingHome || isGoingHome;
+    if (hasFlip) {
+      setTimeout(() => document.body.classList.toggle("wide-layout", routeId === "photography"), 450);
+    } else {
+      document.body.classList.toggle("wide-layout", routeId === "photography");
+    }
     // Re-trigger enter animation
     content.style.animation = "none";
     content.offsetHeight; // force reflow
@@ -298,6 +306,7 @@ function updateMeta(routeId: string, route: Route | undefined): void {
 
   // Toggle page identifier for conditional styling (e.g., hide site-name on home)
   document.documentElement.dataset.page = routeId === "home" ? "home" : "";
+
 
 
   // Update active nav link with directional underline

@@ -19,7 +19,7 @@ const PHOTOS_RESOLVED_ID = "\0" + PHOTOS_MODULE_ID;
 const ALBUMS_MODULE_ID = "virtual:albums";
 const ALBUMS_RESOLVED_ID = "\0" + ALBUMS_MODULE_ID;
 
-const EMPTY_PHOTOS = "export const photos = [];\nexport const featuredPhotos = [];\nexport const categories = [];";
+const EMPTY_PHOTOS = "export const photos = [];\nexport const featuredPhotos = [];\nexport const tags = [];";
 const EMPTY_ALBUMS = "export const albums = [];";
 
 export function photographyPlugin(): Plugin {
@@ -38,6 +38,17 @@ export function photographyPlugin(): Plugin {
         "SELECT id, r2_key, url, title, caption, album_id, category, width, height, thumbhash, exif_json, sort_order, featured FROM photos WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
       );
 
+      // Fetch tags per photo
+      const tagResult = await db.execute(
+        "SELECT pt.photo_id, t.name FROM photo_tags pt JOIN tags t ON t.id = pt.tag_id",
+      );
+      const photoTags = new Map<number, string[]>();
+      for (const row of tagResult.rows) {
+        const pid = row.photo_id as number;
+        if (!photoTags.has(pid)) photoTags.set(pid, []);
+        photoTags.get(pid)!.push(row.name as string);
+      }
+
       const photos = result.rows.map((row) => ({
         id: row.id as number,
         r2Key: row.r2_key as string,
@@ -46,6 +57,7 @@ export function photographyPlugin(): Plugin {
         caption: row.caption as string,
         albumId: (row.album_id as number) ?? null,
         category: row.category as string,
+        tags: [...new Set(photoTags.get(row.id as number) ?? [])],
         width: row.width as number,
         height: row.height as number,
         thumbhash: row.thumbhash as string,
@@ -55,13 +67,13 @@ export function photographyPlugin(): Plugin {
       }));
 
       const featured = photos.filter((p) => p.featured);
-      const categorySet = new Set(photos.map((p) => p.category).filter(Boolean));
-      const categories = [...categorySet].sort();
+      const tagSet = new Set(photos.flatMap((p) => p.tags));
+      const tags = [...tagSet].sort();
 
       console.log(
-        `[photography] Loaded ${photos.length} published photos (${featured.length} featured, ${categories.length} categories)`,
+        `[photography] Loaded ${photos.length} published photos (${featured.length} featured, ${tags.length} tags)`,
       );
-      return `export const photos = ${JSON.stringify(photos)};\nexport const featuredPhotos = ${JSON.stringify(featured)};\nexport const categories = ${JSON.stringify(categories)};`;
+      return `export const photos = ${JSON.stringify(photos)};\nexport const featuredPhotos = ${JSON.stringify(featured)};\nexport const tags = ${JSON.stringify(tags)};`;
     } catch (err) {
       console.error("[photography] Failed to fetch photos from Turso:", err);
       return EMPTY_PHOTOS;

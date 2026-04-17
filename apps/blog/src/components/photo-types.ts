@@ -5,6 +5,7 @@ export interface Photo {
   caption: string;
   albumId: number | null;
   category: string;
+  tags: string[];
   width: number;
   height: number;
   thumbhash: string;
