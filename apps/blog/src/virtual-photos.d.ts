@@ -7,6 +7,7 @@ declare module "virtual:photos" {
     caption: string;
     albumId: number | null;
     category: string;
+    tags: string[];
     width: number;
     height: number;
     thumbhash: string;
@@ -16,5 +17,5 @@ declare module "virtual:photos" {
   }
   export const photos: VirtualPhoto[];
   export const featuredPhotos: VirtualPhoto[];
-  export const categories: string[];
+  export const tags: string[];
 }

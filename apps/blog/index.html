@@ -112,6 +112,7 @@
       width: 100%;
       margin: 0 auto;
       padding: var(--fd-space-3) var(--fd-space-3) 0;
+      transition: max-width 0.4s ease;
     }
 
     .site-name {
@@ -176,6 +177,13 @@
       width: 100%;
       margin: 0 auto;
       padding: var(--fd-space-6) var(--fd-space-3);
+      transition: max-width 0.4s ease;
+    }
+
+    body.wide-layout header,
+    body.wide-layout main,
+    body.wide-layout footer {
+      max-width: 1200px;
     }
 
     /* ─── Footer ─── */
@@ -188,6 +196,7 @@
       border-top: 1px solid var(--fd-border-minimal, #e4e4e7);
       font-size: 12px;
       color: var(--fd-text-secondary, #52525b);
+      transition: max-width 0.4s ease;
       display: flex;
       justify-content: space-between;
       align-items: center;

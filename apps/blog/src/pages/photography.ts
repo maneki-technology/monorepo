@@ -1,10 +1,9 @@
 /**
  * /photography — Public photography page.
- * Masonry grid with album filtering and lightbox.
+ * Masonry grid with tag filtering and lightbox.
  */
 
-import { photos } from "virtual:photos";
-import { albums } from "virtual:albums";
+import { photos, tags as allTags } from "virtual:photos";
 import type { Route } from "../router.js";
 import type { Photo } from "../components/photo-types.js";
 import "../components/photo-grid.js";
@@ -18,6 +17,7 @@ function toPhoto(p: (typeof photos)[number]): Photo {
     caption: p.caption,
     albumId: p.albumId,
     category: p.category,
+    tags: p.tags,
     width: p.width,
     height: p.height,
     thumbhash: p.thumbhash,
@@ -38,11 +38,11 @@ export const photographyRoute: Route = {
   render: () => `
     <h1 class="heading-02 mb-2">Photography</h1>
     ${
-      albums.length > 0
+      allTags.length > 0
         ? `
       <div id="photo-filters" class="row gap-1 mb-4" style="flex-wrap:wrap;">
-        <ui-tag type="selectable" size="s" selected data-album="all">All</ui-tag>
-        ${albums.map((a) => `<ui-tag type="selectable" size="s" data-album="${a.slug}" data-album-id="${a.id}">${a.title}</ui-tag>`).join("")}
+        <ui-tag type="selectable" size="s" data-tag="all" state="selected">All</ui-tag>
+        ${allTags.map((t) => `<ui-tag type="selectable" size="s" data-tag="${t}">${t}</ui-tag>`).join("")}
       </div>
     `
         : ""
@@ -64,9 +64,10 @@ export const photographyRoute: Route = {
     const filters = document.getElementById("photo-filters");
 
     if (!grid) return;
+    const gridEl = grid;
 
     let currentPhotos = allPhotos;
-    grid.setPhotos(currentPhotos);
+    gridEl.setPhotos(currentPhotos);
 
     // Open lightbox on photo click
     grid.addEventListener("photo-select", ((e: CustomEvent) => {
@@ -82,51 +83,64 @@ export const photographyRoute: Route = {
       if (idx >= 0) lightbox?.open(idx, currentPhotos);
     }
 
-    // Album filter
+    // Tag filter
     if (filters) {
-      filters.addEventListener("click", (e) => {
-        const tag = (e.target as Element).closest("ui-tag[data-album]") as HTMLElement | null;
-        if (!tag) return;
+      const selectedTags = new Set<string>();
 
-        // Update selected state
-        filters.querySelectorAll("ui-tag").forEach((t) => t.removeAttribute("selected"));
-        tag.setAttribute("selected", "");
-
-        const albumSlug = tag.dataset.album;
-        const albumId = tag.dataset.albumId ? Number(tag.dataset.albumId) : null;
-
-        if (albumSlug === "all" || !albumId) {
+      function applyFilter(): void {
+        if (selectedTags.size === 0) {
           currentPhotos = allPhotos;
         } else {
-          currentPhotos = allPhotos.filter((p) => p.albumId === albumId);
+          currentPhotos = allPhotos.filter((p) => p.tags.some((t) => selectedTags.has(t)));
         }
+        gridEl.setPhotos(currentPhotos);
 
-        grid.setPhotos(currentPhotos);
+        // Sync "All" tag visual state
+        const allTag = filters!.querySelector('ui-tag[data-tag="all"]') as HTMLElement | null;
+        if (allTag) allTag.setAttribute("state", selectedTags.size === 0 ? "selected" : "enabled");
 
         // Update URL
         const url = new URL(window.location.href);
-        if (albumSlug === "all") {
-          url.searchParams.delete("album");
-        } else {
-          url.searchParams.set("album", albumSlug!);
-        }
+        url.searchParams.delete("tag");
         url.searchParams.delete("photo");
+        for (const t of selectedTags) url.searchParams.append("tag", t);
         history.replaceState(null, "", url.toString());
-      });
+      }
 
-      // Restore filter from URL
-      const albumParam = params.get("album");
-      if (albumParam) {
-        const tag = filters.querySelector(`ui-tag[data-album="${albumParam}"]`) as HTMLElement | null;
-        if (tag) {
-          filters.querySelectorAll("ui-tag").forEach((t) => t.removeAttribute("selected"));
-          tag.setAttribute("selected", "");
-          const albumId = tag.dataset.albumId ? Number(tag.dataset.albumId) : null;
-          if (albumId) {
-            currentPhotos = allPhotos.filter((p) => p.albumId === albumId);
-            grid.setPhotos(currentPhotos);
+      filters.addEventListener("change", ((e: CustomEvent) => {
+        const tag = (e.target as HTMLElement).closest("ui-tag[data-tag]") as HTMLElement | null;
+        if (!tag) return;
+        const tagName = tag.dataset.tag!;
+        const isSelected = e.detail?.selected;
+
+        if (tagName === "all") {
+          // "All" clicked — clear all other selections
+          selectedTags.clear();
+          filters!.querySelectorAll('ui-tag:not([data-tag="all"])').forEach((t) => t.setAttribute("state", "enabled"));
+          // Force "All" to stay selected
+          tag.setAttribute("state", "selected");
+        } else {
+          if (isSelected) {
+            selectedTags.add(tagName);
+          } else {
+            selectedTags.delete(tagName);
           }
         }
+
+        applyFilter();
+      }) as EventListener);
+
+      // Restore filter from URL
+      const tagParams = params.getAll("tag");
+      if (tagParams.length > 0) {
+        for (const t of tagParams) {
+          const tagEl = filters.querySelector(`ui-tag[data-tag="${t}"]`) as HTMLElement | null;
+          if (tagEl) {
+            selectedTags.add(t);
+            tagEl.setAttribute("state", "selected");
+          }
+        }
+        applyFilter();
       }
     }
   },

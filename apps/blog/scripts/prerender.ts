@@ -138,6 +138,11 @@ async function prerender(): Promise<void> {
           );
       }
 
+      // Add wide-layout class for photography page
+      if (route.id === "photography") {
+        page = page.replace("<body", '<body class="wide-layout"');
+      }
+
       // Write flat files: dist/blog.html (not dist/blog/index.html)
       // Cloudflare Pages serves blog.html for /blog without trailing slash redirect
       if (route.id === "home") {
