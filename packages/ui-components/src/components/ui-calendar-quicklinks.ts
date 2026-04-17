@@ -17,6 +17,7 @@ export interface QuicklinkItem {
 const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
+/** @deprecated Use `@maneki/calendar` components instead. */
 export class UiCalendarQuicklinks extends HTMLElement {
   static readonly observedAttributes = ["size", "orientation"];
 

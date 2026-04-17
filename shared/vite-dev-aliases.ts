@@ -41,6 +41,10 @@ export const devAliases: AliasOptions = [
     replacement: resolve(root, "packages/flex-layout/src/index.ts"),
   },
   {
+    find: /^@maneki\/calendar$/,
+    replacement: resolve(root, "packages/calendar/src/index.ts"),
+  },
+  {
     find: /^@maneki\/charts$/,
     replacement: resolve(root, "packages/charts/src/index.ts"),
   },

@@ -13,6 +13,7 @@ export type CalendarPanelSize = "s" | "m" | "l";
 const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
+/** @deprecated Use `<maneki-calendar-panel>` from `@maneki/calendar` instead. */
 export class UiCalendarPanel extends HTMLElement {
   static readonly observedAttributes = ["size", "show-actions"];
 
