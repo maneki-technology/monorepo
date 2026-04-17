@@ -59,6 +59,7 @@ priority_high
 progress_activity
 refresh
 remove
+rocket_launch
 schedule
 search
 settings
