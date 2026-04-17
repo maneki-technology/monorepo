@@ -180,7 +180,7 @@ export class EditorPage extends LitElement {
     const s = this.store.state;
     return html`
       <div class="admin-layout">
-        <ui-side-panel-menu id="admin-sidebar" style="display:${s.loaded ? "" : "none"}" @select=${this._onSidebarSelect} @toggle=${() => saveUIState()} @click=${this._onSidebarClick}>
+        <ui-side-panel-menu id="admin-sidebar" style="display:${s.loaded ? "" : "none"}" @select=${this._onSidebarSelect} @toggle=${() => saveUIState()} @new-post=${() => this._onNewPost()} @new-project=${() => this._onNewProject()}>
           <span slot="header" style="display:flex;align-items:center;gap:8px;">
             <ui-button action="secondary" emphasis="minimal" size="s" @click=${() => { window.location.href = "/admin"; }}>
               <ui-icon name="chevron_left" size="s" slot="icon-start"></ui-icon>
@@ -600,12 +600,6 @@ export class EditorPage extends LitElement {
     saveUIState();
   }
 
-  private _onSidebarClick(e: Event): void {
-    const target = (e.target as Element).closest?.("ui-button[id]");
-    if (!target) return;
-    if ((target as HTMLElement).id === "admin-new-post") this._onNewPost();
-    if ((target as HTMLElement).id === "admin-new-project") this._onNewProject();
-  }
 
   // ─── Ctrl+S keyboard shortcut (replaces keyboard.ts Ctrl+S handler) ────────
   private _onDocumentKeydown = (e: KeyboardEvent): void => {

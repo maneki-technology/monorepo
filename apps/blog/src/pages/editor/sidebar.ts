@@ -58,6 +58,7 @@ export class EditorSidebar extends LitElement {
             size="s"
             icon="icon-only"
             aria-label="New Post"
+            @click=${() => this.dispatchEvent(new CustomEvent('new-post', { bubbles: true, composed: true }))}
             ><ui-icon name="add" size="s" slot="icon-start"></ui-icon
           ></ui-button>
         </span>
@@ -77,6 +78,7 @@ export class EditorSidebar extends LitElement {
             size="s"
             icon="icon-only"
             aria-label="New Project"
+            @click=${() => this.dispatchEvent(new CustomEvent('new-project', { bubbles: true, composed: true }))}
             ><ui-icon name="add" size="s" slot="icon-start"></ui-icon
           ></ui-button>
         </span>
