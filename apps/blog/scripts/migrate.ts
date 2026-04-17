@@ -90,6 +90,7 @@ await db.executeMultiple(`
     title TEXT NOT NULL,
     content TEXT NOT NULL DEFAULT '',
     description TEXT NOT NULL DEFAULT '',
+    styles TEXT NOT NULL DEFAULT '',
     status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'deleted')),
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     updated_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -98,6 +99,12 @@ await db.executeMultiple(`
   CREATE INDEX IF NOT EXISTS idx_pages_slug ON pages(slug);
 `);
 console.log("Pages table ready.");
+
+// Add styles column to pages if missing
+try {
+  await db.execute("ALTER TABLE pages ADD COLUMN styles TEXT NOT NULL DEFAULT ''");
+  console.log("Added styles column to pages.");
+} catch { console.log("pages.styles already exists."); }
 
 // Add published_snapshot column to posts and projects if missing
 for (const table of ["posts", "projects"]) {

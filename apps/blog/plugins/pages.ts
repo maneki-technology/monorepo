@@ -79,6 +79,7 @@ export function pagesPlugin(): Plugin {
         title: row.title as string,
         content: md.render(row.content as string),
         description: row.description as string,
+        styles: row.styles as string,
         updatedAt: row.updated_at as string,
       }));
 

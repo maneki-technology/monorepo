@@ -122,6 +122,7 @@ CREATE TABLE IF NOT EXISTS pages (
   title TEXT NOT NULL,
   content TEXT NOT NULL DEFAULT '',
   description TEXT NOT NULL DEFAULT '',
+  styles TEXT NOT NULL DEFAULT '',
   status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'published', 'deleted')),
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))

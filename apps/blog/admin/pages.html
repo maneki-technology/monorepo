@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Editor — Kien Nguyen</title>
+    <title>Pages — Kien Nguyen</title>
     <link rel="icon" type="image/png" href="/favicon.png" />
     <script>
       (function () {
@@ -18,23 +18,16 @@
         box-sizing: border-box;
         margin: 0;
       }
-
       html,
       body,
       #admin-root {
         height: 100%;
         margin: 0;
       }
-
       body {
         font-family: Geist, sans-serif;
         color: var(--fd-text-primary, #27272a);
         background: var(--fd-surface-secondary, #fff);
-      }
-
-      editor-page {
-        display: block;
-        height: 100%;
       }
     </style>
   </head>
@@ -42,6 +35,6 @@
     <div id="admin-root"></div>
     <deploy-fab></deploy-fab>
     <theme-toggle fab></theme-toggle>
-    <script type="module" src="/src/admin/editor-entry.ts"></script>
+    <script type="module" src="/src/admin/pages-entry.ts"></script>
   </body>
 </html>

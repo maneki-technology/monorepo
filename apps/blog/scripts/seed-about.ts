@@ -60,13 +60,27 @@ Amateur photographer — mostly street, travel, and landscapes. You can see some
 Find me on [GitHub](https://github.com/kiennt23) and [LinkedIn](https://linkedin.com/in/kiennt23), or drop me an email at [kien@maneki.tech](mailto:kien@maneki.tech).
 `;
 
+const styles = `
+.row { display: flex; flex-wrap: wrap; }
+.gap-1 { gap: var(--fd-space-1); }
+.gap-2 { gap: var(--fd-space-2); }
+.text-secondary { color: var(--fd-text-secondary, #52525b); }
+`;
+
+
 console.log("Seeding about page...");
 
-await db.execute({ sql: "DELETE FROM pages WHERE slug = ?", args: ["about"] });
 await db.execute({
-  sql: `INSERT INTO pages (slug, title, content, description, status, updated_at)
-        VALUES (?, ?, ?, ?, 'published', datetime('now'))`,
-  args: ["about", title, content, description],
+  sql: `INSERT INTO pages (slug, title, content, description, styles, status, updated_at)
+        VALUES (?, ?, ?, ?, ?, 'published', datetime('now'))
+        ON CONFLICT (slug) DO UPDATE SET
+          title = excluded.title,
+          content = excluded.content,
+          description = excluded.description,
+          styles = excluded.styles,
+          status = excluded.status,
+          updated_at = excluded.updated_at`,
+  args: ["about", title, content, description, styles],
 });
 
 console.log("Done — about page seeded.");

@@ -142,6 +142,8 @@ export const ICON_LOCATION_ON = "\uE0C8";
 export const ICON_LINK = "\uE250";
 /** title — U+E264 */
 export const ICON_TITLE = "\uE264";
+/** description — U+E873 */
+export const ICON_DESCRIPTION = "\uE873";
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
   warning: ICON_WARNING,
@@ -192,6 +194,7 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   menu: ICON_MENU,
   refresh: ICON_REFRESH,
   delete: ICON_DELETE,
+  description: ICON_DESCRIPTION,
   grid_view: ICON_GRID_VIEW,
   code: ICON_CODE,
   code_blocks: ICON_CODE_BLOCKS,

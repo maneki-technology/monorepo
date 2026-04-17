@@ -790,7 +790,6 @@ export class AdminGallery extends LitElement {
         </a>
         <span class="header-title">Gallery</span>
         ${this._saved ? html`<ui-badge size="xs" status="success">Saved</ui-badge>` : nothing}
-        <theme-toggle></theme-toggle>
       </div>
     `;
   }

@@ -18,6 +18,22 @@ const db = createClient({ url, authToken: authToken || undefined });
 const title = "Kien Nguyen Trung";
 const description = "Senior Software Engineer with 14+ years of experience. Go, TypeScript, Java, Python. Distributed systems, micro-frontends, fine-grained authorization.";
 
+const styles = `
+.heading-05 { font-size: var(--fd-type-heading-05-font-size); line-height: var(--fd-type-heading-05-line-height); font-weight: var(--fd-type-heading-05-font-weight); }
+.body-01 { font-size: var(--fd-type-body-01-font-size); line-height: var(--fd-type-body-01-line-height); font-weight: var(--fd-type-body-01-font-weight); }
+.body-02 { font-size: var(--fd-type-body-02-font-size); line-height: var(--fd-type-body-02-line-height); font-weight: var(--fd-type-body-02-font-weight); }
+.text-secondary { color: var(--fd-text-secondary, #52525b); }
+.mt-1 { margin-top: var(--fd-space-1); }
+.mb-1 { margin-bottom: var(--fd-space-1); }
+.mb-2 { margin-bottom: var(--fd-space-2); }
+.mb-3 { margin-bottom: var(--fd-space-3); }
+.gap-1 { gap: var(--fd-space-1); }
+.gap-2 { gap: var(--fd-space-2); }
+.stack { display: flex; flex-direction: column; }
+.row { display: flex; flex-wrap: wrap; }
+.reveal { opacity: 1; }
+`;
+
 const content = `<p class="body-01 text-secondary">Senior Software Engineer</p>
 
 <div class="row gap-2 mt-1" style="flex-wrap:wrap;">
@@ -222,11 +238,17 @@ Essential DDD — Paul Rayner
 
 console.log("Seeding resume page...");
 
-await db.execute({ sql: "DELETE FROM pages WHERE slug = ?", args: ["resume"] });
 await db.execute({
-  sql: `INSERT INTO pages (slug, title, content, description, status, updated_at)
-        VALUES (?, ?, ?, ?, 'published', datetime('now'))`,
-  args: ["resume", title, content, description],
+  sql: `INSERT INTO pages (slug, title, content, description, styles, status, updated_at)
+        VALUES (?, ?, ?, ?, ?, 'published', datetime('now'))
+        ON CONFLICT (slug) DO UPDATE SET
+          title = excluded.title,
+          content = excluded.content,
+          description = excluded.description,
+          styles = excluded.styles,
+          status = excluded.status,
+          updated_at = excluded.updated_at`,
+  args: ["resume", title, content, description, styles],
 });
 
 console.log("Done — resume page seeded.");

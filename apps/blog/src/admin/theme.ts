@@ -10,9 +10,10 @@ type ThemeListener = (theme: Theme) => void;
 export interface AdminState {
   theme: Theme;
   galleryTab: "photos" | "albums";
+  pagesSelectedSlug: string | null;
 }
 
-const DEFAULT_STATE: AdminState = { theme: "light", galleryTab: "photos" };
+const DEFAULT_STATE: AdminState = { theme: "light", galleryTab: "photos", pagesSelectedSlug: null };
 
 let state: AdminState = { ...DEFAULT_STATE };
 const themeListeners: ThemeListener[] = [];
@@ -52,6 +53,17 @@ export function setGalleryTab(tab: "photos" | "albums"): void {
   saveState();
 }
 
+// ── Pages selected slug ──
+
+export function getPagesSelectedSlug(): string | null {
+  return state.pagesSelectedSlug;
+}
+
+export function setPagesSelectedSlug(slug: string | null): void {
+  state.pagesSelectedSlug = slug;
+  saveState();
+}
+
 // ── Persistence ──
 
 /** Save current state to backend. Merges with existing to preserve editor fields. */
@@ -69,7 +81,7 @@ export async function saveState(): Promise<void> {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
-      body: JSON.stringify({ ...existing, theme: state.theme, galleryTab: state.galleryTab }),
+      body: JSON.stringify({ ...existing, theme: state.theme, galleryTab: state.galleryTab, pagesSelectedSlug: state.pagesSelectedSlug }),
     });
   } catch {
     /* ignore */
@@ -89,6 +101,7 @@ export async function loadAdminState(): Promise<AdminState> {
       if (saved) {
         if (saved.theme === "dark" || saved.theme === "light") state.theme = saved.theme;
         if (saved.galleryTab === "photos" || saved.galleryTab === "albums") state.galleryTab = saved.galleryTab;
+        if (typeof saved.pagesSelectedSlug === "string" || saved.pagesSelectedSlug === null) state.pagesSelectedSlug = saved.pagesSelectedSlug ?? null;
       }
     }
   } catch {

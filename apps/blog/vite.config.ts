@@ -36,6 +36,9 @@ export default defineConfig(({ command }) => ({
           const adminRoutes: Record<string, string> = {
             "/admin/editor": "/admin/editor.html",
             "/admin/gallery": "/admin/gallery.html",
+            "/admin/pages": "/admin/pages.html",
+            "/admin": "/admin.html",
+            "/admin/gallery": "/admin/gallery.html",
             "/admin": "/admin.html",
           };
           const rewrite = adminRoutes[req.url?.split("?")[0] ?? ""];
@@ -71,6 +74,7 @@ export default defineConfig(({ command }) => ({
         admin: "admin.html",
         "admin-editor": "admin/editor.html",
         "admin-gallery": "admin/gallery.html",
+        "admin-pages": "admin/pages.html",
       },
       output: {
         manualChunks(id) {

@@ -88,7 +88,6 @@ export class AdminHub extends LitElement {
     return html`
       <div class="header">
         <span class="title">Admin</span>
-        <theme-toggle></theme-toggle>
       </div>
       ${this._ready
         ? html`
@@ -109,6 +108,15 @@ export class AdminHub extends LitElement {
                       <ui-icon name="image" size="m"></ui-icon>
                       <h2>Gallery</h2>
                       <p>Manage photos, albums, and metadata</p>
+                    </div>
+                  </ui-card>
+                </a>
+                <a href="/admin/pages" style="text-decoration:none;color:inherit;">
+                  <ui-card bordered elevation="00" size="s">
+                    <div class="card-body">
+                      <ui-icon name="description" size="m"></ui-icon>
+                      <h2>Pages</h2>
+                      <p>Edit about, resume, and other pages</p>
                     </div>
                   </ui-card>
                 </a>
