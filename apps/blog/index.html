@@ -75,6 +75,7 @@
       color: var(--fd-text-primary);
       background: var(--fd-surface-primary);
       scrollbar-width: none;
+      overflow-x: clip;
     }
 
     [data-theme="heroui"] #app {
@@ -436,7 +437,8 @@
 
     .polaroid-stack:hover .polaroid {
       transform:
-        translateX(var(--fan, 0px));
+        translateX(var(--fan-x, 0px))
+        translateY(var(--fan-y, 0px));
       box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }
 

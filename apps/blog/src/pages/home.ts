@@ -33,11 +33,11 @@ export const homeRoute: Route = {
           const defaultSpacing = 120;
           const fanSpacing = 460;
           return featuredPhotos.slice(0, count).map((p, i) => {
-            const fan = (i - (count - 1) / 2) * fanSpacing;
+            const fanX = (i - (count - 1) / 2) * fanSpacing;
             const dx = (i - (count - 1) / 2) * defaultSpacing;
             const dy = [8, -14, 10, -8, 12][i] || 0;
             return `
-            <div class="polaroid" data-photo-index="${i}" style="--rot:${angles[i]}deg;--ox:${dx}px;--oy:${dy}px;--fan:${fan}px;">
+            <div class="polaroid" data-photo-index="${i}" style="--rot:${angles[i]}deg;--ox:${dx}px;--oy:${dy}px;--fan-x:${fanX}px;">
               <img src="${p.url}" alt="${p.title || ''}"
                    width="${p.width}" height="${p.height}"
                    loading="lazy" decoding="async">
@@ -94,6 +94,7 @@ export const homeRoute: Route = {
   setup: () => {
     const stack = document.getElementById("polaroid-stack");
     if (!stack) return;
+    const stackEl: HTMLElement = stack;
     const polaroids = Array.from(stack.querySelectorAll(".polaroid")) as HTMLElement[];
     if (polaroids.length < 2) return;
 
@@ -107,20 +108,27 @@ export const homeRoute: Route = {
 
       const count = polaroids.length;
       const w = window.innerWidth;
-      const fanSpacing = w <= 480 ? 260 : w <= 768 ? 320 : 460;
-      const defaultSpacing = w <= 480 ? 15 : w <= 768 ? 30 : 120;
+      const polaroidW = polaroids[0].offsetWidth;
+      const maxFan = (w - polaroidW) / Math.max(count - 1, 1);
+      const idealFan = w <= 480 ? 260 : w <= 768 ? 320 : 460;
+      const fanSpacing = Math.min(idealFan, maxFan);
+      const clampRatio = maxFan < idealFan ? 1 - maxFan / idealFan : 0;
+      const defaultSpacing = w <= 480 ? 20 : w <= 768 ? 40 : 120;
 
       polaroids.forEach((el, i) => {
         const order = indices[i];
         const rot = (Math.random() * 12 - 6);
         const dx = (order - (count - 1) / 2) * defaultSpacing + (Math.random() * 6 - 3);
         const dy = Math.random() * 10 - 5;
-        const fan = (order - (count - 1) / 2) * fanSpacing;
+        const fanX = (order - (count - 1) / 2) * fanSpacing;
+        const eased = 1 - (1 - clampRatio) ** 3;
+        const fanY = order % 2 === 0 ? Math.round(eased * -20) : Math.round(eased * 100);
 
         el.style.setProperty("--rot", `${rot}deg`);
         el.style.setProperty("--ox", `${dx}px`);
         el.style.setProperty("--oy", `${dy}px`);
-        el.style.setProperty("--fan", `${fan}px`);
+        el.style.setProperty("--fan-x", `${fanX}px`);
+        el.style.setProperty("--fan-y", `${fanY}px`);
         el.style.zIndex = `${count - order}`;
       });
     }
