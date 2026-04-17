@@ -121,7 +121,7 @@ class PhotoGrid extends HTMLElement {
     if (w >= 1400) return 5;
     if (w >= 1024) return 4;
     if (w >= 640) return 3;
-    return 2;
+    return 1;
   }
 
   setPhotos(photos: Photo[]): void {
