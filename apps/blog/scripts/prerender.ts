@@ -13,6 +13,18 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
+// SSR shims — photography page imports Web Components that use browser-only APIs at module level
+if (typeof globalThis.CSSStyleSheet === 'undefined') {
+  (globalThis as any).CSSStyleSheet = class CSSStyleSheet { replaceSync() {} };
+}
+if (typeof globalThis.HTMLElement === 'undefined') {
+  (globalThis as any).HTMLElement = class HTMLElement {};
+}
+if (typeof globalThis.customElements === 'undefined') {
+  (globalThis as any).customElements = { define() {}, get() {} };
+}
+
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
 // SITE_URL and SITE_TITLE loaded via Vite SSR from src/config.ts
@@ -39,6 +51,7 @@ async function prerender(): Promise<void> {
     const { projectRoutes } = await vite.ssrLoadModule("/src/pages/project.ts") as any;
     const { resumeRoute } = await vite.ssrLoadModule("/src/pages/resume.ts") as any;
     const { aboutRoute } = await vite.ssrLoadModule("/src/pages/about.ts") as any;
+    const { photographyRoute } = await vite.ssrLoadModule("/src/pages/photography.ts") as any;
 
     const allRoutes: Array<{
       id: string;
@@ -49,6 +62,7 @@ async function prerender(): Promise<void> {
       blogRoute,
       ...postRoutes,
       portfolioRoute,
+      photographyRoute,
       ...projectRoutes,
       resumeRoute,
       aboutRoute,
