@@ -11,7 +11,7 @@
  */
 
 import { type Plugin } from "vite";
-import { createClient } from "@libsql/client";
+import { getDb } from "./db.js";
 
 const PHOTOS_MODULE_ID = "virtual:photos";
 const PHOTOS_RESOLVED_ID = "\0" + PHOTOS_MODULE_ID;
@@ -24,16 +24,8 @@ const EMPTY_ALBUMS = "export const albums = [];";
 
 export function photographyPlugin(): Plugin {
   async function loadPhotos(): Promise<string> {
-    const url = process.env.TURSO_URL;
-    const authToken = process.env.TURSO_AUTH_TOKEN;
-
-    if (!url) {
-      console.warn("[photography] TURSO_URL not set — returning empty photos");
-      return EMPTY_PHOTOS;
-    }
-
+    const db = getDb();
     try {
-      const db = createClient({ url, authToken: authToken || undefined });
       const result = await db.execute(
         "SELECT id, r2_key, url, title, caption, album_id, category, width, height, thumbhash, exif_json, sort_order, featured FROM photos WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
       );
@@ -81,16 +73,8 @@ export function photographyPlugin(): Plugin {
   }
 
   async function loadAlbums(): Promise<string> {
-    const url = process.env.TURSO_URL;
-    const authToken = process.env.TURSO_AUTH_TOKEN;
-
-    if (!url) {
-      console.warn("[photography] TURSO_URL not set — returning empty albums");
-      return EMPTY_ALBUMS;
-    }
-
+    const db = getDb();
     try {
-      const db = createClient({ url, authToken: authToken || undefined });
       const result = await db.execute(
         "SELECT a.id, a.slug, a.title, a.description, a.cover_photo_id, a.sort_order, (SELECT COUNT(*) FROM photos p WHERE p.album_id = a.id AND p.status = 'published') AS photo_count FROM albums a WHERE a.status = 'published' ORDER BY a.sort_order ASC, a.created_at DESC",
       );

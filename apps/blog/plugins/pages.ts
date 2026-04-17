@@ -10,7 +10,7 @@
  */
 
 import { type Plugin } from "vite";
-import { createClient } from "@libsql/client";
+import { getDb } from "./db.js";
 import MarkdownIt from "markdown-it";
 
 const VIRTUAL_MODULE_ID = "virtual:pages";
@@ -58,16 +58,8 @@ function createMd(): MarkdownIt {
 
 export function pagesPlugin(): Plugin {
   async function loadPages(): Promise<string> {
-    const url = process.env.TURSO_URL;
-    const authToken = process.env.TURSO_AUTH_TOKEN;
-
-    if (!url) {
-      console.warn("[pages] TURSO_URL not set — returning empty pages");
-      return EMPTY;
-    }
-
+    const db = getDb();
     try {
-      const db = createClient({ url, authToken: authToken || undefined });
       const result = await db.execute(
         "SELECT slug, title, content, description, updated_at FROM pages WHERE status = 'published' ORDER BY updated_at DESC",
       );

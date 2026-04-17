@@ -9,7 +9,7 @@
  */
 
 import { type Plugin } from "vite";
-import { createClient } from "@libsql/client";
+import { getDb } from "./db.js";
 import MarkdownIt from "markdown-it";
 import anchor from "markdown-it-anchor";
 import { createHighlighter } from "shiki";
@@ -88,16 +88,8 @@ async function getMd(): Promise<MarkdownIt> {
 
 export function markdownPostsPlugin(): Plugin {
   async function loadPosts(): Promise<string> {
-    const url = process.env.TURSO_URL;
-    const authToken = process.env.TURSO_AUTH_TOKEN;
-
-    if (!url) {
-      console.warn("[markdown-posts] TURSO_URL not set — returning empty posts");
-      return "export const posts = [];";
-    }
-
+    const db = getDb();
     try {
-      const db = createClient({ url, authToken: authToken || undefined });
       const result = await db.execute(
         "SELECT slug, title, body_md, excerpt, tags, created_at FROM posts WHERE status = 'published' ORDER BY created_at DESC",
       );

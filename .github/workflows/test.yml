@@ -63,9 +63,6 @@ jobs:
         run: npx tsc --noEmit
         working-directory: apps/blog
 
-      - name: Build blog
-        run: npm run build
-        working-directory: apps/blog
 
       - name: Build charts
         run: npm run build

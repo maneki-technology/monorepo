@@ -6,7 +6,7 @@
 import { type Plugin } from "vite";
 import fs from "node:fs";
 import path from "node:path";
-import { createClient } from "@libsql/client";
+import { getDb } from "./db.js";
 
 import { SITE_URL, SITE_TITLE } from "../src/config.js";
 
@@ -27,13 +27,8 @@ export function rssFeedPlugin(): Plugin {
       const authToken = process.env.TURSO_AUTH_TOKEN;
       const distDir = path.resolve(process.cwd(), "dist");
 
-      if (!url) {
-        console.warn("[rss-feed] TURSO_URL not set — skipping feed.xml");
-        return;
-      }
-
+      const db = getDb();
       try {
-        const db = createClient({ url, authToken: authToken || undefined });
         const result = await db.execute(
           "SELECT slug, title, excerpt, created_at FROM posts WHERE status = 'published' ORDER BY created_at DESC",
         );

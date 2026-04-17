@@ -6,7 +6,7 @@
 import { type Plugin } from "vite";
 import fs from "node:fs";
 import path from "node:path";
-import { createClient } from "@libsql/client";
+import { getDb } from "./db.js";
 
 import { SITE_URL } from "../src/config.js";
 
@@ -29,41 +29,35 @@ export function sitemapPlugin(): Plugin {
       ];
 
       // Post routes from Turso
-      if (url) {
-        try {
-          const db = createClient({ url, authToken: authToken || undefined });
-
-          const posts = await db.execute(
-            "SELECT slug FROM posts WHERE status = 'published' ORDER BY created_at DESC",
-          );
-          for (const row of posts.rows) {
-            urls.push({ loc: `${SITE_URL}/post/${row.slug as string}`, priority: "0.8" });
-          }
-
-          const projects = await db.execute(
-            "SELECT slug FROM projects WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
-          );
-          for (const row of projects.rows) {
-            urls.push({ loc: `${SITE_URL}/project/${row.slug as string}`, priority: "0.7" });
-          }
-        } catch (err) {
-          console.error("[sitemap] Failed to fetch posts/projects from Turso:", err);
+      const db = getDb();
+      try {
+        const posts = await db.execute(
+          "SELECT slug FROM posts WHERE status = 'published' ORDER BY created_at DESC",
+        );
+        for (const row of posts.rows) {
+          urls.push({ loc: `${SITE_URL}/post/${row.slug as string}`, priority: "0.8" });
         }
 
-        // Albums query is separate — table may not exist yet
-        try {
-          const db = createClient({ url, authToken: authToken || undefined });
-          const albumsResult = await db.execute(
-            "SELECT slug FROM albums WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
-          );
-          for (const row of albumsResult.rows) {
-            urls.push({ loc: `${SITE_URL}/photography/${row.slug as string}`, priority: "0.6" });
-          }
-        } catch {
-          // albums table may not exist yet — silently skip
+        const projects = await db.execute(
+          "SELECT slug FROM projects WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
+        );
+        for (const row of projects.rows) {
+          urls.push({ loc: `${SITE_URL}/project/${row.slug as string}`, priority: "0.7" });
         }
-      } else {
-        console.warn("[sitemap] TURSO_URL not set — sitemap will only have static routes");
+      } catch (err) {
+        console.error("[sitemap] Failed to fetch posts/projects from Turso:", err);
+      }
+
+      // Albums query is separate — table may not exist yet
+      try {
+        const albumsResult = await db.execute(
+          "SELECT slug FROM albums WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
+        );
+        for (const row of albumsResult.rows) {
+          urls.push({ loc: `${SITE_URL}/photography/${row.slug as string}`, priority: "0.6" });
+        }
+      } catch {
+        // albums table may not exist yet — silently skip
       }
 
       const today = new Date().toISOString().split("T")[0];
