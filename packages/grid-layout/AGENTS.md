@@ -75,3 +75,6 @@ npm run test:visual:update  # regenerate baseline snapshots
 - Keyboard state tracked via `_kbDragActive`, `_kbResizeActive`, `_kbFocusedItemId`, `_kbOldLayout` private fields
 - External drop state tracked via `_isDroppable`, `_droppingItem`, `_externalDragOver`, `_externalPlaceholderItem` private fields
 - `responsive-grid-layout.ts` `layouts` setter directly applies layout for current breakpoint instead of going through `onWidthChange` — fixes race condition where ResizeObserver fires before `setTimeout(0)` sets layouts
+- `composedPath()` used in `handlePointerDown` to find `grid-item` across shadow DOM boundaries — `closest("grid-item")` can't cross shadow roots
+- `setPointerCapture` called on the `grid-layout` element itself (not `e.target`) with `pointermove`/`pointerup` listeners on `this` instead of `document` — ensures events stay within the component
+- Build order: `vite build && tsc --emitDeclarationOnly` (not the reverse) — tsc first would have its `.d.ts` output wiped by Vite's `emptyOutDir`

@@ -32,5 +32,6 @@ This directory contains Architectural Decision Records (ADRs) for the Maneki des
 | [025](025-photography-backend.md) | Photography Backend — Albums + Photos in Turso | Accepted | 2026-04 |
 | [026](026-editor-lit-migration.md) | Editor Lit Migration — Sidebar + Tabbar | Accepted | 2026-04 |
 | [027](027-admin-static-html.md) | Admin Static HTML Architecture | Accepted | 2026-04 |
-
 | [028](028-lit-in-ui-components.md) | Lit in UI Components — Gradual Migration | Accepted | 2026-04 |
+| [029](029-generic-editable-pages.md) | Generic Editable Pages System | Accepted | 2026-04 |
+| [030](030-published-snapshot.md) | Published Snapshot for Change Detection | Accepted | 2026-04 |
