@@ -195,6 +195,12 @@
         padding-inline: 24px;
       }
     }
+
+    /* Override tag selected color to match blog aesthetic */
+    ui-tag[type="selectable"][state="selected"] {
+      --ui-tag-bg: var(--fd-text-primary);
+      --ui-tag-color: var(--fd-surface-primary);
+    }
     @media (min-width: 1024px) {
       body.wide-layout .site-name {
         transform: scale(1.5625);
