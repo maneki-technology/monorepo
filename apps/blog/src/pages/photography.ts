@@ -18,6 +18,9 @@ function toPhoto(p: (typeof photos)[number]): Photo {
     albumId: p.albumId,
     category: p.category,
     tags: p.tags,
+    location: p.location,
+    latitude: p.latitude,
+    longitude: p.longitude,
     width: p.width,
     height: p.height,
     thumbhash: p.thumbhash,
@@ -36,7 +39,10 @@ export const photographyRoute: Route = {
     description: "Photos from travels and daily life.",
   },
   render: () => `
-    <h1 class="heading-02 mb-1">Photography</h1>
+    <div class="row gap-1 mb-3" style="justify-content:space-between;align-items:center;flex-wrap:wrap;">
+      <h1 class="heading-02" style="margin:0;">Photography</h1>
+      <a href="/map" class="inline-link body-02" style="display:inline-flex;align-items:center;gap:4px;">🗺️ Explore Map</a>
+    </div>
     <p class="body-02 text-secondary mb-3">Moments to remember.</p>
     ${
       allTags.length > 0

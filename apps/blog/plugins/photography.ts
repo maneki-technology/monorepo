@@ -27,7 +27,7 @@ export function photographyPlugin(): Plugin {
     const db = getDb();
     try {
       const result = await db.execute(
-        "SELECT id, r2_key, url, title, caption, album_id, category, width, height, thumbhash, exif_json, sort_order, featured FROM photos WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
+        "SELECT id, r2_key, url, title, caption, album_id, category, location, latitude, longitude, width, height, thumbhash, exif_json, sort_order, featured FROM photos WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
       );
 
       // Fetch tags per photo
@@ -50,6 +50,9 @@ export function photographyPlugin(): Plugin {
         albumId: (row.album_id as number) ?? null,
         category: row.category as string,
         tags: [...new Set(photoTags.get(row.id as number) ?? [])],
+        location: (row.location as string) || "",
+        latitude: (row.latitude as number) ?? null,
+        longitude: (row.longitude as number) ?? null,
         width: row.width as number,
         height: row.height as number,
         thumbhash: row.thumbhash as string,
