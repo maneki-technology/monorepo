@@ -36,7 +36,8 @@ export const photographyRoute: Route = {
     description: "Photos from travels and daily life.",
   },
   render: () => `
-    <h1 class="heading-02 mb-2">Photography</h1>
+    <h1 class="heading-02 mb-1">Photography</h1>
+    <p class="body-02 text-secondary mb-3">Moments to remember.</p>
     ${
       allTags.length > 0
         ? `
