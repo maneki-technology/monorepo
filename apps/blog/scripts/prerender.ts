@@ -52,6 +52,7 @@ async function prerender(): Promise<void> {
     const { resumeRoute } = await vite.ssrLoadModule("/src/pages/resume.ts") as any;
     const { aboutRoute } = await vite.ssrLoadModule("/src/pages/about.ts") as any;
     const { photographyRoute } = await vite.ssrLoadModule("/src/pages/photography.ts") as any;
+    const { mapRoute } = await vite.ssrLoadModule("/src/pages/map.ts") as any;
 
     const allRoutes: Array<{
       id: string;
@@ -63,6 +64,7 @@ async function prerender(): Promise<void> {
       ...postRoutes,
       portfolioRoute,
       photographyRoute,
+      mapRoute,
       ...projectRoutes,
       resumeRoute,
       aboutRoute,

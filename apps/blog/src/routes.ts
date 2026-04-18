@@ -34,6 +34,11 @@ export const routes: Route[] = [
     load: () => import("./pages/photography.js").then((m) => m.photographyRoute),
   },
   {
+    id: "map",
+    meta: { title: "Photo Map", description: "Explore photos on a treasure hunt map." },
+    load: () => import("./pages/map.js").then((m) => m.mapRoute),
+  },
+  {
     id: "resume",
     meta: {
       title: "Resume",

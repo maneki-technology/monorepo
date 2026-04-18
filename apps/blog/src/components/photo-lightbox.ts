@@ -277,8 +277,9 @@ class PhotoLightbox extends HTMLElement {
     this.removeAttribute("open");
     document.body.style.overflow = this._prevOverflow;
     document.removeEventListener("keydown", this._boundKeyHandler);
-    const base = window.location.search.replace(/[?&]photo=\d+/, "");
-    history.replaceState(null, "", "/photography" + base);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("photo");
+    history.replaceState(null, "", url.pathname + url.search);
   }
 
   private _navigate(dir: number): void {
@@ -306,7 +307,9 @@ class PhotoLightbox extends HTMLElement {
       this._img.alt = photo.title || "";
     }
 
-    history.replaceState(null, "", `/photography?photo=${photo.id}`);
+    const url = new URL(window.location.href);
+    url.searchParams.set("photo", String(photo.id));
+    history.replaceState(null, "", url.pathname + url.search);
     this._preloadAdjacent();
   }
 
