@@ -37,7 +37,7 @@ export const homeRoute: Route = {
             const dx = (i - (count - 1) / 2) * defaultSpacing;
             const dy = [8, -14, 10, -8, 12][i] || 0;
             return `
-            <div class="polaroid" data-photo-index="${i}" style="--rot:${angles[i]}deg;--ox:${dx}px;--oy:${dy}px;--fan-x:${fanX}px;">
+            <div class="polaroid${p.height > p.width ? ' portrait' : ''}" data-photo-index="${i}" style="--rot:${angles[i]}deg;--ox:${dx}px;--oy:${dy}px;--fan-x:${fanX}px;">
               <img src="${p.url}" alt="${p.title || ''}"
                    width="${p.width}" height="${p.height}"
                    loading="lazy" decoding="async">
