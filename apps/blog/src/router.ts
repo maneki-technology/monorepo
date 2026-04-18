@@ -207,6 +207,11 @@ export async function renderRoute(): Promise<void> {
   const route = await resolveRoute(routeId);
 
   if (!route) {
+    // If path has a file extension, hand off to server (e.g. /feed.xml, /sitemap.xml)
+    if (/\.[a-z]+$/i.test(window.location.pathname)) {
+      window.location.reload();
+      return;
+    }
     content.innerHTML = `<p class="body-01 text-secondary">Page not found.</p>`;
     updateMeta(routeId, undefined);
     previousRoute = routeId;
@@ -362,7 +367,7 @@ export function initRouter(): void {
     const anchor = (e.target as Element).closest("a[href]") as HTMLAnchorElement | null;
     if (!anchor) return;
     const href = anchor.getAttribute("href");
-    if (!href || href.startsWith("http") || href.startsWith("mailto:") || anchor.hasAttribute("external")) return;
+    if (!href || href.startsWith("http") || href.startsWith("mailto:") || anchor.hasAttribute("external") || /\.[a-z]+$/i.test(href)) return;
     if (href.startsWith("/")) {
       e.preventDefault();
       history.pushState(null, "", href);
