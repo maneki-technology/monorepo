@@ -18,6 +18,9 @@ function toPhoto(p: (typeof photos)[number]): Photo {
     albumId: p.albumId,
     category: p.category,
     tags: p.tags,
+    location: p.location,
+    latitude: p.latitude,
+    longitude: p.longitude,
     width: p.width,
     height: p.height,
     thumbhash: p.thumbhash,
@@ -35,8 +38,17 @@ export const photographyRoute: Route = {
     title: "Photography",
     description: "Photos from travels and daily life.",
   },
-  render: () => `
-    <h1 class="heading-02 mb-2">Photography</h1>
+  render: () => {
+    const isMapView = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("view") === "map";
+    return `
+    <div class="row gap-1 mb-3" style="justify-content:space-between;align-items:center;flex-wrap:wrap;">
+      <h1 class="heading-02" style="margin:0;">Photography</h1>
+      <div id="view-toggle" class="row gap-1">
+        <ui-button data-view="grid" action="secondary" emphasis="${isMapView ? "minimal" : "subtle"}" size="s">🖼️ Grid</ui-button>
+        <ui-button data-view="map" action="secondary" emphasis="${isMapView ? "subtle" : "minimal"}" size="s">🗺️ Map</ui-button>
+      </div>
+    </div>
+    <p class="body-02 text-secondary mb-3">Moments to remember.</p>
     ${
       allTags.length > 0
         ? `
@@ -48,6 +60,8 @@ export const photographyRoute: Route = {
         : ""
     }
     <photo-grid id="photo-grid"></photo-grid>
+    <div id="photo-map-container" style="display:none;"></div>
+    <script>if(location.search.includes('view=map')){document.getElementById('photo-grid').style.display='none';document.getElementById('photo-map-container').style.display='block';var b=document.querySelectorAll('#view-toggle ui-button');b[0]&&b[0].setAttribute('emphasis','minimal');b[1]&&b[1].setAttribute('emphasis','subtle');}</script>
     <photo-lightbox id="photo-lightbox"></photo-lightbox>
     ${allPhotos.length === 0 ? `<p class="body-01 text-secondary mt-4">No photos yet.</p>` : ""}
     <noscript>
@@ -55,7 +69,8 @@ export const photographyRoute: Route = {
         ${allPhotos.map((p) => `<img src="${p.url}" alt="${p.title}" width="${p.width}" height="${p.height}" style="width:100%;height:auto;margin-bottom:16px;border-radius:8px;" loading="lazy">`).join("")}
       </div>
     </noscript>
-  `,
+  `;
+  },
   setup: () => {
     const grid = document.getElementById("photo-grid") as (HTMLElement & { setPhotos(p: Photo[]): void }) | null;
     const lightbox = document.getElementById("photo-lightbox") as
@@ -94,6 +109,7 @@ export const photographyRoute: Route = {
           currentPhotos = allPhotos.filter((p) => p.tags.some((t) => selectedTags.has(t)));
         }
         gridEl.setPhotos(currentPhotos);
+        if (mapEl) mapEl.setPhotos(currentPhotos);
 
         // Sync "All" tag visual state
         const allTag = filters!.querySelector('ui-tag[data-tag="all"]') as HTMLElement | null;
@@ -141,6 +157,67 @@ export const photographyRoute: Route = {
           }
         }
         applyFilter();
+      }
+    }
+    // View toggle (Grid / Map)
+    const viewToggle = document.getElementById("view-toggle");
+    const mapContainer = document.getElementById("photo-map-container");
+    let mapLoaded = false;
+    let mapEl: (HTMLElement & { setPhotos(p: Photo[]): void }) | null = null;
+
+    if (viewToggle && mapContainer) {
+      viewToggle.addEventListener("click", (async (e: Event) => {
+        const btn = (e.target as HTMLElement).closest("ui-button[data-view]") as HTMLElement | null;
+        if (!btn) return;
+        const view = btn.dataset.view!;
+
+        // Toggle emphasis: subtle = active, minimal = inactive
+        viewToggle.querySelectorAll("ui-button").forEach((b) => {
+          b.setAttribute("emphasis", b === btn ? "subtle" : "minimal");
+        });
+
+        if (view === "map") {
+          gridEl.style.display = "none";
+          mapContainer.style.display = "block";
+
+          if (!mapLoaded) {
+            mapLoaded = true;
+            const { PhotoMap: _PM } = await import("../components/photo-map.js");
+            void _PM;
+            mapEl = document.createElement("photo-map") as HTMLElement & { setPhotos(p: Photo[]): void };
+            mapContainer.appendChild(mapEl);
+            mapEl.setPhotos(currentPhotos);
+
+            // Open lightbox when clicking a photo in the map popup
+            mapEl.addEventListener("photo-select", ((ev: CustomEvent) => {
+              const index = ev.detail?.index ?? 0;
+              const photos = ev.detail?.photos ?? currentPhotos;
+              lightbox?.open(index, photos);
+            }) as EventListener);
+          }
+        } else {
+          gridEl.style.display = "block";
+          mapContainer.style.display = "none";
+        }
+
+        // Update URL with view param
+        const url = new URL(window.location.href);
+        if (view === "map") {
+          url.searchParams.set("view", "map");
+        } else {
+          url.searchParams.delete("view");
+        }
+        history.replaceState(null, "", url.toString());
+      }) as EventListener);
+
+      // Restore view from URL
+      if (params.get("view") === "map") {
+        const mapBtn = viewToggle.querySelector('ui-button[data-view="map"]') as HTMLElement | null;
+        if (mapBtn) {
+          mapBtn.setAttribute("emphasis", "subtle");
+          viewToggle.querySelector('ui-button[data-view="grid"]')?.setAttribute("emphasis", "minimal");
+          mapBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        }
       }
     }
   },

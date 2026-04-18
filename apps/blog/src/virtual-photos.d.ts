@@ -8,6 +8,9 @@ declare module "virtual:photos" {
     albumId: number | null;
     category: string;
     tags: string[];
+    location: string;
+    latitude: number | null;
+    longitude: number | null;
     width: number;
     height: number;
     thumbhash: string;

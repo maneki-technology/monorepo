@@ -61,8 +61,8 @@ interface Album {
   photo_count?: number;
 }
 
-const MAX_WIDTH = 1200;
-const QUALITY = 0.85;
+const MAX_WIDTH = 2400;
+const QUALITY = 0.92;
 
 async function optimizeImage(file: File): Promise<File> {
   if (file.type === "image/svg+xml") return file;

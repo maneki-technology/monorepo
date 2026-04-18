@@ -3,18 +3,19 @@ import type { Photo } from "./photo-types.js";
 const styles = new CSSStyleSheet();
 styles.replaceSync(/*css*/ `
   :host {
-    display: block;
+    display: none;
     position: fixed;
     inset: 0;
     z-index: 9999;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.25s ease, visibility 0.25s ease;
   }
 
   :host([open]) {
+    display: block;
     opacity: 1;
     visibility: visible;
+    transition: opacity 0.25s ease;
   }
 
   .backdrop {
@@ -47,7 +48,7 @@ styles.replaceSync(/*css*/ `
     object-fit: contain;
     opacity: 1;
     transition: opacity 0.2s ease;
-    border-radius: var(--fd-radius-sm, 4px);
+    image-rendering: high-quality;
   }
 
   .image-wrapper img.fade {
