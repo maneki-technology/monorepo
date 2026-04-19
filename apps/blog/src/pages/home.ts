@@ -1,6 +1,7 @@
 import { posts } from "virtual:posts";
 import { pinnedProjects } from "virtual:projects";
 import { featuredPhotos } from "virtual:photos";
+import { thumbHashBase64ToDataURL } from "../lib/thumbhash.js";
 import type { Route } from "../router.js";
 
 function formatDate(dateStr: string): string {
@@ -38,9 +39,10 @@ export const homeRoute: Route = {
             const dy = [8, -14, 10, -8, 12][i] || 0;
             return `
             <div class="polaroid" data-photo-index="${i}" style="--rot:${angles[i]}deg;--ox:${dx}px;--oy:${dy}px;--fan-x:${fanX}px;">
-              <img src="${p.url}" alt="${p.title || ''}"
+              <ui-image src="${p.url}" alt="${p.title || ''}"
                    width="${p.width}" height="${p.height}"
-                   loading="lazy" decoding="async">
+                   ${p.thumbhash ? `placeholder="${(() => { try { return thumbHashBase64ToDataURL(p.thumbhash); } catch { return ''; } })()}"` : ''}
+                   loading="lazy" decoding="async"></ui-image>
             </div>`;
           }).join("");
         })()}
