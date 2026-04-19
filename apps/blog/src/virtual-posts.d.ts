@@ -11,3 +11,8 @@ declare module "virtual:posts" {
   }
   export const posts: Post[];
 }
+
+declare module "virtual:drafts" {
+  import type { Post } from "virtual:posts";
+  export const drafts: Post[];
+}

@@ -15,8 +15,10 @@ import anchor from "markdown-it-anchor";
 import { createHighlighter } from "shiki";
 import { fromHighlighter } from "@shikijs/markdown-it";
 
-const VIRTUAL_MODULE_ID = "virtual:posts";
-const RESOLVED_ID = "\0" + VIRTUAL_MODULE_ID;
+const POSTS_VIRTUAL_ID = "virtual:posts";
+const POSTS_RESOLVED_ID = "\0" + POSTS_VIRTUAL_ID;
+const DRAFTS_VIRTUAL_ID = "virtual:drafts";
+const DRAFTS_RESOLVED_ID = "\0" + DRAFTS_VIRTUAL_ID;
 
 // Shiki highlighter (created lazily, cached)
 let mdInstance: MarkdownIt | null = null;
@@ -87,11 +89,11 @@ async function getMd(): Promise<MarkdownIt> {
 }
 
 export function markdownPostsPlugin(): Plugin {
-  async function loadPosts(): Promise<string> {
+  async function loadFromDb(status: "published" | "draft", label: string): Promise<string> {
     const db = getDb();
     try {
       const result = await db.execute(
-        "SELECT slug, title, body_md, excerpt, tags, created_at FROM posts WHERE status = 'published' ORDER BY created_at DESC",
+        `SELECT slug, title, body_md, excerpt, tags, created_at FROM posts WHERE status = '${status}' ORDER BY created_at DESC`,
       );
 
       const md = await getMd();
@@ -131,21 +133,23 @@ export function markdownPostsPlugin(): Plugin {
         };
       });
 
-      console.log(`[markdown-posts] Loaded ${posts.length} published posts from Turso`);
-      return `export const posts = ${JSON.stringify(posts)};`;
+      console.log(`[markdown-posts] Loaded ${posts.length} ${label} posts from Turso`);
+      return `export const ${label === "published" ? "posts" : "drafts"} = ${JSON.stringify(posts)};`;
     } catch (err) {
-      console.error("[markdown-posts] Failed to fetch from Turso:", err);
-      return "export const posts = [];";
+      console.error(`[markdown-posts] Failed to fetch ${label} from Turso:`, err);
+      return `export const ${label === "published" ? "posts" : "drafts"} = [];`;
     }
   }
 
   return {
     name: "markdown-posts",
     resolveId(id) {
-      if (id === VIRTUAL_MODULE_ID) return RESOLVED_ID;
+      if (id === POSTS_VIRTUAL_ID) return POSTS_RESOLVED_ID;
+      if (id === DRAFTS_VIRTUAL_ID) return DRAFTS_RESOLVED_ID;
     },
     async load(id) {
-      if (id === RESOLVED_ID) return loadPosts();
+      if (id === POSTS_RESOLVED_ID) return loadFromDb("published", "published");
+      if (id === DRAFTS_RESOLVED_ID) return loadFromDb("draft", "draft");
     },
   };
 }

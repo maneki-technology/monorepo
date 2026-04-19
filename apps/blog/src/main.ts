@@ -43,10 +43,16 @@ registerPatternRoute({
   prefix: "project/",
   load: (id) => import("./pages/project.js").then((m) => m.findProjectRoute(id)),
 });
+registerPatternRoute({
+  prefix: "draft/",
+  load: (id) => import("./pages/draft.js").then((m) => m.findDraftRoute(id)),
+});
 
 // ─── Theme Toggle ─────────────────────────────────────────────────────────
 
 import "./components/theme-toggle.js";
+
+import "./components/mute-toggle.js";
 
 // ─── Reading Progress ─────────────────────────────────────────────────────────
 
