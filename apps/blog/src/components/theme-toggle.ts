@@ -20,7 +20,7 @@ class ThemeToggle extends HTMLElement {
     const btn = document.createElement("ui-button");
     btn.setAttribute("action", "secondary");
     btn.setAttribute("emphasis", "minimal");
-    btn.setAttribute("size", "m");
+    btn.setAttribute("size", "s");
     btn.setAttribute("aria-label", "Toggle dark mode");
     btn.textContent = this._dark ? "\u{1F319}" : "\u{2600}\u{FE0F}";
     btn.addEventListener("click", () => this._toggle());

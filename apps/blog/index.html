@@ -24,6 +24,7 @@
       var t = localStorage.getItem('blog-theme');
       if (t === 'dark') document.documentElement.setAttribute('data-theme', 'heroui-dark');
       else document.documentElement.setAttribute('data-theme', 'heroui');
+      if (localStorage.getItem('blog-muted') === 'true') document.documentElement.setAttribute('data-muted', '');
       var p = location.pathname; if (p === '/' || p === '') document.documentElement.dataset.page = 'home';
     })();
   </script>
@@ -373,6 +374,41 @@
     .post-content ul, .post-content ol { font-size: var(--fd-type-body-01-font-size); line-height: var(--fd-type-body-01-line-height); margin: 0 0 var(--fd-space-2); padding-left: var(--fd-space-3); }
     .post-content li { margin-bottom: var(--fd-space-0-5); }
 
+    /* ── Mute mode: soften all text globally (toggled via data-muted on :root) ── */
+    [data-muted] { --fd-text-primary: var(--fd-color-gray-30, #C1CCD6); }
+    [data-muted] .site-name { color: var(--fd-text-secondary); -webkit-text-stroke-color: var(--fd-text-secondary); }
+    [data-muted] .hero-accent { color: var(--fd-text-secondary); -webkit-text-stroke-color: var(--fd-text-secondary); }
+    [data-muted] .hero-accent .sig-underline path { fill: var(--fd-text-secondary); }
+    [data-muted] .post-content,
+    [data-muted] .post-content h2,
+    [data-muted] .post-content h3,
+    [data-muted] .post-content h4,
+    [data-muted] .post-content p,
+    [data-muted] .post-content li,
+    [data-muted] .post-content blockquote { color: var(--fd-text-secondary); }
+    [data-muted] .post-content a,
+    [data-muted] .post-content ui-link { --ui-link-color: var(--fd-text-tertiary); }
+    [data-muted] .post-card-title { color: var(--fd-text-secondary); }
+    [data-muted] .post-meta { color: var(--fd-text-tertiary); }
+    [data-muted] .post-excerpt { color: var(--fd-text-tertiary); }
+    [data-muted] .display-03 { color: var(--fd-text-secondary); }
+    [data-muted] .heading-02 { color: var(--fd-text-secondary); }
+    [data-muted] .heading-03 { color: var(--fd-text-secondary); }
+    [data-muted] .heading-04 { color: var(--fd-text-secondary); }
+    [data-muted] .heading-05 { color: var(--fd-text-secondary); }
+    [data-muted] .body-01 { color: var(--fd-text-secondary); }
+    [data-muted] .body-02 { color: var(--fd-text-secondary); }
+    [data-muted] .body-03 { color: var(--fd-text-tertiary); }
+    [data-muted] .text-link { color: var(--fd-text-tertiary); }
+    [data-muted] .inline-link { color: var(--fd-text-secondary); }
+    [data-muted] .arrow-link { color: var(--fd-text-secondary); }
+    [data-muted] nav a { color: var(--fd-text-tertiary); }
+    [data-muted] nav a.active { color: var(--fd-text-secondary); }
+    [data-muted] nav a::after { background: var(--fd-text-tertiary); }
+    [data-muted] footer { color: var(--fd-text-tertiary); }
+    [data-muted] ui-alert { opacity: 0.5; }
+    [data-muted] ui-badge { opacity: 0.6; }
+    [data-muted] .project-card-title { color: var(--fd-text-secondary); }
     .post-content pre {
       border: 1px solid var(--fd-border-minimal, #e4e4e7);
       border-radius: var(--fd-radius-sm);
@@ -773,7 +809,10 @@
         <a href="/blog" data-route="blog">Blog</a>
         <a href="/portfolio" data-route="portfolio">Portfolio</a>
         <a href="/about" data-route="about">About</a>
-        <theme-toggle></theme-toggle>
+        <div style="display:inline-flex;align-items:center;gap:2px;">
+          <mute-toggle></mute-toggle>
+          <theme-toggle></theme-toggle>
+        </div>
       </nav>
     </header>
     <main id="content">

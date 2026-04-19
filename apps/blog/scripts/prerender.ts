@@ -47,6 +47,7 @@ async function prerender(): Promise<void> {
     const { homeRoute } = await vite.ssrLoadModule("/src/pages/home.ts") as any;
     const { blogRoute } = await vite.ssrLoadModule("/src/pages/blog.ts") as any;
     const { postRoutes } = await vite.ssrLoadModule("/src/pages/post.ts") as any;
+    const { draftRoutes } = await vite.ssrLoadModule("/src/pages/draft.ts") as any;
     const { portfolioRoute } = await vite.ssrLoadModule("/src/pages/portfolio.ts") as any;
     const { projectRoutes } = await vite.ssrLoadModule("/src/pages/project.ts") as any;
     const { resumeRoute } = await vite.ssrLoadModule("/src/pages/resume.ts") as any;
@@ -66,6 +67,7 @@ async function prerender(): Promise<void> {
       photographyRoute,
       mapRoute,
       ...projectRoutes,
+      ...draftRoutes,
       resumeRoute,
       aboutRoute,
     ];
