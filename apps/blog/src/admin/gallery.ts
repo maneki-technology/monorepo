@@ -61,10 +61,12 @@ interface Album {
   photo_count?: number;
 }
 
-const MAX_WIDTH = 1200;
-const QUALITY = 0.85;
+const MAX_WIDTH = 2400;
+const QUALITY = 0.92;
 
 async function optimizeImage(file: File): Promise<File> {
+  // Skip optimization for photography — preserve original quality
+  // Only resize if wider than MAX_WIDTH, keep original format
   if (file.type === "image/svg+xml") return file;
   if (file.size < 100 * 1024) return file;
 
@@ -72,25 +74,28 @@ async function optimizeImage(file: File): Promise<File> {
     const img = new Image();
     img.onload = () => {
       let { width, height } = img;
-      if (width > MAX_WIDTH) {
-        height = Math.round(height * (MAX_WIDTH / width));
-        width = MAX_WIDTH;
+      if (width <= MAX_WIDTH) {
+        // No resize needed — return original file as-is
+        resolve(file);
+        return;
       }
+      height = Math.round(height * (MAX_WIDTH / width));
+      width = MAX_WIDTH;
       const canvas = document.createElement("canvas");
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext("2d")!;
+      ctx.imageSmoothingQuality = "high";
       ctx.drawImage(img, 0, 0, width, height);
       canvas.toBlob(
         (blob) => {
-          if (blob && blob.size < file.size) {
-            const name = file.name.replace(/\.[^.]+$/, ".webp");
-            resolve(new File([blob], name, { type: "image/webp" }));
+          if (blob) {
+            resolve(new File([blob], file.name, { type: file.type }));
           } else {
             resolve(file);
           }
         },
-        "image/webp",
+        file.type,
         QUALITY,
       );
     };
