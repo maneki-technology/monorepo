@@ -34,6 +34,7 @@ const updateProjectSchema = z.object({
   pinned: z.boolean().optional(),
   sort_order: z.number().optional(),
   status: z.enum(["draft", "published"]).optional(),
+  new_slug: z.string().optional(),
 });
 
 export const projects = new Hono<Env>()
@@ -129,6 +130,13 @@ export const projects = new Hono<Env>()
     if (updates.pinned !== undefined) { setClauses.push("pinned = ?"); args.push(updates.pinned ? 1 : 0); }
     if (updates.sort_order !== undefined) { setClauses.push("sort_order = ?"); args.push(updates.sort_order); }
     if (updates.status !== undefined) { setClauses.push("status = ?"); args.push(updates.status); }
+    // Atomic slug rename
+    let newSlug = slug;
+    if (updates.new_slug !== undefined && updates.new_slug !== slug) {
+      setClauses.push("slug = ?");
+      args.push(updates.new_slug);
+      newSlug = updates.new_slug;
+    }
 
     if (setClauses.length === 0) {
       return c.json({ error: "no fields to update" }, 400);
@@ -141,6 +149,12 @@ export const projects = new Hono<Env>()
       sql: `UPDATE projects SET ${setClauses.join(", ")} WHERE slug = ?`,
       args,
     });
+
+    // Cascade slug rename to conversation tables
+    if (newSlug !== slug) {
+      await db.execute({ sql: "UPDATE review_conversations SET slug = ? WHERE slug = ? AND type = 'project'", args: [newSlug, slug] });
+      await db.execute({ sql: "UPDATE brainstorm_conversations SET slug = ? WHERE slug = ? AND type = 'project'", args: [newSlug, slug] });
+    }
     const result = await db.execute({
       sql: "SELECT * FROM projects WHERE slug = ?",
       args: [slug],

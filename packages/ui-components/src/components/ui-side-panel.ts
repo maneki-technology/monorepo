@@ -445,8 +445,13 @@ export class UiSidePanel extends LitElement {
   private _onOpen(): void {
     setTimeout(() => {
       this._outsideClickHandler = (e: MouseEvent) => {
-        if (this.hasAttribute("dismissible") && !this.contains(e.target as Node)) {
-          this.hide();
+        if (this.hasAttribute("dismissible")) {
+          // Use composedPath to handle clicks inside floating elements (dropdowns, selects)
+          // that render outside the side panel's DOM tree but originate from within it
+          const path = e.composedPath();
+          if (!path.includes(this)) {
+            this.hide();
+          }
         }
       };
       document.addEventListener("click", this._outsideClickHandler);
