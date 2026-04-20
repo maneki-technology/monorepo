@@ -37,13 +37,13 @@ styles.replaceSync(/*css*/ `
     display: flex;
     align-items: center;
     justify-content: center;
-    max-width: 90vw;
-    max-height: 85vh;
+    max-width: 96vw;
+    max-height: 96vh;
   }
 
   .image-wrapper img {
-    max-width: 90vw;
-    max-height: 85vh;
+    max-width: 96vw;
+    max-height: 96vh;
     object-fit: contain;
     opacity: 1;
     transition: opacity 0.2s ease;
