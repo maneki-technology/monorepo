@@ -41,7 +41,7 @@ export function portfolioProjectsPlugin(): Plugin {
       return `export const projects = ${JSON.stringify(projects)};\nexport const pinnedProjects = ${JSON.stringify(pinned)};`;
     } catch (err) {
       console.error("[portfolio-projects] Failed to fetch from Turso:", err);
-      return "export const projects = [];\nexport const pinnedProjects = [];";
+      throw err;
     }
   }
 

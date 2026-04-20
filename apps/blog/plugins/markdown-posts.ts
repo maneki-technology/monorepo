@@ -137,7 +137,7 @@ export function markdownPostsPlugin(): Plugin {
       return `export const ${label === "published" ? "posts" : "drafts"} = ${JSON.stringify(posts)};`;
     } catch (err) {
       console.error(`[markdown-posts] Failed to fetch ${label} from Turso:`, err);
-      return `export const ${label === "published" ? "posts" : "drafts"} = [];`;
+      throw err;
     }
   }
 

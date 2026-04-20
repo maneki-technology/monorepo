@@ -97,7 +97,7 @@ export function photographyPlugin(): Plugin {
       return `export const albums = ${JSON.stringify(albums)};`;
     } catch (err) {
       console.error("[photography] Failed to fetch albums from Turso:", err);
-      return EMPTY_ALBUMS;
+      throw err;
     }
   }
 

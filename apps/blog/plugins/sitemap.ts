@@ -46,6 +46,7 @@ export function sitemapPlugin(): Plugin {
         }
       } catch (err) {
         console.error("[sitemap] Failed to fetch posts/projects from Turso:", err);
+        throw err;
       }
 
       const today = new Date().toISOString().split("T")[0];

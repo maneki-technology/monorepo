@@ -69,6 +69,7 @@ export function rssFeedPlugin(): Plugin {
         console.log(`[rss-feed] Generated feed.xml with ${items.length} items`);
       } catch (err) {
         console.error("[rss-feed] Failed to generate feed:", err);
+        throw err;
       }
     },
   };
