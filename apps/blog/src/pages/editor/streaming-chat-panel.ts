@@ -92,12 +92,14 @@ export abstract class StreamingChatPanel extends LitElement {
       right: 0;
       height: 100%;
       z-index: 10;
-      --ui-sp-width: 420px;
+      width: 420px;
+      --ui-sp-width: 100%;
       --ui-sp-bg: var(--fd-surface-primary);
+      transition: width 0.2s ease;
     }
 
     :host([fullscreen]) .panel-host {
-      --ui-sp-width: 100%;
+      width: 100%;
     }
 
     .panel-content {
@@ -357,6 +359,7 @@ export abstract class StreamingChatPanel extends LitElement {
             <ui-button action="secondary" emphasis="minimal" size="s" icon="icon-only" aria-label="Close panel" @click=${this._closePanel}>
               <ui-icon name="close" size="s" slot="icon-start"></ui-icon>
             </ui-button>
+          </div>
         </div>
         <div class="panel-content">
           ${this._renderSelectors()}
@@ -510,8 +513,7 @@ export abstract class StreamingChatPanel extends LitElement {
       this._fullscreen = false;
       this.removeAttribute("fullscreen");
     }
-    const panel = this.renderRoot.querySelector("ui-side-panel") as HTMLElement & { close(): void } | null;
-    panel?.close();
+    this.hide();
   }
 
   private _retry(): void {
