@@ -19,6 +19,8 @@ import("../pages/editor/editor-page.js").then(() => {
 const fab = document.querySelector("deploy-fab") as HTMLElement | null;
 const themeToggle = document.querySelector("theme-toggle[fab]") as HTMLElement | null;
 function shiftFabs(open: boolean, fullscreen?: boolean) {
+  if (fab) fab.style.transition = "right 0.2s ease";
+  if (themeToggle) themeToggle.style.transition = "right 0.2s ease";
   if (!open) {
     if (fab) { fab.style.right = "24px"; fab.style.display = ""; }
     if (themeToggle) { themeToggle.style.right = "8px"; themeToggle.style.display = ""; }
