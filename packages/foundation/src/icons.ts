@@ -146,6 +146,18 @@ export const ICON_TITLE = "\uE264";
 export const ICON_DESCRIPTION = "\uE873";
 /** rocket_launch — U+EB9B */
 export const ICON_ROCKET_LAUNCH = "\uEB9B";
+/** delete_sweep — U+E16C */
+export const ICON_DELETE_SWEEP = "\uE16C";
+/** rate_review — U+E560 */
+export const ICON_RATE_REVIEW = "\uE560";
+/** send — U+E163 */
+export const ICON_SEND = "\uE163";
+/** stop — U+E047 */
+export const ICON_STOP = "\uE047";
+/** auto_awesome — U+E65F */
+export const ICON_AUTO_AWESOME = "\uE65F";
+/** psychology — U+EA4A */
+export const ICON_PSYCHOLOGY = "\uEA4A";
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
   warning: ICON_WARNING,
@@ -214,6 +226,12 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   location_on: ICON_LOCATION_ON,
   link: ICON_LINK,
   title: ICON_TITLE,
+  delete_sweep: ICON_DELETE_SWEEP,
+  rate_review: ICON_RATE_REVIEW,
+  send: ICON_SEND,
+  stop: ICON_STOP,
+  auto_awesome: ICON_AUTO_AWESOME,
+  psychology: ICON_PSYCHOLOGY,
 };
 
 // ── Font registration ───────────────────────────────────────────────

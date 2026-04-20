@@ -121,6 +121,39 @@ for (const table of ["posts", "projects"]) {
   } catch { console.log(`${table}.published_snapshot already exists.`); }
 }
 
+// Create review_conversations table if missing
+await db.executeMultiple(`
+  CREATE TABLE IF NOT EXISTS review_conversations (
+    slug TEXT NOT NULL,
+    type TEXT NOT NULL DEFAULT 'post' CHECK (type IN ('post', 'project')),
+    audience TEXT NOT NULL DEFAULT 'general',
+    messages TEXT NOT NULL DEFAULT '[]',
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (slug, type)
+  );
+`);
+console.log("Review conversations table ready.");
+
+// Create brainstorm_conversations table if missing
+await db.executeMultiple(`
+  CREATE TABLE IF NOT EXISTS brainstorm_conversations (
+    slug TEXT NOT NULL,
+    type TEXT NOT NULL DEFAULT 'post' CHECK (type IN ('post', 'project')),
+    focus TEXT NOT NULL DEFAULT 'open',
+    audience TEXT NOT NULL DEFAULT 'general',
+    messages TEXT NOT NULL DEFAULT '[]',
+    updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (slug, type)
+  );
+`);
+console.log("Brainstorm conversations table ready.");
+
+// Add audience column to brainstorm_conversations if missing
+try {
+  await db.execute("ALTER TABLE brainstorm_conversations ADD COLUMN audience TEXT NOT NULL DEFAULT 'general'");
+  console.log("Added audience column to brainstorm_conversations.");
+} catch { console.log("brainstorm_conversations.audience already exists."); }
+
 // Create any missing tables
 await db.executeMultiple(SCHEMA);
 console.log("Done.");

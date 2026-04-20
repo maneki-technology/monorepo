@@ -130,4 +130,23 @@ CREATE TABLE IF NOT EXISTS pages (
 
 CREATE INDEX IF NOT EXISTS idx_pages_status ON pages(status);
 CREATE INDEX IF NOT EXISTS idx_pages_slug ON pages(slug);
+
+CREATE TABLE IF NOT EXISTS review_conversations (
+  slug TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'post' CHECK (type IN ('post', 'project')),
+  audience TEXT NOT NULL DEFAULT 'general',
+  messages TEXT NOT NULL DEFAULT '[]',
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (slug, type)
+);
+
+CREATE TABLE IF NOT EXISTS brainstorm_conversations (
+  slug TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'post' CHECK (type IN ('post', 'project')),
+  focus TEXT NOT NULL DEFAULT 'open',
+  audience TEXT NOT NULL DEFAULT 'general',
+  messages TEXT NOT NULL DEFAULT '[]',
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (slug, type)
+);
 `;

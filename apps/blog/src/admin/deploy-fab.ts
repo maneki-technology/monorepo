@@ -133,6 +133,7 @@ export class DeployFab extends LitElement {
       display: flex;
       align-items: center;
       gap: 8px;
+      transition: right 0.2s ease;
     }
 
     .fab-btn {

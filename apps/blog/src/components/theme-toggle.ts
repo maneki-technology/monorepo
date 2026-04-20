@@ -44,8 +44,7 @@ class ThemeToggle extends HTMLElement {
     this.style.right = "8px";
     this.style.zIndex = "1000";
     this.style.opacity = "0.3";
-    this.style.transition = "opacity 0.2s ease";
-    this.addEventListener("mouseenter", () => { this.style.opacity = "1"; });
+    this.style.transition = "opacity 0.2s ease, right 0.2s ease";
     this.addEventListener("mouseleave", () => { this.style.opacity = "0.3"; });
   }
 

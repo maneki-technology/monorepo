@@ -3,6 +3,8 @@
 # To add a new icon, append its name here and run the subset script.
 # See SOP in packages/foundation/AGENTS.md for details.
 
+auto_awesome
+psychology
 account_circle
 add
 add_circle
@@ -31,6 +33,7 @@ format_quote
 format_underlined
 download
 delete
+delete_sweep
 description
 error
 expand_less
@@ -58,13 +61,16 @@ phone
 priority_high
 progress_activity
 refresh
+rate_review
 remove
 rocket_launch
 schedule
 search
+send
 settings
 share
 title
+stop
 upload
 visibility
 visibility_off

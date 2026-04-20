@@ -38,6 +38,7 @@ CODEPOINTS: dict[str, int] = {
     "arrow_back_ios": 0xE5E0,
     "arrow_forward_ios": 0xE5E1,
     "attach_money": 0xE227,
+    "auto_awesome": 0xE65F,
     "bar_chart": 0xE26B,
     "cancel": 0xE5C9,
     "check_circle": 0xE86C,
@@ -47,6 +48,7 @@ CODEPOINTS: dict[str, int] = {
     "close": 0xE5CD,
     "download": 0xF090,
     "delete": 0xE872,
+    "delete_sweep": 0xE16C,
     "description": 0xE873,
     "error": 0xE000,
     "expand_less": 0xE5CE,
@@ -63,6 +65,7 @@ CODEPOINTS: dict[str, int] = {
     "person": 0xE7FD,
     "photo_album": 0xE411,
     "progress_activity": 0xE9D0,
+    "psychology": 0xEA4A,
     "remove": 0xE15B,
     "rocket_launch": 0xEB9B,
     "search": 0xE8B6,
@@ -95,7 +98,10 @@ CODEPOINTS: dict[str, int] = {
     "phone": 0xF0D4,
     "priority_high": 0xE645,
     "refresh": 0xE5D5,
+    "rate_review": 0xE560,
     "menu": 0xE5D2,
+    "send": 0xE163,
+    "stop": 0xE047,
 }
 
 

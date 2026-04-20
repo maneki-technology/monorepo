@@ -15,5 +15,16 @@ import("../pages/editor/editor-page.js").then(() => {
   root.appendChild(el);
 });
 
+// Shift deploy FAB when review panel opens/closes
+const fab = document.querySelector("deploy-fab") as HTMLElement | null;
+const themeToggle = document.querySelector("theme-toggle[fab]") as HTMLElement | null;
+function shiftFabs(open: boolean) {
+  const offset = open ? "444px" : "";
+  if (fab) fab.style.right = offset || "24px";
+  if (themeToggle) themeToggle.style.right = offset || "8px";
+}
+document.addEventListener("review-panel-toggle", ((e: CustomEvent) => shiftFabs(e.detail.open)) as EventListener);
+document.addEventListener("brainstorm-panel-toggle", ((e: CustomEvent) => shiftFabs(e.detail.open)) as EventListener);
+
 window.addEventListener("theme-change", () => saveThemeToBackend());
 loadTheme();

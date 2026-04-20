@@ -229,3 +229,20 @@ Setting `pointer-events: none` on a Shadow DOM component (e.g., `ui-card`) preve
 `textarea.value = ...` pollutes the browser's native undo stack. Every programmatic assignment creates an undo entry, making Ctrl+Z unpredictable for users.
 
 **Fix:** Use `setRangeText(value, 0, length, "preserve")` to replace content without affecting undo history. This leverages the browser's built-in editing API, which treats `setRangeText` as a user-initiated edit that integrates cleanly with the undo stack.
+
+## composedPath() for Outside-Click Detection in Shadow DOM
+
+Using `!this.contains(e.target)` for dismissible overlays (side panels, dropdowns) fails when the click originates from a floating element (like `<ui-select>`'s dropdown) that renders outside the component's DOM tree but was triggered from within it.
+
+**Fix:** Use `e.composedPath()` which returns the full event path including Shadow DOM boundaries:
+
+```ts
+// WRONG: floating dropdown clicks escape the side panel's DOM tree
+if (!this.contains(e.target as Node)) this.hide();
+
+// CORRECT: composedPath includes the originating element across shadow boundaries
+const path = e.composedPath();
+if (!path.includes(this)) this.hide();
+```
+
+This is critical for any dismissible overlay that contains form controls with floating popups (selects, dropdowns, date pickers, etc.).

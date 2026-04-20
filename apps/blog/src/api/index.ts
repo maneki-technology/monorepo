@@ -17,6 +17,10 @@ import { photos } from "./routes/photos.js";
 import { albums } from "./routes/albums.js";
 import { tags } from "./routes/tags.js";
 import { pages } from "./routes/pages.js";
+import { review } from "./routes/review.js";
+import { reviewConversations } from "./routes/review-conversations.js";
+import { brainstorm } from "./routes/brainstorm.js";
+import { brainstormConversations } from "./routes/brainstorm-conversations.js";
 
 /** Env bindings available in CF Pages Functions. */
 export type Env = {
@@ -26,6 +30,7 @@ export type Env = {
     GH_DEPLOY_TOKEN: string;
     IMAGES_BUCKET: R2Bucket;
     IMAGES_BASE_URL: string;
+    ANTHROPIC_API_KEY: string;
   };
   Variables: {
     db: Client;
@@ -55,7 +60,11 @@ const app = new Hono<Env>()
   .route("/photos", photos)
   .route("/albums", albums)
   .route("/tags", tags)
-  .route("/pages", pages);
+  .route("/pages", pages)
+  .route("/review", review)
+  .route("/review-conversations", reviewConversations)
+  .route("/brainstorm", brainstorm)
+  .route("/brainstorm-conversations", brainstormConversations);
 
 export type AppType = typeof app;
 export default app;

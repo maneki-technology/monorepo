@@ -140,6 +140,12 @@ export const posts = new Hono<Env>()
       sql: `UPDATE posts SET ${setClauses.join(", ")} WHERE slug = ?`,
       args,
     });
+
+    // Cascade slug rename to conversation tables
+    if (newSlug !== slug) {
+      await db.execute({ sql: "UPDATE review_conversations SET slug = ? WHERE slug = ? AND type = 'post'", args: [newSlug, slug] });
+      await db.execute({ sql: "UPDATE brainstorm_conversations SET slug = ? WHERE slug = ? AND type = 'post'", args: [newSlug, slug] });
+    }
     const result = await db.execute({
       sql: "SELECT * FROM posts WHERE slug = ?",
       args: [newSlug],

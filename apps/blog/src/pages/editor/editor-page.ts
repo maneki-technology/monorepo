@@ -9,6 +9,9 @@ import { renderPreview, triggerPreview, getMd, wrapCodeBlocks } from "./preview.
 import { wrapSelection, insertAtCursor } from "./toolbar.js";
 import { uploadFile } from "./upload.js";
 import "./gallery.js";
+import "./review-panel.js";
+import "./brainstorm-panel.js";
+import "./review-panel.js";
 import { setupContextMenu } from "./context-menu.js";
 import { setupScrollSync } from "./scroll-sync.js";
 import { setupUndoStack } from "./undo.js";
@@ -59,6 +62,8 @@ export class EditorPage extends LitElement {
   private _textareaWrapRef: Ref<HTMLElement> = createRef();
   private _previewWrapRef: Ref<HTMLElement> = createRef();
   private _projectPreviewRef: Ref<HTMLElement & { show(): void; hide(): void }> = createRef();
+  private _reviewPanelRef: Ref<HTMLElement & { show(): void; hide(): void; toggle(): void }> = createRef();
+  private _brainstormPanelRef: Ref<HTMLElement & { show(): void; hide(): void; toggle(): void }> = createRef();
 
   // ─── Post form fields (reactive) ─────────────────────────────────────────
   @litState() postTitle = "";
@@ -289,6 +294,16 @@ export class EditorPage extends LitElement {
                 <ui-button icon="icon-only" data-action="quote" aria-label="Quote"><ui-icon name="format_quote" size="s" slot="icon-start"></ui-icon></ui-button>
               </ui-button-group>
               <span style="flex:1"></span>
+              ${s.activeTabType !== "project" ? html`
+              <ui-button id="admin-brainstorm-btn" action="secondary" emphasis="subtle" size="s" icon="leading-icon" @click=${() => this._brainstormPanelRef.value?.toggle()}>
+                <ui-icon name="psychology" size="s" slot="icon-start"></ui-icon>
+                Brainstorm
+              </ui-button>
+              <ui-button id="admin-review-btn" action="secondary" emphasis="subtle" size="s" icon="leading-icon" @click=${() => this._reviewPanelRef.value?.toggle()}>
+                <ui-icon name="auto_awesome" size="s" slot="icon-start"></ui-icon>
+                Review
+              </ui-button>
+              ` : nothing}
               <ui-button id="admin-preview-btn" action="secondary" emphasis="subtle" size="s" @click=${this._openFullscreenPreview}>Preview</ui-button>
               <ui-button id="admin-portfolio-btn" action="secondary" emphasis="subtle" size="s" style="display:${s.activeTabType === "project" ? "" : "none"}" @click=${() => this._projectPreviewRef.value?.show()}>Portfolio</ui-button>
               <ui-button id="admin-save-btn" action="primary" size="s" status=${this._saveStatus} ?disabled=${s.deployingSlugs.size > 0} @click=${() => this._onSave()}>Save</ui-button>
@@ -316,6 +331,8 @@ export class EditorPage extends LitElement {
               </ui-scrollbar>
             </div>
           <editor-gallery ${ref(this._galleryRef)} .onSelect=${(url: string, name: string) => { const ta = this._textareaRef.value; if (ta) insertAtCursor(ta, `![${name}](${url})`); }}></editor-gallery>
+          <editor-review-panel ${ref(this._reviewPanelRef)} .getPostData=${() => this._getReviewPostData()} .slug=${state.currentSlug ?? ""} .contentType=${state.activeTabType === "project" ? "project" : "post"}></editor-review-panel>
+          <editor-brainstorm-panel ${ref(this._brainstormPanelRef)} .getPostData=${() => this._getReviewPostData()} .slug=${state.currentSlug ?? ""} .contentType=${state.activeTabType === "project" ? "project" : "post"}></editor-brainstorm-panel>
           <editor-delete-modal ${ref(this._deleteModalRef)}></editor-delete-modal>
           <editor-project-preview ${ref(this._projectPreviewRef)}></editor-project-preview>
           </div>
@@ -835,6 +852,24 @@ export class EditorPage extends LitElement {
       pinned: this.projectPinned,
       sortOrder: 0,
       status: state.allProjects.find(p => p.slug === state.currentSlug)?.status ?? "draft",
+    };
+  }
+
+  /** Get current post/project data for the review panel */
+  private _getReviewPostData(): { title: string; content: string; excerpt: string; tags: string } {
+    if (state.activeTabType === "project") {
+      return {
+        title: this.projectTitle,
+        content: this.postContent,
+        excerpt: this.projectDescription,
+        tags: this.projectTech.join(", "),
+      };
+    }
+    return {
+      title: this.postTitle,
+      content: this.postContent,
+      excerpt: this.postExcerpt,
+      tags: this.postTags.join(", "),
     };
   }
 
