@@ -275,6 +275,8 @@ class PhotoLightbox extends HTMLElement {
 
   close(): void {
     this.removeAttribute("open");
+    this._img.removeAttribute("src");
+    this._img.classList.add("fade");
     document.body.style.overflow = this._prevOverflow;
     document.removeEventListener("keydown", this._boundKeyHandler);
     const url = new URL(window.location.href);
@@ -303,8 +305,10 @@ class PhotoLightbox extends HTMLElement {
         this._img.onload = () => this._img.classList.remove("fade");
       }, 200);
     } else {
+      this._img.classList.add("fade");
       this._img.src = photo.url;
       this._img.alt = photo.title || "";
+      this._img.onload = () => this._img.classList.remove("fade");
     }
 
     const url = new URL(window.location.href);
@@ -326,21 +330,30 @@ class PhotoLightbox extends HTMLElement {
 
   private _updateExif(photo: Photo): void {
     const exif = photo.exif || {};
-    const rows: [string, unknown][] = [
+    const infoRows: [string, unknown][] = [
+      ["Location", photo.location],
+      ["Category", photo.category],
+      ["Tags", photo.tags?.length ? photo.tags.join(", ") : null],
+    ];
+    const exifRows: [string, unknown][] = [
       ["Camera", exif.Make && exif.Model ? `${exif.Make} ${exif.Model}` : exif.Make || exif.Model],
       ["Lens", exif.LensModel],
       ["Focal Length", exif.FocalLength],
       ["Aperture", exif.FNumber != null ? `ƒ/${String(exif.FNumber).replace(/^f\//, "")}` : null],
       ["Shutter Speed", exif.ExposureTime],
       ["ISO", exif.ISO],
+      ["Date", exif.DateTimeOriginal],
     ];
 
-    const filtered = rows.filter(([, v]) => v != null && v !== "");
+    const filteredInfo = infoRows.filter(([, v]) => v != null && v !== "");
+    const filteredExif = exifRows.filter(([, v]) => v != null && v !== "");
 
     this._exifPanel.innerHTML = `
-      <p class="exif-title">${this._esc(photo.title)}</p>
+      ${photo.title ? `<p class="exif-title">${this._esc(photo.title)}</p>` : ""}
       ${photo.caption ? `<p class="exif-caption">${this._esc(photo.caption)}</p>` : ""}
-      ${filtered.map(([label, value]) => `<div class="exif-row"><span class="exif-label">${label}</span><span class="exif-value">${this._esc(String(value))}</span></div>`).join("")}
+      ${filteredInfo.map(([label, value]) => `<div class="exif-row"><span class="exif-label">${label}</span><span class="exif-value">${this._esc(String(value))}</span></div>`).join("")}
+      ${filteredInfo.length && filteredExif.length ? `<div style="height:8px;"></div>` : ""}
+      ${filteredExif.map(([label, value]) => `<div class="exif-row"><span class="exif-label">${label}</span><span class="exif-value">${this._esc(String(value))}</span></div>`).join("")}
     `;
   }
 

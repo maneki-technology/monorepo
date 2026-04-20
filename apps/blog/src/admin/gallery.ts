@@ -24,6 +24,8 @@ import "@maneki/ui-components/components/ui-wizard.js";
 import "@maneki/ui-components/components/ui-step-group.js";
 import "@maneki/ui-components/components/ui-step-item.js";
 import "@maneki/ui-components/components/ui-alert.js";
+import "@maneki/ui-components/components/ui-image.js";
+import "@maneki/ui-components/components/ui-card.js";
 
 interface Photo {
   id: number;
@@ -235,35 +237,11 @@ export class AdminGallery extends LitElement {
       padding-top: 4px;
     }
 
-    .photo-card {
-      position: relative;
-      border: 1px solid var(--fd-border-minimal, #e4e4e7);
-      border-radius: 8px;
-      overflow: hidden;
-      background: var(--fd-surface-primary, #fff);
-      cursor: pointer;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .photo-card:hover {
-      border-color: var(--fd-border-moderate, #a1a1aa);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    }
-
     .photo-card-img {
       width: 100%;
       height: 150px;
       position: relative;
-      background-size: cover;
-      background-center: center;
       background-color: var(--fd-surface-secondary, #f4f4f5);
-    }
-
-    .photo-card-img img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
     }
 
     .photo-card-overlay {
@@ -282,13 +260,12 @@ export class AdminGallery extends LitElement {
       pointer-events: none;
     }
 
-    .photo-card:hover .photo-card-overlay {
+    .photo-card-img:hover .photo-card-overlay {
       opacity: 1;
       pointer-events: auto;
     }
 
     .photo-info {
-      padding: 8px 10px;
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -489,7 +466,7 @@ export class AdminGallery extends LitElement {
     .new-tag-inline ui-input { width: 120px; }
     .photo-detail { display: flex; gap: 24px; }
     .photo-detail-preview { flex: 1; min-width: 0; }
-    .photo-detail-preview img { width: 100%; border-radius: 8px; display: block; }
+    .photo-detail-preview ui-image { width: 100%; border-radius: 8px; display: block; }
     .photo-detail-info { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
     .detail-label { font-size: 11px; font-weight: 500; color: var(--fd-text-secondary, #71717a); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
     .detail-value { font-size: 14px; }
@@ -1006,36 +983,36 @@ export class AdminGallery extends LitElement {
     const albumName = this._albums.find((a) => a.id === p.album_id)?.title;
     const placeholder = p.thumbhash ? thumbHashBase64ToDataURL(p.thumbhash) : "";
     return html`
-      <div class="photo-card">
-        <div class="photo-card-img" style=${placeholder ? `background-image:url(${placeholder})` : ""}>
-          <img src=${p.url} alt=${p.title || "Photo"} loading="lazy" />
-        </div>
-        <div class="photo-card-overlay">
-          <ui-button action="contrast" emphasis="bold" size="s" @click=${() => { this._viewingPhoto = { ...p }; }}>
-            <ui-icon name="visibility" size="s" slot="icon-start"></ui-icon>
-            Preview
-          </ui-button>
-          <ui-button action="contrast" emphasis="bold" size="s" @click=${() => {
-            this._editingPhoto = { ...p };
-            this._editingPhotoTagIds = (p as Photo & { tags?: Array<{ id: number }> }).tags?.map((t) => t.id) ?? [];
-          }}>
-            <ui-icon name="settings" size="s" slot="icon-start"></ui-icon>
-            Edit
-          </ui-button>
-          <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._deletePhoto(p.id); }}>
-            <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
-            Delete
-          </ui-button>
-          ${this._viewingAlbum ? html`
-            <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._setAlbumCover(p.id); }}>
-              <ui-icon name="image" size="s" slot="icon-start"></ui-icon>
-              Cover
+      <ui-card size="s" elevation="00" bordered style="cursor:pointer;--ui-card-radius:8px;">
+        <div slot="image" class="photo-card-img">
+          <ui-image src=${p.thumbnail_url || p.url} alt=${p.title || "Photo"} ${placeholder ? `placeholder="${placeholder}"` : ""} loading="lazy" style="width:100%;--ui-image-height:150px;--ui-image-fit:cover;"></ui-image>
+          <div class="photo-card-overlay">
+            <ui-button action="contrast" emphasis="bold" size="s" @click=${() => { this._viewingPhoto = { ...p }; }}>
+              <ui-icon name="visibility" size="s" slot="icon-start"></ui-icon>
+              Preview
             </ui-button>
-          ` : nothing}
-          <ui-button action="contrast" emphasis="bold" size="s" ?disabled=${this._reuploadingPhotoId === p.id} status=${this._reuploadingPhotoId === p.id ? "loading" : this._reuploadedPhotoId === p.id ? "success" : "none"} @click=${(e: Event) => { e.stopPropagation(); this._reuploadPhoto(p); }}>
-            <ui-icon name="upload" size="s" slot="icon-start"></ui-icon>
-            ${this._reuploadingPhotoId === p.id ? "Uploading..." : this._reuploadedPhotoId === p.id ? "Done" : "Reupload"}
-          </ui-button>
+            <ui-button action="contrast" emphasis="bold" size="s" @click=${() => {
+              this._editingPhoto = { ...p };
+              this._editingPhotoTagIds = (p as Photo & { tags?: Array<{ id: number }> }).tags?.map((t) => t.id) ?? [];
+            }}>
+              <ui-icon name="settings" size="s" slot="icon-start"></ui-icon>
+              Edit
+            </ui-button>
+            <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._deletePhoto(p.id); }}>
+              <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
+              Delete
+            </ui-button>
+            ${this._viewingAlbum ? html`
+              <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._setAlbumCover(p.id); }}>
+                <ui-icon name="image" size="s" slot="icon-start"></ui-icon>
+                Cover
+              </ui-button>
+            ` : nothing}
+            <ui-button action="contrast" emphasis="bold" size="s" ?disabled=${this._reuploadingPhotoId === p.id} status=${this._reuploadingPhotoId === p.id ? "loading" : this._reuploadedPhotoId === p.id ? "success" : "none"} @click=${(e: Event) => { e.stopPropagation(); this._reuploadPhoto(p); }}>
+              <ui-icon name="upload" size="s" slot="icon-start"></ui-icon>
+              ${this._reuploadingPhotoId === p.id ? "Uploading..." : this._reuploadedPhotoId === p.id ? "Done" : "Reupload"}
+            </ui-button>
+          </div>
         </div>
         <div class="photo-info">
           <span class="photo-title">${p.title || p.r2_key}</span>
@@ -1045,6 +1022,7 @@ export class AdminGallery extends LitElement {
             <ui-badge size="xs" status=${p.status === "published" ? "success" : "warning"}>${p.status}</ui-badge>
           </span>
         </div>
+      </ui-card>
       </div>
     `;
   }
@@ -1073,7 +1051,7 @@ export class AdminGallery extends LitElement {
     return html`
       <div class="album-card" @click=${() => this._viewAlbum(a)}>
         <div class="album-card-cover">
-          ${coverPhoto ? html`<img src=${coverPhoto.url} alt=${a.title} style=${coverPhoto.thumbhash ? `background-image:url(${thumbHashBase64ToDataURL(coverPhoto.thumbhash)});background-size:cover` : ""} />` : html`<ui-icon name="photo_album" size="l"></ui-icon>`}
+          ${coverPhoto ? html`<ui-image src=${coverPhoto.thumbnail_url || coverPhoto.url} alt=${a.title} ${coverPhoto.thumbhash ? `placeholder="${thumbHashBase64ToDataURL(coverPhoto.thumbhash)}"` : ""} style="width:100%;height:100%;--ui-image-fit:cover;"></ui-image>` : html`<ui-icon name="photo_album" size="l"></ui-icon>`}
         </div>
         <div class="album-card-overlay">
           <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._viewAlbum(a); }}>
@@ -1504,7 +1482,7 @@ export class AdminGallery extends LitElement {
         <span>${p.title || "Photo Details"}</span>
         <div slot="body" class="photo-detail">
           <div class="photo-detail-preview">
-            <img src=${p.url} alt=${p.title || "Photo"} />
+            <ui-image src=${p.url} alt=${p.title || "Photo"} style="width:100%;border-radius:8px;"></ui-image>
           </div>
           <div class="photo-detail-info">
             <div class="detail-section">
@@ -1598,11 +1576,13 @@ export class AdminGallery extends LitElement {
     if (!this._editingPhoto) return html`<ui-modal size="m" dismissible></ui-modal>`;
     const p = this._editingPhoto;
     return html`
-      <ui-modal class="photo-edit-modal" size="l" open dismissible @close=${() => { this._editingPhoto = null; }}>
+      <ui-modal class="photo-edit-modal" size="l" style="--ui-modal-width: 900px" open dismissible @close=${() => { this._editingPhoto = null; }}>
         <span>Edit Photo</span>
-        <div slot="body" style="display:flex;gap:20px;">
-          <img src=${p.url} alt=${p.title || "Photo"} style="width:240px;height:240px;object-fit:contain;border-radius:6px;background:#f0f0f0;flex-shrink:0;" />
-          <div class="modal-form" style="flex:1;min-width:0;">
+        <div slot="body" class="photo-detail">
+          <div class="photo-detail-preview">
+            <ui-image src=${p.url} alt=${p.title || "Photo"} style="width:100%;border-radius:8px;"></ui-image>
+          </div>
+          <div class="photo-detail-info modal-form" style="width:340px;">
           <ui-input
             size="m"
             .value=${p.title}
@@ -1614,26 +1594,24 @@ export class AdminGallery extends LitElement {
             .value=${p.caption}
             @input=${(e: Event) => { this._editingPhoto = { ...p, caption: (e.target as HTMLTextAreaElement).value }; }}
           ><ui-label slot="label" size="m">Caption</ui-label></ui-textarea>
-          <div class="field-row">
-            <ui-select
-              size="m"
-              .value=${String(p.album_id ?? "")}
-              @change=${(e: Event) => {
-                const v = (e.target as HTMLElement & { value: string }).value;
-                this._editingPhoto = { ...p, album_id: v ? Number(v) : null };
-              }}
-            >
-              <ui-label slot="label" size="m">Album</ui-label>
-              <ui-dropdown-item value="">None</ui-dropdown-item>
-              ${this._albums.map((a) => html`<ui-dropdown-item value=${String(a.id)} ?selected=${p.album_id === a.id}>${a.title}</ui-dropdown-item>`)}
-            </ui-select>
-            <ui-input
-              size="m"
-              .value=${p.category}
-              @input=${(e: Event) => { this._editingPhoto = { ...p, category: (e.target as HTMLInputElement).value }; }}
-            ><ui-label slot="label" size="m">Category</ui-label></ui-input>
-          </div>
-          <div>
+          <ui-select
+            size="m"
+            .value=${String(p.album_id ?? "")}
+            @change=${(e: Event) => {
+              const v = (e.target as HTMLElement & { value: string }).value;
+              this._editingPhoto = { ...p, album_id: v ? Number(v) : null };
+            }}
+          >
+            <ui-label slot="label" size="m">Album</ui-label>
+            <ui-dropdown-item value="">None</ui-dropdown-item>
+            ${this._albums.map((a) => html`<ui-dropdown-item value=${String(a.id)} ?selected=${p.album_id === a.id}>${a.title}</ui-dropdown-item>`)}
+          </ui-select>
+          <ui-input
+            size="m"
+            .value=${p.category}
+            @input=${(e: Event) => { this._editingPhoto = { ...p, category: (e.target as HTMLInputElement).value }; }}
+          ><ui-label slot="label" size="m">Category</ui-label></ui-input>
+          <div style="display:flex;flex-direction:column;gap:4px;">
             <ui-label size="m">Location</ui-label>
             <map-picker
               .location=${p.location || ""}
@@ -1664,17 +1642,16 @@ export class AdminGallery extends LitElement {
               @change=${(e: Event) => { this._editingPhoto = { ...p, featured: (e.target as HTMLInputElement).checked ? 1 : 0 }; }}
             ><ui-label slot="label" size="m">Featured</ui-label></ui-checkbox-item>
           </div>
-          <div class="field-row" style="align-items:center;flex-wrap:wrap;">
+          <div style="display:flex;gap:8px;align-items:center;">
             <ui-button action="secondary" emphasis="subtle" size="s" ?disabled=${this._reuploadingPhotoId === p.id} status=${this._reuploadingPhotoId === p.id ? "loading" : this._reuploadedPhotoId === p.id ? "success" : "none"} @click=${() => this._reuploadPhoto(p)}>
               <ui-icon name="upload" size="s" slot="icon-start"></ui-icon>
               ${this._reuploadingPhotoId === p.id ? "Uploading..." : this._reuploadedPhotoId === p.id ? "Done" : "Reupload"}
             </ui-button>
-            <ui-button action="secondary" emphasis="subtle" size="s" ?disabled=${this._regeneratingThumbs} status=${this._regeneratingThumbs ? "loading" : "none"} @click=${() => this._regenerateSingleThumbnail(p)}>
-              <ui-icon name="photo_size_select_large" size="s" slot="icon-start"></ui-icon>
-              Regen Thumbnail
+            <ui-button action="secondary" emphasis="minimal" size="s" ?disabled=${this._regeneratingThumbs} status=${this._regeneratingThumbs ? "loading" : "none"} @click=${() => this._regenerateSingleThumbnail(p)}>
+              Regen Thumb
             </ui-button>
-            ${p.thumbnail_url ? html`<span style="font-size:11px;color:var(--fd-text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;">Thumb: ${p.thumbnail_url.split('/').pop()}</span>` : html`<span style="font-size:11px;color:var(--fd-text-tertiary);">No thumbnail</span>`}
           </div>
+          ${p.thumbnail_url ? html`<span style="font-size:11px;color:var(--fd-text-secondary);">${p.thumbnail_url.split('/').pop()}</span>` : nothing}
         <div class="tag-section">
           <ui-label size="m">Tags</ui-label>
           <div class="tag-list">
@@ -1711,6 +1688,7 @@ export class AdminGallery extends LitElement {
               >+ New</ui-tag>
             `}
           </div>
+        </div>
         </div>
         </div>
         <ui-button slot="footer-start" action="destructive" emphasis="minimal" size="s" status=${this._savingAction === "deleting" ? "loading" : "none"} ?disabled=${this._savingAction === "saving"} @click=${() => this._deletePhoto(p.id)}>Delete</ui-button>

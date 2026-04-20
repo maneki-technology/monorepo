@@ -50,7 +50,7 @@ export const STYLES = /* css */ `
   :host {
     display: inline-flex;
     flex-direction: column;
-    gap: 0;
+    gap: ${SP_0_5};
     font-family: ${FONT_PRIMARY};
   }
 
