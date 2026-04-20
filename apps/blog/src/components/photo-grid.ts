@@ -196,8 +196,35 @@ class PhotoGrid extends HTMLElement {
       columns[shortest].appendChild(item);
       heights[shortest] += photo.height && photo.width ? photo.height / photo.width : 1;
     }
+
+    // Preload full-size images for visible grid items via IntersectionObserver
+    this._observeForPreload();
+  }
+
+  private _preloadObserver: IntersectionObserver | null = null;
+
+  private _observeForPreload(): void {
+    this._preloadObserver?.disconnect();
+    this._preloadObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        const idx = Number((entry.target as HTMLElement).dataset.index);
+        const photo = this._photos[idx];
+        if (!photo || !photo.thumbnailUrl || photo.thumbnailUrl === photo.url) continue;
+        // Preload full-size in background
+        const img = new Image();
+        img.src = photo.url;
+        // Stop observing once triggered
+        this._preloadObserver!.unobserve(entry.target);
+      }
+    }, { rootMargin: "200px" });
+
+    this._container.querySelectorAll(".grid-item").forEach((item) => {
+      this._preloadObserver!.observe(item);
+    });
   }
 }
+
 
 customElements.define("photo-grid", PhotoGrid);
 
