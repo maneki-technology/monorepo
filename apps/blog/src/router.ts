@@ -312,6 +312,8 @@ function updateMeta(routeId: string, route: Route | undefined): void {
   const ogUrl = document.querySelector('meta[property="og:url"]');
   const url = routeId === "home" ? `${SITE_URL}/` : `${SITE_URL}/${routeId}`;
   if (ogUrl) ogUrl.setAttribute("content", url);
+  const canonical = document.querySelector('link[rel="canonical"]');
+  if (canonical) canonical.setAttribute("href", url);
 
   // Toggle reading progress based on route config
   document.body.toggleAttribute("data-show-progress", !!route?.showProgress);

@@ -27,7 +27,7 @@ export function photographyPlugin(): Plugin {
     const db = getDb();
     try {
       const result = await db.execute(
-        "SELECT id, r2_key, url, title, caption, album_id, category, location, latitude, longitude, width, height, thumbhash, exif_json, sort_order, featured FROM photos WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
+        "SELECT id, r2_key, url, thumbnail_url, title, caption, album_id, category, location, latitude, longitude, width, height, thumbhash, exif_json, sort_order, featured FROM photos WHERE status = 'published' ORDER BY sort_order ASC, created_at DESC",
       );
 
       // Fetch tags per photo
@@ -45,6 +45,7 @@ export function photographyPlugin(): Plugin {
         id: row.id as number,
         r2Key: row.r2_key as string,
         url: row.url as string,
+        thumbnailUrl: (row.thumbnail_url as string) || "",
         title: row.title as string,
         caption: row.caption as string,
         albumId: (row.album_id as number) ?? null,
@@ -71,7 +72,7 @@ export function photographyPlugin(): Plugin {
       return `export const photos = ${JSON.stringify(photos)};\nexport const featuredPhotos = ${JSON.stringify(featured)};\nexport const tags = ${JSON.stringify(tags)};`;
     } catch (err) {
       console.error("[photography] Failed to fetch photos from Turso:", err);
-      return EMPTY_PHOTOS;
+      throw err;
     }
   }
 

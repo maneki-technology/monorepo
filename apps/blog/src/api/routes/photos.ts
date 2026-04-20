@@ -21,6 +21,7 @@ const createPhotoSchema = z.object({
   width: z.number().default(0),
   height: z.number().default(0),
   thumbhash: z.string().default(""),
+  thumbnail_url: z.string().default(""),
   exif_json: z.string().default("{}"),
   sort_order: z.number().default(0),
   featured: z.boolean().default(false),
@@ -39,6 +40,7 @@ const updatePhotoSchema = z.object({
   width: z.number().optional(),
   height: z.number().optional(),
   thumbhash: z.string().optional(),
+  thumbnail_url: z.string().optional(),
   exif_json: z.string().optional(),
   sort_order: z.number().optional(),
   featured: z.boolean().optional(),
@@ -139,11 +141,12 @@ export const photos = new Hono<Env>()
     const db = c.get("db");
 
     await db.execute({
-      sql: `INSERT INTO photos (r2_key, url, title, caption, album_id, category, location, latitude, longitude, width, height, thumbhash, exif_json, sort_order, featured, status, updated_at)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
+      sql: `INSERT INTO photos (r2_key, url, thumbnail_url, title, caption, album_id, category, location, latitude, longitude, width, height, thumbhash, exif_json, sort_order, featured, status, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
       args: [
         data.r2_key,
         data.url,
+        data.thumbnail_url,
         data.title,
         data.caption,
         data.album_id,
@@ -223,6 +226,10 @@ export const photos = new Hono<Env>()
       setClauses.push("thumbhash = ?");
       args.push(updates.thumbhash);
     }
+    if (updates.thumbnail_url !== undefined) {
+      setClauses.push("thumbnail_url = ?");
+      args.push(updates.thumbnail_url);
+    }
     if (updates.exif_json !== undefined) {
       setClauses.push("exif_json = ?");
       args.push(updates.exif_json);
@@ -262,6 +269,66 @@ export const photos = new Hono<Env>()
       }
     }
     return c.json({ ok: true });
+  })
+
+  // Reupload photo — replace image + delete old R2 objects + clear thumbnail/thumbhash
+  .post("/:id/reupload", async (c) => {
+    const id = Number(c.req.param("id"));
+    const db = c.get("db");
+    const bucket = c.env.IMAGES_BUCKET;
+
+    // Get existing photo record
+    const existing = await db.execute({ sql: "SELECT r2_key, thumbnail_url FROM photos WHERE id = ?", args: [id] });
+    if (existing.rows.length === 0) return c.json({ error: "not found" }, 404);
+
+    const oldR2Key = existing.rows[0].r2_key as string;
+    const oldThumbUrl = existing.rows[0].thumbnail_url as string;
+
+    // Parse uploaded files
+    const body = await c.req.parseBody();
+    const file = body.file;
+    const thumbnail = body.thumbnail;
+    if (!(file instanceof File)) return c.json({ error: "no file provided" }, 400);
+
+    // Delete old R2 objects
+    try { await bucket.delete(oldR2Key); } catch { /* ignore */ }
+    if (oldThumbUrl) {
+      // Extract R2 key from thumbnail URL
+      const thumbKey = oldThumbUrl.split("/").slice(-2).join("/");
+      try { await bucket.delete(thumbKey); } catch { /* ignore */ }
+    }
+
+    // Upload new main image
+    const filename = `${Date.now().toString(36)}-${(file.name || 'photo').replace(/[^\w.-]/g, "_")}`;
+    const newKey = `photos/${filename}`;
+    await bucket.put(newKey, await file.arrayBuffer(), {
+      httpMetadata: { contentType: file.type, cacheControl: "public, max-age=31536000, immutable" },
+    });
+    const baseUrl = c.env.IMAGES_BASE_URL || "/api/images";
+    const newUrl = `${baseUrl}/${newKey}`;
+
+    // Upload thumbnail if provided
+    let newThumbUrl = "";
+    if (thumbnail instanceof File) {
+      const thumbFilename = `${Date.now().toString(36)}-thumb-${(file.name || 'photo').replace(/[^\w.-]/g, "_")}`;
+      const thumbKey = `thumb/${thumbFilename}`;
+      await bucket.put(thumbKey, await thumbnail.arrayBuffer(), {
+        httpMetadata: { contentType: thumbnail.type, cacheControl: "public, max-age=31536000, immutable" },
+      });
+      newThumbUrl = `${baseUrl}/${thumbKey}`;
+    }
+
+    // Get dimensions from form data
+    const width = Number(body.width) || 0;
+    const height = Number(body.height) || 0;
+
+    // Update DB — clear thumbhash, set new URLs
+    await db.execute({
+      sql: `UPDATE photos SET r2_key = ?, url = ?, thumbnail_url = ?, thumbhash = '', width = ?, height = ?, updated_at = datetime('now') WHERE id = ?`,
+      args: [newKey, newUrl, newThumbUrl, width, height, id],
+    });
+
+    return c.json({ ok: true, url: newUrl, thumbnail_url: newThumbUrl, r2_key: newKey });
   })
 
   // Soft delete photo by id

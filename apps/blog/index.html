@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Blog</title>
   <meta name="description" content="Personal blog and portfolio — fullstack development, design systems, and more." />
+  <meta name="robots" content="index, follow" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <link rel="alternate" type="application/rss+xml" title="Kien Nguyen's blog" href="/feed.xml" />
   <link rel="preload" href="/fonts/Homeland-subset.woff2" as="font" type="font/woff2" crossorigin />
@@ -17,7 +18,27 @@
   <meta property="og:title" content="Blog — Kien Nguyen" />
   <meta property="og:description" content="Personal blog and portfolio — fullstack development, design systems, and more." />
   <meta property="og:url" content="https://kien.maneki.tech/" />
+  <link rel="canonical" href="https://kien.maneki.tech/" />
   <meta name="twitter:card" content="summary" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Kien Nguyen",
+    "url": "https://kien.maneki.tech",
+    "description": "Personal blog and portfolio — fullstack development, design systems, and more.",
+    "author": {
+      "@type": "Person",
+      "name": "Kien Nguyen",
+      "url": "https://kien.maneki.tech/about",
+      "jobTitle": "Senior Software Engineer",
+      "sameAs": [
+        "https://github.com/kiennt23",
+        "https://linkedin.com/in/kiennt23"
+      ]
+    }
+  }
+  </script>
   <!-- Prevent dark mode flash: apply theme before any rendering -->
   <script>
     (function() {
@@ -49,14 +70,42 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; }
 
+    /* Skip to content link — visible only on focus for keyboard users */
+    .skip-link {
+      position: absolute;
+      top: -100%;
+      left: 16px;
+      z-index: 1000;
+      padding: 8px 16px;
+      background: var(--fd-surface-primary, #fff);
+      color: var(--fd-text-primary, #27272a);
+      border: 2px solid var(--fd-border-moderate, #a1a1aa);
+      border-radius: var(--fd-radius-sm, 4px);
+      font-size: 14px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .skip-link:focus {
+      top: 8px;
+    }
+
     /* Prevent FOUC — hide Web Components until JS registers them */
     ui-badge:not(:defined),
     ui-card:not(:defined),
     ui-link:not(:defined),
-    ui-image:not(:defined),
     ui-search:not(:defined),
     ui-progress-bar:not(:defined) {
       opacity: 0;
+    }
+
+    /* ui-image: keep visible and reserve space before WC registration */
+    ui-image:not(:defined) {
+      display: block;
+    }
+
+    .polaroid ui-image:not(:defined) {
+      aspect-ratio: 3 / 2;
     }
 
 
@@ -67,6 +116,7 @@
       ascent-override: 99%;
       descent-override: 22%;
       line-gap-override: 0%;
+      font-display: swap;
     }
 
     html, body {
@@ -580,6 +630,12 @@
       transition: opacity 400ms ease-out, filter 400ms ease-out;
     }
 
+    /* First section (hero) should be immediately visible for LCP */
+    #content > .reveal:first-child {
+      opacity: 1;
+      filter: none;
+    }
+
     .reveal.revealed {
       opacity: 1;
       filter: blur(0);
@@ -801,6 +857,19 @@
   </style>
 </head>
 <body>
+  <a href="#content" class="skip-link">Skip to content</a>
+  <script>
+    // Preload LCP images: ui-image src is not discoverable until WC registers
+    document.querySelectorAll('.polaroid ui-image[src]').forEach(function(el, i) {
+      if (i > 2) return;
+      var link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = el.getAttribute('src');
+      link.fetchPriority = 'high';
+      document.head.appendChild(link);
+    });
+  </script>
   <ui-progress-bar id="reading-progress" size="m" label="none" value="0"></ui-progress-bar>
   <div id="app">
     <header>

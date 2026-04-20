@@ -101,7 +101,7 @@ async function prerender(): Promise<void> {
 </script>`;
 
     let shell = readFileSync(resolve(root, "dist/index.html"), "utf-8");
-    shell = shell.replace("<head>", `<head>\n${gaScript}`);
+    shell = shell.replace("</body>", `${gaScript}\n</body>`);
     shell = shell.replace("</head>", `${fontPreload}\n${fontFaceStyle}\n</head>`);
     console.log(`Prerendering ${allRoutes.length} routes...`);
 
@@ -128,6 +128,10 @@ async function prerender(): Promise<void> {
         .replace(
           /og:url" content="[^"]*"/,
           `og:url" content="${pageUrl}"`,
+        )
+        .replace(
+          /rel="canonical" href="[^"]*"/,
+          `rel="canonical" href="${pageUrl}"`,
         );
 
       if (route.meta?.description) {
@@ -140,6 +144,18 @@ async function prerender(): Promise<void> {
             /name="description" content="[^"]*"/,
             `name="description" content="${route.meta.description}"`,
           );
+      }
+
+      // Preload LCP images for home page (polaroid stack photos are in Shadow DOM)
+      if (route.id === "home") {
+        const imgPreloads = (html.match(/src="(https:\/\/blog-images[^"]+)"/g) || [])
+          .slice(0, 3)
+          .map(m => m.replace(/src="([^"]+)"/, '$1'))
+          .map(url => `<link rel="preload" href="${url}" as="image" fetchpriority="high" />`)
+          .join("\n");
+        if (imgPreloads) {
+          page = page.replace("</head>", `${imgPreloads}\n</head>`);
+        }
       }
 
       // Add wide-layout class for photography page

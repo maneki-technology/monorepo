@@ -18,7 +18,7 @@ const ALLOWED_TYPES = new Set([
   "image/svg+xml",
 ]);
 
-const VALID_PREFIXES = new Set(["editor", "photos"]);
+const VALID_PREFIXES = new Set(["editor", "photos", "thumb"]);
 
 export const images = new Hono<Env>()
   // Upload image
@@ -43,7 +43,7 @@ export const images = new Hono<Env>()
     const filename = `${Date.now().toString(36)}-${file.name.replace(/[^\w.-]/g, "_")}`;
     const key = `${prefix}/${filename}`;
     await bucket.put(key, await file.arrayBuffer(), {
-      httpMetadata: { contentType: file.type },
+      httpMetadata: { contentType: file.type, cacheControl: "public, max-age=31536000, immutable" },
       customMetadata: {
         originalName: file.name,
         uploadedBy: c.get("userEmail"),

@@ -13,6 +13,7 @@ function toPhoto(p: (typeof photos)[number]): Photo {
   return {
     id: p.id,
     url: p.url,
+    thumbnailUrl: p.thumbnailUrl,
     title: p.title,
     caption: p.caption,
     albumId: p.albumId,
