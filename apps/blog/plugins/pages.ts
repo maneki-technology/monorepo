@@ -79,7 +79,7 @@ export function pagesPlugin(): Plugin {
       return `export const pages = ${JSON.stringify(pages)};\nexport function getPage(slug) { return pages.find((p) => p.slug === slug); }`;
     } catch (err) {
       console.error("[pages] Failed to fetch pages from Turso:", err);
-      return EMPTY;
+      throw err;
     }
   }
 
