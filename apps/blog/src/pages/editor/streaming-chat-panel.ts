@@ -354,7 +354,9 @@ export abstract class StreamingChatPanel extends LitElement {
                 <ui-icon name="delete_sweep" size="s" slot="icon-start"></ui-icon>
               </ui-button>
             ` : nothing}
-          </div>
+            <ui-button action="secondary" emphasis="minimal" size="s" icon="icon-only" aria-label="Close panel" @click=${this._closePanel}>
+              <ui-icon name="close" size="s" slot="icon-start"></ui-icon>
+            </ui-button>
         </div>
         <div class="panel-content">
           ${this._renderSelectors()}
@@ -501,6 +503,15 @@ export abstract class StreamingChatPanel extends LitElement {
     }
     // Notify FABs about fullscreen state change
     this.dispatchEvent(new CustomEvent(this.toggleEventName, { detail: { open: true, fullscreen: this._fullscreen }, bubbles: true, composed: true }));
+  }
+
+  private _closePanel(): void {
+    if (this._fullscreen) {
+      this._fullscreen = false;
+      this.removeAttribute("fullscreen");
+    }
+    const panel = this.renderRoot.querySelector("ui-side-panel") as HTMLElement & { close(): void } | null;
+    panel?.close();
   }
 
   private _retry(): void {

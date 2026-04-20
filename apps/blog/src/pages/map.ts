@@ -6,6 +6,7 @@ import "../components/photo-lightbox.js";
 const allPhotos: Photo[] = photos.map((p) => ({
   id: p.id,
   url: p.url,
+  thumbnailUrl: p.thumbnailUrl,
   title: p.title,
   caption: p.caption,
   albumId: p.albumId,

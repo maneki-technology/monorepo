@@ -163,7 +163,7 @@ class PhotoGrid extends HTMLElement {
       }
 
       const uiImage = document.createElement("ui-image");
-      uiImage.setAttribute("src", photo.url);
+      uiImage.setAttribute("src", photo.thumbnailUrl || photo.url);
       uiImage.setAttribute("alt", photo.title || "");
       if (placeholder) uiImage.setAttribute("placeholder", placeholder);
       uiImage.style.setProperty("--ui-image-fit", "cover");

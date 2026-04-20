@@ -36,6 +36,7 @@ interface Photo {
   width: number;
   height: number;
   thumbhash: string;
+  thumbnail_url: string;
   exif_json: string;
   location: string;
   latitude: number | null;
@@ -62,6 +63,7 @@ interface Album {
 }
 
 const MAX_WIDTH = 2400;
+const THUMB_WIDTH = 800;
 const QUALITY = 0.92;
 
 async function optimizeImage(file: File): Promise<File> {
@@ -97,6 +99,41 @@ async function optimizeImage(file: File): Promise<File> {
         },
         file.type,
         QUALITY,
+      );
+    };
+    img.onerror = () => resolve(file);
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+async function generateThumbnail(file: File): Promise<File> {
+  if (file.type === "image/svg+xml") return file;
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      let { width, height } = img;
+      if (width <= THUMB_WIDTH) {
+        resolve(file);
+        return;
+      }
+      height = Math.round(height * (THUMB_WIDTH / width));
+      width = THUMB_WIDTH;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d")!;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(img, 0, 0, width, height);
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), { type: "image/webp" }));
+          } else {
+            resolve(file);
+          }
+        },
+        "image/webp",
+        0.8,
       );
     };
     img.onerror = () => resolve(file);
@@ -147,6 +184,9 @@ export class AdminGallery extends LitElement {
   @state() private _editingPhotoTagIds: number[] = [];
   @state() private _creatingTag = false;
   @state() private _newTagName = "";
+  @state() private _regeneratingThumbs = false;
+  @state() private _reuploadingPhotoId: number | null = null;
+  @state() private _reuploadedPhotoId: number | null = null;
   static styles = css`
     :host {
       display: flex;
@@ -230,9 +270,12 @@ export class AdminGallery extends LitElement {
       position: absolute;
       inset: 0;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
+      align-content: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
+      padding: 8px;
       background: rgba(0, 0, 0, 0.5);
       opacity: 0;
       transition: opacity 0.15s ease;
@@ -549,6 +592,20 @@ export class AdminGallery extends LitElement {
         const res = await fetch("/api/images?prefix=photos", { method: "POST", body: formData, credentials: "same-origin" });
         if (!res.ok) continue;
         const data = (await res.json()) as { url: string; name: string; r2_key?: string };
+
+        // Generate and upload thumbnail
+        let thumbnailUrl = "";
+        try {
+          const thumb = await generateThumbnail(file);
+          const thumbForm = new FormData();
+          thumbForm.append("file", thumb);
+          const thumbRes = await fetch("/api/images?prefix=thumb", { method: "POST", body: thumbForm, credentials: "same-origin" });
+          if (thumbRes.ok) {
+            const thumbData = (await thumbRes.json()) as { url: string };
+            thumbnailUrl = thumbData.url;
+          }
+        } catch { /* thumbnail generation failed — continue without */ }
+
         const meta = this._uploadMeta[i] ?? { title: file.name.replace(/\.[^.]+$/, ""), caption: "" };
         await fetch("/api/photos", {
           method: "POST",
@@ -557,6 +614,7 @@ export class AdminGallery extends LitElement {
           body: JSON.stringify({
             r2_key: data.r2_key || data.name,
             url: data.url,
+            thumbnail_url: thumbnailUrl,
             title: meta.title,
             caption: meta.caption,
             album_id: this._batchAlbumId,
@@ -621,6 +679,113 @@ export class AdminGallery extends LitElement {
     } finally {
       this._savingAction = "none";
     }
+  }
+
+  private async _regenerateThumbnails() {
+    this._regeneratingThumbs = true;
+    try {
+      for (const photo of this._photos) {
+        try {
+          const res = await fetch(photo.url);
+          if (!res.ok) continue;
+          const blob = await res.blob();
+          const file = new File([blob], `photo-${photo.id}.jpg`, { type: blob.type });
+          const thumb = await generateThumbnail(file);
+          const thumbForm = new FormData();
+          thumbForm.append("file", thumb);
+          const uploadRes = await fetch("/api/images?prefix=thumb", { method: "POST", body: thumbForm, credentials: "same-origin" });
+          if (!uploadRes.ok) continue;
+          const uploadData = (await uploadRes.json()) as { url: string };
+          await fetch(`/api/photos/${photo.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            credentials: "same-origin",
+            body: JSON.stringify({ thumbnail_url: uploadData.url }),
+          });
+        } catch { /* skip failed photo */ }
+      }
+      this._saved = true;
+      setTimeout(() => { this._saved = false; }, 2000);
+      await this._fetchPhotos();
+    } finally {
+      this._regeneratingThumbs = false;
+    }
+  }
+
+
+  private async _regenerateSingleThumbnail(photo: Photo) {
+    this._regeneratingThumbs = true;
+    try {
+      const res = await fetch(photo.url);
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const file = new File([blob], `photo-${photo.id}.jpg`, { type: blob.type });
+      const thumb = await generateThumbnail(file);
+      const thumbForm = new FormData();
+      thumbForm.append("file", thumb);
+      const uploadRes = await fetch("/api/images?prefix=thumb", { method: "POST", body: thumbForm, credentials: "same-origin" });
+      if (!uploadRes.ok) return;
+      const uploadData = (await uploadRes.json()) as { url: string };
+      await fetch(`/api/photos/${photo.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ thumbnail_url: uploadData.url }),
+      });
+      if (this._editingPhoto?.id === photo.id) {
+        this._editingPhoto = { ...this._editingPhoto, thumbnail_url: uploadData.url };
+      }
+      await this._fetchPhotos();
+    } finally {
+      this._regeneratingThumbs = false;
+    }
+  }
+
+  private async _reuploadPhoto(photo: Photo) {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      this._reuploadingPhotoId = photo.id;
+      try {
+        const optimized = await optimizeImage(file);
+        const thumb = await generateThumbnail(file);
+
+        const dims = await new Promise<{ width: number; height: number }>((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+          img.onerror = () => resolve({ width: 0, height: 0 });
+          img.src = URL.createObjectURL(optimized);
+        });
+
+        const formData = new FormData();
+        formData.append("file", optimized);
+        formData.append("thumbnail", thumb);
+        formData.append("width", String(dims.width));
+        formData.append("height", String(dims.height));
+
+        const res = await fetch(`/api/photos/${photo.id}/reupload`, {
+          method: "POST",
+          body: formData,
+          credentials: "same-origin",
+        });
+        if (res.ok) {
+          const data = (await res.json()) as { url: string; thumbnail_url: string; r2_key: string };
+          if (this._editingPhoto?.id === photo.id) {
+            this._editingPhoto = { ...this._editingPhoto, url: data.url, thumbnail_url: data.thumbnail_url, r2_key: data.r2_key, width: dims.width, height: dims.height, thumbhash: "" };
+          }
+          this._reuploadedPhotoId = photo.id;
+          setTimeout(() => { this._reuploadedPhotoId = null; }, 2000);
+          await this._fetchPhotos();
+        }
+      } finally {
+        this._reuploadingPhotoId = null;
+      }
+    };
+    input.click();
   }
 
   // ── Album CRUD ──
@@ -811,6 +976,10 @@ export class AdminGallery extends LitElement {
           <ui-icon name="upload" size="s" slot="icon-start"></ui-icon>
           Upload
         </ui-button>
+        <ui-button action="secondary" emphasis="subtle" size="s" ?disabled=${this._loading || this._regeneratingThumbs} status=${this._regeneratingThumbs ? "loading" : "none"} @click=${this._regenerateThumbnails}>
+          <ui-icon name="refresh" size="s" slot="icon-start"></ui-icon>
+          Regenerate Thumbnails
+        </ui-button>
         <ui-input
           placeholder="Search photos…"
           size="s"
@@ -863,6 +1032,10 @@ export class AdminGallery extends LitElement {
               Cover
             </ui-button>
           ` : nothing}
+          <ui-button action="contrast" emphasis="bold" size="s" ?disabled=${this._reuploadingPhotoId === p.id} status=${this._reuploadingPhotoId === p.id ? "loading" : this._reuploadedPhotoId === p.id ? "success" : "none"} @click=${(e: Event) => { e.stopPropagation(); this._reuploadPhoto(p); }}>
+            <ui-icon name="upload" size="s" slot="icon-start"></ui-icon>
+            ${this._reuploadingPhotoId === p.id ? "Uploading..." : this._reuploadedPhotoId === p.id ? "Done" : "Reupload"}
+          </ui-button>
         </div>
         <div class="photo-info">
           <span class="photo-title">${p.title || p.r2_key}</span>
@@ -1425,9 +1598,11 @@ export class AdminGallery extends LitElement {
     if (!this._editingPhoto) return html`<ui-modal size="m" dismissible></ui-modal>`;
     const p = this._editingPhoto;
     return html`
-      <ui-modal class="photo-edit-modal" size="m" open dismissible @close=${() => { this._editingPhoto = null; }}>
+      <ui-modal class="photo-edit-modal" size="l" open dismissible @close=${() => { this._editingPhoto = null; }}>
         <span>Edit Photo</span>
-        <div slot="body" class="modal-form">
+        <div slot="body" style="display:flex;gap:20px;">
+          <img src=${p.url} alt=${p.title || "Photo"} style="width:240px;height:240px;object-fit:contain;border-radius:6px;background:#f0f0f0;flex-shrink:0;" />
+          <div class="modal-form" style="flex:1;min-width:0;">
           <ui-input
             size="m"
             .value=${p.title}
@@ -1488,7 +1663,18 @@ export class AdminGallery extends LitElement {
               ?checked=${!!p.featured}
               @change=${(e: Event) => { this._editingPhoto = { ...p, featured: (e.target as HTMLInputElement).checked ? 1 : 0 }; }}
             ><ui-label slot="label" size="m">Featured</ui-label></ui-checkbox-item>
-        </div>
+          </div>
+          <div class="field-row" style="align-items:center;flex-wrap:wrap;">
+            <ui-button action="secondary" emphasis="subtle" size="s" ?disabled=${this._reuploadingPhotoId === p.id} status=${this._reuploadingPhotoId === p.id ? "loading" : this._reuploadedPhotoId === p.id ? "success" : "none"} @click=${() => this._reuploadPhoto(p)}>
+              <ui-icon name="upload" size="s" slot="icon-start"></ui-icon>
+              ${this._reuploadingPhotoId === p.id ? "Uploading..." : this._reuploadedPhotoId === p.id ? "Done" : "Reupload"}
+            </ui-button>
+            <ui-button action="secondary" emphasis="subtle" size="s" ?disabled=${this._regeneratingThumbs} status=${this._regeneratingThumbs ? "loading" : "none"} @click=${() => this._regenerateSingleThumbnail(p)}>
+              <ui-icon name="photo_size_select_large" size="s" slot="icon-start"></ui-icon>
+              Regen Thumbnail
+            </ui-button>
+            ${p.thumbnail_url ? html`<span style="font-size:11px;color:var(--fd-text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px;">Thumb: ${p.thumbnail_url.split('/').pop()}</span>` : html`<span style="font-size:11px;color:var(--fd-text-tertiary);">No thumbnail</span>`}
+          </div>
         <div class="tag-section">
           <ui-label size="m">Tags</ui-label>
           <div class="tag-list">

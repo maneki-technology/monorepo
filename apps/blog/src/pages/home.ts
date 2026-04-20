@@ -39,10 +39,11 @@ export const homeRoute: Route = {
             const dy = [8, -14, 10, -8, 12][i] || 0;
             return `
             <div class="polaroid" data-photo-index="${i}" style="--rot:${angles[i]}deg;--ox:${dx}px;--oy:${dy}px;--fan-x:${fanX}px;">
-              <ui-image src="${p.url}" alt="${p.title || ''}"
+              <ui-image src="${p.thumbnailUrl || p.url}" alt="${p.title || ''}"
+                   style="aspect-ratio:${p.width}/${p.height};width:100%;display:block;"
                    width="${p.width}" height="${p.height}"
                    ${p.thumbhash ? `placeholder="${(() => { try { return thumbHashBase64ToDataURL(p.thumbhash); } catch { return ''; } })()}"` : ''}
-                   loading="lazy" decoding="async"></ui-image>
+                   loading="eager" decoding="async" fetchpriority="high"></ui-image>
             </div>`;
           }).join("");
         })()}

@@ -154,6 +154,12 @@ try {
   console.log("Added audience column to brainstorm_conversations.");
 } catch { console.log("brainstorm_conversations.audience already exists."); }
 
+// Add thumbnail_url column to photos if missing
+try {
+  await db.execute("ALTER TABLE photos ADD COLUMN thumbnail_url TEXT NOT NULL DEFAULT ''");
+  console.log("Added thumbnail_url column to photos.");
+} catch { console.log("photos.thumbnail_url already exists."); }
+
 // Create any missing tables
 await db.executeMultiple(SCHEMA);
 

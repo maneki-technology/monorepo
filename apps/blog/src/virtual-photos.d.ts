@@ -3,6 +3,7 @@ declare module "virtual:photos" {
     id: number;
     r2Key: string;
     url: string;
+    thumbnailUrl: string;
     title: string;
     caption: string;
     albumId: number | null;
