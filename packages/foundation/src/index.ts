@@ -164,6 +164,8 @@ export {
   ICON_STOP,
   ICON_AUTO_AWESOME,
   ICON_PSYCHOLOGY,
+  ICON_OPEN_IN_FULL,
+  ICON_CLOSE_FULLSCREEN,
   ICON_CODEPOINTS,
   registerIconFont,
   registerGeistFont,

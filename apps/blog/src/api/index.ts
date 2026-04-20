@@ -31,6 +31,7 @@ export type Env = {
     IMAGES_BUCKET: R2Bucket;
     IMAGES_BASE_URL: string;
     ANTHROPIC_API_KEY: string;
+    AI_GATEWAY_URL: string;
   };
   Variables: {
     db: Client;
