@@ -18,13 +18,20 @@ import("../pages/editor/editor-page.js").then(() => {
 // Shift deploy FAB when review panel opens/closes
 const fab = document.querySelector("deploy-fab") as HTMLElement | null;
 const themeToggle = document.querySelector("theme-toggle[fab]") as HTMLElement | null;
-function shiftFabs(open: boolean) {
-  const offset = open ? "444px" : "";
-  if (fab) fab.style.right = offset || "24px";
-  if (themeToggle) themeToggle.style.right = offset || "8px";
+function shiftFabs(open: boolean, fullscreen?: boolean) {
+  if (!open) {
+    if (fab) { fab.style.right = "24px"; fab.style.display = ""; }
+    if (themeToggle) { themeToggle.style.right = "8px"; themeToggle.style.display = ""; }
+  } else if (fullscreen) {
+    if (fab) fab.style.display = "none";
+    if (themeToggle) themeToggle.style.display = "none";
+  } else {
+    if (fab) { fab.style.right = "444px"; fab.style.display = ""; }
+    if (themeToggle) { themeToggle.style.right = "444px"; themeToggle.style.display = ""; }
+  }
 }
-document.addEventListener("review-panel-toggle", ((e: CustomEvent) => shiftFabs(e.detail.open)) as EventListener);
-document.addEventListener("brainstorm-panel-toggle", ((e: CustomEvent) => shiftFabs(e.detail.open)) as EventListener);
+document.addEventListener("review-panel-toggle", ((e: CustomEvent) => shiftFabs(e.detail.open, e.detail.fullscreen)) as EventListener);
+document.addEventListener("brainstorm-panel-toggle", ((e: CustomEvent) => shiftFabs(e.detail.open, e.detail.fullscreen)) as EventListener);
 
 window.addEventListener("theme-change", () => saveThemeToBackend());
 loadTheme();

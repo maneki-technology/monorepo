@@ -158,6 +158,10 @@ export const ICON_STOP = "\uE047";
 export const ICON_AUTO_AWESOME = "\uE65F";
 /** psychology — U+EA4A */
 export const ICON_PSYCHOLOGY = "\uEA4A";
+/** open_in_full — U+F1CE */
+export const ICON_OPEN_IN_FULL = "\uF1CE";
+/** close_fullscreen — U+F1CF */
+export const ICON_CLOSE_FULLSCREEN = "\uF1CF";
 /** All icon names included in the subset font. */
 export const ICON_CODEPOINTS: Record<string, string> = {
   warning: ICON_WARNING,
@@ -232,6 +236,8 @@ export const ICON_CODEPOINTS: Record<string, string> = {
   stop: ICON_STOP,
   auto_awesome: ICON_AUTO_AWESOME,
   psychology: ICON_PSYCHOLOGY,
+  open_in_full: ICON_OPEN_IN_FULL,
+  close_fullscreen: ICON_CLOSE_FULLSCREEN,
 };
 
 // ── Font registration ───────────────────────────────────────────────

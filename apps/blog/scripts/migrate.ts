@@ -156,4 +156,12 @@ try {
 
 // Create any missing tables
 await db.executeMultiple(SCHEMA);
+
+// TTL cleanup: delete stale conversations older than 30 days
+await db.executeMultiple(`
+  DELETE FROM review_conversations WHERE updated_at < datetime('now', '-30 days');
+  DELETE FROM brainstorm_conversations WHERE updated_at < datetime('now', '-30 days');
+`);
+console.log("Cleaned up conversations older than 30 days.");
+
 console.log("Done.");

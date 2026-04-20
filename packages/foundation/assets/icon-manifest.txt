@@ -11,6 +11,9 @@ add_circle
 arrow_back_ios
 arrow_drop_down
 arrow_drop_up
+close_fullscreen
+content_copy
+open_in_full
 arrow_forward_ios
 attach_money
 bar_chart

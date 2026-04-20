@@ -117,7 +117,7 @@ export const brainstorm = new Hono<Env>().post(
 
     return streamText(c, async (stream) => {
       try {
-        const res = await fetch("https://gateway.ai.cloudflare.com/v1/c5ccf3ba929aba42123d1da2559d2b1b/maneki-blog/anthropic/v1/messages", {
+        const res = await fetch(`${c.env.AI_GATEWAY_URL}/anthropic/v1/messages`, {
           method: "POST",
           headers: {
             "content-type": "application/json",
