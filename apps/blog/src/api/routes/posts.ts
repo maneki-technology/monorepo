@@ -34,19 +34,33 @@ export const posts = new Hono<Env>()
   // List posts (optionally filter by status)
   .get("/", async (c) => {
     const status = c.req.query("status");
+    const limit = c.req.query("limit") ? Math.min(Number(c.req.query("limit")), 200) : undefined;
+    const offset = c.req.query("offset") ? Number(c.req.query("offset")) : 0;
     const db = c.get("db");
 
-    const sql = status
-      ? "SELECT * FROM posts WHERE status = ? ORDER BY updated_at DESC"
-      : "SELECT * FROM posts WHERE status != 'deleted' ORDER BY updated_at DESC";
-    const args = status ? [status] : [];
+    const where = status ? "WHERE status = ?" : "WHERE status != 'deleted'";
+    const args: (string | number)[] = status ? [status] : [];
+
+    // Get total count
+    const countResult = await db.execute({ sql: `SELECT COUNT(*) as count FROM posts ${where}`, args });
+    const total = countResult.rows[0].count as number;
+
+    let sql = `SELECT * FROM posts ${where} ORDER BY updated_at DESC`;
+    if (limit !== undefined) {
+      sql += " LIMIT ? OFFSET ?";
+      args.push(limit, offset);
+    }
 
     const result = await db.execute({ sql, args });
     const rows = result.rows.map((r) => ({
       ...r,
       tags: JSON.parse((r.tags as string) || "[]"),
     }));
-    return c.json({ posts: rows });
+    const response: Record<string, unknown> = { posts: rows, total };
+    if (limit !== undefined) {
+      response.hasMore = offset + rows.length < total;
+    }
+    return c.json(response);
   })
 
   // Get single post by slug
