@@ -189,6 +189,7 @@ export class AdminGallery extends LitElement {
   @state() private _regeneratingThumbs = false;
   @state() private _reuploadingPhotoId: number | null = null;
   @state() private _reuploadedPhotoId: number | null = null;
+  private _blobUrlCache = new Map<File, string>();
   static styles = css`
     :host {
       display: flex;
@@ -486,6 +487,11 @@ export class AdminGallery extends LitElement {
       this._activeTab = s.galleryTab;
       this._fetchAll().then(() => { this._initializing = false; });
     });
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this._revokeBlobUrls();
   }
 
   private async _fetchAll() {
@@ -1185,12 +1191,12 @@ export class AdminGallery extends LitElement {
           <div class="selected-files-preview">
             <div class="selected-files-header">
               <span>${this._uploadFiles.length} file(s) selected</span>
-              <ui-button action="secondary" emphasis="minimal" size="s" @click=${() => { this._uploadFiles = []; this._uploadMeta = []; }}>Clear all</ui-button>
+              <ui-button action="secondary" emphasis="minimal" size="s" @click=${() => { this._revokeBlobUrls(); this._uploadFiles = []; this._uploadMeta = []; }}>Clear all</ui-button>
             </div>
             <div class="selected-files-thumbs">
               ${this._uploadFiles.map((f, i) => html`
                 <div class="selected-file-chip">
-                  <img class="selected-file-img" src=${URL.createObjectURL(f)} alt=${f.name} />
+                  <img class="selected-file-img" src=${this._getBlobUrl(f)} alt=${f.name} />
                   <span class="selected-file-name">${f.name}</span>
                   <ui-icon name="close" size="xs" @click=${() => {
                     this._uploadFiles = this._uploadFiles.filter((_, idx) => idx !== i);
@@ -1326,7 +1332,7 @@ export class AdminGallery extends LitElement {
         <div class="file-list-edit">
           ${this._uploadMeta.map((m, i) => html`
             <div class="file-edit-row">
-              <img class="file-thumb" src=${URL.createObjectURL(this._uploadFiles[i])} alt=${m.title} />
+              <img class="file-thumb" src=${this._getBlobUrl(this._uploadFiles[i])} alt=${m.title} />
               <div class="file-fields">
                 <ui-input
                   size="s"
@@ -1455,6 +1461,7 @@ export class AdminGallery extends LitElement {
 
   private _resetUploadWizard() {
     this._wizardStep = 1;
+    this._revokeBlobUrls();
     this._uploadFiles = [];
     this._uploadMeta = [];
     this._batchAlbumId = null;
@@ -1469,6 +1476,22 @@ export class AdminGallery extends LitElement {
     this._batchLongitude = null;
     this._creatingTag = false;
     this._newTagName = "";
+  }
+
+  private _getBlobUrl(file: File): string {
+    let url = this._blobUrlCache.get(file);
+    if (!url) {
+      url = URL.createObjectURL(file);
+      this._blobUrlCache.set(file, url);
+    }
+    return url;
+  }
+
+  private _revokeBlobUrls() {
+    for (const url of this._blobUrlCache.values()) {
+      URL.revokeObjectURL(url);
+    }
+    this._blobUrlCache.clear();
   }
 
   private _renderPhotoDetail() {
