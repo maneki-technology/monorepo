@@ -6,6 +6,7 @@ import "../components/theme-toggle.js";
 import "../components/loading-bounce.js";
 import "../components/map-picker.js";
 import { loadAdminState, saveThemeToBackend, getGalleryTab, setGalleryTab } from "./theme.js";
+import { api } from "../lib/api.js";
 import "@maneki/ui-components/components/ui-button.js";
 import "@maneki/ui-components/components/ui-icon.js";
 import "@maneki/ui-components/components/ui-badge.js";
@@ -502,28 +503,28 @@ export class AdminGallery extends LitElement {
 
   private async _fetchPhotos() {
     try {
-      const res = await fetch("/api/photos", { credentials: "same-origin" });
+      const res = await api.api.photos.$get();
       if (!res.ok) return;
-      const data = (await res.json()) as { photos: Photo[] };
-      this._photos = data.photos;
+      const data = await res.json();
+      this._photos = data.photos as unknown as Photo[];
     } catch { /* network error */ }
   }
 
   private async _fetchAlbums() {
     try {
-      const res = await fetch("/api/albums", { credentials: "same-origin" });
+      const res = await api.api.albums.$get();
       if (!res.ok) return;
-      const data = (await res.json()) as { albums: Album[] };
-      this._albums = data.albums;
+      const data = await res.json();
+      this._albums = data.albums as unknown as Album[];
     } catch { /* network error */ }
   }
 
   private async _fetchTags() {
     try {
-      const res = await fetch("/api/tags", { credentials: "same-origin" });
+      const res = await api.api.tags.$get();
       if (!res.ok) return;
-      const data = (await res.json()) as { tags: Array<{ id: number; name: string; slug: string }> };
-      this._tags = data.tags;
+      const data = await res.json();
+      this._tags = data.tags as unknown as Array<{ id: number; name: string; slug: string }>;
     } catch { /* network error */ }
   }
 
@@ -590,11 +591,8 @@ export class AdminGallery extends LitElement {
         } catch { /* thumbnail generation failed — continue without */ }
 
         const meta = this._uploadMeta[i] ?? { title: file.name.replace(/\.[^.]+$/, ""), caption: "" };
-        await fetch("/api/photos", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({
+        await api.api.photos.$post({
+          json: {
             r2_key: data.r2_key || data.name,
             url: data.url,
             thumbnail_url: thumbnailUrl,
@@ -608,11 +606,11 @@ export class AdminGallery extends LitElement {
             width,
             height,
             exif_json: JSON.stringify(exif),
-            status: this._batchStatus,
+            status: this._batchStatus as "draft" | "published",
             featured: this._batchFeatured,
             thumbhash,
             tag_ids: this._batchTagIds,
-          }),
+          },
         });
       } catch { /* upload error */ }
     }
@@ -627,22 +625,20 @@ export class AdminGallery extends LitElement {
     if (!p) return;
     this._savingAction = "saving";
     try {
-      await fetch(`/api/photos/${p.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({
+      await api.api.photos[":id"].$put({
+        param: { id: String(p.id) },
+        json: {
           title: p.title,
           caption: p.caption,
           album_id: p.album_id,
           category: p.category,
           featured: !!p.featured,
-          status: p.status,
+          status: p.status as "draft" | "published",
           tag_ids: this._editingPhotoTagIds,
           location: p.location,
           latitude: p.latitude ?? null,
           longitude: p.longitude ?? null,
-        }),
+        },
       });
       (this.shadowRoot!.querySelector('.photo-edit-modal') as HTMLElement & { close(): void })?.close();
       this._saved = true;
@@ -656,7 +652,7 @@ export class AdminGallery extends LitElement {
   private async _deletePhoto(id: number) {
     this._savingAction = "deleting";
     try {
-      await fetch(`/api/photos/${id}`, { method: "DELETE", credentials: "same-origin" });
+      await api.api.photos[":id"].$delete({ param: { id: String(id) } });
       (this.shadowRoot!.querySelector('.photo-edit-modal') as HTMLElement & { close(): void })?.close();
       await this._fetchAll();
     } finally {
@@ -797,27 +793,21 @@ export class AdminGallery extends LitElement {
     try {
       if (a.id === 0) {
         let slug = a.slug || slugify(a.title);
-        let res = await fetch("/api/albums", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({
-            title: a.title, slug, description: a.description, status: a.status,
+        let res = await api.api.albums.$post({
+          json: {
+            title: a.title, slug, description: a.description, status: a.status as "draft" | "published",
             location: a.location, latitude: a.latitude ?? null, longitude: a.longitude ?? null,
-          }),
+          },
         });
         // Auto-resolve slug conflict by appending suffix
         if (!res.ok && res.status === 409) {
           for (let i = 2; i <= 10; i++) {
             slug = `${slugify(a.title)}-${i}`;
-            res = await fetch("/api/albums", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              credentials: "same-origin",
-              body: JSON.stringify({
-                title: a.title, slug, description: a.description, status: a.status,
+            res = await api.api.albums.$post({
+              json: {
+                title: a.title, slug, description: a.description, status: a.status as "draft" | "published",
                 location: a.location, latitude: a.latitude ?? null, longitude: a.longitude ?? null,
-              }),
+              },
             });
             if (res.ok || res.status !== 409) break;
           }
@@ -829,19 +819,17 @@ export class AdminGallery extends LitElement {
       } else {
         const original = this._albums.find((x) => x.id === a.id);
         if (!original) return;
-        const res = await fetch(`/api/albums/${original.slug}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          credentials: "same-origin",
-          body: JSON.stringify({
+        const res = await api.api.albums[":slug"].$put({
+          param: { slug: original.slug },
+          json: {
             title: a.title,
             slug: a.slug,
             description: a.description,
-            status: a.status,
+            status: a.status as "draft" | "published",
             location: a.location,
             latitude: a.latitude ?? null,
             longitude: a.longitude ?? null,
-          }),
+          },
         });
         if (!res.ok) {
           this._saveError = "Could not update album. Please try again.";
@@ -860,7 +848,7 @@ export class AdminGallery extends LitElement {
   private async _deleteAlbum(slug: string) {
     this._savingAction = "deleting";
     try {
-      await fetch(`/api/albums/${slug}`, { method: "DELETE", credentials: "same-origin" });
+      await api.api.albums[":slug"].$delete({ param: { slug } });
       if (this._viewingAlbum?.slug === slug) {
         this._viewingAlbum = null;
         this._albumPhotos = [];
@@ -876,11 +864,9 @@ export class AdminGallery extends LitElement {
     if (!this._viewingAlbum) return;
     this._loading = true;
     try {
-      await fetch(`/api/albums/${this._viewingAlbum.slug}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ cover_photo_id: photoId }),
+      await api.api.albums[":slug"].$put({
+        param: { slug: this._viewingAlbum.slug },
+        json: { cover_photo_id: photoId },
       });
       await this._fetchAlbums();
       if (this._viewingAlbum) {
@@ -1087,10 +1073,10 @@ export class AdminGallery extends LitElement {
   private async _viewAlbum(a: Album) {
     this._viewingAlbum = a;
     try {
-      const res = await fetch(`/api/photos?album=${a.slug}`, { credentials: "same-origin" });
+      const res = await api.api.photos.$get({ query: { album: a.slug } });
       if (res.ok) {
-        const data = (await res.json()) as { photos: Photo[] };
-        this._albumPhotos = data.photos;
+        const data = await res.json();
+        this._albumPhotos = data.photos as unknown as Photo[];
       }
     } catch { /* network error */ }
   }
@@ -1416,11 +1402,8 @@ export class AdminGallery extends LitElement {
   private async _createQuickAlbum() {
     if (!this._newAlbumTitle.trim()) return;
     try {
-      const res = await fetch("/api/albums", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({
+      const res = await api.api.albums.$post({
+        json: {
           title: this._newAlbumTitle.trim(),
           slug: slugify(this._newAlbumTitle.trim()),
           description: "",
@@ -1428,7 +1411,7 @@ export class AdminGallery extends LitElement {
           location: "",
           latitude: null,
           longitude: null,
-        }),
+        },
       });
       if (res.ok) {
         await this._fetchAlbums();
@@ -1443,14 +1426,11 @@ export class AdminGallery extends LitElement {
   private async _createQuickTag() {
     if (!this._newTagName.trim()) return;
     try {
-      const res = await fetch("/api/tags", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "same-origin",
-        body: JSON.stringify({ name: this._newTagName.trim() }),
+      const res = await api.api.tags.$post({
+        json: { name: this._newTagName.trim() },
       });
       if (res.ok) {
-        const data = (await res.json()) as { ok: boolean; id: number };
+        const data = await res.json() as { ok: boolean; id: number };
         await this._fetchTags();
         this._batchTagIds = [...this._batchTagIds, data.id];
         this._creatingTag = false;
