@@ -167,6 +167,7 @@ export class AdminGallery extends LitElement {
   @state() private _saved = false;
   @state() private _saveError = "";
   @state() private _wizardStep = 1;
+  @state() private _wizardError = "";
   @state() private _uploadFiles: File[] = [];
   @state() private _uploadMeta: Array<{ title: string; caption: string }> = [];
   @state() private _batchAlbumId: number | null = null;
@@ -191,6 +192,8 @@ export class AdminGallery extends LitElement {
   @state() private _reuploadingPhotoId: number | null = null;
   @state() private _reuploadedPhotoId: number | null = null;
   private _blobUrlCache = new Map<File, string>();
+  @state() private _toastMessage = "";
+  @state() private _toastStatus: "error" | "warning" | "success" = "error";
   static styles = css`
     :host {
       display: flex;
@@ -479,6 +482,7 @@ export class AdminGallery extends LitElement {
     .exif-row { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid var(--fd-border-minimal, #e4e4e7); }
     .exif-key { color: var(--fd-text-secondary, #71717a); }
     .exif-val { font-weight: 500; }
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; transition: opacity 0.3s ease; }
   `;
 
   connectedCallback() {
@@ -495,6 +499,12 @@ export class AdminGallery extends LitElement {
     this._revokeBlobUrls();
   }
 
+  private _showToast(message: string, status: "error" | "warning" | "success" = "error") {
+    this._toastMessage = message;
+    this._toastStatus = status;
+    setTimeout(() => { this._toastMessage = ""; }, 5000);
+  }
+
   private async _fetchAll() {
     this._loading = true;
     await Promise.all([this._fetchPhotos(), this._fetchAlbums(), this._fetchTags()]);
@@ -507,7 +517,7 @@ export class AdminGallery extends LitElement {
       if (!res.ok) return;
       const data = await res.json();
       this._photos = data.photos as unknown as Photo[];
-    } catch { /* network error */ }
+    } catch { this._showToast("Failed to load photos"); }
   }
 
   private async _fetchAlbums() {
@@ -516,7 +526,7 @@ export class AdminGallery extends LitElement {
       if (!res.ok) return;
       const data = await res.json();
       this._albums = data.albums as unknown as Album[];
-    } catch { /* network error */ }
+    } catch { this._showToast("Failed to load albums"); }
   }
 
   private async _fetchTags() {
@@ -525,7 +535,7 @@ export class AdminGallery extends LitElement {
       if (!res.ok) return;
       const data = await res.json();
       this._tags = data.tags as unknown as Array<{ id: number; name: string; slug: string }>;
-    } catch { /* network error */ }
+    } catch { this._showToast("Failed to load tags"); }
   }
 
   private _navigateBack() {
@@ -563,10 +573,10 @@ export class AdminGallery extends LitElement {
           if (tags.file["Image Width"]) width = Number(tags.file["Image Width"].value);
           if (tags.file["Image Height"]) height = Number(tags.file["Image Height"].value);
         }
-      } catch { /* EXIF extraction failed */ }
+      } catch { this._showToast("Could not read EXIF data — metadata will be missing", "warning"); }
 
       let thumbhash = "";
-      try { thumbhash = await generateThumbHash(file); } catch { /* thumbhash failed */ }
+      try { thumbhash = await generateThumbHash(file); } catch { this._showToast("Thumbhash generation failed — no blur placeholder", "warning"); }
 
       const optimized = await optimizeImage(file);
 
@@ -588,7 +598,7 @@ export class AdminGallery extends LitElement {
             const thumbData = (await thumbRes.json()) as { url: string };
             thumbnailUrl = thumbData.url;
           }
-        } catch { /* thumbnail generation failed — continue without */ }
+        } catch { this._showToast("Thumbnail generation failed — uploading without thumbnail", "warning"); }
 
         const meta = this._uploadMeta[i] ?? { title: file.name.replace(/\.[^.]+$/, ""), caption: "" };
         await api.api.photos.$post({
@@ -612,7 +622,7 @@ export class AdminGallery extends LitElement {
             tag_ids: this._batchTagIds,
           },
         });
-      } catch { /* upload error */ }
+      } catch { this._wizardError = `Failed to upload ${file.name}`; }
     }
     this._uploading = false;
     this._showUpload = false;
@@ -644,22 +654,26 @@ export class AdminGallery extends LitElement {
       this._saved = true;
       setTimeout(() => { this._saved = false; }, 2000);
       await this._fetchPhotos();
+    } catch {
+      this._saveError = "Failed to save photo. Please try again.";
     } finally {
       this._savingAction = "none";
     }
-  }
 
+  }
   private async _deletePhoto(id: number) {
     this._savingAction = "deleting";
     try {
       await api.api.photos[":id"].$delete({ param: { id: String(id) } });
       (this.shadowRoot!.querySelector('.photo-edit-modal') as HTMLElement & { close(): void })?.close();
       await this._fetchAll();
+    } catch {
+      this._saveError = "Failed to delete photo.";
     } finally {
       this._savingAction = "none";
     }
-  }
 
+  }
   private async _regenerateThumbnails() {
     this._regeneratingThumbs = true;
     try {
@@ -681,7 +695,7 @@ export class AdminGallery extends LitElement {
             credentials: "same-origin",
             body: JSON.stringify({ thumbnail_url: uploadData.url }),
           });
-        } catch { /* skip failed photo */ }
+        } catch { this._showToast(`Failed to regenerate thumbnail for photo #${photo.id}`, "warning"); }
       }
       this._saved = true;
       setTimeout(() => { this._saved = false; }, 2000);
@@ -873,7 +887,7 @@ export class AdminGallery extends LitElement {
         const updated = this._albums.find((a) => a.slug === this._viewingAlbum!.slug);
         if (updated) this._viewingAlbum = updated;
       }
-    } catch { /* error */ }
+    } catch { this._showToast("Failed to set album cover"); }
     this._loading = false;
   }
 
@@ -907,6 +921,7 @@ export class AdminGallery extends LitElement {
       ${this._renderPhotoModal()}
       ${this._renderPhotoDetail()}
       ${this._renderAlbumModal()}
+      ${this._toastMessage ? html`<ui-alert class="toast" status=${this._toastStatus} size="s" emphasis="bold" dismissible @dismiss=${() => { this._toastMessage = ""; }}>${this._toastMessage}</ui-alert>` : nothing}
     `;
   }
 
@@ -1078,7 +1093,7 @@ export class AdminGallery extends LitElement {
         const data = await res.json();
         this._albumPhotos = data.photos as unknown as Photo[];
       }
-    } catch { /* network error */ }
+    } catch { this._showToast("Failed to load album photos"); }
   }
 
   private _renderAlbumDetail() {
@@ -1111,6 +1126,7 @@ export class AdminGallery extends LitElement {
       <ui-modal size="l" style="--ui-modal-width: 800px" ?open=${this._showUpload} dismissible @close=${() => { this._showUpload = false; this._resetUploadWizard(); }}>
         <span>Upload Photos</span>
         <div slot="body">
+          ${this._wizardError ? html`<ui-alert status="error" size="s" dismissible @dismiss=${() => { this._wizardError = ""; }} style="margin-bottom:12px">${this._wizardError}</ui-alert>` : nothing}
           <ui-wizard
             headless
             layout="horizontal"
@@ -1420,7 +1436,7 @@ export class AdminGallery extends LitElement {
         this._creatingAlbum = false;
         this._newAlbumTitle = "";
       }
-    } catch { /* network error */ }
+    } catch { this._wizardError = "Failed to create album"; }
   }
 
   private async _createQuickTag() {
@@ -1436,10 +1452,11 @@ export class AdminGallery extends LitElement {
         this._creatingTag = false;
         this._newTagName = "";
       }
-    } catch { /* network error */ }
+    } catch { this._wizardError = "Failed to create tag"; }
   }
 
   private _resetUploadWizard() {
+    this._wizardError = "";
     this._wizardStep = 1;
     this._revokeBlobUrls();
     this._uploadFiles = [];
@@ -1582,6 +1599,7 @@ export class AdminGallery extends LitElement {
       <ui-modal class="photo-edit-modal" size="l" style="--ui-modal-width: 900px" open dismissible @close=${() => { this._editingPhoto = null; }}>
         <span>Edit Photo</span>
         <div slot="body" class="photo-detail">
+          ${this._saveError ? html`<ui-alert status="error" size="s" dismissible @dismiss=${() => { this._saveError = ""; }} style="margin-bottom:12px">${this._saveError}</ui-alert>` : nothing}
           <div class="photo-detail-preview">
             <ui-image src=${p.url} alt=${p.title || "Photo"} style="width:100%;border-radius:8px;"></ui-image>
           </div>
