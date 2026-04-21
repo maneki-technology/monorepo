@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import type { Env } from "../index.js";
+import { buildSetClauses, toJson, toBool } from "../db/helpers.js";
 
 
 const createProjectSchema = z.object({
@@ -117,19 +118,18 @@ export const projects = new Hono<Env>()
     const updates = c.req.valid("json");
     const db = c.get("db");
 
-    const setClauses: string[] = [];
-    const args: (string | number | null)[] = [];
-
-    if (updates.title !== undefined) { setClauses.push("title = ?"); args.push(updates.title); }
-    if (updates.description !== undefined) { setClauses.push("description = ?"); args.push(updates.description); }
-    if (updates.body_md !== undefined) { setClauses.push("body_md = ?"); args.push(updates.body_md); }
-    if (updates.tech !== undefined) { setClauses.push("tech = ?"); args.push(JSON.stringify(updates.tech)); }
-    if (updates.url !== undefined) { setClauses.push("url = ?"); args.push(updates.url); }
-    if (updates.repo !== undefined) { setClauses.push("repo = ?"); args.push(updates.repo); }
-    if (updates.image !== undefined) { setClauses.push("image = ?"); args.push(updates.image); }
-    if (updates.pinned !== undefined) { setClauses.push("pinned = ?"); args.push(updates.pinned ? 1 : 0); }
-    if (updates.sort_order !== undefined) { setClauses.push("sort_order = ?"); args.push(updates.sort_order); }
-    if (updates.status !== undefined) { setClauses.push("status = ?"); args.push(updates.status); }
+    const { clauses: setClauses, args } = buildSetClauses(updates, {
+      title: "title",
+      description: "description",
+      body_md: "body_md",
+      tech: { column: "tech", transform: toJson },
+      url: "url",
+      repo: "repo",
+      image: "image",
+      pinned: { column: "pinned", transform: toBool },
+      sort_order: "sort_order",
+      status: "status",
+    });
     // Atomic slug rename
     let newSlug = slug;
     if (updates.new_slug !== undefined && updates.new_slug !== slug) {
@@ -183,18 +183,18 @@ export const projects = new Hono<Env>()
     const slug = c.req.param("slug");
     const updates = c.req.valid("json");
 
-    const setClauses: string[] = ["status = 'published'", "updated_at = datetime('now')", "published_at = datetime('now')"];
-    const args: (string | number | null)[] = [];
-
-    if (updates.title !== undefined) { setClauses.push("title = ?"); args.push(updates.title); }
-    if (updates.description !== undefined) { setClauses.push("description = ?"); args.push(updates.description); }
-    if (updates.body_md !== undefined) { setClauses.push("body_md = ?"); args.push(updates.body_md); }
-    if (updates.tech !== undefined) { setClauses.push("tech = ?"); args.push(JSON.stringify(updates.tech)); }
-    if (updates.url !== undefined) { setClauses.push("url = ?"); args.push(updates.url); }
-    if (updates.repo !== undefined) { setClauses.push("repo = ?"); args.push(updates.repo); }
-    if (updates.image !== undefined) { setClauses.push("image = ?"); args.push(updates.image); }
-    if (updates.pinned !== undefined) { setClauses.push("pinned = ?"); args.push(updates.pinned ? 1 : 0); }
-    if (updates.sort_order !== undefined) { setClauses.push("sort_order = ?"); args.push(updates.sort_order); }
+    const { clauses: extraClauses, args } = buildSetClauses(updates, {
+      title: "title",
+      description: "description",
+      body_md: "body_md",
+      tech: { column: "tech", transform: toJson },
+      url: "url",
+      repo: "repo",
+      image: "image",
+      pinned: { column: "pinned", transform: toBool },
+      sort_order: "sort_order",
+    });
+    const setClauses: string[] = ["status = 'published'", "updated_at = datetime('now')", "published_at = datetime('now')", ...extraClauses];
 
     // Regenerate slug if it's a temp slug
     let newSlug = slug;

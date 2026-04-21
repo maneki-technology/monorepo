@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import type { Env } from "../index.js";
+import { buildSetClauses, toBool } from "../db/helpers.js";
 
 const createPhotoSchema = z.object({
   r2_key: z.string().min(1),
@@ -183,69 +184,23 @@ export const photos = new Hono<Env>()
     const updates = c.req.valid("json");
     const db = c.get("db");
 
-    const setClauses: string[] = [];
-    const args: (string | number | null)[] = [];
-
-    if (updates.title !== undefined) {
-      setClauses.push("title = ?");
-      args.push(updates.title);
-    }
-    if (updates.caption !== undefined) {
-      setClauses.push("caption = ?");
-      args.push(updates.caption);
-    }
-    if (updates.album_id !== undefined) {
-      setClauses.push("album_id = ?");
-      args.push(updates.album_id);
-    }
-    if (updates.category !== undefined) {
-      setClauses.push("category = ?");
-      args.push(updates.category);
-    }
-    if (updates.location !== undefined) {
-      setClauses.push("location = ?");
-      args.push(updates.location);
-    }
-    if (updates.latitude !== undefined) {
-      setClauses.push("latitude = ?");
-      args.push(updates.latitude);
-    }
-    if (updates.longitude !== undefined) {
-      setClauses.push("longitude = ?");
-      args.push(updates.longitude);
-    }
-    if (updates.width !== undefined) {
-      setClauses.push("width = ?");
-      args.push(updates.width);
-    }
-    if (updates.height !== undefined) {
-      setClauses.push("height = ?");
-      args.push(updates.height);
-    }
-    if (updates.thumbhash !== undefined) {
-      setClauses.push("thumbhash = ?");
-      args.push(updates.thumbhash);
-    }
-    if (updates.thumbnail_url !== undefined) {
-      setClauses.push("thumbnail_url = ?");
-      args.push(updates.thumbnail_url);
-    }
-    if (updates.exif_json !== undefined) {
-      setClauses.push("exif_json = ?");
-      args.push(updates.exif_json);
-    }
-    if (updates.sort_order !== undefined) {
-      setClauses.push("sort_order = ?");
-      args.push(updates.sort_order);
-    }
-    if (updates.featured !== undefined) {
-      setClauses.push("featured = ?");
-      args.push(updates.featured ? 1 : 0);
-    }
-    if (updates.status !== undefined) {
-      setClauses.push("status = ?");
-      args.push(updates.status);
-    }
+    const { clauses: setClauses, args } = buildSetClauses(updates, {
+      title: "title",
+      caption: "caption",
+      album_id: "album_id",
+      category: "category",
+      location: "location",
+      latitude: "latitude",
+      longitude: "longitude",
+      width: "width",
+      height: "height",
+      thumbhash: "thumbhash",
+      thumbnail_url: "thumbnail_url",
+      exif_json: "exif_json",
+      sort_order: "sort_order",
+      featured: { column: "featured", transform: toBool },
+      status: "status",
+    });
 
     if (setClauses.length === 0) {
       return c.json({ error: "no fields to update" }, 400);
