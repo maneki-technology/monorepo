@@ -4,6 +4,7 @@ import { createRef, ref, type Ref } from "lit/directives/ref.js";
 import type { Post, Project } from "./types.js";
 import { state, setState, hasUnpublishedChanges } from "./state.js";
 import { api } from "../../lib/api.js";
+import { SITE_URL } from "../../config.js";
 import { fetchPosts, fetchProjects, loadUIState, setEditorPage, saveUIState, saveCurrent, saveCurrentProject, loadPostIntoEditor, loadProjectIntoEditor, exportAsMarkdown } from "./api.js";
 import { renderPreview, triggerPreview, getMd, wrapCodeBlocks } from "./preview.js";
 import { wrapSelection, insertAtCursor } from "./toolbar.js";
@@ -85,6 +86,9 @@ export class EditorPage extends LitElement {
   // ─── Button status (reactive) ──────────────────────────────────────────
   @litState() private _saveStatus = "none";
   @litState() private _publishStatus = "none";
+  @litState() private _shareStatus = "none";
+  private _deployPollTimer: ReturnType<typeof setInterval> | null = null;
+  private _lastDeployCheck: string | null = null;
 
   static styles = css`
     .admin-layout { display: flex; height: 100vh; overflow: hidden; }
@@ -307,6 +311,10 @@ export class EditorPage extends LitElement {
               <ui-button id="admin-preview-btn" action="secondary" emphasis="subtle" size="s" @click=${this._openFullscreenPreview}>Preview</ui-button>
               <ui-button id="admin-portfolio-btn" action="secondary" emphasis="subtle" size="s" style="display:${s.activeTabType === "project" ? "" : "none"}" @click=${() => this._projectPreviewRef.value?.show()}>Portfolio</ui-button>
               <ui-button id="admin-save-btn" action="primary" size="s" status=${this._saveStatus} ?disabled=${s.deployingSlugs.size > 0} @click=${() => this._onSave()}>Save</ui-button>
+              <ui-button id="admin-share-btn" action="secondary" size="s" icon="leading-icon" status=${this._shareStatus} ?disabled=${!this._canShare} @click=${this._onShare}>
+                <ui-icon name="share" size="xs" slot="icon-start"></ui-icon>
+                Share
+              </ui-button>
               <ui-dropdown-split id="admin-publish-split" action="primary" size="s" label="Publish" status=${this._publishStatus} ?disabled=${s.deployingSlugs.size > 0} @action=${this._onPublishAction}>
                 <ui-dropdown-item id="admin-unpublish-btn" value="unpublish" @select=${this._onUnpublish}>Unpublish</ui-dropdown-item>
                 <ui-dropdown-item id="admin-export-btn" value="export" @select=${this._onExport}>Export .md</ui-dropdown-item>
@@ -374,6 +382,12 @@ export class EditorPage extends LitElement {
         e.preventDefault();
       }
     });
+
+    // Listen for deploy-fab success events
+    document.addEventListener("deploy-success", () => this._refreshDeployedAt());
+
+    // Poll for external deploys (PR merge, manual trigger) every 30s
+    this._deployPollTimer = setInterval(() => this._checkForNewDeploy(), 30_000);
 
     // Load posts, restore UI state, resume deploy polling
     this._initEditor(root);
@@ -446,8 +460,10 @@ export class EditorPage extends LitElement {
       try {
         const statusRes = await api.api.deploy.status.$get();
         if (!statusRes.ok) return;
-        const { status: deployStatus } = await statusRes.json();
-        if (deployStatus === "building" || deployStatus === "deploying") {
+        const deployData = await statusRes.json();
+        // Seed last deploy check so the 30s poll doesn't redundantly refetch on first tick
+        if ("createdAt" in deployData) this._lastDeployCheck = deployData.createdAt;
+        if (deployData.status === "building" || deployData.status === "deploying") {
           setState({ deployingSlugs: new Set([state.currentSlug!]), deployingAction: "publishing" });
           const pollInterval = setInterval(async () => {
             try {
@@ -634,6 +650,7 @@ export class EditorPage extends LitElement {
   disconnectedCallback(): void {
     super.disconnectedCallback();
     document.removeEventListener("keydown", this._onDocumentKeydown);
+    if (this._deployPollTimer) clearInterval(this._deployPollTimer);
   }
   // ─── Image upload via file picker (replaces upload.ts toolbar button handler) ─
   private _openImageFilePicker(): void {
@@ -707,6 +724,69 @@ export class EditorPage extends LitElement {
   }
   private _onExport(): void {
     exportAsMarkdown();
+  }
+
+  private get _canShare(): boolean {
+    const slug = state.currentSlug;
+    if (!slug) return false;
+    if (state.activeTabType === "project") {
+      return !!state.allProjects.find(p => p.slug === slug)?.deployedAt;
+    }
+    return !!state.allPosts.find(p => p.slug === slug)?.deployedAt;
+  }
+
+  private async _onShare(): Promise<void> {
+    const slug = state.currentSlug;
+    if (!slug) return;
+    const isProject = state.activeTabType === "project";
+    const item = isProject
+      ? state.allProjects.find(p => p.slug === slug)
+      : state.allPosts.find(p => p.slug === slug);
+    const status = item?.status;
+    let path: string;
+    if (isProject) {
+      path = `/project/${slug}`;
+    } else if (status === "draft") {
+      path = `/draft/${slug}`;
+    } else {
+      path = `/post/${slug}`;
+    }
+    const url = `${SITE_URL}${path}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ url, title: item?.title });
+        return;
+      } catch { /* user cancelled or not supported */ }
+    }
+    await navigator.clipboard.writeText(url);
+    this._shareStatus = "success";
+    setTimeout(() => { this._shareStatus = "none"; }, 1500);
+  }
+
+  private async _refreshDeployedAt(): Promise<void> {
+    const [posts, projects] = await Promise.all([fetchPosts(), fetchProjects()]);
+    for (const post of posts) {
+      const existing = state.allPosts.find(p => p.slug === post.slug);
+      if (existing) existing.deployedAt = post.deployedAt;
+    }
+    for (const project of projects) {
+      const existing = state.allProjects.find(p => p.slug === project.slug);
+      if (existing) existing.deployedAt = project.deployedAt;
+    }
+    setState({});
+  }
+
+  private async _checkForNewDeploy(): Promise<void> {
+    try {
+      const res = await api.api.deploy.status.$get();
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.status === "success" && "createdAt" in data && data.createdAt !== this._lastDeployCheck) {
+        this._lastDeployCheck = data.createdAt;
+        await this._refreshDeployedAt();
+      }
+    } catch { /* ignore */ }
   }
 
   private _onTagKeydown(e: Event): void {
@@ -808,7 +888,7 @@ export class EditorPage extends LitElement {
     renderPreview(this.shadowRoot!, this._previewRef.value);
   }
 
-  getPostData(): Omit<Post, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedSnapshot"> {
+  getPostData(): Omit<Post, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedSnapshot" | "deployedAt"> {
     return {
       title: this.postTitle,
       date: this.postDate,
@@ -844,7 +924,7 @@ export class EditorPage extends LitElement {
     renderPreview(this.shadowRoot!, this._previewRef.value);
   }
 
-  getProjectData(): Omit<Project, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedSnapshot"> {
+  getProjectData(): Omit<Project, "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedSnapshot" | "deployedAt"> {
     return {
       title: this.projectTitle,
       description: this.projectDescription,
@@ -905,6 +985,7 @@ export class EditorPage extends LitElement {
       publishedAt: null,
       persisted: false,
       publishedSnapshot: null,
+      deployedAt: null,
     };
     setState({ allPosts: [post, ...state.allPosts], openTabs: [...state.openTabs, post] });
     loadPostIntoEditor(post);
@@ -928,6 +1009,7 @@ export class EditorPage extends LitElement {
       publishedAt: null,
       persisted: false,
       publishedSnapshot: null,
+      deployedAt: null,
     };
     setState({ allProjects: [project, ...state.allProjects], openProjectTabs: [...state.openProjectTabs, project] });
     loadProjectIntoEditor(project);

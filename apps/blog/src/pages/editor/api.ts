@@ -22,6 +22,7 @@ export async function fetchPosts(): Promise<Post[]> {
       publishedAt: (p.published_at as string) ?? null,
       persisted: true,
       publishedSnapshot: p.published_snapshot ? JSON.stringify({ type: "post", ...JSON.parse(p.published_snapshot as string) }) : null,
+      deployedAt: (p.deployed_at as string) ?? null,
     }));
   } catch {
     return [];
@@ -46,6 +47,7 @@ export async function savePost(post: Post): Promise<{ slug: string; saved: Post 
       publishedAt: (p.published_at as string) || null,
       persisted: true,
       publishedSnapshot: p.published_snapshot ? JSON.stringify({ type: "post", ...JSON.parse(p.published_snapshot as string) }) : null,
+      deployedAt: (p.deployed_at as string) ?? null,
     });
 
     if (post.persisted) {
@@ -106,6 +108,7 @@ export async function fetchProjects(): Promise<Project[]> {
       publishedAt: (p.published_at as string) ?? null,
       persisted: true,
       publishedSnapshot: p.published_snapshot ? JSON.stringify({ type: "project", ...JSON.parse(p.published_snapshot as string) }) : null,
+      deployedAt: (p.deployed_at as string) ?? null,
     }));
   } catch {
     return [];
@@ -133,6 +136,7 @@ export async function saveProject(project: Project): Promise<{ slug: string; sav
       publishedAt: (p.published_at as string) || null,
       persisted: true,
       publishedSnapshot: p.published_snapshot ? JSON.stringify({ type: "project", ...JSON.parse(p.published_snapshot as string) }) : null,
+      deployedAt: (p.deployed_at as string) ?? null,
     });
 
     if (project.persisted) {
@@ -227,7 +231,7 @@ export function setEditorPage(page: EditorPage): void {
 
 export function getCurrentPostData(): Omit<
   Post,
-  "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedSnapshot"
+  "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedSnapshot" | "deployedAt"
 > {
   return _editorPage!.getPostData();
 }
@@ -245,6 +249,7 @@ export async function saveCurrent(_forceApi = false): Promise<"success" | "error
       publishedAt: currentPost?.publishedAt ?? null,
       persisted: currentPost?.persisted ?? false,
       publishedSnapshot: currentPost?.publishedSnapshot ?? null,
+      deployedAt: currentPost?.deployedAt ?? null,
     };
 
     const result = await savePost(post);
@@ -323,7 +328,7 @@ export function exportAsMarkdown(): void {
 
 export function getCurrentProjectData(): Omit<
   Project,
-  "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedSnapshot"
+  "slug" | "updatedAt" | "publishedAt" | "persisted" | "publishedSnapshot" | "deployedAt"
 > {
   return _editorPage!.getProjectData();
 }
@@ -341,6 +346,7 @@ export async function saveCurrentProject(_forceApi = false): Promise<"success" |
       publishedAt: currentProject?.publishedAt ?? null,
       persisted: currentProject?.persisted ?? false,
       publishedSnapshot: currentProject?.publishedSnapshot ?? null,
+      deployedAt: currentProject?.deployedAt ?? null,
     };
 
     const result = await saveProject(project);

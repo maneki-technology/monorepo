@@ -111,6 +111,19 @@ export const deploy = new Hono<Env>()
 
       if (newStatus !== dbStatus) {
         await db.execute({ sql: "UPDATE deployments SET status = ? WHERE id = ?", args: [newStatus, deployId] });
+
+        // When deploy succeeds, bulk-update deployed_at from manifest
+        if (newStatus === "success") {
+          const manifestResult = await db.execute({ sql: "SELECT manifest FROM deployments WHERE id = ?", args: [deployId] });
+          const manifestJson = manifestResult.rows[0]?.manifest as string | null;
+          if (manifestJson) {
+            const entries = JSON.parse(manifestJson) as { slug: string; type: string }[];
+            for (const entry of entries) {
+              const table = entry.type === "project" ? "projects" : "posts";
+              await db.execute({ sql: `UPDATE ${table} SET deployed_at = datetime('now') WHERE slug = ?`, args: [entry.slug] });
+            }
+          }
+        }
       }
 
       return c.json({ deploymentId: deployId, status: newStatus, createdAt: row.created_at as string });
