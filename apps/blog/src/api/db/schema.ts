@@ -117,6 +117,15 @@ CREATE TABLE IF NOT EXISTS photo_tags (
 CREATE INDEX IF NOT EXISTS idx_photo_tags_photo ON photo_tags(photo_id);
 CREATE INDEX IF NOT EXISTS idx_photo_tags_tag ON photo_tags(tag_id);
 
+CREATE TABLE IF NOT EXISTS post_tags (
+  post_id INTEGER NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+  tag_id INTEGER NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (post_id, tag_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_post_tags_post ON post_tags(post_id);
+CREATE INDEX IF NOT EXISTS idx_post_tags_tag ON post_tags(tag_id);
+
 CREATE TABLE IF NOT EXISTS pages (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   slug TEXT UNIQUE NOT NULL,

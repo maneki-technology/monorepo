@@ -127,6 +127,7 @@ export function markdownPostsPlugin(): Plugin {
           date: (row.created_at as string).split("T")[0],
           readTime: `${readTime} min read`,
           excerpt: row.excerpt as string,
+          // Reads from denormalized JSON tags column (kept in sync by posts API alongside post_tags junction table)
           tags: JSON.parse((row.tags as string) || "[]"),
           headings,
           content: html,

@@ -170,4 +170,36 @@ await db.executeMultiple(`
 `);
 console.log("Cleaned up conversations older than 30 days.");
 
+console.log("Schema up to date.");
+
+// ─── Migrate posts JSON tags → post_tags junction table ───────────────────
+console.log("Migrating post tags to junction table...");
+const postsWithTags = await db.execute("SELECT id, tags FROM posts WHERE tags IS NOT NULL AND tags != '[]'");
+let migratedCount = 0;
+for (const row of postsWithTags.rows) {
+  const postId = row.id as number;
+  let tagNames: string[];
+  try {
+    tagNames = JSON.parse((row.tags as string) || "[]");
+  } catch {
+    continue;
+  }
+  for (const name of tagNames) {
+    if (!name.trim()) continue;
+    const slug = name.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, "");
+    await db.execute({
+      sql: "INSERT OR IGNORE INTO tags (name, slug) VALUES (?, ?)",
+      args: [name, slug],
+    });
+    const tagRow = await db.execute({ sql: "SELECT id FROM tags WHERE slug = ?", args: [slug] });
+    if (!tagRow.rows.length) continue;
+    const tagId = tagRow.rows[0].id as number;
+    await db.execute({
+      sql: "INSERT OR IGNORE INTO post_tags (post_id, tag_id) VALUES (?, ?)",
+      args: [postId, tagId],
+    });
+    migratedCount++;
+  }
+}
+console.log(`Migrated ${migratedCount} post↔tag associations.`);
 console.log("Done.");
