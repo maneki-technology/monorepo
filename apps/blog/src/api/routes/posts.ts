@@ -8,6 +8,7 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import type { Client } from "@libsql/client";
 import type { Env } from "../index.js";
+import { buildSetClauses, toJson } from "../db/helpers.js";
 
 const createPostSchema = z.object({
   title: z.string().min(1),
@@ -94,33 +95,14 @@ export const posts = new Hono<Env>()
     const db = c.get("db");
 
     // Build dynamic SET clause
-    const setClauses: string[] = [];
-    const args: (string | number | null)[] = [];
-
-    if (updates.title !== undefined) {
-      setClauses.push("title = ?");
-      args.push(updates.title);
-    }
-    if (updates.body_md !== undefined) {
-      setClauses.push("body_md = ?");
-      args.push(updates.body_md);
-    }
-    if (updates.excerpt !== undefined) {
-      setClauses.push("excerpt = ?");
-      args.push(updates.excerpt);
-    }
-    if (updates.tags !== undefined) {
-      setClauses.push("tags = ?");
-      args.push(JSON.stringify(updates.tags));
-    }
-    if (updates.status !== undefined) {
-      setClauses.push("status = ?");
-      args.push(updates.status);
-    }
-    if (updates.date !== undefined) {
-      setClauses.push("created_at = ?");
-      args.push(updates.date);
-    }
+    const { clauses: setClauses, args } = buildSetClauses(updates, {
+      title: "title",
+      body_md: "body_md",
+      excerpt: "excerpt",
+      tags: { column: "tags", transform: toJson },
+      status: "status",
+      date: { column: "created_at" },
+    });
     // Atomic slug rename — single UPDATE instead of DELETE + CREATE
     let newSlug = slug;
     if (updates.new_slug !== undefined && updates.new_slug !== slug) {
@@ -173,15 +155,14 @@ export const posts = new Hono<Env>()
     const slug = c.req.param("slug");
     const updates = c.req.valid("json");
 
-    // Save content + set published immediately (so the build picks it up)
-    const setClauses: string[] = ["status = 'published'", "updated_at = datetime('now')", "published_at = datetime('now')"];
-    const args: (string | number | null)[] = [];
-
-    if (updates.title !== undefined) { setClauses.push("title = ?"); args.push(updates.title); }
-    if (updates.body_md !== undefined) { setClauses.push("body_md = ?"); args.push(updates.body_md); }
-    if (updates.excerpt !== undefined) { setClauses.push("excerpt = ?"); args.push(updates.excerpt); }
-    if (updates.tags !== undefined) { setClauses.push("tags = ?"); args.push(JSON.stringify(updates.tags)); }
-    if (updates.date !== undefined) { setClauses.push("created_at = ?"); args.push(updates.date); }
+    const { clauses: extraClauses, args } = buildSetClauses(updates, {
+      title: "title",
+      body_md: "body_md",
+      excerpt: "excerpt",
+      tags: { column: "tags", transform: toJson },
+      date: { column: "created_at" },
+    });
+    const setClauses: string[] = ["status = 'published'", "updated_at = datetime('now')", "published_at = datetime('now')", ...extraClauses];
 
     // Regenerate slug if it's a temp slug
     let newSlug = slug;
