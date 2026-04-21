@@ -784,8 +784,6 @@ export class EditorPage extends LitElement {
       const dirty = new Set(state.dirtySlugs);
       dirty.add(state.currentSlug);
       setState({ dirtySlugs: dirty });
-    } else {
-      setState({});
     }
     if (this._autoSaveTimer) clearTimeout(this._autoSaveTimer);
     this._autoSaveTimer = setTimeout(() => {

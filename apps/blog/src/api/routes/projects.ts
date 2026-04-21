@@ -181,7 +181,6 @@ export const projects = new Hono<Env>()
   .put("/:slug/publish", zValidator("json", updateProjectSchema), async (c) => {
     const db = c.get("db");
     const slug = c.req.param("slug");
-    const ghToken = c.env.GH_DEPLOY_TOKEN;
     const updates = c.req.valid("json");
 
     const setClauses: string[] = ["status = 'published'", "updated_at = datetime('now')", "published_at = datetime('now')"];
