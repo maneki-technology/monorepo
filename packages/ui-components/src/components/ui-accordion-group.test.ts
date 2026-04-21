@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import "./ui-accordion-item.js";
 import "./ui-accordion-group.js";
+import { UiAccordionGroup } from "./ui-accordion-group.js";
 
 describe("ui-accordion-group", () => {
   let el: HTMLElement;
@@ -21,7 +22,7 @@ describe("ui-accordion-group", () => {
     }
     document.body.appendChild(group);
     // happy-dom may not fire slotchange, so call propagate manually
-    (group as any)._propagateAttributes();
+    (group as UiAccordionGroup)._propagateAttributes();
     return group;
   }
 
@@ -33,15 +34,13 @@ describe("ui-accordion-group", () => {
     el = document.createElement("ui-accordion-group");
     document.body.appendChild(el);
 
-    expect((el as any).size).toBeNull();
-    expect((el as any).emphasis).toBeNull();
-    expect((el as any).exclusive).toBe(false);
+    expect((el as UiAccordionGroup).size).toBeNull();
+    expect((el as UiAccordionGroup).emphasis).toBeNull();
+    expect((el as UiAccordionGroup).exclusive).toBe(false);
   });
 
   it("has observedAttributes for size, emphasis, exclusive", () => {
-    const Ctor = customElements.get("ui-accordion-group") as unknown as {
-      observedAttributes: string[];
-    };
+    const Ctor = customElements.get("ui-accordion-group") as typeof UiAccordionGroup;
     expect(Ctor.observedAttributes).toEqual(["size", "emphasis", "exclusive", "variant"]);
   });
 
@@ -51,8 +50,8 @@ describe("ui-accordion-group", () => {
     el = createGroup();
     const items = el.querySelectorAll("ui-accordion-item");
 
-    (el as any).size = "s";
-    (el as any)._propagateAttributes();
+    (el as UiAccordionGroup).size = "s";
+    (el as UiAccordionGroup)._propagateAttributes();
 
     expect(items[0].getAttribute("size")).toBe("s");
     expect(items[1].getAttribute("size")).toBe("s");
@@ -65,8 +64,8 @@ describe("ui-accordion-group", () => {
     el = createGroup();
     const items = el.querySelectorAll("ui-accordion-item");
 
-    (el as any).emphasis = "bold";
-    (el as any)._propagateAttributes();
+    (el as UiAccordionGroup).emphasis = "bold";
+    (el as UiAccordionGroup)._propagateAttributes();
 
     expect(items[0].getAttribute("emphasis")).toBe("bold");
     expect(items[1].getAttribute("emphasis")).toBe("bold");
@@ -81,8 +80,8 @@ describe("ui-accordion-group", () => {
 
     expect(items[0].getAttribute("size")).toBe("l");
 
-    (el as any).size = null;
-    (el as any)._propagateAttributes();
+    (el as UiAccordionGroup).size = null;
+    (el as UiAccordionGroup)._propagateAttributes();
 
     expect(items[0].getAttribute("size")).toBeNull();
     expect(items[1].getAttribute("size")).toBeNull();
@@ -95,13 +94,13 @@ describe("ui-accordion-group", () => {
     el = document.createElement("ui-accordion-group");
     document.body.appendChild(el);
 
-    (el as any).size = "m";
+    (el as UiAccordionGroup).size = "m";
     expect(el.getAttribute("size")).toBe("m");
-    expect((el as any).size).toBe("m");
+    expect((el as UiAccordionGroup).size).toBe("m");
 
-    (el as any).size = null;
+    (el as UiAccordionGroup).size = null;
     expect(el.getAttribute("size")).toBeNull();
-    expect((el as any).size).toBeNull();
+    expect((el as UiAccordionGroup).size).toBeNull();
   });
 
   // ── Emphasis property accessor ────────────────────────────────────────
@@ -110,13 +109,13 @@ describe("ui-accordion-group", () => {
     el = document.createElement("ui-accordion-group");
     document.body.appendChild(el);
 
-    (el as any).emphasis = "bold";
+    (el as UiAccordionGroup).emphasis = "bold";
     expect(el.getAttribute("emphasis")).toBe("bold");
-    expect((el as any).emphasis).toBe("bold");
+    expect((el as UiAccordionGroup).emphasis).toBe("bold");
 
-    (el as any).emphasis = null;
+    (el as UiAccordionGroup).emphasis = null;
     expect(el.getAttribute("emphasis")).toBeNull();
-    expect((el as any).emphasis).toBeNull();
+    expect((el as UiAccordionGroup).emphasis).toBeNull();
   });
 
   // ── Exclusive property accessor ───────────────────────────────────────
@@ -125,13 +124,13 @@ describe("ui-accordion-group", () => {
     el = document.createElement("ui-accordion-group");
     document.body.appendChild(el);
 
-    (el as any).exclusive = true;
+    (el as UiAccordionGroup).exclusive = true;
     expect(el.hasAttribute("exclusive")).toBe(true);
-    expect((el as any).exclusive).toBe(true);
+    expect((el as UiAccordionGroup).exclusive).toBe(true);
 
-    (el as any).exclusive = false;
+    (el as UiAccordionGroup).exclusive = false;
     expect(el.hasAttribute("exclusive")).toBe(false);
-    expect((el as any).exclusive).toBe(false);
+    expect((el as UiAccordionGroup).exclusive).toBe(false);
   });
 
   // ── Exclusive mode: one item expanded, others collapse ────────────────

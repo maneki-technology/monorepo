@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import "./ui-tree-item.js";
+import { UiTreeItem } from "./ui-tree-item.js";
 import type { TreeItemSize, TreeItemLevel, TreeItemArrow } from "./ui-tree-item.styles.js";
 import { TREE_ITEM_STYLES } from "./ui-tree-item.styles.js";
 import { ICON_CHEVRON_RIGHT, ICON_EXPAND_MORE } from "@maneki/foundation";
@@ -156,74 +157,74 @@ describe("ui-tree-item", () => {
 
   it("size getter returns attribute value", () => {
     el.setAttribute("size", "l");
-    expect((el as any).size).toBe("l");
+    expect((el as UiTreeItem).size).toBe("l");
   });
 
   it("size setter updates attribute", () => {
-    (el as any).size = "s";
+    (el as UiTreeItem).size = "s";
     expect(el.getAttribute("size")).toBe("s");
   });
 
   it("level getter returns attribute value", () => {
     el.setAttribute("level", "child-2");
-    expect((el as any).level).toBe("child-2");
+    expect((el as UiTreeItem).level).toBe("child-2");
   });
 
   it("level setter updates attribute", () => {
-    (el as any).level = "child-1";
+    (el as UiTreeItem).level = "child-1";
     expect(el.getAttribute("level")).toBe("child-1");
   });
 
   it("arrow getter returns attribute value", () => {
     el.setAttribute("arrow", "open");
-    expect((el as any).arrow).toBe("open");
+    expect((el as UiTreeItem).arrow).toBe("open");
   });
 
   it("arrow setter updates attribute", () => {
-    (el as any).arrow = "closed";
+    (el as UiTreeItem).arrow = "closed";
     expect(el.getAttribute("arrow")).toBe("closed");
   });
 
   it("selected getter returns boolean", () => {
-    expect((el as any).selected).toBe(false);
+    expect((el as UiTreeItem).selected).toBe(false);
     el.setAttribute("selected", "");
-    expect((el as any).selected).toBe(true);
+    expect((el as UiTreeItem).selected).toBe(true);
   });
 
   it("selected setter adds/removes attribute", () => {
-    (el as any).selected = true;
+    (el as UiTreeItem).selected = true;
     expect(el.hasAttribute("selected")).toBe(true);
-    (el as any).selected = false;
+    (el as UiTreeItem).selected = false;
     expect(el.hasAttribute("selected")).toBe(false);
   });
 
   it("label getter returns attribute value", () => {
     el.setAttribute("label", "Foo");
-    expect((el as any).label).toBe("Foo");
+    expect((el as UiTreeItem).label).toBe("Foo");
   });
 
   it("label setter updates attribute", () => {
-    (el as any).label = "Bar";
+    (el as UiTreeItem).label = "Bar";
     expect(el.getAttribute("label")).toBe("Bar");
   });
 
   it("secondaryLabelText getter returns attribute value", () => {
     el.setAttribute("secondary-label", "sub");
-    expect((el as any).secondaryLabelText).toBe("sub");
+    expect((el as UiTreeItem).secondaryLabelText).toBe("sub");
   });
 
   it("secondaryLabelText setter updates attribute", () => {
-    (el as any).secondaryLabelText = "info";
+    (el as UiTreeItem).secondaryLabelText = "info";
     expect(el.getAttribute("secondary-label")).toBe("info");
   });
 
   it("iconName getter returns attribute value", () => {
     el.setAttribute("icon-name", "home");
-    expect((el as any).iconName).toBe("home");
+    expect((el as UiTreeItem).iconName).toBe("home");
   });
 
   it("iconName setter updates attribute", () => {
-    (el as any).iconName = "settings";
+    (el as UiTreeItem).iconName = "settings";
     expect(el.getAttribute("icon-name")).toBe("settings");
   });
 
@@ -366,7 +367,7 @@ describe("ui-tree-item", () => {
   // ── observedAttributes ────────────────────────────────────────────────────
 
   it("observes the correct attributes", () => {
-    const observed = (customElements.get("ui-tree-item") as any).observedAttributes;
+    const observed = (customElements.get("ui-tree-item") as typeof UiTreeItem).observedAttributes;
     expect(observed).toEqual([
       "size",
       "level",

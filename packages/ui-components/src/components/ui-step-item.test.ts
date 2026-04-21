@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import "./ui-step-item.js";
+import { UiStepItem } from "./ui-step-item.js";
 import type { StepSize, StepStatus, StepOrientation } from "./ui-step-item.styles.js";
 import { STEP_ITEM_STYLES } from "./ui-step-item.styles.js";
 
@@ -138,51 +139,51 @@ describe("ui-step-item", () => {
 
   it("size property getter returns attribute value", () => {
     el.setAttribute("size", "s");
-    expect((el as any).size).toBe("s");
+    expect((el as UiStepItem).size).toBe("s");
   });
 
   it("size property setter updates attribute", () => {
-    (el as any).size = "s";
+    (el as UiStepItem).size = "s";
     expect(el.getAttribute("size")).toBe("s");
   });
 
   it("status property getter returns attribute value", () => {
     el.setAttribute("status", "active");
-    expect((el as any).status).toBe("active");
+    expect((el as UiStepItem).status).toBe("active");
   });
 
   it("status property setter updates attribute", () => {
-    (el as any).status = "error";
+    (el as UiStepItem).status = "error";
     expect(el.getAttribute("status")).toBe("error");
   });
 
   it("orientation property getter returns attribute value", () => {
     el.setAttribute("orientation", "vertical");
-    expect((el as any).orientation).toBe("vertical");
+    expect((el as UiStepItem).orientation).toBe("vertical");
   });
 
   it("orientation property setter updates attribute", () => {
-    (el as any).orientation = "vertical";
+    (el as UiStepItem).orientation = "vertical";
     expect(el.getAttribute("orientation")).toBe("vertical");
   });
 
   it("label property getter returns attribute value", () => {
     el.setAttribute("label", "Hello");
-    expect((el as any).label).toBe("Hello");
+    expect((el as UiStepItem).label).toBe("Hello");
   });
 
   it("label property setter updates attribute", () => {
-    (el as any).label = "World";
+    (el as UiStepItem).label = "World";
     expect(el.getAttribute("label")).toBe("World");
   });
 
   it("sublabel property getter returns attribute value", () => {
     el.setAttribute("sublabel", "Sub");
-    expect((el as any).sublabel).toBe("Sub");
+    expect((el as UiStepItem).sublabel).toBe("Sub");
   });
 
   it("sublabel property setter updates attribute", () => {
-    (el as any).sublabel = "Info";
+    (el as UiStepItem).sublabel = "Info";
     expect(el.getAttribute("sublabel")).toBe("Info");
   });
 
@@ -311,7 +312,7 @@ describe("ui-step-item", () => {
   // ── observedAttributes ────────────────────────────────────────────────────
 
   it("has correct observedAttributes list", () => {
-    const Ctor = customElements.get("ui-step-item") as any;
+    const Ctor = customElements.get("ui-step-item") as typeof UiStepItem;
     expect(Ctor.observedAttributes).toEqual([
       "size",
       "status",

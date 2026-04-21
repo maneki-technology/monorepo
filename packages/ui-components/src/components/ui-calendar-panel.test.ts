@@ -1,5 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import "./ui-calendar-panel.js";
+import type { UiCalendarPanel } from "./ui-calendar-panel.js";
 
 function create(attrs = "", inner = ""): HTMLElement {
   const el = document.createElement("div");
@@ -53,7 +54,7 @@ describe("ui-calendar-panel", () => {
   });
 
   it("should update size via property", () => {
-    const el = create() as any;
+    const el = create() as unknown as UiCalendarPanel;
     el.size = "l";
     expect(el.getAttribute("size")).toBe("l");
   });

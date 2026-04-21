@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import "../components/ui-checkbox-group.js";
 import "../components/ui-checkbox-item.js";
+import { UiCheckboxGroup } from "../components/ui-checkbox-group.js";
 
 describe("UiCheckboxGroup", () => {
   let group: HTMLElement;
@@ -38,12 +39,12 @@ describe("UiCheckboxGroup", () => {
   describe("default attributes", () => {
     it("should default to size='m'", () => {
       expect(group.getAttribute("size")).toBeNull();
-      expect((group as any).size).toBe("m");
+      expect((group as UiCheckboxGroup).size).toBe("m");
     });
 
     it("should default to orientation='vertical'", () => {
       expect(group.getAttribute("orientation")).toBeNull();
-      expect((group as any).orientation).toBe("vertical");
+      expect((group as UiCheckboxGroup).orientation).toBe("vertical");
     });
   });
 
@@ -112,23 +113,23 @@ describe("UiCheckboxGroup", () => {
 
   describe("property accessors", () => {
     it("should get/set size property", () => {
-      (group as any).size = "l";
+      (group as UiCheckboxGroup).size = "l";
       expect(group.getAttribute("size")).toBe("l");
-      expect((group as any).size).toBe("l");
+      expect((group as UiCheckboxGroup).size).toBe("l");
     });
 
     it("should get/set orientation property", () => {
-      (group as any).orientation = "horizontal";
+      (group as UiCheckboxGroup).orientation = "horizontal";
       expect(group.getAttribute("orientation")).toBe("horizontal");
-      expect((group as any).orientation).toBe("horizontal");
+      expect((group as UiCheckboxGroup).orientation).toBe("horizontal");
     });
 
     it("should default size to 'm' when not set", () => {
-      expect((group as any).size).toBe("m");
+      expect((group as UiCheckboxGroup).size).toBe("m");
     });
 
     it("should default orientation to 'vertical' when not set", () => {
-      expect((group as any).orientation).toBe("vertical");
+      expect((group as UiCheckboxGroup).orientation).toBe("vertical");
     });
   });
 

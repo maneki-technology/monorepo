@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import "./ui-pagination.js";
-import type { PaginationSize, PaginationType } from "./ui-pagination.js";
+import { UiPagination, type PaginationSize, type PaginationType } from "./ui-pagination.js";
 import { STYLES } from "./ui-pagination.styles.js";
 
 describe("ui-pagination", () => {
-  let el: HTMLElement;
+  let el: UiPagination;
 
   beforeEach(() => {
-    el = document.createElement("ui-pagination");
+    el = document.createElement("ui-pagination") as UiPagination;
     document.body.appendChild(el);
   });
 
@@ -43,88 +43,88 @@ describe("ui-pagination", () => {
   // ── Property accessors ─────────────────────────────────────────────────────
 
   it("size defaults to m", () => {
-    expect((el as any).size).toBe("m");
+    expect(el.size).toBe("m");
   });
 
   it("size getter/setter works", () => {
     const sizes: PaginationSize[] = ["xs", "s", "m"];
     for (const s of sizes) {
-      (el as any).size = s;
-      expect((el as any).size).toBe(s);
+      el.size = s;
+      expect(el.size).toBe(s);
       expect(el.getAttribute("size")).toBe(s);
     }
   });
 
   it("type defaults to data-grid", () => {
-    expect((el as any).type).toBe("data-grid");
+    expect(el.type).toBe("data-grid");
   });
 
   it("type getter/setter works", () => {
     const types: PaginationType[] = ["minimal", "basic", "data-grid"];
     for (const t of types) {
-      (el as any).type = t;
-      expect((el as any).type).toBe(t);
+      el.type = t;
+      expect(el.type).toBe(t);
       expect(el.getAttribute("type")).toBe(t);
     }
   });
 
   it("currentPage defaults to 1", () => {
-    expect((el as any).currentPage).toBe(1);
+    expect(el.currentPage).toBe(1);
   });
 
   it("currentPage getter/setter works", () => {
-    (el as any).currentPage = 5;
-    expect((el as any).currentPage).toBe(5);
+    el.currentPage = 5;
+    expect(el.currentPage).toBe(5);
     expect(el.getAttribute("current-page")).toBe("5");
   });
 
   it("currentPage clamps to minimum 1", () => {
-    (el as any).currentPage = -3;
-    expect((el as any).currentPage).toBe(1);
+    el.currentPage = -3;
+    expect(el.currentPage).toBe(1);
   });
 
   it("totalPages defaults to 1", () => {
-    expect((el as any).totalPages).toBe(1);
+    expect(el.totalPages).toBe(1);
   });
 
   it("totalPages getter/setter works", () => {
-    (el as any).totalPages = 20;
-    expect((el as any).totalPages).toBe(20);
+    el.totalPages = 20;
+    expect(el.totalPages).toBe(20);
     expect(el.getAttribute("total-pages")).toBe("20");
   });
 
   it("totalPages clamps to minimum 1", () => {
-    (el as any).totalPages = 0;
-    expect((el as any).totalPages).toBe(1);
+    el.totalPages = 0;
+    expect(el.totalPages).toBe(1);
   });
 
   it("pageSize defaults to 10", () => {
-    expect((el as any).pageSize).toBe(10);
+    expect(el.pageSize).toBe(10);
   });
 
   it("pageSize getter/setter works", () => {
-    (el as any).pageSize = 25;
-    expect((el as any).pageSize).toBe(25);
+    el.pageSize = 25;
+    expect(el.pageSize).toBe(25);
     expect(el.getAttribute("page-size")).toBe("25");
   });
 
   it("totalItems defaults to 0", () => {
-    expect((el as any).totalItems).toBe(0);
+    expect(el.totalItems).toBe(0);
   });
 
   it("totalItems getter/setter works", () => {
-    (el as any).totalItems = 200;
-    expect((el as any).totalItems).toBe(200);
+    el.totalItems = 200;
+    expect(el.totalItems).toBe(200);
     expect(el.getAttribute("total-items")).toBe("200");
   });
 
   it("pageSizeOptions defaults to [10, 25, 50, 100]", () => {
-    expect((el as any).pageSizeOptions).toEqual([10, 25, 50, 100]);
+    expect(el.pageSizeOptions).toEqual([10, 25, 50, 100]);
   });
 
   it("pageSizeOptions getter/setter works", () => {
-    (el as any).pageSizeOptions = [5, 10, 20];
-    expect((el as any).pageSizeOptions).toEqual([5, 10, 20]);
+    el.pageSizeOptions = [5, 10, 20];
+    expect(el.pageSizeOptions).toEqual([5, 10, 20]);
     expect(el.getAttribute("page-size-options")).toBe("5,10,20");
   });
 
@@ -132,43 +132,43 @@ describe("ui-pagination", () => {
 
   it("reflects size attribute", () => {
     el.setAttribute("size", "s");
-    expect((el as any).size).toBe("s");
+    expect(el.size).toBe("s");
   });
 
   it("reflects type attribute", () => {
     el.setAttribute("type", "minimal");
-    expect((el as any).type).toBe("minimal");
+    expect(el.type).toBe("minimal");
   });
 
   it("reflects current-page attribute", () => {
     el.setAttribute("current-page", "3");
-    expect((el as any).currentPage).toBe(3);
+    expect(el.currentPage).toBe(3);
   });
 
   it("reflects total-pages attribute", () => {
     el.setAttribute("total-pages", "10");
-    expect((el as any).totalPages).toBe(10);
+    expect(el.totalPages).toBe(10);
   });
 
   it("reflects page-size attribute", () => {
     el.setAttribute("page-size", "50");
-    expect((el as any).pageSize).toBe(50);
+    expect(el.pageSize).toBe(50);
   });
 
   it("reflects total-items attribute", () => {
     el.setAttribute("total-items", "500");
-    expect((el as any).totalItems).toBe(500);
+    expect(el.totalItems).toBe(500);
   });
 
   it("reflects page-size-options attribute", () => {
     el.setAttribute("page-size-options", "5,15,30");
-    expect((el as any).pageSizeOptions).toEqual([5, 15, 30]);
+    expect(el.pageSizeOptions).toEqual([5, 15, 30]);
   });
 
   // ── observedAttributes ─────────────────────────────────────────────────────
 
   it("has correct observedAttributes list", () => {
-    const ctor = customElements.get("ui-pagination") as typeof HTMLElement & { observedAttributes: string[] };
+    const ctor = customElements.get("ui-pagination") as typeof UiPagination;
     expect(ctor.observedAttributes).toEqual([
       "size", "type", "current-page", "total-pages", "page-size", "total-items", "page-size-options",
     ]);

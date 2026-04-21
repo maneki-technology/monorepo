@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import "./ui-scrollbar.js";
+import { UiScrollbar } from "./ui-scrollbar.js";
 import type { ScrollbarEmphasis, ScrollbarOrientation } from "./ui-scrollbar.js";
 import { STYLES } from "./ui-scrollbar.styles.js";
 
@@ -80,46 +81,46 @@ describe("ui-scrollbar", () => {
 
   it("emphasis getter returns the attribute value", () => {
     el.setAttribute("emphasis", "minimal");
-    expect((el as any).emphasis).toBe("minimal");
+    expect((el as UiScrollbar).emphasis).toBe("minimal");
   });
 
   it("emphasis setter updates the attribute", () => {
-    (el as any).emphasis = "minimal";
+    (el as UiScrollbar).emphasis = "minimal";
     expect(el.getAttribute("emphasis")).toBe("minimal");
   });
 
   it("emphasis getter defaults to 'bold'", () => {
-    expect((el as any).emphasis).toBe("bold");
+    expect((el as UiScrollbar).emphasis).toBe("bold");
   });
 
   it("orientation getter returns the attribute value", () => {
     el.setAttribute("orientation", "horizontal");
-    expect((el as any).orientation).toBe("horizontal");
+    expect((el as UiScrollbar).orientation).toBe("horizontal");
   });
 
   it("orientation setter updates the attribute", () => {
-    (el as any).orientation = "horizontal";
+    (el as UiScrollbar).orientation = "horizontal";
     expect(el.getAttribute("orientation")).toBe("horizontal");
   });
 
   it("orientation getter defaults to 'vertical'", () => {
-    expect((el as any).orientation).toBe("vertical");
+    expect((el as UiScrollbar).orientation).toBe("vertical");
   });
 
   // ── observedAttributes ─────────────────────────────────────────────────────
 
   it("observes 'emphasis' attribute", () => {
-    const observed = (customElements.get("ui-scrollbar") as any).observedAttributes;
+    const observed = (customElements.get("ui-scrollbar") as typeof UiScrollbar).observedAttributes;
     expect(observed).toContain("emphasis");
   });
 
   it("observes 'orientation' attribute", () => {
-    const observed = (customElements.get("ui-scrollbar") as any).observedAttributes;
+    const observed = (customElements.get("ui-scrollbar") as typeof UiScrollbar).observedAttributes;
     expect(observed).toContain("orientation");
   });
 
   it("observedAttributes has exactly 2 entries", () => {
-    const observed = (customElements.get("ui-scrollbar") as any).observedAttributes;
+    const observed = (customElements.get("ui-scrollbar") as typeof UiScrollbar).observedAttributes;
     expect(observed).toHaveLength(2);
   });
 

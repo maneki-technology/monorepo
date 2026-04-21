@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import "./ui-step-group.js";
 import "./ui-step-item.js";
+import { UiStepGroup } from "./ui-step-group.js";
 
 describe("ui-step-group", () => {
   let el: HTMLElement;
@@ -44,48 +45,48 @@ describe("ui-step-group", () => {
 
   it("size getter returns attribute value", () => {
     el.setAttribute("size", "s");
-    expect((el as any).size).toBe("s");
+    expect((el as UiStepGroup).size).toBe("s");
   });
 
   it("size setter updates attribute", () => {
-    (el as any).size = "s";
+    (el as UiStepGroup).size = "s";
     expect(el.getAttribute("size")).toBe("s");
   });
 
   it("orientation getter returns attribute value", () => {
     el.setAttribute("orientation", "vertical");
-    expect((el as any).orientation).toBe("vertical");
+    expect((el as UiStepGroup).orientation).toBe("vertical");
   });
 
   it("orientation setter updates attribute", () => {
-    (el as any).orientation = "vertical";
+    (el as UiStepGroup).orientation = "vertical";
     expect(el.getAttribute("orientation")).toBe("vertical");
   });
 
   it("currentStep getter returns parsed number", () => {
     el.setAttribute("current-step", "3");
-    expect((el as any).currentStep).toBe(3);
+    expect((el as UiStepGroup).currentStep).toBe(3);
   });
 
   it("currentStep setter updates attribute", () => {
-    (el as any).currentStep = 5;
+    (el as UiStepGroup).currentStep = 5;
     expect(el.getAttribute("current-step")).toBe("5");
   });
 
   it("currentStep defaults to 0 when not set", () => {
-    expect((el as any).currentStep).toBe(0);
+    expect((el as UiStepGroup).currentStep).toBe(0);
   });
 
   it("labels getter returns boolean", () => {
-    expect((el as any).labels).toBe(false);
+    expect((el as UiStepGroup).labels).toBe(false);
     el.setAttribute("labels", "");
-    expect((el as any).labels).toBe(true);
+    expect((el as UiStepGroup).labels).toBe(true);
   });
 
   it("labels setter toggles attribute", () => {
-    (el as any).labels = true;
+    (el as UiStepGroup).labels = true;
     expect(el.hasAttribute("labels")).toBe(true);
-    (el as any).labels = false;
+    (el as UiStepGroup).labels = false;
     expect(el.hasAttribute("labels")).toBe(false);
   });
 
@@ -199,7 +200,7 @@ describe("ui-step-group", () => {
   // ── observedAttributes ────────────────────────────────────────────────────
 
   it("has correct observedAttributes list", () => {
-    const Ctor = customElements.get("ui-step-group") as any;
+    const Ctor = customElements.get("ui-step-group") as typeof UiStepGroup;
     expect(Ctor.observedAttributes).toEqual(["size", "orientation", "current-step", "labels"]);
   });
 });

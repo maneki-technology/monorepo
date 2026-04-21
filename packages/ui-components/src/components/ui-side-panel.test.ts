@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import "./ui-side-panel.js";
+import { UiSidePanel } from "./ui-side-panel.js";
 import type { SidePanelState } from "./ui-side-panel.js";
 import { STYLES } from "./ui-side-panel.styles.js";
 import { ICON_CHEVRON_LEFT, ICON_CHEVRON_RIGHT } from "@maneki/foundation";
@@ -107,31 +108,31 @@ describe("ui-side-panel", () => {
   // ── Property accessors ────────────────────────────────────────────────────
 
   it("state getter returns current state", () => {
-    const panel = el as any;
+    const panel = el as UiSidePanel;
     expect(panel.state).toBe("expanded");
   });
 
   it("state setter updates attribute", async () => {
-    const panel = el as any;
+    const panel = el as UiSidePanel;
     panel.state = "collapsed";
     await panel.updateComplete;
     expect(el.getAttribute("state")).toBe("collapsed");
   });
 
   it("overlay getter returns false by default", () => {
-    const panel = el as any;
+    const panel = el as UiSidePanel;
     expect(panel.overlay).toBe(false);
   });
 
   it("overlay setter adds attribute when true", async () => {
-    const panel = el as any;
+    const panel = el as UiSidePanel;
     panel.overlay = true;
     await panel.updateComplete;
     expect(el.hasAttribute("overlay")).toBe(true);
   });
 
   it("overlay setter removes attribute when false", () => {
-    const panel = el as any;
+    const panel = el as UiSidePanel;
     panel.overlay = true;
     panel.overlay = false;
     expect(el.hasAttribute("overlay")).toBe(false);
@@ -139,12 +140,12 @@ describe("ui-side-panel", () => {
 
 
   it("mobile getter returns false by default on desktop", () => {
-    const panel = el as any;
+    const panel = el as UiSidePanel;
     expect(panel.mobile).toBe(false);
   });
 
   it("mobile is settable", async () => {
-    const panel = el as any;
+    const panel = el as UiSidePanel;
     // mobile is now a Lit @property (no longer read-only)
     expect(panel.mobile).toBe(false);
     panel.mobile = true;
@@ -155,13 +156,13 @@ describe("ui-side-panel", () => {
   // ── Toggle ────────────────────────────────────────────────────────────────
 
   it("toggle() switches from expanded to collapsed", () => {
-    const panel = el as any;
+    const panel = el as UiSidePanel;
     panel.toggle();
     expect(panel.state).toBe("collapsed");
   });
 
   it("toggle() switches from collapsed to expanded", async () => {
-    const panel = el as any;
+    const panel = el as UiSidePanel;
     panel.state = "collapsed";
     await panel.updateComplete;
     panel.toggle();
@@ -171,7 +172,7 @@ describe("ui-side-panel", () => {
   it("toggle() dispatches toggle event with detail.state", () => {
     const handler = vi.fn();
     el.addEventListener("toggle", handler);
-    const panel = el as any;
+    const panel = el as UiSidePanel;
     panel.toggle();
     expect(handler).toHaveBeenCalledTimes(1);
     const event = handler.mock.calls[0][0] as CustomEvent;
@@ -181,7 +182,7 @@ describe("ui-side-panel", () => {
   it("toggle event bubbles and is composed", () => {
     const handler = vi.fn();
     el.addEventListener("toggle", handler);
-    const panel = el as any;
+    const panel = el as UiSidePanel;
     panel.toggle();
     const event = handler.mock.calls[0][0] as CustomEvent;
     expect(event.bubbles).toBe(true);
@@ -193,7 +194,7 @@ describe("ui-side-panel", () => {
       ".header-toggle",
     ) as HTMLButtonElement;
     toggleBtn.click();
-    await (el as any).updateComplete;
+    await (el as UiSidePanel).updateComplete;
     expect(el.getAttribute("state")).toBe("collapsed");
   });
 
@@ -211,7 +212,7 @@ describe("ui-side-panel", () => {
   });
 
   it("updates icon after toggle()", async () => {
-    const panel = el as any;
+    const panel = el as UiSidePanel;
     const iconBefore = el.shadowRoot!.querySelector(".material-symbols-outlined")!.textContent;
     panel.toggle();
     await panel.updateComplete;
@@ -250,7 +251,7 @@ describe("ui-side-panel", () => {
 
   it("toggle button has aria-label when collapsed", async () => {
     el.setAttribute("state", "collapsed");
-    await (el as any).updateComplete;
+    await (el as UiSidePanel).updateComplete;
     const toggleBtn = el.shadowRoot!.querySelector(".header-toggle");
     expect(toggleBtn!.getAttribute("aria-label")).toBe("Expand panel");
   });
@@ -265,18 +266,18 @@ describe("ui-side-panel", () => {
   // ── observedAttributes ────────────────────────────────────────────────────
 
   it("observedAttributes includes state", () => {
-    const Ctor = customElements.get("ui-side-panel") as any;
+    const Ctor = customElements.get("ui-side-panel") as typeof UiSidePanel;
     expect(Ctor.observedAttributes).toContain("state");
   });
 
   it("observedAttributes includes overlay", () => {
-    const Ctor = customElements.get("ui-side-panel") as any;
+    const Ctor = customElements.get("ui-side-panel") as typeof UiSidePanel;
     expect(Ctor.observedAttributes).toContain("overlay");
   });
 
 
   it("observedAttributes includes mobile", () => {
-    const Ctor = customElements.get("ui-side-panel") as any;
+    const Ctor = customElements.get("ui-side-panel") as typeof UiSidePanel;
     expect(Ctor.observedAttributes).toContain("mobile");
   });
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import "./ui-menu.js";
-import { STYLES as MENU_STYLES } from "./ui-menu.js";
+import { UiMenu, STYLES as MENU_STYLES } from "./ui-menu.js";
 import "./ui-dropdown-item.js";
 import "./ui-dropdown-heading.js";
 import "./ui-dropdown-separator.js";
@@ -35,50 +35,50 @@ describe("UiMenu", () => {
   // ── Open/close behavior ─────────────────────────────────────────────────
 
   it("should default to closed", () => {
-    expect((el as any).open).toBe(false);
+    expect((el as UiMenu).open).toBe(false);
   });
 
   it("should open when open attribute is set", () => {
     el.setAttribute("open", "");
-    expect((el as any).open).toBe(true);
+    expect((el as UiMenu).open).toBe(true);
   });
 
   it("should close when open attribute is removed", () => {
     el.setAttribute("open", "");
     el.removeAttribute("open");
-    expect((el as any).open).toBe(false);
+    expect((el as UiMenu).open).toBe(false);
   });
 
   it("should set open via property accessor", () => {
-    (el as any).open = true;
+    (el as UiMenu).open = true;
     expect(el.hasAttribute("open")).toBe(true);
-    (el as any).open = false;
+    (el as UiMenu).open = false;
     expect(el.hasAttribute("open")).toBe(false);
   });
 
   it("should close on Escape key", () => {
-    (el as any).open = true;
+    (el as UiMenu).open = true;
     el.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
-    expect((el as any).open).toBe(false);
+    expect((el as UiMenu).open).toBe(false);
   });
 
   it("should close on outside click", () => {
-    (el as any).open = true;
+    (el as UiMenu).open = true;
     document.body.click();
-    expect((el as any).open).toBe(false);
+    expect((el as UiMenu).open).toBe(false);
   });
 
   it("should not close when clicking inside the menu", () => {
-    (el as any).open = true;
+    (el as UiMenu).open = true;
     el.click();
-    expect((el as any).open).toBe(true);
+    expect((el as UiMenu).open).toBe(true);
   });
 
   it("should dispatch 'toggle' event when open changes", () => {
     const handler = vi.fn();
     el.addEventListener("toggle", handler);
 
-    (el as any).open = true;
+    (el as UiMenu).open = true;
     expect(handler).toHaveBeenCalled();
     const event = handler.mock.calls[0][0] as CustomEvent;
     expect(event.detail.open).toBe(true);
@@ -88,7 +88,7 @@ describe("UiMenu", () => {
     const handler = vi.fn();
     el.addEventListener("toggle", handler);
 
-    (el as any).open = true;
+    (el as UiMenu).open = true;
     const event = handler.mock.calls[0][0] as CustomEvent;
     expect(event.bubbles).toBe(true);
     expect(event.composed).toBe(true);
@@ -97,13 +97,13 @@ describe("UiMenu", () => {
   // ── Size ────────────────────────────────────────────────────────────────
 
   it("should default size to 'm'", () => {
-    expect((el as any).size).toBe("m");
+    expect((el as UiMenu).size).toBe("m");
   });
 
   it("should get/set size property", () => {
-    (el as any).size = "s";
+    (el as UiMenu).size = "s";
     expect(el.getAttribute("size")).toBe("s");
-    expect((el as any).size).toBe("s");
+    expect((el as UiMenu).size).toBe("s");
   });
 
   it("should propagate size to dropdown-item children", () => {
@@ -137,14 +137,14 @@ describe("UiMenu", () => {
   });
 
   it("should accept size='l'", () => {
-    (el as any).size = "l";
+    (el as UiMenu).size = "l";
     expect(el.getAttribute("size")).toBe("l");
   });
 
   it("should propagate size='l' to children", () => {
     const item = document.createElement("ui-dropdown-item");
     el.appendChild(item);
-    (el as any).size = "l";
+    (el as UiMenu).size = "l";
     // Wait for slotchange
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -157,13 +157,13 @@ describe("UiMenu", () => {
   // ── Selectable / single-select ──────────────────────────────────────────
 
   it("should default selectable to false", () => {
-    expect((el as any).selectable).toBe(false);
+    expect((el as UiMenu).selectable).toBe(false);
   });
 
   it("should set selectable via property accessor", () => {
-    (el as any).selectable = true;
+    (el as UiMenu).selectable = true;
     expect(el.hasAttribute("selectable")).toBe(true);
-    (el as any).selectable = false;
+    (el as UiMenu).selectable = false;
     expect(el.hasAttribute("selectable")).toBe(false);
   });
 
@@ -222,14 +222,14 @@ describe("UiMenu", () => {
 
   it("should close menu after single selection", () => {
     el.setAttribute("selectable", "");
-    (el as any).open = true;
+    (el as UiMenu).open = true;
     const item = document.createElement("ui-dropdown-item");
     el.appendChild(item);
 
     const button = item.shadowRoot!.querySelector("button")!;
     button.click();
 
-    expect((el as any).open).toBe(false);
+    expect((el as UiMenu).open).toBe(false);
   });
 
   it("should dispatch 'change' event on selection", () => {
@@ -255,25 +255,25 @@ describe("UiMenu", () => {
 
     item.shadowRoot!.querySelector("button")!.click();
 
-    expect((el as any).value).toBe("foo");
+    expect((el as UiMenu).value).toBe("foo");
   });
 
   // ── Multiple select ─────────────────────────────────────────────────────
 
   it("should default multiple to false", () => {
-    expect((el as any).multiple).toBe(false);
+    expect((el as UiMenu).multiple).toBe(false);
   });
 
   it("should set multiple via property accessor", () => {
-    (el as any).multiple = true;
+    (el as UiMenu).multiple = true;
     expect(el.hasAttribute("multiple")).toBe(true);
-    (el as any).multiple = false;
+    (el as UiMenu).multiple = false;
     expect(el.hasAttribute("multiple")).toBe(false);
   });
 
   it("should toggle selection in multi-select mode", () => {
     el.setAttribute("selectable", "");
-    (el as any).multiple = true;
+    (el as UiMenu).multiple = true;
     const item1 = document.createElement("ui-dropdown-item");
     const item2 = document.createElement("ui-dropdown-item");
     el.appendChild(item1);
@@ -292,19 +292,19 @@ describe("UiMenu", () => {
 
   it("should NOT close menu after multi-select", () => {
     el.setAttribute("selectable", "");
-    (el as any).multiple = true;
-    (el as any).open = true;
+    (el as UiMenu).multiple = true;
+    (el as UiMenu).open = true;
     const item = document.createElement("ui-dropdown-item");
     el.appendChild(item);
 
     item.shadowRoot!.querySelector("button")!.click();
 
-    expect((el as any).open).toBe(true);
+    expect((el as UiMenu).open).toBe(true);
   });
 
   it("should return array from value getter (multiple)", () => {
     el.setAttribute("selectable", "");
-    (el as any).multiple = true;
+    (el as UiMenu).multiple = true;
     const item1 = document.createElement("ui-dropdown-item");
     const item2 = document.createElement("ui-dropdown-item");
     item1.setAttribute("value", "a");
@@ -315,13 +315,13 @@ describe("UiMenu", () => {
     item1.shadowRoot!.querySelector("button")!.click();
     item2.shadowRoot!.querySelector("button")!.click();
 
-    expect((el as any).value).toEqual(["a", "b"]);
+    expect((el as UiMenu).value).toEqual(["a", "b"]);
   });
 
   // ── Cleanup ─────────────────────────────────────────────────────────────
 
   it("should remove document click listener on disconnect", () => {
-    (el as any).open = true;
+    (el as UiMenu).open = true;
     el.remove();
     // Should not throw when clicking after removal
     document.body.click();

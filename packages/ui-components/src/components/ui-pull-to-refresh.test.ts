@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import "./ui-pull-to-refresh.js";
-import type { PullToRefreshVariant } from "./ui-pull-to-refresh.js";
+import { UiPullToRefresh, type PullToRefreshVariant } from "./ui-pull-to-refresh.js";
 import { STYLES } from "./ui-pull-to-refresh.styles.js";
 
 describe("ui-pull-to-refresh", () => {
-  let el: HTMLElement;
+  let el: UiPullToRefresh;
 
   beforeEach(() => {
     document.body.innerHTML = "";
-    el = document.createElement("ui-pull-to-refresh");
+    el = document.createElement("ui-pull-to-refresh") as UiPullToRefresh;
     document.body.appendChild(el);
   });
 
@@ -74,50 +74,50 @@ describe("ui-pull-to-refresh", () => {
   });
 
   it("active property getter returns false by default", () => {
-    expect((el as any).active).toBe(false);
+    expect(el.active).toBe(false);
   });
 
   it("active property getter returns true when attribute is set", () => {
     el.setAttribute("active", "");
-    expect((el as any).active).toBe(true);
+    expect(el.active).toBe(true);
   });
 
   it("active property setter adds the attribute", () => {
-    (el as any).active = true;
+    el.active = true;
     expect(el.hasAttribute("active")).toBe(true);
   });
 
   it("active property setter removes the attribute", () => {
     el.setAttribute("active", "");
-    (el as any).active = false;
+    el.active = false;
     expect(el.hasAttribute("active")).toBe(false);
   });
 
   // ── Variant attribute ─────────────────────────────────────────────────────
 
   it("defaults to light variant", () => {
-    expect((el as any).variant).toBe("light");
+    expect(el.variant).toBe("light");
   });
 
   it("reflects variant attribute via property getter", () => {
     el.setAttribute("variant", "dark");
-    expect((el as any).variant).toBe("dark");
+    expect(el.variant).toBe("dark");
   });
 
   it("variant property setter updates the attribute", () => {
-    (el as any).variant = "dark";
+    el.variant = "dark";
     expect(el.getAttribute("variant")).toBe("dark");
   });
 
   it("variant property setter sets light", () => {
-    (el as any).variant = "light" as PullToRefreshVariant;
+    el.variant = "light" as PullToRefreshVariant;
     expect(el.getAttribute("variant")).toBe("light");
   });
 
   // ── Text attribute ────────────────────────────────────────────────────────
 
   it("default text property is 'Refreshing content'", () => {
-    expect((el as any).text).toBe("Refreshing content");
+    expect(el.text).toBe("Refreshing content");
   });
 
   it("text attribute updates the displayed text", () => {
@@ -128,16 +128,16 @@ describe("ui-pull-to-refresh", () => {
 
   it("text property getter reflects the attribute", () => {
     el.setAttribute("text", "Please wait");
-    expect((el as any).text).toBe("Please wait");
+    expect(el.text).toBe("Please wait");
   });
 
   it("text property setter updates the attribute", () => {
-    (el as any).text = "Syncing";
+    el.text = "Syncing";
     expect(el.getAttribute("text")).toBe("Syncing");
   });
 
   it("text property setter updates the displayed text", () => {
-    (el as any).text = "Syncing";
+    el.text = "Syncing";
     const text = el.shadowRoot!.querySelector(".text");
     expect(text!.textContent).toBe("Syncing");
   });
@@ -162,7 +162,7 @@ describe("ui-pull-to-refresh", () => {
   // ── observedAttributes ────────────────────────────────────────────────────
 
   it("observes active, variant, and text attributes", () => {
-    const Ctor = customElements.get("ui-pull-to-refresh") as any;
+    const Ctor = customElements.get("ui-pull-to-refresh") as typeof UiPullToRefresh;
     expect(Ctor.observedAttributes).toEqual(["active", "variant", "text", "size"]);
   });
 

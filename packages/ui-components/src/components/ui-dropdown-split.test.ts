@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { UiDropdownSplit } from "./ui-dropdown-split.js";
 import "./ui-dropdown-split.js";
 import "./ui-dropdown-item.js";
 import "./ui-dropdown-heading.js";
@@ -20,7 +21,7 @@ describe("UiDropdownSplit — registration", () => {
 // ─── DOM structure ──────────────────────────────────────────────────────────
 
 describe("UiDropdownSplit — DOM structure", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -94,7 +95,7 @@ describe("UiDropdownSplit — DOM structure", () => {
 // ─── Default attribute values ───────────────────────────────────────────────
 
 describe("UiDropdownSplit — defaults", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -106,46 +107,46 @@ describe("UiDropdownSplit — defaults", () => {
   });
 
   it("should default size to 'm'", () => {
-    expect((el as any).size).toBe("m");
+    expect(el.size).toBe("m");
   });
 
   it("should default action to 'primary'", () => {
-    expect((el as any).action).toBe("primary");
+    expect(el.action).toBe("primary");
   });
 
   it("should default emphasis to 'bold'", () => {
-    expect((el as any).emphasis).toBe("bold");
+    expect(el.emphasis).toBe("bold");
   });
 
   it("should default shape to 'basic'", () => {
-    expect((el as any).shape).toBe("basic");
+    expect(el.shape).toBe("basic");
   });
 
   it("should default icon to 'text-only'", () => {
-    expect((el as any).icon).toBe("text-only");
+    expect(el.icon).toBe("text-only");
   });
 
   it("should default disabled to false", () => {
-    expect((el as any).disabled).toBe(false);
+    expect(el.disabled).toBe(false);
   });
 
   it("should default open to false", () => {
-    expect((el as any).open).toBe(false);
+    expect(el.open).toBe(false);
   });
 
   it("should default label to 'Button'", () => {
-    expect((el as any).label).toBe("Button");
+    expect(el.label).toBe("Button");
   });
 
   it("should default multiple to false", () => {
-    expect((el as any).multiple).toBe(false);
+    expect(el.multiple).toBe(false);
   });
 });
 
 // ─── Size variants ──────────────────────────────────────────────────────────
 
 describe("UiDropdownSplit — sizes", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -158,26 +159,26 @@ describe("UiDropdownSplit — sizes", () => {
 
   it("should accept size='s'", () => {
     el.setAttribute("size", "s");
-    expect((el as any).size).toBe("s");
+    expect(el.size).toBe("s");
   });
 
   it("should accept size='m'", () => {
     el.setAttribute("size", "m");
-    expect((el as any).size).toBe("m");
+    expect(el.size).toBe("m");
   });
 
   it("should accept size='l'", () => {
     el.setAttribute("size", "l");
-    expect((el as any).size).toBe("l");
+    expect(el.size).toBe("l");
   });
 
   it("should accept size='xl'", () => {
     el.setAttribute("size", "xl");
-    expect((el as any).size).toBe("xl");
+    expect(el.size).toBe("xl");
   });
 
   it("should set size via property accessor", () => {
-    (el as any).size = "l";
+    el.size = "l";
     expect(el.getAttribute("size")).toBe("l");
   });
 });
@@ -185,7 +186,7 @@ describe("UiDropdownSplit — sizes", () => {
 // ─── Action variants ────────────────────────────────────────────────────────
 
 describe("UiDropdownSplit — actions", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -198,31 +199,31 @@ describe("UiDropdownSplit — actions", () => {
 
   it("should accept action='primary'", () => {
     el.setAttribute("action", "primary");
-    expect((el as any).action).toBe("primary");
+    expect(el.action).toBe("primary");
   });
 
   it("should accept action='secondary'", () => {
     el.setAttribute("action", "secondary");
-    expect((el as any).action).toBe("secondary");
+    expect(el.action).toBe("secondary");
   });
 
   it("should accept action='destructive'", () => {
     el.setAttribute("action", "destructive");
-    expect((el as any).action).toBe("destructive");
+    expect(el.action).toBe("destructive");
   });
 
   it("should accept action='info'", () => {
     el.setAttribute("action", "info");
-    expect((el as any).action).toBe("info");
+    expect(el.action).toBe("info");
   });
 
   it("should accept action='contrast'", () => {
     el.setAttribute("action", "contrast");
-    expect((el as any).action).toBe("contrast");
+    expect(el.action).toBe("contrast");
   });
 
   it("should set action via property accessor", () => {
-    (el as any).action = "destructive";
+    el.action = "destructive";
     expect(el.getAttribute("action")).toBe("destructive");
   });
 });
@@ -230,7 +231,7 @@ describe("UiDropdownSplit — actions", () => {
 // ─── Emphasis variants ──────────────────────────────────────────────────────
 
 describe("UiDropdownSplit — emphases", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -243,21 +244,21 @@ describe("UiDropdownSplit — emphases", () => {
 
   it("should accept emphasis='bold'", () => {
     el.setAttribute("emphasis", "bold");
-    expect((el as any).emphasis).toBe("bold");
+    expect(el.emphasis).toBe("bold");
   });
 
   it("should accept emphasis='subtle'", () => {
     el.setAttribute("emphasis", "subtle");
-    expect((el as any).emphasis).toBe("subtle");
+    expect(el.emphasis).toBe("subtle");
   });
 
   it("should accept emphasis='minimal'", () => {
     el.setAttribute("emphasis", "minimal");
-    expect((el as any).emphasis).toBe("minimal");
+    expect(el.emphasis).toBe("minimal");
   });
 
   it("should set emphasis via property accessor", () => {
-    (el as any).emphasis = "minimal";
+    el.emphasis = "minimal";
     expect(el.getAttribute("emphasis")).toBe("minimal");
   });
 });
@@ -265,7 +266,7 @@ describe("UiDropdownSplit — emphases", () => {
 // ─── Shape variants ─────────────────────────────────────────────────────────
 
 describe("UiDropdownSplit — shapes", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -278,16 +279,16 @@ describe("UiDropdownSplit — shapes", () => {
 
   it("should accept shape='basic'", () => {
     el.setAttribute("shape", "basic");
-    expect((el as any).shape).toBe("basic");
+    expect(el.shape).toBe("basic");
   });
 
   it("should accept shape='rounded'", () => {
     el.setAttribute("shape", "rounded");
-    expect((el as any).shape).toBe("rounded");
+    expect(el.shape).toBe("rounded");
   });
 
   it("should set shape via property accessor", () => {
-    (el as any).shape = "rounded";
+    el.shape = "rounded";
     expect(el.getAttribute("shape")).toBe("rounded");
   });
 });
@@ -295,7 +296,7 @@ describe("UiDropdownSplit — shapes", () => {
 // ─── Icon modes ─────────────────────────────────────────────────────────────
 
 describe("UiDropdownSplit — icon modes", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -308,26 +309,26 @@ describe("UiDropdownSplit — icon modes", () => {
 
   it("should accept icon='text-only'", () => {
     el.setAttribute("icon", "text-only");
-    expect((el as any).icon).toBe("text-only");
+    expect(el.icon).toBe("text-only");
   });
 
   it("should accept icon='leading-icon'", () => {
     el.setAttribute("icon", "leading-icon");
-    expect((el as any).icon).toBe("leading-icon");
+    expect(el.icon).toBe("leading-icon");
   });
 
   it("should accept icon='trailing-icon'", () => {
     el.setAttribute("icon", "trailing-icon");
-    expect((el as any).icon).toBe("trailing-icon");
+    expect(el.icon).toBe("trailing-icon");
   });
 
   it("should accept icon='icon-only'", () => {
     el.setAttribute("icon", "icon-only");
-    expect((el as any).icon).toBe("icon-only");
+    expect(el.icon).toBe("icon-only");
   });
 
   it("should set icon via property accessor", () => {
-    (el as any).icon = "leading-icon";
+    el.icon = "leading-icon";
     expect(el.getAttribute("icon")).toBe("leading-icon");
   });
 });
@@ -335,7 +336,7 @@ describe("UiDropdownSplit — icon modes", () => {
 // ─── Disabled state ─────────────────────────────────────────────────────────
 
 describe("UiDropdownSplit — disabled", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -347,9 +348,9 @@ describe("UiDropdownSplit — disabled", () => {
   });
 
   it("should set disabled via property accessor", () => {
-    (el as any).disabled = true;
+    el.disabled = true;
     expect(el.hasAttribute("disabled")).toBe(true);
-    (el as any).disabled = false;
+    el.disabled = false;
     expect(el.hasAttribute("disabled")).toBe(false);
   });
 
@@ -378,14 +379,14 @@ describe("UiDropdownSplit — disabled", () => {
     el.setAttribute("disabled", "");
     const right = el.shadowRoot!.querySelector(".right") as HTMLElement;
     right.click();
-    expect((el as any).open).toBe(false);
+    expect(el.open).toBe(false);
   });
 });
 
 // ─── Open/close behavior ────────────────────────────────────────────────────
 
 describe("UiDropdownSplit — open/close", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -399,47 +400,47 @@ describe("UiDropdownSplit — open/close", () => {
   it("should toggle open on right button click", () => {
     const right = el.shadowRoot!.querySelector(".right") as HTMLElement;
     right.click();
-    expect((el as any).open).toBe(true);
+    expect(el.open).toBe(true);
     right.click();
-    expect((el as any).open).toBe(false);
+    expect(el.open).toBe(false);
   });
 
   it("should close on Escape key", () => {
-    (el as any).open = true;
+    el.open = true;
     el.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
-    expect((el as any).open).toBe(false);
+    expect(el.open).toBe(false);
   });
 
   it("should close on outside click", () => {
-    (el as any).open = true;
+    el.open = true;
     document.body.click();
-    expect((el as any).open).toBe(false);
+    expect(el.open).toBe(false);
   });
 
   it("should not close when clicking inside the component", () => {
-    (el as any).open = true;
+    el.open = true;
     el.click();
-    expect((el as any).open).toBe(true);
+    expect(el.open).toBe(true);
   });
 
   it("should set open via property accessor", () => {
-    (el as any).open = true;
+    el.open = true;
     expect(el.hasAttribute("open")).toBe(true);
-    (el as any).open = false;
+    el.open = false;
     expect(el.hasAttribute("open")).toBe(false);
   });
 
   it("should not open when left button is clicked", () => {
     const left = el.shadowRoot!.querySelector(".left") as HTMLElement;
     left.click();
-    expect((el as any).open).toBe(false);
+    expect(el.open).toBe(false);
   });
 });
 
 // ─── Left button action event ───────────────────────────────────────────────
 
 describe("UiDropdownSplit — action event", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -472,7 +473,7 @@ describe("UiDropdownSplit — action event", () => {
 // ─── Aria attributes ────────────────────────────────────────────────────────
 
 describe("UiDropdownSplit — aria", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -503,7 +504,7 @@ describe("UiDropdownSplit — aria", () => {
 // ─── Label ──────────────────────────────────────────────────────────────────
 
 describe("UiDropdownSplit — label", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -526,7 +527,7 @@ describe("UiDropdownSplit — label", () => {
   });
 
   it("should set label via property accessor", () => {
-    (el as any).label = "Menu";
+    el.label = "Menu";
     expect(el.getAttribute("label")).toBe("Menu");
   });
 });
@@ -534,7 +535,7 @@ describe("UiDropdownSplit — label", () => {
 // ─── Single-select behavior ─────────────────────────────────────────────────
 
 describe("UiDropdownSplit — single-select", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -579,14 +580,14 @@ describe("UiDropdownSplit — single-select", () => {
 
   it("should close menu after single selection", () => {
     el.setAttribute("selectable", "");
-    (el as any).open = true;
+    el.open = true;
     const item = document.createElement("ui-dropdown-item");
     el.appendChild(item);
 
     const button = item.shadowRoot!.querySelector("button")!;
     button.click();
 
-    expect((el as any).open).toBe(false);
+    expect(el.open).toBe(false);
   });
 
   it("should dispatch 'change' event on selection", () => {
@@ -612,7 +613,7 @@ describe("UiDropdownSplit — single-select", () => {
 
     item.shadowRoot!.querySelector("button")!.click();
 
-    expect((el as any).value).toBe("foo");
+    expect(el.value).toBe("foo");
   });
 
   });
@@ -624,11 +625,11 @@ describe("UiDropdownSplit — single-select", () => {
 // ─── Multi-select behavior ──────────────────────────────────────────────────
 
 describe("UiDropdownSplit — multi-select", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
-    (el as any).multiple = true;
+    el.multiple = true;
     document.body.appendChild(el);
   });
 
@@ -656,13 +657,13 @@ describe("UiDropdownSplit — multi-select", () => {
 
   it("should NOT close menu after multi-select", () => {
     el.setAttribute("selectable", "");
-    (el as any).open = true;
+    el.open = true;
     const item = document.createElement("ui-dropdown-item");
     el.appendChild(item);
 
     item.shadowRoot!.querySelector("button")!.click();
 
-    expect((el as any).open).toBe(true);
+    expect(el.open).toBe(true);
   });
 
   it("should return array from value getter", () => {
@@ -677,12 +678,12 @@ describe("UiDropdownSplit — multi-select", () => {
     item1.shadowRoot!.querySelector("button")!.click();
     item2.shadowRoot!.querySelector("button")!.click();
 
-    expect((el as any).value).toEqual(["a", "b"]);
+    expect(el.value).toEqual(["a", "b"]);
   });
 
   it("should set multiple via property accessor", () => {
     expect(el.hasAttribute("multiple")).toBe(true);
-    (el as any).multiple = false;
+    el.multiple = false;
     expect(el.hasAttribute("multiple")).toBe(false);
   });
 
@@ -703,7 +704,7 @@ describe("UiDropdownSplit — multi-select", () => {
 // ─── Size propagation to children ───────────────────────────────────────────
 
 describe("UiDropdownSplit — size propagation", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -759,7 +760,7 @@ describe("UiDropdownSplit — size propagation", () => {
 // ─── Chevron rotation ───────────────────────────────────────────────────────
 
 describe("UiDropdownSplit — chevron", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -780,7 +781,7 @@ describe("UiDropdownSplit — chevron", () => {
 // ─── Styles verification ────────────────────────────────────────────────────
 
 describe("UiDropdownSplit — styles", () => {
-  let el: HTMLElement;
+  let el: UiDropdownSplit;
 
   beforeEach(() => {
     el = document.createElement("ui-dropdown-split");
@@ -846,9 +847,9 @@ describe("UiDropdownSplit — styles", () => {
 
 describe("UiDropdownSplit — cleanup", () => {
   it("should remove document click listener on disconnect", () => {
-    const el = document.createElement("ui-dropdown-split");
+    const el = document.createElement("ui-dropdown-split") as UiDropdownSplit;
     document.body.appendChild(el);
-    (el as any).open = true;
+    el.open = true;
     el.remove();
     // Should not throw when clicking after removal
     document.body.click();

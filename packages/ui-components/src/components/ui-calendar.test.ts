@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import "./ui-calendar.js";
-import type { UiCalendar } from "./ui-calendar.js";
+import { UiCalendar } from "./ui-calendar.js";
 
 const tick = () => new Promise((r) => setTimeout(r, 0));
 
@@ -867,7 +867,7 @@ describe("ui-calendar", () => {
       el.navigateTo(2024, 5); // June 2024
       const events = new Map<string, Array<{ color: string; label?: string }>>();
       events.set("2024-06-15", [{ color: "#FC9162", label: "Meeting" }]);
-      (el as any).setEvents(events);
+      el.setEvents(events);
       await tick();
       const cell15 = Array.from(cells()).find(
         (c) => !c.hasAttribute("data-outside") && c.textContent?.startsWith("15"),
@@ -887,7 +887,7 @@ describe("ui-calendar", () => {
         { color: "#C89AFC" },
         { color: "#F5C518" },
       ]);
-      (el as any).setEvents(events);
+      el.setEvents(events);
       await tick();
       const cell15 = Array.from(cells()).find(
         (c) => !c.hasAttribute("data-outside") && c.textContent?.startsWith("15"),
@@ -900,9 +900,9 @@ describe("ui-calendar", () => {
       el.navigateTo(2024, 5);
       const events = new Map<string, Array<{ color: string; label?: string }>>();
       events.set("2024-06-15", [{ color: "#FC9162" }]);
-      (el as any).setEvents(events);
+      el.setEvents(events);
       await tick();
-      (el as any).clearEvents();
+      el.clearEvents();
       await tick();
       const allDots = shadow().querySelectorAll(".event-dot");
       expect(allDots.length).toBe(0);
@@ -913,7 +913,7 @@ describe("ui-calendar", () => {
       const events = new Map<string, Array<{ color: string; label?: string }>>();
       events.set("2024-06-15", [{ color: "#FC9162", label: "Meeting" }]);
       events.set("2024-06-20", [{ color: "#4EBFB9", label: "Holiday" }]);
-      (el as any).setEvents(events);
+      el.setEvents(events);
       await tick();
       const legend = shadow().querySelector(".legend") as HTMLElement;
       expect(legend.style.display).not.toBe("none");
@@ -926,7 +926,7 @@ describe("ui-calendar", () => {
       const events = new Map<string, Array<{ color: string; label?: string }>>();
       events.set("2024-06-15", [{ color: "#FC9162", label: "Meeting" }]);
       events.set("2024-06-20", [{ color: "#FC9162", label: "Meeting" }]);
-      (el as any).setEvents(events);
+      el.setEvents(events);
       await tick();
       const items = shadow().querySelectorAll(".legend-item");
       expect(items.length).toBe(1);
@@ -936,7 +936,7 @@ describe("ui-calendar", () => {
       el.navigateTo(2024, 5);
       const events = new Map<string, Array<{ color: string; label?: string }>>();
       events.set("2024-06-15", [{ color: "#FC9162" }]); // no label
-      (el as any).setEvents(events);
+      el.setEvents(events);
       await tick();
       const legend = shadow().querySelector(".legend") as HTMLElement;
       expect(legend.style.display).toBe("none");

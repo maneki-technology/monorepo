@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import "../components/ui-radio-group.js";
 import "../components/ui-radio-item.js";
+import { UiRadioGroup } from "../components/ui-radio-group.js";
 
 describe("UiRadioGroup", () => {
   let group: HTMLElement;
@@ -38,12 +39,12 @@ describe("UiRadioGroup", () => {
   describe("default attributes", () => {
     it("should default to size='m'", () => {
       expect(group.getAttribute("size")).toBeNull();
-      expect((group as any).size).toBe("m");
+      expect((group as UiRadioGroup).size).toBe("m");
     });
 
     it("should default to orientation='vertical'", () => {
       expect(group.getAttribute("orientation")).toBeNull();
-      expect((group as any).orientation).toBe("vertical");
+      expect((group as UiRadioGroup).orientation).toBe("vertical");
     });
   });
 
@@ -112,23 +113,23 @@ describe("UiRadioGroup", () => {
 
   describe("property accessors", () => {
     it("should get/set size property", () => {
-      (group as any).size = "l";
+      (group as UiRadioGroup).size = "l";
       expect(group.getAttribute("size")).toBe("l");
-      expect((group as any).size).toBe("l");
+      expect((group as UiRadioGroup).size).toBe("l");
     });
 
     it("should get/set orientation property", () => {
-      (group as any).orientation = "horizontal";
+      (group as UiRadioGroup).orientation = "horizontal";
       expect(group.getAttribute("orientation")).toBe("horizontal");
-      expect((group as any).orientation).toBe("horizontal");
+      expect((group as UiRadioGroup).orientation).toBe("horizontal");
     });
 
     it("should default size to 'm' when not set", () => {
-      expect((group as any).size).toBe("m");
+      expect((group as UiRadioGroup).size).toBe("m");
     });
 
     it("should default orientation to 'vertical' when not set", () => {
-      expect((group as any).orientation).toBe("vertical");
+      expect((group as UiRadioGroup).orientation).toBe("vertical");
     });
   });
 

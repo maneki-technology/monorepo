@@ -1,6 +1,9 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import "./ui-side-panel-menu-item.js";
 import "./ui-side-panel-menu.js";
+import { UiSidePanelMenu } from "./ui-side-panel-menu.js";
+import { UiSidePanelMenuItem } from "./ui-side-panel-menu-item.js";
+import { UiSidePanel } from "./ui-side-panel.js";
 
 describe("ui-side-panel-menu", () => {
   let el: HTMLElement;
@@ -49,46 +52,44 @@ describe("ui-side-panel-menu", () => {
   // ── Default attributes ───────────────────────────────────────────────────
 
   it("defaults state to 'expanded'", () => {
-    expect((el as any).state).toBe("expanded");
+    expect((el as UiSidePanelMenu).state).toBe("expanded");
   });
 
   it("defaults overlay to false", () => {
-    expect((el as any).overlay).toBe(false);
+    expect((el as UiSidePanelMenu).overlay).toBe(false);
   });
 
   // ── observedAttributes ───────────────────────────────────────────────────
 
   it("has correct observedAttributes", () => {
-    const Ctor = customElements.get("ui-side-panel-menu") as unknown as {
-      observedAttributes: string[];
-    };
+    const Ctor = customElements.get("ui-side-panel-menu") as typeof UiSidePanelMenu;
     expect(Ctor.observedAttributes).toEqual(["state", "overlay", "mobile", "no-collapse"]);
   });
 
   // ── State attribute ──────────────────────────────────────────────────────
 
   it("reflects state='expanded' to attribute", () => {
-    (el as any).state = "expanded";
+    (el as UiSidePanelMenu).state = "expanded";
     expect(el.getAttribute("state")).toBe("expanded");
   });
 
   it("reflects state='collapsed' to attribute", async () => {
-    (el as any).state = "collapsed";
-    await (el as any).updateComplete;
+    (el as UiSidePanelMenu).state = "collapsed";
+    await (el as UiSidePanelMenu).updateComplete;
     expect(el.getAttribute("state")).toBe("collapsed");
   });
 
   // ── Overlay attribute ────────────────────────────────────────────────────
 
   it("reflects overlay=true to attribute", async () => {
-    (el as any).overlay = true;
-    await (el as any).updateComplete;
+    (el as UiSidePanelMenu).overlay = true;
+    await (el as UiSidePanelMenu).updateComplete;
     expect(el.hasAttribute("overlay")).toBe(true);
   });
 
   it("removes overlay attribute when set to false", () => {
-    (el as any).overlay = true;
-    (el as any).overlay = false;
+    (el as UiSidePanelMenu).overlay = true;
+    (el as UiSidePanelMenu).overlay = false;
     expect(el.hasAttribute("overlay")).toBe(false);
   });
 
@@ -151,24 +152,24 @@ describe("ui-side-panel-menu", () => {
   // ── Toggle behavior ──────────────────────────────────────────────────────
 
   it("toggles state when toggle button is clicked", async () => {
-    expect((el as any).state).toBe("expanded");
+    expect((el as UiSidePanelMenu).state).toBe("expanded");
 
     const toggle = panelShadow(el).querySelector(".header-toggle") as HTMLElement;
     toggle.click();
     const panel = el.shadowRoot!.querySelector("ui-side-panel")!;
-    await (panel as any).updateComplete;
-    await (el as any).updateComplete;
+    await (panel as UiSidePanel).updateComplete;
+    await (el as UiSidePanelMenu).updateComplete;
 
-    expect((el as any).state).toBe("collapsed");
+    expect((el as UiSidePanelMenu).state).toBe("collapsed");
 
     toggle.click();
-    await (panel as any).updateComplete;
-    await (el as any).updateComplete;
-    expect((el as any).state).toBe("expanded");
+    await (panel as UiSidePanel).updateComplete;
+    await (el as UiSidePanelMenu).updateComplete;
+    expect((el as UiSidePanelMenu).state).toBe("expanded");
   });
 
   it("dispatches toggle event when toggle button is clicked", () => {
-    let detail: any = null;
+    let detail: Record<string, unknown> | null = null;
     el.addEventListener("toggle", ((e: CustomEvent) => {
       detail = e.detail;
     }) as EventListener);
@@ -180,9 +181,9 @@ describe("ui-side-panel-menu", () => {
   });
 
   it("dispatches toggle event with state=expanded when expanding", async () => {
-    (el as any).state = "collapsed";
-    await (el as any).updateComplete;
-    let detail: any = null;
+    (el as UiSidePanelMenu).state = "collapsed";
+    await (el as UiSidePanelMenu).updateComplete;
+    let detail: Record<string, unknown> | null = null;
     el.addEventListener("toggle", ((e: CustomEvent) => {
       detail = e.detail;
     }) as EventListener);
@@ -202,7 +203,7 @@ describe("ui-side-panel-menu", () => {
   });
 
   it("shows chevron-right icon when collapsed", () => {
-    (el as any).state = "collapsed";
+    (el as UiSidePanelMenu).state = "collapsed";
     const toggle = panelShadow(el).querySelector(".header-toggle");
     const icon = toggle!.querySelector(".material-symbols-outlined");
     expect(icon).toBeTruthy();
@@ -216,8 +217,8 @@ describe("ui-side-panel-menu", () => {
   });
 
   it("has aria-label 'Expand panel' when collapsed", async () => {
-    (el as any).state = "collapsed";
-    await (el as any).updateComplete;
+    (el as UiSidePanelMenu).state = "collapsed";
+    await (el as UiSidePanelMenu).updateComplete;
     const toggle = panelShadow(el).querySelector(".header-toggle");
     expect(toggle!.getAttribute("aria-label")).toBe("Expand panel");
   });
@@ -226,9 +227,9 @@ describe("ui-side-panel-menu", () => {
 
   it("sets type=icon-only on child items when collapsed", async () => {
     const menu = createMenu();
-    (menu as any).state = "collapsed";
+    (menu as UiSidePanelMenu).state = "collapsed";
     // happy-dom may not fire slotchange, so call sync manually
-    (menu as any)._syncItemTypes();
+    (menu as UiSidePanelMenu)._syncItemTypes();
     const items = menu.querySelectorAll("ui-side-panel-menu-item");
     for (const item of items) {
       expect(item.getAttribute("type")).toBe("icon-only");
@@ -237,10 +238,10 @@ describe("ui-side-panel-menu", () => {
 
   it("removes type attribute from child items when expanded", () => {
     const menu = createMenu({ state: "collapsed" });
-    (menu as any)._syncItemTypes();
+    (menu as UiSidePanelMenu)._syncItemTypes();
 
     menu.setAttribute("state", "expanded");
-    (menu as any)._syncItemTypes();
+    (menu as UiSidePanelMenu)._syncItemTypes();
 
     const items = menu.querySelectorAll("ui-side-panel-menu-item");
     for (const item of items) {
@@ -335,7 +336,7 @@ describe("ui-side-panel-menu", () => {
   it("selects a non-expandable item when clicked", async () => {
     const menu = createMenu();
     const items = menu.querySelectorAll("ui-side-panel-menu-item");
-    await (items[1] as any).updateComplete;
+    await (items[1] as UiSidePanelMenuItem).updateComplete;
     const row = items[1].shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
 
@@ -347,7 +348,7 @@ describe("ui-side-panel-menu", () => {
   it("deselects previously selected item when another is clicked", async () => {
     const menu = createMenu();
     const items = menu.querySelectorAll("ui-side-panel-menu-item");
-    await (items[0] as any).updateComplete;
+    await (items[0] as UiSidePanelMenuItem).updateComplete;
 
     // Select first item
     const row0 = items[0].shadowRoot!.querySelector(".row") as HTMLElement;
@@ -369,7 +370,7 @@ describe("ui-side-panel-menu", () => {
     item.textContent = "Expandable";
     menu.appendChild(item);
     document.body.appendChild(menu);
-    await (item as any).updateComplete;
+    await (item as UiSidePanelMenuItem).updateComplete;
 
     const row = item.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
@@ -393,7 +394,7 @@ describe("ui-side-panel-menu", () => {
 
     menu.appendChild(parent);
     document.body.appendChild(menu);
-    await (child as any).updateComplete;
+    await (child as UiSidePanelMenuItem).updateComplete;
 
     // Click the child
     const childRow = child.shadowRoot!.querySelector(".row") as HTMLElement;
@@ -421,7 +422,7 @@ describe("ui-side-panel-menu", () => {
     item.appendChild(child);
     menu.appendChild(item);
     document.body.appendChild(menu);
-    await (item as any).updateComplete;
+    await (item as UiSidePanelMenuItem).updateComplete;
     menu.setAttribute("state", "collapsed");
     const row = item.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
@@ -441,9 +442,9 @@ describe("ui-side-panel-menu", () => {
     item.appendChild(child);
     menu.appendChild(item);
     document.body.appendChild(menu);
-    await (item as any).updateComplete;
-    (menu as any).state = "collapsed";
-    await (menu as any).updateComplete;
+    await (item as UiSidePanelMenuItem).updateComplete;
+    (menu as UiSidePanelMenu).state = "collapsed";
+    await (menu as UiSidePanelMenu).updateComplete;
     const row = item.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
     const flyout = menu.shadowRoot!.querySelector(".flyout");
@@ -462,9 +463,9 @@ describe("ui-side-panel-menu", () => {
     item.appendChild(child);
     menu.appendChild(item);
     document.body.appendChild(menu);
-    await (item as any).updateComplete;
-    (menu as any).state = "collapsed";
-    await (menu as any).updateComplete;
+    await (item as UiSidePanelMenuItem).updateComplete;
+    (menu as UiSidePanelMenu).state = "collapsed";
+    await (menu as UiSidePanelMenu).updateComplete;
     const row = item.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
     expect(menu.shadowRoot!.querySelector(".flyout")!.hasAttribute("open")).toBe(true);
@@ -484,9 +485,9 @@ describe("ui-side-panel-menu", () => {
     item.appendChild(child);
     menu.appendChild(item);
     document.body.appendChild(menu);
-    await (item as any).updateComplete;
-    (menu as any).state = "collapsed";
-    await (menu as any).updateComplete;
+    await (item as UiSidePanelMenuItem).updateComplete;
+    (menu as UiSidePanelMenu).state = "collapsed";
+    await (menu as UiSidePanelMenu).updateComplete;
     const row = item.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
     expect(menu.shadowRoot!.querySelector(".flyout")!.hasAttribute("open")).toBe(true);
@@ -506,14 +507,14 @@ describe("ui-side-panel-menu", () => {
     item.appendChild(child);
     menu.appendChild(item);
     document.body.appendChild(menu);
-    await (item as any).updateComplete;
-    (menu as any).state = "collapsed";
-    await (menu as any).updateComplete;
+    await (item as UiSidePanelMenuItem).updateComplete;
+    (menu as UiSidePanelMenu).state = "collapsed";
+    await (menu as UiSidePanelMenu).updateComplete;
     const row = item.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
     expect(menu.shadowRoot!.querySelector(".flyout")!.hasAttribute("open")).toBe(true);
-    (menu as any).state = "expanded";
-    await (menu as any).updateComplete;
+    (menu as UiSidePanelMenu).state = "expanded";
+    await (menu as UiSidePanelMenu).updateComplete;
     expect(menu.shadowRoot!.querySelector(".flyout")!.hasAttribute("open")).toBe(false);
   });
   it("does not open flyout when expanded and expandable item is clicked", async () => {
@@ -529,10 +530,10 @@ describe("ui-side-panel-menu", () => {
     item.appendChild(child);
     menu.appendChild(item);
     document.body.appendChild(menu);
-    await (item as any).updateComplete;
+    await (item as UiSidePanelMenuItem).updateComplete;
     const row = item.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
-    await (item as any).updateComplete;
+    await (item as UiSidePanelMenuItem).updateComplete;
     const flyout = menu.shadowRoot!.querySelector(".flyout");
     expect(flyout!.hasAttribute("open")).toBe(false);
     // But item should be expanded inline
@@ -552,68 +553,68 @@ describe("ui-side-panel-menu", () => {
     const menu = createMenu();
     expect(menu.getAttribute("state")).not.toBe("collapsed");
     menu.setAttribute("mobile", "");
-    await (menu as any).updateComplete;
+    await (menu as UiSidePanelMenu).updateComplete;
     expect(menu.getAttribute("state")).toBe("collapsed");
   });
 
   it("restores expanded state when mobile attribute is removed", async () => {
     const menu = createMenu();
     menu.setAttribute("mobile", "");
-    await (menu as any).updateComplete;
+    await (menu as UiSidePanelMenu).updateComplete;
     expect(menu.getAttribute("state")).toBe("collapsed");
     menu.removeAttribute("mobile");
-    await (menu as any).updateComplete;
+    await (menu as UiSidePanelMenu).updateComplete;
     expect(menu.getAttribute("state")).toBe("expanded");
     expect(menu.hasAttribute("overlay")).toBe(false);
   });
 
   it("sets overlay when toggling to expanded on mobile", async () => {
     const menu = createMenu();
-    (menu as any).mobile = true;
-    (menu as any).state = "collapsed";
-    await (menu as any).updateComplete;
+    (menu as UiSidePanelMenu).mobile = true;
+    (menu as UiSidePanelMenu).state = "collapsed";
+    await (menu as UiSidePanelMenu).updateComplete;
     expect(menu.getAttribute("state")).toBe("collapsed");
     // Click toggle to expand
     const toggleBtn = panelShadow(menu).querySelector(".header-toggle") as HTMLElement;
     const panel = menu.shadowRoot!.querySelector("ui-side-panel")!;
     toggleBtn.click();
-    await (panel as any).updateComplete;
-    await (menu as any).updateComplete;
+    await (panel as UiSidePanel).updateComplete;
+    await (menu as UiSidePanelMenu).updateComplete;
     expect(menu.getAttribute("state")).toBe("expanded");
     expect(menu.hasAttribute("overlay")).toBe(true);
   });
   it("removes overlay when toggling back to collapsed on mobile", async () => {
     const menu = createMenu();
-    (menu as any).mobile = true;
-    (menu as any).state = "collapsed";
-    await (menu as any).updateComplete;
+    (menu as UiSidePanelMenu).mobile = true;
+    (menu as UiSidePanelMenu).state = "collapsed";
+    await (menu as UiSidePanelMenu).updateComplete;
     const toggleBtn = panelShadow(menu).querySelector(".header-toggle") as HTMLElement;
     const panel = menu.shadowRoot!.querySelector("ui-side-panel")!;
     // Expand
     toggleBtn.click();
-    await (panel as any).updateComplete;
-    await (menu as any).updateComplete;
+    await (panel as UiSidePanel).updateComplete;
+    await (menu as UiSidePanelMenu).updateComplete;
     expect(menu.hasAttribute("overlay")).toBe(true);
     // Collapse again
     toggleBtn.click();
-    await (panel as any).updateComplete;
-    await (menu as any).updateComplete;
+    await (panel as UiSidePanel).updateComplete;
+    await (menu as UiSidePanelMenu).updateComplete;
     expect(menu.getAttribute("state")).toBe("collapsed");
     expect(menu.hasAttribute("overlay")).toBe(false);
   });
   it("clears overlay when leaving mobile after expanded toggle", async () => {
     const menu = createMenu();
-    (menu as any).mobile = true;
-    (menu as any).state = "collapsed";
-    await (menu as any).updateComplete;
+    (menu as UiSidePanelMenu).mobile = true;
+    (menu as UiSidePanelMenu).state = "collapsed";
+    await (menu as UiSidePanelMenu).updateComplete;
     const toggleBtn = panelShadow(menu).querySelector(".header-toggle") as HTMLElement;
     const panel = menu.shadowRoot!.querySelector("ui-side-panel")!;
     toggleBtn.click(); // expand on mobile
-    await (panel as any).updateComplete;
-    await (menu as any).updateComplete;
+    await (panel as UiSidePanel).updateComplete;
+    await (menu as UiSidePanelMenu).updateComplete;
     expect(menu.hasAttribute("overlay")).toBe(true);
     menu.removeAttribute("mobile");
-    await (menu as any).updateComplete;
+    await (menu as UiSidePanelMenu).updateComplete;
     expect(menu.getAttribute("state")).toBe("expanded");
   });
 });
