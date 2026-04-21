@@ -1,6 +1,6 @@
 # maneki-monorepo
 
-Design system monorepo with Web Components and design tokens extracted from Figma "Foundation UI Kit (Community)". TypeScript, Vite, Vitest.
+Personal engineering monorepo: a design system built with Web Components, and a full-stack blog/portfolio app built on top of it. TypeScript, Vite, Vitest.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -10,7 +10,7 @@ Design system monorepo with Web Components and design tokens extracted from Figm
 
 ## Toolchain
 
-- [proto](https://moonrepo.dev/proto) — version pinning (Node 22.16.0, Moon 2.0.4)
+- [proto](https://moonrepo.dev/proto) — version pinning (Node 22.16.0, Moon 2.2.1)
 - [Moon](https://moonrepo.dev/moon) — task runner and build orchestration
 - npm workspaces — package linking
 
@@ -20,19 +20,20 @@ Design system monorepo with Web Components and design tokens extracted from Figm
 
 ```
 maneki-monorepo/
-├── .prototools              # node 22.16.0, moon 2.0.4
+├── .prototools              # node 22.16.0, moon 2.2.1
 ├── .moon/                   # Moon workspace + toolchain config
 ├── docs/                    # ADRs + lessons learned
 ├── shared/                  # Dev aliases for cross-package HMR
 ├── package.json             # npm workspaces root
 ├── packages/
 │   ├── foundation/          # Design tokens (@maneki/foundation)
-│   ├── ui-components/       # Web Components (@maneki/ui-components)
-│   ├── grid-layout/         # Grid layout library (@maneki/grid-layout)
+│   ├── ui-components/       # 78 Web Components (@maneki/ui-components)
+│   ├── charts/              # 11 SVG chart components (@maneki/charts)
+│   ├── grid-layout/         # Drag/resize grid layout (@maneki/grid-layout)
 │   └── flex-layout/         # Panel-based flex layout (@maneki/flex-layout)
 ├── apps/
 │   ├── catalog/             # Visual catalog + Playwright tests (@maneki/catalog)
-│   └── blog/                # Personal blog + portfolio (@maneki/blog)
+│   └── blog/                # Full-stack blog + portfolio (@maneki/blog)
 ```
 
 ---
@@ -42,16 +43,17 @@ maneki-monorepo/
 | Package | npm name | Description |
 |---|---|---|
 | `foundation` | `@maneki/foundation` | Design tokens: 131 colors, semantic tokens, typography, spacing, elevation, breakpoints, dark theme, shape, token constants |
-| `ui-components` | `@maneki/ui-components` | 51 Web Components (button, badge, image, icon, tag, avatar, alert, label, link, checkbox, radio, input, textarea, file-upload, dropzone, select, card, breadcrumb, accordion, dropdown, menu, modal, side-panel-menu, tabs, table, carousel, calendar, calendar-quicklinks, calendar-time, datetime-picker, clock, list-item, list-header, list-group) |
-| `grid-layout` | `@maneki/grid-layout` | Zero-dep drag/resize grid layout (220 tests) |
+| `ui-components` | `@maneki/ui-components` | 78 Web Components: primitives, form controls, data display, navigation, disclosure, menus, overlays, tabs, calendar, datetime picker, list, tree, steps, progress, carousel, and more |
+| `charts` | `@maneki/charts` | 11 SVG chart Web Components: bar, line, pie, radar, scatter, polar, stacked bar, horizontal bar, stacked horizontal bar, multi-line, multitype |
+| `grid-layout` | `@maneki/grid-layout` | Zero-dep drag/resize grid layout (3 components, 220 tests) |
 | `flex-layout` | `@maneki/flex-layout` | Panel-based flex layout for dashboard-style interfaces (3 components, 50 tests) |
 
 ### Apps
 
 | App | Description |
 |---|---|
-| `catalog` | Visual catalog for all foundation tokens + UI components. 55 pages, 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout). History API routing, workbox caching, dark theme toggle. |
-| `blog` | Personal blog + portfolio. Markdown posts, static prerendering, History API routing, workbox caching, dark theme, editor at `/editor`, 6 routes + editor (separate entry). |
+| `catalog` | Visual catalog for all design system packages. 69 pages, 120 Playwright tests (58 visual + 58 a11y + sidebar + full layout). Lazy-loaded pages, History API routing, PWA, theme switcher. |
+| `blog` | Full-stack blog + portfolio. Hono API + Turso DB, CF Pages Functions, static prerendering, admin system (`/admin` hub, editor, gallery, pages editor), AI review/brainstorm panels (Claude via CF AI Gateway), photography management, deploy trigger, History API routing, PWA. |
 
 ---
 
@@ -72,22 +74,25 @@ moon run foundation:test
 moon run ui-components:test
 moon run grid-layout:test
 moon run flex-layout:test
+moon run charts:test
 
 # Visual catalog (dev)
 moon run catalog:dev
+
+# Blog (dev)
+moon run blog:dev
 ```
 
 ---
 
 ## Conventions
 
-- Zero runtime dependencies (except ui-components depends on foundation)
-- Web Components with Shadow DOM
-- CSS custom properties, prefixed per package: `--fd-*`, `--ui-*`, `--grid-*`, `--flex-*`
+- Web Components with Shadow DOM, CSS custom properties
+- CSS prefixes per package: `--fd-*`, `--ui-*`, `--grid-*`, `--flex-*`, `--chart-*`
 - TypeScript strict mode, ES2022 target
 - Tests co-located: `foo.ts` → `foo.test.ts`
 - Moon tasks in kebab-case: `build`, `test`, `test-watch`, `dev`, `test-visual`
-- Dark theme support via `[data-theme="dark"]` attribute
+- Dark theme via `[data-theme]` attribute on `:root`
 - Architectural Decision Records in `docs/adr/`
 
 ---
