@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS posts (
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
   published_at TEXT,
-  published_snapshot TEXT
+  published_snapshot TEXT,
+  deployed_at TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
@@ -30,7 +31,8 @@ CREATE TABLE IF NOT EXISTS deployments (
   id TEXT PRIMARY KEY,
   triggered_by TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'building' CHECK (status IN ('building', 'deploying', 'success', 'failure')),
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  manifest TEXT
 );
 
 CREATE TABLE IF NOT EXISTS projects (
@@ -49,7 +51,8 @@ CREATE TABLE IF NOT EXISTS projects (
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
   published_at TEXT,
-  published_snapshot TEXT
+  published_snapshot TEXT,
+  deployed_at TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);

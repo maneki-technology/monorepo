@@ -160,6 +160,20 @@ try {
   console.log("Added thumbnail_url column to photos.");
 } catch { console.log("photos.thumbnail_url already exists."); }
 
+// Add deployed_at column to posts and projects if missing
+for (const table of ["posts", "projects"]) {
+  try {
+    await db.execute(`ALTER TABLE ${table} ADD COLUMN deployed_at TEXT`);
+    console.log(`Added deployed_at column to ${table}.`);
+  } catch { console.log(`${table}.deployed_at already exists.`); }
+}
+
+// Add manifest column to deployments if missing
+try {
+  await db.execute("ALTER TABLE deployments ADD COLUMN manifest TEXT");
+  console.log("Added manifest column to deployments.");
+} catch { console.log("deployments.manifest already exists."); }
+
 // Create any missing tables
 await db.executeMultiple(SCHEMA);
 

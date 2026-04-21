@@ -9,6 +9,7 @@
  */
 
 import { createServer } from "vite";
+import { getDb } from "../plugins/db.js";
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -78,6 +79,7 @@ async function prerender(): Promise<void> {
       resumeRoute as PrerenderRoute,
       aboutRoute as PrerenderRoute,
     ];
+
 
     // Find font asset URLs in the built output
     const distDir = resolve(root, "dist/assets");
@@ -194,6 +196,35 @@ async function prerender(): Promise<void> {
     console.log("  \u2713 /404.html");
 
     console.log(`\nPrerendered ${allRoutes.length} pages + 404.`);
+
+    // Write manifest + stamp deployed_at on all rendered slugs
+    const db = getDb();
+    const manifest: { slug: string; type: string }[] = [];
+    for (const route of allRoutes) {
+      if (route.id.startsWith("post/")) manifest.push({ slug: route.id.slice(5), type: "post" });
+      else if (route.id.startsWith("project/")) manifest.push({ slug: route.id.slice(8), type: "project" });
+      else if (route.id.startsWith("draft/")) manifest.push({ slug: route.id.slice(6), type: "draft" });
+    }
+    await db.execute({
+      sql: "UPDATE deployments SET manifest = ? WHERE id = (SELECT id FROM deployments ORDER BY created_at DESC LIMIT 1)",
+      args: [JSON.stringify(manifest)],
+    });
+    // Stamp deployed_at on all rendered posts/projects so the share button enables
+    const postSlugs = manifest.filter(m => m.type === "post" || m.type === "draft").map(m => m.slug);
+    const projectSlugs = manifest.filter(m => m.type === "project").map(m => m.slug);
+    if (postSlugs.length) {
+      await db.execute({
+        sql: `UPDATE posts SET deployed_at = datetime('now') WHERE slug IN (${postSlugs.map(() => "?").join(",")})`,
+        args: postSlugs,
+      });
+    }
+    if (projectSlugs.length) {
+      await db.execute({
+        sql: `UPDATE projects SET deployed_at = datetime('now') WHERE slug IN (${projectSlugs.map(() => "?").join(",")})`,
+        args: projectSlugs,
+      });
+    }
+    console.log(`Wrote manifest (${manifest.length} entries) and stamped deployed_at on ${postSlugs.length} posts + ${projectSlugs.length} projects.`);
   } finally {
     await vite.close();
   }

@@ -11,6 +11,7 @@ export interface Post {
   persisted: boolean;
   /** JSON snapshot of content at last publish — used to detect unpublished changes */
   publishedSnapshot: string | null;
+  deployedAt: string | null;
 }
 
 export interface Project {
@@ -29,6 +30,7 @@ export interface Project {
   publishedAt: string | null;
   persisted: boolean;
   publishedSnapshot: string | null;
+  deployedAt: string | null;
 }
 
 export interface PostSnapshot {

@@ -68,6 +68,9 @@ export class DeployFab extends LitElement {
           this._status = data.status;
           if (this._pollTimer) clearInterval(this._pollTimer);
           this._pollTimer = null;
+          if (data.status === "success") {
+            this.dispatchEvent(new CustomEvent("deploy-success", { bubbles: true, composed: true }));
+          }
           setTimeout(() => {
             this._status = "idle";
           }, 3000);

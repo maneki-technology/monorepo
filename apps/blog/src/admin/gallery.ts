@@ -6,7 +6,7 @@ import "../components/loading-bounce.js";
 import { loadAdminState, saveThemeToBackend, setGalleryTab } from "./theme.js";
 import { api } from "../lib/api.js";
 import type { Photo, Album, Tag } from "./gallery-types.js";
-import { generateThumbnail } from "./gallery-utils.js";
+import { generateThumbnail, optimizeImage } from "./gallery-utils.js";
 import "./gallery-upload-wizard.js";
 import "./gallery-photo-modal.js";
 import "./gallery-album-modal.js";
@@ -558,9 +558,8 @@ export class AdminGallery extends LitElement {
       if (!file) return;
       this._reuploadingPhotoId = photo.id;
       try {
-        const { optimizeImage, generateThumbnail: genThumb } = await import("./gallery-utils.js");
         const optimized = await optimizeImage(file);
-        const thumb = await genThumb(file);
+        const thumb = await generateThumbnail(file);
         const dims = await new Promise<{ width: number; height: number }>((resolve) => {
           const img = new Image();
           img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
