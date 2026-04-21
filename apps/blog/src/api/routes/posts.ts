@@ -165,7 +165,6 @@ export const posts = new Hono<Env>()
   .put("/:slug/publish", zValidator("json", updatePostSchema), async (c) => {
     const db = c.get("db");
     const slug = c.req.param("slug");
-    const ghToken = c.env.GH_DEPLOY_TOKEN;
     const updates = c.req.valid("json");
 
     // Save content + set published immediately (so the build picks it up)
@@ -208,7 +207,6 @@ export const posts = new Hono<Env>()
   .put("/:slug/unpublish", async (c) => {
     const db = c.get("db");
     const slug = c.req.param("slug");
-    const ghToken = c.env.GH_DEPLOY_TOKEN;
 
     await db.execute({
       sql: "UPDATE posts SET status = 'draft', updated_at = datetime('now'), published_snapshot = NULL WHERE slug = ?",
@@ -238,7 +236,6 @@ export const posts = new Hono<Env>()
   .post("/batch/publish", zValidator("json", z.object({ slugs: z.array(z.string()) })), async (c) => {
     const db = c.get("db");
     const { slugs } = c.req.valid("json");
-    const ghToken = c.env.GH_DEPLOY_TOKEN;
     if (!slugs.length) return c.json({ ok: true, count: 0 });
 
     const placeholders = slugs.map(() => "?").join(", ");
@@ -254,7 +251,6 @@ export const posts = new Hono<Env>()
   .post("/batch/unpublish", zValidator("json", z.object({ slugs: z.array(z.string()) })), async (c) => {
     const db = c.get("db");
     const { slugs } = c.req.valid("json");
-    const ghToken = c.env.GH_DEPLOY_TOKEN;
     if (!slugs.length) return c.json({ ok: true, count: 0 });
 
     const placeholders = slugs.map(() => "?").join(", ");
