@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import "./ui-tree-group.js";
 import "./ui-tree-item.js";
+import { UiTreeGroup } from "./ui-tree-group.js";
 
 describe("ui-tree-group", () => {
   let el: HTMLElement;
@@ -74,16 +75,16 @@ describe("ui-tree-group", () => {
 
   it("size getter returns attribute value", () => {
     el.setAttribute("size", "l");
-    expect((el as any).size).toBe("l");
+    expect((el as UiTreeGroup).size).toBe("l");
   });
 
   it("size setter updates attribute", () => {
-    (el as any).size = "s";
+    (el as UiTreeGroup).size = "s";
     expect(el.getAttribute("size")).toBe("s");
   });
 
   it("size getter defaults to m when no attribute", () => {
-    expect((el as any).size).toBe("m");
+    expect((el as UiTreeGroup).size).toBe("m");
   });
 
   // ── Size propagation ──────────────────────────────────────────────────────
@@ -115,7 +116,7 @@ describe("ui-tree-group", () => {
   // ── observedAttributes ────────────────────────────────────────────────────
 
   it("observes the correct attributes", () => {
-    const observed = (customElements.get("ui-tree-group") as any).observedAttributes;
+    const observed = (customElements.get("ui-tree-group") as typeof UiTreeGroup).observedAttributes;
     expect(observed).toEqual(["size", "searchable"]);
   });
 });

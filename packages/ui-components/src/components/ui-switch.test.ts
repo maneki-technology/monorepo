@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import "./ui-switch.js";
 import "./ui-label.js";
+import { UiSwitch, type SwitchSize, type SwitchLabelPosition } from "./ui-switch.js";
 
 describe("ui-switch", () => {
   let el: HTMLElement;
@@ -160,50 +161,50 @@ describe("ui-switch", () => {
 
   it("size getter returns current size", () => {
     el.setAttribute("size", "l");
-    expect((el as any).size).toBe("l");
+    expect((el as UiSwitch).size).toBe("l");
   });
 
   it("size setter updates attribute", () => {
-    (el as any).size = "s";
+    (el as UiSwitch).size = "s";
     expect(el.getAttribute("size")).toBe("s");
   });
 
   it("checked getter returns false by default", () => {
-    expect((el as any).checked).toBe(false);
+    expect((el as UiSwitch).checked).toBe(false);
   });
 
   it("checked setter adds attribute when true", () => {
-    (el as any).checked = true;
+    (el as UiSwitch).checked = true;
     expect(el.hasAttribute("checked")).toBe(true);
   });
 
   it("checked setter removes attribute when false", () => {
-    (el as any).checked = true;
-    (el as any).checked = false;
+    (el as UiSwitch).checked = true;
+    (el as UiSwitch).checked = false;
     expect(el.hasAttribute("checked")).toBe(false);
   });
 
   it("disabled getter returns false by default", () => {
-    expect((el as any).disabled).toBe(false);
+    expect((el as UiSwitch).disabled).toBe(false);
   });
 
   it("disabled setter adds attribute when true", () => {
-    (el as any).disabled = true;
+    (el as UiSwitch).disabled = true;
     expect(el.hasAttribute("disabled")).toBe(true);
   });
 
   it("disabled setter removes attribute when false", () => {
-    (el as any).disabled = true;
-    (el as any).disabled = false;
+    (el as UiSwitch).disabled = true;
+    (el as UiSwitch).disabled = false;
     expect(el.hasAttribute("disabled")).toBe(false);
   });
 
   it("labelPosition getter returns none by default", () => {
-    expect((el as any).labelPosition).toBe("none");
+    expect((el as UiSwitch).labelPosition).toBe("none");
   });
 
   it("labelPosition setter updates attribute", () => {
-    (el as any).labelPosition = "right";
+    (el as UiSwitch).labelPosition = "right";
     expect(el.getAttribute("label-position")).toBe("right");
   });
 
@@ -343,22 +344,22 @@ describe("ui-switch", () => {
   // ── observedAttributes ────────────────────────────────────────────────────
 
   it("observedAttributes includes size", () => {
-    const observed = (customElements.get("ui-switch") as any).observedAttributes;
+    const observed = (customElements.get("ui-switch") as typeof UiSwitch).observedAttributes;
     expect(observed).toContain("size");
   });
 
   it("observedAttributes includes checked", () => {
-    const observed = (customElements.get("ui-switch") as any).observedAttributes;
+    const observed = (customElements.get("ui-switch") as typeof UiSwitch).observedAttributes;
     expect(observed).toContain("checked");
   });
 
   it("observedAttributes includes disabled", () => {
-    const observed = (customElements.get("ui-switch") as any).observedAttributes;
+    const observed = (customElements.get("ui-switch") as typeof UiSwitch).observedAttributes;
     expect(observed).toContain("disabled");
   });
 
   it("observedAttributes includes label-position", () => {
-    const observed = (customElements.get("ui-switch") as any).observedAttributes;
+    const observed = (customElements.get("ui-switch") as typeof UiSwitch).observedAttributes;
     expect(observed).toContain("label-position");
   });
 });

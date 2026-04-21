@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { UiSidePanelMenuItem } from "./ui-side-panel-menu-item.js";
 import "./ui-side-panel-menu-item.js";
 
 describe("ui-side-panel-menu-item", () => {
-  let el: HTMLElement;
+  let el: UiSidePanelMenuItem;
 
   beforeEach(() => {
     document.body.innerHTML = "";
-    el = document.createElement("ui-side-panel-menu-item");
+    el = document.createElement("ui-side-panel-menu-item") as UiSidePanelMenuItem;
     document.body.appendChild(el);
   });
 
@@ -23,35 +24,35 @@ describe("ui-side-panel-menu-item", () => {
   // ── Default attributes ───────────────────────────────────────────────────
 
   it("defaults level to 'primary'", () => {
-    expect((el as any).level).toBe("primary");
+    expect(el.level).toBe("primary");
   });
 
   it("defaults type to 'basic'", () => {
-    expect((el as any).type).toBe("basic");
+    expect(el.type).toBe("basic");
   });
 
   it("defaults selected to false", () => {
-    expect((el as any).selected).toBe(false);
+    expect(el.selected).toBe(false);
   });
 
   it("defaults childParentSelected to false", () => {
-    expect((el as any).childParentSelected).toBe(false);
+    expect(el.childParentSelected).toBe(false);
   });
 
   it("defaults disabled to false", () => {
-    expect((el as any).disabled).toBe(false);
+    expect(el.disabled).toBe(false);
   });
 
   it("defaults leadingIcon to false", () => {
-    expect((el as any).leadingIcon).toBe(false);
+    expect(el.leadingIcon).toBe(false);
   });
 
   it("defaults expandable to false", () => {
-    expect((el as any).expandable).toBe(false);
+    expect(el.expandable).toBe(false);
   });
 
   it("defaults expanded to false", () => {
-    expect((el as any).expanded).toBe(false);
+    expect(el.expanded).toBe(false);
   });
 
   // ── observedAttributes ───────────────────────────────────────────────────
@@ -76,82 +77,82 @@ describe("ui-side-panel-menu-item", () => {
   // ── Level attribute ──────────────────────────────────────────────────────
 
   it("reflects level='primary' to attribute", () => {
-    (el as any).level = "primary";
+    el.level = "primary";
     expect(el.getAttribute("level")).toBe("primary");
   });
 
   it("reflects level='secondary' to attribute", async () => {
-    (el as any).level = "secondary";
-    await (el as any).updateComplete;
+    el.level = "secondary";
+    await el.updateComplete;
     expect(el.getAttribute("level")).toBe("secondary");
   });
 
   it("reflects level='tertiary' to attribute", async () => {
-    (el as any).level = "tertiary";
-    await (el as any).updateComplete;
+    el.level = "tertiary";
+    await el.updateComplete;
     expect(el.getAttribute("level")).toBe("tertiary");
   });
 
   // ── Type attribute ───────────────────────────────────────────────────────
 
   it("reflects type='basic' to attribute", () => {
-    (el as any).type = "basic";
+    el.type = "basic";
     expect(el.getAttribute("type")).toBe("basic");
   });
 
   it("reflects type='icon-only' to attribute", async () => {
-    (el as any).type = "icon-only";
-    await (el as any).updateComplete;
+    el.type = "icon-only";
+    await el.updateComplete;
     expect(el.getAttribute("type")).toBe("icon-only");
   });
 
   // ── Boolean attributes ───────────────────────────────────────────────────
 
   it("reflects selected=true to attribute", async () => {
-    (el as any).selected = true;
-    await (el as any).updateComplete;
+    el.selected = true;
+    await el.updateComplete;
     expect(el.hasAttribute("selected")).toBe(true);
   });
 
   it("removes selected attribute when set to false", () => {
-    (el as any).selected = true;
-    (el as any).selected = false;
+    el.selected = true;
+    el.selected = false;
     expect(el.hasAttribute("selected")).toBe(false);
   });
 
   it("reflects childParentSelected=true to attribute", async () => {
-    (el as any).childParentSelected = true;
-    await (el as any).updateComplete;
+    el.childParentSelected = true;
+    await el.updateComplete;
     expect(el.hasAttribute("child-parent-selected")).toBe(true);
   });
 
   it("removes child-parent-selected attribute when set to false", () => {
-    (el as any).childParentSelected = true;
-    (el as any).childParentSelected = false;
+    el.childParentSelected = true;
+    el.childParentSelected = false;
     expect(el.hasAttribute("child-parent-selected")).toBe(false);
   });
 
   it("reflects disabled=true to attribute", async () => {
-    (el as any).disabled = true;
-    await (el as any).updateComplete;
+    el.disabled = true;
+    await el.updateComplete;
     expect(el.hasAttribute("disabled")).toBe(true);
   });
 
   it("reflects leadingIcon=true to attribute", async () => {
-    (el as any).leadingIcon = true;
-    await (el as any).updateComplete;
+    el.leadingIcon = true;
+    await el.updateComplete;
     expect(el.hasAttribute("leading-icon")).toBe(true);
   });
 
   it("reflects expandable=true to attribute", async () => {
-    (el as any).expandable = true;
-    await (el as any).updateComplete;
+    el.expandable = true;
+    await el.updateComplete;
     expect(el.hasAttribute("expandable")).toBe(true);
   });
 
   it("reflects expanded=true to attribute", async () => {
-    (el as any).expanded = true;
-    await (el as any).updateComplete;
+    el.expanded = true;
+    await el.updateComplete;
     expect(el.hasAttribute("expanded")).toBe(true);
   });
 
@@ -245,7 +246,7 @@ describe("ui-side-panel-menu-item", () => {
   });
 
   it("does not dispatch events when disabled", () => {
-    (el as any).disabled = true;
+    el.disabled = true;
     let fired = false;
     el.addEventListener("select", () => {
       fired = true;
@@ -260,17 +261,17 @@ describe("ui-side-panel-menu-item", () => {
   // ── Expandable behavior ──────────────────────────────────────────────────
 
   it("toggles expanded on click when expandable", () => {
-    (el as any).expandable = true;
-    expect((el as any).expanded).toBe(false);
+    el.expandable = true;
+    expect(el.expanded).toBe(false);
 
     const row = el.shadowRoot!.querySelector(".row") as HTMLElement;
     row.click();
 
-    expect((el as any).expanded).toBe(true);
+    expect(el.expanded).toBe(true);
   });
 
   it("dispatches toggle event when expandable item is clicked", () => {
-    (el as any).expandable = true;
+    el.expandable = true;
     let detail: any = null;
     el.addEventListener("toggle", ((e: CustomEvent) => {
       detail = e.detail;
@@ -283,7 +284,7 @@ describe("ui-side-panel-menu-item", () => {
   });
 
   it("dispatches both toggle and select events when expandable", () => {
-    (el as any).expandable = true;
+    el.expandable = true;
     const events: string[] = [];
     el.addEventListener("toggle", () => events.push("toggle"));
     el.addEventListener("select", () => events.push("select"));
@@ -295,8 +296,8 @@ describe("ui-side-panel-menu-item", () => {
   });
 
   it("shows expand_more icon when expandable and collapsed", async () => {
-    (el as any).expandable = true;
-    await (el as any).updateComplete;
+    el.expandable = true;
+    await el.updateComplete;
     const expandIcon = el.shadowRoot!.querySelector(".expand-icon");
     const icon = expandIcon!.querySelector("ui-icon");
     expect(icon).toBeTruthy();
@@ -304,9 +305,9 @@ describe("ui-side-panel-menu-item", () => {
   });
 
   it("shows expand_less icon when expandable and expanded", async () => {
-    (el as any).expandable = true;
-    (el as any).expanded = true;
-    await (el as any).updateComplete;
+    el.expandable = true;
+    el.expanded = true;
+    await el.updateComplete;
     const expandIcon = el.shadowRoot!.querySelector(".expand-icon");
     const icon = expandIcon!.querySelector("ui-icon");
     expect(icon).toBeTruthy();
@@ -316,8 +317,8 @@ describe("ui-side-panel-menu-item", () => {
   // ── ARIA ─────────────────────────────────────────────────────────────────
 
   it("sets aria-selected=true when selected", async () => {
-    (el as any).selected = true;
-    await (el as any).updateComplete;
+    el.selected = true;
+    await el.updateComplete;
     const row = el.shadowRoot!.querySelector(".row");
     expect(row!.getAttribute("aria-selected")).toBe("true");
   });
@@ -328,20 +329,20 @@ describe("ui-side-panel-menu-item", () => {
   });
 
   it("sets aria-disabled=true when disabled", async () => {
-    (el as any).disabled = true;
-    await (el as any).updateComplete;
+    el.disabled = true;
+    await el.updateComplete;
     const row = el.shadowRoot!.querySelector(".row");
     expect(row!.getAttribute("aria-disabled")).toBe("true");
   });
 
   it("sets aria-expanded when expandable", async () => {
-    (el as any).expandable = true;
-    await (el as any).updateComplete;
+    el.expandable = true;
+    await el.updateComplete;
     const row = el.shadowRoot!.querySelector(".row");
     expect(row!.getAttribute("aria-expanded")).toBe("false");
 
-    (el as any).expanded = true;
-    await (el as any).updateComplete;
+    el.expanded = true;
+    await el.updateComplete;
     expect(row!.getAttribute("aria-expanded")).toBe("true");
   });
 
@@ -353,19 +354,19 @@ describe("ui-side-panel-menu-item", () => {
   // ── Keyboard ─────────────────────────────────────────────────────────────
 
   it("toggles expanded on Enter key when expandable", () => {
-    (el as any).expandable = true;
+    el.expandable = true;
     const row = el.shadowRoot!.querySelector(".row") as HTMLElement;
 
     row.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-    expect((el as any).expanded).toBe(true);
+    expect(el.expanded).toBe(true);
   });
 
   it("toggles expanded on Space key when expandable", () => {
-    (el as any).expandable = true;
+    el.expandable = true;
     const row = el.shadowRoot!.querySelector(".row") as HTMLElement;
 
     row.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
-    expect((el as any).expanded).toBe(true);
+    expect(el.expanded).toBe(true);
   });
 
   it("dispatches select on Enter key", () => {

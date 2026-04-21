@@ -1,9 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import "./ui-dropdown.js";
-import { STYLES as DROPDOWN_STYLES } from "./ui-dropdown.js";
+import { UiDropdown, STYLES as DROPDOWN_STYLES } from "./ui-dropdown.js";
 import "./ui-dropdown-item.js";
+import { UiDropdownItem } from "./ui-dropdown-item.js";
 import { STYLES as ITEM_STYLES } from "./ui-dropdown-item.styles.js";
 import "./ui-dropdown-heading.js";
+import { UiDropdownHeading } from "./ui-dropdown-heading.js";
 import "./ui-dropdown-separator.js";
 
 // ─── ui-dropdown-separator ───────────────────────────────────────────────────
@@ -67,16 +69,16 @@ describe("UiDropdownHeading", () => {
   });
 
   it("should default size to 'm'", () => {
-    expect((el as any).size).toBe("m");
+    expect((el as UiDropdownHeading).size).toBe("m");
   });
 
   it("should accept size='s'", () => {
     el.setAttribute("size", "s");
-    expect((el as any).size).toBe("s");
+    expect((el as UiDropdownHeading).size).toBe("s");
   });
 
   it("should set size via property accessor", () => {
-    (el as any).size = "s";
+    (el as UiDropdownHeading).size = "s";
     expect(el.getAttribute("size")).toBe("s");
   });
 
@@ -150,27 +152,27 @@ describe("UiDropdownItem", () => {
   });
 
   it("should default size to 'm'", () => {
-    expect((el as any).size).toBe("m");
+    expect((el as UiDropdownItem).size).toBe("m");
   });
 
   it("should accept size='s'", () => {
     el.setAttribute("size", "s");
-    expect((el as any).size).toBe("s");
+    expect((el as UiDropdownItem).size).toBe("s");
   });
 
   it("should set size via property accessor", () => {
-    (el as any).size = "s";
+    (el as UiDropdownItem).size = "s";
     expect(el.getAttribute("size")).toBe("s");
   });
 
   it("should default disabled to false", () => {
-    expect((el as any).disabled).toBe(false);
+    expect((el as UiDropdownItem).disabled).toBe(false);
   });
 
   it("should set disabled via property accessor", () => {
-    (el as any).disabled = true;
+    (el as UiDropdownItem).disabled = true;
     expect(el.hasAttribute("disabled")).toBe(true);
-    (el as any).disabled = false;
+    (el as UiDropdownItem).disabled = false;
     expect(el.hasAttribute("disabled")).toBe(false);
   });
 
@@ -190,13 +192,13 @@ describe("UiDropdownItem", () => {
     expect(styles).toContain(".item:hover");
   });
   it("should default selected to false", () => {
-    expect((el as any).selected).toBe(false);
+    expect((el as UiDropdownItem).selected).toBe(false);
   });
 
   it("should set selected via property accessor", () => {
-    (el as any).selected = true;
+    (el as UiDropdownItem).selected = true;
     expect(el.hasAttribute("selected")).toBe(true);
-    (el as any).selected = false;
+    (el as UiDropdownItem).selected = false;
     expect(el.hasAttribute("selected")).toBe(false);
   });
 
@@ -217,25 +219,25 @@ describe("UiDropdownItem", () => {
   });
 
   it("should default value to empty string", () => {
-    expect((el as any).value).toBe("");
+    expect((el as UiDropdownItem).value).toBe("");
   });
 
   it("should set value via property accessor", () => {
-    (el as any).value = "apple";
+    (el as UiDropdownItem).value = "apple";
     expect(el.getAttribute("value")).toBe("apple");
-    expect((el as any).value).toBe("apple");
+    expect((el as UiDropdownItem).value).toBe("apple");
   });
   it("should accept size='l'", () => {
-    (el as any).size = "l";
-    expect((el as any).size).toBe("l");
+    (el as UiDropdownItem).size = "l";
+    expect((el as UiDropdownItem).size).toBe("l");
   });
 
   it("should default leading to null", () => {
-    expect((el as any).leading).toBe(null);
+    expect((el as UiDropdownItem).leading).toBe(null);
   });
 
   it("should set leading='icon' via property", () => {
-    (el as any).leading = "icon";
+    (el as UiDropdownItem).leading = "icon";
     expect(el.getAttribute("leading")).toBe("icon");
   });
 
@@ -265,14 +267,14 @@ describe("UiDropdownItem", () => {
 
   it("should remove leading element when leading is removed", () => {
     el.setAttribute("leading", "icon");
-    (el as any).leading = null;
+    (el as UiDropdownItem).leading = null;
     const leading = el.shadowRoot!.querySelector(".leading");
     expect(leading).toBe(null);
   });
 
 
   it("should default secondary to null", () => {
-    expect((el as any).secondary).toBe(null);
+    expect((el as UiDropdownItem).secondary).toBe(null);
   });
 
   it("should render secondary text", () => {
@@ -290,13 +292,13 @@ describe("UiDropdownItem", () => {
 
   it("should remove secondary when cleared", () => {
     el.setAttribute("secondary", "A");
-    (el as any).secondary = null;
+    (el as UiDropdownItem).secondary = null;
     const secondary = el.shadowRoot!.querySelector(".secondary");
     expect(secondary).toBe(null);
   });
 
   it("should default description to null", () => {
-    expect((el as any).description).toBe(null);
+    expect((el as UiDropdownItem).description).toBe(null);
   });
 
   it("should render description text", () => {
@@ -307,13 +309,13 @@ describe("UiDropdownItem", () => {
 
   it("should remove description when cleared", () => {
     el.setAttribute("description", "X");
-    (el as any).description = null;
+    (el as UiDropdownItem).description = null;
     const description = el.shadowRoot!.querySelector(".description");
     expect(description).toBe(null);
   });
 
   it("should default submenu to false", () => {
-    expect((el as any).submenu).toBe(false);
+    expect((el as UiDropdownItem).submenu).toBe(false);
   });
 
   it("should render submenu arrow when set", () => {
@@ -330,9 +332,9 @@ describe("UiDropdownItem", () => {
   });
 
   it("should set submenu via property", () => {
-    (el as any).submenu = true;
+    (el as UiDropdownItem).submenu = true;
     expect(el.hasAttribute("submenu")).toBe(true);
-    (el as any).submenu = false;
+    (el as UiDropdownItem).submenu = false;
     expect(el.hasAttribute("submenu")).toBe(false);
   });
 
@@ -450,41 +452,41 @@ describe("UiDropdown", () => {
   // ── Open/close behavior ────────────────────────────────────────────────
 
   it("should default to closed", () => {
-    expect((el as any).open).toBe(false);
+    expect((el as UiDropdown).open).toBe(false);
   });
 
   it("should toggle open on trigger click", () => {
     const trigger = el.shadowRoot!.querySelector("ui-button") as HTMLElement;
     trigger.click();
-    expect((el as any).open).toBe(true);
+    expect((el as UiDropdown).open).toBe(true);
 
     trigger.click();
-    expect((el as any).open).toBe(false);
+    expect((el as UiDropdown).open).toBe(false);
   });
 
   it("should close on Escape key", () => {
-    (el as any).open = true;
+    (el as UiDropdown).open = true;
     el.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
-    expect((el as any).open).toBe(false);
+    expect((el as UiDropdown).open).toBe(false);
   });
 
   it("should close on outside click", () => {
-    (el as any).open = true;
+    (el as UiDropdown).open = true;
     document.body.click();
-    expect((el as any).open).toBe(false);
+    expect((el as UiDropdown).open).toBe(false);
   });
 
   it("should not close when clicking inside the dropdown", () => {
-    (el as any).open = true;
+    (el as UiDropdown).open = true;
     el.click();
-    expect((el as any).open).toBe(true);
+    expect((el as UiDropdown).open).toBe(true);
   });
 
   it("should dispatch 'toggle' event when open changes", () => {
     const handler = vi.fn();
     el.addEventListener("toggle", handler);
 
-    (el as any).open = true;
+    (el as UiDropdown).open = true;
     expect(handler).toHaveBeenCalled();
     const event = handler.mock.calls[0][0] as CustomEvent;
     expect(event.detail.open).toBe(true);
@@ -494,13 +496,13 @@ describe("UiDropdown", () => {
     el.setAttribute("disabled", "");
     const trigger = el.shadowRoot!.querySelector("ui-button") as HTMLElement;
     trigger.click();
-    expect((el as any).open).toBe(false);
+    expect((el as UiDropdown).open).toBe(false);
   });
 
   // ── Label ──────────────────────────────────────────────────────────────
 
   it("should default label to 'Button'", () => {
-    expect((el as any).label).toBe("Button");
+    expect((el as UiDropdown).label).toBe("Button");
   });
 
   it("should update trigger text when label changes", () => {
@@ -510,7 +512,7 @@ describe("UiDropdown", () => {
   });
 
   it("should set label via property accessor", () => {
-    (el as any).label = "Menu";
+    (el as UiDropdown).label = "Menu";
     expect(el.getAttribute("label")).toBe("Menu");
   });
 
@@ -592,56 +594,56 @@ describe("UiDropdown", () => {
   // ── Property accessors ─────────────────────────────────────────────────
 
   it("should default size to 'm'", () => {
-    expect((el as any).size).toBe("m");
+    expect((el as UiDropdown).size).toBe("m");
   });
 
   it("should default action to 'primary'", () => {
-    expect((el as any).action).toBe("primary");
+    expect((el as UiDropdown).action).toBe("primary");
   });
 
   it("should default emphasis to 'bold'", () => {
-    expect((el as any).emphasis).toBe("bold");
+    expect((el as UiDropdown).emphasis).toBe("bold");
   });
 
   it("should default shape to 'basic'", () => {
-    expect((el as any).shape).toBe("basic");
+    expect((el as UiDropdown).shape).toBe("basic");
   });
 
   it("should get/set size property", () => {
-    (el as any).size = "xl";
+    (el as UiDropdown).size = "xl";
     expect(el.getAttribute("size")).toBe("xl");
-    expect((el as any).size).toBe("xl");
+    expect((el as UiDropdown).size).toBe("xl");
   });
 
   it("should get/set action property", () => {
-    (el as any).action = "destructive";
+    (el as UiDropdown).action = "destructive";
     expect(el.getAttribute("action")).toBe("destructive");
-    expect((el as any).action).toBe("destructive");
+    expect((el as UiDropdown).action).toBe("destructive");
   });
 
   it("should get/set emphasis property", () => {
-    (el as any).emphasis = "minimal";
+    (el as UiDropdown).emphasis = "minimal";
     expect(el.getAttribute("emphasis")).toBe("minimal");
-    expect((el as any).emphasis).toBe("minimal");
+    expect((el as UiDropdown).emphasis).toBe("minimal");
   });
 
   it("should get/set shape property", () => {
-    (el as any).shape = "rounded";
+    (el as UiDropdown).shape = "rounded";
     expect(el.getAttribute("shape")).toBe("rounded");
-    expect((el as any).shape).toBe("rounded");
+    expect((el as UiDropdown).shape).toBe("rounded");
   });
 
   it("should get/set disabled property", () => {
-    (el as any).disabled = true;
+    (el as UiDropdown).disabled = true;
     expect(el.hasAttribute("disabled")).toBe(true);
-    (el as any).disabled = false;
+    (el as UiDropdown).disabled = false;
     expect(el.hasAttribute("disabled")).toBe(false);
   });
 
   it("should get/set open property", () => {
-    (el as any).open = true;
+    (el as UiDropdown).open = true;
     expect(el.hasAttribute("open")).toBe(true);
-    (el as any).open = false;
+    (el as UiDropdown).open = false;
     expect(el.hasAttribute("open")).toBe(false);
   });
   // ── Selection behavior ──────────────────────────────────────────────
@@ -680,19 +682,19 @@ describe("UiDropdown", () => {
 
   it("should close menu after single selection", () => {
     el.setAttribute("selectable", "");
-    (el as any).open = true;
+    (el as UiDropdown).open = true;
     const item = document.createElement("ui-dropdown-item");
     el.appendChild(item);
 
     const button = item.shadowRoot!.querySelector("button")!;
     button.click();
 
-    expect((el as any).open).toBe(false);
+    expect((el as UiDropdown).open).toBe(false);
   });
 
   it("should toggle selection in multi-select mode", () => {
     el.setAttribute("selectable", "");
-    (el as any).multiple = true;
+    (el as UiDropdown).multiple = true;
     const item1 = document.createElement("ui-dropdown-item");
     const item2 = document.createElement("ui-dropdown-item");
     el.appendChild(item1);
@@ -711,14 +713,14 @@ describe("UiDropdown", () => {
 
   it("should NOT close menu after multi-select", () => {
     el.setAttribute("selectable", "");
-    (el as any).multiple = true;
-    (el as any).open = true;
+    (el as UiDropdown).multiple = true;
+    (el as UiDropdown).open = true;
     const item = document.createElement("ui-dropdown-item");
     el.appendChild(item);
 
     item.shadowRoot!.querySelector("button")!.click();
 
-    expect((el as any).open).toBe(true);
+    expect((el as UiDropdown).open).toBe(true);
   });
 
   it("should dispatch 'change' event on selection", () => {
@@ -744,12 +746,12 @@ describe("UiDropdown", () => {
 
     item.shadowRoot!.querySelector("button")!.click();
 
-    expect((el as any).value).toBe("foo");
+    expect((el as UiDropdown).value).toBe("foo");
   });
 
   it("should return array from value getter (multiple)", () => {
     el.setAttribute("selectable", "");
-    (el as any).multiple = true;
+    (el as UiDropdown).multiple = true;
     const item1 = document.createElement("ui-dropdown-item");
     const item2 = document.createElement("ui-dropdown-item");
     item1.setAttribute("value", "a");
@@ -760,17 +762,17 @@ describe("UiDropdown", () => {
     item1.shadowRoot!.querySelector("button")!.click();
     item2.shadowRoot!.querySelector("button")!.click();
 
-    expect((el as any).value).toEqual(["a", "b"]);
+    expect((el as UiDropdown).value).toEqual(["a", "b"]);
   });
 
   it("should default multiple to false", () => {
-    expect((el as any).multiple).toBe(false);
+    expect((el as UiDropdown).multiple).toBe(false);
   });
 
   it("should set multiple via property accessor", () => {
-    (el as any).multiple = true;
+    (el as UiDropdown).multiple = true;
     expect(el.hasAttribute("multiple")).toBe(true);
-    (el as any).multiple = false;
+    (el as UiDropdown).multiple = false;
     expect(el.hasAttribute("multiple")).toBe(false);
   });
 
@@ -821,7 +823,7 @@ describe("UiDropdown", () => {
   // ── Cleanup ────────────────────────────────────────────────────────────
 
   it("should remove document click listener on disconnect", () => {
-    (el as any).open = true;
+    (el as UiDropdown).open = true;
     el.remove();
     // Should not throw when clicking after removal
     document.body.click();

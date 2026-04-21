@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import "./ui-select.js";
+import { UiSelect } from "./ui-select.js";
 import "./ui-dropdown-item.js";
 
 function createSelect(attrs: Record<string, string> = {}, items: { value: string; text: string; disabled?: boolean }[] = []): HTMLElement {
@@ -46,73 +47,73 @@ describe("ui-select", () => {
 
   it("defaults size to 'm'", () => {
     el = createSelect();
-    expect((el as any).size).toBe("m");
+    expect((el as UiSelect).size).toBe("m");
   });
 
   it("defaults status to 'none'", () => {
     el = createSelect();
-    expect((el as any).status).toBe("none");
+    expect((el as UiSelect).status).toBe("none");
   });
 
   it("defaults placeholder to 'Select an option'", () => {
     el = createSelect();
-    expect((el as any).placeholder).toBe("Select an option");
+    expect((el as UiSelect).placeholder).toBe("Select an option");
   });
 
   it("defaults disabled to false", () => {
     el = createSelect();
-    expect((el as any).disabled).toBe(false);
+    expect((el as UiSelect).disabled).toBe(false);
   });
 
   it("defaults readonly to false", () => {
     el = createSelect();
-    expect((el as any).readonly).toBe(false);
+    expect((el as UiSelect).readonly).toBe(false);
   });
 
   it("defaults open to false", () => {
     el = createSelect();
-    expect((el as any).open).toBe(false);
+    expect((el as UiSelect).open).toBe(false);
   });
 
   it("defaults multiple to false", () => {
     el = createSelect();
-    expect((el as any).multiple).toBe(false);
+    expect((el as UiSelect).multiple).toBe(false);
   });
 
   it("defaults error to false", () => {
     el = createSelect();
-    expect((el as any).error).toBe(false);
+    expect((el as UiSelect).error).toBe(false);
   });
 
   it("defaults value to empty string", () => {
     el = createSelect();
-    expect((el as any).value).toBe("");
+    expect((el as UiSelect).value).toBe("");
   });
 
 
 
   it("defaults name to empty string", () => {
     el = createSelect();
-    expect((el as any).name).toBe("");
+    expect((el as UiSelect).name).toBe("");
   });
 
   // ── Size attribute ───────────────────────────────────────────────────────
 
   it("reflects size='s' to attribute", () => {
     el = createSelect();
-    (el as any).size = "s";
+    (el as UiSelect).size = "s";
     expect(el.getAttribute("size")).toBe("s");
   });
 
   it("reflects size='l' to attribute", () => {
     el = createSelect();
-    (el as any).size = "l";
+    (el as UiSelect).size = "l";
     expect(el.getAttribute("size")).toBe("l");
   });
 
   it("propagates size to slotted items", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    (el as any).size = "l";
+    (el as UiSelect).size = "l";
     // Trigger slotchange manually in test env
     const items = el.querySelectorAll("ui-dropdown-item");
     // In happy-dom, slotchange may not fire automatically
@@ -156,26 +157,26 @@ describe("ui-select", () => {
 
   it("opens panel when open attribute is set", () => {
     el = createSelect();
-    (el as any).open = true;
+    (el as UiSelect).open = true;
     expect(el.hasAttribute("open")).toBe(true);
   });
 
   it("sets aria-expanded on trigger when open", () => {
     el = createSelect();
-    (el as any).open = true;
+    (el as UiSelect).open = true;
     const trigger = el.shadowRoot!.querySelector(".trigger");
     expect(trigger?.getAttribute("aria-expanded")).toBe("true");
   });
 
   it("does not open when disabled", () => {
     el = createSelect({ disabled: "" });
-    (el as any).open = true;
+    (el as UiSelect).open = true;
     expect(el.hasAttribute("open")).toBe(false);
   });
 
   it("does not open when readonly", () => {
     el = createSelect({ readonly: "" });
-    (el as any).open = true;
+    (el as UiSelect).open = true;
     expect(el.hasAttribute("open")).toBe(false);
   });
 
@@ -183,7 +184,7 @@ describe("ui-select", () => {
     el = createSelect();
     const handler = vi.fn();
     el.addEventListener("toggle", handler);
-    (el as any).open = true;
+    (el as UiSelect).open = true;
     expect(handler).toHaveBeenCalled();
     expect(handler.mock.calls[0][0].detail.open).toBe(true);
   });
@@ -192,7 +193,7 @@ describe("ui-select", () => {
 
   it("reflects disabled property to attribute", () => {
     el = createSelect();
-    (el as any).disabled = true;
+    (el as UiSelect).disabled = true;
     expect(el.hasAttribute("disabled")).toBe(true);
   });
 
@@ -211,7 +212,7 @@ describe("ui-select", () => {
 
   it("reflects readonly property to attribute", () => {
     el = createSelect();
-    (el as any).readonly = true;
+    (el as UiSelect).readonly = true;
     expect(el.hasAttribute("readonly")).toBe(true);
   });
 
@@ -224,7 +225,7 @@ describe("ui-select", () => {
 
   it("reflects status property", () => {
     el = createSelect();
-    (el as any).status = "error";
+    (el as UiSelect).status = "error";
     expect(el.getAttribute("status")).toBe("error");
   });
 
@@ -262,7 +263,7 @@ describe("ui-select", () => {
 
   it("reflects error property", () => {
     el = createSelect();
-    (el as any).error = true;
+    (el as UiSelect).error = true;
     expect(el.hasAttribute("error")).toBe(true);
   });
 
@@ -310,8 +311,8 @@ describe("ui-select", () => {
     el = createSelect();
     el.setAttribute("aria-label", "Country");
     // re-trigger _syncAria
-    (el as any).disabled = true;
-    (el as any).disabled = false;
+    (el as UiSelect).disabled = true;
+    (el as UiSelect).disabled = false;
     const trigger = el.shadowRoot!.querySelector(".trigger");
     expect(trigger?.getAttribute("aria-label")).toBe("Country");
   });
@@ -320,7 +321,7 @@ describe("ui-select", () => {
 
   it("reflects multiple property", () => {
     el = createSelect();
-    (el as any).multiple = true;
+    (el as UiSelect).multiple = true;
     expect(el.hasAttribute("multiple")).toBe(true);
   });
 
@@ -328,33 +329,33 @@ describe("ui-select", () => {
 
   it("returns empty string when nothing selected (single)", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    expect((el as any).value).toBe("");
+    expect((el as UiSelect).value).toBe("");
   });
 
   it("sets value programmatically (single)", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    (el as any).value = "b";
-    expect((el as any).value).toBe("b");
+    (el as UiSelect).value = "b";
+    expect((el as UiSelect).value).toBe("b");
   });
 
   // ── Value (multi select) ─────────────────────────────────────────────────
 
   it("returns empty array when nothing selected (multi)", () => {
     el = createSelect({ multiple: "" }, DEFAULT_ITEMS);
-    expect((el as any).value).toEqual([]);
+    expect((el as UiSelect).value).toEqual([]);
   });
 
   it("sets value programmatically (multi)", () => {
     el = createSelect({ multiple: "" }, DEFAULT_ITEMS);
-    (el as any).value = ["a", "c"];
-    expect((el as any).value).toEqual(["a", "c"]);
+    (el as UiSelect).value = ["a", "c"];
+    expect((el as UiSelect).value).toEqual(["a", "c"]);
   });
 
   // ── Clear button ─────────────────────────────────────────────────────────
 
   it("shows clear button when value is set", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    (el as any).value = "a";
+    (el as UiSelect).value = "a";
     const clearBtn = el.shadowRoot!.querySelector(".clear-btn");
     expect(clearBtn?.classList.contains("visible")).toBe(true);
   });
@@ -367,7 +368,7 @@ describe("ui-select", () => {
 
   it("hides clear button when disabled", () => {
     el = createSelect({ disabled: "" }, DEFAULT_ITEMS);
-    (el as any).value = "a";
+    (el as UiSelect).value = "a";
     const clearBtn = el.shadowRoot!.querySelector(".clear-btn");
     expect(clearBtn?.classList.contains("visible")).toBe(false);
   });
@@ -375,7 +376,7 @@ describe("ui-select", () => {
   it("hides clear button when readonly", () => {
     el = createSelect({ readonly: "" }, DEFAULT_ITEMS);
     // Set value before readonly to populate _selectedValues
-    (el as any).value = "a";
+    (el as UiSelect).value = "a";
     // readonly prevents clear
     const clearBtn = el.shadowRoot!.querySelector(".clear-btn");
     expect(clearBtn?.classList.contains("visible")).toBe(false);
@@ -383,15 +384,15 @@ describe("ui-select", () => {
 
   it("clears selection on clear button click", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    (el as any).value = "a";
+    (el as UiSelect).value = "a";
     const clearBtn = el.shadowRoot!.querySelector(".clear-btn") as HTMLElement;
     clearBtn.click();
-    expect((el as any).value).toBe("");
+    expect((el as UiSelect).value).toBe("");
   });
 
   it("dispatches clear event on clear button click", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    (el as any).value = "a";
+    (el as UiSelect).value = "a";
     const handler = vi.fn();
     el.addEventListener("clear", handler);
     const clearBtn = el.shadowRoot!.querySelector(".clear-btn") as HTMLElement;
@@ -401,7 +402,7 @@ describe("ui-select", () => {
 
   it("dispatches change event on clear button click", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    (el as any).value = "a";
+    (el as UiSelect).value = "a";
     const handler = vi.fn();
     el.addEventListener("change", handler);
     const clearBtn = el.shadowRoot!.querySelector(".clear-btn") as HTMLElement;
@@ -421,7 +422,7 @@ describe("ui-select", () => {
 
   it("shows selected text for single select", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    (el as any).value = "b";
+    (el as UiSelect).value = "b";
     const display = el.shadowRoot!.querySelector(".display-value");
     expect(display?.textContent).toContain("Beta");
     expect(display?.classList.contains("placeholder")).toBe(false);
@@ -429,7 +430,7 @@ describe("ui-select", () => {
 
   it("shows tags for multi select", () => {
     el = createSelect({ multiple: "" }, DEFAULT_ITEMS);
-    (el as any).value = ["a", "c"];
+    (el as UiSelect).value = ["a", "c"];
     const tags = el.shadowRoot!.querySelectorAll(".tag");
     expect(tags.length).toBe(2);
     expect(tags[0].querySelector(".tag-label")?.textContent).toBe("Alpha");
@@ -438,8 +439,8 @@ describe("ui-select", () => {
 
   it("shows placeholder when value is cleared", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    (el as any).value = "a";
-    (el as any).value = "";
+    (el as UiSelect).value = "a";
+    (el as UiSelect).value = "";
     const display = el.shadowRoot!.querySelector(".display-value");
     expect(display?.classList.contains("placeholder")).toBe(true);
   });
@@ -448,16 +449,16 @@ describe("ui-select", () => {
 
   it("removes tag on dismiss click (multi)", () => {
     el = createSelect({ multiple: "" }, DEFAULT_ITEMS);
-    (el as any).value = ["a", "b"];
+    (el as UiSelect).value = ["a", "b"];
     const dismissBtns = el.shadowRoot!.querySelectorAll(".tag-dismiss");
     expect(dismissBtns.length).toBe(2);
     (dismissBtns[0] as HTMLElement).click();
-    expect((el as any).value).toEqual(["b"]);
+    expect((el as UiSelect).value).toEqual(["b"]);
   });
 
   it("dispatches change event on tag dismiss", () => {
     el = createSelect({ multiple: "" }, DEFAULT_ITEMS);
-    (el as any).value = ["a", "b"];
+    (el as UiSelect).value = ["a", "b"];
     const handler = vi.fn();
     el.addEventListener("change", handler);
     const dismissBtns = el.shadowRoot!.querySelectorAll(".tag-dismiss");
@@ -469,14 +470,14 @@ describe("ui-select", () => {
 
   it("reflects name property", () => {
     el = createSelect();
-    (el as any).name = "country";
+    (el as UiSelect).name = "country";
     expect(el.getAttribute("name")).toBe("country");
   });
 
   // ── observedAttributes ───────────────────────────────────────────────────
 
   it("has correct observedAttributes", () => {
-    const observed = (customElements.get("ui-select") as any).observedAttributes;
+    const observed = (customElements.get("ui-select") as typeof UiSelect).observedAttributes;
     expect(observed).toContain("size");
     expect(observed).toContain("placeholder");
     expect(observed).toContain("disabled");
@@ -495,23 +496,23 @@ describe("ui-select", () => {
     el = createSelect();
     const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
     trigger.click();
-    expect((el as any).open).toBe(true);
+    expect((el as UiSelect).open).toBe(true);
     trigger.click();
-    expect((el as any).open).toBe(false);
+    expect((el as UiSelect).open).toBe(false);
   });
 
   it("does not toggle when disabled", () => {
     el = createSelect({ disabled: "" });
     const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
     trigger.click();
-    expect((el as any).open).toBe(false);
+    expect((el as UiSelect).open).toBe(false);
   });
 
   it("does not toggle when readonly", () => {
     el = createSelect({ readonly: "" });
     const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
     trigger.click();
-    expect((el as any).open).toBe(false);
+    expect((el as UiSelect).open).toBe(false);
   });
 
   // ── Keyboard navigation ──────────────────────────────────────────────────
@@ -520,65 +521,65 @@ describe("ui-select", () => {
     el = createSelect({}, DEFAULT_ITEMS);
     const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
     trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
-    expect((el as any).open).toBe(true);
+    expect((el as UiSelect).open).toBe(true);
   });
 
   it("opens on ArrowUp key when closed", () => {
     el = createSelect({}, DEFAULT_ITEMS);
     const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
     trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
-    expect((el as any).open).toBe(true);
+    expect((el as UiSelect).open).toBe(true);
   });
 
   it("opens on Enter key when closed", () => {
     el = createSelect({}, DEFAULT_ITEMS);
     const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
     trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
-    expect((el as any).open).toBe(true);
+    expect((el as UiSelect).open).toBe(true);
   });
 
   it("opens on Space key when closed", () => {
     el = createSelect({}, DEFAULT_ITEMS);
     const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
     trigger.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
-    expect((el as any).open).toBe(true);
+    expect((el as UiSelect).open).toBe(true);
   });
 
   it("closes on Escape key when open", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    (el as any).open = true;
+    (el as UiSelect).open = true;
     const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
     trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
-    expect((el as any).open).toBe(false);
+    expect((el as UiSelect).open).toBe(false);
   });
 
   it("closes on Tab key when open", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    (el as any).open = true;
+    (el as UiSelect).open = true;
     const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
     trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
-    expect((el as any).open).toBe(false);
+    expect((el as UiSelect).open).toBe(false);
   });
 
   it("does not open on ArrowDown when disabled", () => {
     el = createSelect({ disabled: "" }, DEFAULT_ITEMS);
     const trigger = el.shadowRoot!.querySelector(".trigger") as HTMLElement;
     trigger.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
-    expect((el as any).open).toBe(false);
+    expect((el as UiSelect).open).toBe(false);
   });
 
   // ── Outside click ────────────────────────────────────────────────────────
 
   it("closes on outside click", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    (el as any).open = true;
+    (el as UiSelect).open = true;
     document.body.click();
-    expect((el as any).open).toBe(false);
+    expect((el as UiSelect).open).toBe(false);
   });
 
   it("does not close on click inside", () => {
     el = createSelect({}, DEFAULT_ITEMS);
-    (el as any).open = true;
+    (el as UiSelect).open = true;
     el.click();
     // Clicking the host itself — the trigger click handler toggles
     // but the outside click handler should not close it
