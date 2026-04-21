@@ -9,6 +9,7 @@ import { z } from "zod";
 import type { Client } from "@libsql/client";
 import type { Env } from "../index.js";
 import { buildSetClauses, toJson } from "../db/helpers.js";
+import { safeJsonParse } from "../db/utils.js";
 
 const createPostSchema = z.object({
   title: z.string().min(1),
@@ -86,7 +87,7 @@ export const posts = new Hono<Env>()
     const result = await db.execute({ sql, args });
     const rows = result.rows.map((r) => ({
       ...r,
-      tags: JSON.parse((r.tags as string) || "[]"),
+      tags: safeJsonParse<string[]>(r.tags as string, []),
     }));
     // Attach structured tags from junction table
     await attachTags(db, rows as Record<string, unknown>[]);
@@ -109,7 +110,7 @@ export const posts = new Hono<Env>()
     }
     const post = {
       ...result.rows[0],
-      tags: JSON.parse((result.rows[0].tags as string) || "[]"),
+      tags: safeJsonParse<string[]>(result.rows[0].tags as string, []),
     };
     // Attach structured tags from junction table
     await attachTags(db, [post as Record<string, unknown>]);
@@ -145,7 +146,7 @@ export const posts = new Hono<Env>()
 
     const post = {
       ...result.rows[0],
-      tags: JSON.parse((result.rows[0].tags as string) || "[]"),
+      tags: safeJsonParse<string[]>(result.rows[0].tags as string, []),
     };
     await attachTags(db, [post as Record<string, unknown>]);
     return c.json({ ok: true, slug, post }, 201);
@@ -207,7 +208,7 @@ export const posts = new Hono<Env>()
     });
     const post = {
       ...result.rows[0],
-      tags: JSON.parse((result.rows[0].tags as string) || "[]"),
+      tags: safeJsonParse<string[]>(result.rows[0].tags as string, []),
     };
     await attachTags(db, [post as Record<string, unknown>]);
     return c.json({ ok: true, slug: newSlug, post });

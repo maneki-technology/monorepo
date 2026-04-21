@@ -3,6 +3,7 @@ import "@maneki/ui-components/components/ui-calendar.js";
 import "@maneki/ui-components/components/ui-calendar-panel.js";
 import "@maneki/ui-components/components/ui-calendar-quicklinks.js";
 import "@maneki/ui-components/components/ui-calendar-time.js";
+import type { UiCalendar, UiCalendarQuicklinks } from "@maneki/ui-components";
 
 registerPage("calendar", {
   title: "Calendar",
@@ -70,16 +71,16 @@ registerPage("calendar", {
   `,
   setup: () => {
     for (const size of ["s", "m", "l"]) {
-      const cal = document.getElementById(`cal-range-${size}`) as HTMLElement | null;
+      const cal = document.getElementById(`cal-range-${size}`) as UiCalendar | null;
       if (cal && "rangeStart" in cal) {
-        (cal as any).rangeStart = "2024-06-10";
-        (cal as any).rangeEnd = "2024-06-20";
+        cal.rangeStart = "2024-06-10";
+        cal.rangeEnd = "2024-06-20";
       }
     }
 
     const qlSide = document.getElementById("cal-ql-side") as HTMLElement | null;
-    if (qlSide && "setItems" in qlSide) {
-      (qlSide as any).setItems([
+    if (qlSide) {
+      (qlSide as UiCalendarQuicklinks).setItems([
         { label: "Today", value: "today" },
         { label: "Yesterday", value: "yesterday" },
         { label: "Last 7 days", value: "last-7" },
@@ -88,8 +89,8 @@ registerPage("calendar", {
     }
 
     const qlBottom = document.getElementById("cal-ql-bottom") as HTMLElement | null;
-    if (qlBottom && "setItems" in qlBottom) {
-      (qlBottom as any).setItems([
+    if (qlBottom) {
+      (qlBottom as UiCalendarQuicklinks).setItems([
         { label: "Today", value: "today" },
         { label: "Yesterday", value: "yesterday" },
         { label: "Last 7 days", value: "last-7" },
@@ -111,7 +112,7 @@ registerPage("calendar", {
         { color: "#C89AFC", label: "Birthday" },
       ]);
       events.set("2024-06-25", [{ color: "#4EBFB9", label: "Holiday" }]);
-      (calEvents as any).setEvents(events);
+      (calEvents as UiCalendar).setEvents(events);
     }
   },
 });

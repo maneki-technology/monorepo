@@ -96,7 +96,7 @@ export function triggerPreview(): void {
 
 export function renderPreview(root: ParentNode, previewEl?: HTMLElement | null): void {
   _previewRoot = root;
-  const ep = (root as ShadowRoot).host as any;
+  const ep = (root as ShadowRoot).host as { postTitle?: string; postDate?: string; postTags?: string[]; postContent?: string; projectTitle?: string; projectTech?: string[] };
   const isProject = state.activeTabType === "project";
   const title = isProject ? (ep?.projectTitle ?? "") : (ep?.postTitle ?? "");
   const date = isProject ? "" : (ep?.postDate ?? "");

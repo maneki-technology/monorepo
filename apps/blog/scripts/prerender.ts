@@ -14,14 +14,22 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 // SSR shims — photography page imports Web Components that use browser-only APIs at module level
+declare global {
+  // eslint-disable-next-line no-var
+  var CSSStyleSheet: { new(): { replaceSync(_: string): void } };
+  // eslint-disable-next-line no-var
+  var HTMLElement: { new(): unknown };
+  // eslint-disable-next-line no-var
+  var customElements: { define(_n: string, _c: unknown): void; get(_n: string): unknown };
+}
 if (typeof globalThis.CSSStyleSheet === 'undefined') {
-  (globalThis as any).CSSStyleSheet = class CSSStyleSheet { replaceSync() {} };
+  globalThis.CSSStyleSheet = class CSSStyleSheet { replaceSync() {} } as never;
 }
 if (typeof globalThis.HTMLElement === 'undefined') {
-  (globalThis as any).HTMLElement = class HTMLElement {};
+  globalThis.HTMLElement = class HTMLElement {} as never;
 }
 if (typeof globalThis.customElements === 'undefined') {
-  (globalThis as any).customElements = { define() {}, get() {} };
+  globalThis.customElements = { define() {}, get() {} } as never;
 }
 
 
@@ -43,33 +51,32 @@ async function prerender(): Promise<void> {
       SITE_URL: string;
       SITE_TITLE: string;
     };
-    // Load page modules directly for prerendering (routes.ts uses lazy loading for browser)
-    const { homeRoute } = await vite.ssrLoadModule("/src/pages/home.ts") as any;
-    const { blogRoute } = await vite.ssrLoadModule("/src/pages/blog.ts") as any;
-    const { postRoutes } = await vite.ssrLoadModule("/src/pages/post.ts") as any;
-    const { draftRoutes } = await vite.ssrLoadModule("/src/pages/draft.ts") as any;
-    const { portfolioRoute } = await vite.ssrLoadModule("/src/pages/portfolio.ts") as any;
-    const { projectRoutes } = await vite.ssrLoadModule("/src/pages/project.ts") as any;
-    const { resumeRoute } = await vite.ssrLoadModule("/src/pages/resume.ts") as any;
-    const { aboutRoute } = await vite.ssrLoadModule("/src/pages/about.ts") as any;
-    const { photographyRoute } = await vite.ssrLoadModule("/src/pages/photography.ts") as any;
-    const { mapRoute } = await vite.ssrLoadModule("/src/pages/map.ts") as any;
+    type PrerenderRoute = { id: string; render: () => string; meta?: { title?: string; description?: string } };
+    interface RouteModule {
+      [key: string]: PrerenderRoute | PrerenderRoute[];
+    }
+    const { homeRoute } = await vite.ssrLoadModule("/src/pages/home.ts") as RouteModule;
+    const { blogRoute } = await vite.ssrLoadModule("/src/pages/blog.ts") as RouteModule;
+    const { postRoutes } = await vite.ssrLoadModule("/src/pages/post.ts") as RouteModule;
+    const { draftRoutes } = await vite.ssrLoadModule("/src/pages/draft.ts") as RouteModule;
+    const { portfolioRoute } = await vite.ssrLoadModule("/src/pages/portfolio.ts") as RouteModule;
+    const { projectRoutes } = await vite.ssrLoadModule("/src/pages/project.ts") as RouteModule;
+    const { resumeRoute } = await vite.ssrLoadModule("/src/pages/resume.ts") as RouteModule;
+    const { aboutRoute } = await vite.ssrLoadModule("/src/pages/about.ts") as RouteModule;
+    const { photographyRoute } = await vite.ssrLoadModule("/src/pages/photography.ts") as RouteModule;
+    const { mapRoute } = await vite.ssrLoadModule("/src/pages/map.ts") as RouteModule;
 
-    const allRoutes: Array<{
-      id: string;
-      render: () => string;
-      meta?: { title?: string; description?: string };
-    }> = [
-      homeRoute,
-      blogRoute,
-      ...postRoutes,
-      portfolioRoute,
-      photographyRoute,
-      mapRoute,
-      ...projectRoutes,
-      ...draftRoutes,
-      resumeRoute,
-      aboutRoute,
+    const allRoutes: PrerenderRoute[] = [
+      homeRoute as PrerenderRoute,
+      blogRoute as PrerenderRoute,
+      ...(postRoutes as PrerenderRoute[]),
+      portfolioRoute as PrerenderRoute,
+      photographyRoute as PrerenderRoute,
+      mapRoute as PrerenderRoute,
+      ...(projectRoutes as PrerenderRoute[]),
+      ...(draftRoutes as PrerenderRoute[]),
+      resumeRoute as PrerenderRoute,
+      aboutRoute as PrerenderRoute,
     ];
 
     // Find font asset URLs in the built output
