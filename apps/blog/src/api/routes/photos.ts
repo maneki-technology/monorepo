@@ -56,34 +56,49 @@ export const photos = new Hono<Env>()
     const albumSlug = c.req.query("album");
     const category = c.req.query("category");
     const tagSlug = c.req.query("tag");
+    const limit = c.req.query("limit") ? Math.min(Number(c.req.query("limit")), 200) : undefined;
+    const offset = c.req.query("offset") ? Number(c.req.query("offset")) : 0;
     const db = c.get("db");
 
     let sql: string;
+    let countSql: string;
     const args: (string | number)[] = [];
 
     if (tagSlug) {
-      sql = status
-        ? "SELECT DISTINCT p.* FROM photos p JOIN photo_tags pt ON p.id = pt.photo_id JOIN tags t ON pt.tag_id = t.id WHERE t.slug = ? AND p.status = ? ORDER BY p.sort_order ASC, p.created_at DESC"
-        : "SELECT DISTINCT p.* FROM photos p JOIN photo_tags pt ON p.id = pt.photo_id JOIN tags t ON pt.tag_id = t.id WHERE t.slug = ? AND p.status != 'deleted' ORDER BY p.sort_order ASC, p.created_at DESC";
+      const from = "FROM photos p JOIN photo_tags pt ON p.id = pt.photo_id JOIN tags t ON pt.tag_id = t.id";
+      const where = status ? "WHERE t.slug = ? AND p.status = ?" : "WHERE t.slug = ? AND p.status != 'deleted'";
+      sql = `SELECT DISTINCT p.* ${from} ${where} ORDER BY p.sort_order ASC, p.created_at DESC`;
+      countSql = `SELECT COUNT(DISTINCT p.id) as count ${from} ${where}`;
       args.push(tagSlug);
       if (status) args.push(status);
     } else if (albumSlug) {
-      sql = status
-        ? "SELECT p.* FROM photos p JOIN albums a ON p.album_id = a.id WHERE a.slug = ? AND p.status = ? ORDER BY p.sort_order ASC, p.created_at DESC"
-        : "SELECT p.* FROM photos p JOIN albums a ON p.album_id = a.id WHERE a.slug = ? AND p.status != 'deleted' ORDER BY p.sort_order ASC, p.created_at DESC";
+      const from = "FROM photos p JOIN albums a ON p.album_id = a.id";
+      const where = status ? "WHERE a.slug = ? AND p.status = ?" : "WHERE a.slug = ? AND p.status != 'deleted'";
+      sql = `SELECT p.* ${from} ${where} ORDER BY p.sort_order ASC, p.created_at DESC`;
+      countSql = `SELECT COUNT(*) as count ${from} ${where}`;
       args.push(albumSlug);
       if (status) args.push(status);
     } else if (category) {
-      sql = status
-        ? "SELECT * FROM photos WHERE category = ? AND status = ? ORDER BY sort_order ASC, created_at DESC"
-        : "SELECT * FROM photos WHERE category = ? AND status != 'deleted' ORDER BY sort_order ASC, created_at DESC";
+      const where = status ? "WHERE category = ? AND status = ?" : "WHERE category = ? AND status != 'deleted'";
+      sql = `SELECT * FROM photos ${where} ORDER BY sort_order ASC, created_at DESC`;
+      countSql = `SELECT COUNT(*) as count FROM photos ${where}`;
       args.push(category);
       if (status) args.push(status);
     } else {
-      sql = status
-        ? "SELECT * FROM photos WHERE status = ? ORDER BY sort_order ASC, created_at DESC"
-        : "SELECT * FROM photos WHERE status != 'deleted' ORDER BY sort_order ASC, created_at DESC";
+      const where = status ? "WHERE status = ?" : "WHERE status != 'deleted'";
+      sql = `SELECT * FROM photos ${where} ORDER BY sort_order ASC, created_at DESC`;
+      countSql = `SELECT COUNT(*) as count FROM photos ${where}`;
       if (status) args.push(status);
+    }
+
+    // Get total count
+    const countResult = await db.execute({ sql: countSql, args });
+    const total = countResult.rows[0].count as number;
+
+    // Apply pagination when limit is provided
+    if (limit !== undefined) {
+      sql += " LIMIT ? OFFSET ?";
+      args.push(limit, offset);
     }
 
     const result = await db.execute({ sql, args });
@@ -109,7 +124,11 @@ export const photos = new Hono<Env>()
         (row as any).tags = tagMap.get((row as any).id as number) ?? [];
       }
     }
-    return c.json({ photos: rows });
+    const response: Record<string, unknown> = { photos: rows, total };
+    if (limit !== undefined) {
+      response.hasMore = offset + rows.length < total;
+    }
+    return c.json(response);
   })
 
   // Get single photo by id
