@@ -168,7 +168,7 @@ export function injectAllTokens(): void {
 
   // In dev mode, replace existing styles so HMR works. In production, skip if already injected.
   if (existing) {
-    if ((import.meta as any).hot) {
+    if (import.meta.hot) {
       existing.textContent = cssContent;
     }
     return;
@@ -181,8 +181,8 @@ export function injectAllTokens(): void {
 }
 
 // HMR: re-inject tokens when any token source file changes
-if ((import.meta as any).hot) {
-  (import.meta as any).hot.accept(
+if (import.meta.hot) {
+  import.meta.hot.accept(
     [
       "./colors.js",
       "./semantic-tokens.js",

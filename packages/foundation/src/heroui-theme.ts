@@ -733,7 +733,7 @@ export function injectHerouiTheme(): void {
   const cssContent = `[data-theme="heroui"] {\n${herouiCss}\n}\n\n[data-theme="heroui-dark"] {\n${herouiDarkCss}\n}`;
 
   if (existing) {
-    if ((import.meta as any).hot) {
+    if (import.meta.hot) {
       existing.textContent = cssContent;
     }
     return;
