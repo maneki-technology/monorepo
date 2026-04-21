@@ -314,7 +314,7 @@ export class EditorPage extends LitElement {
             </ui-toolbar>
             <div class="admin-split">
               <ui-scrollbar ${ref(this._textareaWrapRef)} emphasis="minimal" class="admin-textarea-wrap">
-                <textarea id="admin-content" ${ref(this._textareaRef)} placeholder="Write your post in Markdown..." spellcheck="false" .value=${this.postContent} @input=${this._onContentInput} @keydown=${this._onTextareaKeydown} @dragover=${this._onTextareaDragover} @dragleave=${this._onTextareaDragleave} @drop=${this._onTextareaDrop} @paste=${this._onTextareaPaste}></textarea>
+                <textarea id="admin-content" ${ref(this._textareaRef)} placeholder="Write your post in Markdown..." spellcheck="false" @input=${this._onContentInput} @keydown=${this._onTextareaKeydown} @dragover=${this._onTextareaDragover} @dragleave=${this._onTextareaDragleave} @drop=${this._onTextareaDrop} @paste=${this._onTextareaPaste}></textarea>
                 <div class="admin-textarea-spacer"></div>
               </ui-scrollbar>
               <ui-scrollbar ${ref(this._previewWrapRef)} emphasis="minimal"><div id="admin-preview" ${ref(this._previewRef)} class="admin-preview"></div></ui-scrollbar>
@@ -803,6 +803,8 @@ export class EditorPage extends LitElement {
     this.postTags = post.tags.split(",").map(t => t.trim()).filter(Boolean);
     this.postExcerpt = post.excerpt;
     this.postContent = post.content;
+    const ta = this._textareaRef.value;
+    if (ta) ta.value = post.content;
     renderPreview(this.shadowRoot!, this._previewRef.value);
   }
 
@@ -823,6 +825,8 @@ export class EditorPage extends LitElement {
     this.postTags = [];
     this.postExcerpt = "";
     this.postContent = "";
+    const ta = this._textareaRef.value;
+    if (ta) ta.value = "";
     renderPreview(this.shadowRoot!, this._previewRef.value);
   }
 
@@ -835,6 +839,8 @@ export class EditorPage extends LitElement {
     this.projectImage = project.image;
     this.projectPinned = project.pinned;
     this.postContent = project.content;
+    const ta = this._textareaRef.value;
+    if (ta) ta.value = project.content;
     renderPreview(this.shadowRoot!, this._previewRef.value);
   }
 
@@ -880,6 +886,8 @@ export class EditorPage extends LitElement {
     this.projectImage = "";
     this.projectPinned = false;
     this.postContent = "";
+    const ta = this._textareaRef.value;
+    if (ta) ta.value = "";
   }
 
   // ─── Event handlers ──────────────────────────────────────────────────────────
