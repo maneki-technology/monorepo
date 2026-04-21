@@ -51,7 +51,7 @@ class ThemeToggle extends HTMLElement {
   private _toggle() {
     this._dark = !this._dark;
     document.documentElement.setAttribute("data-theme", this._dark ? "heroui-dark" : "heroui");
-    localStorage.setItem("blog-theme", this._dark ? "dark" : "light");
+    try { localStorage.setItem("blog-theme", this._dark ? "dark" : "light"); } catch {}
     this._render();
     this.dispatchEvent(new CustomEvent("theme-change", { detail: { dark: this._dark }, bubbles: true, composed: true }));
   }
