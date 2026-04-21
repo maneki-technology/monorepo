@@ -121,7 +121,7 @@ class ChartPolarElement extends HTMLElement {
       description: this.getAttribute("description") ?? this._options.description,
       showLegend: boolAttr(this, "show-legend", this._options.showLegend ?? true),
       showTooltips: boolAttr(this, "show-tooltips", this._options.showTooltips ?? true),
-      levels: numAttr(this, "levels") ?? (this._options as any).levels,
+      levels: numAttr(this, "levels") ?? this._options.levels,
     };
   }
 
@@ -186,7 +186,7 @@ class ChartPolarElement extends HTMLElement {
     const cy = headerH + 20 + availableH / 2;
 
     // Concentric grid circles
-    const levels = (opts as any).levels ?? 5;
+    const levels = opts.levels ?? 5;
     const maxValue = Math.max(...slices.map(s => s.value));
     if (maxValue <= 0) return;
 

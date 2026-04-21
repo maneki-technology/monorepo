@@ -86,12 +86,14 @@ export const photos = new Hono<Env>()
     const result = await db.execute({ sql, args });
     const rows = result.rows.map((r) => ({
       ...r,
+      id: r.id as number,
       featured: !!r.featured,
       exif_json: JSON.parse((r.exif_json as string) || "{}"),
+      tags: [] as Array<{ id: number; name: string; slug: string }>,
     }));
     // Attach tags to each photo
     if (rows.length > 0) {
-      const ids = rows.map((r: any) => r.id);
+      const ids = rows.map((r) => r.id);
       const tagResult = await db.execute({
         sql: `SELECT pt.photo_id, t.id, t.name, t.slug FROM photo_tags pt JOIN tags t ON pt.tag_id = t.id WHERE pt.photo_id IN (${ids.map(() => "?").join(",")})`,
         args: ids,
@@ -103,7 +105,7 @@ export const photos = new Hono<Env>()
         tagMap.get(pid)!.push({ id: tr.id as number, name: tr.name as string, slug: tr.slug as string });
       }
       for (const row of rows) {
-        (row as any).tags = tagMap.get((row as any).id as number) ?? [];
+        row.tags = tagMap.get(row.id) ?? [];
       }
     }
     return c.json({ photos: rows });
@@ -123,13 +125,14 @@ export const photos = new Hono<Env>()
       ...result.rows[0],
       featured: !!result.rows[0].featured,
       exif_json: JSON.parse((result.rows[0].exif_json as string) || "{}"),
+      tags: [] as Array<{ id: number; name: string; slug: string }>,
     };
     // Attach tags
     const tagResult = await db.execute({
       sql: "SELECT t.id, t.name, t.slug FROM photo_tags pt JOIN tags t ON pt.tag_id = t.id WHERE pt.photo_id = ?",
       args: [Number(c.req.param("id"))],
     });
-    (photo as any).tags = tagResult.rows.map((t) => ({ id: t.id as number, name: t.name as string, slug: t.slug as string }));
+    photo.tags = tagResult.rows.map((t) => ({ id: t.id as number, name: t.name as string, slug: t.slug as string }));
     return c.json({ photo });
   })
 
