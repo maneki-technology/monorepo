@@ -16,6 +16,7 @@ const createPostSchema = z.object({
   body_md: z.string(),
   excerpt: z.string().default(""),
   tags: z.array(z.string()).default([]),
+  tag_ids: z.array(z.number()).optional(),
   status: z.enum(["draft", "published"]).default("draft"),
   date: z.string().optional(),
 });
@@ -25,10 +26,41 @@ const updatePostSchema = z.object({
   body_md: z.string().optional(),
   excerpt: z.string().optional(),
   tags: z.array(z.string()).optional(),
+  tag_ids: z.array(z.number()).optional(),
   status: z.enum(["draft", "published"]).optional(),
   date: z.string().optional(),
   new_slug: z.string().min(1).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase kebab-case").optional(),
 });
+
+/** Attach tags from post_tags junction table to an array of post rows. */
+async function attachTags(db: Client, rows: Record<string, unknown>[]): Promise<void> {
+  if (!rows.length) return;
+  const ids = rows.map((r) => r.id as number);
+  const tagResult = await db.execute({
+    sql: `SELECT pt.post_id, t.id, t.name, t.slug FROM post_tags pt JOIN tags t ON pt.tag_id = t.id WHERE pt.post_id IN (${ids.map(() => "?").join(",")})`,
+    args: ids,
+  });
+  const tagMap = new Map<number, Array<{ id: number; name: string; slug: string }>>();
+  for (const tr of tagResult.rows) {
+    const pid = tr.post_id as number;
+    if (!tagMap.has(pid)) tagMap.set(pid, []);
+    tagMap.get(pid)!.push({ id: tr.id as number, name: tr.name as string, slug: tr.slug as string });
+  }
+  for (const row of rows) {
+    (row as Record<string, unknown>).tag_objects = tagMap.get(row.id as number) ?? [];
+  }
+}
+
+/** Replace all post_tags associations for a post (delete + insert pattern). */
+async function replacePostTags(db: Client, postId: number, tagIds: number[]): Promise<void> {
+  await db.execute({ sql: "DELETE FROM post_tags WHERE post_id = ?", args: [postId] });
+  for (const tagId of tagIds) {
+    await db.execute({
+      sql: "INSERT OR IGNORE INTO post_tags (post_id, tag_id) VALUES (?, ?)",
+      args: [postId, tagId],
+    });
+  }
+}
 
 export const posts = new Hono<Env>()
   // List posts (optionally filter by status)
@@ -56,6 +88,8 @@ export const posts = new Hono<Env>()
       ...r,
       tags: JSON.parse((r.tags as string) || "[]"),
     }));
+    // Attach structured tags from junction table
+    await attachTags(db, rows as Record<string, unknown>[]);
     const response: Record<string, unknown> = { posts: rows, total };
     if (limit !== undefined) {
       response.hasMore = offset + rows.length < total;
@@ -77,12 +111,14 @@ export const posts = new Hono<Env>()
       ...result.rows[0],
       tags: JSON.parse((result.rows[0].tags as string) || "[]"),
     };
+    // Attach structured tags from junction table
+    await attachTags(db, [post as Record<string, unknown>]);
     return c.json({ post });
   })
 
   // Create post
   .post("/", zValidator("json", createPostSchema), async (c) => {
-    const { title, slug, body_md, excerpt, tags, status, date } = c.req.valid("json");
+    const { title, slug, body_md, excerpt, tags, tag_ids, status, date } = c.req.valid("json");
     const db = c.get("db");
 
     const createdAt = date || new Date().toISOString();
@@ -95,10 +131,23 @@ export const posts = new Hono<Env>()
       sql: "SELECT * FROM posts WHERE slug = ?",
       args: [slug],
     });
+    const postId = result.rows[0].id as number;
+
+    // Insert post_tags associations
+    if (tag_ids && tag_ids.length > 0) {
+      for (const tagId of tag_ids) {
+        await db.execute({
+          sql: "INSERT OR IGNORE INTO post_tags (post_id, tag_id) VALUES (?, ?)",
+          args: [postId, tagId],
+        });
+      }
+    }
+
     const post = {
       ...result.rows[0],
       tags: JSON.parse((result.rows[0].tags as string) || "[]"),
     };
+    await attachTags(db, [post as Record<string, unknown>]);
     return c.json({ ok: true, slug, post }, 201);
   })
 
@@ -125,22 +174,32 @@ export const posts = new Hono<Env>()
       newSlug = updates.new_slug;
     }
 
-    if (setClauses.length === 0) {
+    if (setClauses.length === 0 && updates.tag_ids === undefined) {
       return c.json({ error: "no fields to update" }, 400);
     }
 
-    setClauses.push("updated_at = datetime('now')");
-    args.push(slug);
+    if (setClauses.length > 0) {
+      setClauses.push("updated_at = datetime('now')");
+      args.push(slug);
 
-    await db.execute({
-      sql: `UPDATE posts SET ${setClauses.join(", ")} WHERE slug = ?`,
-      args,
-    });
+      await db.execute({
+        sql: `UPDATE posts SET ${setClauses.join(", ")} WHERE slug = ?`,
+        args,
+      });
+    }
 
     // Cascade slug rename to conversation tables
     if (newSlug !== slug) {
       await db.execute({ sql: "UPDATE review_conversations SET slug = ? WHERE slug = ? AND type = 'post'", args: [newSlug, slug] });
       await db.execute({ sql: "UPDATE brainstorm_conversations SET slug = ? WHERE slug = ? AND type = 'post'", args: [newSlug, slug] });
+    }
+
+    // Replace post_tags associations if tag_ids provided
+    if (updates.tag_ids !== undefined) {
+      const idResult = await db.execute({ sql: "SELECT id FROM posts WHERE slug = ?", args: [newSlug] });
+      if (idResult.rows.length) {
+        await replacePostTags(db, idResult.rows[0].id as number, updates.tag_ids);
+      }
     }
     const result = await db.execute({
       sql: "SELECT * FROM posts WHERE slug = ?",
@@ -150,6 +209,7 @@ export const posts = new Hono<Env>()
       ...result.rows[0],
       tags: JSON.parse((result.rows[0].tags as string) || "[]"),
     };
+    await attachTags(db, [post as Record<string, unknown>]);
     return c.json({ ok: true, slug: newSlug, post });
   })
 
@@ -192,6 +252,14 @@ export const posts = new Hono<Env>()
       sql: `UPDATE posts SET ${setClauses.join(", ")} WHERE slug = ?`,
       args,
     });
+
+    // Replace post_tags associations if tag_ids provided
+    if (updates.tag_ids !== undefined) {
+      const idResult = await db.execute({ sql: "SELECT id FROM posts WHERE slug = ?", args: [newSlug] });
+      if (idResult.rows.length) {
+        await replacePostTags(db, idResult.rows[0].id as number, updates.tag_ids);
+      }
+    }
 
     // Save published snapshot for change detection
     const snapResult = await db.execute({ sql: "SELECT title, body_md, excerpt, tags, created_at FROM posts WHERE slug = ?", args: [newSlug] });
