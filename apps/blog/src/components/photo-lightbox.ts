@@ -47,7 +47,6 @@ styles.replaceSync(/*css*/ `
     object-fit: contain;
     opacity: 1;
     transition: opacity 0.2s ease;
-    border-radius: var(--fd-radius-sm, 4px);
   }
 
   .image-wrapper img.fade {
@@ -215,11 +214,14 @@ class PhotoLightbox extends HTMLElement {
   private _img!: HTMLImageElement;
   private _counter!: HTMLElement;
   private _exifPanel!: HTMLElement;
+  private _container!: HTMLElement;
   private _pointerStartX = 0;
   private _pointerActive = false;
   private _prevOverflow = "";
+  private _previouslyFocused: Element | null = null;
 
   private _boundKeyHandler = this._onKeyDown.bind(this);
+  private _boundTrapFocus = this._trapFocus.bind(this);
   private _boundPointerDown = this._onPointerDown.bind(this);
   private _boundPointerMove = this._onPointerMove.bind(this);
   private _boundPointerUp = this._onPointerUp.bind(this);
@@ -231,8 +233,8 @@ class PhotoLightbox extends HTMLElement {
 
     shadow.innerHTML = `
       <div class="backdrop"></div>
-      <div class="container">
-        <span class="counter"></span>
+      <div class="container" role="dialog" aria-modal="true" aria-label="Photo lightbox">
+        <span class="counter" aria-live="polite"></span>
         <button class="info-btn" aria-label="Toggle photo info">i</button>
         <button class="close-btn" aria-label="Close lightbox">&times;</button>
         <button class="nav-btn nav-prev" aria-label="Previous photo"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
@@ -247,6 +249,7 @@ class PhotoLightbox extends HTMLElement {
     this._img = shadow.querySelector("img")!;
     this._counter = shadow.querySelector(".counter")!;
     this._exifPanel = shadow.querySelector(".exif-panel")!;
+    this._container = shadow.querySelector(".container")!;
 
     shadow.querySelector(".backdrop")!.addEventListener("click", () => this.close());
     shadow.querySelector(".info-btn")!.addEventListener("click", () => this._toggleExif());
@@ -262,6 +265,7 @@ class PhotoLightbox extends HTMLElement {
   }
 
   open(index: number, photos: Photo[]): void {
+    this._previouslyFocused = document.activeElement;
     this._photos = photos;
     this._index = index;
     this._exifOpen = false;
@@ -270,7 +274,10 @@ class PhotoLightbox extends HTMLElement {
     this._prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     document.addEventListener("keydown", this._boundKeyHandler);
+    document.addEventListener("keydown", this._boundTrapFocus);
     this._show(false);
+    const closeBtn = this.shadowRoot!.querySelector<HTMLElement>(".close-btn");
+    closeBtn?.focus();
   }
 
   close(): void {
@@ -279,9 +286,14 @@ class PhotoLightbox extends HTMLElement {
     this._img.classList.add("fade");
     document.body.style.overflow = this._prevOverflow;
     document.removeEventListener("keydown", this._boundKeyHandler);
+    document.removeEventListener("keydown", this._boundTrapFocus);
     const url = new URL(window.location.href);
     url.searchParams.delete("photo");
     history.replaceState(null, "", url.pathname + url.search);
+    if (this._previouslyFocused instanceof HTMLElement) {
+      this._previouslyFocused.focus();
+    }
+    this._previouslyFocused = null;
   }
 
   private _navigate(dir: number): void {
@@ -295,6 +307,7 @@ class PhotoLightbox extends HTMLElement {
     if (!photo) return;
 
     this._counter.textContent = `${this._index + 1} / ${this._photos.length}`;
+    this._container.setAttribute("aria-label", `Photo lightbox, ${this._index + 1} of ${this._photos.length}`);
     this._updateExif(photo);
 
     if (crossfade) {
@@ -377,6 +390,28 @@ class PhotoLightbox extends HTMLElement {
       case "i":
         this._toggleExif();
         break;
+    }
+  }
+
+  private _trapFocus(e: KeyboardEvent): void {
+    if (e.key !== "Tab") return;
+    const focusable = this.shadowRoot!.querySelectorAll<HTMLElement>(
+      'button, [tabindex]:not([tabindex="-1"])'
+    );
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const active = this.shadowRoot!.activeElement as HTMLElement | null;
+    if (e.shiftKey) {
+      if (active === first || !active) {
+        e.preventDefault();
+        last.focus();
+      }
+    } else {
+      if (active === last || !active) {
+        e.preventDefault();
+        first.focus();
+      }
     }
   }
 
