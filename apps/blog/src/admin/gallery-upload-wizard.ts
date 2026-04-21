@@ -21,6 +21,17 @@ import "@maneki/ui-components/components/ui-step-group.js";
 import "@maneki/ui-components/components/ui-step-item.js";
 import "@maneki/ui-components/components/ui-alert.js";
 
+async function pLimit(concurrency: number, tasks: Array<() => Promise<void>>): Promise<void> {
+  const executing = new Set<Promise<void>>();
+  for (const task of tasks) {
+    const p = task().then(() => { executing.delete(p); });
+    executing.add(p);
+    if (executing.size >= concurrency) {
+      await Promise.race(executing);
+    }
+  }
+  await Promise.all(executing);
+}
 @customElement("gallery-upload-wizard")
 export class GalleryUploadWizard extends LitElement {
   @property({ type: Boolean }) open = false;
@@ -28,6 +39,8 @@ export class GalleryUploadWizard extends LitElement {
   @property({ type: Array }) tags: Tag[] = [];
 
   @state() private _uploading = false;
+  @state() private _uploadDone = false;
+  @state() private _uploadStatuses: Array<"pending" | "uploading" | "success" | "error"> = [];
   @state() private _wizardStep = 1;
   @state() private _wizardError = "";
   @state() private _uploadFiles: File[] = [];
@@ -96,7 +109,7 @@ export class GalleryUploadWizard extends LitElement {
 
   render() {
     return html`
-      <ui-modal size="l" style="--ui-modal-width: 800px" ?open=${this.open} dismissible @close=${this._onClose}>
+      <ui-modal size="l" style="--ui-modal-width: 800px" ?open=${this.open} ?dismissible=${!this._uploading} @close=${this._onClose}>
         <span>Upload Photos</span>
         <div slot="body">
           ${this._wizardError ? html`<ui-alert status="error" size="s" dismissible @dismiss=${() => { this._wizardError = ""; }} style="margin-bottom:12px">${this._wizardError}</ui-alert>` : nothing}
@@ -132,11 +145,13 @@ export class GalleryUploadWizard extends LitElement {
           <ui-button action="secondary" emphasis="subtle" size="s" ?disabled=${this._wizardStep <= 1} @click=${() => { if (this._wizardStep > 1) this._wizardStep--; }}>Previous</ui-button>
         </div>
         <div slot="footer-end" style="display:flex;gap:8px">
-          <ui-button action="secondary" emphasis="subtle" size="s" @click=${this._onClose}>Cancel</ui-button>
+          <ui-button action="secondary" emphasis="subtle" size="s" ?disabled=${this._uploading} @click=${this._onClose}>Cancel</ui-button>
           ${this._wizardStep < 4 ? html`
             <ui-button action="primary" size="s" ?disabled=${this._wizardStep === 1 && this._uploadFiles.length === 0} @click=${() => { this._wizardStep++; }}>Next</ui-button>
+          ` : this._uploadDone ? html`
+            <ui-button action="primary" size="s" @click=${() => { this._resetUploadWizard(); this.dispatchEvent(new CustomEvent("upload-complete")); }}>Done</ui-button>
           ` : html`
-            <ui-button action="primary" size="s" status=${this._uploading ? "loading" : "none"} @click=${() => this._executeUpload()}>Upload</ui-button>
+            <ui-button action="primary" size="s" status=${this._uploading ? "loading" : "none"} ?disabled=${this._uploading} @click=${() => this._executeUpload()}>Upload</ui-button>
           `}
         </div>
       </ui-modal>
@@ -144,8 +159,9 @@ export class GalleryUploadWizard extends LitElement {
   }
 
   private _onClose() {
+    const hadUploads = this._uploadDone;
     this._resetUploadWizard();
-    this.dispatchEvent(new CustomEvent("close"));
+    this.dispatchEvent(new CustomEvent(hadUploads ? "upload-complete" : "close"));
   }
 
   private _renderStep1() {
@@ -341,9 +357,16 @@ export class GalleryUploadWizard extends LitElement {
   }
 
   private _renderStep4() {
-    const albumName = this._batchAlbumId ? this.albums.find((a) => a.id === this._batchAlbumId)?.title ?? "—" : "None";
+    const albumName = this._batchAlbumId ? this.albums.find((a) => a.id === this._batchAlbumId)?.title ?? "\u2014" : "None";
+    const successCount = this._uploadStatuses.filter((s) => s === "success").length;
+    const errorCount = this._uploadStatuses.filter((s) => s === "error").length;
     return html`
       <div class="wizard-step wizard-step-scroll">
+        ${this._uploadDone ? html`
+          <ui-alert status=${errorCount > 0 ? "warning" : "success"} size="s" style="margin-bottom:12px">
+            ${successCount}/${this._uploadFiles.length} uploaded.${errorCount > 0 ? ` ${errorCount} failed.` : ""}
+          </ui-alert>
+        ` : nothing}
         <div class="summary-section">
           <div class="summary-label">Files</div>
           <div class="summary-value">${this._uploadFiles.length} photo(s)</div>
@@ -354,7 +377,7 @@ export class GalleryUploadWizard extends LitElement {
         </div>
         <div class="summary-section">
           <div class="summary-label">Category</div>
-          <div class="summary-value">${this._batchCategory || "—"}</div>
+          <div class="summary-value">${this._batchCategory || "\u2014"}</div>
         </div>
         <div class="summary-section">
           <div class="summary-label">Location</div>
@@ -375,12 +398,18 @@ export class GalleryUploadWizard extends LitElement {
         <div class="summary-section">
           <div class="summary-label">Files</div>
           <div class="summary-files">
-            ${this._uploadMeta.map((m, i) => html`
-              <div class="summary-file">${m.title}${m.caption ? ` — ${m.caption}` : ""}${this._uploadFiles[i] ? ` (${(this._uploadFiles[i].size / 1024).toFixed(0)} KB)` : ""}</div>
-            `)}
+            ${this._uploadMeta.map((m, i) => {
+              const status = this._uploadStatuses[i] ?? "pending";
+              const icon = status === "success" ? "check_circle" : status === "error" ? "error" : status === "uploading" ? "progress_activity" : "radio_button_unchecked";
+              return html`
+                <div class="summary-file" style="display:flex;align-items:center;gap:6px">
+                  <ui-icon name=${icon} size="xs"></ui-icon>
+                  ${m.title}${m.caption ? ` \u2014 ${m.caption}` : ""}${this._uploadFiles[i] ? ` (${(this._uploadFiles[i].size / 1024).toFixed(0)} KB)` : ""}
+                </div>
+              `;
+            })}
           </div>
         </div>
-        ${this._uploading ? html`<div class="file-count">Uploading…</div>` : nothing}
       </div>
     `;
   }
@@ -444,83 +473,96 @@ export class GalleryUploadWizard extends LitElement {
 
   private async _executeUpload() {
     this._uploading = true;
-    for (let i = 0; i < this._uploadFiles.length; i++) {
-      const file = this._uploadFiles[i];
-      if (!file.type.startsWith("image/")) continue;
+    this._uploadDone = false;
+    this._uploadStatuses = this._uploadFiles.map(() => "pending");
 
-      let exif: Record<string, unknown> = {};
-      let width = 0;
-      let height = 0;
-      try {
-        const buffer = await file.arrayBuffer();
-        const tags = ExifReader.load(buffer, { expanded: true });
-        if (tags.exif) {
-          if (tags.exif.Make) exif.Make = tags.exif.Make.description;
-          if (tags.exif.Model) exif.Model = tags.exif.Model.description;
-          if (tags.exif.LensModel) exif.LensModel = tags.exif.LensModel.description;
-          if (tags.exif.FocalLength) exif.FocalLength = tags.exif.FocalLength.description;
-          if (tags.exif.FNumber) exif.FNumber = tags.exif.FNumber.description;
-          if (tags.exif.ExposureTime) exif.ExposureTime = tags.exif.ExposureTime.description;
-          if (tags.exif.ISOSpeedRatings) exif.ISO = tags.exif.ISOSpeedRatings.description;
-          if (tags.exif.DateTimeOriginal) exif.DateTimeOriginal = tags.exif.DateTimeOriginal.description;
-        }
-        if (tags.file) {
-          if (tags.file["Image Width"]) width = Number(tags.file["Image Width"].value);
-          if (tags.file["Image Height"]) height = Number(tags.file["Image Height"].value);
-        }
-      } catch { this._dispatchWarning("Could not read EXIF data — metadata will be missing"); }
+    const tasks = this._uploadFiles.map((_, i) => () => this._uploadSingle(i));
+    await pLimit(3, tasks);
 
-      let thumbhash = "";
-      try { thumbhash = await generateThumbHash(file); } catch { this._dispatchWarning("Thumbhash generation failed — no blur placeholder"); }
-
-      const optimized = await optimizeImage(file);
-
-      const formData = new FormData();
-      formData.append("file", optimized);
-      try {
-        const res = await fetch("/api/images?prefix=photos", { method: "POST", body: formData, credentials: "same-origin" });
-        if (!res.ok) continue;
-        const data = (await res.json()) as { url: string; name: string; r2_key?: string };
-
-        let thumbnailUrl = "";
-        try {
-          const thumb = await generateThumbnail(file);
-          const thumbForm = new FormData();
-          thumbForm.append("file", thumb);
-          const thumbRes = await fetch("/api/images?prefix=thumb", { method: "POST", body: thumbForm, credentials: "same-origin" });
-          if (thumbRes.ok) {
-            const thumbData = (await thumbRes.json()) as { url: string };
-            thumbnailUrl = thumbData.url;
-          }
-        } catch { this._dispatchWarning("Thumbnail generation failed — uploading without thumbnail"); }
-
-        const meta = this._uploadMeta[i] ?? { title: file.name.replace(/\.[^.]+$/, ""), caption: "" };
-        await api.api.photos.$post({
-          json: {
-            r2_key: data.r2_key || data.name,
-            url: data.url,
-            thumbnail_url: thumbnailUrl,
-            title: meta.title,
-            caption: meta.caption,
-            album_id: this._batchAlbumId,
-            category: this._batchCategory,
-            location: this._batchLocation,
-            latitude: this._batchLatitude,
-            longitude: this._batchLongitude,
-            width,
-            height,
-            exif_json: JSON.stringify(exif),
-            status: this._batchStatus as "draft" | "published",
-            featured: this._batchFeatured,
-            thumbhash,
-            tag_ids: this._batchTagIds,
-          },
-        });
-      } catch { this._wizardError = `Failed to upload ${file.name}`; }
-    }
     this._uploading = false;
-    this._resetUploadWizard();
-    this.dispatchEvent(new CustomEvent("upload-complete"));
+    this._uploadDone = true;
+  }
+
+  private async _uploadSingle(i: number) {
+    const file = this._uploadFiles[i];
+    if (!file.type.startsWith("image/")) {
+      this._uploadStatuses = this._uploadStatuses.map((s, j) => j === i ? "success" : s);
+      return;
+    }
+    this._uploadStatuses = this._uploadStatuses.map((s, j) => j === i ? "uploading" : s);
+
+    let exif: Record<string, unknown> = {};
+    let width = 0;
+    let height = 0;
+    try {
+      const buffer = await file.arrayBuffer();
+      const tags = ExifReader.load(buffer, { expanded: true });
+      if (tags.exif) {
+        if (tags.exif.Make) exif.Make = tags.exif.Make.description;
+        if (tags.exif.Model) exif.Model = tags.exif.Model.description;
+        if (tags.exif.LensModel) exif.LensModel = tags.exif.LensModel.description;
+        if (tags.exif.FocalLength) exif.FocalLength = tags.exif.FocalLength.description;
+        if (tags.exif.FNumber) exif.FNumber = tags.exif.FNumber.description;
+        if (tags.exif.ExposureTime) exif.ExposureTime = tags.exif.ExposureTime.description;
+        if (tags.exif.ISOSpeedRatings) exif.ISO = tags.exif.ISOSpeedRatings.description;
+        if (tags.exif.DateTimeOriginal) exif.DateTimeOriginal = tags.exif.DateTimeOriginal.description;
+      }
+      if (tags.file) {
+        if (tags.file["Image Width"]) width = Number(tags.file["Image Width"].value);
+        if (tags.file["Image Height"]) height = Number(tags.file["Image Height"].value);
+      }
+    } catch { this._dispatchWarning("Could not read EXIF data \u2014 metadata will be missing"); }
+
+    let thumbhash = "";
+    try { thumbhash = await generateThumbHash(file); } catch { this._dispatchWarning("Thumbhash generation failed \u2014 no blur placeholder"); }
+
+    const optimized = await optimizeImage(file);
+
+    const formData = new FormData();
+    formData.append("file", optimized);
+    try {
+      const res = await fetch("/api/images?prefix=photos", { method: "POST", body: formData, credentials: "same-origin" });
+      if (!res.ok) { this._uploadStatuses = this._uploadStatuses.map((s, j) => j === i ? "error" : s); return; }
+      const data = (await res.json()) as { url: string; name: string; r2_key?: string };
+
+      let thumbnailUrl = "";
+      try {
+        const thumb = await generateThumbnail(file);
+        const thumbForm = new FormData();
+        thumbForm.append("file", thumb);
+        const thumbRes = await fetch("/api/images?prefix=thumb", { method: "POST", body: thumbForm, credentials: "same-origin" });
+        if (thumbRes.ok) {
+          const thumbData = (await thumbRes.json()) as { url: string };
+          thumbnailUrl = thumbData.url;
+        }
+      } catch { this._dispatchWarning("Thumbnail generation failed \u2014 uploading without thumbnail"); }
+
+      const meta = this._uploadMeta[i] ?? { title: file.name.replace(/\.[^.]+$/, ""), caption: "" };
+      await api.api.photos.$post({
+        json: {
+          r2_key: data.r2_key || data.name,
+          url: data.url,
+          thumbnail_url: thumbnailUrl,
+          title: meta.title,
+          caption: meta.caption,
+          album_id: this._batchAlbumId,
+          category: this._batchCategory,
+          location: this._batchLocation,
+          latitude: this._batchLatitude,
+          longitude: this._batchLongitude,
+          width,
+          height,
+          exif_json: JSON.stringify(exif),
+          status: this._batchStatus as "draft" | "published",
+          featured: this._batchFeatured,
+          thumbhash,
+          tag_ids: this._batchTagIds,
+        },
+      });
+      this._uploadStatuses = this._uploadStatuses.map((s, j) => j === i ? "success" : s);
+    } catch {
+      this._uploadStatuses = this._uploadStatuses.map((s, j) => j === i ? "error" : s);
+    }
   }
 
   private _dispatchWarning(message: string) {
