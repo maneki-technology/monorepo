@@ -94,19 +94,26 @@ function flipSignature(
   clone.classList.add("sig-clone");
   clone.style.position = "fixed";
   clone.style.visibility = "hidden";
+  clone.style.transition = "none"; // prevent inherited transitions from delaying computed values
   document.body.appendChild(clone);
 
   // Capture source computed styles while classes are still applied
   const sourceStyles = getComputedStyle(clone);
   const sourceFontFamily = sourceStyles.fontFamily;
   const sourceColor = sourceStyles.color;
+  const sourceFontWeight = sourceStyles.fontWeight;
+  const sourceStrokePx = parseFloat(sourceStyles.webkitTextStrokeWidth || "0");
+  const sourceLineHeight = sourceStyles.lineHeight;
+  const sourceTransform = sourceStyles.transform;
 
   // Strip classes that apply text-stroke (hero-accent, site-name) to avoid CSS conflicts
   clone.classList.remove("hero-accent", "site-name");
 
   // Use target's stroke — seamless handoff at landing
   const targetStrokePx = parseFloat(targetStyles.webkitTextStrokeWidth || "0");
-  const flightStroke = `${targetStrokePx}px`;
+  const targetLineHeight = targetStyles.lineHeight;
+  const targetPadTop = parseFloat(targetStyles.paddingTop) || 0;
+  const targetPadLeft = parseFloat(targetStyles.paddingLeft) || 0;
 
   // Style the clone as fixed overlay at source position
   Object.assign(clone.style, {
@@ -116,12 +123,12 @@ function flipSignature(
     zIndex: "9999",
     pointerEvents: "none",
     willChange: "font-size, top, left",
-    lineHeight: "1",
+    lineHeight: sourceLineHeight,
     fontFamily: sourceFontFamily,
     color: sourceColor,
     textDecoration: "none",
     visibility: "visible",
-    webkitTextStrokeWidth: flightStroke,
+    webkitTextStrokeWidth: `${sourceStrokePx}px`,
     webkitTextStrokeColor: "currentColor",
   });
 
@@ -141,20 +148,38 @@ function flipSignature(
   const duration = 400;
   const easing = "cubic-bezier(0.33, 0, 0.2, 1)";
 
-  // Forward: use computed fontSize (hero's 1.8em resolves wrong on <body>)
-  // Reverse: use bounding box height (matches the visual size of the source element)
-  const sourceFontSize = direction === "forward" ? sourceStyles.fontSize : `${sourceRect.height}px`;
+  // For reverse, the source may have CSS transform: scale() (wide-layout).
+  // Start clone at native font-size + matching scale transform, then animate both
+  // transform (→ scale(1)) and font-size (→ target) simultaneously.
+  const sourceScale = (() => {
+    if (direction !== "reverse") return 1;
+    const m = sourceTransform.match(/matrix\(([\d.]+)/);
+    return m ? parseFloat(m[1]) : 1;
+  })();
+  const sourceFontSize = sourceStyles.fontSize;
+  if (sourceScale !== 1) {
+    clone.style.transform = `scale(${sourceScale})`;
+    clone.style.transformOrigin = "left top";
+  }
   const anim = clone.animate(
     [
       {
         fontSize: sourceFontSize,
+        fontWeight: sourceFontWeight,
+        lineHeight: sourceLineHeight,
         top: `${sourceRect.top}px`,
         left: `${sourceRect.left}px`,
+        webkitTextStrokeWidth: `${sourceStrokePx}px`,
+        transform: sourceScale !== 1 ? `scale(${sourceScale})` : "none",
       },
       {
         fontSize: targetStyles.fontSize,
-        top: `${targetRect.top}px`,
-        left: `${targetRect.left}px`,
+        fontWeight: targetStyles.fontWeight,
+        lineHeight: targetLineHeight,
+        top: `${targetRect.top + targetPadTop}px`,
+        left: `${targetRect.left + targetPadLeft}px`,
+        webkitTextStrokeWidth: `${targetStrokePx}px`,
+        transform: "none",
       },
     ],
     { duration, easing, fill: "forwards" },
@@ -182,20 +207,35 @@ function flipSignature(
     }
   }
 
-  // Instant handoff: show target, remove clone
+  // Crossfade handoff: briefly overlap clone + target to hide sub-pixel mismatch
   const cleanup = () => {
-    targetEl.style.opacity = "";
-    clone.remove();
-    // On reverse, re-trigger SVG underline draw animation on the hero
-    if (direction === "reverse") {
-      const heroSvgPath = targetEl.querySelector(".sig-underline path") as SVGElement | null;
-      if (heroSvgPath) {
-        heroSvgPath.style.animation = "none";
-        targetEl.offsetHeight;
-        heroSvgPath.style.animation = "sig-write 800ms ease-out forwards";
-      }
+    // Snap correction for sub-pixel residuals
+    const cloneEnd = clone.getBoundingClientRect();
+    const targetFinal = targetEl.getBoundingClientRect();
+    const dx = (targetFinal.left + targetPadLeft) - cloneEnd.left;
+    const dy = (targetFinal.top + targetPadTop) - cloneEnd.top;
+    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+      clone.style.transform = `translate(${dx}px, ${dy}px)`;
     }
-    onComplete?.();
+    // Crossfade handoff
+    targetEl.style.transition = "opacity 50ms ease";
+    targetEl.style.opacity = "1";
+    clone.style.transition = "opacity 50ms ease";
+    clone.style.opacity = "0";
+    setTimeout(() => {
+      targetEl.style.transition = "";
+      clone.remove();
+      // On reverse, re-trigger SVG underline draw animation on the hero
+      if (direction === "reverse") {
+        const heroSvgPath = targetEl.querySelector(".sig-underline path") as SVGElement | null;
+        if (heroSvgPath) {
+          heroSvgPath.style.animation = "none";
+          targetEl.offsetHeight;
+          heroSvgPath.style.animation = "sig-write 800ms ease-out forwards";
+        }
+      }
+      onComplete?.();
+    }, 60);
   };
   anim.finished.then(cleanup, cleanup);
 }
@@ -248,7 +288,11 @@ export async function renderRoute(): Promise<void> {
         // Start FLIP immediately — clone flies while page blurs out underneath
         flipSignature(forwardClone, forwardSourceRect, siteName, "forward", () => {
           if (routeId === "photography") {
-            setTimeout(() => document.body.classList.add("wide-layout"), 50);
+            // Double-rAF ensures the browser paints site-name at scale(1) before
+            // wide-layout adds scale(1.5625) — prevents batching into one frame
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              document.body.classList.add("wide-layout");
+            }));
           }
         });
       }
