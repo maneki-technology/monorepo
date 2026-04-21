@@ -8,6 +8,7 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import type { Env } from "../index.js";
 import { buildSetClauses, toBool } from "../db/helpers.js";
+import { safeJsonParse } from "../db/utils.js";
 
 const createPhotoSchema = z.object({
   r2_key: z.string().min(1),
@@ -106,7 +107,7 @@ export const photos = new Hono<Env>()
       ...r,
       id: r.id as number,
       featured: !!r.featured,
-      exif_json: JSON.parse((r.exif_json as string) || "{}"),
+      exif_json: safeJsonParse<Record<string, unknown>>(r.exif_json as string, {}),
       tags: [] as Array<{ id: number; name: string; slug: string }>,
     }));
     // Attach tags to each photo
@@ -146,7 +147,7 @@ export const photos = new Hono<Env>()
     const photo = {
       ...result.rows[0],
       featured: !!result.rows[0].featured,
-      exif_json: JSON.parse((result.rows[0].exif_json as string) || "{}"),
+      exif_json: safeJsonParse<Record<string, unknown>>(result.rows[0].exif_json as string, {}),
       tags: [] as Array<{ id: number; name: string; slug: string }>,
     };
     // Attach tags

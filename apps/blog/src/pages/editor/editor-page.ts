@@ -471,17 +471,17 @@ export class EditorPage extends LitElement {
   // ─── Post form event handlers ───────────────────────────────────────────
 
   private _onPostTitleInput(e: Event): void {
-    this.postTitle = (e.target as any).value ?? "";
+    this.postTitle = (e.target as HTMLInputElement).value ?? "";
     this._scheduleAutoSave();
   }
 
   private _onPostDateChange(e: Event): void {
-    this.postDate = (e.target as any).value ?? "";
+    this.postDate = (e.target as HTMLInputElement).value ?? "";
     this._scheduleAutoSave();
   }
 
   private _onPostExcerptInput(e: Event): void {
-    this.postExcerpt = (e.target as any).value ?? "";
+    this.postExcerpt = (e.target as HTMLInputElement).value ?? "";
     this._scheduleAutoSave();
   }
 
@@ -713,7 +713,7 @@ export class EditorPage extends LitElement {
     const ke = e as KeyboardEvent;
     if (ke.key !== "Enter") return;
     ke.preventDefault();
-    const input = e.target as any;
+    const input = e.target as HTMLInputElement;
     const name = (input.value ?? "").trim();
     if (!name) return;
     if (this.postTags.some(t => t.toLowerCase() === name.toLowerCase())) return;
@@ -732,22 +732,22 @@ export class EditorPage extends LitElement {
   // ─── Project form event handlers ────────────────────────────────────────
 
   private _onProjectTitleInput(e: Event): void {
-    this.projectTitle = (e.target as any).value ?? "";
+    this.projectTitle = (e.target as HTMLInputElement).value ?? "";
     this._scheduleAutoSave();
   }
 
   private _onProjectDescriptionInput(e: Event): void {
-    this.projectDescription = (e.target as any).value ?? "";
+    this.projectDescription = (e.target as HTMLInputElement).value ?? "";
     this._scheduleAutoSave();
   }
 
   private _onProjectUrlInput(e: Event): void {
-    this.projectUrl = (e.target as any).value ?? "";
+    this.projectUrl = (e.target as HTMLInputElement).value ?? "";
     this._scheduleAutoSave();
   }
 
   private _onProjectRepoInput(e: Event): void {
-    this.projectRepo = (e.target as any).value ?? "";
+    this.projectRepo = (e.target as HTMLInputElement).value ?? "";
     this._scheduleAutoSave();
   }
 
@@ -760,7 +760,7 @@ export class EditorPage extends LitElement {
     const ke = e as KeyboardEvent;
     if (ke.key !== "Enter") return;
     ke.preventDefault();
-    const input = e.target as any;
+    const input = e.target as HTMLInputElement;
     const name = (input.value ?? "").trim();
     if (!name) return;
     if (this.projectTech.some(t => t.toLowerCase() === name.toLowerCase())) return;

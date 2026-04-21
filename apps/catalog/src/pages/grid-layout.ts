@@ -1,5 +1,6 @@
 import { registerPage } from "../registry.js";
 import "@maneki/grid-layout";
+import type { GridLayoutElement, ResponsiveGridLayoutElement } from "@maneki/grid-layout";
 
 const COLORS = [
   { bg: "#E8626E", text: "#111820" },
@@ -104,7 +105,7 @@ registerPage("grid-layout", {
     const cfg = { cols: 12, rowHeight: 80, margin: [10, 10] as [number, number], containerPadding: [10, 10] as [number, number] };
 
     // Basic
-    const basic = document.getElementById("gl-basic") as any;
+    const basic = document.getElementById("gl-basic") as GridLayoutElement | null;
     if (basic) {
       basic.gridConfig = cfg;
       basic.layout = [
@@ -118,7 +119,7 @@ registerPage("grid-layout", {
     }
 
     // Static
-    const stat = document.getElementById("gl-static") as any;
+    const stat = document.getElementById("gl-static") as GridLayoutElement | null;
     if (stat) {
       stat.gridConfig = cfg;
       stat.layout = [
@@ -132,7 +133,7 @@ registerPage("grid-layout", {
     }
 
     // Constraints
-    const cons = document.getElementById("gl-constraints") as any;
+    const cons = document.getElementById("gl-constraints") as GridLayoutElement | null;
     if (cons) {
       cons.gridConfig = cfg;
       cons.layout = [
@@ -145,7 +146,7 @@ registerPage("grid-layout", {
     }
 
     // Compact vertical
-    const compV = document.getElementById("gl-compact-v") as any;
+    const compV = document.getElementById("gl-compact-v") as GridLayoutElement | null;
     if (compV) {
       compV.gridConfig = { ...cfg, rowHeight: 60 };
       compV.compactType = "vertical";
@@ -159,7 +160,7 @@ registerPage("grid-layout", {
     }
 
     // Compact horizontal
-    const compH = document.getElementById("gl-compact-h") as any;
+    const compH = document.getElementById("gl-compact-h") as GridLayoutElement | null;
     if (compH) {
       compH.gridConfig = { ...cfg, rowHeight: 60 };
       compH.compactType = "horizontal";
@@ -173,7 +174,7 @@ registerPage("grid-layout", {
     }
 
     // Resize handles
-    const resize = document.getElementById("gl-resize") as any;
+    const resize = document.getElementById("gl-resize") as GridLayoutElement | null;
     if (resize) {
       resize.gridConfig = { cols: 12, rowHeight: 60, margin: [10, 10] as [number, number], containerPadding: [10, 10] as [number, number] };
       resize.resizeConfig = { enabled: true, handles: ["s", "w", "e", "n", "sw", "nw", "se", "ne"] };
@@ -181,7 +182,7 @@ registerPage("grid-layout", {
     }
 
     // Responsive
-    const responsive = document.getElementById("gl-responsive") as any;
+    const responsive = document.getElementById("gl-responsive") as ResponsiveGridLayoutElement | null;
     if (responsive) {
       responsive.gridConfig = { rowHeight: 80, margin: [10, 10] as [number, number], containerPadding: [10, 10] as [number, number] };
       responsive.layouts = {
@@ -210,7 +211,7 @@ registerPage("grid-layout", {
     }
 
     // Dark theme
-    const dark = document.getElementById("gl-dark") as any;
+    const dark = document.getElementById("gl-dark") as GridLayoutElement | null;
     if (dark) {
       dark.gridConfig = { cols: 12, rowHeight: 70, margin: [10, 10] as [number, number], containerPadding: [10, 10] as [number, number] };
       dark.layout = [
@@ -224,7 +225,7 @@ registerPage("grid-layout", {
     }
 
     // Keyboard accessible
-    const a11y = document.getElementById("gl-a11y") as any;
+    const a11y = document.getElementById("gl-a11y") as GridLayoutElement | null;
     if (a11y) {
       a11y.gridConfig = { cols: 12, rowHeight: 70, margin: [10, 10] as [number, number], containerPadding: [10, 10] as [number, number] };
       a11y.layout = [

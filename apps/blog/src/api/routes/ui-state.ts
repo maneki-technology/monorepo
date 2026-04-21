@@ -8,6 +8,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import type { Env } from "../index.js";
+import { safeJsonParse } from "../db/utils.js";
 
 const stateSchema = z.record(z.string(), z.unknown());
 
@@ -26,7 +27,7 @@ export const uiState = new Hono<Env>()
       return c.json({ state: {} });
     }
 
-    return c.json({ state: JSON.parse(result.rows[0].state as string) });
+    return c.json({ state: safeJsonParse<Record<string, unknown>>(result.rows[0].state as string, {}) });
   })
 
   .put("/:page", zValidator("json", stateSchema), async (c) => {

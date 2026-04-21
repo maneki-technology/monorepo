@@ -8,6 +8,7 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import type { Env } from "../index.js";
 import { buildSetClauses, toJson, toBool } from "../db/helpers.js";
+import { safeJsonParse } from "../db/utils.js";
 
 
 const createProjectSchema = z.object({
@@ -52,7 +53,7 @@ export const projects = new Hono<Env>()
     const result = await db.execute({ sql, args });
     const rows = result.rows.map((r) => ({
       ...r,
-      tech: JSON.parse((r.tech as string) || "[]"),
+      tech: safeJsonParse<string[]>(r.tech as string, []),
       pinned: !!r.pinned,
     }));
     return c.json({ projects: rows });
@@ -70,7 +71,7 @@ export const projects = new Hono<Env>()
     }
     const project = {
       ...result.rows[0],
-      tech: JSON.parse((result.rows[0].tech as string) || "[]"),
+      tech: safeJsonParse<string[]>(result.rows[0].tech as string, []),
       pinned: !!result.rows[0].pinned,
     };
     return c.json({ project });
@@ -92,7 +93,7 @@ export const projects = new Hono<Env>()
     });
     const project = {
       ...result.rows[0],
-      tech: JSON.parse((result.rows[0].tech as string) || "[]"),
+      tech: safeJsonParse<string[]>(result.rows[0].tech as string, []),
       pinned: !!result.rows[0].pinned,
     };
     return c.json({ ok: true, slug, project }, 201);
@@ -161,7 +162,7 @@ export const projects = new Hono<Env>()
     });
     const project = {
       ...result.rows[0],
-      tech: JSON.parse((result.rows[0].tech as string) || "[]"),
+      tech: safeJsonParse<string[]>(result.rows[0].tech as string, []),
       pinned: !!result.rows[0].pinned,
     };
     return c.json({ ok: true, project });

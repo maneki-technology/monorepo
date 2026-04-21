@@ -23,7 +23,7 @@ registerPage("colors", {
     for (const family of families) {
       html += `<div class="color-family"><p class="color-family-title">${family}</p><div class="color-row">`;
       for (const step of steps) {
-        const val = (colors as any)[family]?.[step] || "";
+        const val = colors[family]?.[step] || "";
         html += `<div class="color-cell">
           <div class="color-swatch" style="background:${val}"></div>
           <span class="color-label">${step}</span>
