@@ -166,6 +166,8 @@ export {
   ICON_PSYCHOLOGY,
   ICON_OPEN_IN_FULL,
   ICON_CLOSE_FULLSCREEN,
+  ICON_SAVE,
+  ICON_WORK,
   ICON_CODEPOINTS,
   registerIconFont,
   registerGeistFont,

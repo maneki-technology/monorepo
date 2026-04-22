@@ -107,7 +107,7 @@ export class EditorPage extends LitElement {
     .admin-form-row-group .admin-form-row:first-child { flex: 0 0 auto; }
     #admin-tag-list { display: flex; flex-wrap: wrap; gap: 4px; }
     #admin-project-tech-list { display: flex; flex-wrap: wrap; gap: 4px; }
-    .admin-toolbar { display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-bottom: 1px solid var(--fd-border-minimal, #e4e4e7); flex-wrap: wrap; }
+    .admin-toolbar { display: flex; align-items: center; gap: 4px; padding: 6px 12px; border-bottom: 1px solid var(--fd-border-minimal, #e4e4e7); overflow-x: auto; position: relative; z-index: 2; }
     .admin-toolbar button[data-action] { background: none; border: 1px solid var(--fd-border-minimal, #e4e4e7); border-radius: 4px; padding: 4px 8px; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--fd-text-secondary, #52525b); line-height: 1; }
     .admin-toolbar button[data-action]:hover { background: var(--fd-surface-secondary, #f4f4f5); color: var(--fd-text-primary, #27272a); }
     .admin-toolbar-spacer { flex: 1; }
@@ -117,7 +117,7 @@ export class EditorPage extends LitElement {
     .admin-btn-primary:hover { opacity: 0.9; }
     .admin-btn-danger { color: var(--fd-status-text-error, #d91f11); border-color: var(--fd-status-text-error, #d91f11); }
     .admin-btn-danger:hover { background: var(--fd-status-text-error, #d91f11); color: #fff; }
-    .admin-split { flex: 1; display: flex; min-height: 0; }
+    .admin-split { flex: 1; display: flex; min-height: 0; position: relative; z-index: 0; }
     .admin-textarea-wrap { border-right: 1px solid var(--fd-border-minimal, #e4e4e7); background: var(--fd-surface-primary, #fff); }
     .admin-textarea-wrap ui-textarea { --ui-textarea-border: transparent; --ui-textarea-bg: var(--fd-surface-primary, #fff); --ui-textarea-radius: 0; --ui-textarea-shadow: none; --ui-textarea-hover-border: transparent; --ui-textarea-focus-border: transparent; }
     .admin-split #admin-content { width: 100%; min-height: 100%; resize: none; border: none; padding: 16px; font-family: "Roboto Mono", monospace; font-size: 13px; line-height: 1.6; background: var(--fd-surface-primary, #fff); color: var(--fd-text-primary, #27272a); outline: none; tab-size: 2; overflow: hidden; box-sizing: border-box; field-sizing: content; transition: background 0.15s ease; }
@@ -298,27 +298,21 @@ export class EditorPage extends LitElement {
                 <ui-button icon="icon-only" data-action="quote" aria-label="Quote"><ui-icon name="format_quote" size="s" slot="icon-start"></ui-icon></ui-button>
               </ui-button-group>
               <span style="flex:1"></span>
+              <ui-button-group action="secondary">
               ${s.activeTabType !== "project" ? html`
-              <ui-button id="admin-brainstorm-btn" action="secondary" emphasis="subtle" size="s" icon="leading-icon" @click=${() => this._brainstormPanelRef.value?.toggle()}>
-                <ui-icon name="psychology" size="s" slot="icon-start"></ui-icon>
-                Brainstorm
-              </ui-button>
-              <ui-button id="admin-review-btn" action="secondary" emphasis="subtle" size="s" icon="leading-icon" @click=${() => this._reviewPanelRef.value?.toggle()}>
-                <ui-icon name="auto_awesome" size="s" slot="icon-start"></ui-icon>
-                Review
-              </ui-button>
+              <ui-button id="admin-brainstorm-btn" emphasis="subtle" size="s" icon="icon-only" aria-label="Brainstorm" @click=${() => this._brainstormPanelRef.value?.toggle()}><ui-icon name="psychology" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button id="admin-review-btn" emphasis="subtle" size="s" icon="icon-only" aria-label="Review" @click=${() => this._reviewPanelRef.value?.toggle()}><ui-icon name="auto_awesome" size="s" slot="icon-start"></ui-icon></ui-button>
               ` : nothing}
-              <ui-button id="admin-preview-btn" action="secondary" emphasis="subtle" size="s" @click=${this._openFullscreenPreview}>Preview</ui-button>
-              <ui-button id="admin-portfolio-btn" action="secondary" emphasis="subtle" size="s" style="display:${s.activeTabType === "project" ? "" : "none"}" @click=${() => this._projectPreviewRef.value?.show()}>Portfolio</ui-button>
-              <ui-button id="admin-save-btn" action="primary" size="s" status=${this._saveStatus} ?disabled=${s.deployingSlugs.size > 0} @click=${() => this._onSave()}>Save</ui-button>
-              <ui-button id="admin-share-btn" action="secondary" size="s" icon="leading-icon" status=${this._shareStatus} ?disabled=${!this._canShare} @click=${this._onShare}>
-                <ui-icon name="share" size="xs" slot="icon-start"></ui-icon>
-                Share
-              </ui-button>
-              <ui-dropdown-split id="admin-publish-split" action="primary" size="s" label="Publish" status=${this._publishStatus} ?disabled=${s.deployingSlugs.size > 0} @action=${this._onPublishAction}>
-                <ui-dropdown-item id="admin-unpublish-btn" value="unpublish" @select=${this._onUnpublish}>Unpublish</ui-dropdown-item>
-                <ui-dropdown-item id="admin-export-btn" value="export" @select=${this._onExport}>Export .md</ui-dropdown-item>
-              </ui-dropdown-split>
+              <ui-button id="admin-preview-btn" emphasis="subtle" size="s" icon="icon-only" aria-label="Preview" @click=${this._openFullscreenPreview}><ui-icon name="visibility" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button id="admin-portfolio-btn" emphasis="subtle" size="s" icon="icon-only" aria-label="Portfolio preview" style="display:${s.activeTabType === "project" ? "" : "none"}" @click=${() => this._projectPreviewRef.value?.show()}><ui-icon name="work" size="s" slot="icon-start"></ui-icon></ui-button>
+              </ui-button-group>
+              <ui-button-group action="primary">
+              <ui-button id="admin-share-btn" action="secondary" size="s" icon="icon-only" aria-label="Share" status=${this._shareStatus} ?disabled=${!this._canShare} @click=${this._onShare}><ui-icon name="share" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button id="admin-save-btn" size="s" icon="icon-only" aria-label="Save" status=${this._saveStatus} ?disabled=${s.deployingSlugs.size > 0} @click=${() => this._onSave()}><ui-icon name="save" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button id="admin-publish-btn" size="s" icon="icon-only" aria-label="Publish" status=${this._publishStatus} ?disabled=${s.deployingSlugs.size > 0} @click=${this._onPublishAction}><ui-icon name="send" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button id="admin-unpublish-btn" action="secondary" size="s" icon="icon-only" aria-label="Unpublish" @click=${this._onUnpublish}><ui-icon name="cancel" size="s" slot="icon-start"></ui-icon></ui-button>
+              <ui-button id="admin-export-btn" action="secondary" size="s" icon="icon-only" aria-label="Export" @click=${this._onExport}><ui-icon name="download" size="s" slot="icon-start"></ui-icon></ui-button>
+              </ui-button-group>
             </ui-toolbar>
             <div class="admin-split">
               <ui-scrollbar ${ref(this._textareaWrapRef)} emphasis="minimal" class="admin-textarea-wrap">

@@ -104,7 +104,9 @@ CODEPOINTS: dict[str, int] = {
     "rate_review": 0xE560,
     "menu": 0xE5D2,
     "send": 0xE163,
+    "save": 0xE161,
     "stop": 0xE047,
+    "work": 0xE8F9,
 }
 
 
