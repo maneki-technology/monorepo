@@ -11,6 +11,8 @@ tasks:
       - 'vite.config.ts'
     outputs:
       - 'dist'
+    deps:
+      - '^:build'
 
   test:
     command: 'vitest --run'
