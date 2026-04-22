@@ -5,6 +5,9 @@ language: 'typescript'
 dependsOn:
   - 'foundation'
   - 'ui-components'
+  - 'grid-layout'
+  - 'flex-layout'
+  - 'charts'
 
 tasks:
   dev:

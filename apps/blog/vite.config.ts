@@ -38,8 +38,6 @@ export default defineConfig(({ command }) => ({
             "/admin/gallery": "/admin/gallery.html",
             "/admin/pages": "/admin/pages.html",
             "/admin": "/admin.html",
-            "/admin/gallery": "/admin/gallery.html",
-            "/admin": "/admin.html",
           };
           const rewrite = adminRoutes[req.url?.split("?")[0] ?? ""];
           if (rewrite) req.url = rewrite;
