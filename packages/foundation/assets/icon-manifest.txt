@@ -77,4 +77,6 @@ stop
 upload
 visibility
 visibility_off
+save
+work
 warning

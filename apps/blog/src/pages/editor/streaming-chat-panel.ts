@@ -91,6 +91,7 @@ export abstract class StreamingChatPanel extends LitElement {
       top: 0;
       right: 0;
       height: 100%;
+      max-height: 100dvh;
       z-index: 10;
       width: 420px;
       --ui-sp-width: 100%;
@@ -105,7 +106,8 @@ export abstract class StreamingChatPanel extends LitElement {
     .panel-content {
       display: flex;
       flex-direction: column;
-      height: 100%;
+      position: absolute;
+      inset: 0;
       overflow: hidden;
     }
 
@@ -322,7 +324,12 @@ export abstract class StreamingChatPanel extends LitElement {
     const panel = this.renderRoot.querySelector("ui-side-panel") as HTMLElement & { show(): void } | null;
     panel?.show();
     this.dispatchEvent(new CustomEvent(this.toggleEventName, { detail: { open: true, fullscreen: this._fullscreen }, bubbles: true, composed: true }));
-    if (!this._loaded && this.slug) this.loadConversation();
+    if (!this._loaded && this.slug) {
+      this.loadConversation();
+    } else {
+      // Already loaded — scroll to bottom after panel opens
+      requestAnimationFrame(() => this._scrollToBottom());
+    }
   }
 
   hide(): void {
@@ -701,6 +708,9 @@ export abstract class StreamingChatPanel extends LitElement {
       this._messages = (data.messages as ChatMessage[]) ?? [];
       this._loadConversationData(data);
       this._loaded = true;
+      this._loading = false;
+      await this.updateComplete;
+      this._scrollToBottom();
     } catch {
       // Silently fail — panel works without persistence
     } finally {

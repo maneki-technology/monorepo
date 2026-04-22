@@ -271,7 +271,7 @@ export class EditorSidebar extends LitElement {
               @click=${() => this.handleBulkPublish(isProject)}
             >
               <ui-icon
-                name="upload"
+                name="send"
                 size="s"
                 slot="icon-start"
                 style="--ui-icon-color: var(--fd-icon-action)"
@@ -286,7 +286,7 @@ export class EditorSidebar extends LitElement {
               status=${this._bulkUnpublishStatus}
               @click=${() => this.handleBulkUnpublish(isProject)}
             >
-              <ui-icon name="download" size="s" slot="icon-start"></ui-icon>
+              <ui-icon name="cancel" size="s" slot="icon-start"></ui-icon>
             </ui-button>
           </ui-button-group>
         </ui-toolbar>
