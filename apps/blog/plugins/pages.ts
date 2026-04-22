@@ -12,6 +12,7 @@
 import { type Plugin } from "vite";
 import { getDb } from "./db.js";
 import MarkdownIt from "markdown-it";
+import { applyManekiRenderers } from "./markdown-utils.js";
 
 const VIRTUAL_MODULE_ID = "virtual:pages";
 const RESOLVED_ID = "\0" + VIRTUAL_MODULE_ID;
@@ -20,39 +21,7 @@ const EMPTY = "export const pages = [];\nexport function getPage(_slug) { return
 
 function createMd(): MarkdownIt {
   const md = new MarkdownIt({ html: true, linkify: true, typographer: true });
-
-  // <a> → <ui-link>
-  const defaultLinkOpen =
-    md.renderer.rules.link_open ||
-    function (tokens, idx, options, _env, self) {
-      return self.renderToken(tokens, idx, options);
-    };
-
-  md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
-    const token = tokens[idx];
-    const href = token.attrGet("href") ?? "";
-    const isExternal = /^https?:\/\//.test(href);
-    token.tag = "ui-link";
-    if (isExternal) {
-      token.attrSet("external", "");
-      token.attrSet("target", "_blank");
-      token.attrSet("rel", "noopener");
-    }
-    return defaultLinkOpen(tokens, idx, options, env, self);
-  };
-
-  md.renderer.rules.link_close = function () {
-    return "</ui-link>";
-  };
-
-  // <img> → <ui-image>
-  md.renderer.rules.image = function (tokens, idx) {
-    const token = tokens[idx];
-    const src = token.attrGet("src") ?? "";
-    const alt = token.content ?? "";
-    return `<ui-image src="${src}" alt="${alt}"></ui-image>`;
-  };
-
+  applyManekiRenderers(md);
   return md;
 }
 
