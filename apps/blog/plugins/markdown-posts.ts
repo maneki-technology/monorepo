@@ -14,6 +14,7 @@ import MarkdownIt from "markdown-it";
 import anchor from "markdown-it-anchor";
 import { createHighlighter } from "shiki";
 import { fromHighlighter } from "@shikijs/markdown-it";
+import { applyManekiRenderers } from "./markdown-utils.js";
 
 const POSTS_VIRTUAL_ID = "virtual:posts";
 const POSTS_RESOLVED_ID = "\0" + POSTS_VIRTUAL_ID;
@@ -51,38 +52,7 @@ async function getMd(): Promise<MarkdownIt> {
     permalink: false,
   });
 
-// ─── Custom renderers: output Maneki Web Components instead of plain HTML ───
-
-  // <a> → <ui-link>
-  const defaultLinkOpen = md.renderer.rules.link_open ||
-    function (tokens, idx, options, _env, self) {
-      return self.renderToken(tokens, idx, options);
-    };
-
-  md.renderer.rules.link_open = function (tokens, idx, options, env, self) {
-    const token = tokens[idx];
-    const href = token.attrGet("href") ?? "";
-    const isExternal = /^https?:\/\//.test(href);
-    token.tag = "ui-link";
-    if (isExternal) {
-      token.attrSet("external", "");
-      token.attrSet("target", "_blank");
-      token.attrSet("rel", "noopener");
-    }
-    return defaultLinkOpen(tokens, idx, options, env, self);
-  };
-
-  md.renderer.rules.link_close = function () {
-    return "</ui-link>";
-  };
-
-  // <img> → <ui-image>
-  md.renderer.rules.image = function (tokens, idx) {
-    const token = tokens[idx];
-    const src = token.attrGet("src") ?? "";
-    const alt = token.content ?? "";
-    return `<ui-image src="${src}" alt="${alt}"></ui-image>`;
-  };
+  applyManekiRenderers(md);
 
   mdInstance = md;
   return md;
