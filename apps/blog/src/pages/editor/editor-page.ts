@@ -71,7 +71,7 @@ export class EditorPage extends LitElement {
   @litState() postDate = new Date().toISOString().split("T")[0];
   @litState() postTags: string[] = [];
   @litState() postExcerpt = "";
-  @litState() postContent = "";
+  postContent = "";
   @litState() private _fullscreenPreviewOpen = false;
 
   // ─── Project form fields (reactive) ──────────────────────────────────────
@@ -859,11 +859,10 @@ export class EditorPage extends LitElement {
   private _autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
   private _scheduleAutoSave(): void {
-    // Mark current tab as dirty
-    if (state.currentSlug) {
-      const dirty = new Set(state.dirtySlugs);
-      dirty.add(state.currentSlug);
-      setState({ dirtySlugs: dirty });
+    // Mark current tab as dirty (mutate in-place to avoid triggering re-render on every keystroke)
+    if (state.currentSlug && !state.dirtySlugs.has(state.currentSlug)) {
+      state.dirtySlugs.add(state.currentSlug);
+      setState({ dirtySlugs: state.dirtySlugs });
     }
     if (this._autoSaveTimer) clearTimeout(this._autoSaveTimer);
     this._autoSaveTimer = setTimeout(() => {
