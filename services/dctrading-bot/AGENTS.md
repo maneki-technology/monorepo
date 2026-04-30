@@ -20,7 +20,6 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ### Scripts (`scripts/`)
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service.
 - `switch-to-local.sh` — Stop GCP bot + instance, start local bot in tmux.
-- `live_feed.py` — Legacy Python feed (unused, replaced by native WebSocket).
 
 ### Key Patterns
 - **HTTP calls**: All modules use shared `HttpClient` (native `std.http.Client`). Exception: `feed.zig` bootstrap uses `popen("curl")` for Binance REST, and `telegram.zig` shutdown uses curl fallback.
