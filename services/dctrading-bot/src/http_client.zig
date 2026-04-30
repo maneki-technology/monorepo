@@ -88,7 +88,22 @@ pub const HttpClient = struct {
         }
 
         var response = try req.receiveHead(&.{});
-        const resp_body = try response.reader(&.{}).allocRemaining(self.allocator, .limited(max_response_bytes));
+
+        // Decompress gzip/deflate if server sent compressed response
+        var transfer_buf: [64]u8 = undefined;
+        var decompress: http.Decompress = undefined;
+        const decompress_buf = switch (response.head.content_encoding) {
+            .identity => @as([]u8, &.{}),
+            .deflate, .gzip => try self.allocator.alloc(u8, std.compress.flate.max_window_len),
+            .zstd => try self.allocator.alloc(u8, std.compress.zstd.default_window_len),
+            .compress => return error.UnsupportedCompression,
+        };
+        defer if (decompress_buf.len > 0) self.allocator.free(decompress_buf);
+
+        const resp_body = if (response.head.content_encoding == .identity)
+            try response.reader(&transfer_buf).allocRemaining(self.allocator, .limited(max_response_bytes))
+        else
+            try response.readerDecompressing(&transfer_buf, &decompress, decompress_buf).allocRemaining(self.allocator, .limited(max_response_bytes));
 
         return .{
             .status = response.head.status,
