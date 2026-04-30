@@ -1,0 +1,14 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: system
+type: application
+
+tags: [trading, swift]
+
+tasks:
+  generate:
+    command: xcodegen
+    platform: system
+  build:
+    command: xcodegen && xcodebuild -project DCTradingViewer.xcodeproj -scheme DCTradingViewer_macOS -destination 'platform=macOS' build
+    platform: system
