@@ -369,6 +369,67 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                         if (tg) |tel| tel.notifyDeposit(deposit, strategy.capital, instance);
                     }
                 }
+
+                // Reconcile with Alpaca position (detect manual trades)
+                if (alpaca.getPosition()) |pos| {
+                    if (!strategy.in_position and pos.qty > 0) {
+                        // Manual buy detected (no existing position) — sync
+                        strategy.in_position = true;
+                        strategy.entry_price = pos.entry_price;
+                        strategy.size = pos.qty;
+                        strategy.peak_price = pos.entry_price;
+                        const cost = pos.entry_price * pos.qty;
+                        const fee_est = cost * strategy.fee_pct;
+                        strategy.capital -= (cost + fee_est);
+                        std.debug.print("  MANUAL BUY detected: entry=${d:.2} qty={d:.8}\n", .{ pos.entry_price, pos.qty });
+                        if (tg) |tel| tel.notifyBuy(pos.entry_price, pos.qty, regime_str, instance);
+                        if (turso != null) {
+                            turso.?.logBuy(pos.entry_price, pos.qty, fee_est, t.timestamp);
+                            turso.?.logPositionOpen(pos.entry_price, t.timestamp, pos.qty, fee_est, pos.entry_price, "");
+                            turso.?.logLedger("ENTRY_FEE", -fee_est, strategy.capital, "Manual buy fee", t.timestamp);
+                            turso.?.logLedger("BUY", -cost, strategy.capital, "Manual buy", t.timestamp);
+                        }
+                    } else if (strategy.in_position and pos.qty > strategy.size + 0.00000001) {
+                        // Manual buy added to existing position — blend entry
+                        const added_qty = pos.qty - strategy.size;
+                        const added_cost = pos.entry_price * added_qty;
+                        const fee_est = added_cost * strategy.fee_pct;
+                        // Blend entry price: weighted average
+                        strategy.entry_price = (strategy.entry_price * strategy.size + pos.entry_price * added_qty) / pos.qty;
+                        strategy.size = pos.qty;
+                        if (pos.entry_price > strategy.peak_price) strategy.peak_price = pos.entry_price;
+                        strategy.capital -= (added_cost + fee_est);
+                        std.debug.print("  MANUAL BUY (add): +{d:.8} BTC, blended entry=${d:.2}\n", .{ added_qty, strategy.entry_price });
+                        if (tg) |tel| tel.notifyBuy(pos.entry_price, added_qty, regime_str, instance);
+                        if (turso != null) {
+                            turso.?.logBuy(pos.entry_price, added_qty, fee_est, t.timestamp);
+                            turso.?.logLedger("ENTRY_FEE", -fee_est, strategy.capital, "Manual buy fee (add)", t.timestamp);
+                            turso.?.logLedger("BUY", -added_cost, strategy.capital, "Manual buy (add)", t.timestamp);
+                        }
+                    }
+                } else {
+                    if (strategy.in_position) {
+                        // Manual sell detected — close internal position
+                        const sell_price = t.price;
+                        const proceeds = sell_price * strategy.size;
+                        const fee_est = proceeds * strategy.fee_pct;
+                        const raw_pnl = (sell_price - strategy.entry_price) * strategy.size;
+                        const net_pnl = raw_pnl - fee_est;
+                        strategy.capital += net_pnl;
+                        std.debug.print("  MANUAL SELL detected: price=${d:.2} pnl=${d:.2}\n", .{ sell_price, net_pnl });
+                        if (tg) |tel| tel.notifySell(sell_price, net_pnl, "manual", regime_str, instance);
+                        if (turso != null) {
+                            turso.?.logSell(sell_price, strategy.size, fee_est, t.timestamp);
+                            turso.?.logLedger("SELL", proceeds, strategy.capital + fee_est, "Manual sell", t.timestamp);
+                            turso.?.logLedger("EXIT_FEE", -fee_est, strategy.capital, "Manual sell fee", t.timestamp);
+                        }
+                        strategy.in_position = false;
+                        strategy.size = 0;
+                        strategy.entry_price = 0;
+                        strategy.peak_price = 0;
+                        closed_count += 1;
+                    }
+                }
             }
         }
     }
