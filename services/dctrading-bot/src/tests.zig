@@ -720,3 +720,134 @@ test "strategy: equity correct after Alpaca fill with price drift" {
     try testing.expect(final_capital < 1000.0);
     try testing.expect(final_capital > 996.0);
 }
+
+
+// ============================================================
+// Capital Injection Tests
+// ============================================================
+
+test "strategy: no position opened when capital is zero" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 0.0,
+    });
+    defer s.deinit(allocator);
+
+    // Fill MA to trigger BULL
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(104.0, 6.0));
+
+    try testing.expect(s.regime == .bull);
+    try testing.expect(!s.in_position); // no capital, no position
+    try testing.expectApproxEqAbs(s.capital, 0.0, 0.001);
+}
+
+test "strategy: no position opened when capital below minimum" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 5.0, // below $10 minimum
+    });
+    defer s.deinit(allocator);
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(104.0, 6.0));
+
+    try testing.expect(s.regime == .bull);
+    try testing.expect(!s.in_position);
+    try testing.expectApproxEqAbs(s.capital, 5.0, 0.001);
+}
+
+test "strategy: position opened after deposit brings capital above minimum" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 0.0,
+    });
+    defer s.deinit(allocator);
+
+    // Fill MA to trigger BULL
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(104.0, 6.0));
+    try testing.expect(!s.in_position); // no capital yet
+
+    // Simulate deposit
+    s.capital = 1000.0;
+    s.initial_capital = 1000.0;
+
+    // Next tick in BULL should open position
+    _ = s.processTick(tick(105.0, 7.0));
+    try testing.expect(s.in_position);
+    try testing.expectApproxEqAbs(s.entry_price, 105.0, 0.01);
+}
+
+test "deposit: capital and initial_capital both increase" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Simulate deposit
+    const deposit = 500.0;
+    s.capital += deposit;
+    s.initial_capital += deposit;
+
+    try testing.expectApproxEqAbs(s.capital, 1500.0, 0.01);
+    try testing.expectApproxEqAbs(s.initial_capital, 1500.0, 0.01);
+    // Realized PnL should still be 0
+    try testing.expectApproxEqAbs(s.totalReturn(), 0.0, 0.01);
+}
+
+test "deposit: buy in BULL blends entry price correctly" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Existing position
+    s.in_position = true;
+    s.entry_price = 80000.0;
+    s.size = 0.01;
+    s.peak_price = 80000.0;
+    s.capital = 1.0; // after initial buy
+    s.regime = .bull;
+
+    // Deposit arrives, buy at current price
+    const deposit = 1000.0;
+    s.capital += deposit;
+    s.initial_capital += deposit;
+    const buy_price = 82000.0;
+    const fee = deposit * s.fee_pct; // 1.0
+    const usable = deposit - fee; // 999.0
+    const add_size = usable / buy_price; // ~0.01218
+
+    // Blend entry
+    s.entry_price = (s.entry_price * s.size + buy_price * add_size) / (s.size + add_size);
+    s.size += add_size;
+    s.capital -= (usable + fee);
+
+    // Blended: (80000*0.01 + 82000*0.01218) / (0.01 + 0.01218) = ~81094
+    try testing.expect(s.entry_price > 80000.0);
+    try testing.expect(s.entry_price < 82000.0);
+    try testing.expectApproxEqAbs(s.size, 0.01 + add_size, 0.0001);
+    try testing.expectApproxEqAbs(s.capital, 1.0, 0.01); // back to ~$1 cash
+}

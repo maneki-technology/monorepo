@@ -140,7 +140,7 @@ pub const Strategy = struct {
 
         // BULL mode: hold passively
         if (self.regime == .bull) {
-            if (!self.in_position) {
+            if (!self.in_position and self.capital > 10.0) {
                 self.openPosition(price, tick.timestamp);
             }
             return null;
