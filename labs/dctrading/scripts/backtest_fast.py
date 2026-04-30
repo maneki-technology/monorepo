@@ -58,14 +58,26 @@ def detect_dc_events(prices: NDArray, threshold: float) -> NDArray:
 
 
 def compute_vol_trail(prices: NDArray, window: int, base_trail: float) -> NDArray:
-    """Compute vol-adaptive trailing stop percentage per tick."""
+    """Compute vol-adaptive trailing stop matching Zig: log returns, ratio to cumulative avg, clamped [0.5, 3.0]."""
     n = len(prices)
     trail = np.full(n, base_trail)
+    cum_vol_sum = 0.0
+    cum_vol_count = 0
+    avg_vol = 0.0
+
+    # Precompute log returns
+    log_rets = np.zeros(n)
+    log_rets[1:] = np.log(prices[1:] / prices[:-1])
+
     for i in range(window, n):
-        chunk = prices[i - window : i]
-        rets = np.diff(chunk) / chunk[:-1]
-        std = np.std(rets)
-        trail[i] = max(base_trail, std * 2.0)
+        chunk = log_rets[i - window + 1 : i + 1]  # window log returns
+        recent_vol = float(np.std(chunk, ddof=1))
+        if cum_vol_count > 0 and avg_vol > 0 and recent_vol > 0:
+            ratio = max(0.5, min(3.0, recent_vol / avg_vol))
+            trail[i] = base_trail * ratio
+        cum_vol_sum += recent_vol
+        cum_vol_count += 1
+        avg_vol = cum_vol_sum / cum_vol_count
     return trail
 
 
@@ -79,7 +91,9 @@ def simulate_strategy(
     fee_pct: float,
     initial_capital: float,
     mode: str,  # "2reg", "3reg", "adaptive"
+    warmup_n: int = 0,  # ticks to skip trading (indicator warmup only)
 ) -> dict:
+    """Simulate a strategy. warmup_n ticks are used for indicator warmup only (no trades)."""
     """Simulate a strategy. Returns summary dict."""
     n = len(prices)
     capital = initial_capital
@@ -99,6 +113,7 @@ def simulate_strategy(
     for i in range(n):
         p = prices[i]
         t = timestamps[i]
+        is_warmup = i < warmup_n
 
         # Regime detection
         if not np.isnan(ma[i]):
@@ -134,7 +149,7 @@ def simulate_strategy(
 
         # BULL: hold
         if regime == 1:
-            if not in_position:
+            if not in_position and not is_warmup:
                 fee = capital * fee_pct
                 usable = capital - fee
                 size = usable / p
@@ -165,7 +180,7 @@ def simulate_strategy(
             elif regime == 2:  # SIDEWAYS
                 if prev_non_sideways == 1:
                     # bull→sideways: hold
-                    if not in_position:
+                    if not in_position and not is_warmup:
                         fee = capital * fee_pct
                         usable = capital - fee
                         size = usable / p
@@ -197,7 +212,7 @@ def simulate_strategy(
         # DC events
         if check_dc:
             ev = dc_events[i]
-            if ev == 1 and not in_position:
+            if ev == 1 and not in_position and not is_warmup:
                 fee = capital * fee_pct
                 usable = capital - fee
                 size = usable / p
@@ -287,16 +302,16 @@ def simulate_strategy(
 
 
 def run_year(args):
-    """Run all 3 strategies for one year's data."""
-    prices, timestamps, threshold, trail_pct, ma_buffer, ma_period, trail_window, fee_pct, capital = args
+    """Run all 3 strategies for one year's data (with warmup prefix)."""
+    prices, timestamps, threshold, trail_pct, ma_buffer, ma_period, trail_window, fee_pct, capital, warmup_n = args
 
     dc_events = detect_dc_events(prices, threshold)
     ma = compute_ma(prices, ma_period)
     trail_pcts = compute_vol_trail(prices, trail_window, trail_pct)
 
-    s2 = simulate_strategy(prices, timestamps, dc_events, ma, trail_pcts, ma_buffer, fee_pct, capital, "2reg")
-    s3 = simulate_strategy(prices, timestamps, dc_events, ma, trail_pcts, ma_buffer, fee_pct, capital, "3reg")
-    sa = simulate_strategy(prices, timestamps, dc_events, ma, trail_pcts, ma_buffer, fee_pct, capital, "adaptive")
+    s2 = simulate_strategy(prices, timestamps, dc_events, ma, trail_pcts, ma_buffer, fee_pct, capital, "2reg", warmup_n)
+    s3 = simulate_strategy(prices, timestamps, dc_events, ma, trail_pcts, ma_buffer, fee_pct, capital, "3reg", warmup_n)
+    sa = simulate_strategy(prices, timestamps, dc_events, ma, trail_pcts, ma_buffer, fee_pct, capital, "adaptive", warmup_n)
     return s2, s3, sa
 
 
@@ -325,15 +340,22 @@ def main():
 
     work = []
     years = []
-    for yr in sorted(year_ticks):
-        if yr < 2019:
-            continue
+    sorted_years = sorted(yr for yr in year_ticks if yr >= 2019)
+    for yr in sorted_years:
         ticks = year_ticks[yr]
-        prices = np.array([t.price for t in ticks], dtype=np.float64)
-        timestamps = np.array([t.timestamp for t in ticks], dtype=np.float64)
-        work.append((prices, timestamps, args.threshold, args.trail, args.buffer, ma_period, trail_window, fee_pct, args.capital))
+        # Prepend last 60 days of previous year for MA/vol warmup
+        prev_yr = yr - 1
+        warmup_ticks = []
+        if prev_yr in year_ticks:
+            prev = year_ticks[prev_yr]
+            warmup_ticks = prev[-ma_period:]  # last 60 days
+        warmup_n = len(warmup_ticks)
+        combined = warmup_ticks + ticks
+        prices = np.array([t.price for t in combined], dtype=np.float64)
+        timestamps = np.array([t.timestamp for t in combined], dtype=np.float64)
+        work.append((prices, timestamps, args.threshold, args.trail, args.buffer, ma_period, trail_window, fee_pct, args.capital, warmup_n))
         years.append(yr)
-        print(f"  {yr}: {len(ticks):,} ticks")
+        print(f"  {yr}: {len(ticks):,} ticks (warmup: {warmup_n:,})")
 
     print(f"\nRunning {len(work)} years on {mp.cpu_count()} cores...")
     with mp.Pool(processes=len(work)) as pool:
