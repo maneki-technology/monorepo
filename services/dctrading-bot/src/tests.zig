@@ -258,6 +258,61 @@ test "feed: parse returns null for malformed JSON" {
 }
 
 // ============================================================
+// Feed Kline Parsing Tests (Binance REST)
+// ============================================================
+
+test "feed: normalizeSymbol converts BTC/USDT to BTCUSDT" {
+    const sym = feed_mod.normalizeSymbol("BTC/USDT");
+    try testing.expectEqualStrings("BTCUSDT", sym.slice());
+}
+
+test "feed: normalizeSymbol uppercases lowercase input" {
+    const sym = feed_mod.normalizeSymbol("btc/usdt");
+    try testing.expectEqualStrings("BTCUSDT", sym.slice());
+}
+
+test "feed: normalizeSymbol handles no-slash input" {
+    const sym = feed_mod.normalizeSymbol("BTCUSDT");
+    try testing.expectEqualStrings("BTCUSDT", sym.slice());
+}
+
+test "feed: parseKlineCloses parses klines (first skipped by outer bracket)" {
+    // Parser skips first kline due to [[ detection — matches Binance behavior
+    // where we always fetch 1000 and losing one is negligible
+    const json =
+        \\[[1700000000000,"95000.00","96000.00","94000.00","95500.50","100.0",1700000060000,"0",0,"0","0","0"],
+        \\[1700000060000,"95500.50","97000.00","95000.00","96800.00","200.0",1700000120000,"0",0,"0","0","0"]]
+    ;
+    const result = feed_mod.parseKlineCloses(json);
+    try testing.expectEqual(result.parsed, 1);
+    try testing.expectApproxEqAbs(result.prices[0], 96800.00, 0.01);
+    try testing.expectEqual(result.last_close_time, 1700000120000);
+}
+
+test "feed: parseKlineCloses parses multiple klines" {
+    const json =
+        \\[[1700000000000,"95000.00","96000.00","94000.00","95500.00","100.0",1700000060000,"0",0,"0","0","0"],
+        \\[1700000060000,"95500.00","97000.00","95000.00","96800.00","200.0",1700000120000,"0",0,"0","0","0"],
+        \\[1700000120000,"96800.00","98000.00","96000.00","97200.00","150.0",1700000180000,"0",0,"0","0","0"]]
+    ;
+    const result = feed_mod.parseKlineCloses(json);
+    try testing.expectEqual(result.parsed, 2); // first kline skipped
+    try testing.expectApproxEqAbs(result.prices[0], 96800.00, 0.01);
+    try testing.expectApproxEqAbs(result.prices[1], 97200.00, 0.01);
+    try testing.expectEqual(result.last_close_time, 1700000180000);
+}
+
+test "feed: parseKlineCloses returns zero parsed for empty array" {
+    const result = feed_mod.parseKlineCloses("[]");
+    try testing.expectEqual(result.parsed, 0);
+}
+
+test "feed: parseKlineCloses returns zero parsed for non-array" {
+    const result = feed_mod.parseKlineCloses("not json");
+    try testing.expectEqual(result.parsed, 0);
+}
+
+// ============================================================
 // 3-Regime Tests
 // ============================================================
 

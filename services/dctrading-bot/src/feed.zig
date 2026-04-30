@@ -243,16 +243,16 @@ pub fn fetch1mClosesSince(allocator: std.mem.Allocator, http: *HttpClient, symbo
 
 // -- Internal helpers --
 
-const SymBuf = struct {
+pub const SymBuf = struct {
     buf: [16]u8,
     len: usize,
 
-    fn slice(self: *const SymBuf) []const u8 {
+    pub fn slice(self: *const SymBuf) []const u8 {
         return self.buf[0..self.len];
     }
 };
 
-fn normalizeSymbol(symbol: []const u8) SymBuf {
+pub fn normalizeSymbol(symbol: []const u8) SymBuf {
     var result: SymBuf = .{ .buf = undefined, .len = 0 };
     for (symbol) |c| {
         if (c != '/') {
@@ -263,7 +263,7 @@ fn normalizeSymbol(symbol: []const u8) SymBuf {
     return result;
 }
 
-const KlineBatchResult = struct {
+pub const KlineBatchResult = struct {
     prices: [1000]f64,
     parsed: usize,
     last_close_time: u64,
@@ -277,15 +277,18 @@ fn fetchKlineBatch(http: *HttpClient, sym: []const u8, start_ms: u64, limit: usi
     defer resp.deinit();
 
     if (resp.body.len == 0) return error.EmptyResponse;
-    const json = resp.body;
 
-    // Check for API error (starts with '{' instead of '[')
-    if (json[0] == '{') {
-        std.debug.print("  API error: {s}\n", .{json[0..@min(json.len, 200)]});
+    if (resp.body[0] == '{') {
+        std.debug.print("  API error: {s}\n", .{resp.body[0..@min(resp.body.len, 200)]});
         return error.ApiError;
     }
 
-    // Parse close prices (index 4) and close times (index 6) from kline arrays
+    return parseKlineCloses(resp.body);
+}
+
+/// Parse Binance kline JSON array into close prices and close times.
+/// Exported for testing.
+pub fn parseKlineCloses(json: []const u8) KlineBatchResult {
     var result: KlineBatchResult = .{ .prices = undefined, .parsed = 0, .last_close_time = 0 };
     var i: usize = 0;
     while (i < json.len) : (i += 1) {
