@@ -1,0 +1,21 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+language: python
+type: tool
+
+tags: [trading, python]
+
+tasks:
+  test-sentiment:
+    command: python scripts/test_sentiment.py --mock
+    platform: system
+  news-monitor:
+    command: python scripts/news_monitor.py
+    platform: system
+    local: true
+  backtest-fast:
+    command: python scripts/backtest_fast.py --capital 1000
+    platform: system
+  backtest-regimes:
+    command: python scripts/backtest_regimes.py --since 2023-01-01 --until 2025-12-31
+    platform: system
