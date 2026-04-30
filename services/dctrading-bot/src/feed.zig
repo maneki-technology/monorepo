@@ -1,13 +1,12 @@
-/// Native Binance WebSocket feed using websocket.zig — zero Python dependencies.
+/// Native Binance WebSocket feed using websocket.zig + HttpClient for REST.
 const std = @import("std");
 const websocket = @import("websocket");
 const types = @import("types.zig");
+const http_mod = @import("http_client.zig");
+const HttpClient = http_mod.HttpClient;
 const Tick = types.Tick;
 
 extern "c" fn usleep(usec: c_uint) c_int;
-extern "c" fn popen(cmd: [*:0]const u8, mode: [*:0]const u8) ?*anyopaque;
-extern "c" fn pclose(fp: *anyopaque) c_int;
-extern "c" fn fread(buf: [*]u8, size: usize, count: usize, fp: *anyopaque) usize;
 extern "c" fn time(tloc: ?*anyopaque) c_long;
 extern "c" fn getenv(name: [*:0]const u8) ?[*:0]const u8;
 
@@ -156,25 +155,15 @@ fn indexOf(haystack: []const u8, start: usize, needle: []const u8) ?usize {
     return null;
 }
 
-/// Fetch historical 1-minute klines from Binance REST API via curl (paginated).
+/// Fetch historical 1-minute klines from Binance REST API (paginated).
 /// Returns up to `count` close prices (oldest first). Binance caps at 1000/request.
-pub fn fetch1mCloses(allocator: std.mem.Allocator, symbol: []const u8, count: usize) ![]f64 {
+pub fn fetch1mCloses(allocator: std.mem.Allocator, http: *HttpClient, symbol: []const u8, count: usize) ![]f64 {
     var closes: std.ArrayList(f64) = .empty;
     errdefer closes.deinit(allocator);
 
-    // Build uppercase symbol: "BTC/USDT" -> "BTCUSDT"
-    var sym_buf: [16]u8 = undefined;
-    var sym_len: usize = 0;
-    for (symbol) |c| {
-        if (c != '/') {
-            sym_buf[sym_len] = if (c >= 'a' and c <= 'z') c - 32 else c;
-            sym_len += 1;
-        }
-    }
-    const sym = sym_buf[0..sym_len];
+    const sym = normalizeSymbol(symbol);
 
     // Start time: now - count minutes (in ms)
-    // We use the C time() function to get current epoch seconds
     const now_s: u64 = @intCast(time(null));
     var start_ms: u64 = (now_s - @as(u64, count) * 60) * 1000;
 
@@ -185,75 +174,12 @@ pub fn fetch1mCloses(allocator: std.mem.Allocator, symbol: []const u8, count: us
         const remaining = count - closes.items.len;
         const limit = @min(remaining, 1000);
 
-        // Build curl command
-        var cmd_buf: [512]u8 = undefined;
-        const cmd = std.fmt.bufPrint(&cmd_buf, "curl -s 'https://{s}/api/v3/klines?symbol={s}&interval=1m&startTime={d}&limit={d}'\x00", .{ apiHost(), sym, start_ms, limit }) catch return error.FormatError;
+        const result = try fetchKlineBatch(http, sym.slice(), start_ms, limit);
+        const parsed = result.parsed;
+        const last_close_time = result.last_close_time;
 
-        const fp = popen(@ptrCast(cmd_buf[0 .. cmd.len - 1 :0]), "r") orelse return error.PopenFailed;
-
-        // Read response (~200KB for 1000 klines)
-        var resp_buf = try allocator.alloc(u8, 262144);
-        defer allocator.free(resp_buf);
-        var total: usize = 0;
-        while (total < resp_buf.len) {
-            const n = fread(@ptrCast(resp_buf[total..].ptr), 1, resp_buf.len - total, fp);
-            if (n == 0) break;
-            total += n;
-        }
-        _ = pclose(fp);
-
-        if (total == 0) {
-            if (closes.items.len > 0) break; // partial success
-            return error.EmptyResponse;
-        }
-        const json = resp_buf[0..total];
-
-        // Check for API error (starts with '{' instead of '[')
-        if (json[0] == '{') {
-            std.debug.print("  API error: {s}\n", .{json[0..@min(total, 200)]});
-            if (closes.items.len > 0) break;
-            return error.ApiError;
-        }
-
-        // Parse close prices (index 4 in each kline array)
-        var parsed: usize = 0;
-        var last_close_time: u64 = 0;
-        var i: usize = 0;
-        while (i < json.len) : (i += 1) {
-            if (json[i] != '[' or i == 0) continue;
-            if (json[i - 1] == '[') continue; // skip outer "[["
-
-            // Find close time (index 6) for pagination and close price (index 4)
-            var commas: usize = 0;
-            var j = i + 1;
-            var close_price: f64 = 0;
-            var close_time: u64 = 0;
-
-            while (j < json.len and json[j] != ']') : (j += 1) {
-                if (json[j] == ',') {
-                    commas += 1;
-                    if (commas == 4) {
-                        // Next field is close price
-                        const ps = j + 2; // skip ,"
-                        var pe = ps;
-                        while (pe < json.len and json[pe] != '"') : (pe += 1) {}
-                        close_price = std.fmt.parseFloat(f64, json[ps..pe]) catch 0;
-                    } else if (commas == 6) {
-                        // Next field is close time (integer)
-                        const ts = j + 1;
-                        var te = ts;
-                        while (te < json.len and json[te] >= '0' and json[te] <= '9') : (te += 1) {}
-                        close_time = std.fmt.parseInt(u64, json[ts..te], 10) catch 0;
-                    }
-                }
-            }
-
-            if (close_price > 0) {
-                try closes.append(allocator, close_price);
-                parsed += 1;
-                if (close_time > last_close_time) last_close_time = close_time;
-            }
-            i = j; // skip past this kline
+        for (result.prices[0..parsed]) |p| {
+            try closes.append(allocator, p);
         }
 
         batch += 1;
@@ -261,10 +187,8 @@ pub fn fetch1mCloses(allocator: std.mem.Allocator, symbol: []const u8, count: us
             std.debug.print("  ... {d}/{d} candles fetched\n", .{ closes.items.len, count });
         }
 
-        if (parsed == 0) break; // no more data
+        if (parsed == 0) break;
         if (closes.items.len >= count) break;
-
-        // Next page starts after last close time
         start_ms = last_close_time + 1;
     }
 
@@ -274,100 +198,33 @@ pub fn fetch1mCloses(allocator: std.mem.Allocator, symbol: []const u8, count: us
 
 /// Fetch 1-minute klines from a specific start timestamp to now.
 /// Used for catch-up after downtime.
-pub fn fetch1mClosesSince(allocator: std.mem.Allocator, symbol: []const u8, since_epoch_s: u64) ![]f64 {
+pub fn fetch1mClosesSince(allocator: std.mem.Allocator, http: *HttpClient, symbol: []const u8, since_epoch_s: u64) ![]f64 {
     const now_s: u64 = @intCast(time(null));
     if (since_epoch_s >= now_s) return try allocator.alloc(f64, 0);
 
     const gap_minutes = (now_s - since_epoch_s) / 60;
-    if (gap_minutes < 2) return try allocator.alloc(f64, 0); // gap too small
+    if (gap_minutes < 2) return try allocator.alloc(f64, 0);
 
     std.debug.print("  Catch-up: {d} minutes gap, fetching klines...\n", .{gap_minutes});
-    return fetch1mClosesFrom(allocator, symbol, since_epoch_s * 1000, gap_minutes + 1);
-}
 
-/// Internal: fetch 1m klines starting from start_ms (epoch ms), up to count candles.
-fn fetch1mClosesFrom(allocator: std.mem.Allocator, symbol: []const u8, start_ms_init: u64, count: usize) ![]f64 {
     var closes: std.ArrayList(f64) = .empty;
     errdefer closes.deinit(allocator);
 
-    var sym_buf: [16]u8 = undefined;
-    var sym_len: usize = 0;
-    for (symbol) |c| {
-        if (c != '/') {
-            sym_buf[sym_len] = if (c >= 'a' and c <= 'z') c - 32 else c;
-            sym_len += 1;
-        }
-    }
-    const sym = sym_buf[0..sym_len];
-    var start_ms = start_ms_init;
+    const sym = normalizeSymbol(symbol);
+    const count = gap_minutes + 1;
+    var start_ms = since_epoch_s * 1000;
 
     var batch: usize = 0;
     while (closes.items.len < count) {
         const remaining = count - closes.items.len;
         const limit = @min(remaining, 1000);
 
-        var cmd_buf: [512]u8 = undefined;
-        const cmd = std.fmt.bufPrint(&cmd_buf, "curl -s 'https://{s}/api/v3/klines?symbol={s}&interval=1m&startTime={d}&limit={d}'\x00", .{ apiHost(), sym, start_ms, limit }) catch return error.FormatError;
+        const result = try fetchKlineBatch(http, sym.slice(), start_ms, limit);
+        const parsed = result.parsed;
+        const last_close_time = result.last_close_time;
 
-        const fp = popen(@ptrCast(cmd_buf[0 .. cmd.len - 1 :0]), "r") orelse return error.PopenFailed;
-
-        var resp_buf = try allocator.alloc(u8, 262144);
-        defer allocator.free(resp_buf);
-        var total: usize = 0;
-        while (total < resp_buf.len) {
-            const n = fread(@ptrCast(resp_buf[total..].ptr), 1, resp_buf.len - total, fp);
-            if (n == 0) break;
-            total += n;
-        }
-        _ = pclose(fp);
-
-        if (total == 0) {
-            if (closes.items.len > 0) break;
-            return error.EmptyResponse;
-        }
-        const json = resp_buf[0..total];
-
-        if (json[0] == '{') {
-            std.debug.print("  API error: {s}\n", .{json[0..@min(total, 200)]});
-            if (closes.items.len > 0) break;
-            return error.ApiError;
-        }
-
-        var parsed: usize = 0;
-        var last_close_time: u64 = 0;
-        var i: usize = 0;
-        while (i < json.len) : (i += 1) {
-            if (json[i] != '[' or i == 0) continue;
-            if (json[i - 1] == '[') continue;
-
-            var commas: usize = 0;
-            var j = i + 1;
-            var close_price: f64 = 0;
-            var close_time: u64 = 0;
-
-            while (j < json.len and json[j] != ']') : (j += 1) {
-                if (json[j] == ',') {
-                    commas += 1;
-                    if (commas == 4) {
-                        const ps = j + 2;
-                        var pe = ps;
-                        while (pe < json.len and json[pe] != '"') : (pe += 1) {}
-                        close_price = std.fmt.parseFloat(f64, json[ps..pe]) catch 0;
-                    } else if (commas == 6) {
-                        const ts = j + 1;
-                        var te = ts;
-                        while (te < json.len and json[te] >= '0' and json[te] <= '9') : (te += 1) {}
-                        close_time = std.fmt.parseInt(u64, json[ts..te], 10) catch 0;
-                    }
-                }
-            }
-
-            if (close_price > 0) {
-                try closes.append(allocator, close_price);
-                parsed += 1;
-                if (close_time > last_close_time) last_close_time = close_time;
-            }
-            i = j;
+        for (result.prices[0..parsed]) |p| {
+            try closes.append(allocator, p);
         }
 
         batch += 1;
@@ -382,4 +239,88 @@ fn fetch1mClosesFrom(allocator: std.mem.Allocator, symbol: []const u8, start_ms_
 
     std.debug.print("  Catch-up fetched {d} candles.\n", .{closes.items.len});
     return try closes.toOwnedSlice(allocator);
+}
+
+// -- Internal helpers --
+
+const SymBuf = struct {
+    buf: [16]u8,
+    len: usize,
+
+    fn slice(self: *const SymBuf) []const u8 {
+        return self.buf[0..self.len];
+    }
+};
+
+fn normalizeSymbol(symbol: []const u8) SymBuf {
+    var result: SymBuf = .{ .buf = undefined, .len = 0 };
+    for (symbol) |c| {
+        if (c != '/') {
+            result.buf[result.len] = if (c >= 'a' and c <= 'z') c - 32 else c;
+            result.len += 1;
+        }
+    }
+    return result;
+}
+
+const KlineBatchResult = struct {
+    prices: [1000]f64,
+    parsed: usize,
+    last_close_time: u64,
+};
+
+fn fetchKlineBatch(http: *HttpClient, sym: []const u8, start_ms: u64, limit: usize) !KlineBatchResult {
+    var url_buf: [256]u8 = undefined;
+    const url = std.fmt.bufPrint(&url_buf, "https://{s}/api/v3/klines?symbol={s}&interval=1m&startTime={d}&limit={d}", .{ apiHost(), sym, start_ms, limit }) catch return error.FormatError;
+
+    const resp = http.getLarge(url, &.{}, 262144) catch return error.FetchFailed;
+    defer resp.deinit();
+
+    if (resp.body.len == 0) return error.EmptyResponse;
+    const json = resp.body;
+
+    // Check for API error (starts with '{' instead of '[')
+    if (json[0] == '{') {
+        std.debug.print("  API error: {s}\n", .{json[0..@min(json.len, 200)]});
+        return error.ApiError;
+    }
+
+    // Parse close prices (index 4) and close times (index 6) from kline arrays
+    var result: KlineBatchResult = .{ .prices = undefined, .parsed = 0, .last_close_time = 0 };
+    var i: usize = 0;
+    while (i < json.len) : (i += 1) {
+        if (json[i] != '[' or i == 0) continue;
+        if (json[i - 1] == '[') continue;
+
+        var commas: usize = 0;
+        var j = i + 1;
+        var close_price: f64 = 0;
+        var close_time: u64 = 0;
+
+        while (j < json.len and json[j] != ']') : (j += 1) {
+            if (json[j] == ',') {
+                commas += 1;
+                if (commas == 4) {
+                    const ps = j + 2;
+                    var pe = ps;
+                    while (pe < json.len and json[pe] != '"') : (pe += 1) {}
+                    close_price = std.fmt.parseFloat(f64, json[ps..pe]) catch 0;
+                } else if (commas == 6) {
+                    const ts = j + 1;
+                    var te = ts;
+                    while (te < json.len and json[te] >= '0' and json[te] <= '9') : (te += 1) {}
+                    close_time = std.fmt.parseInt(u64, json[ts..te], 10) catch 0;
+                }
+            }
+        }
+
+        if (close_price > 0 and result.parsed < 1000) {
+            result.prices[result.parsed] = close_price;
+            result.parsed += 1;
+            if (close_time > result.last_close_time) result.last_close_time = close_time;
+        }
+        i = j;
+    }
+
+    return result;
 }
