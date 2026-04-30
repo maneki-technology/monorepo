@@ -132,10 +132,14 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 strategy.capital = cap;
                 std.debug.print("  Restored capital from equity_log: ${d:.2}\n", .{cap});
             } else {
-                // First run — log initial deposit
-                const now: f64 = @floatFromInt(time(null));
-                turso.?.logLedgerSync("DEPOSIT", capital, capital, "Initial capital", now);
-                std.debug.print("  Logged initial deposit: ${d:.2}\n", .{capital});
+                // First run — log initial deposit (skip if $0)
+                if (capital > 0) {
+                    const now: f64 = @floatFromInt(time(null));
+                    turso.?.logLedgerSync("DEPOSIT", capital, capital, "Initial capital", now);
+                    std.debug.print("  Logged initial deposit: ${d:.2}\n", .{capital});
+                } else {
+                    std.debug.print("  No initial capital. Waiting for deposit.\n", .{});
+                }
             }
             // Restore open position
             if (turso.?.queryOpenPosition()) |pos| {
