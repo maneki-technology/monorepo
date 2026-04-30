@@ -18,6 +18,8 @@ dependencies = [
     "prometheus-client>=0.20",
     "openai>=1.0",
     "requests>=2.31",
+    "websocket-client>=1.6",
+    "mlx-lm>=0.19",
 ]
 
 [project.optional-dependencies]
