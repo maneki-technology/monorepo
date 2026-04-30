@@ -30,9 +30,9 @@ struct LedgerView: View {
         }
         .navigationTitle("Ledger")
         .toolbar {
-            ToolbarItem(placement: .automatic) {
+            ToolbarItem(placement: .primaryAction) {
                 Button(action: { showDepositSheet = true }) {
-                    Image(systemName: "plus.circle")
+                    Label("Deposit", systemImage: "plus.circle")
                 }
                 .disabled(!settings.isConfigured)
             }
