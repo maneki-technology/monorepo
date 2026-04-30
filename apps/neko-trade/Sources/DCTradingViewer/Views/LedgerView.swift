@@ -5,6 +5,9 @@ struct LedgerView: View {
     @State private var ledger: [LedgerEntry] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
+    @State private var showDepositSheet = false
+    @State private var depositAmount = ""
+    @State private var isDepositing = false
 
     private let client = TursoClient()
     private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
@@ -28,11 +31,20 @@ struct LedgerView: View {
         .navigationTitle("Ledger")
         .toolbar {
             ToolbarItem(placement: .automatic) {
+                Button(action: { showDepositSheet = true }) {
+                    Image(systemName: "plus.circle")
+                }
+                .disabled(!settings.isConfigured)
+            }
+            ToolbarItem(placement: .automatic) {
                 Button(action: { Task { await loadData() } }) {
                     Image(systemName: "arrow.clockwise")
                 }
                 .disabled(isLoading)
             }
+        }
+        .sheet(isPresented: $showDepositSheet) {
+            depositSheet
         }
         .task { await loadData() }
         .onReceive(timer) { _ in
@@ -42,6 +54,63 @@ struct LedgerView: View {
     }
 
     // MARK: - Ledger List
+
+    // MARK: - Deposit Sheet
+
+    private var depositSheet: some View {
+        VStack(spacing: 16) {
+            Text("Deposit Capital")
+                .font(.system(.headline, design: .monospaced))
+
+            TextField("Amount ($)", text: $depositAmount)
+                .font(.system(.body, design: .monospaced))
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 200)
+                #if os(iOS)
+                .keyboardType(.decimalPad)
+                #endif
+
+            HStack(spacing: 12) {
+                Button("Cancel") {
+                    depositAmount = ""
+                    showDepositSheet = false
+                }
+                .keyboardShortcut(.cancelAction)
+
+                Button("Deposit") {
+                    Task { await submitDeposit() }
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(Double(depositAmount) == nil || Double(depositAmount)! <= 0 || isDepositing)
+            }
+
+            if isDepositing {
+                ProgressView()
+                    .controlSize(.small)
+            }
+        }
+        .padding(24)
+        .frame(minWidth: 280)
+    }
+
+    private func submitDeposit() async {
+        guard let amount = Double(depositAmount), amount > 0 else { return }
+        isDepositing = true
+        do {
+            _ = try await client.insertDeposit(amount: amount)
+            await MainActor.run {
+                depositAmount = ""
+                showDepositSheet = false
+                isDepositing = false
+            }
+            await loadData()
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                isDepositing = false
+            }
+        }
+    }
 
     private var ledgerList: some View {
         ScrollView {

@@ -263,6 +263,20 @@ final class TursoClient {
             updatedAt: getString(row, result.cols, "updated_at")
         )
     }
+
+    /// Insert a deposit into the account_ledger. Returns the new balance.
+    func insertDeposit(amount: Double) async throws -> Double {
+        // First get current balance
+        let balanceSQL = "SELECT balance_after FROM account_ledger ORDER BY id DESC LIMIT 1"
+        let balResult = try await executeSQL(balanceSQL)
+        let currentBalance = balResult.rows.first.flatMap { getDouble($0, balResult.cols, "balance_after") } ?? 0
+        let newBalance = currentBalance + amount
+        let timestamp = Date().timeIntervalSince1970
+
+        let insertSQL = "INSERT INTO account_ledger (type, amount, balance_after, note, timestamp) VALUES ('DEPOSIT', \(amount), \(newBalance), 'Manual deposit via Neko Trade', \(timestamp))"
+        _ = try await executeSQL(insertSQL)
+        return newBalance
+    }
 }
 
 // MARK: - Errors
