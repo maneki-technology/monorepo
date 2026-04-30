@@ -89,9 +89,13 @@ class BaseStrategy:
         self.ma_sum: float = 0.0
         self.ma_filled: bool = False
 
-        # Vol-trailing state
-        self.vol_buf: deque[float] = deque(maxlen=cfg.trail_window)
+        # Vol-trailing state (matches Zig: log returns, ratio to cumulative avg)
+        self.vol_returns: deque[float] = deque(maxlen=cfg.trail_window)
         self.current_trail: float = cfg.trail_pct
+        self.last_price: float = 0.0
+        self.cum_vol_sum: float = 0.0
+        self.cum_vol_count: int = 0
+        self.avg_vol: float = 0.0
 
         self.tick_count = 0
 
@@ -106,16 +110,21 @@ class BaseStrategy:
         return None
 
     def update_vol(self, price: float) -> None:
-        self.vol_buf.append(price)
-        if len(self.vol_buf) >= 2:
-            returns = []
-            buf = list(self.vol_buf)
-            for i in range(1, len(buf)):
-                if buf[i - 1] > 0:
-                    returns.append((buf[i] - buf[i - 1]) / buf[i - 1])
-            if returns:
-                std = float(np.std(returns))
-                self.current_trail = max(self.cfg.trail_pct, std * 2.0)
+        """Vol-trailing stop matching Zig: log returns, ratio to cumulative avg, clamped [0.5, 3.0]."""
+        if self.last_price > 0:
+            import math
+            ret = math.log(price / self.last_price)
+            self.vol_returns.append(ret)
+
+            if len(self.vol_returns) >= self.cfg.trail_window:
+                recent_vol = float(np.std(list(self.vol_returns), ddof=1))
+                if self.cum_vol_count > 0 and self.avg_vol > 0 and recent_vol > 0:
+                    ratio = max(0.5, min(3.0, recent_vol / self.avg_vol))
+                    self.current_trail = self.cfg.trail_pct * ratio
+                self.cum_vol_sum += recent_vol
+                self.cum_vol_count += 1
+                self.avg_vol = self.cum_vol_sum / self.cum_vol_count
+        self.last_price = price
 
     def open_position(self, price: float, time: float) -> None:
         fee = self.capital * self.cfg.fee_pct
