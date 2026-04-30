@@ -243,6 +243,13 @@ final class TursoClient {
         return getDouble(row, result.cols, "total_pnl")
     }
 
+    func fetchTotalDeposits() async throws -> Double {
+        let sql = "SELECT COALESCE(SUM(amount), 0) as total FROM account_ledger WHERE type = 'DEPOSIT'"
+        let result = try await executeSQL(sql)
+        guard let row = result.rows.first else { return 0 }
+        return getDouble(row, result.cols, "total")
+    }
+
     func fetchBotStatus() async throws -> BotStatus? {
         let sql = "SELECT * FROM bot_status WHERE id = 1"
         let result = try await executeSQL(sql)

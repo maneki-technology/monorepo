@@ -300,13 +300,16 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 if (fill.status == .filled and fill.fill_price > 0) {
                     buy_price = fill.fill_price;
                     buy_size = fill.fill_qty;
-                    // Add back unspent capital from Alpaca qty rounding
                     unspent_amt = (strategy.size - buy_size) * buy_price;
                     strategy.capital += unspent_amt;
                     strategy.entry_price = buy_price;
                     strategy.size = buy_size;
                     alpaca_oid = fill.order_id[0..fill.order_id_len];
+                } else {
+                    std.debug.print("  [alpaca] Buy order not filled: status={s}\n", .{if (fill.status == .accepted) "accepted" else "failed"});
                 }
+            } else {
+                std.debug.print("  [alpaca] Buy order failed (null)\n", .{});
             }
             if (turso != null) {
                 const fee = buy_price * buy_size * 0.001;

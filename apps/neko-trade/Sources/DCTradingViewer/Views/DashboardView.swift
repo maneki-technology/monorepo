@@ -6,6 +6,7 @@ struct DashboardView: View {
     @State private var openPosition: Position?
     @State private var latestEquity: EquityLog?
     @State private var totalPnL: Double = 0
+    @State private var totalDeposits: Double = 0
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var lastRefresh: Date?
