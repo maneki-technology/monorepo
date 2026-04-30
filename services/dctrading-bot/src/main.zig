@@ -176,11 +176,46 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     // Reconcile with Alpaca position (source of truth for execution)
     if (alpaca.getPosition()) |pos| {
         if (pos.qty > 0) {
+            const prev_size = strategy.size;
+            const prev_in_pos = strategy.in_position;
+
+            if (!prev_in_pos and pos.qty > 0) {
+                // Manual buy while bot was down — deposit + buy
+                const cost = pos.entry_price * pos.qty;
+                const fee_est = cost * strategy.fee_pct;
+                strategy.capital += cost; // deposit external capital
+                strategy.capital -= (cost + fee_est); // buy
+                std.debug.print("  [alpaca] Manual buy detected at startup: entry=${d:.2} qty={d:.8} (deposit +${d:.2})\n", .{ pos.entry_price, pos.qty, cost });
+                if (turso != null) {
+                    const now: f64 = @floatFromInt(time(null));
+                    turso.?.logLedgerSync("DEPOSIT", cost, strategy.capital + cost + fee_est, "Manual buy (external capital, startup)", now);
+                    turso.?.logBuy(pos.entry_price, pos.qty, fee_est, now);
+                    turso.?.logPositionOpen(pos.entry_price, now, pos.qty, fee_est, pos.entry_price, "");
+                    turso.?.logLedger("ENTRY_FEE", -fee_est, strategy.capital, "Manual buy fee (startup)", now);
+                }
+            } else if (prev_in_pos and pos.qty > prev_size + 0.00000001) {
+                // Manual buy-add while bot was down — deposit + blend
+                const added_qty = pos.qty - prev_size;
+                const added_cost = pos.entry_price * added_qty;
+                const fee_est = added_cost * strategy.fee_pct;
+                strategy.capital += added_cost; // deposit
+                strategy.entry_price = (strategy.entry_price * prev_size + pos.entry_price * added_qty) / pos.qty;
+                strategy.capital -= (added_cost + fee_est); // buy
+                std.debug.print("  [alpaca] Manual buy-add at startup: +{d:.8} BTC, deposit +${d:.2}\n", .{ added_qty, added_cost });
+                if (turso != null) {
+                    const now: f64 = @floatFromInt(time(null));
+                    turso.?.logLedgerSync("DEPOSIT", added_cost, strategy.capital + added_cost + fee_est, "Manual buy add (external capital, startup)", now);
+                    turso.?.logBuy(pos.entry_price, added_qty, fee_est, now);
+                    turso.?.logLedger("ENTRY_FEE", -fee_est, strategy.capital, "Manual buy fee (startup)", now);
+                    turso.?.updatePositionSize(strategy.entry_price, pos.qty);
+                }
+            }
+
             strategy.in_position = true;
-            strategy.entry_price = pos.entry_price;
+            strategy.entry_price = if (!prev_in_pos) pos.entry_price else strategy.entry_price;
             strategy.size = pos.qty;
             strategy.peak_price = pos.entry_price;
-            std.debug.print("  [alpaca] Synced position: entry=${d:.2} qty={d:.8}\n", .{ pos.entry_price, pos.qty });
+            std.debug.print("  [alpaca] Synced position: entry=${d:.2} qty={d:.8}\n", .{ strategy.entry_price, pos.qty });
         }
     } else {
         // Alpaca has no position — if we think we have one, clear it
