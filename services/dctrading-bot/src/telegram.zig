@@ -128,6 +128,7 @@ pub const Telegram = struct {
             std.debug.print("  [telegram] Send failed.\n", .{});
         }
 
+
         // Send to ntfy
         if (self.ntfy_topic.len > 0) {
             var ntfy_url_buf: [128]u8 = undefined;
@@ -141,16 +142,17 @@ pub const Telegram = struct {
             } else |_| {
                 std.debug.print("  [ntfy] Send failed.\n", .{});
             }
+
         }
     }
 
     /// Synchronous send — for shutdown (must complete before exit).
     /// Uses popen(curl) as fallback since HTTP client connections may be stale.
     fn sendSync(self: *const Telegram, text: []const u8) void {
-        // Try native HTTP first
-        self.doSend(text);
+        // Skip native HTTP — connections are stale after signal interrupt.
+        // Go straight to curl which is reliable during shutdown.
 
-        // Fallback: curl for reliability during shutdown
+        // curl for reliability during shutdown
         var url_buf: [256]u8 = undefined;
         const url_str = std.fmt.bufPrint(&url_buf,
             "curl -s -X POST 'https://api.telegram.org/bot{s}/sendMessage' -H 'Content-Type: application/json' -d '{{\"chat_id\":\"{s}\",\"text\":\"{s}\"}}'\x00",

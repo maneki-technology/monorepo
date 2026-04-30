@@ -37,17 +37,22 @@ pub const HttpClient = struct {
 
     /// POST JSON to a URL with custom headers. Returns owned response body.
     pub fn post(self: *HttpClient, url: []const u8, headers: []const Header, body: []const u8) !Response {
-        return self.doRequest(.POST, url, headers, body);
+        return self.doRequest(.POST, url, headers, body, 64 * 1024);
     }
 
     /// GET from a URL with custom headers. Returns owned response body.
     pub fn get(self: *HttpClient, url: []const u8, headers: []const Header) !Response {
-        return self.doRequest(.GET, url, headers, null);
+        return self.doRequest(.GET, url, headers, null, 64 * 1024);
     }
 
     /// DELETE from a URL with custom headers. Returns owned response body.
     pub fn delete(self: *HttpClient, url: []const u8, headers: []const Header) !Response {
-        return self.doRequest(.DELETE, url, headers, null);
+        return self.doRequest(.DELETE, url, headers, null, 64 * 1024);
+    }
+
+    /// GET with custom max response size (for large payloads like Binance klines).
+    pub fn getLarge(self: *HttpClient, url: []const u8, headers: []const Header, max_response_bytes: usize) !Response {
+        return self.doRequest(.GET, url, headers, null, max_response_bytes);
     }
 
     fn doRequest(
@@ -56,6 +61,7 @@ pub const HttpClient = struct {
         url: []const u8,
         headers: []const Header,
         body: ?[]const u8,
+        max_response_bytes: usize,
     ) !Response {
         const uri = try Uri.parse(url);
 
@@ -82,7 +88,7 @@ pub const HttpClient = struct {
         }
 
         var response = try req.receiveHead(&.{});
-        const resp_body = try response.reader(&.{}).allocRemaining(self.allocator, .limited(64 * 1024));
+        const resp_body = try response.reader(&.{}).allocRemaining(self.allocator, .limited(max_response_bytes));
 
         return .{
             .status = response.head.status,

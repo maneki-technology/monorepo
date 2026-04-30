@@ -115,7 +115,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     if (!loaded_checkpoint) {
         // Fresh start: full bootstrap from 60 days of 1m klines
         std.debug.print("  No checkpoint found, bootstrapping from historical data...\n", .{});
-        const closes = feed_mod.fetch1mCloses(allocator, "BTC/USDT", 87500) catch |err| {
+        const closes = feed_mod.fetch1mCloses(allocator, &http, "BTC/USDT", 87500) catch |err| {
             std.debug.print("  Bootstrap failed: {s}. Starting cold.\n", .{@errorName(err)});
             return;
         };
@@ -151,7 +151,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         // Resumed: catch up missed candles since last checkpoint
         const last_active: u64 = @intFromFloat(strategy.last_timestamp);
         if (last_active > 0) {
-            if (feed_mod.fetch1mClosesSince(allocator, "BTC/USDT", last_active)) |closes| {
+            if (feed_mod.fetch1mClosesSince(allocator, &http, "BTC/USDT", last_active)) |closes| {
                 if (closes.len > 0) {
                     strategy.catchup(closes);
                 }
