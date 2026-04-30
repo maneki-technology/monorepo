@@ -406,6 +406,23 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                             turso.?.logLedger("ENTRY_FEE", -fee_est, strategy.capital, "Manual buy fee (add)", t.timestamp);
                             turso.?.logLedger("BUY", -added_cost, strategy.capital, "Manual buy (add)", t.timestamp);
                         }
+                    } else if (strategy.in_position and pos.qty < strategy.size - 0.00000001) {
+                        // Partial manual sell detected — reduce position
+                        const sold_qty = strategy.size - pos.qty;
+                        const proceeds = t.price * sold_qty;
+                        const fee_est = proceeds * strategy.fee_pct;
+                        const raw_pnl = (t.price - strategy.entry_price) * sold_qty;
+                        const net_pnl = raw_pnl - fee_est;
+                        strategy.capital += net_pnl;
+                        strategy.size = pos.qty;
+                        strategy.entry_price = pos.entry_price;
+                        std.debug.print("  MANUAL SELL (partial): -{d:.8} BTC, pnl=${d:.2}\n", .{ sold_qty, net_pnl });
+                        if (tg) |tel| tel.notifySell(t.price, net_pnl, "manual_partial", regime_str, instance);
+                        if (turso != null) {
+                            turso.?.logSell(t.price, sold_qty, fee_est, t.timestamp);
+                            turso.?.logLedger("SELL", proceeds, strategy.capital + fee_est, "Manual partial sell", t.timestamp);
+                            turso.?.logLedger("EXIT_FEE", -fee_est, strategy.capital, "Manual partial sell fee", t.timestamp);
+                        }
                     }
                 } else {
                     if (strategy.in_position) {

@@ -720,3 +720,140 @@ test "strategy: equity correct after Alpaca fill with price drift" {
     try testing.expect(final_capital < 1000.0);
     try testing.expect(final_capital > 996.0);
 }
+
+
+// ============================================================
+// Manual Trade Reconciliation Tests
+// ============================================================
+
+test "reconcile: manual buy when no position" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Simulate manual buy detected from Alpaca
+    const alpaca_price = 80000.0;
+    const alpaca_qty = 0.01;
+    const cost = alpaca_price * alpaca_qty; // 800
+    const fee_est = cost * s.fee_pct; // 0.80
+
+    s.in_position = true;
+    s.entry_price = alpaca_price;
+    s.size = alpaca_qty;
+    s.peak_price = alpaca_price;
+    s.capital -= (cost + fee_est);
+
+    try testing.expect(s.in_position);
+    try testing.expectApproxEqAbs(s.size, 0.01, 0.0001);
+    try testing.expectApproxEqAbs(s.entry_price, 80000.0, 0.01);
+    try testing.expectApproxEqAbs(s.capital, 1000.0 - 800.0 - 0.80, 0.01);
+}
+
+test "reconcile: manual buy added to existing position (blend entry)" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Existing position
+    s.in_position = true;
+    s.entry_price = 75000.0;
+    s.size = 0.01;
+    s.peak_price = 76000.0;
+    s.capital = 250.0; // after initial buy
+
+    // Alpaca reports more qty at different price
+    const alpaca_qty = 0.015; // added 0.005
+    const alpaca_entry = 76000.0; // Alpaca's blended avg
+    const added_qty = alpaca_qty - s.size; // 0.005
+    const added_cost = alpaca_entry * added_qty; // 380
+    const fee_est = added_cost * s.fee_pct; // 0.38
+
+    // Blend entry price
+    s.entry_price = (s.entry_price * s.size + alpaca_entry * added_qty) / alpaca_qty;
+    s.size = alpaca_qty;
+    s.capital -= (added_cost + fee_est);
+
+    try testing.expectApproxEqAbs(s.size, 0.015, 0.0001);
+    // Blended: (75000*0.01 + 76000*0.005) / 0.015 = (750+380)/0.015 = 75333.33
+    try testing.expectApproxEqAbs(s.entry_price, 75333.33, 0.01);
+    try testing.expectApproxEqAbs(s.capital, 250.0 - 380.0 - 0.38, 0.01);
+}
+
+test "reconcile: manual full sell" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Bot has open position
+    s.in_position = true;
+    s.entry_price = 80000.0;
+    s.size = 0.01;
+    s.peak_price = 82000.0;
+    s.capital = 200.0;
+
+    // Alpaca has no position — manual sell at current price
+    const sell_price = 85000.0;
+    const proceeds = sell_price * s.size; // 850
+    const fee_est = proceeds * s.fee_pct; // 0.85
+    const raw_pnl = (sell_price - s.entry_price) * s.size; // 50
+    const net_pnl = raw_pnl - fee_est; // 49.15
+
+    s.capital += net_pnl;
+    s.in_position = false;
+    s.size = 0;
+    s.entry_price = 0;
+    s.peak_price = 0;
+
+    try testing.expect(!s.in_position);
+    try testing.expectApproxEqAbs(s.size, 0, 0.0001);
+    try testing.expectApproxEqAbs(s.capital, 200.0 + 49.15, 0.01);
+}
+
+test "reconcile: manual partial sell" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Bot has open position
+    s.in_position = true;
+    s.entry_price = 80000.0;
+    s.size = 0.02;
+    s.peak_price = 82000.0;
+    s.capital = 100.0;
+
+    // Alpaca reports reduced qty (sold half)
+    const alpaca_qty = 0.01;
+    const sold_qty = s.size - alpaca_qty; // 0.01
+    const current_price = 85000.0;
+    const proceeds = current_price * sold_qty; // 850
+    const fee_est = proceeds * s.fee_pct; // 0.85
+    const raw_pnl = (current_price - s.entry_price) * sold_qty; // 50
+    const net_pnl = raw_pnl - fee_est; // 49.15
+
+    s.capital += net_pnl;
+    s.size = alpaca_qty;
+
+    try testing.expect(s.in_position); // still in position
+    try testing.expectApproxEqAbs(s.size, 0.01, 0.0001);
+    try testing.expectApproxEqAbs(s.capital, 100.0 + 49.15, 0.01);
+}
