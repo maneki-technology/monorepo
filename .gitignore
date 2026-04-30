@@ -54,3 +54,21 @@ playwright-report/
 !apps/catalog/public/favicon.png
 !apps/blog/public/favicon.png
 .playwright-mcp/
+
+# Zig
+zig-out/
+.zig-cache/
+*.bin
+
+# Swift
+*.xcodeproj/
+DerivedData/
+*.xcworkspace/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+data/cache/
+*.pkl
