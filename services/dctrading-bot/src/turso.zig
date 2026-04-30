@@ -118,6 +118,15 @@ pub const Turso = struct {
         self.execAsync(sql);
     }
 
+    /// Update open position size and entry price (async). Used for manual buy-add and partial sell.
+    pub fn updatePositionSize(self: *const Turso, entry_price: f64, size: f64) void {
+        var buf: [512]u8 = undefined;
+        const sql = std.fmt.bufPrint(&buf,
+            \\{{"requests": [{{"type": "execute", "stmt": {{"sql": "UPDATE positions SET entry_price={d:.8}, size={d:.8} WHERE id=(SELECT id FROM positions WHERE status='OPEN' ORDER BY id DESC LIMIT 1)"}}}}]}}
+        , .{ entry_price, size }) catch return;
+        self.execAsync(sql);
+    }
+
     /// Log equity snapshot (async).
     pub fn logEquity(self: *const Turso, timestamp: f64, tick_count: u64, capital: f64, equity: f64, unrealized: f64, regime: []const u8, price: f64) void {
         var buf: [1024]u8 = undefined;

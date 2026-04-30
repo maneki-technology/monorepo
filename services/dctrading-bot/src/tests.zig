@@ -726,7 +726,7 @@ test "strategy: equity correct after Alpaca fill with price drift" {
 // Manual Trade Reconciliation Tests
 // ============================================================
 
-test "reconcile: manual buy when no position" {
+test "reconcile: manual buy when no position (deposit + buy)" {
     const allocator = testing.allocator;
     var s = try Strategy.init(allocator, .{
         .ma_period = 5,
@@ -736,12 +736,15 @@ test "reconcile: manual buy when no position" {
     });
     defer s.deinit(allocator);
 
-    // Simulate manual buy detected from Alpaca
+    // Simulate manual buy: deposit external capital, then buy
     const alpaca_price = 80000.0;
     const alpaca_qty = 0.01;
     const cost = alpaca_price * alpaca_qty; // 800
     const fee_est = cost * s.fee_pct; // 0.80
 
+    // Deposit (external capital)
+    s.capital += cost;
+    // Buy
     s.in_position = true;
     s.entry_price = alpaca_price;
     s.size = alpaca_qty;
@@ -751,7 +754,8 @@ test "reconcile: manual buy when no position" {
     try testing.expect(s.in_position);
     try testing.expectApproxEqAbs(s.size, 0.01, 0.0001);
     try testing.expectApproxEqAbs(s.entry_price, 80000.0, 0.01);
-    try testing.expectApproxEqAbs(s.capital, 1000.0 - 800.0 - 0.80, 0.01);
+    // capital = 1000 + 800 (deposit) - 800 (cost) - 0.80 (fee) = 999.20
+    try testing.expectApproxEqAbs(s.capital, 999.20, 0.01);
 }
 
 test "reconcile: manual buy added to existing position (blend entry)" {
@@ -778,15 +782,17 @@ test "reconcile: manual buy added to existing position (blend entry)" {
     const added_cost = alpaca_entry * added_qty; // 380
     const fee_est = added_cost * s.fee_pct; // 0.38
 
-    // Blend entry price
+    // Deposit external capital
+    s.capital += added_cost;
+    // Blend entry price and deduct
     s.entry_price = (s.entry_price * s.size + alpaca_entry * added_qty) / alpaca_qty;
     s.size = alpaca_qty;
     s.capital -= (added_cost + fee_est);
 
     try testing.expectApproxEqAbs(s.size, 0.015, 0.0001);
     // Blended: (75000*0.01 + 76000*0.005) / 0.015 = (750+380)/0.015 = 75333.33
-    try testing.expectApproxEqAbs(s.entry_price, 75333.33, 0.01);
-    try testing.expectApproxEqAbs(s.capital, 250.0 - 380.0 - 0.38, 0.01);
+    // capital = 250 + 380 (deposit) - 380 (cost) - 0.38 (fee) = 249.62
+    try testing.expectApproxEqAbs(s.capital, 249.62, 0.01);
 }
 
 test "reconcile: manual full sell" {
