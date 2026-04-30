@@ -27,7 +27,6 @@ maneki-monorepo/
 │   ├── adr/                 # architectural decision records (see docs/adr/README.md)
 │   ├── WEB_COMPONENTS_LESSONS.md  # Lessons learned building Web Components
 │   └── AI_STREAMING_LESSONS.md   # Lessons learned streaming AI on CF Workers
-│   └── WEB_COMPONENTS_LESSONS.md  # Lessons learned building Web Components
 ├── shared/                  # Shared build utilities
 │   └── vite-dev-aliases.ts  # Dev aliases for cross-package HMR
 ├── package.json             # npm workspaces root
@@ -44,6 +43,7 @@ maneki-monorepo/
 │   │                        # Overlays: modal, popover (focus mgmt), tooltip (aria-describedby)
 │   │                        # Tabs: tab-item, tab-group
 │   │                        # Tags: tag (selectable/toggle)
+│   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints, dark-theme, token-constants, shape (@maneki/foundation)
 ├── services/
 │   └── dctrading-bot/       # BTC trading bot (Zig 0.16, Binance WS, Alpaca, Turso)
 │       ├── src/              # main, strategy, feed, alpaca, turso, telegram, http_client, tests
@@ -54,11 +54,10 @@ maneki-monorepo/
 │       ├── src/dctrading/    # DC strategy, sentiment module, backtest
 │       └── scripts/          # backtest_fast, news_monitor, test_sentiment
 ├── .env.example             # Shared env template (Alpaca, Turso, Telegram, ntfy)
-│   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints, dark-theme, token-constants, shape (@maneki/foundation)
 ├── apps/
 │   ├── catalog/             # Visual catalog app + Playwright regression tests (@maneki/catalog)
-│   ├── blog/                # Personal blog + portfolio (@maneki/blog)
-│   └── neko-trade/          # DCTrading dashboard (SwiftUI, macOS + iOS)
+│   ├── neko-trade/          # DCTrading dashboard (SwiftUI, macOS + iOS)
+│   └── blog/                # Personal blog + portfolio (@maneki/blog)
 │       ├── admin.html            # Admin hub entry point (/admin)
 │       ├── admin/                # Admin sub-pages
 │       │   ├── editor.html       # Editor entry point (/admin/editor)

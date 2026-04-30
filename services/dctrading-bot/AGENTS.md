@@ -48,7 +48,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `positions` — OPEN/CLOSED with entry/exit prices, PnL, signal_price, alpaca_order_id.
 - `equity_log` — Periodic snapshots (every 5 min + on trades): capital, equity, unrealized, regime, price.
 - `bot_status` — Single row (id=1): regime, position, equity, version (DCTRADE4@instance).
-- `account_ledger` — Full audit trail: DEPOSIT, ENTRY_FEE, BUY, SELL, EXIT_FEE, UNSPENT with running balance.
+- `account_ledger` — Full audit trail: DEPOSIT, ENTRY_FEE, BUY, SELL, EXIT_FEE with running balance.
 
 ### Build
 ```bash

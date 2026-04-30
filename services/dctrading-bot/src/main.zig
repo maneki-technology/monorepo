@@ -297,15 +297,10 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 const buy_cost = buy_price * buy_size;
                 const cash_after_fee = strategy.initial_capital - fee;
                 const cash_after_buy = cash_after_fee - buy_cost;
-                const cash_after_unspent = cash_after_buy + unspent_amt;
                 turso.?.logBuy(buy_price, buy_size, fee, t.timestamp);
                 turso.?.logPositionOpen(buy_price, t.timestamp, buy_size, fee, signal_price, alpaca_oid);
                 turso.?.logLedger("ENTRY_FEE", -fee, cash_after_fee, "BUY fee 0.1%", t.timestamp);
                 turso.?.logLedger("BUY", -buy_cost, cash_after_buy, "Bought BTC", t.timestamp);
-                if (unspent_amt > 0.001) {
-                    std.debug.print("  [ledger] UNSPENT: ${d:.6}\n", .{unspent_amt});
-                    turso.?.logLedger("UNSPENT", unspent_amt, cash_after_unspent, "Alpaca qty rounding", t.timestamp);
-                }
             }
             if (tg) |tl| {
                 const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
