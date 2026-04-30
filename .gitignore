@@ -58,6 +58,7 @@ playwright-report/
 # Zig
 zig-out/
 .zig-cache/
+zig-pkg/
 *.bin
 
 # Swift
