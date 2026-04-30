@@ -188,6 +188,16 @@ pub const Turso = struct {
         return parseFirstValueFloat(resp.body);
     }
 
+    /// Query total deposits from account_ledger (blocking).
+    pub fn queryTotalDeposits(self: *const Turso) ?f64 {
+        const sql =
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "SELECT COALESCE(SUM(amount), 0) as total FROM account_ledger WHERE type='DEPOSIT'"}}]}
+        ;
+        const resp = self.execSyncRead(sql) orelse return null;
+        defer resp.deinit();
+        return parseFirstValueFloat(resp.body);
+    }
+
     /// Query latest capital from equity_log (blocking).
     pub fn queryLatestCapital(self: *const Turso) ?f64 {
         const sql =

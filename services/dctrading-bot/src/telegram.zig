@@ -40,6 +40,15 @@ pub const Telegram = struct {
         self.send(msg);
     }
 
+    pub fn notifyDeposit(self: *const Telegram, amount: f64, capital: f64, instance: []const u8) void {
+        var buf: [256]u8 = undefined;
+        const msg = std.fmt.bufPrint(&buf,
+            "\xf0\x9f\x92\xb0 Deposit: +${d:.2}\nCapital: ${d:.2}\nInstance: {s}",
+            .{ amount, capital, instance },
+        ) catch return;
+        self.send(msg);
+    }
+
     pub fn notifySell(self: *const Telegram, price: f64, pnl: f64, exit_type: []const u8, regime: []const u8, instance: []const u8) void {
         var buf: [512]u8 = undefined;
         const emoji = if (pnl >= 0) "🟢" else "🔴";

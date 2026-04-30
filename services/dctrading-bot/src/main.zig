@@ -162,6 +162,17 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         }
     }
 
+    // Reconcile deposits made while bot was down
+    if (loaded_checkpoint and turso != null) {
+        if (turso.?.queryLedgerBalance()) |ledger_bal| {
+            if (ledger_bal > strategy.capital + 0.01) {
+                const deposit = ledger_bal - strategy.capital;
+                strategy.capital = ledger_bal;
+                std.debug.print("  Deposit reconciled: +${d:.2} (capital now ${d:.2})\n", .{ deposit, strategy.capital });
+            }
+        }
+    }
+
     // Reconcile with Alpaca position (source of truth for execution)
     if (alpaca.getPosition()) |pos| {
         if (pos.qty > 0) {
@@ -198,6 +209,8 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     }
     var last_feed_ts: f64 = 0;
     var last_equity_ts: f64 = 0;
+    var last_deposit_check: f64 = 0;
+    var known_total_deposits: f64 = if (turso != null) (turso.?.queryTotalDeposits() orelse capital) else capital;
     var last_price: f64 = 0;
     var prev_regime = strategy.regime;
     const uptime_start: f64 = @floatFromInt(time(null));
@@ -342,6 +355,20 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             if (equity_interval or traded) {
                 turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, equity, unrealized, regime_str, t.price);
                 last_equity_ts = t.timestamp;
+            }
+            // Check for new deposits every 5 min
+            if (t.timestamp - last_deposit_check >= 300.0) {
+                last_deposit_check = t.timestamp;
+                if (turso.?.queryTotalDeposits()) |total| {
+                    if (total > known_total_deposits) {
+                        const deposit = total - known_total_deposits;
+                        strategy.capital += deposit;
+                        known_total_deposits = total;
+                        std.debug.print("  DEPOSIT detected: +${d:.2} (capital now ${d:.2})\n", .{ deposit, strategy.capital });
+                        turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, strategy.capital + unrealized, unrealized, regime_str, t.price);
+                        if (tg) |tel| tel.notifyDeposit(deposit, strategy.capital, instance);
+                    }
+                }
             }
         }
     }
