@@ -28,7 +28,7 @@ echo "  macOS binary ready."
 # Start local bot
 echo "  Starting local bot..."
 tmux has-session -t trading 2>/dev/null || tmux new-session -d -s trading
-tmux send-keys -t trading "source $PROJECT_DIR/.env && cd $PROJECT_DIR && ./zig-out/bin/dctrading -" Enter
+tmux send-keys -t trading "source $PROJECT_DIR/.env && cd $PROJECT_DIR && caffeinate -s -i ./zig-out/bin/dctrading -" Enter
 
 sleep 8
 echo "  Checking local bot..."
