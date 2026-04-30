@@ -4,7 +4,7 @@
 
 ## Overview
 
-Design system monorepo shipping Web Components, design tokens, and layout primitives — plus a full-stack blog/portfolio app built on top of them. Everything is TypeScript, built with Vite, tested with Vitest and Playwright.
+Design system monorepo shipping Web Components, design tokens, and layout primitives — plus a full-stack blog/portfolio app, an algorithmic BTC trading bot (Zig), a SwiftUI trading dashboard, and a Python research lab. Polyglot: TypeScript, Zig, Swift, Python.
 
 ## Toolchain
 
@@ -25,7 +25,7 @@ No Webpack, no Lerna, no Turborepo. The stack is intentionally minimal.
 ## Dependency Graph
 
 ```
-                    @maneki/foundation (zero deps)
+@maneki/foundation (zero deps)
                    /     |      |       \        \
                   /      |      |        \        \
     ui-components  grid-layout  flex-layout  charts
@@ -37,6 +37,11 @@ No Webpack, no Lerna, no Turborepo. The stack is intentionally minimal.
               @maneki/catalog               @maneki/blog
            (all 5 packages)          (foundation + ui-components
                                       + grid-layout + hono/turso/lit)
+
+dctrading-bot (Zig)  ←→  neko-trade (SwiftUI)  ←→  dctrading lab (Python)
+    Binance WS              reads Turso DB            backtesting
+    Alpaca trading          reads Alpaca API           MLX sentiment
+    writes Turso DB         reads Binance API          Alpaca news WS
 ```
 
 Foundation is the root — zero runtime dependencies, pure token generation. The four library packages (ui-components, grid-layout, flex-layout, charts) are siblings that don't depend on each other. The two apps sit at the top of the graph.
@@ -52,10 +57,13 @@ Foundation is the root — zero runtime dependencies, pure token generation. The
 | charts | foundation | SVG chart components |
 | catalog (app) | all 5 packages | Visual catalog + Playwright tests |
 | blog (app) | foundation, ui-components, grid-layout, hono, @libsql/client, lit, zod, leaflet | Full-stack app |
+| neko-trade (app) | none | SwiftUI, no npm deps |
+| dctrading-bot (service) | none | Zig 0.16, single static binary |
+| dctrading (lab) | numpy, pandas, torch, mlx-lm, websocket-client | Python 3.12 |
 
 ## Build Orchestration
 
-Moon auto-discovers projects via `apps/*` and `packages/*` globs. Build tasks declare dependencies using Moon's `deps` and `dependsOn` fields.
+Moon auto-discovers projects via `apps/*`, `packages/*`, `services/*`, and `labs/*` globs. Build tasks declare dependencies using Moon's `deps` and `dependsOn` fields.
 
 ### Build Pipeline
 
@@ -76,6 +84,9 @@ Apps: `vite build` → `dist/`
 | flex-layout | none declared | Builds independently |
 | catalog | `^:build` | Waits for all npm deps to build |
 | blog | `^:build` | Waits for all npm deps to build |
+| dctrading-bot | none | Zig build, independent of npm |
+| neko-trade | none | Swift build via xcodegen, independent of npm |
+| dctrading | none | Python, no build step |
 
 ### Dev-Time Resolution
 
