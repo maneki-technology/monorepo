@@ -84,90 +84,10 @@ pub const Turso = struct {
         ;
         const core_ok = self.execSync(sql_core);
         const acct_ok = self.execSync(sql_acct);
-        // Migrate existing tables: add price/size columns (silently fails if already present)
-        _ = self.execSync(
-            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE transfers ADD COLUMN price REAL NOT NULL DEFAULT 0"}}]}
-        );
-        _ = self.execSync(
-            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE transfers ADD COLUMN size REAL NOT NULL DEFAULT 0"}}]}
-        );
         if (core_ok and acct_ok) {
             std.debug.print("  [turso] Tables ready.\n", .{});
         } else {
             std.debug.print("  [turso] WARNING: Table creation may have failed.\n", .{});
-        }
-        // One-time migration: backfill old account_ledger data into transfers
-        self.migrateOldData();
-    }
-
-    /// One-time migration: backfill account_ledger entries into transfers table.
-    /// Idempotent: only runs if transfers is empty and account_ledger has data.
-    fn migrateOldData(self: *const Turso) void {
-        // Check if migration is needed: transfers empty + account_ledger exists with data
-        const check_sql =
-            \\{"requests": [{"type": "execute", "stmt": {"sql": "SELECT (SELECT COUNT(*) FROM transfers) as t_count, (SELECT COUNT(*) FROM account_ledger) as l_count"}}]}
-        ;
-        const check_resp = self.execSyncRead(check_sql) orelse return;
-        defer check_resp.deinit();
-
-        // Parse both counts from the response
-        const r = check_resp.body;
-        const vkey = "\"value\":";
-        const vpos1 = std.mem.indexOf(u8, r, vkey) orelse return;
-        var pos = vpos1 + vkey.len;
-        // Parse t_count
-        var t_count: u32 = 0;
-        if (pos < r.len and r[pos] == '"') {
-            pos += 1;
-            const end = std.mem.indexOf(u8, r[pos..], "\"") orelse return;
-            t_count = std.fmt.parseInt(u32, r[pos..][0..end], 10) catch return;
-            pos += end + 1;
-        } else {
-            var end = pos;
-            while (end < r.len and r[end] != ',' and r[end] != '}') : (end += 1) {}
-            t_count = std.fmt.parseInt(u32, r[pos..end], 10) catch return;
-            pos = end;
-        }
-        // Parse l_count
-        const vpos2 = std.mem.indexOf(u8, r[pos..], vkey) orelse return;
-        pos = pos + vpos2 + vkey.len;
-        var l_count: u32 = 0;
-        if (pos < r.len and r[pos] == '"') {
-            pos += 1;
-            const end = std.mem.indexOf(u8, r[pos..], "\"") orelse return;
-            l_count = std.fmt.parseInt(u32, r[pos..][0..end], 10) catch return;
-        } else {
-            var end = pos;
-            while (end < r.len and r[end] != ',' and r[end] != '}') : (end += 1) {}
-            l_count = std.fmt.parseInt(u32, r[pos..end], 10) catch return;
-        }
-
-        if (t_count > 0 or l_count == 0) {
-            // Already migrated or nothing to migrate
-            return;
-        }
-
-        std.debug.print("  [turso] Migrating {d} ledger entries to transfers...\n", .{l_count});
-
-        // Migrate account_ledger entries to transfers using INSERT...SELECT
-        // Map old types to new transfer codes and account pairs:
-        //   DEPOSIT    → code=1, debit=cash(1), credit=equity(4)
-        //   BUY        → code=2, debit=btc(2), credit=cash(1)
-        //   SELL       → code=3, debit=cash(1), credit=btc(2)
-        //   ENTRY_FEE  → code=4, debit=fees(3), credit=cash(1)
-        //   EXIT_FEE   → code=4, debit=fees(3), credit=cash(1)
-        const migrate_sql =
-            \\{"requests": [
-            \\  {"type": "execute", "stmt": {"sql": "BEGIN"}},
-            \\  {"type": "execute", "stmt": {"sql": "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, user_data, timestamp) SELECT CASE type WHEN 'DEPOSIT' THEN 1 WHEN 'BUY' THEN 2 WHEN 'SELL' THEN 1 WHEN 'ENTRY_FEE' THEN 3 WHEN 'EXIT_FEE' THEN 3 ELSE 1 END, CASE type WHEN 'DEPOSIT' THEN 4 WHEN 'BUY' THEN 1 WHEN 'SELL' THEN 2 WHEN 'ENTRY_FEE' THEN 1 WHEN 'EXIT_FEE' THEN 1 ELSE 1 END, ABS(amount), CASE type WHEN 'DEPOSIT' THEN 1 WHEN 'BUY' THEN 2 WHEN 'SELL' THEN 3 WHEN 'ENTRY_FEE' THEN 4 WHEN 'EXIT_FEE' THEN 4 ELSE 0 END, 0, 'posted', note, timestamp FROM account_ledger ORDER BY id ASC"}},
-            \\  {"type": "execute", "stmt": {"sql": "UPDATE accounts SET credits_posted = COALESCE((SELECT SUM(amount) FROM transfers WHERE debit_account_id = accounts.id AND status = 'posted'), 0), debits_posted = COALESCE((SELECT SUM(amount) FROM transfers WHERE credit_account_id = accounts.id AND status = 'posted'), 0)"}},
-            \\  {"type": "execute", "stmt": {"sql": "COMMIT"}}
-            \\]}
-        ;
-        if (self.execSync(migrate_sql)) {
-            std.debug.print("  [turso] Migration complete.\n", .{});
-        } else {
-            std.debug.print("  [turso] WARNING: Migration may have failed.\n", .{});
         }
     }
 
