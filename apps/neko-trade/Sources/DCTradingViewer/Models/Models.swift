@@ -84,6 +84,8 @@ struct Transfer: Identifiable, Codable {
     let flags: Int
     let status: String     // pending/posted/voided
     let userData: String?
+    let price: Double
+    let size: Double
     let timestamp: String
     let createdAt: String
 

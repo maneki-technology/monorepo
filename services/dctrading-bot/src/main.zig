@@ -136,7 +136,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 // First run — log initial deposit (skip if $0)
                 if (capital > 0) {
                     const now: f64 = @floatFromInt(time(null));
-                    turso.?.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_EQUITY, capital, turso_mod.Turso.CODE_DEPOSIT, "Initial capital", now);
+                    turso.?.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_EQUITY, capital, turso_mod.Turso.CODE_DEPOSIT, "Initial capital", now, 0, 0);
                     std.debug.print("  Logged initial deposit: ${d:.2}\n", .{capital});
                 } else {
                     std.debug.print("  No initial capital. Waiting for deposit.\n", .{});
@@ -278,13 +278,13 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 const fee = buy_price * buy_size * 0.001;
                 const buy_cost = buy_price * buy_size;
                 // Double-entry: fee transfer (cash → fees)
-                turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "BUY fee 0.1%", t.timestamp);
+                turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "BUY fee 0.1%", t.timestamp, 0, 0);
                 // Double-entry: buy transfer (btc_position ← cash)
                 var ud_buf: [256]u8 = undefined;
                 const ud = std.fmt.bufPrint(&ud_buf,
                     \\{{"price":{d:.8},"size":{d:.8},"fee":{d:.8},"signal_price":{d:.8},"order_id":"{s}"}}
                 , .{ buy_price, buy_size, fee, signal_price, alpaca_oid }) catch "{}" ;
-                turso.?.createPostedTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, buy_cost, turso_mod.Turso.CODE_BUY, ud, t.timestamp);
+                turso.?.createPostedTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, buy_cost, turso_mod.Turso.CODE_BUY, ud, t.timestamp, buy_price, buy_size);
             }
             if (tg) |tl| {
                 const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
@@ -359,14 +359,14 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                             std.debug.print("  DEPOSIT BUY: +{d:.8} BTC @ ${d:.2}, blended entry=${d:.2}\n", .{ buy_size, buy_price, strategy.entry_price });
                             if (tg) |tel| tel.notifyBuy(buy_price, buy_size, regime_str, instance);
                             // Double-entry: fee transfer for deposit buy
-                            turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "Deposit buy fee", t.timestamp);
+                            turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "Deposit buy fee", t.timestamp, 0, 0);
                             // Double-entry: buy transfer for deposit buy
                             var dep_ud_buf: [256]u8 = undefined;
                             const dep_ud = std.fmt.bufPrint(&dep_ud_buf,
                                 \\{{"price":{d:.8},"size":{d:.8},"fee":{d:.8},"deposit_buy":true}}
                             , .{ buy_price, buy_size, fee }) catch "{}";
                             const dep_buy_cost = buy_price * buy_size;
-                            turso.?.createPostedTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, dep_buy_cost, turso_mod.Turso.CODE_BUY, dep_ud, t.timestamp);
+                            turso.?.createPostedTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, dep_buy_cost, turso_mod.Turso.CODE_BUY, dep_ud, t.timestamp, buy_price, buy_size);
                         }
 
                         turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, strategy.capital + unrealized, unrealized, regime_str, t.price);
@@ -440,14 +440,14 @@ fn handleSell(trade: Trade, strategy: *const Strategy, closed_count: *u32, alpac
         const ud = std.fmt.bufPrint(&ud_buf,
             \\{{"price":{d:.8},"size":{d:.8},"fee":{d:.8},"exit_type":"{s}"}}
         , .{ sell_price, trade.size, exit_fee, exit_str }) catch "{}";
-        t.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_BTC, sell_proceeds, turso_mod.Turso.CODE_SELL, ud, timestamp);
+        t.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_BTC, sell_proceeds, turso_mod.Turso.CODE_SELL, ud, timestamp, sell_price, trade.size);
         // Double-entry: fee transfer (fees ← cash)
-        t.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, exit_fee, turso_mod.Turso.CODE_FEE, "SELL fee 0.1%", timestamp);
+        t.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, exit_fee, turso_mod.Turso.CODE_FEE, "SELL fee 0.1%", timestamp, 0, 0);
         // Double-entry: PnL transfer (if nonzero)
         if (pnl > 0) {
-            t.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_PNL, pnl, turso_mod.Turso.CODE_PNL, "Realized PnL", timestamp);
+            t.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_PNL, pnl, turso_mod.Turso.CODE_PNL, "Realized PnL", timestamp, 0, 0);
         } else if (pnl < 0) {
-            t.createPostedTransfer(turso_mod.Turso.ACCT_PNL, turso_mod.Turso.ACCT_CASH, -pnl, turso_mod.Turso.CODE_PNL, "Realized loss", timestamp);
+            t.createPostedTransfer(turso_mod.Turso.ACCT_PNL, turso_mod.Turso.ACCT_CASH, -pnl, turso_mod.Turso.CODE_PNL, "Realized loss", timestamp, 0, 0);
         }
     }
     if (tg) |tl| {

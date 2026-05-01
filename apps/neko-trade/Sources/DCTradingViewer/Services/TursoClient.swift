@@ -180,6 +180,8 @@ final class TursoClient {
                 flags: getInt(row, result.cols, "flags"),
                 status: getString(row, result.cols, "status"),
                 userData: getOptionalString(row, result.cols, "user_data"),
+                price: getDouble(row, result.cols, "price"),
+                size: getDouble(row, result.cols, "size"),
                 timestamp: getString(row, result.cols, "timestamp"),
                 createdAt: getString(row, result.cols, "created_at")
             )
@@ -288,7 +290,7 @@ final class TursoClient {
         let timestamp = Date().timeIntervalSince1970
         let statements = [
             "BEGIN",
-            "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, timestamp) VALUES (1, 4, \(amount), 1, 0, 'posted', \(timestamp))",
+            "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, price, size, timestamp) VALUES (1, 4, \(amount), 1, 0, 'posted', 0, 0, \(timestamp))",
             "UPDATE accounts SET credits_posted = credits_posted + \(amount) WHERE id = 1",
             "UPDATE accounts SET debits_posted = debits_posted + \(amount) WHERE id = 4",
             "COMMIT"

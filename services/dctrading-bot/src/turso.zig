@@ -71,7 +71,7 @@ pub const Turso = struct {
         const sql_acct =
             \\{"requests": [
             \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS accounts (id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, ledger INTEGER NOT NULL, code INTEGER NOT NULL, debits_pending REAL NOT NULL DEFAULT 0, debits_posted REAL NOT NULL DEFAULT 0, credits_pending REAL NOT NULL DEFAULT 0, credits_posted REAL NOT NULL DEFAULT 0, flags INTEGER NOT NULL DEFAULT 0, created_at TEXT DEFAULT (datetime('now')))"}},
-            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS transfers (id INTEGER PRIMARY KEY AUTOINCREMENT, debit_account_id INTEGER NOT NULL REFERENCES accounts(id), credit_account_id INTEGER NOT NULL REFERENCES accounts(id), amount REAL NOT NULL, pending_id INTEGER REFERENCES transfers(id), code INTEGER NOT NULL, flags INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'posted', user_data TEXT, timestamp REAL NOT NULL, created_at TEXT DEFAULT (datetime('now')))"}},
+            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS transfers (id INTEGER PRIMARY KEY AUTOINCREMENT, debit_account_id INTEGER NOT NULL REFERENCES accounts(id), credit_account_id INTEGER NOT NULL REFERENCES accounts(id), amount REAL NOT NULL, pending_id INTEGER REFERENCES transfers(id), code INTEGER NOT NULL, flags INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'posted', user_data TEXT, price REAL NOT NULL DEFAULT 0, size REAL NOT NULL DEFAULT 0, timestamp REAL NOT NULL, created_at TEXT DEFAULT (datetime('now')))"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE INDEX IF NOT EXISTS idx_transfers_status ON transfers(status)"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE INDEX IF NOT EXISTS idx_transfers_pending_id ON transfers(pending_id)"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE INDEX IF NOT EXISTS idx_transfers_code ON transfers(code)"}},
@@ -84,6 +84,13 @@ pub const Turso = struct {
         ;
         const core_ok = self.execSync(sql_core);
         const acct_ok = self.execSync(sql_acct);
+        // Migrate existing tables: add price/size columns (silently fails if already present)
+        _ = self.execSync(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE transfers ADD COLUMN price REAL NOT NULL DEFAULT 0"}}]}
+        );
+        _ = self.execSync(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE transfers ADD COLUMN size REAL NOT NULL DEFAULT 0"}}]}
+        );
         if (core_ok and acct_ok) {
             std.debug.print("  [turso] Tables ready.\n", .{});
         } else {
@@ -229,39 +236,36 @@ pub const Turso = struct {
     pub const FLAG_VOID_PENDING: u8 = 4;
 
     /// Create a posted transfer + update account balances atomically (async).
-    /// Used for deposits, fees, PnL — anything that settles immediately.
     /// TigerBeetle convention: debit_account receives credits, credit_account receives debits.
-    pub fn createPostedTransfer(self: *const Turso, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64) void {
+    pub fn createPostedTransfer(self: *const Turso, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64, price: f64, qty: f64) void {
         var buf: [2048]u8 = undefined;
         const sql = std.fmt.bufPrint(&buf,
             \\{{"requests": [
             \\  {{"type": "execute", "stmt": {{"sql": "BEGIN"}}}},
-            \\  {{"type": "execute", "stmt": {{"sql": "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, user_data, timestamp) VALUES ({d}, {d}, {d:.8}, {d}, 0, 'posted', '{s}', {d:.6})"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, user_data, price, size, timestamp) VALUES ({d}, {d}, {d:.8}, {d}, 0, 'posted', '{s}', {d:.8}, {d:.8}, {d:.6})"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET credits_posted = credits_posted + {d:.8} WHERE id = {d}"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET debits_posted = debits_posted + {d:.8} WHERE id = {d}"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "COMMIT"}}}}
             \\]}}
-        , .{ debit_acct, credit_acct, amount, code, user_data, timestamp, amount, debit_acct, amount, credit_acct }) catch return;
+        , .{ debit_acct, credit_acct, amount, code, user_data, price, qty, timestamp, amount, debit_acct, amount, credit_acct }) catch return;
         self.execAsync(sql);
     }
 
     /// Create a pending transfer + reserve balances atomically (sync, returns transfer ID).
-    /// Used for buy/sell orders submitted to Alpaca.
     /// TigerBeetle convention: debit_account receives credits, credit_account receives debits.
-    pub fn createPendingTransfer(self: *const Turso, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64) ?u32 {
+    pub fn createPendingTransfer(self: *const Turso, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64, price: f64, qty: f64) ?u32 {
         var buf: [2048]u8 = undefined;
         const sql = std.fmt.bufPrint(&buf,
             \\{{"requests": [
             \\  {{"type": "execute", "stmt": {{"sql": "BEGIN"}}}},
-            \\  {{"type": "execute", "stmt": {{"sql": "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, user_data, timestamp) VALUES ({d}, {d}, {d:.8}, {d}, 1, 'pending', '{s}', {d:.6}) RETURNING id"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, user_data, price, size, timestamp) VALUES ({d}, {d}, {d:.8}, {d}, 1, 'pending', '{s}', {d:.8}, {d:.8}, {d:.6}) RETURNING id"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET credits_pending = credits_pending + {d:.8} WHERE id = {d}"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET debits_pending = debits_pending + {d:.8} WHERE id = {d}"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "COMMIT"}}}}
             \\]}}
-        , .{ debit_acct, credit_acct, amount, code, user_data, timestamp, amount, debit_acct, amount, credit_acct }) catch return null;
+        , .{ debit_acct, credit_acct, amount, code, user_data, price, qty, timestamp, amount, debit_acct, amount, credit_acct }) catch return null;
         const resp = self.execSyncRead(sql) orelse return null;
         defer resp.deinit();
-        // Parse the transfer ID from the RETURNING clause (second result in pipeline)
         return parseTransferId(resp.body);
     }
 
@@ -329,50 +333,42 @@ pub const Turso = struct {
         return parseFirstValueFloat(resp.body);
     }
 
-    /// Query open position from pending buy transfer (blocking).
-    /// Reconstructs entry_price, entry_time, size from user_data JSON.
+    /// Query open position from latest buy transfer (blocking).
+    /// Reads price/size columns directly.
     pub fn queryOpenPositionNew(self: *const Turso) ?struct { entry_price: f64, entry_time: f64, size: f64, fee: f64 } {
         const sql =
-            \\{"requests": [{"type": "execute", "stmt": {"sql": "SELECT user_data, timestamp FROM transfers WHERE code = 2 AND status = 'posted' AND pending_id IS NULL ORDER BY id DESC LIMIT 1"}}]}
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "SELECT price, timestamp, size FROM transfers WHERE code = 2 AND status = 'posted' ORDER BY id DESC LIMIT 1"}}]}
         ;
         const resp = self.execSyncRead(sql) orelse return null;
         defer resp.deinit();
         const r = resp.body;
         if (std.mem.indexOf(u8, r, "\"rows\":[]") != null) return null;
 
-        // Parse user_data (first value) and timestamp (second value)
-        const vkey = "\"value\":";
-        const vpos1 = std.mem.indexOf(u8, r, vkey) orelse return null;
-        var pos = vpos1 + vkey.len;
-
-        // user_data is a JSON string like: {"price":80000.0,"size":0.01,...}
-        if (pos >= r.len or r[pos] != '"') return null;
-        pos += 1;
-        const ud_end = std.mem.indexOf(u8, r[pos..], "\"") orelse return null;
-        const user_data = r[pos..][0..ud_end];
-        pos += ud_end + 1;
-
-        // Parse timestamp (second value)
-        const vpos2 = std.mem.indexOf(u8, r[pos..], vkey) orelse return null;
-        pos = pos + vpos2 + vkey.len;
-        var ts: f64 = 0;
-        if (pos < r.len and r[pos] == '"') {
-            pos += 1;
-            const ts_end = std.mem.indexOf(u8, r[pos..], "\"") orelse return null;
-            ts = std.fmt.parseFloat(f64, r[pos..][0..ts_end]) catch 0;
-        } else {
-            var end = pos;
-            while (end < r.len and r[end] != ',' and r[end] != '}') : (end += 1) {}
-            ts = std.fmt.parseFloat(f64, r[pos..end]) catch 0;
+        // Parse 3 values: price, timestamp, size
+        const rows_pos = std.mem.indexOf(u8, r, "\"rows\":") orelse return null;
+        var pos = rows_pos;
+        var values: [3]f64 = .{ 0, 0, 0 };
+        var vi: usize = 0;
+        while (vi < 3 and pos < r.len) {
+            const vkey = "\"value\":";
+            const vpos = std.mem.indexOf(u8, r[pos..], vkey) orelse break;
+            pos = pos + vpos + vkey.len;
+            if (pos < r.len and r[pos] == '"') {
+                pos += 1;
+                const end = std.mem.indexOf(u8, r[pos..], "\"") orelse break;
+                values[vi] = std.fmt.parseFloat(f64, r[pos..][0..end]) catch 0;
+                pos += end + 1;
+            } else {
+                var end = pos;
+                while (end < r.len and r[end] != ',' and r[end] != '}') : (end += 1) {}
+                values[vi] = std.fmt.parseFloat(f64, r[pos..end]) catch 0;
+                pos = end;
+            }
+            vi += 1;
         }
-
-        // Parse price and size from user_data JSON
-        const price = parseJsonFloat(user_data, "\"price\":") orelse return null;
-        const size = parseJsonFloat(user_data, "\"size\":") orelse return null;
-        const fee = parseJsonFloat(user_data, "\"fee\":") orelse 0;
-
-        std.debug.print("  [turso] Found position from transfers: entry=${d:.2} size={d:.8}\n", .{ price, size });
-        return .{ .entry_price = price, .entry_time = ts, .size = size, .fee = fee };
+        if (values[0] == 0) return null;
+        std.debug.print("  [turso] Found position from transfers: entry=${d:.2} size={d:.8}\n", .{ values[0], values[2] });
+        return .{ .entry_price = values[0], .entry_time = values[1], .size = values[2], .fee = 0 };
     }
 
     /// Query closed trade count from transfers (blocking).
