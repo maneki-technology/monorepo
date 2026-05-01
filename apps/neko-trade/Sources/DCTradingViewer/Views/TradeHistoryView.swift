@@ -9,35 +9,35 @@ struct TradeHistoryView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showingPositions = false
-    @State private var equityData: [EquityLog] = []
+    @State private var btcPriceHistory: [(Date, Double)] = []
     private let client = TursoClient()
     private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Price chart at top
-            if settings.isConfigured && equityData.count >= 2 {
-                priceChartCard
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-            }
+        ScrollView {
+            VStack(spacing: 0) {
+                // Price chart at top
+                if settings.isConfigured && btcPriceHistory.count >= 2 {
+                    priceChartCard
+                        .padding(.horizontal)
+                        .padding(.top, 8)
+                }
 
-            HStack(spacing: 0) {
-                tabButton("Trades", isSelected: !showingPositions) { showingPositions = false }
-                tabButton("Positions", isSelected: showingPositions) { showingPositions = true }
-            }
-            .padding(.horizontal)
-            .padding(.top, 8)
+                HStack(spacing: 0) {
+                    tabButton("Trades", isSelected: !showingPositions) { showingPositions = false }
+                    tabButton("Positions", isSelected: showingPositions) { showingPositions = true }
+                }
+                .padding(.horizontal)
+                .padding(.top, 8)
 
-            Divider().padding(.top, 8)
+                Divider().padding(.top, 8)
 
-            Group {
                 if !settings.isConfigured {
                     notConfiguredPlaceholder
                 } else if isLoading && trades.isEmpty && positions.isEmpty {
                     ProgressView("Loading...")
                         .font(.system(.body, design: .monospaced))
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .frame(maxWidth: .infinity, minHeight: 200)
                 } else if let error = errorMessage, trades.isEmpty, positions.isEmpty {
                     errorPlaceholder(error)
                 } else {
@@ -65,31 +65,29 @@ struct TradeHistoryView: View {
 
     @ViewBuilder
     private var tradeList: some View {
-        ScrollView {
-            LazyVStack(spacing: 8) {
-                if showingPositions {
-                    if positions.isEmpty {
-                        emptyState("No positions yet.")
-                    } else {
-                        ForEach(positions) { pos in
-                            positionRow(pos)
-                                .id("pos-\(pos.id)")
-                        }
-                    }
+        LazyVStack(spacing: 8) {
+            if showingPositions {
+                if positions.isEmpty {
+                    emptyState("No positions yet.")
                 } else {
-                    if trades.isEmpty {
-                        emptyState("No trades yet.")
-                    } else {
-                        ForEach(trades) { trade in
-                            tradeRow(trade)
-                                .id("trade-\(trade.id)")
-                        }
+                    ForEach(positions) { pos in
+                        positionRow(pos)
+                            .id("pos-\(pos.id)")
+                    }
+                }
+            } else {
+                if trades.isEmpty {
+                    emptyState("No trades yet.")
+                } else {
+                    ForEach(trades) { trade in
+                        tradeRow(trade)
+                            .id("trade-\(trade.id)")
                     }
                 }
             }
-            .padding()
-            .id(showingPositions ? "positions" : "trades")
         }
+        .padding()
+        .id(showingPositions ? "positions" : "trades")
     }
 
 
@@ -215,7 +213,7 @@ struct TradeHistoryView: View {
 
     @ViewBuilder
     private var priceChartCard: some View {
-        let prices = equityData.map(\.price)
+        let prices = btcPriceHistory.map(\.1)
         let minPrice = (prices.min() ?? 0) * 0.999
         let maxPrice = (prices.max() ?? 0) * 1.001
 
@@ -225,10 +223,10 @@ struct TradeHistoryView: View {
                 .foregroundStyle(.secondary)
 
             Chart {
-                ForEach(equityData) { point in
+                ForEach(Array(btcPriceHistory.enumerated()), id: \.offset) { _, point in
                     LineMark(
-                        x: .value("Time", point.date),
-                        y: .value("Price", point.price)
+                        x: .value("Time", point.0),
+                        y: .value("Price", point.1)
                     )
                     .foregroundStyle(.orange.opacity(0.8))
                     .lineStyle(StrokeStyle(lineWidth: 1.5))
@@ -237,7 +235,7 @@ struct TradeHistoryView: View {
 
                 // Only show trades within the equity data date range
                 let chartTrades = trades.filter { trade in
-                    guard let first = equityData.first?.date else { return false }
+                    guard let first = btcPriceHistory.first?.0 else { return false }
                     return trade.date >= first
                 }
                 ForEach(chartTrades) { trade in
@@ -333,16 +331,16 @@ struct TradeHistoryView: View {
         if trades.isEmpty && positions.isEmpty { isLoading = true }
         errorMessage = nil
         do {
-            async let equityLogTask = client.fetchEquityLog(days: 7)
-            async let latestTask = client.fetchLatestEquity()
             async let tradesTask = client.fetchTradeTransfers()
             async let priceTask = BinanceClient.fetchPrice()
 
-            let eqLog = try await equityLogTask
-            let equity = try await latestTask
             let btcPrice = try? await priceTask
-            let price = btcPrice ?? equity?.price ?? 0
+            let price = btcPrice ?? 0
             let allTransfers = try await tradesTask
+
+            // Fetch klines covering all trades (from oldest trade to now)
+            let oldestTradeDate = allTransfers.last?.date ?? Date()
+            let klines = (try? await BinanceClient.fetchKlines(interval: "15m", limit: 1000, startTime: oldestTradeDate)) ?? []
 
             // Position from Alpaca (source of truth)
             var openPosition: [Transfer] = []
@@ -366,7 +364,7 @@ struct TradeHistoryView: View {
             }
 
             await MainActor.run {
-                equityData = eqLog
+                btcPriceHistory = klines
                 latestPrice = price
                 trades = allTransfers
                 positions = openPosition
