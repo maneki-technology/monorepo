@@ -12,9 +12,12 @@ cd "$PROJECT_DIR"
 
 echo "🔄 Switching to local..."
 
-# Stop bot on GCP
+# Stop bot on GCP + download checkpoint
 echo "  Stopping GCP bot..."
 gcloud compute ssh $INSTANCE --zone=$ZONE --command="sudo systemctl stop dctrading" 2>/dev/null || true
+sleep 2
+echo "  Downloading checkpoint from GCP..."
+gcloud compute scp $INSTANCE:~/dctrading.checkpoint dctrading.checkpoint --zone=$ZONE 2>/dev/null && echo "  Checkpoint downloaded." || echo "  No checkpoint on GCP (fresh start)."
 
 # Stop GCP instance
 echo "  Stopping GCP instance..."

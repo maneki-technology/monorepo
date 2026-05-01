@@ -2,24 +2,13 @@
 const std = @import("std");
 const http_mod = @import("http_client.zig");
 const HttpClient = http_mod.HttpClient;
+const exchange_mod = @import("exchange.zig");
+const Exchange = exchange_mod.Exchange;
+const OrderFill = exchange_mod.OrderFill;
+const ExchangePosition = exchange_mod.Position;
 
 extern "c" fn getenv(name: [*:0]const u8) ?[*:0]const u8;
 extern "c" fn usleep(usec: c_uint) c_int;
-
-pub const OrderFill = struct {
-    order_id: [64]u8 = undefined,
-    order_id_len: usize = 0,
-    fill_price: f64,
-    fill_qty: f64,
-    status: enum { filled, accepted, failed },
-};
-
-pub const AlpacaPosition = struct {
-    qty: f64,
-    entry_price: f64,
-    market_value: f64,
-    unrealized_pnl: f64,
-};
 
 pub const Alpaca = struct {
     api_key: []const u8,
@@ -41,6 +30,20 @@ pub const Alpaca = struct {
         return .{ .api_key = key, .api_secret = secret, .http = http };
     }
 
+    /// Return an Exchange interface backed by this Alpaca instance.
+    pub fn exchange(self: *const Alpaca) Exchange {
+        return .{
+            .ptr = @ptrCast(self),
+            .vtable = &vtable,
+        };
+    }
+
+    const vtable = Exchange.VTable{
+        .buy = @ptrCast(&buy),
+        .sell = @ptrCast(&sell),
+        .getPosition = @ptrCast(&getPositionExchange),
+    };
+
     fn headers(self: *const Alpaca) [2]HttpClient.Header {
         return .{
             .{ .name = "APCA-API-KEY-ID", .value = self.api_key },
@@ -60,9 +63,8 @@ pub const Alpaca = struct {
     pub fn buy(self: *const Alpaca, qty: f64) ?OrderFill {
         var body_buf: [256]u8 = undefined;
         const body = std.fmt.bufPrint(&body_buf,
-            "{{\"symbol\":\"BTC/USD\",\"qty\":\"{d:.8}\",\"side\":\"buy\",\"type\":\"market\",\"time_in_force\":\"gtc\"}}",
-            .{qty},
-        ) catch return null;
+            \\{{"symbol":"BTC/USD","qty":"{d:.8}","side":"buy","type":"market","time_in_force":"gtc"}}
+        , .{qty}) catch return null;
         return self.submitOrder(body);
     }
 
@@ -70,14 +72,18 @@ pub const Alpaca = struct {
     pub fn sell(self: *const Alpaca, qty: f64) ?OrderFill {
         var body_buf: [256]u8 = undefined;
         const body = std.fmt.bufPrint(&body_buf,
-            "{{\"symbol\":\"BTC/USD\",\"qty\":\"{d:.8}\",\"side\":\"sell\",\"type\":\"market\",\"time_in_force\":\"gtc\"}}",
-            .{qty},
-        ) catch return null;
+            \\{{"symbol":"BTC/USD","qty":"{d:.8}","side":"sell","type":"market","time_in_force":"gtc"}}
+        , .{qty}) catch return null;
         return self.submitOrder(body);
     }
 
+    /// Get current BTC/USD position. Returns ExchangePosition for interface compatibility.
+    fn getPositionExchange(self: *const Alpaca) ?ExchangePosition {
+        return self.getPosition();
+    }
+
     /// Get current BTC/USD position from Alpaca. Returns null if no position.
-    pub fn getPosition(self: *const Alpaca) ?AlpacaPosition {
+    pub fn getPosition(self: *const Alpaca) ?ExchangePosition {
         const h = self.headers();
         const resp = self.http.get(
             "https://paper-api.alpaca.markets/v2/positions/BTCUSD",

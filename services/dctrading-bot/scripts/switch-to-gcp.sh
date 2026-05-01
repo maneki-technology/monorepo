@@ -30,12 +30,16 @@ gcloud compute instances start $INSTANCE --zone=$ZONE --quiet
 echo "  Waiting for instance..."
 sleep 20
 
-# Upload binary + env
+# Upload binary + checkpoint
 echo "  Uploading binary..."
 gcloud compute ssh $INSTANCE --zone=$ZONE --command="sudo systemctl stop dctrading 2>/dev/null; chmod +w ~/dctrading 2>/dev/null" 2>/dev/null || true
 gcloud compute scp zig-out/bin/dctrading $INSTANCE:~/dctrading --zone=$ZONE
 gcloud compute ssh $INSTANCE --zone=$ZONE --command="chmod +x ~/dctrading"
-echo "  Binary uploaded."
+if [ -f dctrading.checkpoint ]; then
+    echo "  Uploading checkpoint..."
+    gcloud compute scp dctrading.checkpoint $INSTANCE:~/dctrading.checkpoint --zone=$ZONE
+fi
+echo "  Upload complete."
 
 # Start bot on GCP
 echo "  Starting bot on GCP..."

@@ -10,12 +10,13 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `strategy.zig` — Core strategy: 3-regime (BULL/SIDEWAYS/BEAR), DC detection, vol-trailing stop, MA regime filter, checkpoint save/load (DCTRADE4 format, 24 scalars + ring buffers).
 - `feed.zig` — Binance WebSocket (native TLS via websocket.zig) + REST kline fetcher (popen curl). Configurable host via `BINANCE_WS_HOST`/`BINANCE_API_HOST` env vars.
 - `dc_detector.zig` — Streaming DC event detector. Emits UP/DOWN events when price reverses by λ threshold.
-- `alpaca.zig` — Alpaca paper trading. Sync market orders (buy/sell with fill polling up to 10s), position queries. Uses `HttpClient`.
-- `turso.zig` — Turso/libsql HTTP client. Tables: `trade_events`, `positions`, `equity_log`, `bot_status`, `account_ledger`. Async writes via detached threads, sync reads for startup.
+- `exchange.zig` — Exchange interface (vtable pattern): `buy()`, `sell()`, `getPosition()`. Shared types: `OrderFill`, `Position`.
+- `alpaca.zig` — Alpaca paper trading, implements Exchange interface. Sync market orders (buy/sell with fill polling up to 10s), position queries. Uses `HttpClient`.
+- `turso.zig` — Turso/libsql HTTP client. Tables: `accounts`, `transfers`, `equity_log`, `bot_status`. Async writes via detached threads, sync reads for startup.
 - `telegram.zig` — Telegram + ntfy notifications. Async sends via threads, curl fallback for shutdown reliability.
-- `http_client.zig` — Shared wrapper around `std.http.Client`. POST/GET/DELETE with custom headers. Connection pooling.
+- `http_client.zig` — Thread-safe wrapper around `std.http.Client`. Mutex-protected POST/GET/DELETE with auto-retry on stale connections.
 - `types.zig` — Core types: `Tick`, `Trade`, `DCEvent`, `Direction`.
-- `tests.zig` — 39 unit tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting.
+- `tests.zig` — 78 unit tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers.
 
 ### Scripts (`scripts/`)
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service.
@@ -51,7 +52,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # GCP
-zig build test                                 # 78 tests
+zig build test                                 # 85 tests
 ```
 
 ### Trading Flow
