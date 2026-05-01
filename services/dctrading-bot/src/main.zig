@@ -389,7 +389,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                             }
                             strategy.entry_price = (strategy.entry_price * strategy.size + buy_price * buy_size) / (strategy.size + buy_size);
                             strategy.size += buy_size;
-                            strategy.capital -= (usable + fee);
+                            strategy.capital -= fee;
                             if (buy_price > strategy.peak_price) strategy.peak_price = buy_price;
                             std.debug.print("  DEPOSIT BUY: +{d:.8} BTC @ ${d:.2}, blended entry=${d:.2}\n", .{ buy_size, buy_price, strategy.entry_price });
                             if (tg) |tel| tel.notifyBuy(buy_price, buy_size, regime_str, instance);
