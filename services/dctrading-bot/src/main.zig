@@ -394,8 +394,10 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                             std.debug.print("  DEPOSIT BUY: +{d:.8} BTC @ ${d:.2}, blended entry=${d:.2}\n", .{ buy_size, buy_price, strategy.entry_price });
                             if (tg) |tel| tel.notifyBuy(buy_price, buy_size, regime_str, instance);
                             turso.?.logBuy(buy_price, buy_size, fee, t.timestamp);
-                            turso.?.logLedger("ENTRY_FEE", -fee, strategy.capital + usable, "Deposit buy fee", t.timestamp);
-                            turso.?.logLedger("BUY", -usable, strategy.capital, "Deposit buy", t.timestamp);
+                            const buy_cost = buy_price * buy_size;
+                            const cash_after_fee = strategy.capital - buy_cost;
+                            turso.?.logLedger("ENTRY_FEE", -fee, strategy.capital, "Deposit buy fee", t.timestamp);
+                            turso.?.logLedger("BUY", -buy_cost, cash_after_fee, "Deposit buy", t.timestamp);
                         }
 
                         turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, strategy.capital + unrealized, unrealized, regime_str, t.price);
