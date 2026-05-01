@@ -51,7 +51,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # GCP
-zig build test                                 # 85 tests
+zig build test                                 # 78 tests
 ```
 
 ### Trading Flow
