@@ -395,10 +395,10 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                             if (tg) |tel| tel.notifyBuy(buy_price, buy_size, regime_str, instance);
                             turso.?.logBuy(buy_price, buy_size, fee, t.timestamp);
                             const buy_cost = buy_price * buy_size;
-                            // balance_after tracks actual cash, not strategy.capital
-                            const cash_before = deposit; // deposit just arrived, previous cash ~0
-                            turso.?.logLedger("ENTRY_FEE", -fee, cash_before - fee, "Deposit buy fee", t.timestamp);
-                            turso.?.logLedger("BUY", -buy_cost, cash_before - fee - buy_cost, "Deposit buy", t.timestamp);
+                            // Query actual cash balance from ledger for correct balance_after
+                            const cash_bal = turso.?.queryLedgerBalance() orelse deposit;
+                            turso.?.logLedger("ENTRY_FEE", -fee, cash_bal - fee, "Deposit buy fee", t.timestamp);
+                            turso.?.logLedger("BUY", -buy_cost, cash_bal - fee - buy_cost, "Deposit buy", t.timestamp);
                         }
 
                         turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, strategy.capital + unrealized, unrealized, regime_str, t.price);
