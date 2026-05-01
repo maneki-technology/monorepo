@@ -1,5 +1,6 @@
 /// Shared HTTP client wrapper for HTTPS JSON APIs.
-/// Replaces popen("curl ...") with native Zig std.http.Client.
+/// Thread-safe: all requests serialize through a mutex to protect
+/// the underlying std.http.Client connection pool.
 const std = @import("std");
 const http = std.http;
 const Uri = std.Uri;
@@ -8,6 +9,7 @@ const Io = std.Io;
 pub const HttpClient = struct {
     client: http.Client,
     allocator: std.mem.Allocator,
+    mutex: std.atomic.Mutex = .unlocked,
 
     pub fn init(allocator: std.mem.Allocator, io: Io) HttpClient {
         return .{
@@ -63,6 +65,12 @@ pub const HttpClient = struct {
         body: ?[]const u8,
         max_response_bytes: usize,
     ) !Response {
+        // Spin-lock: Zig 0.16 atomic.Mutex only has tryLock
+        while (!self.mutex.tryLock()) {
+            std.atomic.spinLoopHint();
+        }
+        defer self.mutex.unlock();
+
         const uri = try Uri.parse(url);
 
         // Convert headers to std.http format
@@ -72,8 +80,32 @@ pub const HttpClient = struct {
             extra_headers[i] = .{ .name = h.name, .value = h.value };
         }
 
+        // Retry once on stale connection (HttpConnectionClosing)
+        var attempt: u32 = 0;
+        while (attempt < 2) : (attempt += 1) {
+            const result = self.doRequestInner(method, uri, extra_headers[0..header_count], body, max_response_bytes);
+            if (result) |resp| {
+                return resp;
+            } else |err| {
+                if (attempt == 0 and err == error.HttpConnectionClosing) {
+                    continue; // retry with fresh connection
+                }
+                return err;
+            }
+        }
+        unreachable;
+    }
+
+    fn doRequestInner(
+        self: *HttpClient,
+        method: http.Method,
+        uri: Uri,
+        extra_headers: []const http.Header,
+        body: ?[]const u8,
+        max_response_bytes: usize,
+    ) !Response {
         var req = try self.client.request(method, uri, .{
-            .extra_headers = extra_headers[0..header_count],
+            .extra_headers = extra_headers,
         });
         defer req.deinit();
 
