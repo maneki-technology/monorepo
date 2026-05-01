@@ -4,6 +4,7 @@ const http_mod = @import("http_client.zig");
 const HttpClient = http_mod.HttpClient;
 
 extern "c" fn getenv(name: [*:0]const u8) ?[*:0]const u8;
+extern "c" fn usleep(usec: c_uint) c_int;
 extern "c" fn popen(cmd: [*:0]const u8, mode: [*:0]const u8) ?*anyopaque;
 extern "c" fn pclose(fp: *anyopaque) c_int;
 extern "c" fn fread(buf: [*]u8, size: usize, count: usize, fp: *anyopaque) usize;
@@ -114,7 +115,7 @@ pub const Telegram = struct {
     }
 
     fn doSend(self: *const Telegram, text: []const u8) void {
-        // Send to Telegram
+        // Send to Telegram (retry once on stale connection)
         var url_buf: [256]u8 = undefined;
         const url = std.fmt.bufPrint(&url_buf,
             "https://api.telegram.org/bot{s}/sendMessage",
@@ -131,10 +132,18 @@ pub const Telegram = struct {
             .{ .name = "content-type", .value = "application/json" },
         };
 
-        if (self.http.post(url, &headers, body)) |resp| {
-            resp.deinit();
-        } else |_| {
-            std.debug.print("  [telegram] Send failed.\n", .{});
+        var tg_attempt: u32 = 0;
+        while (tg_attempt < 2) : (tg_attempt += 1) {
+            if (self.http.post(url, &headers, body)) |resp| {
+                resp.deinit();
+                break;
+            } else |_| {
+                if (tg_attempt == 0) {
+                    _ = usleep(1_000_000);
+                } else {
+                    std.debug.print("  [telegram] Send failed.\n", .{});
+                }
+            }
         }
 
 
@@ -146,10 +155,18 @@ pub const Telegram = struct {
                 .{self.ntfy_topic},
             ) catch return;
 
-            if (self.http.post(ntfy_url, &.{}, text)) |resp| {
-                resp.deinit();
-            } else |_| {
-                std.debug.print("  [ntfy] Send failed.\n", .{});
+            var ntfy_attempt: u32 = 0;
+            while (ntfy_attempt < 2) : (ntfy_attempt += 1) {
+                if (self.http.post(ntfy_url, &.{}, text)) |resp| {
+                    resp.deinit();
+                    break;
+                } else |_| {
+                    if (ntfy_attempt == 0) {
+                        _ = usleep(1_000_000);
+                    } else {
+                        std.debug.print("  [ntfy] Send failed.\n", .{});
+                    }
+                }
             }
 
         }
