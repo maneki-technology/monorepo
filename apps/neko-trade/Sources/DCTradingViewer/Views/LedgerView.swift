@@ -113,6 +113,22 @@ struct LedgerView: View {
         }
     }
 
+
+    /// Compute running cash balance for each transfer (newest first).
+    private var transfersWithBalance: [(Transfer, Double)] {
+        var bal = cashBalance
+        var result: [(Transfer, Double)] = []
+        for t in transfers {
+            result.append((t, bal))
+            // Reverse the effect to get balance before this transfer
+            if t.isPositive {
+                bal -= t.amount
+            } else {
+                bal += t.amount
+            }
+        }
+        return result
+    }
     private var ledgerList: some View {
         ScrollView {
             // Balance summary at top
@@ -143,7 +159,9 @@ struct LedgerView: View {
             .padding(.top, 8)
 
             LazyVStack(spacing: 6) {
-                ForEach(transfers) { entry in
+                ForEach(Array(transfersWithBalance.enumerated()), id: \.element.0.id) { _, item in
+                    let entry = item.0
+                    let balAfter = item.1
                     HStack(spacing: 10) {
                         Image(systemName: entry.typeIcon)
                             .foregroundStyle(entry.typeColor)
@@ -163,9 +181,14 @@ struct LedgerView: View {
 
                         Spacer()
 
-                        Text(String(format: "%+.2f", entry.isPositive ? entry.amount : -entry.amount))
-                            .font(.system(.body, design: .monospaced, weight: .semibold))
-                            .foregroundStyle(entry.isPositive ? .green : .red)
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text(String(format: "%+.2f", entry.isPositive ? entry.amount : -entry.amount))
+                                .font(.system(.body, design: .monospaced, weight: .semibold))
+                                .foregroundStyle(entry.isPositive ? .green : .red)
+                            Text(String(format: "bal $%.2f", balAfter))
+                                .font(.system(.caption2, design: .monospaced))
+                                .foregroundStyle(.secondary)
+                        }
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 8)
