@@ -72,6 +72,60 @@ struct LedgerEntry: Identifiable, Codable {
     }
 }
 
+// MARK: - Transfer (double-entry)
+
+struct Transfer: Identifiable, Codable {
+    let id: Int
+    let debitAccountId: Int
+    let creditAccountId: Int
+    let amount: Double
+    let pendingId: Int?
+    let code: Int          // 1=deposit, 2=buy, 3=sell, 4=fee, 5=pnl
+    let flags: Int
+    let status: String     // pending/posted/voided
+    let userData: String?
+    let timestamp: String
+    let createdAt: String
+
+    var codeName: String {
+        switch code {
+        case 1: return "DEPOSIT"
+        case 2: return "BUY"
+        case 3: return "SELL"
+        case 4: return "FEE"
+        case 5: return "PNL"
+        default: return "UNKNOWN"
+        }
+    }
+
+    /// Deposit and sell are positive for cash account
+    var isPositive: Bool {
+        code == 1 || code == 3
+    }
+
+    var typeColor: Color {
+        switch code {
+        case 1: return .blue
+        case 2: return .orange
+        case 3: return .green
+        case 4: return .red
+        case 5: return .cyan
+        default: return .secondary
+        }
+    }
+
+    var typeIcon: String {
+        switch code {
+        case 1: return "plus.circle.fill"
+        case 2: return "arrow.down.circle.fill"
+        case 3: return "arrow.up.circle.fill"
+        case 4: return "minus.circle.fill"
+        case 5: return "chart.line.uptrend.xyaxis"
+        default: return "circle.fill"
+        }
+    }
+}
+
 // MARK: - Trade Event
 
 struct TradeEvent: Identifiable, Codable {

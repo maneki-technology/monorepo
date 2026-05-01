@@ -2,12 +2,13 @@ import SwiftUI
 
 struct LedgerView: View {
     @ObservedObject var settings: AppSettings
-    @State private var ledger: [LedgerEntry] = []
+    @State private var transfers: [Transfer] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showDepositSheet = false
     @State private var depositAmount = ""
     @State private var isDepositing = false
+    @State private var cashBalance: Double = 0
 
     private let client = TursoClient()
     private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
@@ -16,13 +17,13 @@ struct LedgerView: View {
         VStack(spacing: 0) {
             if !settings.isConfigured {
                 notConfiguredPlaceholder
-            } else if isLoading && ledger.isEmpty {
+            } else if isLoading && transfers.isEmpty {
                 ProgressView("Loading...")
                     .font(.system(.body, design: .monospaced))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let error = errorMessage, ledger.isEmpty {
+            } else if let error = errorMessage, transfers.isEmpty {
                 errorPlaceholder(error)
-            } else if ledger.isEmpty {
+            } else if transfers.isEmpty {
                 emptyPlaceholder
             } else {
                 ledgerList
@@ -115,36 +116,34 @@ struct LedgerView: View {
     private var ledgerList: some View {
         ScrollView {
             // Balance summary at top
-            if let latest = ledger.first {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("CASH BALANCE")
-                            .font(.system(.caption2, design: .monospaced))
-                            .foregroundStyle(.secondary)
-                        Text(String(format: "$%.2f", latest.balanceAfter))
-                            .font(.system(.title2, design: .monospaced, weight: .bold))
-                            .foregroundStyle(.primary)
-                    }
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text("ENTRIES")
-                            .font(.system(.caption2, design: .monospaced))
-                            .foregroundStyle(.secondary)
-                        Text("\(ledger.count)")
-                            .font(.system(.body, design: .monospaced, weight: .semibold))
-                    }
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("CASH BALANCE")
+                        .font(.system(.caption2, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                    Text(String(format: "$%.2f", cashBalance))
+                        .font(.system(.title2, design: .monospaced, weight: .bold))
+                        .foregroundStyle(.primary)
                 }
-                .padding()
-                .background {
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(.ultraThinMaterial)
+                Spacer()
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("TRANSFERS")
+                        .font(.system(.caption2, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                    Text("\(transfers.count)")
+                        .font(.system(.body, design: .monospaced, weight: .semibold))
                 }
-                .padding(.horizontal)
-                .padding(.top, 8)
             }
+            .padding()
+            .background {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(.ultraThinMaterial)
+            }
+            .padding(.horizontal)
+            .padding(.top, 8)
 
             LazyVStack(spacing: 6) {
-                ForEach(ledger) { entry in
+                ForEach(transfers) { entry in
                     HStack(spacing: 10) {
                         Image(systemName: entry.typeIcon)
                             .foregroundStyle(entry.typeColor)
@@ -152,24 +151,21 @@ struct LedgerView: View {
                             .frame(width: 28)
 
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(entry.type)
+                            Text(entry.codeName)
                                 .font(.system(.caption, design: .monospaced, weight: .bold))
                                 .foregroundStyle(entry.typeColor)
-                            Text(entry.note)
-                                .font(.system(.caption2, design: .monospaced))
-                                .foregroundStyle(.secondary)
+                            if let note = entry.userData {
+                                Text(note)
+                                    .font(.system(.caption2, design: .monospaced))
+                                    .foregroundStyle(.secondary)
+                            }
                         }
 
                         Spacer()
 
-                        VStack(alignment: .trailing, spacing: 2) {
-                            Text(String(format: "%+.2f", entry.amount))
-                                .font(.system(.body, design: .monospaced, weight: .semibold))
-                                .foregroundStyle(entry.isPositive ? .green : .red)
-                            Text(String(format: "bal $%.2f", entry.balanceAfter))
-                                .font(.system(.caption2, design: .monospaced))
-                                .foregroundStyle(.secondary)
-                        }
+                        Text(String(format: "%+.2f", entry.isPositive ? entry.amount : -entry.amount))
+                            .font(.system(.body, design: .monospaced, weight: .semibold))
+                            .foregroundStyle(entry.isPositive ? .green : .red)
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 8)
@@ -202,7 +198,7 @@ struct LedgerView: View {
             Image(systemName: "book.closed")
                 .font(.system(size: 40))
                 .foregroundStyle(.secondary)
-            Text("No ledger entries yet.")
+            Text("No transfers yet.")
                 .font(.system(.body, design: .monospaced))
                 .foregroundStyle(.secondary)
         }
@@ -225,12 +221,15 @@ struct LedgerView: View {
 
     private func loadData() async {
         guard settings.isConfigured else { return }
-        if ledger.isEmpty { isLoading = true }
+        if transfers.isEmpty { isLoading = true }
         errorMessage = nil
         do {
-            let entries = try await client.fetchLedger()
+            async let transfersTask = client.fetchTransfers()
+            async let balanceTask = client.fetchCashBalance()
+            let (fetchedTransfers, fetchedBalance) = try await (transfersTask, balanceTask)
             await MainActor.run {
-                ledger = entries
+                transfers = fetchedTransfers
+                cashBalance = fetchedBalance
                 isLoading = false
             }
         } catch {
