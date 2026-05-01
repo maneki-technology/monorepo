@@ -73,9 +73,9 @@ struct DashboardView: View {
                 )
                 statCard(
                     title: "REALIZED P&L",
-                    value: formatCurrency((latestEquity?.capital ?? 0) - totalDeposits),
+                    value: formatCurrency(totalPnL),
                     icon: "banknote",
-                    color: ((latestEquity?.capital ?? 0) - totalDeposits) >= 0 ? .green : .red
+                    color: totalPnL >= 0 ? .green : .red
                 )
             }
 
