@@ -127,55 +127,45 @@ final class TursoClient {
 
     // MARK: - Public API
 
-    func fetchPositions(status: String? = nil) async throws -> [Position] {
-        let whereClause = status.map { " WHERE status = '\($0)'" } ?? ""
-        let sql = "SELECT * FROM positions\(whereClause) ORDER BY created_at DESC LIMIT 100"
+    func fetchTradeTransfers(limit: Int = 50) async throws -> [Transfer] {
+        let sql = "SELECT * FROM transfers WHERE code IN (2, 3) ORDER BY id DESC LIMIT \(limit)"
         let result = try await executeSQL(sql)
         return result.rows.map { row in
-            Position(
+            Transfer(
                 id: getInt(row, result.cols, "id"),
+                debitAccountId: getInt(row, result.cols, "debit_account_id"),
+                creditAccountId: getInt(row, result.cols, "credit_account_id"),
+                amount: getDouble(row, result.cols, "amount"),
+                pendingId: row[colIndex(result.cols, "pending_id") ?? 0].intValue,
+                code: getInt(row, result.cols, "code"),
+                flags: getInt(row, result.cols, "flags"),
                 status: getString(row, result.cols, "status"),
-                entryPrice: getDouble(row, result.cols, "entry_price"),
-                entryTime: getString(row, result.cols, "entry_time"),
-                exitPrice: getOptionalDouble(row, result.cols, "exit_price"),
-                exitTime: getOptionalString(row, result.cols, "exit_time"),
-                size: getDouble(row, result.cols, "size"),
-                pnl: getOptionalDouble(row, result.cols, "pnl"),
-                fees: getOptionalDouble(row, result.cols, "fees"),
-                exitType: getOptionalString(row, result.cols, "exit_type"),
-                signalPrice: getOptionalDouble(row, result.cols, "signal_price"),
-                alpacaOrderId: getOptionalString(row, result.cols, "alpaca_order_id"),
-                createdAt: getString(row, result.cols, "created_at")
-            )
-        }
-    }
-
-    func fetchTradeEvents(limit: Int = 50) async throws -> [TradeEvent] {
-        let sql = "SELECT * FROM trade_events ORDER BY timestamp DESC LIMIT \(limit)"
-        let result = try await executeSQL(sql)
-        return result.rows.map { row in
-            TradeEvent(
-                id: getInt(row, result.cols, "id"),
-                action: getString(row, result.cols, "action"),
+                userData: getOptionalString(row, result.cols, "user_data"),
                 price: getDouble(row, result.cols, "price"),
                 size: getDouble(row, result.cols, "size"),
-                fee: getDouble(row, result.cols, "fee"),
                 timestamp: getString(row, result.cols, "timestamp"),
                 createdAt: getString(row, result.cols, "created_at")
             )
         }
     }
 
-    func fetchLedger(limit: Int = 100) async throws -> [LedgerEntry] {
-        let sql = "SELECT * FROM account_ledger ORDER BY id DESC LIMIT \(limit)"
+
+    func fetchTransfers(limit: Int = 100) async throws -> [Transfer] {
+        let sql = "SELECT * FROM transfers ORDER BY id DESC LIMIT \(limit)"
         let result = try await executeSQL(sql)
         return result.rows.map { row in
-            LedgerEntry(
+            Transfer(
                 id: getInt(row, result.cols, "id"),
-                type: getString(row, result.cols, "type"),
+                debitAccountId: getInt(row, result.cols, "debit_account_id"),
+                creditAccountId: getInt(row, result.cols, "credit_account_id"),
                 amount: getDouble(row, result.cols, "amount"),
-                balanceAfter: getDouble(row, result.cols, "balance_after"),
-                note: getString(row, result.cols, "note"),
+                pendingId: row[colIndex(result.cols, "pending_id") ?? 0].intValue,
+                code: getInt(row, result.cols, "code"),
+                flags: getInt(row, result.cols, "flags"),
+                status: getString(row, result.cols, "status"),
+                userData: getOptionalString(row, result.cols, "user_data"),
+                price: getDouble(row, result.cols, "price"),
+                size: getDouble(row, result.cols, "size"),
                 timestamp: getString(row, result.cols, "timestamp"),
                 createdAt: getString(row, result.cols, "created_at")
             )
@@ -237,14 +227,16 @@ final class TursoClient {
     }
 
     func fetchTotalRealizedPnL() async throws -> Double {
-        let sql = "SELECT COALESCE(SUM(pnl), 0) as total_pnl FROM positions WHERE status = 'CLOSED'"
+        // Net return = (cash_balance + btc_balance) - total_deposits
+        // Includes fees as cost, BTC cost basis as unrealized allocation
+        let sql = "SELECT (SELECT credits_posted - debits_posted FROM accounts WHERE id = 1) + (SELECT credits_posted - debits_posted FROM accounts WHERE id = 2) - (SELECT COALESCE(SUM(amount), 0) FROM transfers WHERE code = 1 AND status = 'posted') as total"
         let result = try await executeSQL(sql)
         guard let row = result.rows.first else { return 0 }
-        return getDouble(row, result.cols, "total_pnl")
+        return getDouble(row, result.cols, "total")
     }
 
     func fetchTotalDeposits() async throws -> Double {
-        let sql = "SELECT COALESCE(SUM(amount), 0) as total FROM account_ledger WHERE type = 'DEPOSIT'"
+        let sql = "SELECT COALESCE(SUM(amount), 0) as total FROM transfers WHERE code = 1 AND status = 'posted'"
         let result = try await executeSQL(sql)
         guard let row = result.rows.first else { return 0 }
         return getDouble(row, result.cols, "total")
@@ -271,18 +263,67 @@ final class TursoClient {
         )
     }
 
-    /// Insert a deposit into the account_ledger. Returns the new balance.
-    func insertDeposit(amount: Double) async throws -> Double {
-        // First get current balance
-        let balanceSQL = "SELECT balance_after FROM account_ledger ORDER BY id DESC LIMIT 1"
-        let balResult = try await executeSQL(balanceSQL)
-        let currentBalance = balResult.rows.first.flatMap { getDouble($0, balResult.cols, "balance_after") } ?? 0
-        let newBalance = currentBalance + amount
-        let timestamp = Date().timeIntervalSince1970
+    /// Fetch cash balance from accounts table (credits_posted - debits_posted for account 1).
+    func fetchCashBalance() async throws -> Double {
+        let sql = "SELECT credits_posted - debits_posted as balance FROM accounts WHERE id = 1"
+        let result = try await executeSQL(sql)
+        guard let row = result.rows.first else { return 0 }
+        return getDouble(row, result.cols, "balance")
+    }
 
-        let insertSQL = "INSERT INTO account_ledger (type, amount, balance_after, note, timestamp) VALUES ('DEPOSIT', \(amount), \(newBalance), 'Manual deposit via Neko Trade', \(timestamp))"
-        _ = try await executeSQL(insertSQL)
-        return newBalance
+    /// Insert a deposit atomically: create transfer + update both accounts.
+    func insertDeposit(amount: Double) async throws -> Double {
+        let timestamp = Date().timeIntervalSince1970
+        let statements = [
+            "BEGIN",
+            "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, price, size, timestamp) VALUES (1, 4, \(amount), 1, 0, 'posted', 0, 0, \(timestamp))",
+            "UPDATE accounts SET credits_posted = credits_posted + \(amount) WHERE id = 1",
+            "UPDATE accounts SET debits_posted = debits_posted + \(amount) WHERE id = 4",
+            "COMMIT"
+        ]
+        try await executePipeline(statements)
+        return try await fetchCashBalance()
+    }
+
+    /// Execute multiple SQL statements in a single pipeline request.
+    private func executePipeline(_ statements: [String]) async throws {
+        guard settings.isConfigured else {
+            throw TursoError.notConfigured
+        }
+
+        var urlString = settings.tursoURL.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if urlString.hasPrefix("libsql://") {
+            urlString = "https://" + urlString.dropFirst("libsql://".count)
+        } else if !urlString.hasPrefix("https://") {
+            urlString = "https://" + urlString
+        }
+
+        urlString = urlString.hasSuffix("/")
+            ? "\(urlString)v2/pipeline"
+            : "\(urlString)/v2/pipeline"
+
+        guard let url = URL(string: urlString) else {
+            throw TursoError.invalidURL
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(settings.tursoToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 15
+
+        let body = TursoRequest(requests: statements.map {
+            TursoPipelineRequest(type: "execute", stmt: TursoStatement(sql: $0))
+        })
+        request.httpBody = try JSONEncoder().encode(body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
+            let body = String(data: data, encoding: .utf8) ?? "unknown"
+            throw TursoError.httpError(httpResponse.statusCode, body)
+        }
     }
 }
 

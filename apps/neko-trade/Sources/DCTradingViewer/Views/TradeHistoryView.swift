@@ -3,42 +3,41 @@ import Charts
 
 struct TradeHistoryView: View {
     @ObservedObject var settings: AppSettings
-    @State private var trades: [TradeEvent] = []
-    @State private var positions: [Position] = []
+    @State private var trades: [Transfer] = []
+    @State private var positions: [Transfer] = []  // buy transfers (open positions)
     @State private var latestPrice: Double = 0
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showingPositions = false
-    @State private var equityData: [EquityLog] = []
-
+    @State private var btcPriceHistory: [(Date, Double)] = []
     private let client = TursoClient()
     private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack(spacing: 0) {
-            // Price chart at top
-            if settings.isConfigured && equityData.count >= 2 {
-                priceChartCard
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-            }
+        ScrollView {
+            VStack(spacing: 0) {
+                // Price chart at top
+                if settings.isConfigured && btcPriceHistory.count >= 2 {
+                    priceChartCard
+                        .padding(.horizontal)
+                        .padding(.top, 8)
+                }
 
-            HStack(spacing: 0) {
-                tabButton("Trades", isSelected: !showingPositions) { showingPositions = false }
-                tabButton("Positions", isSelected: showingPositions) { showingPositions = true }
-            }
-            .padding(.horizontal)
-            .padding(.top, 8)
+                HStack(spacing: 0) {
+                    tabButton("Trades", isSelected: !showingPositions) { showingPositions = false }
+                    tabButton("Positions", isSelected: showingPositions) { showingPositions = true }
+                }
+                .padding(.horizontal)
+                .padding(.top, 8)
 
-            Divider().padding(.top, 8)
+                Divider().padding(.top, 8)
 
-            Group {
                 if !settings.isConfigured {
                     notConfiguredPlaceholder
                 } else if isLoading && trades.isEmpty && positions.isEmpty {
                     ProgressView("Loading...")
                         .font(.system(.body, design: .monospaced))
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .frame(maxWidth: .infinity, minHeight: 200)
                 } else if let error = errorMessage, trades.isEmpty, positions.isEmpty {
                     errorPlaceholder(error)
                 } else {
@@ -56,7 +55,6 @@ struct TradeHistoryView: View {
             }
         }
         .task { await loadData() }
-        .onChange(of: showingPositions) { _ in Task { await loadData() } }
         .onReceive(timer) { _ in
             guard settings.isConfigured else { return }
             Task { await loadData() }
@@ -67,39 +65,37 @@ struct TradeHistoryView: View {
 
     @ViewBuilder
     private var tradeList: some View {
-        ScrollView {
-            LazyVStack(spacing: 8) {
-                if showingPositions {
-                    if positions.isEmpty {
-                        emptyState("No positions yet.")
-                    } else {
-                        ForEach(positions) { pos in
-                            positionRow(pos)
-                                .id("pos-\(pos.id)")
-                        }
-                    }
+        LazyVStack(spacing: 8) {
+            if showingPositions {
+                if positions.isEmpty {
+                    emptyState("No positions yet.")
                 } else {
-                    if trades.isEmpty {
-                        emptyState("No trade events yet.")
-                    } else {
-                        ForEach(trades) { trade in
-                            tradeRow(trade)
-                                .id("trade-\(trade.id)")
-                        }
+                    ForEach(positions) { pos in
+                        positionRow(pos)
+                            .id("pos-\(pos.id)")
+                    }
+                }
+            } else {
+                if trades.isEmpty {
+                    emptyState("No trades yet.")
+                } else {
+                    ForEach(trades) { trade in
+                        tradeRow(trade)
+                            .id("trade-\(trade.id)")
                     }
                 }
             }
-            .padding()
-            .id(showingPositions ? "positions" : "trades")
         }
+        .padding()
+        .id(showingPositions ? "positions" : "trades")
     }
 
 
-    // MARK: - Trade Event Row
+    // MARK: - Trade Row
 
-    private func tradeRow(_ trade: TradeEvent) -> some View {
+    private func tradeRow(_ trade: Transfer) -> some View {
         HStack(spacing: 12) {
-            Text(trade.action)
+            Text(trade.codeName)
                 .font(.system(.caption, design: .monospaced, weight: .bold))
                 .foregroundStyle(.white)
                 .padding(.horizontal, 8)
@@ -120,9 +116,12 @@ struct TradeHistoryView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 3) {
-                Text("Fee: \(formatCurrency(trade.fee))")
-                    .font(.system(.caption2, design: .monospaced))
-                    .foregroundStyle(.orange)
+                if let note = trade.userData, !note.isEmpty {
+                    Text(note)
+                        .font(.system(.caption2, design: .monospaced))
+                        .foregroundStyle(.orange)
+                        .lineLimit(1)
+                }
                 Text(formatTimestamp(trade.timestamp))
                     .font(.system(.caption2, design: .monospaced))
                     .foregroundStyle(.tertiary)
@@ -144,25 +143,15 @@ struct TradeHistoryView: View {
 
     // MARK: - Position Row
 
-    private func positionRow(_ pos: Position) -> some View {
+    private func positionRow(_ pos: Transfer) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Header: status + size
             HStack {
-                Text(pos.status)
+                Text("OPEN")
                     .font(.system(.caption, design: .monospaced, weight: .bold))
                     .foregroundStyle(.white)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background {
-                        Capsule()
-                            .fill(pos.isOpen ? Color.blue : pos.isStale ? Color.gray : ((pos.pnl ?? 0) >= 0 ? Color.green : Color.red))
-                    }
-
-                if let exitType = pos.exitType, !pos.isOpen, !pos.isStale {
-                    Text(exitType)
-                        .font(.system(.caption2, design: .monospaced))
-                        .foregroundStyle(.secondary)
-                }
+                    .background { Capsule().fill(Color.blue) }
 
                 Spacer()
 
@@ -171,75 +160,40 @@ struct TradeHistoryView: View {
                     .foregroundStyle(.secondary)
             }
 
-            // Entry → Exit prices
+            Divider()
+
             HStack(spacing: 8) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("ENTRY")
+                    Text("ENTRY PRICE")
                         .font(.system(.caption2, design: .monospaced))
                         .foregroundStyle(.secondary)
-                    Text(formatCurrency(pos.entryPrice))
+                    Text(formatCurrency(pos.price))
                         .font(.system(.body, design: .monospaced, weight: .semibold))
-                    if let drift = pos.entryDriftPct {
-                        let color: Color = drift == 0 ? .secondary : (drift > 0 ? .red : .green)
-                        Text(String(format: "drift %+.2f%%", drift))
-                            .font(.system(.caption2, design: .monospaced))
-                            .foregroundStyle(color)
-                    }
-                }
-
-                Image(systemName: "arrow.right")
-                    .foregroundStyle(.secondary)
-
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(pos.isOpen ? "CURRENT" : "EXIT")
-                        .font(.system(.caption2, design: .monospaced))
-                        .foregroundStyle(.secondary)
-                    if let exitPrice = pos.exitPrice {
-                        Text(formatCurrency(exitPrice))
-                            .font(.system(.body, design: .monospaced, weight: .semibold))
-                    } else if pos.isOpen && latestPrice > 0 {
-                        Text(formatCurrency(latestPrice))
-                            .font(.system(.body, design: .monospaced, weight: .semibold))
-                            .foregroundStyle(.blue)
-                    } else {
-                        Text("—")
-                            .font(.system(.body, design: .monospaced))
-                            .foregroundStyle(.secondary)
-                    }
                 }
 
                 Spacer()
 
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text(pos.isOpen ? "UNREALIZED" : "REALIZED")
-                        .font(.system(.caption2, design: .monospaced))
-                        .foregroundStyle(.secondary)
-                    if let pnl = pos.pnl {
-                        Text(formatCurrency(pnl))
-                            .font(.system(.body, design: .monospaced, weight: .bold))
-                            .foregroundStyle(pnl >= 0 ? .green : .red)
-                    } else if pos.isOpen && latestPrice > 0 {
-                        let unrealized = (latestPrice - pos.entryPrice) * pos.size
+                if latestPrice > 0 {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("UNREALIZED")
+                            .font(.system(.caption2, design: .monospaced))
+                            .foregroundStyle(.secondary)
+                        let unrealized = (latestPrice - pos.price) * pos.size
                         Text(formatCurrency(unrealized))
                             .font(.system(.body, design: .monospaced, weight: .bold))
                             .foregroundStyle(unrealized >= 0 ? .green : .red)
-                    } else {
-                        Text("—")
-                            .font(.system(.body, design: .monospaced))
-                            .foregroundStyle(.secondary)
                     }
                 }
             }
 
-            // Footer: fees + time
             HStack {
-                if let fees = pos.fees {
-                    Text("Fee: \(formatCurrency(fees))")
+                if let note = pos.userData, !note.isEmpty {
+                    Text(note)
                         .font(.system(.caption2, design: .monospaced))
                         .foregroundStyle(.orange)
                 }
                 Spacer()
-                Text(formatTimestamp(pos.entryTime))
+                Text(formatTimestamp(pos.timestamp))
                     .font(.system(.caption2, design: .monospaced))
                     .foregroundStyle(.tertiary)
             }
@@ -250,10 +204,7 @@ struct TradeHistoryView: View {
                 .fill(.ultraThinMaterial)
                 .overlay(
                     RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .strokeBorder(
-                            (pos.isOpen ? Color.blue : ((pos.pnl ?? 0) >= 0 ? Color.green : Color.red)).opacity(0.2),
-                            lineWidth: 1
-                        )
+                        .strokeBorder(Color.blue.opacity(0.2), lineWidth: 1)
                 )
         }
     }
@@ -262,7 +213,7 @@ struct TradeHistoryView: View {
 
     @ViewBuilder
     private var priceChartCard: some View {
-        let prices = equityData.map(\.price)
+        let prices = btcPriceHistory.map(\.1)
         let minPrice = (prices.min() ?? 0) * 0.999
         let maxPrice = (prices.max() ?? 0) * 1.001
 
@@ -272,17 +223,22 @@ struct TradeHistoryView: View {
                 .foregroundStyle(.secondary)
 
             Chart {
-                ForEach(equityData) { point in
+                ForEach(Array(btcPriceHistory.enumerated()), id: \.offset) { _, point in
                     LineMark(
-                        x: .value("Time", point.date),
-                        y: .value("Price", point.price)
+                        x: .value("Time", point.0),
+                        y: .value("Price", point.1)
                     )
                     .foregroundStyle(.orange.opacity(0.8))
                     .lineStyle(StrokeStyle(lineWidth: 1.5))
                     .interpolationMethod(.catmullRom)
                 }
 
-                ForEach(trades) { trade in
+                // Only show trades within the equity data date range
+                let chartTrades = trades.filter { trade in
+                    guard let first = btcPriceHistory.first?.0 else { return false }
+                    return trade.date >= first
+                }
+                ForEach(chartTrades) { trade in
                     PointMark(
                         x: .value("Time", trade.date),
                         y: .value("Price", trade.price)
@@ -375,47 +331,44 @@ struct TradeHistoryView: View {
         if trades.isEmpty && positions.isEmpty { isLoading = true }
         errorMessage = nil
         do {
-            async let equityLogTask = client.fetchEquityLog(days: 7)
-            async let latestTask = client.fetchLatestEquity()
+            async let tradesTask = client.fetchTradeTransfers()
+            async let priceTask = BinanceClient.fetchPrice()
 
-            let eqLog = try await equityLogTask
-            let equity = try await latestTask
-            let price = equity?.price ?? 0
+            let btcPrice = try? await priceTask
+            let price = btcPrice ?? 0
+            let allTransfers = try await tradesTask
 
-            if showingPositions {
-                var pos = try await client.fetchPositions()
-                if settings.isAlpacaConfigured {
-                    if let ap = try? await AlpacaClient.fetchPosition(
-                        apiKey: settings.alpacaKey, apiSecret: settings.alpacaSecret
-                    ) {
-                        pos = pos.filter { !$0.isOpen }
-                        pos.insert(Position(
-                            id: 0, status: "OPEN",
-                            entryPrice: ap.entryPrice,
-                            entryTime: "",
-                            exitPrice: nil, exitTime: nil,
-                            size: ap.qty,
-                            pnl: ap.unrealizedPnl,
-                            fees: nil, exitType: nil,
-                            signalPrice: nil, alpacaOrderId: nil,
-                            createdAt: ""
-                        ), at: 0)
-                    }
+            // Fetch klines covering all trades (from oldest trade to now)
+            let oldestTradeDate = allTransfers.last?.date ?? Date()
+            let klines = (try? await BinanceClient.fetchKlines(interval: "15m", limit: 1000, startTime: oldestTradeDate)) ?? []
+
+            // Position from Alpaca (source of truth)
+            var openPosition: [Transfer] = []
+            if settings.isAlpacaConfigured {
+                if let ap = try? await AlpacaClient.fetchPosition(
+                    apiKey: settings.alpacaKey, apiSecret: settings.alpacaSecret
+                ), ap.qty > 0 {
+                    openPosition = [Transfer(
+                        id: 0,
+                        debitAccountId: 2, creditAccountId: 1,
+                        amount: ap.entryPrice * ap.qty,
+                        pendingId: nil,
+                        code: 2, flags: 0, status: "posted",
+                        userData: nil,
+                        price: ap.entryPrice,
+                        size: ap.qty,
+                        timestamp: "",
+                        createdAt: ""
+                    )]
                 }
-                await MainActor.run {
-                    equityData = eqLog
-                    latestPrice = price
-                    positions = pos
-                    isLoading = false
-                }
-            } else {
-                let events = try await client.fetchTradeEvents()
-                await MainActor.run {
-                    equityData = eqLog
-                    latestPrice = price
-                    trades = events
-                    isLoading = false
-                }
+            }
+
+            await MainActor.run {
+                btcPriceHistory = klines
+                latestPrice = price
+                trades = allTransfers
+                positions = openPosition
+                isLoading = false
             }
         } catch {
             await MainActor.run {
@@ -454,6 +407,7 @@ struct TradeHistoryView: View {
         }
         return ts
     }
+
 
     private func tabButton(_ title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {

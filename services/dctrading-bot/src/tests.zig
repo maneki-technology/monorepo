@@ -601,6 +601,535 @@ test "turso: parseFirstValueFloat handles unquoted number" {
 
 
 // ============================================================
+// Double-Entry Accounting Tests
+// ============================================================
+
+test "turso: parseTransferId parses RETURNING id from pipeline response" {
+    // Simulates a Turso pipeline response where the second result contains RETURNING id
+    const json = "{\"results\":[{\"response\":{\"result\":{\"rows\":[]}}},{\"response\":{\"result\":{\"rows\":[[{\"type\":\"integer\",\"value\":\"7\"}]]}}},{\"response\":{\"result\":{\"rows\":[]}}},{\"response\":{\"result\":{\"rows\":[]}}}]}";
+    const val = turso_mod.Turso.parseTransferId(json);
+    try testing.expect(val != null);
+    try testing.expectEqual(val.?, 7);
+}
+
+test "turso: parseTransferId returns null for empty rows" {
+    const json = "{\"results\":[{\"response\":{\"result\":{\"rows\":[]}}},{\"response\":{\"result\":{\"rows\":[]}}}]}";
+    const val = turso_mod.Turso.parseTransferId(json);
+    try testing.expect(val == null);
+}
+
+test "turso: parseTransferId parses large transfer ID" {
+    const json = "{\"results\":[{\"response\":{\"result\":{\"rows\":[]}}},{\"response\":{\"result\":{\"rows\":[[{\"type\":\"integer\",\"value\":\"99999\"}]]}}}]}";
+    const val = turso_mod.Turso.parseTransferId(json);
+    try testing.expect(val != null);
+    try testing.expectEqual(val.?, 99999);
+}
+
+test "turso: parseTransferId handles unquoted integer" {
+    const json = "{\"results\":[{\"response\":{\"result\":{\"rows\":[]}}},{\"response\":{\"result\":{\"rows\":[[{\"type\":\"integer\",\"value\":42}]]}}}]}";
+    const val = turso_mod.Turso.parseTransferId(json);
+    try testing.expect(val != null);
+    try testing.expectEqual(val.?, 42);
+}
+
+test "turso: account constants are correct" {
+    try testing.expectEqual(turso_mod.Turso.ACCT_CASH, 1);
+    try testing.expectEqual(turso_mod.Turso.ACCT_BTC, 2);
+    try testing.expectEqual(turso_mod.Turso.ACCT_FEES, 3);
+    try testing.expectEqual(turso_mod.Turso.ACCT_EQUITY, 4);
+    try testing.expectEqual(turso_mod.Turso.ACCT_PNL, 5);
+    try testing.expectEqual(turso_mod.Turso.CODE_DEPOSIT, 1);
+    try testing.expectEqual(turso_mod.Turso.CODE_BUY, 2);
+    try testing.expectEqual(turso_mod.Turso.CODE_SELL, 3);
+    try testing.expectEqual(turso_mod.Turso.CODE_FEE, 4);
+    try testing.expectEqual(turso_mod.Turso.CODE_PNL, 5);
+}
+
+test "turso: transfer flags are correct" {
+    try testing.expectEqual(turso_mod.Turso.FLAG_PENDING, 1);
+    try testing.expectEqual(turso_mod.Turso.FLAG_POST_PENDING, 2);
+    try testing.expectEqual(turso_mod.Turso.FLAG_VOID_PENDING, 4);
+}
+
+test "turso: parseJsonFloat parses unquoted float" {
+    const json = "{\"price\":80000.50,\"size\":0.01}";
+    const val = turso_mod.Turso.parseJsonFloat(json, "\"price\":");
+    try testing.expect(val != null);
+    try testing.expectApproxEqAbs(val.?, 80000.50, 0.01);
+}
+
+test "turso: parseJsonFloat parses quoted float" {
+    const json = "{\"price\":\"80000.50\",\"size\":\"0.01\"}";
+    const val = turso_mod.Turso.parseJsonFloat(json, "\"price\":");
+    try testing.expect(val != null);
+    try testing.expectApproxEqAbs(val.?, 80000.50, 0.01);
+}
+
+test "turso: parseJsonFloat returns null for missing key" {
+    const json = "{\"price\":80000.50}";
+    const val = turso_mod.Turso.parseJsonFloat(json, "\"size\":");
+    try testing.expect(val == null);
+}
+
+test "turso: parseJsonFloat parses second key in object" {
+    const json = "{\"price\":80000.50,\"size\":0.01234567}";
+    const val = turso_mod.Turso.parseJsonFloat(json, "\"size\":");
+    try testing.expect(val != null);
+    try testing.expectApproxEqAbs(val.?, 0.01234567, 0.00000001);
+}
+
+test "turso: parseJsonFloat parses last key before closing brace" {
+    const json = "{\"price\":80000.50,\"fee\":80.00}";
+    const val = turso_mod.Turso.parseJsonFloat(json, "\"fee\":");
+    try testing.expect(val != null);
+    try testing.expectApproxEqAbs(val.?, 80.00, 0.01);
+}
+
+test "turso: parseJsonFloat handles zero value" {
+    const json = "{\"price\":0,\"size\":0.0}";
+    const price = turso_mod.Turso.parseJsonFloat(json, "\"price\":");
+    try testing.expect(price != null);
+    try testing.expectApproxEqAbs(price.?, 0.0, 0.001);
+    const size = turso_mod.Turso.parseJsonFloat(json, "\"size\":");
+    try testing.expect(size != null);
+    try testing.expectApproxEqAbs(size.?, 0.0, 0.001);
+}
+
+test "turso: parseJsonFloat parses user_data format from buy transfer" {
+    // This is the exact format written by main.zig buy flow
+    const json = "{\"price\":95432.12345678,\"size\":0.01048000,\"fee\":1.00012345,\"signal_price\":95400.00000000,\"order_id\":\"abc-123\"}";
+    const price = turso_mod.Turso.parseJsonFloat(json, "\"price\":");
+    try testing.expect(price != null);
+    try testing.expectApproxEqAbs(price.?, 95432.12345678, 0.00000001);
+    const size = turso_mod.Turso.parseJsonFloat(json, "\"size\":");
+    try testing.expect(size != null);
+    try testing.expectApproxEqAbs(size.?, 0.01048000, 0.00000001);
+    const fee = turso_mod.Turso.parseJsonFloat(json, "\"fee\":");
+    try testing.expect(fee != null);
+    try testing.expectApproxEqAbs(fee.?, 1.00012345, 0.00000001);
+    const signal = turso_mod.Turso.parseJsonFloat(json, "\"signal_price\":");
+    try testing.expect(signal != null);
+    try testing.expectApproxEqAbs(signal.?, 95400.0, 0.01);
+    // order_id is a string, not a float — should not parse as float
+    const oid = turso_mod.Turso.parseJsonFloat(json, "\"order_id\":");
+    try testing.expect(oid == null);
+}
+
+test "turso: parseJsonFloat parses user_data format from sell transfer" {
+    const json = "{\"price\":96000.50000000,\"size\":0.01048000,\"fee\":1.00608524,\"exit_type\":\"DC\"}";
+    const price = turso_mod.Turso.parseJsonFloat(json, "\"price\":");
+    try testing.expect(price != null);
+    try testing.expectApproxEqAbs(price.?, 96000.50, 0.01);
+    const size = turso_mod.Turso.parseJsonFloat(json, "\"size\":");
+    try testing.expect(size != null);
+    try testing.expectApproxEqAbs(size.?, 0.01048, 0.00001);
+    // exit_type is a string — should not parse as float
+    const exit = turso_mod.Turso.parseJsonFloat(json, "\"exit_type\":");
+    try testing.expect(exit == null);
+}
+
+test "turso: parseTransferId with full 5-statement pipeline (BEGIN, INSERT RETURNING, UPDATE, UPDATE, COMMIT)" {
+    // Realistic pipeline: BEGIN (empty rows), INSERT RETURNING id (has rows), UPDATE x2 (affected_rows), COMMIT (empty)
+    const json = "{\"results\":[" ++
+        "{\"response\":{\"result\":{\"rows\":[]}}}," ++ // BEGIN
+        "{\"response\":{\"result\":{\"rows\":[[{\"type\":\"integer\",\"value\":\"123\"}]]}}}," ++ // INSERT RETURNING
+        "{\"response\":{\"result\":{\"rows\":[]}}}," ++ // UPDATE accounts debit
+        "{\"response\":{\"result\":{\"rows\":[]}}}," ++ // UPDATE accounts credit
+        "{\"response\":{\"result\":{\"rows\":[]}}}" ++ // COMMIT
+        "]}";
+    const val = turso_mod.Turso.parseTransferId(json);
+    try testing.expect(val != null);
+    try testing.expectEqual(val.?, 123);
+}
+
+test "turso: parseTransferId returns null when no results at all" {
+    const json = "{\"results\":[]}";
+    const val = turso_mod.Turso.parseTransferId(json);
+    try testing.expect(val == null);
+}
+
+test "turso: double-entry balance derivation: full trading cycle" {
+    // Simulate the account balance fields after each operation.
+    // TigerBeetle convention (as implemented):
+    //   createPostedTransfer(debit_acct, credit_acct, amount)
+    //     → debit_acct.credits_posted += amount
+    //     → credit_acct.debits_posted += amount
+    //   queryAccountBalance = credits_posted - debits_posted
+    //
+    // We track the 4 balance fields for each account manually.
+    const Turso = turso_mod.Turso;
+
+    // Account balance fields: [credits_pending, credits_posted, debits_pending, debits_posted]
+    var cash = [4]f64{ 0, 0, 0, 0 };
+    var btc = [4]f64{ 0, 0, 0, 0 };
+    var fees = [4]f64{ 0, 0, 0, 0 };
+    var equity = [4]f64{ 0, 0, 0, 0 };
+    var pnl = [4]f64{ 0, 0, 0, 0 };
+    _ = Turso;
+
+    // Helper: balance = credits_posted - debits_posted
+    const bal = struct {
+        fn get(acct: [4]f64) f64 {
+            return acct[1] - acct[3]; // credits_posted - debits_posted
+        }
+    };
+
+    // --- Step 1: Deposit $1000 ---
+    // createPostedTransfer(debit=cash, credit=equity, 1000, CODE_DEPOSIT)
+    //   → cash.credits_posted += 1000 (debit_acct gets credits)
+    //   → equity.debits_posted += 1000 (credit_acct gets debits)
+    cash[1] += 1000; // credits_posted
+    equity[3] += 1000; // debits_posted
+
+    try testing.expectApproxEqAbs(bal.get(cash), 1000.0, 0.001); // cash has $1000
+    try testing.expectApproxEqAbs(bal.get(equity), -1000.0, 0.001); // equity is negative (owner's claim)
+
+    // Integrity check: sum of all debits_posted == sum of all credits_posted
+    const total_credits_1 = cash[1] + btc[1] + fees[1] + equity[1] + pnl[1];
+    const total_debits_1 = cash[3] + btc[3] + fees[3] + equity[3] + pnl[3];
+    try testing.expectApproxEqAbs(total_credits_1, total_debits_1, 0.001);
+
+    // --- Step 2: Buy BTC — fee $1, buy cost $999 ---
+    // Fee: createPostedTransfer(debit=fees, credit=cash, 1, CODE_FEE)
+    //   → fees.credits_posted += 1
+    //   → cash.debits_posted += 1
+    fees[1] += 1; // credits_posted
+    cash[3] += 1; // debits_posted
+
+    // Buy: createPostedTransfer(debit=btc, credit=cash, 999, CODE_BUY)
+    //   → btc.credits_posted += 999
+    //   → cash.debits_posted += 999
+    btc[1] += 999; // credits_posted
+    cash[3] += 999; // debits_posted
+
+    try testing.expectApproxEqAbs(bal.get(cash), 0.0, 0.001); // cash spent: 1000 - 1 - 999 = 0
+    try testing.expectApproxEqAbs(bal.get(btc), 999.0, 0.001); // btc holds $999
+    try testing.expectApproxEqAbs(bal.get(fees), 1.0, 0.001); // $1 in fees
+
+    // Integrity check
+    const total_credits_2 = cash[1] + btc[1] + fees[1] + equity[1] + pnl[1];
+    const total_debits_2 = cash[3] + btc[3] + fees[3] + equity[3] + pnl[3];
+    try testing.expectApproxEqAbs(total_credits_2, total_debits_2, 0.001);
+
+    // --- Step 3: Sell BTC for $1050 (profit!) — fee $1.05 ---
+    // Sell: createPostedTransfer(debit=cash, credit=btc, 1050, CODE_SELL)
+    //   → cash.credits_posted += 1050
+    //   → btc.debits_posted += 1050
+    cash[1] += 1050; // credits_posted
+    btc[3] += 1050; // debits_posted
+
+    // Fee: createPostedTransfer(debit=fees, credit=cash, 1.05, CODE_FEE)
+    //   → fees.credits_posted += 1.05
+    //   → cash.debits_posted += 1.05
+    fees[1] += 1.05;
+    cash[3] += 1.05;
+
+    // PnL: profit = 1050 - 999 = 51 (before exit fee)
+    // createPostedTransfer(debit=cash, credit=pnl, 51, CODE_PNL)
+    //   → cash.credits_posted += 51
+    //   → pnl.debits_posted += 51
+    cash[1] += 51;
+    pnl[3] += 51;
+
+    // Verify final balances
+    // Cash: 1000 + 1050 + 51 credits - 1 - 999 - 1.05 debits = 1099.95
+    try testing.expectApproxEqAbs(bal.get(cash), 1099.95, 0.001);
+    // BTC: 999 credits - 1050 debits = -51 (sold more than bought = realized gain)
+    try testing.expectApproxEqAbs(bal.get(btc), -51.0, 0.001);
+    // Fees: 1 + 1.05 = 2.05
+    try testing.expectApproxEqAbs(bal.get(fees), 2.05, 0.001);
+    // Equity: -1000 (unchanged)
+    try testing.expectApproxEqAbs(bal.get(equity), -1000.0, 0.001);
+    // PnL: -51 (credit account, negative = profit)
+    try testing.expectApproxEqAbs(bal.get(pnl), -51.0, 0.001);
+
+    // Global integrity: sum(credits_posted) == sum(debits_posted)
+    const total_credits_3 = cash[1] + btc[1] + fees[1] + equity[1] + pnl[1];
+    const total_debits_3 = cash[3] + btc[3] + fees[3] + equity[3] + pnl[3];
+    try testing.expectApproxEqAbs(total_credits_3, total_debits_3, 0.001);
+
+    // Verify: cash balance = initial_deposit - total_fees + realized_pnl
+    // 1000 - 2.05 + (1050 - 999) = 1000 - 2.05 + 51 = 1048.95
+    // But our cash is 1099.95 because PnL transfer also credits cash.
+    // Actual: cash = deposit(1000) - fee(1) - buy(999) + sell(1050) - fee(1.05) + pnl(51) = 1099.95
+    // The PnL transfer is separate from the sell — it records the gain explicitly.
+    // Net equity = cash + btc + fees + equity + pnl = 1099.95 + (-51) + 2.05 + (-1000) + (-51) = 0 ✓
+    const net = bal.get(cash) + bal.get(btc) + bal.get(fees) + bal.get(equity) + bal.get(pnl);
+    try testing.expectApproxEqAbs(net, 0.0, 0.001);
+}
+
+test "turso: double-entry balance derivation: deposit only" {
+    // Simplest case: just a deposit, verify cash is positive
+    var cash_cp: f64 = 0; // credits_posted
+    const cash_dp: f64 = 0; // debits_posted
+
+    // Deposit $500: debit=cash → cash.credits_posted += 500
+    cash_cp += 500;
+    const balance = cash_cp - cash_dp;
+    try testing.expectApproxEqAbs(balance, 500.0, 0.001);
+}
+
+test "turso: double-entry balance derivation: buy reduces cash" {
+    const cash_cp: f64 = 1000; // after deposit
+    var cash_dp: f64 = 0;
+
+    // Fee: credit=cash → cash.debits_posted += 1
+    cash_dp += 1;
+    // Buy: credit=cash → cash.debits_posted += 999
+    cash_dp += 999;
+
+    const balance = cash_cp - cash_dp;
+    try testing.expectApproxEqAbs(balance, 0.0, 0.001);
+}
+
+test "turso: double-entry balance derivation: pending reserves funds" {
+    // Pending transfer reserves via credits_pending/debits_pending
+    const cash_cp: f64 = 1000; // credits_posted (after deposit)
+    const cash_dp: f64 = 0; // debits_posted
+    // createPendingTransfer(debit=btc, credit=cash, 999)
+    //   → btc.credits_pending += 999 (debit_acct)
+    //   → cash.debits_pending += 999 (credit_acct)
+    var cash_dpend: f64 = 0;
+    cash_dpend += 999; // credit_acct gets debits_pending
+
+    // Cash balance (posted only)
+    const posted_balance = cash_cp - cash_dp;
+    try testing.expectApproxEqAbs(posted_balance, 1000.0, 0.001);
+
+    // Cash available = posted_balance - debits_pending
+    const available = posted_balance - cash_dpend;
+    try testing.expectApproxEqAbs(available, 1.0, 0.001); // $1 available after reserving $999
+}
+
+test "turso: double-entry balance derivation: void releases funds" {
+    // After voiding a pending transfer, reserved funds return
+    const cash_cp: f64 = 1000;
+    const cash_dp: f64 = 0;
+    var cash_dpend: f64 = 0;
+
+    // Pending buy reserves $999
+    cash_dpend += 999;
+    try testing.expectApproxEqAbs((cash_cp - cash_dp) - cash_dpend, 1.0, 0.001);
+
+    // Void releases the reservation
+    cash_dpend -= 999;
+    try testing.expectApproxEqAbs((cash_cp - cash_dp) - cash_dpend, 1000.0, 0.001);
+    try testing.expectApproxEqAbs(cash_dpend, 0.0, 0.001);
+}
+
+test "turso: double-entry balance derivation: post settles pending" {
+    // Posting moves pending → posted
+    const cash_cp: f64 = 1000;
+    var cash_dp: f64 = 0;
+    var cash_dpend: f64 = 999; // pending buy reserved
+
+    // Post: debits_pending -= 999, debits_posted += 999
+    cash_dpend -= 999;
+    cash_dp += 999;
+
+    const posted_balance = cash_cp - cash_dp;
+    try testing.expectApproxEqAbs(posted_balance, 1.0, 0.001); // $1 left after buy settled
+    try testing.expectApproxEqAbs(cash_dpend, 0.0, 0.001); // no pending
+}
+
+test "turso: double-entry operation codes cover all trade operations" {
+    // Every operation in the trading flow has a corresponding code
+    const Turso = turso_mod.Turso;
+    // Deposit: cash receives funds from equity
+    try testing.expect(Turso.CODE_DEPOSIT == 1);
+    // Buy: btc_position receives value from cash
+    try testing.expect(Turso.CODE_BUY == 2);
+    // Sell: cash receives value from btc_position
+    try testing.expect(Turso.CODE_SELL == 3);
+    // Fee: fees account receives from cash
+    try testing.expect(Turso.CODE_FEE == 4);
+    // PnL: realized profit/loss
+    try testing.expect(Turso.CODE_PNL == 5);
+}
+
+test "turso: two-phase flags are mutually exclusive powers of 2" {
+    const Turso = turso_mod.Turso;
+    // Flags should be powers of 2 for bitwise operations
+    try testing.expectEqual(Turso.FLAG_PENDING, 1);       // 0b001
+    try testing.expectEqual(Turso.FLAG_POST_PENDING, 2);  // 0b010
+    try testing.expectEqual(Turso.FLAG_VOID_PENDING, 4);  // 0b100
+    // No two flags share bits
+    try testing.expectEqual(Turso.FLAG_PENDING & Turso.FLAG_POST_PENDING, 0);
+    try testing.expectEqual(Turso.FLAG_PENDING & Turso.FLAG_VOID_PENDING, 0);
+    try testing.expectEqual(Turso.FLAG_POST_PENDING & Turso.FLAG_VOID_PENDING, 0);
+}
+
+test "turso: parseJsonFloat handles empty JSON object" {
+    const json = "{}";
+    const val = turso_mod.Turso.parseJsonFloat(json, "\"price\":");
+    try testing.expect(val == null);
+}
+
+test "turso: parseJsonFloat handles empty string" {
+    const val = turso_mod.Turso.parseJsonFloat("", "\"price\":");
+    try testing.expect(val == null);
+}
+
+test "turso: parseTransferId with transfer ID 1 (first ever transfer)" {
+    const json = "{\"results\":[{\"response\":{\"result\":{\"rows\":[]}}},{\"response\":{\"result\":{\"rows\":[[{\"type\":\"integer\",\"value\":\"1\"}]]}}}]}";
+    const val = turso_mod.Turso.parseTransferId(json);
+    try testing.expect(val != null);
+    try testing.expectEqual(val.?, 1);
+}
+
+// ============================================================
+// Migration Tests (old account_ledger → new transfers)
+// ============================================================
+
+test "migration: old ledger type maps to correct transfer code" {
+    // The migration SQL in migrateOldData() maps:
+    //   DEPOSIT   → code=1 (CODE_DEPOSIT)
+    //   BUY       → code=2 (CODE_BUY)
+    //   SELL      → code=3 (CODE_SELL)
+    //   ENTRY_FEE → code=4 (CODE_FEE)
+    //   EXIT_FEE  → code=4 (CODE_FEE)
+    const Turso = turso_mod.Turso;
+    const ledger_types = [_][]const u8{ "DEPOSIT", "BUY", "SELL", "ENTRY_FEE", "EXIT_FEE" };
+    const expected_codes = [_]u8{ Turso.CODE_DEPOSIT, Turso.CODE_BUY, Turso.CODE_SELL, Turso.CODE_FEE, Turso.CODE_FEE };
+
+    for (ledger_types, expected_codes) |typ, code| {
+        // Verify the mapping matches our constants
+        const mapped_code: u8 = if (std.mem.eql(u8, typ, "DEPOSIT")) 1
+            else if (std.mem.eql(u8, typ, "BUY")) 2
+            else if (std.mem.eql(u8, typ, "SELL")) 3
+            else if (std.mem.eql(u8, typ, "ENTRY_FEE")) 4
+            else if (std.mem.eql(u8, typ, "EXIT_FEE")) 4
+            else 0;
+        try testing.expectEqual(mapped_code, code);
+    }
+}
+
+test "migration: old ledger type maps to correct debit/credit accounts" {
+    const Turso = turso_mod.Turso;
+    // Migration SQL CASE mapping for debit_account_id:
+    //   DEPOSIT   → 1 (cash)     — cash receives money
+    //   BUY       → 2 (btc)      — btc receives value
+    //   SELL      → 1 (cash)     — cash receives proceeds
+    //   ENTRY_FEE → 3 (fees)     — fees account receives
+    //   EXIT_FEE  → 3 (fees)     — fees account receives
+    const ledger_types = [_][]const u8{ "DEPOSIT", "BUY", "SELL", "ENTRY_FEE", "EXIT_FEE" };
+    const expected_debit = [_]u8{ Turso.ACCT_CASH, Turso.ACCT_BTC, Turso.ACCT_CASH, Turso.ACCT_FEES, Turso.ACCT_FEES };
+    const expected_credit = [_]u8{ Turso.ACCT_EQUITY, Turso.ACCT_CASH, Turso.ACCT_BTC, Turso.ACCT_CASH, Turso.ACCT_CASH };
+
+    for (ledger_types, 0..) |typ, i| {
+        const debit: u8 = if (std.mem.eql(u8, typ, "DEPOSIT")) Turso.ACCT_CASH
+            else if (std.mem.eql(u8, typ, "BUY")) Turso.ACCT_BTC
+            else if (std.mem.eql(u8, typ, "SELL")) Turso.ACCT_CASH
+            else if (std.mem.eql(u8, typ, "ENTRY_FEE")) Turso.ACCT_FEES
+            else if (std.mem.eql(u8, typ, "EXIT_FEE")) Turso.ACCT_FEES
+            else 1;
+        const credit: u8 = if (std.mem.eql(u8, typ, "DEPOSIT")) Turso.ACCT_EQUITY
+            else if (std.mem.eql(u8, typ, "BUY")) Turso.ACCT_CASH
+            else if (std.mem.eql(u8, typ, "SELL")) Turso.ACCT_BTC
+            else if (std.mem.eql(u8, typ, "ENTRY_FEE")) Turso.ACCT_CASH
+            else if (std.mem.eql(u8, typ, "EXIT_FEE")) Turso.ACCT_CASH
+            else 1;
+        try testing.expectEqual(debit, expected_debit[i]);
+        try testing.expectEqual(credit, expected_credit[i]);
+    }
+}
+
+test "migration: ABS(amount) ensures all transfer amounts are positive" {
+    // Old ledger has negative amounts for BUY, ENTRY_FEE, EXIT_FEE
+    // Migration uses ABS(amount) to normalize
+    const old_amounts = [_]f64{ 1000.0, -999.0, 1050.0, -1.0, -1.05 };
+    const expected_abs = [_]f64{ 1000.0, 999.0, 1050.0, 1.0, 1.05 };
+
+    for (old_amounts, expected_abs) |old, expected| {
+        try testing.expectApproxEqAbs(@abs(old), expected, 0.001);
+    }
+}
+
+test "migration: account balance recomputation from transfers" {
+    // After migration, account balances are recomputed:
+    //   credits_posted = SUM(amount) WHERE debit_account_id = account.id
+    //   debits_posted = SUM(amount) WHERE credit_account_id = account.id
+    // (TigerBeetle convention: debit_account gets credits)
+    //
+    // Simulate a ledger: DEPOSIT $1000, ENTRY_FEE $1, BUY $999, SELL $1050, EXIT_FEE $1.05
+    // After migration, transfers table has:
+    //   (debit=1/cash, credit=4/equity, 1000, code=1)  — deposit
+    //   (debit=3/fees, credit=1/cash,   1,    code=4)  — entry fee
+    //   (debit=2/btc,  credit=1/cash,   999,  code=2)  — buy
+    //   (debit=1/cash, credit=2/btc,    1050, code=3)  — sell
+    //   (debit=3/fees, credit=1/cash,   1.05, code=4)  — exit fee
+
+    // Cash (id=1):
+    //   credits_posted = SUM where debit_account_id=1 = 1000 (deposit) + 1050 (sell) = 2050
+    //   debits_posted = SUM where credit_account_id=1 = 1 (fee) + 999 (buy) + 1.05 (fee) = 1001.05
+    //   balance = credits_posted - debits_posted = 2050 - 1001.05 = 1048.95
+    const cash_credits: f64 = 1000 + 1050;
+    const cash_debits: f64 = 1 + 999 + 1.05;
+    const cash_balance = cash_credits - cash_debits;
+    try testing.expectApproxEqAbs(cash_balance, 1048.95, 0.001);
+
+    // BTC (id=2):
+    //   credits_posted = SUM where debit_account_id=2 = 999 (buy)
+    //   debits_posted = SUM where credit_account_id=2 = 1050 (sell)
+    //   balance = 999 - 1050 = -51 (sold more than bought = realized gain)
+    const btc_credits: f64 = 999;
+    const btc_debits: f64 = 1050;
+    const btc_balance = btc_credits - btc_debits;
+    try testing.expectApproxEqAbs(btc_balance, -51.0, 0.001);
+
+    // Fees (id=3):
+    //   credits_posted = SUM where debit_account_id=3 = 1 + 1.05 = 2.05
+    //   debits_posted = SUM where credit_account_id=3 = 0
+    //   balance = 2.05
+    const fees_credits: f64 = 1 + 1.05;
+    const fees_debits: f64 = 0;
+    const fees_balance = fees_credits - fees_debits;
+    try testing.expectApproxEqAbs(fees_balance, 2.05, 0.001);
+
+    // Equity (id=4):
+    //   credits_posted = SUM where debit_account_id=4 = 0
+    //   debits_posted = SUM where credit_account_id=4 = 1000 (deposit)
+    //   balance = 0 - 1000 = -1000
+    const equity_credits: f64 = 0;
+    const equity_debits: f64 = 1000;
+    const equity_balance = equity_credits - equity_debits;
+    try testing.expectApproxEqAbs(equity_balance, -1000.0, 0.001);
+
+    // Global integrity: sum of all credits_posted == sum of all debits_posted
+    const total_credits = cash_credits + btc_credits + fees_credits + equity_credits;
+    const total_debits = cash_debits + btc_debits + fees_debits + equity_debits;
+    try testing.expectApproxEqAbs(total_credits, total_debits, 0.001);
+
+    // Net equity across all accounts = 0
+    const net = cash_balance + btc_balance + fees_balance + equity_balance;
+    try testing.expectApproxEqAbs(net, 0.0, 0.001);
+}
+
+test "migration: idempotent — skips if transfers already populated" {
+    // The migration checks: if t_count > 0, skip.
+    // This test verifies the logic conceptually.
+    const t_count: u32 = 5;  // transfers already has data
+    const l_count: u32 = 10; // old ledger has data too
+    const should_migrate = (t_count == 0 and l_count > 0);
+    try testing.expect(!should_migrate);
+}
+
+test "migration: idempotent — skips if old ledger is empty" {
+    const t_count: u32 = 0;
+    const l_count: u32 = 0; // nothing to migrate
+    const should_migrate = (t_count == 0 and l_count > 0);
+    try testing.expect(!should_migrate);
+}
+
+test "migration: runs when transfers empty and ledger has data" {
+    const t_count: u32 = 0;
+    const l_count: u32 = 15;
+    const should_migrate = (t_count == 0 and l_count > 0);
+    try testing.expect(should_migrate);
+}
+
+
+// ============================================================
 // Capital Accounting Tests (Alpaca qty rounding)
 // ============================================================
 

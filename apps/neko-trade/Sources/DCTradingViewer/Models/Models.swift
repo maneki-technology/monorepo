@@ -36,54 +36,62 @@ struct Position: Identifiable, Codable {
 }
 
 
-// MARK: - Ledger Entry
+// MARK: - Transfer (double-entry)
 
-struct LedgerEntry: Identifiable, Codable {
+struct Transfer: Identifiable, Codable {
     let id: Int
-    let type: String
+    let debitAccountId: Int
+    let creditAccountId: Int
     let amount: Double
-    let balanceAfter: Double
-    let note: String
+    let pendingId: Int?
+    let code: Int          // 1=deposit, 2=buy, 3=sell, 4=fee, 5=pnl
+    let flags: Int
+    let status: String     // pending/posted/voided
+    let userData: String?
+    let price: Double
+    let size: Double
     let timestamp: String
     let createdAt: String
 
-    var isPositive: Bool { amount >= 0 }
+    var codeName: String {
+        switch code {
+        case 1: return "DEPOSIT"
+        case 2: return "BUY"
+        case 3: return "SELL"
+        case 4: return "FEE"
+        case 5: return "PNL"
+        default: return "UNKNOWN"
+        }
+    }
+
+    /// Deposit and sell are positive for cash account
+    var isPositive: Bool {
+        code == 1 || code == 3
+    }
 
     var typeColor: Color {
-        switch type {
-        case "DEPOSIT": return .blue
-        case "BUY": return .orange
-        case "SELL": return .green
-        case "ENTRY_FEE", "EXIT_FEE": return .red
-        case "UNSPENT": return .yellow
+        switch code {
+        case 1: return .blue
+        case 2: return .orange
+        case 3: return .green
+        case 4: return .red
+        case 5: return .cyan
         default: return .secondary
         }
     }
 
     var typeIcon: String {
-        switch type {
-        case "DEPOSIT": return "plus.circle.fill"
-        case "BUY": return "arrow.down.circle.fill"
-        case "SELL": return "arrow.up.circle.fill"
-        case "ENTRY_FEE", "EXIT_FEE": return "minus.circle.fill"
-        case "UNSPENT": return "arrow.uturn.backward.circle.fill"
+        switch code {
+        case 1: return "plus.circle.fill"
+        case 2: return "arrow.down.circle.fill"
+        case 3: return "arrow.up.circle.fill"
+        case 4: return "minus.circle.fill"
+        case 5: return "chart.line.uptrend.xyaxis"
         default: return "circle.fill"
         }
     }
-}
 
-// MARK: - Trade Event
-
-struct TradeEvent: Identifiable, Codable {
-    let id: Int
-    let action: String
-    let price: Double
-    let size: Double
-    let fee: Double
-    let timestamp: String
-    let createdAt: String
-
-    var isBuy: Bool { action == "BUY" }
+    var isBuy: Bool { code == 2 }
 
     var date: Date {
         if let ts = Double(timestamp) { return Date(timeIntervalSince1970: ts) }

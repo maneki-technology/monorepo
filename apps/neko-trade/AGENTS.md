@@ -11,18 +11,18 @@ SwiftUI dashboard app for the DCTrading bot. Displays bot status, equity, trades
 ### Views (`Views/`)
 - `ContentView.swift` — Tab container: Dashboard, Ledger, Equity, Trades, Settings.
 - `DashboardView.swift` — Bot status, regime (BULL=green, SIDE=orange, BEAR=red), equity, BTC price from Binance, open position with unrealized PnL. Auto-refreshes every 30s.
-- `LedgerView.swift` — Account ledger with cash balance summary + entry list from Turso.
+- `LedgerView.swift` — Transfer ledger with cash balance summary + running balance per entry.
 - `EquityChartView.swift` — Equity over time using Swift Charts.
-- `TradeHistoryView.swift` — Trade list with entry/exit prices, PnL, signal vs fill price drift.
+- `TradeHistoryView.swift` — Buy/sell transfers from double-entry ledger, Alpaca position, BTC price chart with trade markers.
 - `SettingsView.swift` — Turso + Alpaca credential input with persistent connection status indicators.
 
 ### Services (`Services/`)
-- `TursoClient.swift` — Turso HTTP client. Queries: equity_log, trade_events, positions, bot_status, account_ledger. Also contains `AppSettings` (singleton, UserDefaults-backed).
+- `TursoClient.swift` — Turso HTTP client. Queries: accounts, transfers, equity_log, bot_status. Pipeline support for atomic multi-statement operations. Also contains `AppSettings` (singleton, UserDefaults-backed).
 - `AlpacaClient.swift` — Alpaca REST client. Position queries (qty, entry price, market value).
 - `BinanceClient.swift` — Binance REST client. Current BTC price + kline history (free, no auth).
 
 ### Models (`Models/`)
-- `Models.swift` — Data types: `EquityLog`, `TradeEvent`, `Position`, `BotStatus`, `LedgerEntry`.
+- `Models.swift` — Data types: `Transfer`, `Position`, `EquityLog`, `BotStatus`, plus Turso API types.
 
 ### Key Patterns
 - **Alpaca as position source of truth**: Open position qty and entry price come from Alpaca, not Turso.
