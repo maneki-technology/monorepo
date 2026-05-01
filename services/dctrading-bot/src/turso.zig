@@ -59,19 +59,16 @@ pub const Turso = struct {
 
     /// Create/migrate tables (blocking, idempotent).
     pub fn createTables(self: *const Turso) void {
-        // Old tables (kept for reference, will be dropped in PR 3)
-        const sql_old =
+        // Core tables (equity_log + bot_status are permanent)
+        const sql_core =
             \\{"requests": [
-            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS trade_events (id INTEGER PRIMARY KEY AUTOINCREMENT, action TEXT, price REAL, size REAL, fee REAL, timestamp REAL, created_at TEXT DEFAULT (datetime('now')))"}},
-            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS positions (id INTEGER PRIMARY KEY AUTOINCREMENT, status TEXT, entry_price REAL, entry_time REAL, exit_price REAL, exit_time REAL, size REAL, pnl REAL, fees REAL, exit_type TEXT, signal_price REAL, alpaca_order_id TEXT, created_at TEXT DEFAULT (datetime('now')))"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS equity_log (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL, tick_count INTEGER, capital REAL, equity REAL, unrealized REAL, regime TEXT, price REAL, created_at TEXT DEFAULT (datetime('now')))"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS bot_status (id INTEGER PRIMARY KEY CHECK (id = 1), status TEXT, last_tick REAL, tick_count INTEGER, regime TEXT, in_position INTEGER, entry_price REAL, equity REAL, capital REAL, unrealized REAL, price REAL, uptime_start REAL, version TEXT, updated_at TEXT DEFAULT (datetime('now')))"}},
-            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS account_ledger (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, amount REAL, balance_after REAL, note TEXT, timestamp REAL, created_at TEXT DEFAULT (datetime('now')))"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE INDEX IF NOT EXISTS idx_equity_log_timestamp ON equity_log(timestamp)"}}
             \\]}
         ;
-        // New double-entry tables (TigerBeetle-inspired)
-        const sql_new =
+        // Double-entry tables (TigerBeetle-inspired)
+        const sql_acct =
             \\{"requests": [
             \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS accounts (id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, ledger INTEGER NOT NULL, code INTEGER NOT NULL, debits_pending REAL NOT NULL DEFAULT 0, debits_posted REAL NOT NULL DEFAULT 0, credits_pending REAL NOT NULL DEFAULT 0, credits_posted REAL NOT NULL DEFAULT 0, flags INTEGER NOT NULL DEFAULT 0, created_at TEXT DEFAULT (datetime('now')))"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS transfers (id INTEGER PRIMARY KEY AUTOINCREMENT, debit_account_id INTEGER NOT NULL REFERENCES accounts(id), credit_account_id INTEGER NOT NULL REFERENCES accounts(id), amount REAL NOT NULL, pending_id INTEGER REFERENCES transfers(id), code INTEGER NOT NULL, flags INTEGER NOT NULL DEFAULT 0, status TEXT NOT NULL DEFAULT 'posted', user_data TEXT, timestamp REAL NOT NULL, created_at TEXT DEFAULT (datetime('now')))"}},
@@ -85,14 +82,85 @@ pub const Turso = struct {
             \\  {"type": "execute", "stmt": {"sql": "INSERT OR IGNORE INTO accounts (id, name, ledger, code) VALUES (5, 'pnl', 1, 4001)"}}
             \\]}
         ;
-        const old_ok = self.execSync(sql_old);
-        const new_ok = self.execSync(sql_new);
-        if (old_ok and new_ok) {
-            std.debug.print("  [turso] Tables ready (old + double-entry).\n", .{});
-        } else if (old_ok) {
-            std.debug.print("  [turso] WARNING: Old tables ready, but double-entry table creation failed.\n", .{});
+        const core_ok = self.execSync(sql_core);
+        const acct_ok = self.execSync(sql_acct);
+        if (core_ok and acct_ok) {
+            std.debug.print("  [turso] Tables ready.\n", .{});
         } else {
             std.debug.print("  [turso] WARNING: Table creation may have failed.\n", .{});
+        }
+        // One-time migration: backfill old account_ledger data into transfers
+        self.migrateOldData();
+    }
+
+    /// One-time migration: backfill account_ledger entries into transfers table.
+    /// Idempotent: only runs if transfers is empty and account_ledger has data.
+    fn migrateOldData(self: *const Turso) void {
+        // Check if migration is needed: transfers empty + account_ledger exists with data
+        const check_sql =
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "SELECT (SELECT COUNT(*) FROM transfers) as t_count, (SELECT COUNT(*) FROM account_ledger) as l_count"}}]}
+        ;
+        const check_resp = self.execSyncRead(check_sql) orelse return;
+        defer check_resp.deinit();
+
+        // Parse both counts from the response
+        const r = check_resp.body;
+        const vkey = "\"value\":";
+        const vpos1 = std.mem.indexOf(u8, r, vkey) orelse return;
+        var pos = vpos1 + vkey.len;
+        // Parse t_count
+        var t_count: u32 = 0;
+        if (pos < r.len and r[pos] == '"') {
+            pos += 1;
+            const end = std.mem.indexOf(u8, r[pos..], "\"") orelse return;
+            t_count = std.fmt.parseInt(u32, r[pos..][0..end], 10) catch return;
+            pos += end + 1;
+        } else {
+            var end = pos;
+            while (end < r.len and r[end] != ',' and r[end] != '}') : (end += 1) {}
+            t_count = std.fmt.parseInt(u32, r[pos..end], 10) catch return;
+            pos = end;
+        }
+        // Parse l_count
+        const vpos2 = std.mem.indexOf(u8, r[pos..], vkey) orelse return;
+        pos = pos + vpos2 + vkey.len;
+        var l_count: u32 = 0;
+        if (pos < r.len and r[pos] == '"') {
+            pos += 1;
+            const end = std.mem.indexOf(u8, r[pos..], "\"") orelse return;
+            l_count = std.fmt.parseInt(u32, r[pos..][0..end], 10) catch return;
+        } else {
+            var end = pos;
+            while (end < r.len and r[end] != ',' and r[end] != '}') : (end += 1) {}
+            l_count = std.fmt.parseInt(u32, r[pos..end], 10) catch return;
+        }
+
+        if (t_count > 0 or l_count == 0) {
+            // Already migrated or nothing to migrate
+            return;
+        }
+
+        std.debug.print("  [turso] Migrating {d} ledger entries to transfers...\n", .{l_count});
+
+        // Migrate account_ledger entries to transfers using INSERT...SELECT
+        // Map old types to new transfer codes and account pairs:
+        //   DEPOSIT    → code=1, debit=cash(1), credit=equity(4)
+        //   BUY        → code=2, debit=btc(2), credit=cash(1)
+        //   SELL       → code=3, debit=cash(1), credit=btc(2)
+        //   ENTRY_FEE  → code=4, debit=fees(3), credit=cash(1)
+        //   EXIT_FEE   → code=4, debit=fees(3), credit=cash(1)
+        const migrate_sql =
+            \\{"requests": [
+            \\  {"type": "execute", "stmt": {"sql": "BEGIN"}},
+            \\  {"type": "execute", "stmt": {"sql": "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, user_data, timestamp) SELECT CASE type WHEN 'DEPOSIT' THEN 1 WHEN 'BUY' THEN 2 WHEN 'SELL' THEN 1 WHEN 'ENTRY_FEE' THEN 3 WHEN 'EXIT_FEE' THEN 3 ELSE 1 END, CASE type WHEN 'DEPOSIT' THEN 4 WHEN 'BUY' THEN 1 WHEN 'SELL' THEN 2 WHEN 'ENTRY_FEE' THEN 1 WHEN 'EXIT_FEE' THEN 1 ELSE 1 END, ABS(amount), CASE type WHEN 'DEPOSIT' THEN 1 WHEN 'BUY' THEN 2 WHEN 'SELL' THEN 3 WHEN 'ENTRY_FEE' THEN 4 WHEN 'EXIT_FEE' THEN 4 ELSE 0 END, 0, 'posted', note, timestamp FROM account_ledger ORDER BY id ASC"}},
+            \\  {"type": "execute", "stmt": {"sql": "UPDATE accounts SET credits_posted = COALESCE((SELECT SUM(amount) FROM transfers WHERE debit_account_id = accounts.id AND status = 'posted'), 0), debits_posted = COALESCE((SELECT SUM(amount) FROM transfers WHERE credit_account_id = accounts.id AND status = 'posted'), 0)"}},
+            \\  {"type": "execute", "stmt": {"sql": "COMMIT"}}
+            \\]}
+        ;
+        if (self.execSync(migrate_sql)) {
+            std.debug.print("  [turso] Migration complete.\n", .{});
+        } else {
+            std.debug.print("  [turso] WARNING: Migration may have failed.\n", .{});
         }
     }
 

@@ -43,17 +43,15 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 | `BOT_INSTANCE` | No | main.zig (default: "local") |
 
 ### Database Schema (Turso)
-- `trade_events` — BUY/SELL events with price, size, fee, timestamp.
-- `positions` — OPEN/CLOSED with entry/exit prices, PnL, signal_price, alpaca_order_id.
+- `accounts` — Double-entry accounts (TigerBeetle-inspired): cash, btc_position, fees, equity, pnl. 4 balance fields: debits_pending, debits_posted, credits_pending, credits_posted.
+- `transfers` — Immutable append-only transfer log. Two-phase (pending/posted/voided). Codes: 1=deposit, 2=buy, 3=sell, 4=fee, 5=pnl. Atomic BEGIN/COMMIT pipelines.
 - `equity_log` — Periodic snapshots (every 5 min + on trades): capital, equity, unrealized, regime, price.
 - `bot_status` — Single row (id=1): regime, position, equity, version (DCTRADE4@instance).
-- `account_ledger` — Full audit trail: DEPOSIT, ENTRY_FEE, BUY, SELL, EXIT_FEE with running balance.
-
 ### Build
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # GCP
-zig build test                                 # 39 tests
+zig build test                                 # 85 tests
 ```
 
 ### Trading Flow
