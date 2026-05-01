@@ -19,7 +19,7 @@
     "@maneki/grid-layout": "*",
     "@maneki/ui-components": "*",
     "exifreader": "^4.38.1",
-    "hono": "^4.12.9",
+    "hono": "^4.12.14",
     "leaflet": "^1.9.4",
     "lit": "^3.3.2",
     "zod": "^4.3.6"
