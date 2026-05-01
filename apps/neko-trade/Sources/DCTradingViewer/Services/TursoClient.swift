@@ -243,7 +243,9 @@ final class TursoClient {
     }
 
     func fetchTotalRealizedPnL() async throws -> Double {
-        let sql = "SELECT COALESCE(SUM(amount), 0) as total FROM transfers WHERE code = 5 AND status = 'posted'"
+        // Net return = (cash_balance + btc_balance) - total_deposits
+        // Includes fees as cost, BTC cost basis as unrealized allocation
+        let sql = "SELECT (SELECT credits_posted - debits_posted FROM accounts WHERE id = 1) + (SELECT credits_posted - debits_posted FROM accounts WHERE id = 2) - (SELECT COALESCE(SUM(amount), 0) FROM transfers WHERE code = 1 AND status = 'posted') as total"
         let result = try await executeSQL(sql)
         guard let row = result.rows.first else { return 0 }
         return getDouble(row, result.cols, "total")
