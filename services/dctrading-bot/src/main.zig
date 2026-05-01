@@ -5,6 +5,7 @@ const strat_mod = @import("strategy.zig");
 const telegram_mod = @import("telegram.zig");
 const alpaca_mod = @import("alpaca.zig");
 const http_mod = @import("http_client.zig");
+const turso_mod = @import("turso.zig");
 
 const Tick = types.Tick;
 const Trade = types.Trade;
@@ -61,7 +62,7 @@ pub fn main(init: std.process.Init) !void {
 
 fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f64) !void {
     const feed_mod = @import("feed.zig");
-    const turso_mod = @import("turso.zig");
+    // turso_mod imported at file scope
     const checkpoint_path: [*:0]const u8 = "dctrading.checkpoint";
     const checkpoint_interval: u64 = 60; // ~1 hour with 1-min downsampling
 
@@ -124,10 +125,10 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
 
         if (turso != null) {
             std.debug.print("  Checking Turso for existing state...\n", .{});
-            // Restore capital from ledger (source of truth) or equity_log (fallback)
-            if (turso.?.queryLedgerBalance()) |bal| {
+            // Restore capital from accounts (source of truth) or equity_log (fallback)
+            if (turso.?.queryAccountBalance(turso_mod.Turso.ACCT_CASH)) |bal| {
                 strategy.capital = bal;
-                std.debug.print("  Restored capital from ledger: ${d:.2}\n", .{bal});
+                std.debug.print("  Restored capital from accounts: ${d:.2}\n", .{bal});
             } else if (turso.?.queryLatestCapital()) |cap| {
                 strategy.capital = cap;
                 std.debug.print("  Restored capital from equity_log: ${d:.2}\n", .{cap});
@@ -135,14 +136,14 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 // First run — log initial deposit (skip if $0)
                 if (capital > 0) {
                     const now: f64 = @floatFromInt(time(null));
-                    turso.?.logLedgerSync("DEPOSIT", capital, capital, "Initial capital", now);
+                    turso.?.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_EQUITY, capital, turso_mod.Turso.CODE_DEPOSIT, "Initial capital", now);
                     std.debug.print("  Logged initial deposit: ${d:.2}\n", .{capital});
                 } else {
                     std.debug.print("  No initial capital. Waiting for deposit.\n", .{});
                 }
             }
-            // Restore open position
-            if (turso.?.queryOpenPosition()) |pos| {
+            // Restore open position from transfers
+            if (turso.?.queryOpenPositionNew()) |pos| {
                 strategy.in_position = true;
                 strategy.entry_price = pos.entry_price;
                 strategy.entry_time = pos.entry_time;
@@ -168,7 +169,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
 
     // Set initial_capital from total deposits (survives restarts without checkpoint change)
     if (turso != null) {
-        if (turso.?.queryTotalDeposits()) |total_deps| {
+        if (turso.?.queryTotalDepositsNew()) |total_deps| {
             if (total_deps > strategy.initial_capital + 0.01) {
                 strategy.initial_capital = total_deps;
                 std.debug.print("  Initial capital from deposits: ${d:.2}\n", .{total_deps});
@@ -205,7 +206,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
 
     var closed_count: u32 = 0;
     if (turso != null) {
-        if (turso.?.queryTradeCount()) |cnt| {
+        if (turso.?.queryTradeCountNew()) |cnt| {
             closed_count = cnt;
             std.debug.print("  Restored closed positions from Turso: {d}\n", .{cnt});
         }
@@ -213,7 +214,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     var last_feed_ts: f64 = 0;
     var last_equity_ts: f64 = 0;
     var last_deposit_check: f64 = 0;
-    var known_total_deposits: f64 = if (turso != null) (turso.?.queryTotalDeposits() orelse capital) else capital;
+    var known_total_deposits: f64 = if (turso != null) (turso.?.queryTotalDepositsNew() orelse capital) else capital;
     var last_price: f64 = 0;
     var prev_regime = strategy.regime;
     const uptime_start: f64 = @floatFromInt(time(null));
@@ -240,26 +241,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         // Real-time risk: check trailing stop only in BEAR mode (matches backtest)
         if (strategy.regime == .bear) {
             if (strategy.checkStop(t.price, t.timestamp)) |trade| {
-                closed_count += 1;
-                printLiveTrade(trade, closed_count, &strategy);
-                var sell_price = trade.exit_price;
-                if (alpaca.sell(trade.size)) |fill| {
-                    if (fill.status == .filled and fill.fill_price > 0) sell_price = fill.fill_price;
-                }
-                if (turso != null) {
-                    const exit_fee = sell_price * trade.size * 0.001;
-                    const sell_proceeds = sell_price * trade.size;
-                    turso.?.logSell(sell_price, trade.size, exit_fee, t.timestamp);
-                    turso.?.logPositionClose(trade);
-                    // Ledger: cash inflow from selling BTC
-                    turso.?.logLedger("SELL", sell_proceeds, strategy.capital + exit_fee, "Sold BTC", t.timestamp);
-                    turso.?.logLedger("EXIT_FEE", -exit_fee, strategy.capital, "SELL fee 0.1%", t.timestamp);
-                }
-                if (tg) |tl| {
-                    const exit_str = switch (trade.exit_type) { .dc_exit => "DC", .trailing_stop => "TRAIL", .regime_close => "REGIME", .end_of_data => "END" };
-                    const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
-                    tl.notifySell(sell_price, trade.pnl, exit_str, regime_str, instance);
-                }
+                handleSell(trade, &strategy, &closed_count, alpaca, if (turso != null) &turso.? else null, tg, t.timestamp, instance);
             }
         }
         // Downsample strategy logic (MA, vol, DC) to ~1 tick/minute
@@ -268,26 +250,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
 
         const was_in_pos = strategy.in_position;
         if (strategy.processTick(t)) |trade| {
-            closed_count += 1;
-            printLiveTrade(trade, closed_count, &strategy);
-            var sell_price = trade.exit_price;
-            if (alpaca.sell(trade.size)) |fill| {
-                if (fill.status == .filled and fill.fill_price > 0) sell_price = fill.fill_price;
-            }
-            if (turso != null) {
-                const exit_fee = sell_price * trade.size * 0.001;
-                const sell_proceeds = sell_price * trade.size;
-                turso.?.logSell(sell_price, trade.size, exit_fee, t.timestamp);
-                turso.?.logPositionClose(trade);
-                // Ledger: cash inflow from selling BTC
-                turso.?.logLedger("SELL", sell_proceeds, strategy.capital + exit_fee, "Sold BTC", t.timestamp);
-                turso.?.logLedger("EXIT_FEE", -exit_fee, strategy.capital, "SELL fee 0.1%", t.timestamp);
-            }
-            if (tg) |tl| {
-                const exit_str = switch (trade.exit_type) { .dc_exit => "DC", .trailing_stop => "TRAIL", .regime_close => "REGIME", .end_of_data => "END" };
-                const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
-                tl.notifySell(sell_price, trade.pnl, exit_str, regime_str, instance);
-            }
+            handleSell(trade, &strategy, &closed_count, alpaca, if (turso != null) &turso.? else null, tg, t.timestamp, instance);
         }
         // Detect new position opened by processTick
         if (!was_in_pos and strategy.in_position) {
@@ -314,12 +277,14 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             if (turso != null) {
                 const fee = buy_price * buy_size * 0.001;
                 const buy_cost = buy_price * buy_size;
-                const cash_after_fee = strategy.initial_capital - fee;
-                const cash_after_buy = cash_after_fee - buy_cost;
-                turso.?.logBuy(buy_price, buy_size, fee, t.timestamp);
-                turso.?.logPositionOpen(buy_price, t.timestamp, buy_size, fee, signal_price, alpaca_oid);
-                turso.?.logLedger("ENTRY_FEE", -fee, cash_after_fee, "BUY fee 0.1%", t.timestamp);
-                turso.?.logLedger("BUY", -buy_cost, cash_after_buy, "Bought BTC", t.timestamp);
+                // Double-entry: fee transfer (cash → fees)
+                turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "BUY fee 0.1%", t.timestamp);
+                // Double-entry: buy transfer (btc_position ← cash)
+                var ud_buf: [256]u8 = undefined;
+                const ud = std.fmt.bufPrint(&ud_buf,
+                    \\{{"price":{d:.8},"size":{d:.8},"fee":{d:.8},"signal_price":{d:.8},"order_id":"{s}"}}
+                , .{ buy_price, buy_size, fee, signal_price, alpaca_oid }) catch "{}" ;
+                turso.?.createPostedTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, buy_cost, turso_mod.Turso.CODE_BUY, ud, t.timestamp);
             }
             if (tg) |tl| {
                 const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
@@ -365,7 +330,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             // Check for new deposits every 5 min
             if (t.timestamp - last_deposit_check >= 300.0) {
                 last_deposit_check = t.timestamp;
-                if (turso.?.queryTotalDeposits()) |total| {
+                if (turso.?.queryTotalDepositsNew()) |total| {
                     if (total > known_total_deposits) {
                         const deposit = total - known_total_deposits;
                         strategy.capital += deposit;
@@ -393,12 +358,15 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                             if (buy_price > strategy.peak_price) strategy.peak_price = buy_price;
                             std.debug.print("  DEPOSIT BUY: +{d:.8} BTC @ ${d:.2}, blended entry=${d:.2}\n", .{ buy_size, buy_price, strategy.entry_price });
                             if (tg) |tel| tel.notifyBuy(buy_price, buy_size, regime_str, instance);
-                            turso.?.logBuy(buy_price, buy_size, fee, t.timestamp);
-                            const buy_cost = buy_price * buy_size;
-                            // Query actual cash balance from ledger for correct balance_after
-                            const cash_bal = turso.?.queryLedgerBalance() orelse deposit;
-                            turso.?.logLedger("ENTRY_FEE", -fee, cash_bal - fee, "Deposit buy fee", t.timestamp);
-                            turso.?.logLedger("BUY", -buy_cost, cash_bal - fee - buy_cost, "Deposit buy", t.timestamp);
+                            // Double-entry: fee transfer for deposit buy
+                            turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "Deposit buy fee", t.timestamp);
+                            // Double-entry: buy transfer for deposit buy
+                            var dep_ud_buf: [256]u8 = undefined;
+                            const dep_ud = std.fmt.bufPrint(&dep_ud_buf,
+                                \\{{"price":{d:.8},"size":{d:.8},"fee":{d:.8},"deposit_buy":true}}
+                            , .{ buy_price, buy_size, fee }) catch "{}";
+                            const dep_buy_cost = buy_price * buy_size;
+                            turso.?.createPostedTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, dep_buy_cost, turso_mod.Turso.CODE_BUY, dep_ud, t.timestamp);
                         }
 
                         turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, strategy.capital + unrealized, unrealized, regime_str, t.price);
@@ -453,6 +421,40 @@ fn printLiveTrade(trade: Trade, count: u32, strategy: *const Strategy) void {
     std.debug.print("\n  TRADE #{d}: {s} entry=${d:.2} exit=${d:.2} pnl=${d:.2} ret={d:.1}% capital=${d:.2}\n", .{
         count, exit_str, trade.entry_price, trade.exit_price, trade.pnl, trade.return_pct(), strategy.capital,
     });
+}
+
+fn handleSell(trade: Trade, strategy: *const Strategy, closed_count: *u32, alpaca: alpaca_mod.Alpaca, turso: ?*const turso_mod.Turso, tg: ?telegram_mod.Telegram, timestamp: f64, instance: []const u8) void {
+    closed_count.* += 1;
+    printLiveTrade(trade, closed_count.*, strategy);
+    var sell_price = trade.exit_price;
+    if (alpaca.sell(trade.size)) |fill| {
+        if (fill.status == .filled and fill.fill_price > 0) sell_price = fill.fill_price;
+    }
+    if (turso) |t| {
+        const exit_fee = sell_price * trade.size * 0.001;
+        const sell_proceeds = sell_price * trade.size;
+        const pnl = trade.pnl;
+        const exit_str = switch (trade.exit_type) { .dc_exit => "DC", .trailing_stop => "SL", .regime_close => "REG", .end_of_data => "END" };
+        // Double-entry: sell transfer (cash ← btc_position)
+        var ud_buf: [256]u8 = undefined;
+        const ud = std.fmt.bufPrint(&ud_buf,
+            \\{{"price":{d:.8},"size":{d:.8},"fee":{d:.8},"exit_type":"{s}"}}
+        , .{ sell_price, trade.size, exit_fee, exit_str }) catch "{}";
+        t.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_BTC, sell_proceeds, turso_mod.Turso.CODE_SELL, ud, timestamp);
+        // Double-entry: fee transfer (fees ← cash)
+        t.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, exit_fee, turso_mod.Turso.CODE_FEE, "SELL fee 0.1%", timestamp);
+        // Double-entry: PnL transfer (if nonzero)
+        if (pnl > 0) {
+            t.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_PNL, pnl, turso_mod.Turso.CODE_PNL, "Realized PnL", timestamp);
+        } else if (pnl < 0) {
+            t.createPostedTransfer(turso_mod.Turso.ACCT_PNL, turso_mod.Turso.ACCT_CASH, -pnl, turso_mod.Turso.CODE_PNL, "Realized loss", timestamp);
+        }
+    }
+    if (tg) |tl| {
+        const exit_str = switch (trade.exit_type) { .dc_exit => "DC", .trailing_stop => "TRAIL", .regime_close => "REGIME", .end_of_data => "END" };
+        const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
+        tl.notifySell(sell_price, trade.pnl, exit_str, regime_str, instance);
+    }
 }
 
 fn runBacktest(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold: f64, capital: f64) !void {
