@@ -4,11 +4,12 @@ import Charts
 struct TradeHistoryView: View {
     @ObservedObject var settings: AppSettings
     @State private var trades: [Transfer] = []
+    @State private var positions: [Transfer] = []  // buy transfers (open positions)
     @State private var latestPrice: Double = 0
     @State private var isLoading = false
     @State private var errorMessage: String?
+    @State private var showingPositions = false
     @State private var equityData: [EquityLog] = []
-
     private let client = TursoClient()
     private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
 
@@ -21,17 +22,23 @@ struct TradeHistoryView: View {
                     .padding(.top, 8)
             }
 
+            HStack(spacing: 0) {
+                tabButton("Trades", isSelected: !showingPositions) { showingPositions = false }
+                tabButton("Positions", isSelected: showingPositions) { showingPositions = true }
+            }
+            .padding(.horizontal)
+            .padding(.top, 8)
 
             Divider().padding(.top, 8)
 
             Group {
                 if !settings.isConfigured {
                     notConfiguredPlaceholder
-                } else if isLoading && trades.isEmpty {
+                } else if isLoading && trades.isEmpty && positions.isEmpty {
                     ProgressView("Loading...")
                         .font(.system(.body, design: .monospaced))
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if let error = errorMessage, trades.isEmpty {
+                } else if let error = errorMessage, trades.isEmpty, positions.isEmpty {
                     errorPlaceholder(error)
                 } else {
                     tradeList
@@ -60,16 +67,28 @@ struct TradeHistoryView: View {
     private var tradeList: some View {
         ScrollView {
             LazyVStack(spacing: 8) {
-                if trades.isEmpty {
-                    emptyState("No trades yet.")
+                if showingPositions {
+                    if positions.isEmpty {
+                        emptyState("No positions yet.")
+                    } else {
+                        ForEach(positions) { pos in
+                            positionRow(pos)
+                                .id("pos-\(pos.id)")
+                        }
+                    }
                 } else {
-                    ForEach(trades) { trade in
-                        tradeRow(trade)
-                            .id("trade-\(trade.id)")
+                    if trades.isEmpty {
+                        emptyState("No trades yet.")
+                    } else {
+                        ForEach(trades) { trade in
+                            tradeRow(trade)
+                                .id("trade-\(trade.id)")
+                        }
                     }
                 }
             }
             .padding()
+            .id(showingPositions ? "positions" : "trades")
         }
     }
 
@@ -124,6 +143,74 @@ struct TradeHistoryView: View {
         }
     }
 
+    // MARK: - Position Row
+
+    private func positionRow(_ pos: Transfer) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("OPEN")
+                    .font(.system(.caption, design: .monospaced, weight: .bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background { Capsule().fill(Color.blue) }
+
+                Spacer()
+
+                Text("\(String(format: "%.8f", pos.size)) BTC")
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundStyle(.secondary)
+            }
+
+            Divider()
+
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("ENTRY PRICE")
+                        .font(.system(.caption2, design: .monospaced))
+                        .foregroundStyle(.secondary)
+                    Text(formatCurrency(pos.price))
+                        .font(.system(.body, design: .monospaced, weight: .semibold))
+                }
+
+                Spacer()
+
+                if latestPrice > 0 {
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("UNREALIZED")
+                            .font(.system(.caption2, design: .monospaced))
+                            .foregroundStyle(.secondary)
+                        let unrealized = (latestPrice - pos.price) * pos.size
+                        Text(formatCurrency(unrealized))
+                            .font(.system(.body, design: .monospaced, weight: .bold))
+                            .foregroundStyle(unrealized >= 0 ? .green : .red)
+                    }
+                }
+            }
+
+            HStack {
+                if let note = pos.userData, !note.isEmpty {
+                    Text(note)
+                        .font(.system(.caption2, design: .monospaced))
+                        .foregroundStyle(.orange)
+                }
+                Spacer()
+                Text(formatTimestamp(pos.timestamp))
+                    .font(.system(.caption2, design: .monospaced))
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .padding(12)
+        .background {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .strokeBorder(Color.blue.opacity(0.2), lineWidth: 1)
+                )
+        }
+    }
+
     // MARK: - Price Chart
 
     @ViewBuilder
@@ -148,7 +235,12 @@ struct TradeHistoryView: View {
                     .interpolationMethod(.catmullRom)
                 }
 
-                ForEach(trades) { trade in
+                // Only show trades within the equity data date range
+                let chartTrades = trades.filter { trade in
+                    guard let first = equityData.first?.date else { return false }
+                    return trade.date >= first
+                }
+                ForEach(chartTrades) { trade in
                     PointMark(
                         x: .value("Time", trade.date),
                         y: .value("Price", trade.price)
@@ -238,21 +330,46 @@ struct TradeHistoryView: View {
 
     private func loadData() async {
         guard settings.isConfigured else { return }
-        if trades.isEmpty { isLoading = true }
+        if trades.isEmpty && positions.isEmpty { isLoading = true }
         errorMessage = nil
         do {
             async let equityLogTask = client.fetchEquityLog(days: 7)
             async let latestTask = client.fetchLatestEquity()
+            async let tradesTask = client.fetchTradeTransfers()
+            async let priceTask = BinanceClient.fetchPrice()
 
             let eqLog = try await equityLogTask
             let equity = try await latestTask
-            let price = equity?.price ?? 0
+            let btcPrice = try? await priceTask
+            let price = btcPrice ?? equity?.price ?? 0
+            let allTransfers = try await tradesTask
 
-            let transfers = try await client.fetchTradeTransfers()
+            // Position from Alpaca (source of truth)
+            var openPosition: [Transfer] = []
+            if settings.isAlpacaConfigured {
+                if let ap = try? await AlpacaClient.fetchPosition(
+                    apiKey: settings.alpacaKey, apiSecret: settings.alpacaSecret
+                ), ap.qty > 0 {
+                    openPosition = [Transfer(
+                        id: 0,
+                        debitAccountId: 2, creditAccountId: 1,
+                        amount: ap.entryPrice * ap.qty,
+                        pendingId: nil,
+                        code: 2, flags: 0, status: "posted",
+                        userData: nil,
+                        price: ap.entryPrice,
+                        size: ap.qty,
+                        timestamp: "",
+                        createdAt: ""
+                    )]
+                }
+            }
+
             await MainActor.run {
                 equityData = eqLog
                 latestPrice = price
-                trades = transfers
+                trades = allTransfers
+                positions = openPosition
                 isLoading = false
             }
         } catch {
@@ -293,4 +410,21 @@ struct TradeHistoryView: View {
         return ts
     }
 
+
+    private func tabButton(_ title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(.caption, design: .monospaced, weight: isSelected ? .bold : .regular))
+                .foregroundStyle(isSelected ? .primary : .secondary)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background {
+                    if isSelected {
+                        Capsule()
+                            .fill(Color.accentColor.opacity(0.15))
+                    }
+                }
+        }
+        .buttonStyle(.plain)
+    }
 }
