@@ -243,6 +243,13 @@ final class TursoClient {
         return getDouble(row, result.cols, "total_pnl")
     }
 
+    func fetchTotalDeposits() async throws -> Double {
+        let sql = "SELECT COALESCE(SUM(amount), 0) as total FROM account_ledger WHERE type = 'DEPOSIT'"
+        let result = try await executeSQL(sql)
+        guard let row = result.rows.first else { return 0 }
+        return getDouble(row, result.cols, "total")
+    }
+
     func fetchBotStatus() async throws -> BotStatus? {
         let sql = "SELECT * FROM bot_status WHERE id = 1"
         let result = try await executeSQL(sql)
@@ -262,6 +269,20 @@ final class TursoClient {
             version: getString(row, result.cols, "version"),
             updatedAt: getString(row, result.cols, "updated_at")
         )
+    }
+
+    /// Insert a deposit into the account_ledger. Returns the new balance.
+    func insertDeposit(amount: Double) async throws -> Double {
+        // First get current balance
+        let balanceSQL = "SELECT balance_after FROM account_ledger ORDER BY id DESC LIMIT 1"
+        let balResult = try await executeSQL(balanceSQL)
+        let currentBalance = balResult.rows.first.flatMap { getDouble($0, balResult.cols, "balance_after") } ?? 0
+        let newBalance = currentBalance + amount
+        let timestamp = Date().timeIntervalSince1970
+
+        let insertSQL = "INSERT INTO account_ledger (type, amount, balance_after, note, timestamp) VALUES ('DEPOSIT', \(amount), \(newBalance), 'Manual deposit via Neko Trade', \(timestamp))"
+        _ = try await executeSQL(insertSQL)
+        return newBalance
     }
 }
 

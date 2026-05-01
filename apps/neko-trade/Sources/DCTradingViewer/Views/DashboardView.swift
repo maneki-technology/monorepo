@@ -6,6 +6,7 @@ struct DashboardView: View {
     @State private var openPosition: Position?
     @State private var latestEquity: EquityLog?
     @State private var totalPnL: Double = 0
+    @State private var totalDeposits: Double = 0
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var lastRefresh: Date?
@@ -72,9 +73,9 @@ struct DashboardView: View {
                 )
                 statCard(
                     title: "REALIZED P&L",
-                    value: formatCurrency((latestEquity?.capital ?? 0) - 1000.0),
+                    value: formatCurrency(totalPnL),
                     icon: "banknote",
-                    color: ((latestEquity?.capital ?? 0) - 1000.0) >= 0 ? .green : .red
+                    color: totalPnL >= 0 ? .green : .red
                 )
             }
 
@@ -357,6 +358,7 @@ struct DashboardView: View {
         do {
             async let equityTask = client.fetchLatestEquity()
             async let pnlTask = client.fetchTotalRealizedPnL()
+            async let depositsTask = client.fetchTotalDeposits()
             async let historyTask = client.fetchRecentEquity(limit: 50)
             async let priceTask = BinanceClient.fetchPrice()
             async let klinesTask = BinanceClient.fetchKlines(interval: "5m", limit: 60)
@@ -369,7 +371,7 @@ struct DashboardView: View {
                 )
             }
 
-            let (equity, pnl, history) = try await (equityTask, pnlTask, historyTask)
+            let (equity, pnl, history, deposits) = try await (equityTask, pnlTask, historyTask, depositsTask)
             let price = try? await priceTask
             let klines = (try? await klinesTask) ?? []
 
@@ -392,6 +394,7 @@ struct DashboardView: View {
                 }
                 latestEquity = equity
                 totalPnL = pnl
+                totalDeposits = deposits
                 equityHistory = history
                 if let price { btcPrice = price }
                 btcPriceHistory = klines

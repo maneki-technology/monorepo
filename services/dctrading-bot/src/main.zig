@@ -50,7 +50,7 @@ pub fn main(init: std.process.Init) !void {
     const threshold_str = args.next();
     const capital_str = args.next();
     const threshold = if (threshold_str) |s| try std.fmt.parseFloat(f64, s) else 0.07;
-    const capital = if (capital_str) |s| try std.fmt.parseFloat(f64, s) else 1000.0;
+    const capital: f64 = if (capital_str) |s| try std.fmt.parseFloat(f64, s) else if (live_mode) 0.0 else 1000.0;
 
     if (live_mode) {
         try runLive(allocator, init.io, threshold, capital);
@@ -132,10 +132,14 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 strategy.capital = cap;
                 std.debug.print("  Restored capital from equity_log: ${d:.2}\n", .{cap});
             } else {
-                // First run — log initial deposit
-                const now: f64 = @floatFromInt(time(null));
-                turso.?.logLedgerSync("DEPOSIT", capital, capital, "Initial capital", now);
-                std.debug.print("  Logged initial deposit: ${d:.2}\n", .{capital});
+                // First run — log initial deposit (skip if $0)
+                if (capital > 0) {
+                    const now: f64 = @floatFromInt(time(null));
+                    turso.?.logLedgerSync("DEPOSIT", capital, capital, "Initial capital", now);
+                    std.debug.print("  Logged initial deposit: ${d:.2}\n", .{capital});
+                } else {
+                    std.debug.print("  No initial capital. Waiting for deposit.\n", .{});
+                }
             }
             // Restore open position
             if (turso.?.queryOpenPosition()) |pos| {
@@ -158,6 +162,16 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 allocator.free(closes);
             } else |err| {
                 std.debug.print("  Catch-up failed: {s}. Continuing with stale state.\n", .{@errorName(err)});
+            }
+        }
+    }
+
+    // Set initial_capital from total deposits (survives restarts without checkpoint change)
+    if (turso != null) {
+        if (turso.?.queryTotalDeposits()) |total_deps| {
+            if (total_deps > strategy.initial_capital + 0.01) {
+                strategy.initial_capital = total_deps;
+                std.debug.print("  Initial capital from deposits: ${d:.2}\n", .{total_deps});
             }
         }
     }
@@ -198,6 +212,8 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     }
     var last_feed_ts: f64 = 0;
     var last_equity_ts: f64 = 0;
+    var last_deposit_check: f64 = 0;
+    var known_total_deposits: f64 = if (turso != null) (turso.?.queryTotalDeposits() orelse capital) else capital;
     var last_price: f64 = 0;
     var prev_regime = strategy.regime;
     const uptime_start: f64 = @floatFromInt(time(null));
@@ -284,13 +300,16 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 if (fill.status == .filled and fill.fill_price > 0) {
                     buy_price = fill.fill_price;
                     buy_size = fill.fill_qty;
-                    // Add back unspent capital from Alpaca qty rounding
                     unspent_amt = (strategy.size - buy_size) * buy_price;
                     strategy.capital += unspent_amt;
                     strategy.entry_price = buy_price;
                     strategy.size = buy_size;
                     alpaca_oid = fill.order_id[0..fill.order_id_len];
+                } else {
+                    std.debug.print("  [alpaca] Buy order not filled: status={s}\n", .{if (fill.status == .accepted) "accepted" else "failed"});
                 }
+            } else {
+                std.debug.print("  [alpaca] Buy order failed (null)\n", .{});
             }
             if (turso != null) {
                 const fee = buy_price * buy_size * 0.001;
@@ -342,6 +361,49 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             if (equity_interval or traded) {
                 turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, equity, unrealized, regime_str, t.price);
                 last_equity_ts = t.timestamp;
+            }
+            // Check for new deposits every 5 min
+            if (t.timestamp - last_deposit_check >= 300.0) {
+                last_deposit_check = t.timestamp;
+                if (turso.?.queryTotalDeposits()) |total| {
+                    if (total > known_total_deposits) {
+                        const deposit = total - known_total_deposits;
+                        strategy.capital += deposit;
+                        strategy.initial_capital += deposit;
+                        known_total_deposits = total;
+                        std.debug.print("  DEPOSIT detected: +${d:.2} (capital now ${d:.2})\n", .{ deposit, strategy.capital });
+                        if (tg) |tel| tel.notifyDeposit(deposit, strategy.capital, instance);
+
+                        // If in BULL with open position, immediately buy with the deposit
+                        if (strategy.regime == .bull and strategy.in_position and deposit > 10.0) {
+                            const fee = deposit * strategy.fee_pct;
+                            const usable = deposit - fee;
+                            const add_size = usable / t.price;
+                            var buy_price = t.price;
+                            var buy_size = add_size;
+                            if (alpaca.buy(add_size)) |fill| {
+                                if (fill.status == .filled and fill.fill_price > 0) {
+                                    buy_price = fill.fill_price;
+                                    buy_size = fill.fill_qty;
+                                }
+                            }
+                            strategy.entry_price = (strategy.entry_price * strategy.size + buy_price * buy_size) / (strategy.size + buy_size);
+                            strategy.size += buy_size;
+                            strategy.capital -= fee;
+                            if (buy_price > strategy.peak_price) strategy.peak_price = buy_price;
+                            std.debug.print("  DEPOSIT BUY: +{d:.8} BTC @ ${d:.2}, blended entry=${d:.2}\n", .{ buy_size, buy_price, strategy.entry_price });
+                            if (tg) |tel| tel.notifyBuy(buy_price, buy_size, regime_str, instance);
+                            turso.?.logBuy(buy_price, buy_size, fee, t.timestamp);
+                            const buy_cost = buy_price * buy_size;
+                            // Query actual cash balance from ledger for correct balance_after
+                            const cash_bal = turso.?.queryLedgerBalance() orelse deposit;
+                            turso.?.logLedger("ENTRY_FEE", -fee, cash_bal - fee, "Deposit buy fee", t.timestamp);
+                            turso.?.logLedger("BUY", -buy_cost, cash_bal - fee - buy_cost, "Deposit buy", t.timestamp);
+                        }
+
+                        turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, strategy.capital + unrealized, unrealized, regime_str, t.price);
+                    }
+                }
             }
         }
     }

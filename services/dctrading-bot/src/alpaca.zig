@@ -99,75 +99,79 @@ pub const Alpaca = struct {
 
     fn submitOrder(self: *const Alpaca, body: []const u8) ?OrderFill {
         const h = self.headersWithJson();
-        const resp = self.http.post(
-            "https://paper-api.alpaca.markets/v2/orders",
-            &h,
-            body,
-        ) catch return null;
-        defer resp.deinit();
+        var attempt: u32 = 0;
+        while (attempt < 2) : (attempt += 1) {
+            const resp = self.http.post(
+                "https://paper-api.alpaca.markets/v2/orders",
+                &h,
+                body,
+            ) catch |err| {
+                std.debug.print("  [alpaca] HTTP error (attempt {d}): {s}\n", .{ attempt + 1, @errorName(err) });
+                _ = usleep(1_000_000);
+                continue;
+            };
+            defer resp.deinit();
 
-        const r = resp.body;
+            const r = resp.body;
+            std.debug.print("  [alpaca] Order response ({d} bytes): {s}\n", .{ r.len, r[0..@min(r.len, 300)] });
 
-        // Check for error
-        if (std.mem.indexOf(u8, r, "\"message\"") != null and std.mem.indexOf(u8, r, "\"id\"") == null) {
-            std.debug.print("  [alpaca] Order error: {s}\n", .{r[0..@min(r.len, 200)]});
-            return null;
-        }
+            if (std.mem.indexOf(u8, r, "\"message\"") != null and std.mem.indexOf(u8, r, "\"id\"") == null) {
+                return null;
+            }
 
-        // Parse order ID
-        var fill: OrderFill = .{ .fill_price = 0, .fill_qty = 0, .status = .accepted };
-        if (parseJsonString(r, "\"id\":")) |id| {
-            const len = @min(id.len, fill.order_id.len);
-            @memcpy(fill.order_id[0..len], id[0..len]);
-            fill.order_id_len = len;
-        }
+            var fill: OrderFill = .{ .fill_price = 0, .fill_qty = 0, .status = .accepted };
+            if (parseJsonString(r, "\"id\":")) |id| {
+                const len = @min(id.len, fill.order_id.len);
+                @memcpy(fill.order_id[0..len], id[0..len]);
+                fill.order_id_len = len;
+            }
 
-        // Check if already filled
-        if (std.mem.indexOf(u8, r, "\"status\":\"filled\"") != null) {
-            fill.status = .filled;
-            fill.fill_price = parseJsonFloat(r, "\"filled_avg_price\":") orelse 0;
-            fill.fill_qty = parseJsonFloat(r, "\"filled_qty\":") orelse 0;
-            std.debug.print("  [alpaca] Filled: price=${d:.2} qty={d:.8}\n", .{ fill.fill_price, fill.fill_qty });
+            if (std.mem.indexOf(u8, r, "\"status\":\"filled\"") != null) {
+                fill.status = .filled;
+                fill.fill_price = parseJsonFloat(r, "\"filled_avg_price\":") orelse 0;
+                fill.fill_qty = parseJsonFloat(r, "\"filled_qty\":") orelse 0;
+                std.debug.print("  [alpaca] Filled: price=${d:.2} qty={d:.8}\n", .{ fill.fill_price, fill.fill_qty });
+                return fill;
+            }
+
+            if (fill.order_id_len > 0) {
+                const order_id = fill.order_id[0..fill.order_id_len];
+                var poll: u32 = 0;
+                while (poll < 10) : (poll += 1) {
+                    _ = usleep(1_000_000);
+                    var poll_url_buf: [256]u8 = undefined;
+                    const poll_url = std.fmt.bufPrint(&poll_url_buf,
+                        "https://paper-api.alpaca.markets/v2/orders/{s}",
+                        .{order_id},
+                    ) catch break;
+
+                    const ph = self.headers();
+                    const poll_resp = self.http.get(poll_url, &ph) catch continue;
+                    defer poll_resp.deinit();
+
+                    const pr = poll_resp.body;
+                    if (std.mem.indexOf(u8, pr, "\"status\":\"filled\"") != null) {
+                        fill.status = .filled;
+                        fill.fill_price = parseJsonFloat(pr, "\"filled_avg_price\":") orelse 0;
+                        fill.fill_qty = parseJsonFloat(pr, "\"filled_qty\":") orelse 0;
+                        std.debug.print("  [alpaca] Filled (poll {d}): price=${d:.2} qty={d:.8}\n", .{ poll + 1, fill.fill_price, fill.fill_qty });
+                        return fill;
+                    }
+                    if (std.mem.indexOf(u8, pr, "\"status\":\"canceled\"") != null or
+                        std.mem.indexOf(u8, pr, "\"status\":\"expired\"") != null or
+                        std.mem.indexOf(u8, pr, "\"status\":\"rejected\"") != null)
+                    {
+                        std.debug.print("  [alpaca] Order failed.\n", .{});
+                        fill.status = .failed;
+                        return fill;
+                    }
+                }
+                std.debug.print("  [alpaca] Order not filled after 10s, treating as failed.\n", .{});
+                fill.status = .failed;
+            }
             return fill;
         }
-
-        // If accepted but not filled, poll for up to 10 seconds
-        if (fill.order_id_len > 0) {
-            const order_id = fill.order_id[0..fill.order_id_len];
-            var poll: u32 = 0;
-            while (poll < 10) : (poll += 1) {
-                _ = usleep(1_000_000); // 1s
-                var poll_url_buf: [256]u8 = undefined;
-                const poll_url = std.fmt.bufPrint(&poll_url_buf,
-                    "https://paper-api.alpaca.markets/v2/orders/{s}",
-                    .{order_id},
-                ) catch break;
-
-                const ph = self.headers();
-                const poll_resp = self.http.get(poll_url, &ph) catch continue;
-                defer poll_resp.deinit();
-
-                const pr = poll_resp.body;
-                if (std.mem.indexOf(u8, pr, "\"status\":\"filled\"") != null) {
-                    fill.status = .filled;
-                    fill.fill_price = parseJsonFloat(pr, "\"filled_avg_price\":") orelse 0;
-                    fill.fill_qty = parseJsonFloat(pr, "\"filled_qty\":") orelse 0;
-                    std.debug.print("  [alpaca] Filled (poll {d}): price=${d:.2} qty={d:.8}\n", .{ poll + 1, fill.fill_price, fill.fill_qty });
-                    return fill;
-                }
-                if (std.mem.indexOf(u8, pr, "\"status\":\"canceled\"") != null or
-                    std.mem.indexOf(u8, pr, "\"status\":\"expired\"") != null or
-                    std.mem.indexOf(u8, pr, "\"status\":\"rejected\"") != null)
-                {
-                    std.debug.print("  [alpaca] Order failed.\n", .{});
-                    fill.status = .failed;
-                    return fill;
-                }
-            }
-            std.debug.print("  [alpaca] Order not filled after 10s, treating as failed.\n", .{});
-            fill.status = .failed;
-        }
-        return fill;
+        return null; // all retries exhausted
     }
 
     pub fn parseJsonFloat(json: []const u8, key: []const u8) ?f64 {
