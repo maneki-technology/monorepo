@@ -127,44 +127,28 @@ final class TursoClient {
 
     // MARK: - Public API
 
-    func fetchPositions(status: String? = nil) async throws -> [Position] {
-        let whereClause = status.map { " WHERE status = '\($0)'" } ?? ""
-        let sql = "SELECT * FROM positions\(whereClause) ORDER BY created_at DESC LIMIT 100"
+    func fetchTradeTransfers(limit: Int = 50) async throws -> [Transfer] {
+        let sql = "SELECT * FROM transfers WHERE code IN (2, 3) ORDER BY id DESC LIMIT \(limit)"
         let result = try await executeSQL(sql)
         return result.rows.map { row in
-            Position(
+            Transfer(
                 id: getInt(row, result.cols, "id"),
+                debitAccountId: getInt(row, result.cols, "debit_account_id"),
+                creditAccountId: getInt(row, result.cols, "credit_account_id"),
+                amount: getDouble(row, result.cols, "amount"),
+                pendingId: row[colIndex(result.cols, "pending_id") ?? 0].intValue,
+                code: getInt(row, result.cols, "code"),
+                flags: getInt(row, result.cols, "flags"),
                 status: getString(row, result.cols, "status"),
-                entryPrice: getDouble(row, result.cols, "entry_price"),
-                entryTime: getString(row, result.cols, "entry_time"),
-                exitPrice: getOptionalDouble(row, result.cols, "exit_price"),
-                exitTime: getOptionalString(row, result.cols, "exit_time"),
-                size: getDouble(row, result.cols, "size"),
-                pnl: getOptionalDouble(row, result.cols, "pnl"),
-                fees: getOptionalDouble(row, result.cols, "fees"),
-                exitType: getOptionalString(row, result.cols, "exit_type"),
-                signalPrice: getOptionalDouble(row, result.cols, "signal_price"),
-                alpacaOrderId: getOptionalString(row, result.cols, "alpaca_order_id"),
-                createdAt: getString(row, result.cols, "created_at")
-            )
-        }
-    }
-
-    func fetchTradeEvents(limit: Int = 50) async throws -> [TradeEvent] {
-        let sql = "SELECT * FROM trade_events ORDER BY timestamp DESC LIMIT \(limit)"
-        let result = try await executeSQL(sql)
-        return result.rows.map { row in
-            TradeEvent(
-                id: getInt(row, result.cols, "id"),
-                action: getString(row, result.cols, "action"),
+                userData: getOptionalString(row, result.cols, "user_data"),
                 price: getDouble(row, result.cols, "price"),
                 size: getDouble(row, result.cols, "size"),
-                fee: getDouble(row, result.cols, "fee"),
                 timestamp: getString(row, result.cols, "timestamp"),
                 createdAt: getString(row, result.cols, "created_at")
             )
         }
     }
+
 
     func fetchTransfers(limit: Int = 100) async throws -> [Transfer] {
         let sql = "SELECT * FROM transfers ORDER BY id DESC LIMIT \(limit)"

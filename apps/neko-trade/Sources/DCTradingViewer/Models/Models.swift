@@ -126,8 +126,14 @@ struct Transfer: Identifiable, Codable {
         default: return "circle.fill"
         }
     }
-}
 
+    var isBuy: Bool { code == 2 }
+
+    var date: Date {
+        if let ts = Double(timestamp) { return Date(timeIntervalSince1970: ts) }
+        return Date()
+    }
+}
 // MARK: - Trade Event
 
 struct TradeEvent: Identifiable, Codable {
