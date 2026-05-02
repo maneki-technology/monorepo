@@ -38,9 +38,10 @@ pub fn main(init: std.process.Init) !void {
     _ = args.skip(); // program name
 
     const first_arg = args.next() orelse {
-        std.debug.print("Usage: dctrading <ticks.csv|-> [threshold] [initial_capital]\n\n", .{});
+        std.debug.print("Usage: dctrading <ticks.csv|->|checkpoint> [args...]\n\n", .{});
         std.debug.print("  <file.csv>  Backtest mode: read CSV file\n", .{});
         std.debug.print("  -           Live mode: native Binance WebSocket feed\n", .{});
+        std.debug.print("  checkpoint  Read and display checkpoint file\n", .{});
         std.debug.print("  threshold   DC lambda (default: 0.07)\n", .{});
         std.debug.print("  capital     Initial capital (default: 1000)\n\n", .{});
         std.debug.print("Strategy: ZI-DCT0 long-only, 3-regime (BULL/SIDE/BEAR), vol-trail 2%%/72h, 60d MA buf=3%%\n", .{});
@@ -48,6 +49,13 @@ pub fn main(init: std.process.Init) !void {
     };
 
     const live_mode = std.mem.eql(u8, first_arg, "-");
+    const checkpoint_mode = std.mem.eql(u8, first_arg, "checkpoint");
+
+    if (checkpoint_mode) {
+        const ckpt_path = args.next() orelse "dctrading.checkpoint";
+        try runCheckpointReader(allocator, ckpt_path);
+        return;
+    }
 
     const threshold_str = args.next();
     const capital_str = args.next();
@@ -453,6 +461,73 @@ fn handleSell(trade: Trade, strategy: *const Strategy, closed_count: *u32, excha
     }
 }
 
+
+fn runCheckpointReader(allocator: std.mem.Allocator, path: []const u8) !void {
+    const p = std.debug.print;
+    var strategy = try Strategy.init(allocator, .{});
+    defer strategy.deinit(allocator);
+
+    // Convert slice to sentinel-terminated pointer for C fopen
+    var path_buf: [256]u8 = undefined;
+    if (path.len >= path_buf.len) {
+        p("ERROR: Path too long.\n", .{});
+        return;
+    }
+    @memcpy(path_buf[0..path.len], path);
+    path_buf[path.len] = 0;
+    const c_path: [*:0]const u8 = path_buf[0..path.len :0];
+
+    if (!strategy.loadCheckpoint(c_path)) {
+        p("ERROR: Failed to load checkpoint from '{s}'.\n", .{path});
+        return;
+    }
+
+    const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDEWAYS", .bear => "BEAR" };
+    const det_dir = if (strategy.detector.initialized) (if (strategy.detector.direction.? == .up) "UP" else "DOWN") else "N/A";
+
+    p("=== DCTrading Checkpoint ===\n", .{});
+    p("  File:           {s}\n", .{path});
+    p("  Magic:          DCTRADE4\n\n", .{});
+
+    p("--- Strategy State ---\n", .{});
+    p("  Regime:         {s}\n", .{regime_str});
+    p("  Capital:        ${d:.2}\n", .{strategy.capital});
+    p("  In Position:    {s}\n", .{if (strategy.in_position) "true" else "false"});
+    if (strategy.in_position) {
+        p("  Entry Price:    ${d:.2}\n", .{strategy.entry_price});
+        p("  Size:           {d:.8}\n", .{strategy.size});
+        p("  Peak Price:     ${d:.2}\n", .{strategy.peak_price});
+    }
+    p("  Current Trail:  {d:.4}\n", .{strategy.current_trail});
+    p("  Last Price:     ${d:.2}\n\n", .{strategy.last_price});
+
+    p("--- Indicators ---\n", .{});
+    p("  Tick Count:     {d}\n", .{strategy.tick_count});
+    p("  Last Timestamp: {d:.0}\n", .{strategy.last_timestamp});
+    p("  MA Price Count: {d}\n", .{strategy.price_count});
+    p("  Avg Vol:        {d:.6}\n", .{strategy.avg_vol});
+    p("  Returns Count:  {d}\n\n", .{strategy.returns_count});
+
+    p("--- DC Detector ---\n", .{});
+    p("  Initialized:    {s}\n", .{if (strategy.detector.initialized) "true" else "false"});
+    p("  Direction:      {s}\n", .{det_dir});
+    p("  Extreme Price:  ${d:.2}\n\n", .{strategy.detector.extreme_price});
+
+    // Derived values
+    if (strategy.price_count > 0) {
+        const ma = strategy.price_sum / @as(f64, @floatFromInt(@min(strategy.price_count, strategy.ma_period)));
+        p("--- Derived ---\n", .{});
+        p("  MA(60d):        ${d:.2}\n", .{ma});
+        p("  MA + 3%%:        ${d:.2}\n", .{ma * 1.03});
+        p("  MA - 3%%:        ${d:.2}\n", .{ma * 0.97});
+        if (strategy.in_position) {
+            const unrealized = (strategy.last_price - strategy.entry_price) * strategy.size;
+            const equity = strategy.capital + unrealized;
+            p("  Unrealized:     ${d:.2}\n", .{unrealized});
+            p("  Equity:         ${d:.2}\n", .{equity});
+        }
+    }
+}
 fn runBacktest(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold: f64, capital: f64) !void {
     std.debug.print("Loading {s}...\n", .{csv_path});
     const ticks = try loadCSV(allocator, csv_path);
