@@ -4,6 +4,7 @@ const types = @import("types.zig");
 const strat_mod = @import("strategy.zig");
 const telegram_mod = @import("telegram.zig");
 const alpaca_mod = @import("alpaca.zig");
+const exchange_mod = @import("exchange.zig");
 const http_mod = @import("http_client.zig");
 const turso_mod = @import("turso.zig");
 
@@ -107,11 +108,12 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     // Init Telegram notifications (optional)
     const tg = telegram_mod.Telegram.init(allocator, &http);
 
-    // Init Alpaca paper trading (required)
+    // Init exchange (Alpaca paper trading)
     const alpaca = alpaca_mod.Alpaca.init(&http) orelse {
-        std.debug.print("ERROR: Alpaca not configured. Set ALPACA_API_KEY + ALPACA_API_SECRET.\n", .{});
+        std.debug.print("ERROR: Exchange not configured. Set ALPACA_API_KEY + ALPACA_API_SECRET.\n", .{});
         return;
     };
+    const exchange = alpaca.exchange();
     // Bootstrap or catch-up
     if (!loaded_checkpoint) {
         // Fresh start: full bootstrap from 60 days of 1m klines
@@ -177,19 +179,19 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         }
     }
 
-    // Reconcile with Alpaca position (source of truth for execution)
-    if (alpaca.getPosition()) |pos| {
+    // Reconcile with exchange position (source of truth for execution)
+    if (exchange.getPosition()) |pos| {
         if (pos.qty > 0) {
             strategy.in_position = true;
             strategy.entry_price = pos.entry_price;
             strategy.size = pos.qty;
             strategy.peak_price = pos.entry_price;
-            std.debug.print("  [alpaca] Synced position: entry=${d:.2} qty={d:.8}\n", .{ pos.entry_price, pos.qty });
+            std.debug.print("  [exchange] Synced position: entry=${d:.2} qty={d:.8}\n", .{ pos.entry_price, pos.qty });
         }
     } else {
-        // Alpaca has no position — if we think we have one, clear it
+        // Exchange has no position — if we think we have one, clear it
         if (strategy.in_position) {
-            std.debug.print("  [alpaca] No position on Alpaca, clearing internal state.\n", .{});
+            std.debug.print("  [exchange] No position on exchange, clearing internal state.\n", .{});
             strategy.in_position = false;
             strategy.size = 0;
             strategy.capital = strategy.initial_capital;
@@ -241,7 +243,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         // Real-time risk: check trailing stop only in BEAR mode (matches backtest)
         if (strategy.regime == .bear) {
             if (strategy.checkStop(t.price, t.timestamp)) |trade| {
-                handleSell(trade, &strategy, &closed_count, alpaca, if (turso != null) &turso.? else null, tg, t.timestamp, instance);
+            handleSell(trade, &strategy, &closed_count, exchange, if (turso != null) &turso.? else null, tg, t.timestamp, instance);
             }
         }
         // Downsample strategy logic (MA, vol, DC) to ~1 tick/minute
@@ -250,7 +252,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
 
         const was_in_pos = strategy.in_position;
         if (strategy.processTick(t)) |trade| {
-            handleSell(trade, &strategy, &closed_count, alpaca, if (turso != null) &turso.? else null, tg, t.timestamp, instance);
+            handleSell(trade, &strategy, &closed_count, exchange, if (turso != null) &turso.? else null, tg, t.timestamp, instance);
         }
         // Detect new position opened by processTick
         if (!was_in_pos and strategy.in_position) {
@@ -259,7 +261,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             var buy_size = strategy.size;
             var alpaca_oid: []const u8 = "";
             var unspent_amt: f64 = 0;
-            if (alpaca.buy(strategy.size)) |fill| {
+            if (exchange.buy(strategy.size)) |fill| {
                 if (fill.status == .filled and fill.fill_price > 0) {
                     buy_price = fill.fill_price;
                     buy_size = fill.fill_qty;
@@ -269,10 +271,10 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                     strategy.size = buy_size;
                     alpaca_oid = fill.order_id[0..fill.order_id_len];
                 } else {
-                    std.debug.print("  [alpaca] Buy order not filled: status={s}\n", .{if (fill.status == .accepted) "accepted" else "failed"});
+                    std.debug.print("  [exchange] Buy order not filled: status={s}\n", .{if (fill.status == .accepted) "accepted" else "failed"});
                 }
             } else {
-                std.debug.print("  [alpaca] Buy order failed (null)\n", .{});
+                std.debug.print("  [exchange] Buy order failed (null)\n", .{});
             }
             if (turso != null) {
                 const fee = buy_price * buy_size * 0.001;
@@ -344,7 +346,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                             const add_size = usable / t.price;
                             var buy_price = t.price;
                             var buy_size = add_size;
-                            if (alpaca.buy(add_size)) |fill| {
+                            if (exchange.buy(add_size)) |fill| {
                                 if (fill.status == .filled and fill.fill_price > 0) {
                                     buy_price = fill.fill_price;
                                     buy_size = fill.fill_qty;
@@ -419,11 +421,11 @@ fn printLiveTrade(trade: Trade, count: u32, strategy: *const Strategy) void {
     });
 }
 
-fn handleSell(trade: Trade, strategy: *const Strategy, closed_count: *u32, alpaca: alpaca_mod.Alpaca, turso: ?*const turso_mod.Turso, tg: ?telegram_mod.Telegram, timestamp: f64, instance: []const u8) void {
+fn handleSell(trade: Trade, strategy: *const Strategy, closed_count: *u32, exchange: exchange_mod.Exchange, turso: ?*const turso_mod.Turso, tg: ?telegram_mod.Telegram, timestamp: f64, instance: []const u8) void {
     closed_count.* += 1;
     printLiveTrade(trade, closed_count.*, strategy);
     var sell_price = trade.exit_price;
-    if (alpaca.sell(trade.size)) |fill| {
+    if (exchange.sell(trade.size)) |fill| {
         if (fill.status == .filled and fill.fill_price > 0) sell_price = fill.fill_price;
     }
     if (turso) |t| {

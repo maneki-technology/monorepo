@@ -531,6 +531,7 @@ test "strategy: old DCTRADE3 checkpoint rejected after upgrade" {
 
 const alpaca_mod = @import("alpaca.zig");
 const turso_mod = @import("turso.zig");
+const exchange_mod = @import("exchange.zig");
 
 test "alpaca: parseJsonFloat parses quoted float" {
     const json = "{\"filled_avg_price\":\"76960.70\",\"qty\":\"0.01295111\"}";
@@ -563,6 +564,182 @@ test "alpaca: parseJsonString returns null for missing key" {
     const json = "{\"foo\":\"bar\"}";
     const val = alpaca_mod.Alpaca.parseJsonString(json, "\"id\":");
     try testing.expect(val == null);
+}
+
+// ============================================================
+// Exchange Abstraction Tests
+// ============================================================
+
+test "exchange: mock implementation via vtable" {
+    // Create a mock exchange to verify the vtable pattern works
+    const MockExchange = struct {
+        buy_called: bool = false,
+        sell_called: bool = false,
+        position_called: bool = false,
+
+        fn mockBuy(ptr: *const anyopaque, qty: f64) ?exchange_mod.OrderFill {
+            _ = ptr;
+            return .{ .fill_price = 80000.0, .fill_qty = qty, .status = .filled };
+        }
+
+        fn mockSell(ptr: *const anyopaque, qty: f64) ?exchange_mod.OrderFill {
+            _ = ptr;
+            return .{ .fill_price = 85000.0, .fill_qty = qty, .status = .filled };
+        }
+
+        fn mockGetPosition(ptr: *const anyopaque) ?exchange_mod.Position {
+            _ = ptr;
+            return .{ .qty = 0.01, .entry_price = 80000.0, .market_value = 850.0, .unrealized_pnl = 50.0 };
+        }
+
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&mockBuy),
+            .sell = @ptrCast(&mockSell),
+            .getPosition = @ptrCast(&mockGetPosition),
+        };
+    };
+
+    var mock = MockExchange{};
+    const ex = exchange_mod.Exchange{
+        .ptr = @ptrCast(&mock),
+        .vtable = &MockExchange.vtable,
+    };
+
+    // Test buy
+    const buy_fill = ex.buy(0.05);
+    try testing.expect(buy_fill != null);
+    try testing.expectApproxEqAbs(buy_fill.?.fill_price, 80000.0, 0.01);
+    try testing.expectApproxEqAbs(buy_fill.?.fill_qty, 0.05, 0.0001);
+    try testing.expect(buy_fill.?.status == .filled);
+
+    // Test sell
+    const sell_fill = ex.sell(0.05);
+    try testing.expect(sell_fill != null);
+    try testing.expectApproxEqAbs(sell_fill.?.fill_price, 85000.0, 0.01);
+    try testing.expectApproxEqAbs(sell_fill.?.fill_qty, 0.05, 0.0001);
+
+    // Test getPosition
+    const pos = ex.getPosition();
+    try testing.expect(pos != null);
+    try testing.expectApproxEqAbs(pos.?.qty, 0.01, 0.0001);
+    try testing.expectApproxEqAbs(pos.?.entry_price, 80000.0, 0.01);
+    try testing.expectApproxEqAbs(pos.?.unrealized_pnl, 50.0, 0.01);
+}
+
+test "exchange: mock returning null (no position, failed orders)" {
+    const NullExchange = struct {
+        fn nullBuy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return null;
+        }
+        fn nullSell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return null;
+        }
+        fn nullGetPosition(_: *const anyopaque) ?exchange_mod.Position {
+            return null;
+        }
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&nullBuy),
+            .sell = @ptrCast(&nullSell),
+            .getPosition = @ptrCast(&nullGetPosition),
+        };
+    };
+
+    var dummy: u8 = 0;
+    const ex = exchange_mod.Exchange{
+        .ptr = @ptrCast(&dummy),
+        .vtable = &NullExchange.vtable,
+    };
+
+    try testing.expect(ex.buy(1.0) == null);
+    try testing.expect(ex.sell(1.0) == null);
+    try testing.expect(ex.getPosition() == null);
+}
+
+test "exchange: OrderFill default values" {
+    const fill = exchange_mod.OrderFill{ .fill_price = 0, .fill_qty = 0, .status = .accepted };
+    try testing.expectEqual(fill.order_id_len, 0);
+    try testing.expectApproxEqAbs(fill.fill_price, 0.0, 0.001);
+    try testing.expect(fill.status == .accepted);
+}
+
+test "exchange: OrderFill status variants" {
+    const filled = exchange_mod.OrderFill{ .fill_price = 80000.0, .fill_qty = 0.01, .status = .filled };
+    const accepted = exchange_mod.OrderFill{ .fill_price = 0, .fill_qty = 0, .status = .accepted };
+    const failed = exchange_mod.OrderFill{ .fill_price = 0, .fill_qty = 0, .status = .failed };
+    try testing.expect(filled.status == .filled);
+    try testing.expect(accepted.status == .accepted);
+    try testing.expect(failed.status == .failed);
+    try testing.expect(filled.status != accepted.status);
+    try testing.expect(filled.status != failed.status);
+}
+
+test "exchange: Position struct fields" {
+    const pos = exchange_mod.Position{
+        .qty = 0.05,
+        .entry_price = 77000.0,
+        .market_value = 3900.0,
+        .unrealized_pnl = 50.0,
+    };
+    try testing.expectApproxEqAbs(pos.qty, 0.05, 0.0001);
+    try testing.expectApproxEqAbs(pos.entry_price, 77000.0, 0.01);
+    try testing.expectApproxEqAbs(pos.market_value, 3900.0, 0.01);
+    try testing.expectApproxEqAbs(pos.unrealized_pnl, 50.0, 0.01);
+}
+
+test "exchange: OrderFill order_id storage" {
+    var fill = exchange_mod.OrderFill{ .fill_price = 80000.0, .fill_qty = 0.01, .status = .filled };
+    const id = "abc-123-def-456";
+    @memcpy(fill.order_id[0..id.len], id);
+    fill.order_id_len = id.len;
+    try testing.expectEqualStrings(id, fill.order_id[0..fill.order_id_len]);
+}
+
+test "exchange: two different implementations share the same interface" {
+    // Simulates switching between Alpaca and a future Binance exchange
+    const ExchangeA = struct {
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return .{ .fill_price = 80000.0, .fill_qty = 0.01, .status = .filled };
+        }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return .{ .fill_price = 80000.0, .fill_qty = 0.01, .status = .filled };
+        }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position {
+            return .{ .qty = 0.01, .entry_price = 80000.0, .market_value = 800.0, .unrealized_pnl = 0 };
+        }
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&buy),
+            .sell = @ptrCast(&sell),
+            .getPosition = @ptrCast(&getPosition),
+        };
+    };
+
+    const ExchangeB = struct {
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return .{ .fill_price = 90000.0, .fill_qty = 0.02, .status = .filled };
+        }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return .{ .fill_price = 90000.0, .fill_qty = 0.02, .status = .filled };
+        }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position {
+            return .{ .qty = 0.02, .entry_price = 90000.0, .market_value = 1800.0, .unrealized_pnl = 0 };
+        }
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&buy),
+            .sell = @ptrCast(&sell),
+            .getPosition = @ptrCast(&getPosition),
+        };
+    };
+
+    var dummy: u8 = 0;
+    // Use exchange A
+    var ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &ExchangeA.vtable };
+    try testing.expectApproxEqAbs(ex.buy(1.0).?.fill_price, 80000.0, 0.01);
+    try testing.expectApproxEqAbs(ex.getPosition().?.qty, 0.01, 0.0001);
+
+    // Switch to exchange B — same interface, different behavior
+    ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &ExchangeB.vtable };
+    try testing.expectApproxEqAbs(ex.buy(1.0).?.fill_price, 90000.0, 0.01);
+    try testing.expectApproxEqAbs(ex.getPosition().?.qty, 0.02, 0.0001);
 }
 
 test "turso: parseFirstValueFloat parses Turso response" {
