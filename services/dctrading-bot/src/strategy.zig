@@ -58,6 +58,13 @@ pub const Strategy = struct {
     last_timestamp: f64 = 0,
     warmup: bool = false, // when true, indicators run but no trades open/close
 
+    // Non-blocking order support: when true, buy signals are stored but position
+    // state is NOT committed. Main loop reads the signal and submits async order.
+    suppress_entry: bool = false,
+    buy_signal: bool = false, // set by processTick when entry would fire
+    buy_signal_price: f64 = 0,
+    buy_signal_size: f64 = 0,
+
     pub const Regime = enum { bull, sideways, bear };
 
     pub const Config = struct {
@@ -200,7 +207,18 @@ pub const Strategy = struct {
     fn openPosition(self: *Strategy, price: f64, time: f64) void {
         const fee = self.capital * self.fee_pct;
         const usable = self.capital - fee;
-        self.size = usable / price;
+        const size = usable / price;
+
+        if (self.suppress_entry) {
+            // Non-blocking mode: store signal for main loop to submit async order
+            self.buy_signal = true;
+            self.buy_signal_price = price;
+            self.buy_signal_size = size;
+            return;
+        }
+
+        // Sync mode (backtest): commit position immediately
+        self.size = size;
         self.entry_price = price;
         self.entry_time = time;
         self.peak_price = price;
