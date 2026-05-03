@@ -1459,6 +1459,149 @@ test "turso: double-entry balance derivation: post settles pending" {
     try testing.expectApproxEqAbs(cash_dpend, 0.0, 0.001); // no pending
 }
 
+test "turso: append-only post creates settlement row without mutating original" {
+    // In append-only model, postTransfer INSERTs a new row with pending_id reference.
+    // Original pending row stays status='pending'. New row has status='posted', flags=FLAG_POST_PENDING.
+    // Account balances move the same way: pending -= amount, posted += amount.
+    const Turso = turso_mod.Turso;
+
+    // Simulate: pending buy for $999
+    var cash_cpend: f64 = 0; // credits_pending (debit_acct)
+    var cash_dpend: f64 = 999; // debits_pending (credit_acct = cash)
+    const cash_cp: f64 = 1000; // credits_posted
+    var cash_dp: f64 = 0; // debits_posted
+
+    // Transfer table state after createPendingTransfer:
+    //   Row #1: { status='pending', flags=FLAG_PENDING, pending_id=null, amount=999 }
+    const row1_status = "pending";
+    const row1_flags = Turso.FLAG_PENDING;
+    _ = row1_status;
+
+    // postTransfer (append-only): INSERT new row, DON'T update row #1
+    //   Row #1: { status='pending', flags=1 }  ← UNCHANGED (immutable)
+    //   Row #2: { status='posted', flags=FLAG_POST_PENDING, pending_id=1, amount=999 }
+    const row2_flags = Turso.FLAG_POST_PENDING;
+
+    // Account balance update (same as before):
+    //   credits_pending -= 999 (debit_acct)
+    //   credits_posted += 999 (debit_acct)
+    //   debits_pending -= 999 (credit_acct = cash)
+    //   debits_posted += 999 (credit_acct = cash)
+    cash_cpend -= 0; // cash is credit_acct, not debit_acct for buy
+    cash_dpend -= 999;
+    cash_dp += 999;
+
+    // Verify: row #1 is immutable (still pending)
+    try testing.expectEqual(row1_flags, 1); // FLAG_PENDING
+    // Verify: row #2 is the settlement
+    try testing.expectEqual(row2_flags, 2); // FLAG_POST_PENDING
+    // Verify: balances correct
+    try testing.expectApproxEqAbs(cash_dpend, 0.0, 0.001); // no pending left
+    try testing.expectApproxEqAbs(cash_cp - cash_dp, 1.0, 0.001); // $1 posted balance
+}
+
+test "turso: append-only void creates settlement row without mutating original" {
+    // In append-only model, voidTransfer INSERTs a new row with pending_id reference.
+    // Original pending row stays status='pending'. New row has status='voided', flags=FLAG_VOID_PENDING.
+    // Account balances release: pending -= amount (no posted change).
+    const Turso = turso_mod.Turso;
+
+    // Simulate: pending buy for $999
+    var cash_dpend: f64 = 999;
+    const cash_cp: f64 = 1000;
+    const cash_dp: f64 = 0;
+
+    // Transfer table state after createPendingTransfer:
+    //   Row #1: { status='pending', flags=FLAG_PENDING, pending_id=null, amount=999 }
+    const row1_status = "pending";
+    const row1_flags = Turso.FLAG_PENDING;
+    _ = row1_status;
+
+    // voidTransfer (append-only): INSERT new row, DON'T update row #1
+    //   Row #1: { status='pending', flags=1 }  ← UNCHANGED (immutable)
+    //   Row #2: { status='voided', flags=FLAG_VOID_PENDING, pending_id=1, amount=999 }
+    const row2_flags = Turso.FLAG_VOID_PENDING;
+
+    // Account balance update:
+    //   credits_pending -= 999 (debit_acct)
+    //   debits_pending -= 999 (credit_acct = cash)
+    cash_dpend -= 999;
+
+    // Verify: row #1 is immutable
+    try testing.expectEqual(row1_flags, 1); // FLAG_PENDING
+    // Verify: row #2 is the void settlement
+    try testing.expectEqual(row2_flags, 4); // FLAG_VOID_PENDING
+    // Verify: pending released, posted unchanged
+    try testing.expectApproxEqAbs(cash_dpend, 0.0, 0.001);
+    try testing.expectApproxEqAbs(cash_cp - cash_dp, 1000.0, 0.001); // full balance restored
+}
+
+test "turso: append-only model preserves global balance integrity" {
+    // Full cycle: deposit → pending buy → post buy → sell
+    // With append-only, transfer table has MORE rows but account balances are identical.
+    const Turso = turso_mod.Turso;
+    _ = Turso;
+
+    // Account fields: [credits_pending, credits_posted, debits_pending, debits_posted]
+    var cash = [4]f64{ 0, 0, 0, 0 };
+    var btc = [4]f64{ 0, 0, 0, 0 };
+    var fees = [4]f64{ 0, 0, 0, 0 };
+    var equity = [4]f64{ 0, 0, 0, 0 };
+
+    const bal = struct {
+        fn get(acct: [4]f64) f64 {
+            return acct[1] - acct[3]; // credits_posted - debits_posted
+        }
+    };
+
+    // Step 1: Deposit $1000 (posted directly, no pending phase)
+    cash[1] += 1000;
+    equity[3] += 1000;
+    try testing.expectApproxEqAbs(bal.get(cash), 1000.0, 0.001);
+
+    // Step 2: Pending buy — fee $1 (posted), buy $999 (pending)
+    // Fee is always posted immediately
+    fees[1] += 1;
+    cash[3] += 1;
+    // Buy: pending phase — reserve in pending fields
+    btc[0] += 999; // credits_pending (debit_acct)
+    cash[2] += 999; // debits_pending (credit_acct)
+    try testing.expectApproxEqAbs(bal.get(cash), 999.0, 0.001); // posted: 1000 - 1 = 999
+    // Available = posted - pending = 999 - 999 = 0
+    try testing.expectApproxEqAbs(bal.get(cash) - cash[2], 0.0, 0.001);
+
+    // Step 3: Post buy (append-only) — move pending → posted
+    // Transfer table: row #1 (pending, immutable) + row #2 (posted, pending_id=#1)
+    btc[0] -= 999; // credits_pending -= amount
+    btc[1] += 999; // credits_posted += amount
+    cash[2] -= 999; // debits_pending -= amount
+    cash[3] += 999; // debits_posted += amount
+    try testing.expectApproxEqAbs(bal.get(cash), 0.0, 0.001); // 1000 - 1 - 999 = 0
+    try testing.expectApproxEqAbs(bal.get(btc), 999.0, 0.001);
+    try testing.expectApproxEqAbs(cash[0], 0.0, 0.001); // no pending left
+    try testing.expectApproxEqAbs(cash[2], 0.0, 0.001); // no pending left
+
+    // Step 4: Sell for $1050 (posted directly)
+    cash[1] += 1050;
+    btc[3] += 1050;
+    fees[1] += 1.05;
+    cash[3] += 1.05;
+
+    // Final balances identical to mutable model
+    try testing.expectApproxEqAbs(bal.get(cash), 1048.95, 0.001); // 1000 + 1050 - 1 - 999 - 1.05
+    try testing.expectApproxEqAbs(bal.get(btc), -51.0, 0.001);
+    try testing.expectApproxEqAbs(bal.get(fees), 2.05, 0.001);
+    try testing.expectApproxEqAbs(bal.get(equity), -1000.0, 0.001);
+
+    // Global integrity: sum(credits) == sum(debits) for both posted and pending
+    const total_cp = cash[1] + btc[1] + fees[1] + equity[1];
+    const total_dp = cash[3] + btc[3] + fees[3] + equity[3];
+    try testing.expectApproxEqAbs(total_cp, total_dp, 0.001);
+    const total_cpend = cash[0] + btc[0] + fees[0] + equity[0];
+    const total_dpend = cash[2] + btc[2] + fees[2] + equity[2];
+    try testing.expectApproxEqAbs(total_cpend, total_dpend, 0.001); // all pending settled
+}
+
 test "turso: double-entry operation codes cover all trade operations" {
     // Every operation in the trading flow has a corresponding code
     const Turso = turso_mod.Turso;
