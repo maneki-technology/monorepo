@@ -16,6 +16,7 @@
 | FR-1.8 | Disable trailing stop in SIDEWAYS regime | ✅ |
 | FR-1.9 | Downsample real-time tick data to ~1 tick/minute for strategy decisions | ✅ |
 | FR-1.10 | Support offline backtest mode from historical CSV data | ✅ |
+| FR-1.11 | Skip DC entries when 24h average futures funding rate exceeds configurable threshold | ✅ |
 
 ### FR-2: Order Management
 

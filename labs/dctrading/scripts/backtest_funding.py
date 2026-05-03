@@ -139,13 +139,9 @@ def simulate_with_funding(
         if trail_tighten > 0 and abs(fr) > trail_funding_threshold:
             effective_trail = trail_pcts[i] * trail_tighten
 
-        # BULL: hold
+        # BULL: hold (funding filter does NOT apply to BULL buy-and-hold)
         if regime == 1:
             if not in_position and not is_warmup:
-                # Check funding skip
-                if skip_threshold > 0 and fr > skip_threshold:
-                    skipped_entries += 1
-                    continue
                 fee = capital * fee_pct
                 usable = capital - fee
                 size = usable / p
