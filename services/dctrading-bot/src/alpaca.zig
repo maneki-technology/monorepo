@@ -136,7 +136,10 @@ pub const Alpaca = struct {
                 fill.status = .filled;
                 fill.fill_price = parseJsonFloat(r, "\"filled_avg_price\":") orelse 0;
                 fill.fill_qty = parseJsonFloat(r, "\"filled_qty\":") orelse 0;
-                std.debug.print("  [alpaca] Filled: price=${d:.2} qty={d:.8}\n", .{ fill.fill_price, fill.fill_qty });
+                fill.commission = parseJsonFloat(r, "\"commission\":") orelse 0;
+                @memcpy(fill.commission_asset[0..3], "USD");
+                fill.commission_asset_len = 3;
+                std.debug.print("  [alpaca] Filled: price=${d:.2} qty={d:.8} fee=${d:.4}\n", .{ fill.fill_price, fill.fill_qty, fill.commission });
                 return fill;
             }
 
@@ -160,7 +163,10 @@ pub const Alpaca = struct {
                         fill.status = .filled;
                         fill.fill_price = parseJsonFloat(pr, "\"filled_avg_price\":") orelse 0;
                         fill.fill_qty = parseJsonFloat(pr, "\"filled_qty\":") orelse 0;
-                        std.debug.print("  [alpaca] Filled (poll {d}): price=${d:.2} qty={d:.8}\n", .{ poll + 1, fill.fill_price, fill.fill_qty });
+                        fill.commission = parseJsonFloat(pr, "\"commission\":") orelse 0;
+                        @memcpy(fill.commission_asset[0..3], "USD");
+                        fill.commission_asset_len = 3;
+                        std.debug.print("  [alpaca] Filled (poll {d}): price=${d:.2} qty={d:.8} fee=${d:.4}\n", .{ poll + 1, fill.fill_price, fill.fill_qty, fill.commission });
                         return fill;
                     }
                     if (std.mem.indexOf(u8, pr, "\"status\":\"canceled\"") != null or

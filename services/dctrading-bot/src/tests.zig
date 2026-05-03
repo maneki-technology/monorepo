@@ -1044,6 +1044,68 @@ test "exchange: OrderFill order_id storage" {
     try testing.expectEqualStrings(id, fill.order_id[0..fill.order_id_len]);
 }
 
+test "exchange: OrderFill commission fields default to zero" {
+    const fill = exchange_mod.OrderFill{ .fill_price = 80000.0, .fill_qty = 0.01, .status = .filled };
+    try testing.expectApproxEqAbs(fill.commission, 0.0, 0.001);
+    try testing.expectEqual(fill.commission_asset_len, 0);
+}
+
+test "exchange: OrderFill commission_asset storage" {
+    var fill = exchange_mod.OrderFill{ .fill_price = 80000.0, .fill_qty = 0.01, .status = .filled };
+    fill.commission = 0.50;
+    @memcpy(fill.commission_asset[0..3], "USD");
+    fill.commission_asset_len = 3;
+    try testing.expectApproxEqAbs(fill.commission, 0.50, 0.001);
+    try testing.expectEqualStrings("USD", fill.commission_asset[0..fill.commission_asset_len]);
+}
+
+test "exchange: OrderFill commission_asset supports BNB and BTC" {
+    var fill = exchange_mod.OrderFill{ .fill_price = 80000.0, .fill_qty = 0.01, .status = .filled };
+    // BNB fee (Binance discount)
+    fill.commission = 0.00123;
+    @memcpy(fill.commission_asset[0..3], "BNB");
+    fill.commission_asset_len = 3;
+    try testing.expectEqualStrings("BNB", fill.commission_asset[0..fill.commission_asset_len]);
+    // BTC fee (Binance default when buying)
+    @memcpy(fill.commission_asset[0..3], "BTC");
+    try testing.expectEqualStrings("BTC", fill.commission_asset[0..fill.commission_asset_len]);
+}
+
+test "exchange: mock exchange returns commission in fill" {
+    const CommissionExchange = struct {
+        fn buy(_: *const anyopaque, qty: f64) ?exchange_mod.OrderFill {
+            var fill = exchange_mod.OrderFill{ .fill_price = 95000.0, .fill_qty = qty, .status = .filled };
+            fill.commission = 0.95; // $0.95 fee
+            @memcpy(fill.commission_asset[0..3], "USD");
+            fill.commission_asset_len = 3;
+            return fill;
+        }
+        fn sell(_: *const anyopaque, qty: f64) ?exchange_mod.OrderFill {
+            var fill = exchange_mod.OrderFill{ .fill_price = 96000.0, .fill_qty = qty, .status = .filled };
+            fill.commission = 0.00000100; // BTC fee
+            @memcpy(fill.commission_asset[0..3], "BTC");
+            fill.commission_asset_len = 3;
+            return fill;
+        }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&buy),
+            .sell = @ptrCast(&sell),
+            .getPosition = @ptrCast(&getPosition),
+        };
+    };
+    var dummy: u8 = 0;
+    const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &CommissionExchange.vtable };
+
+    const buy_fill = ex.buy(0.01).?;
+    try testing.expectApproxEqAbs(buy_fill.commission, 0.95, 0.001);
+    try testing.expectEqualStrings("USD", buy_fill.commission_asset[0..buy_fill.commission_asset_len]);
+
+    const sell_fill = ex.sell(0.01).?;
+    try testing.expectApproxEqAbs(sell_fill.commission, 0.00000100, 0.00000001);
+    try testing.expectEqualStrings("BTC", sell_fill.commission_asset[0..sell_fill.commission_asset_len]);
+}
+
 test "exchange: two different implementations share the same interface" {
     // Simulates switching between Alpaca and a future Binance exchange
     const ExchangeA = struct {
