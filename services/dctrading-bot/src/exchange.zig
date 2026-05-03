@@ -7,6 +7,9 @@ pub const OrderFill = struct {
     order_id_len: usize = 0,
     fill_price: f64,
     fill_qty: f64,
+    commission: f64 = 0,
+    commission_asset: [8]u8 = undefined,
+    commission_asset_len: usize = 0,
     status: enum { filled, accepted, failed },
 };
 

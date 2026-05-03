@@ -274,6 +274,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             var buy_size = strategy.size;
             var alpaca_oid: []const u8 = "";
             var unspent_amt: f64 = 0;
+            var fill_commission: f64 = 0;
             if (exchange.buy(strategy.size)) |fill| {
                 if (fill.status == .filled and fill.fill_price > 0) {
                     buy_price = fill.fill_price;
@@ -283,6 +284,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                     strategy.entry_price = buy_price;
                     strategy.size = buy_size;
                     alpaca_oid = fill.order_id[0..fill.order_id_len];
+                    fill_commission = fill.commission;
                 } else {
                     std.debug.print("  [exchange] Buy order not filled: status={s}\n", .{if (fill.status == .accepted) "accepted" else "failed"});
                 }
@@ -290,10 +292,10 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 std.debug.print("  [exchange] Buy order failed (null)\n", .{});
             }
             if (turso != null) {
-                const fee = buy_price * buy_size * 0.001;
+                const fee = if (fill_commission > 0) fill_commission else buy_price * buy_size * 0.001;
                 const buy_cost = buy_price * buy_size;
                 // Double-entry: fee transfer (cash → fees)
-                turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "BUY fee 0.1%", t.timestamp, 0, 0);
+                turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "BUY fee", t.timestamp, 0, 0);
                 // Double-entry: buy transfer (btc_position ← cash)
                 var ud_buf: [256]u8 = undefined;
                 const ud = std.fmt.bufPrint(&ud_buf, "BUY signal={d:.2} oid={s}", .{ signal_price, alpaca_oid }) catch "BUY";
@@ -362,17 +364,20 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
 
                         // If in BULL with open position, immediately buy with the deposit
                         if (strategy.regime == .bull and strategy.in_position and deposit > 10.0) {
-                            const fee = deposit * strategy.fee_pct;
-                            const usable = deposit - fee;
+                            const est_fee = deposit * strategy.fee_pct; // estimate for position sizing
+                            const usable = deposit - est_fee;
                             const add_size = usable / t.price;
                             var buy_price = t.price;
                             var buy_size = add_size;
+                            var dep_fill_commission: f64 = 0;
                             if (exchange.buy(add_size)) |fill| {
                                 if (fill.status == .filled and fill.fill_price > 0) {
                                     buy_price = fill.fill_price;
                                     buy_size = fill.fill_qty;
+                                    dep_fill_commission = fill.commission;
                                 }
                             }
+                            const fee = if (dep_fill_commission > 0) dep_fill_commission else est_fee;
                             strategy.entry_price = (strategy.entry_price * strategy.size + buy_price * buy_size) / (strategy.size + buy_size);
                             strategy.size += buy_size;
                             strategy.capital -= fee;
@@ -446,11 +451,15 @@ fn handleSell(trade: Trade, strategy: *const Strategy, closed_count: *u32, excha
     closed_count.* += 1;
     printLiveTrade(trade, closed_count.*, strategy);
     var sell_price = trade.exit_price;
+    var sell_commission: f64 = 0;
     if (exchange.sell(trade.size)) |fill| {
-        if (fill.status == .filled and fill.fill_price > 0) sell_price = fill.fill_price;
+        if (fill.status == .filled and fill.fill_price > 0) {
+            sell_price = fill.fill_price;
+            sell_commission = fill.commission;
+        }
     }
     if (turso) |t| {
-        const exit_fee = sell_price * trade.size * 0.001;
+        const exit_fee = if (sell_commission > 0) sell_commission else sell_price * trade.size * 0.001;
         const sell_proceeds = sell_price * trade.size;
         const pnl = trade.pnl;
         const exit_str = switch (trade.exit_type) { .dc_exit => "DC", .trailing_stop => "SL", .regime_close => "REG", .end_of_data => "END" };
@@ -459,7 +468,7 @@ fn handleSell(trade: Trade, strategy: *const Strategy, closed_count: *u32, excha
         const ud = std.fmt.bufPrint(&ud_buf, "SELL exit={s}", .{exit_str}) catch "SELL";
         t.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_BTC, sell_proceeds, turso_mod.Turso.CODE_SELL, ud, timestamp, sell_price, trade.size);
         // Double-entry: fee transfer (fees ← cash)
-        t.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, exit_fee, turso_mod.Turso.CODE_FEE, "SELL fee 0.1%", timestamp, 0, 0);
+        t.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, exit_fee, turso_mod.Turso.CODE_FEE, "SELL fee", timestamp, 0, 0);
         // Double-entry: PnL transfer (if nonzero)
         if (pnl > 0) {
             t.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_PNL, pnl, turso_mod.Turso.CODE_PNL, "Realized PnL", timestamp, 0, 0);
