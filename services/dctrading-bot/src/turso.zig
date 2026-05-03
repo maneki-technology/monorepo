@@ -82,15 +82,13 @@ pub const Turso = struct {
             \\  {"type": "execute", "stmt": {"sql": "INSERT OR IGNORE INTO accounts (id, name, ledger, code) VALUES (5, 'pnl', 1, 4001)"}}
             \\]}
         ;
-        // Migration: add order_id column (idempotent)
-        const sql_migrate =
-            \\{"requests": [
-            \\  {"type": "execute", "stmt": {"sql": "ALTER TABLE transfers ADD COLUMN order_id TEXT"}}
-            \\]}
-        ;
         const core_ok = self.execSync(sql_core);
         const acct_ok = self.execSync(sql_acct);
-        _ = self.execSync(sql_migrate); // ignore error if column already exists
+        // Migration: add order_id column (silent — ignore duplicate column error)
+        const sql_migrate =
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE transfers ADD COLUMN order_id TEXT"}}]}
+        ;
+        self.execSyncSilent(sql_migrate);
         if (core_ok and acct_ok) {
             std.debug.print("  [turso] Tables ready.\n", .{});
         } else {
@@ -428,6 +426,12 @@ pub const Turso = struct {
             return false;
         }
         return true;
+    }
+
+    fn execSyncSilent(self: *const Turso, json_body: []const u8) void {
+        const h = self.headers();
+        const resp = self.http.post(self.url, &h, json_body) catch return;
+        defer resp.deinit();
     }
 
     fn execSyncRead(self: *const Turso, json_body: []const u8) ?HttpClient.Response {
