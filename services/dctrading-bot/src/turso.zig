@@ -189,14 +189,14 @@ pub const Turso = struct {
         return parseTransferId(resp.body);
     }
 
-    /// Post a pending transfer — move pending → posted balances (async).
-    /// TigerBeetle convention: debit_account has credits, credit_account has debits.
+    /// Post a pending transfer — append settlement record + move pending → posted balances (async).
+    /// Original pending transfer stays immutable. New row references it via pending_id.
     pub fn postTransfer(self: *const Turso, pending_id: u32) void {
-        var buf: [2048]u8 = undefined;
+        var buf: [4096]u8 = undefined;
         const sql = std.fmt.bufPrint(&buf,
             \\{{"requests": [
             \\  {{"type": "execute", "stmt": {{"sql": "BEGIN"}}}},
-            \\  {{"type": "execute", "stmt": {{"sql": "UPDATE transfers SET status = 'posted' WHERE id = {d} AND status = 'pending'"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "INSERT INTO transfers (debit_account_id, credit_account_id, amount, pending_id, code, flags, status, user_data, price, size, timestamp) SELECT debit_account_id, credit_account_id, amount, id, code, 2, 'posted', user_data, price, size, timestamp FROM transfers WHERE id = {d} AND status = 'pending'"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET credits_pending = credits_pending - (SELECT amount FROM transfers WHERE id = {d}), credits_posted = credits_posted + (SELECT amount FROM transfers WHERE id = {d}) WHERE id = (SELECT debit_account_id FROM transfers WHERE id = {d})"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET debits_pending = debits_pending - (SELECT amount FROM transfers WHERE id = {d}), debits_posted = debits_posted + (SELECT amount FROM transfers WHERE id = {d}) WHERE id = (SELECT credit_account_id FROM transfers WHERE id = {d})"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "COMMIT"}}}}
@@ -205,14 +205,14 @@ pub const Turso = struct {
         self.execAsync(sql);
     }
 
-    /// Void a pending transfer — release reserved balances (sync).
-    /// TigerBeetle convention: debit_account has credits, credit_account has debits.
+    /// Void a pending transfer — append void record + release reserved balances (sync).
+    /// Original pending transfer stays immutable. New row references it via pending_id.
     pub fn voidTransfer(self: *const Turso, pending_id: u32) void {
-        var buf: [2048]u8 = undefined;
+        var buf: [4096]u8 = undefined;
         const sql = std.fmt.bufPrint(&buf,
             \\{{"requests": [
             \\  {{"type": "execute", "stmt": {{"sql": "BEGIN"}}}},
-            \\  {{"type": "execute", "stmt": {{"sql": "UPDATE transfers SET status = 'voided' WHERE id = {d} AND status = 'pending'"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "INSERT INTO transfers (debit_account_id, credit_account_id, amount, pending_id, code, flags, status, user_data, price, size, timestamp) SELECT debit_account_id, credit_account_id, amount, id, code, 4, 'voided', user_data, price, size, timestamp FROM transfers WHERE id = {d} AND status = 'pending'"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET credits_pending = credits_pending - (SELECT amount FROM transfers WHERE id = {d}) WHERE id = (SELECT debit_account_id FROM transfers WHERE id = {d})"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET debits_pending = debits_pending - (SELECT amount FROM transfers WHERE id = {d}) WHERE id = (SELECT credit_account_id FROM transfers WHERE id = {d})"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "COMMIT"}}}}
@@ -220,6 +220,7 @@ pub const Turso = struct {
         , .{ pending_id, pending_id, pending_id, pending_id, pending_id }) catch return;
         _ = self.execSync(sql);
     }
+
 
     /// Query account balance: credits_posted - debits_posted (blocking).
     pub fn queryAccountBalance(self: *const Turso, account_id: u8) ?f64 {
