@@ -351,12 +351,11 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                                 std.debug.print("  BUY FILLED: {d:.8} BTC @ ${d:.2} fee=${d:.4}\n", .{ buy_size, buy_price, fee });
                             }
                             if (turso != null) {
-                                // Post the pending transfer (append-only settlement)
-                                if (po.transfer_id > 0) turso.?.postTransfer(po.transfer_id);
-                                // Fee transfer (separate, always posted directly)
+                                // Post the pending transfer with actual fill data
                                 const buy_cost = buy_price * buy_size;
+                                if (po.transfer_id > 0) turso.?.postTransferWithFill(po.transfer_id, buy_cost, buy_price, buy_size);
+                                // Fee transfer (separate, always posted directly)
                                 turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "BUY fee", t.timestamp, 0, 0);
-                                _ = buy_cost; // buy transfer already in pending row
                             }
                             if (tg) |tl| {
                                 const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
@@ -374,8 +373,9 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                             const exit_str = switch (po.exit_type) { .dc_exit => "DC", .trailing_stop => "SL", .regime_close => "REG", .end_of_data => "END" };
                             std.debug.print("  SELL FILLED: {d:.8} BTC @ ${d:.2} pnl=${d:.2} ({s})\n", .{ po.size, sell_price, pnl, exit_str });
                             if (turso != null) {
-                                // Post the pending transfer (append-only settlement)
-                                if (po.transfer_id > 0) turso.?.postTransfer(po.transfer_id);
+                                // Post the pending transfer with actual fill data
+                                const sell_amount = sell_price * po.size;
+                                if (po.transfer_id > 0) turso.?.postTransferWithFill(po.transfer_id, sell_amount, sell_price, po.size);
                                 // Fee transfer (separate, always posted directly)
                                 turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, sell_fee, turso_mod.Turso.CODE_FEE, "SELL fee", t.timestamp, 0, 0);
                                 // PnL transfer

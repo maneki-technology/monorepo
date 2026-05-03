@@ -209,6 +209,21 @@ pub const Turso = struct {
         , .{ pending_id, pending_id, pending_id, pending_id, pending_id, pending_id, pending_id }) catch return;
         self.execAsync(sql);
     }
+    /// Post a pending transfer with actual fill data — append settlement record with corrected price/size/amount.
+    /// Original pending transfer stays immutable. New row has actual exchange fill values.
+    pub fn postTransferWithFill(self: *const Turso, pending_id: u32, actual_amount: f64, actual_price: f64, actual_size: f64) void {
+        var buf: [4096]u8 = undefined;
+        const sql = std.fmt.bufPrint(&buf,
+            \\{{"requests": [
+            \\  {{"type": "execute", "stmt": {{"sql": "BEGIN"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "INSERT INTO transfers (debit_account_id, credit_account_id, amount, pending_id, code, flags, status, user_data, price, size, timestamp) SELECT debit_account_id, credit_account_id, {d:.8}, id, code, 2, 'posted', user_data, {d:.8}, {d:.8}, timestamp FROM transfers WHERE id = {d} AND status = 'pending'"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET credits_pending = credits_pending - (SELECT amount FROM transfers WHERE id = {d}), credits_posted = credits_posted + {d:.8} WHERE id = (SELECT debit_account_id FROM transfers WHERE id = {d})"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET debits_pending = debits_pending - (SELECT amount FROM transfers WHERE id = {d}), debits_posted = debits_posted + {d:.8} WHERE id = (SELECT credit_account_id FROM transfers WHERE id = {d})"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "COMMIT"}}}}
+            \\]}}
+        , .{ actual_amount, actual_price, actual_size, pending_id, pending_id, actual_amount, pending_id, pending_id, actual_amount, pending_id }) catch return;
+        self.execAsync(sql);
+    }
 
     /// Void a pending transfer — append void record + release reserved balances (sync).
     /// Original pending transfer stays immutable. New row references it via pending_id.
