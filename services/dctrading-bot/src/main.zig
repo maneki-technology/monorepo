@@ -339,7 +339,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                                 strategy.size += buy_size;
                                 strategy.capital -= fee;
                                 if (buy_price > strategy.peak_price) strategy.peak_price = buy_price;
-                                std.debug.print("  DEPOSIT BUY FILLED: +{d:.8} BTC @ ${d:.2}, blended entry=${d:.2}\n", .{ buy_size, buy_price, strategy.entry_price });
+                                std.debug.print("  DEPOSIT BUY FILLED: +{d:.8} BTC @ ${d:.2}, fee=${d:.4}, blended entry=${d:.2}\n", .{ buy_size, buy_price, fee, strategy.entry_price });
                             } else {
                                 // Regular buy: set position
                                 const unspent = (po.size - buy_size) * buy_price;
@@ -348,7 +348,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                                 strategy.size = buy_size;
                                 strategy.peak_price = buy_price;
                                 strategy.in_position = true;
-                                std.debug.print("  BUY FILLED: {d:.8} BTC @ ${d:.2}\n", .{ buy_size, buy_price });
+                                std.debug.print("  BUY FILLED: {d:.8} BTC @ ${d:.2} fee=${d:.4}\n", .{ buy_size, buy_price, fee });
                             }
                             if (turso != null) {
                                 // Post the pending transfer (append-only settlement)

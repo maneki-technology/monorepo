@@ -157,7 +157,7 @@ pub const Alpaca = struct {
             const len = @min(order_id.len, fill.order_id.len);
             @memcpy(fill.order_id[0..len], order_id[0..len]);
             fill.order_id_len = len;
-            std.debug.print("  [alpaca] checkOrder: filled price=${d:.2} qty={d:.8} fee=${d:.4}\n", .{ fill.fill_price, fill.fill_qty, fill.commission });
+            std.debug.print("  [alpaca] checkOrder: filled price=${d:.2} qty={d:.8}\n", .{ fill.fill_price, fill.fill_qty });
             return .{ .filled = fill };
         }
 

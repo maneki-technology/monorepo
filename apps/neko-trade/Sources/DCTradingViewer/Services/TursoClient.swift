@@ -128,7 +128,7 @@ final class TursoClient {
     // MARK: - Public API
 
     func fetchTradeTransfers(limit: Int = 50) async throws -> [Transfer] {
-        let sql = "SELECT * FROM transfers WHERE code IN (2, 3) ORDER BY id DESC LIMIT \(limit)"
+        let sql = "SELECT t.*, COALESCE(s.status, t.status) as resolved_status FROM transfers t LEFT JOIN transfers s ON s.pending_id = t.id AND s.flags IN (2, 4) WHERE t.code IN (2, 3) AND t.flags NOT IN (2, 4) ORDER BY t.id DESC LIMIT \(limit)"
         let result = try await executeSQL(sql)
         return result.rows.map { row in
             Transfer(
@@ -139,7 +139,7 @@ final class TursoClient {
                 pendingId: row[colIndex(result.cols, "pending_id") ?? 0].intValue,
                 code: getInt(row, result.cols, "code"),
                 flags: getInt(row, result.cols, "flags"),
-                status: getString(row, result.cols, "status"),
+                status: getString(row, result.cols, "resolved_status"),
                 userData: getOptionalString(row, result.cols, "user_data"),
                 price: getDouble(row, result.cols, "price"),
                 size: getDouble(row, result.cols, "size"),
@@ -151,7 +151,7 @@ final class TursoClient {
 
 
     func fetchTransfers(limit: Int = 100) async throws -> [Transfer] {
-        let sql = "SELECT * FROM transfers ORDER BY id DESC LIMIT \(limit)"
+        let sql = "SELECT t.*, COALESCE(s.status, t.status) as resolved_status FROM transfers t LEFT JOIN transfers s ON s.pending_id = t.id AND s.flags IN (2, 4) WHERE t.flags NOT IN (2, 4) ORDER BY t.id DESC LIMIT \(limit)"
         let result = try await executeSQL(sql)
         return result.rows.map { row in
             Transfer(
@@ -162,7 +162,7 @@ final class TursoClient {
                 pendingId: row[colIndex(result.cols, "pending_id") ?? 0].intValue,
                 code: getInt(row, result.cols, "code"),
                 flags: getInt(row, result.cols, "flags"),
-                status: getString(row, result.cols, "status"),
+                status: getString(row, result.cols, "resolved_status"),
                 userData: getOptionalString(row, result.cols, "user_data"),
                 price: getDouble(row, result.cols, "price"),
                 size: getDouble(row, result.cols, "size"),
