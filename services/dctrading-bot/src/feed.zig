@@ -327,3 +327,63 @@ pub fn parseKlineCloses(json: []const u8) KlineBatchResult {
 
     return result;
 }
+
+/// Fetch latest funding rates from Binance futures API (public, no auth).
+/// Returns the average of the last `count` funding rates (default 3 = 24h).
+pub fn fetchFundingRate(http: *HttpClient, count: usize) ?f64 {
+    var url_buf: [256]u8 = undefined;
+    const url = std.fmt.bufPrint(&url_buf, "https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit={d}", .{count}) catch return null;
+
+    const resp = http.get(url, &.{}) catch return null;
+    defer resp.deinit();
+
+    if (resp.body.len < 2 or resp.body[0] != '[') return null;
+
+    // Parse funding rates from JSON array
+    // [{"fundingRate":"0.00010000",...}, ...]
+    var sum: f64 = 0;
+    var parsed: usize = 0;
+    var pos: usize = 0;
+    const key = "\"fundingRate\":";
+
+    while (pos < resp.body.len) {
+        const kpos = std.mem.indexOf(u8, resp.body[pos..], key) orelse break;
+        pos = pos + kpos + key.len;
+        // Skip whitespace and opening quote
+        while (pos < resp.body.len and (resp.body[pos] == ' ' or resp.body[pos] == '"')) : (pos += 1) {}
+        var end = pos;
+        while (end < resp.body.len and resp.body[end] != '"' and resp.body[end] != ',' and resp.body[end] != '}') : (end += 1) {}
+        const rate = std.fmt.parseFloat(f64, resp.body[pos..end]) catch continue;
+        sum += rate;
+        parsed += 1;
+        pos = end;
+    }
+
+    if (parsed == 0) return null;
+    const avg = sum / @as(f64, @floatFromInt(parsed));
+    std.debug.print("  [funding] Fetched {d} rates, 24h avg={d:.6}%\n", .{ parsed, avg * 100 });
+    return avg;
+}
+
+/// Parse funding rate from JSON for testing.
+pub fn parseFundingRates(json: []const u8) ?f64 {
+    var sum: f64 = 0;
+    var parsed: usize = 0;
+    var pos: usize = 0;
+    const key = "\"fundingRate\":";
+
+    while (pos < json.len) {
+        const kpos = std.mem.indexOf(u8, json[pos..], key) orelse break;
+        pos = pos + kpos + key.len;
+        while (pos < json.len and (json[pos] == ' ' or json[pos] == '"')) : (pos += 1) {}
+        var end = pos;
+        while (end < json.len and json[end] != '"' and json[end] != ',' and json[end] != '}') : (end += 1) {}
+        const rate = std.fmt.parseFloat(f64, json[pos..end]) catch continue;
+        sum += rate;
+        parsed += 1;
+        pos = end;
+    }
+
+    if (parsed == 0) return null;
+    return sum / @as(f64, @floatFromInt(parsed));
+}

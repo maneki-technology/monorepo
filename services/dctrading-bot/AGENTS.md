@@ -7,8 +7,8 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 
 ### Source Files (`src/`)
 - `main.zig` — Entry point. CLI parsing, `runLive()` (WebSocket trading loop), `runBacktest()` (CSV backtest). Wires all modules together via shared `HttpClient`.
-- `strategy.zig` — Core strategy: 3-regime (BULL/SIDEWAYS/BEAR), DC detection, vol-trailing stop, MA regime filter, checkpoint save/load (DCTRADE4 format, 24 scalars + ring buffers).
-- `feed.zig` — Binance WebSocket (native TLS via websocket.zig) + REST kline fetcher (popen curl). Configurable host via `BINANCE_WS_HOST`/`BINANCE_API_HOST` env vars.
+- `strategy.zig` — Core strategy: 3-regime (BULL/SIDEWAYS/BEAR), DC detection, vol-trailing stop, MA regime filter, funding rate entry filter, checkpoint save/load (DCTRADE4 format, 24 scalars + ring buffers).
+- `feed.zig` — Binance WebSocket (native TLS via websocket.zig) + REST kline fetcher + funding rate fetcher (Binance futures API). Configurable host via `BINANCE_WS_HOST`/`BINANCE_API_HOST` env vars.
 - `dc_detector.zig` — Streaming DC event detector. Emits UP/DOWN events when price reverses by λ threshold.
 - `exchange.zig` — Exchange interface (vtable pattern): `buy()`, `sell()`, `getPosition()`. Shared types: `OrderFill`, `Position`.
 - `alpaca.zig` — Alpaca paper trading, implements Exchange interface. Sync market orders (buy/sell with fill polling up to 10s), position queries. Uses `HttpClient`.
@@ -16,7 +16,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `telegram.zig` — Telegram + ntfy notifications. Async sends via threads, curl fallback for shutdown reliability.
 - `http_client.zig` — Thread-safe wrapper around `std.http.Client`. Mutex-protected POST/GET/DELETE with auto-retry on stale connections.
 - `types.zig` — Core types: `Tick`, `Trade`, `DCEvent`, `Direction`.
-- `tests.zig` — 78 unit tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers.
+- `tests.zig` — 95 unit tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter.
 
 ### Scripts (`scripts/`)
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service.
@@ -39,6 +39,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 | `TELEGRAM_BOT_TOKEN` | No | telegram.zig |
 | `TELEGRAM_CHAT_ID` | No | telegram.zig |
 | `NTFY_TOPIC` | No | telegram.zig |
+| `FUNDING_SKIP_THRESHOLD` | No | main.zig (default: 0.0001 = 0.010%) |
 | `BINANCE_WS_HOST` | No | feed.zig (default: stream.binance.com) |
 | `BINANCE_API_HOST` | No | feed.zig (default: api.binance.com) |
 | `BOT_INSTANCE` | No | main.zig (default: "local") |
@@ -52,7 +53,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # GCP
-zig build test                                 # 85 tests
+zig build test                                 # 102 tests
 ```
 
 ### Trading Flow

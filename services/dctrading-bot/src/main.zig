@@ -198,6 +198,18 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         }
     }
 
+    // Fetch initial funding rate
+    if (feed_mod.fetchFundingRate(&http, 3)) |avg| {
+        strategy.funding_avg = avg;
+    }
+
+    // Read funding skip threshold from env (default: 0.0001 = 0.010%)
+    if (getenv("FUNDING_SKIP_THRESHOLD")) |ptr| {
+        const val = std.mem.sliceTo(ptr, 0);
+        strategy.funding_skip_threshold = std.fmt.parseFloat(f64, val) catch 0.0001;
+        std.debug.print("  Funding skip threshold: {d:.4}%\n", .{strategy.funding_skip_threshold * 100});
+    }
+
     std.debug.print("\n  Connecting to Binance WebSocket...\n", .{});
     var feed = feed_mod.Feed.init(allocator, io, "BTC/USDT") catch |err| {
         std.debug.print("ERROR: Failed to connect: {s}\n", .{@errorName(err)});
@@ -218,6 +230,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     var last_deposit_check: f64 = 0;
     var known_total_deposits: f64 = if (turso != null) (turso.?.queryTotalDepositsNew() orelse capital) else capital;
     var last_price: f64 = 0;
+    var last_funding_check: f64 = @floatFromInt(time(null));
     var prev_regime = strategy.regime;
     const uptime_start: f64 = @floatFromInt(time(null));
     const instance: []const u8 = if (getenv("BOT_INSTANCE")) |ptr| std.mem.sliceTo(ptr, 0) else "local";
@@ -326,6 +339,14 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             if (equity_interval or traded) {
                 turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, equity, unrealized, regime_str, t.price);
                 last_equity_ts = t.timestamp;
+            }
+            // Refresh funding rate every 8h
+            const now_ts: f64 = @floatFromInt(time(null));
+            if (now_ts - last_funding_check >= 28800.0) { // 8h
+                last_funding_check = now_ts;
+                if (feed_mod.fetchFundingRate(&http, 3)) |avg| {
+                    strategy.funding_avg = avg;
+                }
             }
             // Check for new deposits every 5 min
             if (t.timestamp - last_deposit_check >= 300.0) {
@@ -476,19 +497,92 @@ fn runBacktest(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold:
     });
     defer strategy.deinit(allocator);
 
+    // Load funding rates if available (funding_rates.csv in same dir)
+    const FundingRate = struct { timestamp: f64, rate: f64 };
+    var funding_rates: std.ArrayList(FundingRate) = .empty;
+    defer funding_rates.deinit(allocator);
+    {
+        const fr_fp = fopen("funding_rates.csv", "r");
+        if (fr_fp) |fp| {
+            defer _ = fclose(fp);
+            _ = fseek(fp, 0, 2);
+            const fr_size: usize = @intCast(ftell(fp));
+            _ = fseek(fp, 0, 0);
+            const fr_buf = try allocator.alloc(u8, fr_size);
+            defer allocator.free(fr_buf);
+            _ = fread(fr_buf.ptr, 1, fr_size, fp);
+            var lines = std.mem.splitSequence(u8, fr_buf, "\n");
+            while (lines.next()) |line| {
+                if (line.len == 0) continue;
+                var fields = std.mem.splitSequence(u8, line, ",");
+                const ts_str = fields.next() orelse continue;
+                const rate_str = fields.next() orelse continue;
+                const ts = std.fmt.parseFloat(f64, ts_str) catch continue;
+                const rate = std.fmt.parseFloat(f64, rate_str) catch continue;
+                try funding_rates.append(allocator, .{ .timestamp = ts, .rate = rate });
+            }
+            std.debug.print("Loaded {d} funding rates\n", .{funding_rates.items.len});
+        } else {
+            std.debug.print("No funding_rates.csv found, running without funding filter\n", .{});
+        }
+    }
+
+    // Read funding skip threshold from env
+    if (getenv("FUNDING_SKIP_THRESHOLD")) |ptr| {
+        const val = std.mem.sliceTo(ptr, 0);
+        strategy.funding_skip_threshold = std.fmt.parseFloat(f64, val) catch 0.0001;
+    }
+
     var trades: std.ArrayList(Trade) = .empty;
     defer trades.deinit(allocator);
 
-    for (ticks) |tick| {
-        if (strategy.processTick(tick)) |trade| {
+    // Warmup: run full strategy with warmup flag (indicators + DC detector, no trades)
+    const warmup_n = @min(strategy.ma_period, ticks.len);
+    strategy.warmup = true;
+    for (ticks[0..warmup_n]) |tick| {
+        _ = strategy.processTick(tick);
+    }
+    strategy.warmup = false;
+    std.debug.print("Warmup: {d} ticks, regime={s}, trading from tick {d}\n", .{
+        warmup_n,
+        switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" },
+        warmup_n,
+    });
+    std.debug.print("Funding filter: threshold={d:.4}%, rates={d}\n\n", .{
+        strategy.funding_skip_threshold * 100,
+        funding_rates.items.len,
+    });
+
+    // Compute 24h avg funding rate for each tick (sliding window, matches Python)
+    const FUNDING_WINDOW: f64 = 24.0 * 3600.0; // 24h in seconds
+    var fr_start: usize = 0; // start of window
+    var fr_end: usize = 0;   // end of window (exclusive)
+    var fr_sum: f64 = 0;
+    var fr_count: usize = 0;
+
+    for (ticks[warmup_n..]) |tick_item| {
+        const window_start = tick_item.timestamp - FUNDING_WINDOW;
+        // Advance fr_end to include new records <= tick timestamp
+        while (fr_end < funding_rates.items.len and funding_rates.items[fr_end].timestamp <= tick_item.timestamp) {
+            fr_sum += funding_rates.items[fr_end].rate;
+            fr_count += 1;
+            fr_end += 1;
+        }
+        // Advance fr_start to exclude records outside window
+        while (fr_start < fr_end and funding_rates.items[fr_start].timestamp < window_start) {
+            fr_sum -= funding_rates.items[fr_start].rate;
+            fr_count -= 1;
+            fr_start += 1;
+        }
+        if (fr_count > 0) {
+            strategy.funding_avg = fr_sum / @as(f64, @floatFromInt(fr_count));
+        }
+        if (strategy.processTick(tick_item)) |trade| {
             try trades.append(allocator, trade);
         }
     }
 
-    if (strategy.forceClose(ticks[ticks.len - 1].price, ticks[ticks.len - 1].timestamp)) |trade| {
-        try trades.append(allocator, trade);
-    }
-
+    // Don't force-close — match Python backtest behavior
     printResults(trades.items, &strategy, bh_return);
 }
 
@@ -538,31 +632,35 @@ fn printResults(trades: []const Trade, strategy: *const Strategy, bh_return: f64
     var total_pnl: f64 = 0;
     var wins: u32 = 0;
     var sl_exits: u32 = 0;
-    var pnls: [1024]f64 = undefined;
-    const pnl_count = @min(n, 1024);
 
-    for (trades, 0..) |t, i| {
+    for (trades) |t| {
         total_pnl += t.pnl;
         if (t.pnl > 0) wins += 1;
         if (t.exit_type == .trailing_stop) sl_exits += 1;
-        if (i < 1024) pnls[i] = t.pnl;
     }
 
     const nf: f64 = @floatFromInt(n);
     const win_rate = @as(f64, @floatFromInt(wins)) / nf * 100.0;
     const total_return = strategy.totalReturn();
 
-    // Sharpe
+    // Sharpe (using percentage returns, not raw PnL)
+    var returns: [1024]f64 = undefined;
+    const ret_count = @min(n, 1024);
+    var eq_track: f64 = strategy.initial_capital;
+    for (trades[0..ret_count], 0..) |t, i| {
+        returns[i] = if (eq_track > 0) t.pnl / eq_track else 0.0;
+        eq_track += t.pnl;
+    }
     var sum: f64 = 0;
-    const pcf: f64 = @floatFromInt(pnl_count);
-    for (pnls[0..pnl_count]) |v| sum += v;
-    const mean = sum / pcf;
+    const rcf: f64 = @floatFromInt(ret_count);
+    for (returns[0..ret_count]) |v| sum += v;
+    const mean = sum / rcf;
     var sq_sum: f64 = 0;
-    for (pnls[0..pnl_count]) |v| {
+    for (returns[0..ret_count]) |v| {
         const d = v - mean;
         sq_sum += d * d;
     }
-    const std_dev = if (pnl_count > 1) @sqrt(sq_sum / @as(f64, @floatFromInt(pnl_count - 1))) else 0.0;
+    const std_dev = if (ret_count > 1) @sqrt(sq_sum / @as(f64, @floatFromInt(ret_count - 1))) else 0.0;
     const sharpe = if (std_dev > 0) mean / std_dev * @sqrt(365.0) else 0.0;
 
     // Max drawdown

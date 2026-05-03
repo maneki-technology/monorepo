@@ -313,6 +313,356 @@ test "feed: parseKlineCloses returns zero parsed for non-array" {
 }
 
 // ============================================================
+// Funding Rate Tests
+// ============================================================
+
+test "feed: parseFundingRates parses 3 rates and averages" {
+    const json = "[{\"symbol\":\"BTCUSDT\",\"fundingRate\":\"0.00010000\",\"fundingTime\":1698768000000},{\"symbol\":\"BTCUSDT\",\"fundingRate\":\"0.00020000\",\"fundingTime\":1698796800000},{\"symbol\":\"BTCUSDT\",\"fundingRate\":\"0.00030000\",\"fundingTime\":1698825600000}]";
+    const avg = feed_mod.parseFundingRates(json);
+    try testing.expect(avg != null);
+    try testing.expectApproxEqAbs(avg.?, 0.0002, 0.000001); // (0.1 + 0.2 + 0.3) / 3 = 0.2
+}
+
+test "feed: parseFundingRates parses single rate" {
+    const json = "[{\"fundingRate\":\"0.00050000\"}]";
+    const avg = feed_mod.parseFundingRates(json);
+    try testing.expect(avg != null);
+    try testing.expectApproxEqAbs(avg.?, 0.0005, 0.000001);
+}
+
+test "feed: parseFundingRates handles negative rate" {
+    const json = "[{\"fundingRate\":\"-0.00030000\"},{\"fundingRate\":\"0.00010000\"}]";
+    const avg = feed_mod.parseFundingRates(json);
+    try testing.expect(avg != null);
+    try testing.expectApproxEqAbs(avg.?, -0.0001, 0.000001); // (-0.3 + 0.1) / 2 = -0.1
+}
+
+test "feed: parseFundingRates returns null for empty array" {
+    const avg = feed_mod.parseFundingRates("[]");
+    try testing.expect(avg == null);
+}
+
+test "feed: parseFundingRates returns null for invalid json" {
+    const avg = feed_mod.parseFundingRates("not json");
+    try testing.expect(avg == null);
+}
+
+test "strategy: funding filter skips DC entry when funding elevated" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .threshold = 0.07,
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+    });
+    defer s.deinit(allocator);
+
+    // Fill MA to enter SIDEWAYS
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(101.0, 6.0)); // sideways
+    try testing.expect(s.regime == .sideways);
+
+    // Set elevated funding rate
+    s.funding_avg = 0.0002; // 0.020% — above default threshold of 0.010%
+
+    // DC DOWN then UP — should trigger entry but funding blocks it
+    _ = s.processTick(tick(93.0, 7.0)); // DC DOWN
+    _ = s.processTick(tick(99.51, 8.0)); // DC UP — entry signal
+    try testing.expect(!s.in_position); // blocked by funding filter
+}
+
+test "strategy: funding filter allows entry when funding is low" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .threshold = 0.07,
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+    });
+    defer s.deinit(allocator);
+
+    // Fill MA to enter SIDEWAYS
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(101.0, 6.0)); // sideways
+
+    // Set low funding rate
+    s.funding_avg = 0.00005; // 0.005% — below threshold
+
+    // DC DOWN then UP — should open position
+    _ = s.processTick(tick(93.0, 7.0)); // DC DOWN
+    _ = s.processTick(tick(99.51, 8.0)); // DC UP
+    try testing.expect(s.in_position); // allowed
+}
+
+test "strategy: funding filter does not affect BULL regime entry" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+    });
+    defer s.deinit(allocator);
+
+    // Fill MA then jump to BULL
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+
+    // Set very high funding
+    s.funding_avg = 0.003; // 0.3% — extremely high
+
+    // BULL entry is NOT gated by funding
+    _ = s.processTick(tick(104.0, 6.0)); // BULL
+    try testing.expect(s.regime == .bull);
+    try testing.expect(s.in_position); // opened despite high funding
+}
+
+test "strategy: funding filter does not block exits" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .threshold = 0.07,
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+    });
+    defer s.deinit(allocator);
+
+    // Set up position in SIDEWAYS with high funding
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(101.0, 6.0)); // sideways
+    s.funding_avg = 0.00005; // low — allow entry
+    _ = s.processTick(tick(93.0, 7.0)); // DC DOWN
+    _ = s.processTick(tick(99.51, 8.0)); // DC UP — opens position
+    try testing.expect(s.in_position);
+
+    // Now set high funding
+    s.funding_avg = 0.003; // very high
+
+    // DC DOWN should still close — funding doesn't block exits
+    _ = s.processTick(tick(92.0, 9.0)); // DC DOWN
+    try testing.expect(!s.in_position); // closed despite high funding
+}
+
+test "strategy: funding filter disabled when threshold is 0" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .threshold = 0.07,
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+    });
+    defer s.deinit(allocator);
+
+    // Disable funding filter
+    s.funding_skip_threshold = 0;
+    s.funding_avg = 0.003; // very high — but filter disabled
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(101.0, 6.0)); // sideways
+    _ = s.processTick(tick(93.0, 7.0)); // DC DOWN
+    _ = s.processTick(tick(99.51, 8.0)); // DC UP
+    try testing.expect(s.in_position); // allowed — filter disabled
+}
+
+test "strategy: DC detector maintains state through BULL regime" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .threshold = 0.07,
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+    });
+    defer s.deinit(allocator);
+
+    // Fill MA, enter BULL
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(104.0, 6.0)); // BULL, opens position
+    try testing.expect(s.regime == .bull);
+    try testing.expect(s.in_position);
+    try testing.expect(s.detector.initialized);
+
+    // Price rises during BULL — DC detector should track extreme
+    _ = s.processTick(tick(110.0, 7.0));
+    _ = s.processTick(tick(115.0, 8.0));
+    try testing.expectApproxEqAbs(s.detector.extreme_price, 115.0, 0.01);
+
+    // Price drops but stays in BULL — DC detector should update
+    _ = s.processTick(tick(108.0, 9.0));
+    // Extreme should still be 115 (tracking high in UP mode)
+    try testing.expectApproxEqAbs(s.detector.extreme_price, 115.0, 0.01);
+}
+
+test "strategy: warmup flag prevents position opening" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .threshold = 0.07,
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+    });
+    defer s.deinit(allocator);
+
+    s.warmup = true;
+
+    // Fill MA, trigger BULL — should NOT open position during warmup
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(104.0, 6.0)); // BULL
+    try testing.expect(s.regime == .bull);
+    try testing.expect(!s.in_position); // warmup blocks entry
+
+    // DC entry in SIDEWAYS also blocked
+    _ = s.processTick(tick(101.0, 7.0)); // sideways
+    _ = s.processTick(tick(93.0, 8.0)); // DC DOWN
+    _ = s.processTick(tick(99.51, 9.0)); // DC UP
+    try testing.expect(!s.in_position); // still blocked
+
+    // Disable warmup — next entry should work
+    s.warmup = false;
+    _ = s.processTick(tick(92.0, 10.0)); // DC DOWN
+    _ = s.processTick(tick(98.50, 11.0)); // DC UP (7.07% > 7%)
+    try testing.expect(s.in_position); // now allowed
+}
+
+test "strategy: warmup flag prevents position closing" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .threshold = 0.07,
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .base_trail = 0.02,
+        .initial_capital = 10000.0,
+    });
+    defer s.deinit(allocator);
+
+    // Manually set up a position in BEAR
+    s.regime = .bear;
+    s.in_position = true;
+    s.entry_price = 100.0;
+    s.size = 1.0;
+    s.peak_price = 100.0;
+    s.current_trail = 0.02;
+    s.capital = 9990.0;
+    s.warmup = true;
+
+    // 2.1% drop should trigger trailing stop — but warmup blocks it
+    const trade = s.processTick(tick(97.9, 1.0));
+    try testing.expect(trade == null); // blocked by warmup
+    try testing.expect(s.in_position); // still holding
+}
+
+test "strategy: entry fee not deducted from capital" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Fill MA, trigger BULL to open position
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(104.0, 6.0));
+    try testing.expect(s.in_position);
+
+    // Capital should NOT be reduced by entry fee
+    // Fee is embedded in smaller size: size = (1000 - 1) / 104 = 9.60576...
+    try testing.expectApproxEqAbs(s.capital, 1000.0, 0.01);
+    try testing.expect(s.size < 1000.0 / 104.0); // size is smaller due to fee
+}
+
+test "strategy: funding filter at exact threshold boundary" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .threshold = 0.07,
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+    });
+    defer s.deinit(allocator);
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(101.0, 6.0)); // sideways
+
+    // Exactly at threshold — should skip (> not >=, but 0.0001 > 0.0001 is false)
+    s.funding_avg = 0.0001; // exactly at threshold
+    _ = s.processTick(tick(93.0, 7.0)); // DC DOWN
+    _ = s.processTick(tick(99.51, 8.0)); // DC UP
+    try testing.expect(s.in_position); // NOT skipped — threshold is strict >
+}
+
+test "strategy: negative funding rate never skips entry" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .threshold = 0.07,
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+    });
+    defer s.deinit(allocator);
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(101.0, 6.0)); // sideways
+
+    // Negative funding — bearish sentiment, should always allow entry
+    s.funding_avg = -0.003; // very negative
+    _ = s.processTick(tick(93.0, 7.0)); // DC DOWN
+    _ = s.processTick(tick(99.51, 8.0)); // DC UP
+    try testing.expect(s.in_position); // allowed
+}
+
+test "strategy: funding filter skips BEAR regime DC entry" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{
+        .threshold = 0.07,
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+    });
+    defer s.deinit(allocator);
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(96.0, 6.0)); // BEAR
+    try testing.expect(s.regime == .bear);
+
+    s.funding_avg = 0.0002; // elevated
+    _ = s.processTick(tick(89.0, 7.0)); // DC DOWN
+    _ = s.processTick(tick(95.23, 8.0)); // DC UP
+    try testing.expect(!s.in_position); // skipped in BEAR too
+}
+
+// ============================================================
 // 3-Regime Tests
 // ============================================================
 
@@ -1176,10 +1526,10 @@ test "strategy: unspent capital added back when Alpaca fills less qty" {
     _ = s.processTick(tick(104.0, 6.0));
     try testing.expect(s.in_position);
 
-    // Strategy calculated: capital=999 (after fee), size=999/104=9.60576923
+    // Strategy calculated: capital=1000 (fee embedded in size), size=(1000-1)/104=9.60576923
     const strategy_size = s.size;
-    const strategy_capital = s.capital; // 999.0 after fee deduction
-    try testing.expectApproxEqAbs(strategy_capital, 999.0, 0.01);
+    const strategy_capital = s.capital; // 1000.0 — fee not deducted from capital
+    try testing.expectApproxEqAbs(strategy_capital, 1000.0, 0.01);
 
     // Simulate Alpaca filling less qty (e.g. 9.60 instead of 9.60576923)
     const alpaca_fill_qty = 9.60;
@@ -1191,7 +1541,7 @@ test "strategy: unspent capital added back when Alpaca fills less qty" {
 
     // Capital should have unspent added back
     try testing.expect(s.capital > 999.0);
-    const expected_capital = 999.0 + (strategy_size - 9.60) * 104.0;
+    const expected_capital = 1000.0 + (strategy_size - 9.60) * 104.0;
     try testing.expectApproxEqAbs(s.capital, expected_capital, 0.01);
 
     // Equity should be: capital + (price - entry) * size
@@ -1257,9 +1607,9 @@ test "strategy: equity correct after Alpaca fill with price drift" {
     s.entry_price = alpaca_price;
     s.size = alpaca_qty;
 
-    // Capital should be slightly > 999 (unspent added back)
-    try testing.expect(s.capital > 999.0);
-    try testing.expect(s.capital < 1000.0); // but not more than initial
+    // Capital should have unspent added back (capital stays at 1000 + unspent)
+    try testing.expect(s.capital > 1000.0);
+    try testing.expect(s.capital < 1001.0); // unspent is tiny
 
     // At entry price, unrealized = 0, so equity = capital
     const equity_at_entry = s.capital + (alpaca_price - s.entry_price) * s.size;

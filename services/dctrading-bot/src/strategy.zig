@@ -49,9 +49,14 @@ pub const Strategy = struct {
     price_count: usize = 0,
     regime: Regime = .bear,
 
+    // Funding rate filter
+    funding_avg: f64 = 0,
+    funding_skip_threshold: f64 = 0.0001, // 0.010% default
+
     // Tick counter and last active timestamp for catch-up
     tick_count: u64 = 0,
     last_timestamp: f64 = 0,
+    warmup: bool = false, // when true, indicators run but no trades open/close
 
     pub const Regime = enum { bull, sideways, bear };
 
@@ -137,10 +142,12 @@ pub const Strategy = struct {
         self.last_timestamp = tick.timestamp;
         self.updateVol(price);
         self.updateMA(price);
+        // DC detector runs on EVERY tick to maintain accurate state
+        const event = self.detector.processTick(tick);
 
-        // BULL mode: hold passively
+        // BULL mode: hold passively (DC events ignored)
         if (self.regime == .bull) {
-            if (!self.in_position and self.capital > 10.0) {
+            if (!self.in_position and !self.warmup and self.capital > 10.0) {
                 self.openPosition(price, tick.timestamp);
             }
             return null;
@@ -152,18 +159,24 @@ pub const Strategy = struct {
             if (self.current_trail > 0 and self.peak_price > 0) {
                 const drop = (self.peak_price - price) / self.peak_price;
                 if (drop >= self.current_trail) {
+                    if (self.warmup) return null;
                     return self.closePosition(price, tick.timestamp, .trailing_stop);
                 }
             }
         }
 
-        // BEAR + SIDEWAYS: DC detection
-        const event = self.detector.processTick(tick) orelse return null;
+        // BEAR + SIDEWAYS: act on DC events
+        const ev = event orelse return null;
 
-        if (event.direction == .up and !self.in_position) {
+        if (ev.direction == .up and !self.in_position and !self.warmup) {
+            // Skip entry if funding rate is elevated (overleveraged market)
+            if (self.funding_avg > self.funding_skip_threshold and self.funding_skip_threshold > 0) {
+                std.debug.print("  [funding] Skipping DC entry: 24h avg FR={d:.4}%\n", .{self.funding_avg * 100});
+                return null;
+            }
             self.openPosition(price, tick.timestamp);
             return null;
-        } else if (event.direction == .down and self.in_position) {
+        } else if (ev.direction == .down and self.in_position and !self.warmup) {
             return self.closePosition(price, tick.timestamp, .dc_exit);
         }
 
@@ -192,7 +205,8 @@ pub const Strategy = struct {
         self.entry_time = time;
         self.peak_price = price;
         self.in_position = true;
-        self.capital -= fee;
+        // Note: capital NOT reduced here. Fee is embedded in smaller size.
+        // Capital updated on closePosition with net PnL (includes both fees).
     }
 
     fn closePosition(self: *Strategy, price: f64, time: f64, exit_type: Trade.ExitType) Trade {
