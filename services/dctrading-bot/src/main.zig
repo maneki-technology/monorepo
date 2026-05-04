@@ -80,7 +80,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     std.debug.print("  Checkpoint: every {d} ticks\n\n", .{checkpoint_interval});
 
     // Register signal handlers for clean shutdown (SIGINT=2, SIGTERM=15)
-    _ = signal(2, &handleSigint);  // Ctrl-C / local
+    _ = signal(2, &handleSigint); // Ctrl-C / local
     _ = signal(15, &handleSigint); // systemctl stop / GCP
     var strategy = try Strategy.init(allocator, .{
         .threshold = threshold,
@@ -93,7 +93,11 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         loaded_checkpoint = true;
         std.debug.print("  Resumed from checkpoint: capital=${d:.2} regime={s} ticks={d}\n", .{
             strategy.capital,
-            switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" },
+            switch (strategy.regime) {
+                .bull => "BULL",
+                .sideways => "SIDE",
+                .bear => "BEAR",
+            },
             strategy.tick_count,
         });
         if (strategy.in_position) {
@@ -222,7 +226,6 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
     var pending_count: u8 = 0;
 
-
     // Reconcile pending transfers from Turso (orders submitted but not confirmed before restart)
     if (turso != null) {
         while (turso.?.queryPendingOrder()) |pending_info| {
@@ -314,7 +317,11 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     const instance: []const u8 = if (getenv("BOT_INSTANCE")) |ptr| std.mem.sliceTo(ptr, 0) else "local";
     // Notify startup
     if (tg) |t| {
-        const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
+        const regime_str = switch (strategy.regime) {
+            .bull => "BULL",
+            .sideways => "SIDE",
+            .bear => "BEAR",
+        };
         t.notifyStartup(regime_str, strategy.capital, strategy.in_position, instance);
     }
 
@@ -358,16 +365,42 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         const was_in_pos = strategy.in_position;
         loop.processTick(t);
 
+        const regime_str = switch (strategy.regime) {
+            .bull => "BULL",
+            .sideways => "SIDE",
+            .bear => "BEAR",
+        };
+        if (loop.last_buy_fill) |fill| {
+            std.debug.print("  {s}BUY FILLED: {d:.8} BTC @ ${d:.2}\n", .{ if (fill.is_deposit) "DEPOSIT " else "", fill.size, fill.price });
+            if (tg) |tl| tl.notifyBuy(fill.price, fill.size, regime_str, instance);
+        }
+        if (loop.last_sell_trade) |trade| {
+            printLiveTrade(trade, loop.closed_count, &strategy);
+        }
+        if (loop.last_sell_fill) |fill| {
+            const exit_str = switch (fill.exit_type) {
+                .dc_exit => "DC",
+                .trailing_stop => "SL",
+                .regime_close => "REG",
+                .end_of_data => "END",
+            };
+            std.debug.print("  SELL FILLED: {d:.8} BTC @ ${d:.2} pnl=${d:.2} ({s})\n", .{ fill.size, fill.price, fill.pnl, exit_str });
+            if (tg) |tl| tl.notifySell(fill.price, fill.pnl, exit_str, regime_str, instance);
+        }
+
         // --- Periodic tasks (not in LiveLoop) ---
 
         // Only run periodic tasks on downsampled ticks (1/min)
         if (loop.was_downsampled) {
             // Detect regime change
-            if (strategy.regime != loop.prev_regime) {
+            if (loop.regime_changed) {
                 if (tg) |tl| {
-                    const from_str = switch (loop.prev_regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
-                    const to_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
-                    tl.notifyRegimeChange(from_str, to_str, t.price, instance);
+                    const from_str = switch (loop.old_regime) {
+                        .bull => "BULL",
+                        .sideways => "SIDE",
+                        .bear => "BEAR",
+                    };
+                    tl.notifyRegimeChange(from_str, regime_str, t.price, instance);
                 }
             }
             // Print status
@@ -379,10 +412,15 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             if (tm) |lt| {
                 std.debug.print("  {d:0>4}-{d:0>2}-{d:0>2} {d:0>2}:{d:0>2}:{d:0>2} ticks={d} closed={d} equity=${d:.2} realized=${d:.2} unrealized=${d:.2} regime={s} price=${d:.2} pending={d}\n", .{
                     @as(u32, @intCast(lt.year)) + 1900, @as(u32, @intCast(lt.mon)) + 1, @as(u32, @intCast(lt.mday)),
-                    @as(u32, @intCast(lt.hour)), @as(u32, @intCast(lt.min)), @as(u32, @intCast(lt.sec)),
-                    strategy.tick_count, loop.closed_count, equity, realized, unrealized,
-                    switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" },
-                    t.price, loop.pending_count,
+                    @as(u32, @intCast(lt.hour)),        @as(u32, @intCast(lt.min)),     @as(u32, @intCast(lt.sec)),
+                    strategy.tick_count,                loop.closed_count,              equity,
+                    realized,                           unrealized,
+                    switch (strategy.regime) {
+                        .bull => "BULL",
+                        .sideways => "SIDE",
+                        .bear => "BEAR",
+                    },
+                    t.price,                            loop.pending_count,
                 });
             }
             // Log equity + checkpoint
@@ -390,7 +428,6 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             const equity_interval = t.timestamp - last_equity_ts >= 300.0;
             _ = strategy.saveCheckpoint(checkpoint_path);
             if (turso != null) {
-                const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
                 turso.?.upsertStatus(t.timestamp, strategy.tick_count, regime_str, strategy.in_position, strategy.entry_price, equity, strategy.capital, unrealized, t.price, uptime_start, instance);
                 if (equity_interval or traded) {
                     turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, equity, unrealized, regime_str, t.price);
@@ -439,7 +476,11 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     const eq = strategy.capital + final_unrealized;
     // Log final equity to Turso on shutdown
     if (turso != null) {
-        const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
+        const regime_str = switch (strategy.regime) {
+            .bull => "BULL",
+            .sideways => "SIDE",
+            .bear => "BEAR",
+        };
         turso.?.logEquity(loop.last_feed_ts, strategy.tick_count, strategy.capital, eq, final_unrealized, regime_str, loop.last_price);
         turso.?.setStatusStopped();
         _ = usleep(1_000_000);
@@ -450,7 +491,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         std.debug.print("  Shutdown notification sent.\n", .{});
     }
     std.debug.print("  Final: equity=${d:.2} closed={d} ticks={d} position={s}\n", .{
-        eq, loop.closed_count, strategy.tick_count,
+        eq,                                           loop.closed_count, strategy.tick_count,
         if (strategy.in_position) "OPEN" else "NONE",
     });
     std.debug.print("  Checkpoint saved. Goodbye.\n", .{});
@@ -534,7 +575,11 @@ fn runSimulate(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold:
     strategy.warmup = false;
     std.debug.print("Warmup: {d} ticks, regime={s}\n", .{
         warmup_n,
-        switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" },
+        switch (strategy.regime) {
+            .bull => "BULL",
+            .sideways => "SIDE",
+            .bear => "BEAR",
+        },
     });
     std.debug.print("Funding filter: threshold={d:.4}%, rates={d}\n\n", .{
         strategy.funding_skip_threshold * 100,
@@ -547,7 +592,6 @@ fn runSimulate(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold:
     var fr_end: usize = 0;
     var fr_sum: f64 = 0;
     var fr_count: usize = 0;
-
 
     for (ticks[warmup_n..]) |tick_item| {
         // Update funding rate
@@ -599,7 +643,6 @@ fn printLiveTrade(trade: Trade, count: u32, strategy: *const Strategy) void {
         count, exit_str, trade.entry_price, trade.exit_price, trade.pnl, trade.return_pct(), strategy.capital,
     });
 }
-
 
 fn runBacktest(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold: f64, capital: f64) !void {
     std.debug.print("Loading {s}...\n", .{csv_path});
@@ -672,7 +715,11 @@ fn runBacktest(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold:
     strategy.warmup = false;
     std.debug.print("Warmup: {d} ticks, regime={s}, trading from tick {d}\n", .{
         warmup_n,
-        switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" },
+        switch (strategy.regime) {
+            .bull => "BULL",
+            .sideways => "SIDE",
+            .bear => "BEAR",
+        },
         warmup_n,
     });
     std.debug.print("Funding filter: threshold={d:.4}%, rates={d}\n\n", .{
@@ -683,7 +730,7 @@ fn runBacktest(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold:
     // Compute 24h avg funding rate for each tick (sliding window, matches Python)
     const FUNDING_WINDOW: f64 = 24.0 * 3600.0; // 24h in seconds
     var fr_start: usize = 0; // start of window
-    var fr_end: usize = 0;   // end of window (exclusive)
+    var fr_end: usize = 0; // end of window (exclusive)
     var fr_sum: f64 = 0;
     var fr_count: usize = 0;
 
