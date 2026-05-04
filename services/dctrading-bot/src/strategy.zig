@@ -64,6 +64,7 @@ pub const Strategy = struct {
     buy_signal: bool = false, // set by processTick when entry would fire
     buy_signal_price: f64 = 0,
     buy_signal_size: f64 = 0,
+    capital_reserved: f64 = 0, // cash reserved for pending orders (main loop manages this)
 
     pub const Regime = enum { bull, sideways, bear };
 
@@ -205,8 +206,9 @@ pub const Strategy = struct {
     }
 
     fn openPosition(self: *Strategy, price: f64, time: f64) void {
-        const fee = self.capital * self.fee_pct;
-        const usable = self.capital - fee;
+        const available = self.capital - self.capital_reserved;
+        const fee = available * self.fee_pct;
+        const usable = available - fee;
         const size = usable / price;
 
         if (self.suppress_entry) {

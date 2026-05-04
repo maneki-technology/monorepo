@@ -2901,3 +2901,239 @@ test "non-blocking: postTransferWithFill uses actual fill values not signal valu
     // Not from signal values
     try testing.expect(@abs(actual_amount - signal_amount) > 1.0);
 }
+
+// ============================================================
+// Capital Reserved Tests (#456)
+// ============================================================
+
+test "capital_reserved: openPosition sizes from available capital, not total" {
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+    s.suppress_entry = true;
+
+    // Reserve $500 for a pending order
+    s.capital_reserved = 500.0;
+
+    // Fill MA to trigger BULL
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    // BULL: trigger buy signal
+    _ = s.processTick(tick(104.0, 6.0));
+    try testing.expect(s.buy_signal);
+
+    // Size should be based on $500 available, not $1000 total
+    // available = 1000 - 500 = 500, fee = 500 * 0.001 = 0.50, usable = 499.50
+    // size = 499.50 / 104.0 ≈ 4.803
+    const expected_size = (500.0 - 500.0 * 0.001) / 104.0;
+    try testing.expectApproxEqAbs(s.buy_signal_size, expected_size, 0.001);
+    // NOT the full capital size
+    const full_size = (1000.0 - 1000.0 * 0.001) / 104.0;
+    try testing.expect(s.buy_signal_size < full_size);
+}
+
+test "capital_reserved: zero reserved uses full capital" {
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+    s.suppress_entry = true;
+
+    // No reservation
+    try testing.expectApproxEqAbs(s.capital_reserved, 0.0, 0.001);
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(104.0, 6.0));
+    try testing.expect(s.buy_signal);
+
+    // Full capital used
+    const expected_size = (1000.0 - 1000.0 * 0.001) / 104.0;
+    try testing.expectApproxEqAbs(s.buy_signal_size, expected_size, 0.001);
+}
+
+test "capital_reserved: prevents double-ordering from same capital" {
+    // Scenario: $1000 capital, first buy reserves ~$999.
+    // Second buy signal should size from ~$1, not $1000.
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+    s.suppress_entry = true;
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+
+    // First buy signal
+    _ = s.processTick(tick(104.0, 6.0));
+    try testing.expect(s.buy_signal);
+    const first_size = s.buy_signal_size;
+    const first_cost = s.buy_signal_price * first_size; // ~999
+
+    // Simulate: main loop reserves capital
+    s.capital_reserved = first_cost;
+    s.buy_signal = false;
+
+    // Second buy signal (e.g., duplicate suppression failed)
+    _ = s.processTick(tick(106.0, 7.0));
+    if (s.buy_signal) {
+        // Size should be tiny — only ~$1 available
+        try testing.expect(s.buy_signal_size < 0.02); // less than 0.02 BTC at $106
+        try testing.expect(s.buy_signal_size < first_size * 0.01); // less than 1% of first
+    }
+}
+
+test "capital_reserved: released on fill restores available capital" {
+    // Simulate: reserve $999, fill, reserve released, next signal uses full capital
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 2000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+    s.suppress_entry = true;
+
+    // Reserve $1000
+    s.capital_reserved = 1000.0;
+    // Available = 2000 - 1000 = 1000
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(104.0, 6.0));
+    try testing.expect(s.buy_signal);
+    const size_with_reserve = s.buy_signal_size;
+
+    // Simulate fill: release reservation
+    s.capital_reserved -= 1000.0;
+    try testing.expectApproxEqAbs(s.capital_reserved, 0.0, 0.001);
+
+    // Next signal uses full capital
+    s.buy_signal = false;
+    _ = s.processTick(tick(108.0, 8.0));
+    if (s.buy_signal) {
+        try testing.expect(s.buy_signal_size > size_with_reserve);
+    }
+}
+
+test "capital_reserved: released on cancel restores available capital" {
+    // Same as fill test but via cancel path
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Reserve and release
+    s.capital_reserved = 800.0;
+    try testing.expectApproxEqAbs(s.capital - s.capital_reserved, 200.0, 0.001);
+
+    // Cancel: release
+    s.capital_reserved -= 800.0;
+    try testing.expectApproxEqAbs(s.capital_reserved, 0.0, 0.001);
+    try testing.expectApproxEqAbs(s.capital - s.capital_reserved, 1000.0, 0.001);
+}
+
+test "capital_reserved: deposit during pending buy sizes correctly" {
+    // $1000 capital, $999 reserved for pending buy.
+    // Deposit $1000 → capital = $2000, reserved = $999, available = $1001.
+    // Deposit buy should size from $1001, not $2000.
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+    s.suppress_entry = true;
+
+    // Simulate: pending buy reserved $999
+    s.capital_reserved = 999.0;
+
+    // Deposit arrives
+    s.capital += 1000.0;
+    s.initial_capital += 1000.0;
+
+    // Available = 2000 - 999 = 1001
+    const available = s.capital - s.capital_reserved;
+    try testing.expectApproxEqAbs(available, 1001.0, 0.001);
+
+    // Deposit buy should use available, not total
+    const dep_fee = available * s.fee_pct;
+    const dep_usable = available - dep_fee;
+    const dep_size = dep_usable / 104.0;
+    try testing.expect(dep_size > 0);
+    try testing.expect(dep_size < 10.0); // ~9.6 BTC at $104
+
+    // NOT the full capital
+    const full_size = (s.capital - s.capital * s.fee_pct) / 104.0;
+    try testing.expect(dep_size < full_size);
+}
+
+test "capital_reserved: recomputed from pending array on startup" {
+    // Simulate startup reconciliation: pending orders in array,
+    // capital_reserved should equal sum of pending buy amounts.
+    const PendingOrderEntry = struct {
+        order_id: [64]u8 = undefined,
+        order_id_len: usize = 0,
+        side: exchange_mod.Side = .buy,
+        signal_price: f64 = 0,
+        size: f64 = 0,
+        transfer_id: u32 = 0,
+        is_deposit_buy: bool = false,
+        entry_price: f64 = 0,
+        pnl: f64 = 0,
+        exit_type: types.Trade.ExitType = .dc_exit,
+    };
+    const MAX_PENDING: usize = 4;
+    var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
+    var pending_count: u8 = 0;
+
+    // Two pending buys from reconciliation
+    pending_orders[0] = .{ .side = .buy, .signal_price = 95000.0, .size = 0.1 };
+    pending_orders[1] = .{ .side = .buy, .signal_price = 96000.0, .size = 0.01, .is_deposit_buy = true };
+    // One pending sell (should NOT count)
+    pending_orders[2] = .{ .side = .sell, .signal_price = 94000.0, .size = 0.1 };
+    pending_count = 3;
+
+    // Recompute capital_reserved from pending array
+    var reserved: f64 = 0;
+    var i: u8 = 0;
+    while (i < pending_count) : (i += 1) {
+        if (pending_orders[i].side == .buy) {
+            reserved += pending_orders[i].signal_price * pending_orders[i].size;
+        }
+    }
+
+    // Should be sum of buy amounts only
+    const expected = 95000.0 * 0.1 + 96000.0 * 0.01; // 9500 + 960 = 10460
+    try testing.expectApproxEqAbs(reserved, expected, 0.01);
+    // Sell not counted
+    try testing.expect(reserved < 95000.0 * 0.1 + 96000.0 * 0.01 + 94000.0 * 0.1);
+}

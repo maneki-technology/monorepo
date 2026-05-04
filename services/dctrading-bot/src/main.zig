@@ -264,6 +264,8 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                         @memcpy(pending_orders[pending_count].order_id[0..len], pending_info.order_id[0..len]);
                         pending_orders[pending_count].order_id_len = len;
                         pending_count += 1;
+                        // Reserve capital for pending buy
+                        if (side == .buy) strategy.capital_reserved += pending_info.price * pending_info.size;
                     }
                 },
             }
@@ -337,6 +339,8 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 switch (status) {
                     .filled => |fill| {
                         if (po.side == .buy) {
+                            // Release capital reservation
+                            strategy.capital_reserved -= po.signal_price * po.size;
                             // Buy filled — commit position
                             const buy_price = if (fill.fill_price > 0) fill.fill_price else po.signal_price;
                             const buy_size = if (fill.fill_qty > 0) fill.fill_qty else po.size;
@@ -370,6 +374,39 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                             if (tg) |tl| {
                                 const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
                                 tl.notifyBuy(buy_price, buy_size, regime_str, instance);
+                            }
+                            // After regular buy fill in BULL: check for undeployed cash (from deposits during pending)
+                            if (!po.is_deposit_buy and strategy.regime == .bull and strategy.in_position) {
+                                const deployed = buy_price * buy_size;
+                                const available = strategy.capital - strategy.capital_reserved - deployed;
+                                if (available > 10.0) {
+                                    const dep_fee = available * strategy.fee_pct;
+                                    const dep_usable = available - dep_fee;
+                                    const dep_size = dep_usable / t.price;
+                                    if (exchange.submitOrder(.buy, dep_size)) |dep_pending| {
+                                        if (pending_count < MAX_PENDING) {
+                                            const dep_oid = dep_pending.order_id[0..dep_pending.order_id_len];
+                                            var dep_tid: u32 = 0;
+                                            if (turso != null) {
+                                                const dep_cost = t.price * dep_size;
+                                                dep_tid = turso.?.createPendingTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, dep_cost, turso_mod.Turso.CODE_BUY, "Deposit buy pending", t.timestamp, t.price, dep_size, dep_oid) orelse 0;
+                                            }
+                                            pending_orders[pending_count] = .{
+                                                .side = .buy,
+                                                .signal_price = t.price,
+                                                .size = dep_size,
+                                                .is_deposit_buy = true,
+                                                .transfer_id = dep_tid,
+                                            };
+                                            const dep_len = @min(dep_pending.order_id_len, pending_orders[pending_count].order_id.len);
+                                            @memcpy(pending_orders[pending_count].order_id[0..dep_len], dep_pending.order_id[0..dep_len]);
+                                            pending_orders[pending_count].order_id_len = dep_len;
+                                            pending_count += 1;
+                                            strategy.capital_reserved += t.price * dep_size;
+                                            std.debug.print("  POST-FILL DEPOSIT BUY submitted: {d:.8} BTC @ ${d:.2} (undeployed cash ${d:.2})\n", .{ dep_size, t.price, available });
+                                        }
+                                    }
+                                }
                             }
                         } else {
                             // Sell filled — adjust capital for actual exchange price
@@ -412,6 +449,8 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                     },
                     .cancelled, .failed => {
                         std.debug.print("  Order {s}: {s}\n", .{ if (status == .cancelled) "cancelled" else "failed", oid });
+                        // Release capital reservation for buys
+                        if (po.side == .buy) strategy.capital_reserved -= po.signal_price * po.size;
                         // Void the pending transfer (release reserved balances)
                         if (po.transfer_id > 0 and turso != null) turso.?.voidTransfer(po.transfer_id);
                         // Remove from pending array
@@ -448,8 +487,12 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                                     strategy.in_position = true;
                                     std.debug.print("  BUY filled during cancel, will sell immediately\n", .{});
                                 },
-                                .cancelled, .failed => {},
+                                .cancelled, .failed => {
+                                    if (pending_orders[i].transfer_id > 0 and turso != null) turso.?.voidTransfer(pending_orders[i].transfer_id);
+                                },
                             }
+                            // Release capital reservation
+                            strategy.capital_reserved -= pending_orders[i].signal_price * pending_orders[i].size;
                             pending_count -= 1;
                             if (i < pending_count) {
                                 pending_orders[i] = pending_orders[pending_count];
@@ -524,6 +567,8 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                                 if (pending_orders[ci].transfer_id > 0 and turso != null) turso.?.voidTransfer(pending_orders[ci].transfer_id);
                             },
                         }
+                        // Release capital reservation
+                        strategy.capital_reserved -= pending_orders[ci].signal_price * pending_orders[ci].size;
                         pending_count -= 1;
                         if (ci < pending_count) {
                             pending_orders[ci] = pending_orders[pending_count];
@@ -590,6 +635,8 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                         @memcpy(pending_orders[pending_count].order_id[0..len], pending.order_id[0..len]);
                         pending_orders[pending_count].order_id_len = len;
                         pending_count += 1;
+                        strategy.capital_reserved += strategy.buy_signal_price * strategy.buy_signal_size;
+                        std.debug.print("  BUY submitted: {d:.8} BTC @ signal ${d:.2} tid={d}\n", .{ strategy.buy_signal_size, strategy.buy_signal_price, tid });
                         std.debug.print("  BUY submitted: {d:.8} BTC @ signal ${d:.2} tid={d}\n", .{ strategy.buy_signal_size, strategy.buy_signal_price, tid });
                     }
                 }
@@ -675,6 +722,8 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                                     @memcpy(pending_orders[pending_count].order_id[0..len], pending.order_id[0..len]);
                                     pending_orders[pending_count].order_id_len = len;
                                     pending_count += 1;
+                                    strategy.capital_reserved += t.price * add_size;
+                                    std.debug.print("  DEPOSIT BUY submitted: {d:.8} BTC @ ${d:.2} tid={d}\n", .{ add_size, t.price, tid });
                                     std.debug.print("  DEPOSIT BUY submitted: {d:.8} BTC @ ${d:.2} tid={d}\n", .{ add_size, t.price, tid });
                                 }
                             }
