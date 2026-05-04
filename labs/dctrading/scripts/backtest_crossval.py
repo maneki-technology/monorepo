@@ -62,7 +62,7 @@ def compute_vol_trail(prices: NDArray, window: int, base_trail: float) -> NDArra
     return trail
 
 
-def run_backtest_with_trades(prices, timestamps, threshold, ma_period, ma_buffer, trail_window, base_trail, fee_pct, initial_capital):
+def run_backtest_with_trades(prices, timestamps, threshold, ma_period, ma_buffer, trail_window, base_trail, fee_pct, initial_capital, funding_rates=None, funding_skip_threshold=0.0001):
     """Run 3-regime backtest and return list of (entry_price, exit_price, pnl, exit_type, entry_time, exit_time)."""
     n = len(prices)
     dc_events = detect_dc_events(prices, threshold)
@@ -79,11 +79,34 @@ def run_backtest_with_trades(prices, timestamps, threshold, ma_period, ma_buffer
 
     warmup_n = ma_period
     trades = []
+    funding_skips = 0
+
+    # Funding rate sliding window
+    FUNDING_WINDOW = 24.0 * 3600.0
+    fr_start = 0
+    fr_end = 0
+    fr_sum = 0.0
+    fr_count = 0
+    funding_avg = 0.0
 
     for i in range(n):
         p = prices[i]
         t = timestamps[i]
         is_warmup = i < warmup_n
+
+        # Update funding rate sliding window
+        if funding_rates is not None:
+            window_start = t - FUNDING_WINDOW
+            while fr_end < len(funding_rates) and funding_rates[fr_end][0] <= t:
+                fr_sum += funding_rates[fr_end][1]
+                fr_count += 1
+                fr_end += 1
+            while fr_start < fr_end and funding_rates[fr_start][0] < window_start:
+                fr_sum -= funding_rates[fr_start][1]
+                fr_count -= 1
+                fr_start += 1
+            if fr_count > 0:
+                funding_avg = fr_sum / fr_count
 
         # Regime detection
         if not np.isnan(ma[i]):
@@ -127,6 +150,10 @@ def run_backtest_with_trades(prices, timestamps, threshold, ma_period, ma_buffer
         # DC events (BEAR + SIDEWAYS)
         ev = dc_events[i]
         if ev == 1 and not in_position and not is_warmup:
+            # Funding rate filter
+            if funding_rates is not None and funding_avg > funding_skip_threshold and funding_skip_threshold > 0:
+                funding_skips += 1
+                continue
             fee = capital * fee_pct
             usable = capital - fee
             size = usable / p
@@ -142,7 +169,7 @@ def run_backtest_with_trades(prices, timestamps, threshold, ma_period, ma_buffer
             trades.append((entry_price, p, net, "DC", entry_time, t))
             in_position = False
 
-    return trades, capital
+    return trades, capital, funding_skips
 
 
 def main():
@@ -152,40 +179,71 @@ def main():
     prices = np.array([t.price for t in all_ticks])
     timestamps = np.array([t.timestamp for t in all_ticks])
 
-    trades, final_capital = run_backtest_with_trades(
+    # Load funding rates
+    import csv
+    funding_rates = []
+    try:
+        with open("data/cache/funding_rates_btcusdt.csv") as f:
+            reader = csv.reader(f)
+            next(reader)  # skip header
+            for row in reader:
+                funding_rates.append((float(row[0]), float(row[1])))
+        print(f"Loaded {len(funding_rates)} funding rates")
+    except FileNotFoundError:
+        print("No funding rates found")
+
+    # Run without funding
+    trades_nf, capital_nf, _ = run_backtest_with_trades(
         prices, timestamps,
         threshold=0.07,
-        ma_period=60 * 24 * 60,  # 60 days
+        ma_period=60 * 24 * 60,
         ma_buffer=0.03,
-        trail_window=72 * 60,    # 72h
+        trail_window=72 * 60,
         base_trail=0.02,
         fee_pct=0.001,
         initial_capital=1000.0,
     )
 
-    # Write trade-by-trade CSV
+    # Run with funding
+    trades_wf, capital_wf, skips = run_backtest_with_trades(
+        prices, timestamps,
+        threshold=0.07,
+        ma_period=60 * 24 * 60,
+        ma_buffer=0.03,
+        trail_window=72 * 60,
+        base_trail=0.02,
+        fee_pct=0.001,
+        initial_capital=1000.0,
+        funding_rates=funding_rates if funding_rates else None,
+        funding_skip_threshold=0.0001,
+    )
+
+    # Write trade-by-trade CSVs
     with open("data/cache/python_trades.csv", "w") as f:
         f.write("entry_price,exit_price,pnl,exit_type,entry_time,exit_time\n")
-        for entry, exit_p, pnl, etype, et, xt in trades:
+        for entry, exit_p, pnl, etype, et, xt in trades_nf:
             f.write(f"{entry:.2f},{exit_p:.2f},{pnl:.2f},{etype},{et:.0f},{xt:.0f}\n")
 
-    print(f"Trades: {len(trades)}")
-    print(f"Final capital: ${final_capital:.2f}")
-    total_pnl = sum(t[2] for t in trades)
-    print(f"Total PnL: ${total_pnl:.2f}")
-    print(f"Return: {total_pnl / 1000 * 100:.2f}%")
-    wins = sum(1 for t in trades if t[2] > 0)
-    print(f"Win rate: {wins / len(trades) * 100:.1f}%")
-    sl_exits = sum(1 for t in trades if t[3] == "SL")
-    dc_exits = sum(1 for t in trades if t[3] == "DC")
-    print(f"Exits: {dc_exits} DC, {sl_exits} SL")
-    print(f"\nFirst 5 trades:")
-    for i, (entry, exit_p, pnl, etype, et, xt) in enumerate(trades[:5]):
-        print(f"  #{i+1}: entry=${entry:.2f} exit=${exit_p:.2f} pnl=${pnl:.2f} {etype}")
-    print(f"\nLast 5 trades:")
-    for i, (entry, exit_p, pnl, etype, et, xt) in enumerate(trades[-5:]):
-        print(f"  #{len(trades)-4+i}: entry=${entry:.2f} exit=${exit_p:.2f} pnl=${pnl:.2f} {etype}")
-    print(f"\nSaved to data/cache/python_trades.csv")
+    with open("data/cache/python_trades_funding.csv", "w") as f:
+        f.write("entry_price,exit_price,pnl,exit_type,entry_time,exit_time\n")
+        for entry, exit_p, pnl, etype, et, xt in trades_wf:
+            f.write(f"{entry:.2f},{exit_p:.2f},{pnl:.2f},{etype},{et:.0f},{xt:.0f}\n")
+
+    # Print results
+    pnl_nf = sum(t[2] for t in trades_nf)
+    pnl_wf = sum(t[2] for t in trades_wf)
+    print("=== Without Funding Filter ===")
+    print(f"  Trades: {len(trades_nf)}")
+    print(f"  PnL: ${pnl_nf:.2f}")
+    print(f"  Return: {pnl_nf / 1000 * 100:.2f}%")
+    print(f"  Capital: ${capital_nf:.2f}")
+    print()
+    print("=== With Funding Filter ===")
+    print(f"  Trades: {len(trades_wf)}")
+    print(f"  PnL: ${pnl_wf:.2f}")
+    print(f"  Return: {pnl_wf / 1000 * 100:.2f}%")
+    print(f"  Capital: ${capital_wf:.2f}")
+    print(f"  Funding skips: {skips}")
 
 
 if __name__ == "__main__":
