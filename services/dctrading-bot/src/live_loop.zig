@@ -231,10 +231,11 @@ pub const LiveLoop = struct {
 
         if (po.transfer_id > 0 and self.ledger != null) {
             const buy_cost = buy_price * buy_size;
+            const fee_asset_price = self.feeAssetPrice(fill, buy_price);
             var ud_buf: [256]u8 = undefined;
             const ud = std.fmt.bufPrint(&ud_buf, "BUY oid={s}", .{po.order_id[0..po.order_id_len]}) catch "BUY";
             self.ledger.?.postTransferWithFill(po.transfer_id, buy_cost, buy_price, buy_size, ud);
-            self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, feeCreditAccount(fill), fee, turso_mod.Turso.CODE_FEE, "BUY fee", t.timestamp, 0, 0);
+            self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, feeCreditAccount(fill), fee, turso_mod.Turso.CODE_FEE, "BUY fee", t.timestamp, fee_asset_price, fill.commission);
         }
     }
 
@@ -249,6 +250,7 @@ pub const LiveLoop = struct {
 
         if (po.transfer_id > 0 and self.ledger != null) {
             const sell_amount = sell_price * po.size;
+            const fee_asset_price = self.feeAssetPrice(fill, sell_price);
             const exit_str = switch (po.exit_type) {
                 .dc_exit => "DC",
                 .trailing_stop => "SL",
@@ -258,7 +260,7 @@ pub const LiveLoop = struct {
             var ud_buf: [128]u8 = undefined;
             const ud = std.fmt.bufPrint(&ud_buf, "SELL exit={s}", .{exit_str}) catch "SELL";
             self.ledger.?.postTransferWithFill(po.transfer_id, sell_amount, sell_price, po.size, ud);
-            self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, feeCreditAccount(fill), sell_fee, turso_mod.Turso.CODE_FEE, "SELL fee", 0, 0, 0);
+            self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, feeCreditAccount(fill), sell_fee, turso_mod.Turso.CODE_FEE, "SELL fee", 0, fee_asset_price, fill.commission);
             if (pnl > 0) {
                 self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_PNL, pnl, turso_mod.Turso.CODE_PNL, "Realized PnL", 0, 0, 0);
             } else if (pnl < 0) {
@@ -268,13 +270,28 @@ pub const LiveLoop = struct {
     }
 
     fn fillFee(self: *const LiveLoop, fill: exchange_mod.OrderFill, price: f64, qty: f64) f64 {
-        if (fill.commission > 0) return fill.commission;
+        if (fill.commission_usd > 0) return fill.commission_usd;
+        if (fill.commission > 0) {
+            const asset = fill.commission_asset[0..fill.commission_asset_len];
+            if (std.mem.eql(u8, asset, "USD") or std.mem.eql(u8, asset, "USDT")) return fill.commission;
+            if (std.mem.eql(u8, asset, "BTC")) return fill.commission * price;
+        }
         return price * qty * self.strategy.fee_pct;
     }
 
-    // Routes the fee transfer to the asset that paid commission. For BTC fees,
-    // ledger balances net BTC down via this transfer; strategy.size still uses
-    // the fill quantity supplied by the exchange adapter.
+    fn feeAssetPrice(self: *const LiveLoop, fill: exchange_mod.OrderFill, trade_price: f64) f64 {
+        _ = self;
+        if (fill.commission <= 0) return 0;
+        if (fill.commission_usd > 0) return fill.commission_usd / fill.commission;
+        const asset = fill.commission_asset[0..fill.commission_asset_len];
+        if (std.mem.eql(u8, asset, "USD") or std.mem.eql(u8, asset, "USDT")) return 1;
+        if (std.mem.eql(u8, asset, "BTC")) return trade_price;
+        return 0;
+    }
+
+    // Routes the fee transfer to the asset that paid commission. Transfer
+    // amount is historical USD value at fill time; transfer size stores native
+    // commission qty and price stores the valuation rate.
     fn feeCreditAccount(fill: exchange_mod.OrderFill) u8 {
         if (fill.commission <= 0) return turso_mod.Turso.ACCT_CASH;
         const asset = fill.commission_asset[0..fill.commission_asset_len];

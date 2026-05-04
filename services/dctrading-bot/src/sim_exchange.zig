@@ -16,6 +16,7 @@ pub const SimExchange = struct {
     fill_price_offset: f64 = 0, // slippage: actual = signal + offset
     partial_fill_ratio: f64 = 1.0, // 1.0 = full fill, 0.5 = half
     fill_commission: f64 = 0,
+    fill_commission_usd: f64 = 0,
     fill_commission_asset: [8]u8 = undefined,
     fill_commission_asset_len: usize = 0,
     fail_next_submit: bool = false,
@@ -259,6 +260,7 @@ pub const SimExchange = struct {
         var fill: OrderFill = .{ .fill_price = fill_price, .fill_qty = fill_qty, .status = .filled };
         if (self.fill_commission > 0 or self.fill_commission_asset_len > 0) {
             fill.commission = self.fill_commission;
+            fill.commission_usd = self.fill_commission_usd;
             const len = @min(self.fill_commission_asset_len, fill.commission_asset.len);
             @memcpy(fill.commission_asset[0..len], self.fill_commission_asset[0..len]);
             fill.commission_asset_len = len;

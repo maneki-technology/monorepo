@@ -39,6 +39,10 @@ struct Position: Identifiable, Codable {
 // MARK: - Transfer (double-entry)
 
 struct Transfer: Identifiable, Codable {
+    static let cashAccountId = 1
+    static let btcAccountId = 2
+    static let bnbAccountId = 6
+
     let id: Int
     let debitAccountId: Int
     let creditAccountId: Int
@@ -64,9 +68,19 @@ struct Transfer: Identifiable, Codable {
         }
     }
 
-    /// Deposit and sell are positive for cash account
+    /// Display sign for the transfer amount. Account balances use `effect(on:)`.
     var isPositive: Bool {
         code == 1 || code == 3
+    }
+
+    func effect(on accountId: Int) -> Double {
+        if debitAccountId == accountId { return amount }
+        if creditAccountId == accountId { return -amount }
+        return 0
+    }
+
+    var cashEffect: Double {
+        effect(on: Self.cashAccountId)
     }
 
     var typeColor: Color {
@@ -97,6 +111,14 @@ struct Transfer: Identifiable, Codable {
         if let ts = Double(timestamp) { return Date(timeIntervalSince1970: ts) }
         return Date()
     }
+}
+
+// MARK: - Managed Balances
+
+struct ManagedBalances {
+    let cash: Double
+    let btcQuantity: Double
+    let bnbQuantity: Double
 }
 
 // MARK: - Equity Log

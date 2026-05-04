@@ -10,7 +10,7 @@ SwiftUI dashboard app for the DCTrading bot. Displays bot status, equity, trades
 
 ### Views (`Views/`)
 - `ContentView.swift` — Tab container: Dashboard, Ledger, Equity, Trades, Settings.
-- `DashboardView.swift` — Bot status, regime (BULL=green, SIDE=orange, BEAR=red), equity, BTC price from Binance, open position with unrealized PnL. Auto-refreshes every 30s.
+- `DashboardView.swift` — Bot status, regime (BULL=green, SIDE=orange, BEAR=red), managed equity from app-managed BTC/BNB quantities marked at Binance spot, realized P&L, unrealized P&L, BTC price from Binance. Auto-refreshes every 30s.
 - `LedgerView.swift` — Transfer ledger with cash balance summary + running balance per entry.
 - `EquityChartView.swift` — Equity over time using Swift Charts.
 - `TradeHistoryView.swift` — Buy/sell transfers from double-entry ledger, Alpaca position, BTC price chart with trade markers.
@@ -27,6 +27,9 @@ SwiftUI dashboard app for the DCTrading bot. Displays bot status, equity, trades
 ### Key Patterns
 - **Alpaca as position source of truth**: Open position qty and entry price come from Alpaca, not Turso.
 - **BTC price from Binance**: Free API, avoids unnecessary Turso reads.
+- **Realized PnL formula**: `(cash_balance + btc_balance + bnb_balance) - total_deposits`; transfer amounts are historical USD values, while native BTC/BNB fee quantities live in transfer `size`.
+- **Estimated equity/PnL formula**: `cash_balance + managed_btc_qty * BTCUSDT + managed_bnb_qty * BNBUSDT`; managed quantities are derived from posted transfer `size`, so exchange assets outside bot-managed transfers are ignored.
+- **Account-aware ledger balances**: Running cash balance uses the transfer debit/credit accounts, so BTC/BNB fee transfers do not change displayed cash.
 - **UserDefaults for credentials**: `AppSettings` singleton persists Turso URL/token and Alpaca key/secret.
 - **Auto-refresh**: Dashboard polls every 30s via `Timer.publish`.
 - **Regime colors**: BULL=green, SIDEWAYS=orange, BEAR=red throughout the UI.

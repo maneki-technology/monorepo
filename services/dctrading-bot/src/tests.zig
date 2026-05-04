@@ -1058,15 +1058,18 @@ test "exchange: OrderFill order_id storage" {
 test "exchange: OrderFill commission fields default to zero" {
     const fill = exchange_mod.OrderFill{ .fill_price = 80000.0, .fill_qty = 0.01, .status = .filled };
     try testing.expectApproxEqAbs(fill.commission, 0.0, 0.001);
+    try testing.expectApproxEqAbs(fill.commission_usd, 0.0, 0.001);
     try testing.expectEqual(fill.commission_asset_len, 0);
 }
 
 test "exchange: OrderFill commission_asset storage" {
     var fill = exchange_mod.OrderFill{ .fill_price = 80000.0, .fill_qty = 0.01, .status = .filled };
     fill.commission = 0.50;
+    fill.commission_usd = 0.50;
     @memcpy(fill.commission_asset[0..3], "USD");
     fill.commission_asset_len = 3;
     try testing.expectApproxEqAbs(fill.commission, 0.50, 0.001);
+    try testing.expectApproxEqAbs(fill.commission_usd, 0.50, 0.001);
     try testing.expectEqualStrings("USD", fill.commission_asset[0..fill.commission_asset_len]);
 }
 

@@ -1,13 +1,13 @@
 import Foundation
 
-/// Lightweight Binance public API client for BTC price data.
+/// Lightweight Binance public API client for public spot price data.
 /// No API key needed — uses public endpoints.
 struct BinanceClient {
     static let baseURL = "https://api.binance.com/api/v3"
 
-    /// Fetch current BTC/USDT price.
-    static func fetchPrice() async throws -> Double {
-        let url = URL(string: "\(baseURL)/ticker/price?symbol=BTCUSDT")!
+    /// Fetch current spot price for a Binance symbol.
+    static func fetchPrice(symbol: String = "BTCUSDT") async throws -> Double {
+        let url = URL(string: "\(baseURL)/ticker/price?symbol=\(symbol)")!
         let (data, _) = try await URLSession.shared.data(from: url)
         let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
         guard let priceStr = json?["price"] as? String,

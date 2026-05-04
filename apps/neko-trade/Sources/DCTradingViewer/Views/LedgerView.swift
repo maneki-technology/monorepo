@@ -121,11 +121,7 @@ struct LedgerView: View {
         for t in transfers {
             result.append((t, bal))
             // Reverse the effect to get balance before this transfer
-            if t.isPositive {
-                bal -= t.amount
-            } else {
-                bal += t.amount
-            }
+            bal -= t.cashEffect
         }
         return result
     }

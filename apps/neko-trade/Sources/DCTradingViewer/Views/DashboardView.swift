@@ -5,13 +5,13 @@ struct DashboardView: View {
     @ObservedObject var settings: AppSettings
     @State private var openPosition: Position?
     @State private var latestEquity: EquityLog?
-    @State private var totalPnL: Double = 0
-    @State private var totalDeposits: Double = 0
+    @State private var realizedPnL: Double?
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var lastRefresh: Date?
     @State private var equityHistory: [EquityLog] = []
     @State private var btcPrice: Double = 0
+    @State private var estimatedEquity: Double?
     @State private var btcPriceHistory: [(Date, Double)] = []
 
     private let client = TursoClient()
@@ -59,32 +59,31 @@ struct DashboardView: View {
                 regimeCard(eq)
             }
 
-            // Stats grid — derive from position if no equity log
-            let equity = latestEquity?.equity ?? 0
-            let unrealized = latestEquity?.unrealized ?? 0
+            // Stats grid — keep top-level metrics focused on current account value.
+            let unrealized = openPosition?.pnl ?? latestEquity?.unrealized
             let price = btcPrice > 0 ? btcPrice : latestEquity?.price ?? openPosition?.entryPrice ?? 0
 
             HStack(spacing: 12) {
                 statCard(
                     title: "EQUITY",
-                    value: equity > 0 ? formatCurrency(equity) : "—",
-                    icon: "chart.line.uptrend.xyaxis",
-                    color: .cyan
+                    value: estimatedEquity.map { formatCurrency($0) } ?? "—",
+                    icon: "chart.bar.xaxis",
+                    color: .mint
                 )
                 statCard(
                     title: "REALIZED P&L",
-                    value: formatCurrency(totalPnL),
+                    value: realizedPnL.map { formatCurrency($0) } ?? "—",
                     icon: "banknote",
-                    color: totalPnL >= 0 ? .green : .red
+                    color: (realizedPnL ?? 0) >= 0 ? .green : .red
                 )
             }
 
             HStack(spacing: 12) {
                 statCard(
-                    title: "UNREALIZED",
-                    value: equity > 0 ? formatCurrency(unrealized) : "—",
+                    title: "UNREALIZED P&L",
+                    value: unrealized.map { formatCurrency($0) } ?? "—",
                     icon: "clock.arrow.circlepath",
-                    color: unrealized >= 0 ? .green : .red
+                    color: (unrealized ?? 0) >= 0 ? .green : .red
                 )
                 statCard(
                     title: "BTC PRICE",
@@ -93,7 +92,6 @@ struct DashboardView: View {
                     color: .orange
                 )
             }
-
 
             // Sparklines
             if equityHistory.count >= 2 || btcPriceHistory.count >= 2 {
@@ -357,10 +355,11 @@ struct DashboardView: View {
         errorMessage = nil
         do {
             async let equityTask = client.fetchLatestEquity()
-            async let pnlTask = client.fetchTotalRealizedPnL()
-            async let depositsTask = client.fetchTotalDeposits()
+            async let realizedPnLTask = client.fetchTotalRealizedPnL()
+            async let managedBalancesTask = client.fetchManagedBalances()
             async let historyTask = client.fetchRecentEquity(limit: 50)
             async let priceTask = BinanceClient.fetchPrice()
+            async let bnbPriceTask = BinanceClient.fetchPrice(symbol: "BNBUSDT")
             async let klinesTask = BinanceClient.fetchKlines(interval: "5m", limit: 60)
 
             // Fetch Alpaca position (source of truth)
@@ -371,9 +370,16 @@ struct DashboardView: View {
                 )
             }
 
-            let (equity, pnl, history, deposits) = try await (equityTask, pnlTask, historyTask, depositsTask)
+            let (equity, realized, history, managedBalances) = try await (equityTask, realizedPnLTask, historyTask, managedBalancesTask)
             let price = try? await priceTask
+            let bnb = try? await bnbPriceTask
             let klines = (try? await klinesTask) ?? []
+            let currentBtcPrice = price ?? equity?.price ?? 0
+            let bnbPriceRequired = abs(managedBalances.bnbQuantity) > 0.00000001
+            let canMarkEquity = currentBtcPrice > 0 && (!bnbPriceRequired || bnb != nil)
+            let markedEquity: Double? = canMarkEquity
+                ? managedBalances.cash + managedBalances.btcQuantity * currentBtcPrice + managedBalances.bnbQuantity * (bnb ?? 0)
+                : nil
 
             await MainActor.run {
                 // Use Alpaca position if available, fall back to Turso
@@ -393,10 +399,10 @@ struct DashboardView: View {
                     openPosition = nil
                 }
                 latestEquity = equity
-                totalPnL = pnl
-                totalDeposits = deposits
+                realizedPnL = realized
                 equityHistory = history
                 if let price { btcPrice = price }
+                estimatedEquity = markedEquity
                 btcPriceHistory = klines
                 lastRefresh = Date()
                 isLoading = false
@@ -470,4 +476,3 @@ struct DashboardView: View {
         }
 }
 }
-

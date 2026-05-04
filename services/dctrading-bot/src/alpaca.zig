@@ -151,6 +151,7 @@ pub const Alpaca = struct {
             fill.fill_price = parseJsonFloat(r, "\"filled_avg_price\":") orelse 0;
             fill.fill_qty = parseJsonFloat(r, "\"filled_qty\":") orelse 0;
             fill.commission = parseJsonFloat(r, "\"commission\":") orelse 0;
+            fill.commission_usd = fill.commission;
             @memcpy(fill.commission_asset[0..3], "USD");
             fill.commission_asset_len = 3;
             // Copy order ID
@@ -266,6 +267,7 @@ pub const Alpaca = struct {
                 fill.fill_price = parseJsonFloat(r, "\"filled_avg_price\":") orelse 0;
                 fill.fill_qty = parseJsonFloat(r, "\"filled_qty\":") orelse 0;
                 fill.commission = parseJsonFloat(r, "\"commission\":") orelse 0;
+                fill.commission_usd = fill.commission;
                 @memcpy(fill.commission_asset[0..3], "USD");
                 fill.commission_asset_len = 3;
                 std.debug.print("  [alpaca] Filled: price=${d:.2} qty={d:.8} fee=${d:.4}\n", .{ fill.fill_price, fill.fill_qty, fill.commission });
@@ -293,6 +295,7 @@ pub const Alpaca = struct {
                         fill.fill_price = parseJsonFloat(pr, "\"filled_avg_price\":") orelse 0;
                         fill.fill_qty = parseJsonFloat(pr, "\"filled_qty\":") orelse 0;
                         fill.commission = parseJsonFloat(pr, "\"commission\":") orelse 0;
+                        fill.commission_usd = fill.commission;
                         @memcpy(fill.commission_asset[0..3], "USD");
                         fill.commission_asset_len = 3;
                         std.debug.print("  [alpaca] Filled (poll {d}): price=${d:.2} qty={d:.8} fee=${d:.4}\n", .{ poll + 1, fill.fill_price, fill.fill_qty, fill.commission });
