@@ -211,7 +211,7 @@ pub const LiveLoop = struct {
         self.strategy.capital_reserved -= po.signal_price * po.size;
         const buy_price = if (fill.fill_price > 0) fill.fill_price else po.signal_price;
         const buy_size = if (fill.fill_qty > 0) fill.fill_qty else po.size;
-        const fee = if (fill.commission > 0) fill.commission else buy_price * buy_size * 0.001;
+        const fee = self.fillFee(fill, buy_price, buy_size);
 
         if (po.is_deposit_buy) {
             self.strategy.entry_price = (self.strategy.entry_price * self.strategy.size + buy_price * buy_size) / (self.strategy.size + buy_size);
@@ -240,7 +240,7 @@ pub const LiveLoop = struct {
 
     fn handleSellFill(self: *LiveLoop, po: PendingOrderEntry, fill: exchange_mod.OrderFill) void {
         const sell_price = if (fill.fill_price > 0) fill.fill_price else po.signal_price;
-        const sell_fee = if (fill.commission > 0) fill.commission else sell_price * po.size * 0.001;
+        const sell_fee = self.fillFee(fill, sell_price, po.size);
         const pnl = (sell_price - po.entry_price) * po.size - sell_fee;
         const price_diff_pnl = (sell_price - po.signal_price) * po.size;
         if (price_diff_pnl != 0) self.strategy.capital += price_diff_pnl;
@@ -265,6 +265,11 @@ pub const LiveLoop = struct {
                 self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_PNL, turso_mod.Turso.ACCT_CASH, -pnl, turso_mod.Turso.CODE_PNL, "Realized loss", 0, 0, 0);
             }
         }
+    }
+
+    fn fillFee(self: *const LiveLoop, fill: exchange_mod.OrderFill, price: f64, qty: f64) f64 {
+        if (fill.commission > 0) return fill.commission;
+        return price * qty * self.strategy.fee_pct;
     }
 
     pub fn submitBuy(self: *LiveLoop, price: f64, size: f64, is_deposit: bool, timestamp: f64) void {

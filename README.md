@@ -65,7 +65,7 @@ maneki-monorepo/
 
 | Service | Stack | Description |
 |---|---|---|
-| `dctrading-bot` | Zig 0.16 | BTC algorithmic trading bot. Directional Change theory, 3-regime strategy (BULL/SIDEWAYS/BEAR), Binance WebSocket, Alpaca paper trading, Turso DB, Telegram/ntfy notifications. Non-blocking order flow, two-phase transfers. 158 tests. |
+| `dctrading-bot` | Zig 0.16 | BTC algorithmic trading bot. Directional Change theory, 3-regime strategy (BULL/SIDEWAYS/BEAR), Binance WebSocket, Alpaca paper trading, Turso DB, Telegram/ntfy notifications. Non-blocking order flow, two-phase transfers. 160 tests. |
 
 ### Labs
 
