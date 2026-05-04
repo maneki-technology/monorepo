@@ -14,7 +14,7 @@ A BTC algorithmic trading bot using Directional Change (DC) theory with a 3-regi
 
 Parameters: λ=0.07, 60-day MA, 3% buffer, 2% trailing stop (72h vol lookback)
 
-**Backtested**: $1K → $40.7K over 2019-2026 (+3,971%), outperforming buy-and-hold (+1,916%).
+**Backtested**: $1K → $41.4K over 2019-2024 (+4,039%) with funding filter, outperforming buy-and-hold (+2,437%).
 
 ## Architecture
 
@@ -32,16 +32,21 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 
 | File | Purpose |
 |------|---------|
-| `main.zig` | Entry point, live trading loop, backtest runner |
+| `main.zig` | Entry point, live trading loop, backtest runner, LiveLoop simulator |
 | `strategy.zig` | 3-regime DC strategy, MA, vol-trailing, checkpoint |
 | `feed.zig` | Native Binance WebSocket + REST kline fetcher |
 | `dc_detector.zig` | Streaming DC event detector |
-| `alpaca.zig` | Alpaca paper trading (sync orders, position queries) |
-| `turso.zig` | Turso DB client (equity log, positions, bot status, ledger) |
+| `exchange.zig` | Exchange vtable interface for sync and async order flow |
+| `alpaca.zig` | Alpaca paper trading (sync/async orders, position queries) |
+| `live_loop.zig` | Shared live order-flow engine used by production and simulation tests |
+| `sim_exchange.zig` | Configurable simulated exchange for integration tests |
+| `tick_source.zig` | Tick source interface and simulated feed |
+| `integration_tests.zig` | End-to-end LiveLoop scenarios using SimExchange |
+| `turso.zig` | Turso DB client (equity log, positions, bot status, two-phase ledger) |
 | `telegram.zig` | Telegram + ntfy push notifications |
 | `http_client.zig` | Shared HTTP client (std.http.Client wrapper) |
 | `types.zig` | Tick, Trade, DC event types |
-| `tests.zig` | 39 unit tests |
+| `tests.zig` | 153 tests |
 
 ## Setup
 
@@ -72,6 +77,9 @@ export NTFY_TOPIC=your-topic
 export BINANCE_WS_HOST=stream.binance.com
 export BINANCE_API_HOST=api.binance.com
 
+# Funding filter (default: 0.0001 = 0.010%; 0 disables)
+export FUNDING_SKIP_THRESHOLD=0.0001
+
 # Instance tracking
 export BOT_INSTANCE=local
 ```
@@ -87,6 +95,9 @@ source .env && ./zig-out/bin/dctrading -
 
 # Run backtest
 ./zig-out/bin/dctrading data.csv 0.07 1000
+
+# Run LiveLoop simulation against CSV ticks
+./zig-out/bin/dctrading sim:data.csv 0.07 1000
 
 # Run tests
 zig build test
