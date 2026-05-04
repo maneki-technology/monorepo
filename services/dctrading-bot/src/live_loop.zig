@@ -12,6 +12,72 @@ const Trade = types.Trade;
 const Strategy = strat_mod.Strategy;
 const Exchange = exchange_mod.Exchange;
 
+pub const Ledger = struct {
+    ptr: *const anyopaque,
+    vtable: *const VTable,
+
+    pub const VTable = struct {
+        createPendingTransfer: *const fn (ptr: *const anyopaque, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64, price: f64, qty: f64, order_id: []const u8) ?u32,
+        postTransferWithFill: *const fn (ptr: *const anyopaque, pending_id: u32, actual_amount: f64, actual_price: f64, actual_size: f64, user_data: []const u8) void,
+        createPostedTransfer: *const fn (ptr: *const anyopaque, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64, price: f64, qty: f64) void,
+        voidTransfer: *const fn (ptr: *const anyopaque, pending_id: u32) void,
+    };
+
+    pub fn createPendingTransfer(self: Ledger, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64, price: f64, qty: f64, order_id: []const u8) ?u32 {
+        return self.vtable.createPendingTransfer(self.ptr, debit_acct, credit_acct, amount, code, user_data, timestamp, price, qty, order_id);
+    }
+
+    pub fn postTransferWithFill(self: Ledger, pending_id: u32, actual_amount: f64, actual_price: f64, actual_size: f64, user_data: []const u8) void {
+        self.vtable.postTransferWithFill(self.ptr, pending_id, actual_amount, actual_price, actual_size, user_data);
+    }
+
+    pub fn createPostedTransfer(self: Ledger, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64, price: f64, qty: f64) void {
+        self.vtable.createPostedTransfer(self.ptr, debit_acct, credit_acct, amount, code, user_data, timestamp, price, qty);
+    }
+
+    pub fn voidTransfer(self: Ledger, pending_id: u32) void {
+        self.vtable.voidTransfer(self.ptr, pending_id);
+    }
+};
+
+pub const TursoLedger = struct {
+    turso: *const turso_mod.Turso,
+
+    pub fn ledger(self: *const TursoLedger) Ledger {
+        return .{
+            .ptr = @ptrCast(self),
+            .vtable = &vtable,
+        };
+    }
+
+    fn createPendingTransfer(ptr: *const anyopaque, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64, price: f64, qty: f64, order_id: []const u8) ?u32 {
+        const self: *const TursoLedger = @ptrCast(@alignCast(ptr));
+        return self.turso.createPendingTransfer(debit_acct, credit_acct, amount, code, user_data, timestamp, price, qty, order_id);
+    }
+
+    fn postTransferWithFill(ptr: *const anyopaque, pending_id: u32, actual_amount: f64, actual_price: f64, actual_size: f64, user_data: []const u8) void {
+        const self: *const TursoLedger = @ptrCast(@alignCast(ptr));
+        self.turso.postTransferWithFill(pending_id, actual_amount, actual_price, actual_size, user_data);
+    }
+
+    fn createPostedTransfer(ptr: *const anyopaque, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64, price: f64, qty: f64) void {
+        const self: *const TursoLedger = @ptrCast(@alignCast(ptr));
+        self.turso.createPostedTransfer(debit_acct, credit_acct, amount, code, user_data, timestamp, price, qty);
+    }
+
+    fn voidTransfer(ptr: *const anyopaque, pending_id: u32) void {
+        const self: *const TursoLedger = @ptrCast(@alignCast(ptr));
+        self.turso.voidTransfer(pending_id);
+    }
+
+    const vtable = Ledger.VTable{
+        .createPendingTransfer = &createPendingTransfer,
+        .postTransferWithFill = &postTransferWithFill,
+        .createPostedTransfer = &createPostedTransfer,
+        .voidTransfer = &voidTransfer,
+    };
+};
+
 pub const PendingOrderEntry = struct {
     order_id: [64]u8 = undefined,
     order_id_len: usize = 0,
@@ -30,7 +96,7 @@ pub const MAX_PENDING: usize = 4;
 pub const LiveLoop = struct {
     strategy: *Strategy,
     exchange: Exchange,
-    turso: ?*const turso_mod.Turso,
+    ledger: ?Ledger,
 
     pending_orders: [MAX_PENDING]PendingOrderEntry = undefined,
     pending_count: u8 = 0,
@@ -54,11 +120,11 @@ pub const LiveLoop = struct {
     last_buy_fill: ?struct { price: f64, size: f64, is_deposit: bool } = null,
     last_sell_fill: ?struct { price: f64, size: f64, pnl: f64, exit_type: types.Trade.ExitType } = null,
     last_sell_trade: ?types.Trade = null, // for printLiveTrade
-    pub fn init(strategy: *Strategy, exchange: Exchange, turso: ?*const turso_mod.Turso) LiveLoop {
+    pub fn init(strategy: *Strategy, exchange: Exchange, ledger: ?Ledger) LiveLoop {
         return .{
             .strategy = strategy,
             .exchange = exchange,
-            .turso = turso,
+            .ledger = ledger,
             .prev_regime = strategy.regime,
         };
     }
@@ -81,7 +147,7 @@ pub const LiveLoop = struct {
             // Realtime risk path between strategy ticks.
             if (self.strategy.regime == .bear) {
                 if (self.strategy.checkStop(t.price, t.timestamp)) |trade| {
-                    self.cancelPendingBuys();
+                    self.cancelPendingBuys(t.timestamp);
                     self.submitSell(trade, t.timestamp);
                 }
             }
@@ -93,7 +159,7 @@ pub const LiveLoop = struct {
         // --- Phase 2: Strategy tick ---
         self.strategy.buy_signal = false;
         if (self.strategy.processTick(t)) |trade| {
-            self.cancelPendingBuys();
+            self.cancelPendingBuys(t.timestamp);
             self.submitSell(trade, t.timestamp);
         }
 
@@ -131,7 +197,7 @@ pub const LiveLoop = struct {
                 },
                 .cancelled, .failed => {
                     if (po.side == .buy) self.strategy.capital_reserved -= po.signal_price * po.size;
-                    if (po.transfer_id > 0 and self.turso != null) self.turso.?.voidTransfer(po.transfer_id);
+                    if (po.transfer_id > 0 and self.ledger != null) self.ledger.?.voidTransfer(po.transfer_id);
                     self.removePending(i);
                     continue;
                 },
@@ -163,12 +229,12 @@ pub const LiveLoop = struct {
         self.buys_filled += 1;
         self.last_buy_fill = .{ .price = buy_price, .size = buy_size, .is_deposit = po.is_deposit_buy };
 
-        if (po.transfer_id > 0 and self.turso != null) {
+        if (po.transfer_id > 0 and self.ledger != null) {
             const buy_cost = buy_price * buy_size;
             var ud_buf: [256]u8 = undefined;
             const ud = std.fmt.bufPrint(&ud_buf, "BUY oid={s}", .{po.order_id[0..po.order_id_len]}) catch "BUY";
-            self.turso.?.postTransferWithFill(po.transfer_id, buy_cost, buy_price, buy_size, ud);
-            self.turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "BUY fee", t.timestamp, 0, 0);
+            self.ledger.?.postTransferWithFill(po.transfer_id, buy_cost, buy_price, buy_size, ud);
+            self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "BUY fee", t.timestamp, 0, 0);
         }
     }
 
@@ -181,7 +247,7 @@ pub const LiveLoop = struct {
         self.sells_filled += 1;
         self.last_sell_fill = .{ .price = sell_price, .size = po.size, .pnl = pnl, .exit_type = po.exit_type };
 
-        if (po.transfer_id > 0 and self.turso != null) {
+        if (po.transfer_id > 0 and self.ledger != null) {
             const sell_amount = sell_price * po.size;
             const exit_str = switch (po.exit_type) {
                 .dc_exit => "DC",
@@ -191,12 +257,12 @@ pub const LiveLoop = struct {
             };
             var ud_buf: [128]u8 = undefined;
             const ud = std.fmt.bufPrint(&ud_buf, "SELL exit={s}", .{exit_str}) catch "SELL";
-            self.turso.?.postTransferWithFill(po.transfer_id, sell_amount, sell_price, po.size, ud);
-            self.turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, sell_fee, turso_mod.Turso.CODE_FEE, "SELL fee", 0, 0, 0);
+            self.ledger.?.postTransferWithFill(po.transfer_id, sell_amount, sell_price, po.size, ud);
+            self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, sell_fee, turso_mod.Turso.CODE_FEE, "SELL fee", 0, 0, 0);
             if (pnl > 0) {
-                self.turso.?.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_PNL, pnl, turso_mod.Turso.CODE_PNL, "Realized PnL", 0, 0, 0);
+                self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_PNL, pnl, turso_mod.Turso.CODE_PNL, "Realized PnL", 0, 0, 0);
             } else if (pnl < 0) {
-                self.turso.?.createPostedTransfer(turso_mod.Turso.ACCT_PNL, turso_mod.Turso.ACCT_CASH, -pnl, turso_mod.Turso.CODE_PNL, "Realized loss", 0, 0, 0);
+                self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_PNL, turso_mod.Turso.ACCT_CASH, -pnl, turso_mod.Turso.CODE_PNL, "Realized loss", 0, 0, 0);
             }
         }
     }
@@ -206,9 +272,9 @@ pub const LiveLoop = struct {
             if (self.pending_count < MAX_PENDING) {
                 const oid_slice = pending.order_id[0..pending.order_id_len];
                 var tid: u32 = 0;
-                if (self.turso != null) {
+                if (self.ledger != null) {
                     const cost = price * size;
-                    tid = self.turso.?.createPendingTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, cost, turso_mod.Turso.CODE_BUY, "BUY pending", timestamp, price, size, oid_slice) orelse 0;
+                    tid = self.ledger.?.createPendingTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, cost, turso_mod.Turso.CODE_BUY, "BUY pending", timestamp, price, size, oid_slice) orelse 0;
                 }
                 self.pending_orders[self.pending_count] = .{
                     .side = .buy,
@@ -238,9 +304,9 @@ pub const LiveLoop = struct {
             if (self.pending_count < MAX_PENDING) {
                 const oid_slice = pending.order_id[0..pending.order_id_len];
                 var tid: u32 = 0;
-                if (self.turso != null) {
+                if (self.ledger != null) {
                     const sell_amt = trade.exit_price * trade.size;
-                    tid = self.turso.?.createPendingTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_BTC, sell_amt, turso_mod.Turso.CODE_SELL, "SELL pending", timestamp, trade.exit_price, trade.size, oid_slice) orelse 0;
+                    tid = self.ledger.?.createPendingTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_BTC, sell_amt, turso_mod.Turso.CODE_SELL, "SELL pending", timestamp, trade.exit_price, trade.size, oid_slice) orelse 0;
                 }
                 self.pending_orders[self.pending_count] = .{
                     .side = .sell,
@@ -260,7 +326,7 @@ pub const LiveLoop = struct {
         }
     }
 
-    fn cancelPendingBuys(self: *LiveLoop) void {
+    fn cancelPendingBuys(self: *LiveLoop, timestamp: f64) void {
         var i: u8 = 0;
         while (i < self.pending_count) {
             if (self.pending_orders[i].side == .buy) {
@@ -268,27 +334,18 @@ pub const LiveLoop = struct {
                 const result = self.exchange.cancelOrder(cancel_oid);
                 switch (result) {
                     .filled => |fill| {
-                        const bp = if (fill.fill_price > 0) fill.fill_price else self.pending_orders[i].signal_price;
-                        const bs = if (fill.fill_qty > 0) fill.fill_qty else self.pending_orders[i].size;
-                        if (self.pending_orders[i].is_deposit_buy) {
-                            self.strategy.entry_price = (self.strategy.entry_price * self.strategy.size + bp * bs) / (self.strategy.size + bs);
-                            self.strategy.size += bs;
-                            if (bp > self.strategy.peak_price) self.strategy.peak_price = bp;
-                        } else {
-                            self.strategy.entry_price = bp;
-                            self.strategy.size = bs;
-                            self.strategy.peak_price = bp;
-                            self.strategy.in_position = true;
-                        }
-                        self.buys_filled += 1;
+                        self.handleBuyFill(self.pending_orders[i], fill, .{
+                            .timestamp = timestamp,
+                            .price = if (fill.fill_price > 0) fill.fill_price else self.pending_orders[i].signal_price,
+                        });
                     },
                     .cancelled, .failed => {
-                        if (self.pending_orders[i].transfer_id > 0 and self.turso != null) {
-                            self.turso.?.voidTransfer(self.pending_orders[i].transfer_id);
+                        if (self.pending_orders[i].transfer_id > 0 and self.ledger != null) {
+                            self.ledger.?.voidTransfer(self.pending_orders[i].transfer_id);
                         }
+                        self.strategy.capital_reserved -= self.pending_orders[i].signal_price * self.pending_orders[i].size;
                     },
                 }
-                self.strategy.capital_reserved -= self.pending_orders[i].signal_price * self.pending_orders[i].size;
                 self.cancels_issued += 1;
                 self.removePending(i);
                 continue;

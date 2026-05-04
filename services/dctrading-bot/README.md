@@ -38,15 +38,15 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 | `dc_detector.zig` | Streaming DC event detector |
 | `exchange.zig` | Exchange vtable interface for sync and async order flow |
 | `alpaca.zig` | Alpaca paper trading (sync/async orders, position queries) |
-| `live_loop.zig` | Shared live order-flow engine used by production and simulation tests |
+| `live_loop.zig` | Shared live order-flow engine and ledger interface used by production and simulation tests |
 | `sim_exchange.zig` | Configurable simulated exchange for integration tests |
 | `tick_source.zig` | Tick source interface and simulated feed |
-| `integration_tests.zig` | End-to-end LiveLoop scenarios using SimExchange |
+| `integration_tests.zig` | End-to-end LiveLoop scenarios using SimExchange and mock ledger |
 | `turso.zig` | Turso DB client (equity log, positions, bot status, two-phase ledger) |
 | `telegram.zig` | Telegram + ntfy push notifications |
 | `http_client.zig` | Shared HTTP client (std.http.Client wrapper) |
 | `types.zig` | Tick, Trade, DC event types |
-| `tests.zig` | 155 tests |
+| `tests.zig` | 158 tests |
 
 ## Setup
 

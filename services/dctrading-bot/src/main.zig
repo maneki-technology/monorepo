@@ -326,7 +326,9 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     }
 
     // Initialize LiveLoop — core order flow logic (shared with integration tests)
-    var loop = live_loop_mod.LiveLoop.init(&strategy, exchange, if (turso != null) &turso.? else null);
+    var turso_ledger = if (turso != null) live_loop_mod.TursoLedger{ .turso = &turso.? } else null;
+    const ledger = if (turso_ledger) |*tl| tl.ledger() else null;
+    var loop = live_loop_mod.LiveLoop.init(&strategy, exchange, ledger);
     loop.closed_count = closed_count;
     // Copy reconciled pending orders into LiveLoop
     var pi: u8 = 0;
