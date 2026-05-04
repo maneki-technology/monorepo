@@ -788,3 +788,102 @@ test "integration: was_downsampled only true on 1/min ticks" {
     loop.processTick(makeTick(100.4, 1120.0));
     try testing.expect(loop.was_downsampled);
 }
+
+// ============================================================
+// Startup reconciliation: pending orders copied into LiveLoop
+// ============================================================
+
+test "integration: reconciled pending orders are tracked by LiveLoop" {
+    // Regression: reconciled pending orders were stored in local vars but never
+    // copied into LiveLoop. Orders surviving restart would be ignored.
+    const allocator = testing.allocator;
+    var strategy = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+        .fee_pct = 0.001,
+    });
+    defer strategy.deinit(allocator);
+    strategy.suppress_entry = true;
+
+    // SimExchange: fill_delay=1 so the order fills on next tick
+    var sim = SimExchange{ .fill_delay = 1 };
+    sim.last_price = 95000.0;
+    const ex = sim.exchange();
+    var loop = LiveLoop.init(&strategy, ex, null);
+
+    // Simulate: a pending buy was reconciled from Turso at startup
+    // and copied into LiveLoop (the fix)
+    const recon_order = ex.submitOrder(.buy, 0.1);
+    try testing.expect(recon_order != null);
+    const pending = recon_order.?;
+
+    loop.pending_orders[0] = .{
+        .side = .buy,
+        .signal_price = 95000.0,
+        .size = 0.1,
+        .transfer_id = 42,
+    };
+    @memcpy(loop.pending_orders[0].order_id[0..pending.order_id_len], pending.order_id[0..pending.order_id_len]);
+    loop.pending_orders[0].order_id_len = pending.order_id_len;
+    loop.pending_count = 1;
+    strategy.capital_reserved = 95000.0 * 0.1;
+
+    // Verify: LiveLoop has the pending order
+    try testing.expectEqual(loop.pending_count, 1);
+    try testing.expect(strategy.capital_reserved > 0);
+
+    // Next tick: order should fill via checkPendingOrders
+    sim.advanceTick();
+    loop.processTick(makeTick(95100.0, 60.0));
+
+    // Verify: order filled, position committed
+    try testing.expect(loop.buys_filled == 1);
+    try testing.expectEqual(loop.pending_count, 0);
+    try testing.expect(strategy.in_position);
+    try testing.expect(strategy.capital_reserved == 0);
+}
+
+test "integration: reconciled pending sell fills correctly" {
+    const allocator = testing.allocator;
+    var strategy = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+        .fee_pct = 0.001,
+    });
+    defer strategy.deinit(allocator);
+    strategy.suppress_entry = true;
+
+    var sim = SimExchange{ .fill_delay = 1 };
+    sim.last_price = 92000.0;
+    const ex = sim.exchange();
+    var loop = LiveLoop.init(&strategy, ex, null);
+
+    // Setup: had a position, sell was submitted before restart
+    strategy.in_position = false; // strategy already closed position
+    strategy.capital = 10000.0;
+
+    // Reconciled pending sell
+    const recon_order = ex.submitOrder(.sell, 0.1);
+    try testing.expect(recon_order != null);
+    const pending = recon_order.?;
+
+    loop.pending_orders[0] = .{
+        .side = .sell,
+        .signal_price = 92000.0,
+        .size = 0.1,
+        .transfer_id = 43,
+        .entry_price = 90000.0,
+    };
+    @memcpy(loop.pending_orders[0].order_id[0..pending.order_id_len], pending.order_id[0..pending.order_id_len]);
+    loop.pending_orders[0].order_id_len = pending.order_id_len;
+    loop.pending_count = 1;
+
+    // Next tick: sell fills
+    sim.advanceTick();
+    loop.processTick(makeTick(92000.0, 60.0));
+
+    try testing.expect(loop.sells_filled == 1);
+    try testing.expectEqual(loop.pending_count, 0);
+}

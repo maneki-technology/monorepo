@@ -321,7 +321,25 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     // Initialize LiveLoop — core order flow logic (shared with integration tests)
     var loop = live_loop_mod.LiveLoop.init(&strategy, exchange, if (turso != null) &turso.? else null);
     loop.closed_count = closed_count;
-
+    // Copy reconciled pending orders into LiveLoop
+    var pi: u8 = 0;
+    while (pi < pending_count) : (pi += 1) {
+        if (loop.pending_count < live_loop_mod.MAX_PENDING) {
+            loop.pending_orders[loop.pending_count] = .{
+                .side = pending_orders[pi].side,
+                .signal_price = pending_orders[pi].signal_price,
+                .size = pending_orders[pi].size,
+                .transfer_id = pending_orders[pi].transfer_id,
+                .is_deposit_buy = pending_orders[pi].is_deposit_buy,
+                .entry_price = pending_orders[pi].entry_price,
+                .pnl = pending_orders[pi].pnl,
+                .exit_type = pending_orders[pi].exit_type,
+            };
+            @memcpy(loop.pending_orders[loop.pending_count].order_id[0..pending_orders[pi].order_id_len], pending_orders[pi].order_id[0..pending_orders[pi].order_id_len]);
+            loop.pending_orders[loop.pending_count].order_id_len = pending_orders[pi].order_id_len;
+            loop.pending_count += 1;
+        }
+    }
     while (!shutdown_requested) {
         const tick = feed.nextTick() catch |err| {
             std.debug.print("\n  FEED ERROR: {s}. Reconnecting...\n", .{@errorName(err)});
