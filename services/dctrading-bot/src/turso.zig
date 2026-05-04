@@ -79,7 +79,8 @@ pub const Turso = struct {
             \\  {"type": "execute", "stmt": {"sql": "INSERT OR IGNORE INTO accounts (id, name, ledger, code) VALUES (2, 'btc_position', 2, 1002)"}},
             \\  {"type": "execute", "stmt": {"sql": "INSERT OR IGNORE INTO accounts (id, name, ledger, code) VALUES (3, 'fees', 1, 2001)"}},
             \\  {"type": "execute", "stmt": {"sql": "INSERT OR IGNORE INTO accounts (id, name, ledger, code) VALUES (4, 'equity', 1, 3001)"}},
-            \\  {"type": "execute", "stmt": {"sql": "INSERT OR IGNORE INTO accounts (id, name, ledger, code) VALUES (5, 'pnl', 1, 4001)"}}
+            \\  {"type": "execute", "stmt": {"sql": "INSERT OR IGNORE INTO accounts (id, name, ledger, code) VALUES (5, 'pnl', 1, 4001)"}},
+            \\  {"type": "execute", "stmt": {"sql": "INSERT OR IGNORE INTO accounts (id, name, ledger, code) VALUES (6, 'bnb', 3, 1003)"}}
             \\]}
         ;
         const core_ok = self.execSync(sql_core);
@@ -147,6 +148,7 @@ pub const Turso = struct {
     pub const ACCT_FEES: u8 = 3;
     pub const ACCT_EQUITY: u8 = 4;
     pub const ACCT_PNL: u8 = 5;
+    pub const ACCT_BNB: u8 = 6;
 
     // Transfer codes
     pub const CODE_DEPOSIT: u8 = 1;

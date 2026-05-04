@@ -1247,6 +1247,7 @@ test "turso: account constants are correct" {
     try testing.expectEqual(turso_mod.Turso.ACCT_FEES, 3);
     try testing.expectEqual(turso_mod.Turso.ACCT_EQUITY, 4);
     try testing.expectEqual(turso_mod.Turso.ACCT_PNL, 5);
+    try testing.expectEqual(turso_mod.Turso.ACCT_BNB, 6);
     try testing.expectEqual(turso_mod.Turso.CODE_DEPOSIT, 1);
     try testing.expectEqual(turso_mod.Turso.CODE_BUY, 2);
     try testing.expectEqual(turso_mod.Turso.CODE_SELL, 3);

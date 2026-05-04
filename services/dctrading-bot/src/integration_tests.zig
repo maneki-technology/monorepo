@@ -1077,7 +1077,43 @@ test "integration: ledger uses actual exchange commission for buy fee" {
 
     try testing.expectEqual(@as(u32, 1), ledger.posted_count);
     try testing.expectEqual(turso_mod.Turso.CODE_FEE, ledger.posted[0].code);
+    try testing.expectEqual(turso_mod.Turso.ACCT_CASH, ledger.posted[0].credit_acct);
     try testing.expectApproxEqAbs(0.25, ledger.posted[0].amount, 0.001);
+}
+
+test "integration: ledger routes BNB commission to BNB account" {
+    const allocator = testing.allocator;
+    var strategy = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer strategy.deinit(allocator);
+    strategy.suppress_entry = true;
+
+    var sim = SimExchange{ .fill_delay = 1, .fill_commission = 0.00123 };
+    @memcpy(sim.fill_commission_asset[0..3], "BNB");
+    sim.fill_commission_asset_len = 3;
+    sim.last_price = 104.0;
+    const ex = sim.exchange();
+    var ledger = MockLedger{};
+    var loop = LiveLoop.init(&strategy, ex, ledger.ledger());
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        loop.processTick(makeTick(100.0, @as(f64, @floatFromInt(i)) * 60.0));
+    }
+
+    loop.processTick(makeTick(104.0, 360.0));
+    sim.advanceTick();
+    loop.processTick(makeTick(104.0, 420.0));
+
+    try testing.expectEqual(@as(u32, 1), ledger.posted_count);
+    try testing.expectEqual(turso_mod.Turso.CODE_FEE, ledger.posted[0].code);
+    try testing.expectEqual(turso_mod.Turso.ACCT_FEES, ledger.posted[0].debit_acct);
+    try testing.expectEqual(turso_mod.Turso.ACCT_BNB, ledger.posted[0].credit_acct);
+    try testing.expectApproxEqAbs(0.00123, ledger.posted[0].amount, 0.000001);
 }
 
 test "integration: ledger falls back to configured fee when exchange commission is zero" {
@@ -1111,7 +1147,46 @@ test "integration: ledger falls back to configured fee when exchange commission 
     try testing.expectEqual(@as(u32, 1), ledger.post_fill_count);
     try testing.expectEqual(@as(u32, 1), ledger.posted_count);
     try testing.expectEqual(turso_mod.Turso.CODE_FEE, ledger.posted[0].code);
+    try testing.expectEqual(turso_mod.Turso.ACCT_CASH, ledger.posted[0].credit_acct);
     try testing.expectApproxEqAbs(104.0 * ledger.last_pending.qty * 0.001, ledger.posted[0].amount, 0.001);
+}
+
+test "integration: ledger routes BTC commission to BTC account on sell" {
+    const allocator = testing.allocator;
+    var strategy = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+        .fee_pct = 0.001,
+    });
+    defer strategy.deinit(allocator);
+    strategy.suppress_entry = true;
+
+    var sim = SimExchange{ .fill_delay = 1, .fill_price_offset = 10.0, .fill_commission = 0.00042 };
+    @memcpy(sim.fill_commission_asset[0..3], "BTC");
+    sim.fill_commission_asset_len = 3;
+    sim.last_price = 120.0;
+    const ex = sim.exchange();
+    var ledger = MockLedger{};
+    var loop = LiveLoop.init(&strategy, ex, ledger.ledger());
+
+    strategy.regime = .bear;
+    strategy.in_position = true;
+    strategy.entry_price = 100.0;
+    strategy.size = 2.0;
+    strategy.peak_price = 130.0;
+    strategy.current_trail = 0.02;
+
+    loop.processTick(makeTick(120.0, 60.0));
+    sim.advanceTick();
+    loop.processTick(makeTick(120.0, 61.0));
+
+    try testing.expectEqual(@as(u32, 2), ledger.posted_count);
+    try testing.expectEqual(turso_mod.Turso.CODE_FEE, ledger.posted[0].code);
+    try testing.expectEqual(turso_mod.Turso.ACCT_FEES, ledger.posted[0].debit_acct);
+    try testing.expectEqual(turso_mod.Turso.ACCT_BTC, ledger.posted[0].credit_acct);
+    try testing.expectApproxEqAbs(0.00042, ledger.posted[0].amount, 0.000001);
+    try testing.expectEqual(turso_mod.Turso.CODE_PNL, ledger.posted[1].code);
 }
 
 test "integration: ledger records sell fill fee and realized pnl" {
