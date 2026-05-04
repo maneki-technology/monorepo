@@ -789,6 +789,100 @@ test "integration: was_downsampled only true on 1/min ticks" {
     try testing.expect(loop.was_downsampled);
 }
 
+test "integration: event fields emit fills and clear on next tick" {
+    const allocator = testing.allocator;
+    var strategy = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer strategy.deinit(allocator);
+    strategy.suppress_entry = true;
+
+    var sim = SimExchange{ .fill_delay = 1 };
+    sim.last_price = 104.0;
+    const ex = sim.exchange();
+    var loop = LiveLoop.init(&strategy, ex, null);
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        loop.processTick(makeTick(100.0, @as(f64, @floatFromInt(i)) * 60.0));
+    }
+
+    loop.processTick(makeTick(104.0, 360.0));
+    try testing.expect(loop.last_buy_fill == null);
+    try testing.expect(loop.last_sell_trade == null);
+
+    sim.advanceTick();
+    loop.processTick(makeTick(104.0, 420.0));
+    try testing.expect(loop.last_buy_fill != null);
+    try testing.expect(loop.last_buy_fill.?.price == 104.0);
+    try testing.expect(loop.last_buy_fill.?.size > 0);
+    try testing.expect(!loop.last_buy_fill.?.is_deposit);
+
+    loop.processTick(makeTick(104.0, 421.0));
+    try testing.expect(loop.last_buy_fill == null);
+
+    strategy.regime = .bear;
+    strategy.peak_price = 110.0;
+    strategy.current_trail = 0.02;
+    sim.last_price = 100.0;
+    loop.processTick(makeTick(100.0, 422.0));
+    try testing.expect(loop.last_sell_trade != null);
+    try testing.expect(loop.last_sell_trade.?.exit_type == .trailing_stop);
+
+    sim.advanceTick();
+    loop.processTick(makeTick(100.0, 423.0));
+    try testing.expect(loop.last_sell_fill != null);
+    try testing.expect(loop.last_sell_fill.?.price == 100.0);
+    try testing.expect(loop.last_sell_fill.?.exit_type == .trailing_stop);
+
+    loop.processTick(makeTick(100.0, 424.0));
+    try testing.expect(loop.last_sell_fill == null);
+}
+
+test "integration: one-minute tick uses fresh strategy state before realtime stop" {
+    const allocator = testing.allocator;
+    var strategy = try Strategy.init(allocator, .{
+        .ma_period = 1,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer strategy.deinit(allocator);
+    strategy.suppress_entry = true;
+
+    var sim = SimExchange{ .fill_delay = 0 };
+    const ex = sim.exchange();
+    var loop = LiveLoop.init(&strategy, ex, null);
+
+    strategy.regime = .bear;
+    strategy.in_position = true;
+    strategy.entry_price = 100.0;
+    strategy.size = 10.0;
+    strategy.peak_price = 105.0;
+    strategy.current_trail = 0.02;
+
+    // On the exact strategy tick, processTick() updates MA/regime first. With
+    // ma_period=1 this price becomes SIDEWAYS, so stale BEAR stop state must
+    // not submit a sell before the strategy update.
+    loop.processTick(makeTick(101.0, 60.0));
+    try testing.expect(loop.was_downsampled);
+    try testing.expect(strategy.regime == .sideways);
+    try testing.expect(loop.sells_submitted == 0);
+    try testing.expect(strategy.in_position);
+
+    // Between strategy ticks, realtime risk remains active from the latest
+    // completed strategy state.
+    strategy.regime = .bear;
+    strategy.peak_price = 105.0;
+    loop.processTick(makeTick(101.0, 61.0));
+    try testing.expect(!loop.was_downsampled);
+    try testing.expect(loop.sells_submitted == 1);
+    try testing.expect(!strategy.in_position);
+}
+
 // ============================================================
 // Startup reconciliation: pending orders copied into LiveLoop
 // ============================================================

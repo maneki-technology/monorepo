@@ -19,8 +19,8 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `live_loop.zig` — Extracted core order flow logic: pending order tracking, trailing stop, strategy signals, buy/sell submission, capital_reserved. Shared by `runLive()` and integration tests.
 - `tick_source.zig` — `TickSource` vtable interface + `SimFeed` (replays ticks from array). For testing.
 - `sim_exchange.zig` — `SimExchange` implementing Exchange vtable with configurable fill delay, slippage, partial fills, cancel races, failure injection, order log. For testing.
-- `integration_tests.zig` — 22 end-to-end scenarios using LiveLoop + SimExchange.
-- `tests.zig` — 153 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, integration scenarios.
+- `integration_tests.zig` — 24 end-to-end scenarios using LiveLoop + SimExchange.
+- `tests.zig` — 155 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, integration scenarios.
 
 ### Scripts (`scripts/`)
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service.
@@ -57,7 +57,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # GCP
-zig build test                                 # 153 tests
+zig build test                                 # 155 tests
 ```
 
 ### Trading Flow
