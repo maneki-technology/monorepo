@@ -16,11 +16,11 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `telegram.zig` — Telegram + ntfy notifications. Async sends via threads, curl fallback for shutdown reliability.
 - `http_client.zig` — Thread-safe wrapper around `std.http.Client`. Mutex-protected POST/GET/DELETE with auto-retry on stale connections.
 - `types.zig` — Core types: `Tick`, `Trade`, `DCEvent`, `Direction`.
-- `live_loop.zig` — Extracted core order flow logic: pending order tracking, trailing stop, strategy signals, buy/sell submission, capital_reserved. Shared by `runLive()` and integration tests.
+- `live_loop.zig` — Extracted core order flow logic: pending order tracking, trailing stop, strategy signals, buy/sell submission, capital_reserved, and ledger vtable. Shared by `runLive()` and integration tests.
 - `tick_source.zig` — `TickSource` vtable interface + `SimFeed` (replays ticks from array). For testing.
 - `sim_exchange.zig` — `SimExchange` implementing Exchange vtable with configurable fill delay, slippage, partial fills, cancel races, failure injection, order log. For testing.
-- `integration_tests.zig` — 24 end-to-end scenarios using LiveLoop + SimExchange.
-- `tests.zig` — 155 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, integration scenarios.
+- `integration_tests.zig` — 27 end-to-end scenarios using LiveLoop + SimExchange + mock ledger.
+- `tests.zig` — 158 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, integration scenarios.
 
 ### Scripts (`scripts/`)
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service.
@@ -57,7 +57,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # GCP
-zig build test                                 # 155 tests
+zig build test                                 # 158 tests
 ```
 
 ### Trading Flow
