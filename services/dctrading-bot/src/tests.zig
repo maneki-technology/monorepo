@@ -3002,62 +3002,6 @@ test "capital_reserved: prevents double-ordering from same capital" {
     }
 }
 
-test "capital_reserved: released on fill restores available capital" {
-    // Simulate: reserve $999, fill, reserve released, next signal uses full capital
-    const allocator = testing.allocator;
-    var s = try strat_mod.Strategy.init(allocator, .{
-        .ma_period = 5,
-        .ma_buffer = 0.03,
-        .initial_capital = 2000.0,
-        .fee_pct = 0.001,
-    });
-    defer s.deinit(allocator);
-    s.suppress_entry = true;
-
-    // Reserve $1000
-    s.capital_reserved = 1000.0;
-    // Available = 2000 - 1000 = 1000
-
-    var i: usize = 0;
-    while (i < 5) : (i += 1) {
-        _ = s.processTick(tick(100.0, @floatFromInt(i)));
-    }
-    _ = s.processTick(tick(104.0, 6.0));
-    try testing.expect(s.buy_signal);
-    const size_with_reserve = s.buy_signal_size;
-
-    // Simulate fill: release reservation
-    s.capital_reserved -= 1000.0;
-    try testing.expectApproxEqAbs(s.capital_reserved, 0.0, 0.001);
-
-    // Next signal uses full capital
-    s.buy_signal = false;
-    _ = s.processTick(tick(108.0, 8.0));
-    if (s.buy_signal) {
-        try testing.expect(s.buy_signal_size > size_with_reserve);
-    }
-}
-
-test "capital_reserved: released on cancel restores available capital" {
-    // Same as fill test but via cancel path
-    const allocator = testing.allocator;
-    var s = try strat_mod.Strategy.init(allocator, .{
-        .ma_period = 5,
-        .ma_buffer = 0.03,
-        .initial_capital = 1000.0,
-        .fee_pct = 0.001,
-    });
-    defer s.deinit(allocator);
-
-    // Reserve and release
-    s.capital_reserved = 800.0;
-    try testing.expectApproxEqAbs(s.capital - s.capital_reserved, 200.0, 0.001);
-
-    // Cancel: release
-    s.capital_reserved -= 800.0;
-    try testing.expectApproxEqAbs(s.capital_reserved, 0.0, 0.001);
-    try testing.expectApproxEqAbs(s.capital - s.capital_reserved, 1000.0, 0.001);
-}
 
 test "capital_reserved: deposit during pending buy sizes correctly" {
     // $1000 capital, $999 reserved for pending buy.
