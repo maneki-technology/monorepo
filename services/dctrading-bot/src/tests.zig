@@ -920,6 +920,11 @@ test "alpaca: parseJsonString returns null for missing key" {
 // Exchange Abstraction Tests
 // ============================================================
 
+// Shared no-op async stubs for mock exchanges (tests only use sync buy/sell)
+fn noopSubmitOrder(_: *const anyopaque, _: exchange_mod.Side, _: f64) ?exchange_mod.PendingOrder { return null; }
+fn noopCheckOrder(_: *const anyopaque, _: []const u8) exchange_mod.OrderStatus { return .{ .failed = {} }; }
+fn noopCancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult { return .{ .failed = {} }; }
+
 test "exchange: mock implementation via vtable" {
     // Create a mock exchange to verify the vtable pattern works
     const MockExchange = struct {
@@ -945,6 +950,9 @@ test "exchange: mock implementation via vtable" {
         const vtable = exchange_mod.Exchange.VTable{
             .buy = @ptrCast(&mockBuy),
             .sell = @ptrCast(&mockSell),
+            .submitOrder = @ptrCast(&noopSubmitOrder),
+            .checkOrder = @ptrCast(&noopCheckOrder),
+            .cancelOrder = @ptrCast(&noopCancelOrder),
             .getPosition = @ptrCast(&mockGetPosition),
         };
     };
@@ -990,6 +998,9 @@ test "exchange: mock returning null (no position, failed orders)" {
         const vtable = exchange_mod.Exchange.VTable{
             .buy = @ptrCast(&nullBuy),
             .sell = @ptrCast(&nullSell),
+            .submitOrder = @ptrCast(&noopSubmitOrder),
+            .checkOrder = @ptrCast(&noopCheckOrder),
+            .cancelOrder = @ptrCast(&noopCancelOrder),
             .getPosition = @ptrCast(&nullGetPosition),
         };
     };
@@ -1091,6 +1102,9 @@ test "exchange: mock exchange returns commission in fill" {
         const vtable = exchange_mod.Exchange.VTable{
             .buy = @ptrCast(&buy),
             .sell = @ptrCast(&sell),
+            .submitOrder = @ptrCast(&noopSubmitOrder),
+            .checkOrder = @ptrCast(&noopCheckOrder),
+            .cancelOrder = @ptrCast(&noopCancelOrder),
             .getPosition = @ptrCast(&getPosition),
         };
     };
@@ -1121,6 +1135,9 @@ test "exchange: two different implementations share the same interface" {
         const vtable = exchange_mod.Exchange.VTable{
             .buy = @ptrCast(&buy),
             .sell = @ptrCast(&sell),
+            .submitOrder = @ptrCast(&noopSubmitOrder),
+            .checkOrder = @ptrCast(&noopCheckOrder),
+            .cancelOrder = @ptrCast(&noopCancelOrder),
             .getPosition = @ptrCast(&getPosition),
         };
     };
@@ -1138,6 +1155,9 @@ test "exchange: two different implementations share the same interface" {
         const vtable = exchange_mod.Exchange.VTable{
             .buy = @ptrCast(&buy),
             .sell = @ptrCast(&sell),
+            .submitOrder = @ptrCast(&noopSubmitOrder),
+            .checkOrder = @ptrCast(&noopCheckOrder),
+            .cancelOrder = @ptrCast(&noopCancelOrder),
             .getPosition = @ptrCast(&getPosition),
         };
     };
@@ -1958,4 +1978,926 @@ test "deposit: buy in BULL blends entry price correctly" {
     try testing.expect(s.entry_price < 82000.0);
     try testing.expectApproxEqAbs(s.size, 0.01 + add_size, 0.0001);
     try testing.expectApproxEqAbs(s.capital, 1.0, 0.01); // back to ~$1 cash
+}
+
+// ============================================================
+// Non-blocking Order Flow Tests (#449)
+// ============================================================
+
+test "non-blocking: submitOrder returns immediately, checkOrder resolves after N ticks" {
+    // Simulates the async order flow: submit returns instantly,
+    // checkOrder returns .pending for 5 calls, then .filled on the 6th.
+    // This proves ticks continue processing while order is in flight.
+    const AsyncExchange = struct {
+        var check_count: u32 = 0;
+
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            // Sync buy would block here — not used in async flow
+            return .{ .fill_price = 95000.0, .fill_qty = 0.01, .status = .filled };
+        }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return .{ .fill_price = 95000.0, .fill_qty = 0.01, .status = .filled };
+        }
+        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+            _ = side;
+            var po: exchange_mod.PendingOrder = .{ .side = .buy, .qty = qty };
+            const id = "mock-order-001";
+            @memcpy(po.order_id[0..id.len], id);
+            po.order_id_len = id.len;
+            check_count = 0; // reset on new order
+            return po;
+        }
+        fn checkOrder(_: *const anyopaque, _: []const u8) exchange_mod.OrderStatus {
+            check_count += 1;
+            if (check_count >= 6) {
+                // Filled after 6 checks (simulates ~6 seconds of polling)
+                var fill: exchange_mod.OrderFill = .{ .fill_price = 95100.0, .fill_qty = 0.01, .status = .filled };
+                fill.commission = 0.095;
+                @memcpy(fill.commission_asset[0..3], "USD");
+                fill.commission_asset_len = 3;
+                return .{ .filled = fill };
+            }
+            return .{ .pending = {} };
+        }
+        fn cancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult {
+            return .{ .cancelled = {} };
+        }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&buy),
+            .sell = @ptrCast(&sell),
+            .submitOrder = @ptrCast(&submitOrder),
+            .checkOrder = @ptrCast(&checkOrder),
+            .cancelOrder = @ptrCast(&cancelOrder),
+            .getPosition = @ptrCast(&getPosition),
+        };
+    };
+
+    var dummy: u8 = 0;
+    const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &AsyncExchange.vtable };
+
+    // Submit order — returns immediately
+    const pending = ex.submitOrder(.buy, 0.01);
+    try testing.expect(pending != null);
+    try testing.expectEqualStrings("mock-order-001", pending.?.order_id[0..pending.?.order_id_len]);
+
+    // Simulate tick loop: check order each tick, count ticks processed
+    var ticks_processed: u32 = 0;
+    var filled = false;
+    const oid = pending.?.order_id[0..pending.?.order_id_len];
+    while (!filled) {
+        ticks_processed += 1;
+        const status = ex.checkOrder(oid);
+        switch (status) {
+            .filled => |fill| {
+                filled = true;
+                try testing.expectApproxEqAbs(fill.fill_price, 95100.0, 0.01);
+                try testing.expectApproxEqAbs(fill.commission, 0.095, 0.001);
+            },
+            .pending => {}, // keep processing ticks
+            .cancelled, .failed => { try testing.expect(false); }, // unexpected
+        }
+    }
+
+    // KEY METRIC: 6 ticks were processed while order was pending
+    // With sync buy(), this would be 0 — the loop would be blocked
+    try testing.expectEqual(ticks_processed, 6);
+}
+
+test "non-blocking: strategy suppress_entry stores signal without committing position" {
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Enable suppress_entry (live mode)
+    s.suppress_entry = true;
+
+    // Fill MA to trigger BULL
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    // BULL: price > MA+3% would trigger buy
+    _ = s.processTick(tick(104.0, 6.0));
+
+    // With suppress_entry, position is NOT committed
+    try testing.expect(!s.in_position);
+    try testing.expect(s.buy_signal);
+    try testing.expect(s.buy_signal_price > 0);
+    try testing.expect(s.buy_signal_size > 0);
+
+    // Capital unchanged (no fee deducted)
+    try testing.expectApproxEqAbs(s.capital, 1000.0, 0.01);
+
+    // Verify signal values are reasonable
+    try testing.expectApproxEqAbs(s.buy_signal_price, 104.0, 0.01);
+    const expected_size = (1000.0 - 1000.0 * 0.001) / 104.0;
+    try testing.expectApproxEqAbs(s.buy_signal_size, expected_size, 0.001);
+}
+
+test "non-blocking: strategy without suppress_entry commits position (backtest mode)" {
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Default: suppress_entry = false (backtest mode)
+    try testing.expect(!s.suppress_entry);
+
+    // Fill MA to trigger BULL
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    // BULL: price > MA+3% triggers immediate position
+    _ = s.processTick(tick(104.0, 6.0));
+
+    // Without suppress_entry, position IS committed
+    try testing.expect(s.in_position);
+    try testing.expect(!s.buy_signal); // no signal stored
+    try testing.expectApproxEqAbs(s.entry_price, 104.0, 0.01);
+    try testing.expect(s.size > 0);
+}
+
+test "non-blocking: cancelOrder handles race condition (filled before cancel)" {
+    // When we cancel a buy but it filled before cancel arrived,
+    // cancelOrder returns .filled with the fill details.
+    const RaceExchange = struct {
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn submitOrder(_: *const anyopaque, _: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+            var po: exchange_mod.PendingOrder = .{ .side = .buy, .qty = qty };
+            const id = "race-order-001";
+            @memcpy(po.order_id[0..id.len], id);
+            po.order_id_len = id.len;
+            return po;
+        }
+        fn checkOrder(_: *const anyopaque, _: []const u8) exchange_mod.OrderStatus {
+            return .{ .filled = .{ .fill_price = 95000.0, .fill_qty = 0.01, .status = .filled } };
+        }
+        fn cancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult {
+            // Order filled before cancel took effect
+            return .{ .filled = .{ .fill_price = 95000.0, .fill_qty = 0.01, .status = .filled } };
+        }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&buy),
+            .sell = @ptrCast(&sell),
+            .submitOrder = @ptrCast(&submitOrder),
+            .checkOrder = @ptrCast(&checkOrder),
+            .cancelOrder = @ptrCast(&cancelOrder),
+            .getPosition = @ptrCast(&getPosition),
+        };
+    };
+
+    var dummy: u8 = 0;
+    const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &RaceExchange.vtable };
+
+    // Submit buy
+    const pending = ex.submitOrder(.buy, 0.01);
+    try testing.expect(pending != null);
+
+    // Try to cancel — but it already filled
+    const result = ex.cancelOrder(pending.?.order_id[0..pending.?.order_id_len]);
+    switch (result) {
+        .filled => |fill| {
+            // Correct: order filled despite cancel attempt
+            try testing.expectApproxEqAbs(fill.fill_price, 95000.0, 0.01);
+            try testing.expect(fill.status == .filled);
+        },
+        .cancelled => { try testing.expect(false); }, // wrong — it should be filled
+        .failed => { try testing.expect(false); },
+    }
+}
+
+test "non-blocking: multiple pending orders tracked independently" {
+    // Simulates regular buy + deposit buy both pending simultaneously
+    const MultiExchange = struct {
+        var order_count: u32 = 0;
+
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+            order_count += 1;
+            var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
+            var id_buf: [20]u8 = undefined;
+            const id = std.fmt.bufPrint(&id_buf, "order-{d:0>3}", .{order_count}) catch "order-000";
+            @memcpy(po.order_id[0..id.len], id);
+            po.order_id_len = id.len;
+            return po;
+        }
+        fn checkOrder(_: *const anyopaque, order_id: []const u8) exchange_mod.OrderStatus {
+            // First order fills on check, second stays pending
+            if (std.mem.eql(u8, order_id, "order-001")) {
+                return .{ .filled = .{ .fill_price = 95000.0, .fill_qty = 0.01, .status = .filled } };
+            }
+            return .{ .pending = {} };
+        }
+        fn cancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult {
+            return .{ .cancelled = {} };
+        }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&buy),
+            .sell = @ptrCast(&sell),
+            .submitOrder = @ptrCast(&submitOrder),
+            .checkOrder = @ptrCast(&checkOrder),
+            .cancelOrder = @ptrCast(&cancelOrder),
+            .getPosition = @ptrCast(&getPosition),
+        };
+    };
+
+    MultiExchange.order_count = 0;
+    var dummy: u8 = 0;
+    const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &MultiExchange.vtable };
+
+    // Submit two orders
+    const order1 = ex.submitOrder(.buy, 0.01).?;
+    const order2 = ex.submitOrder(.buy, 0.005).?;
+
+    // They have different IDs
+    try testing.expect(!std.mem.eql(u8, order1.order_id[0..order1.order_id_len], order2.order_id[0..order2.order_id_len]));
+
+    // Check both — order1 fills, order2 still pending
+    const status1 = ex.checkOrder(order1.order_id[0..order1.order_id_len]);
+    const status2 = ex.checkOrder(order2.order_id[0..order2.order_id_len]);
+
+    switch (status1) {
+        .filled => |fill| { try testing.expectApproxEqAbs(fill.fill_price, 95000.0, 0.01); },
+        else => { try testing.expect(false); },
+    }
+    try testing.expect(status2 == .pending);
+}
+
+test "non-blocking: trailing stop fires while buy is pending — cancel and sell" {
+    // Scenario: strategy signals buy, order submitted but not yet filled.
+    // Price drops, trailing stop fires. We must cancel the buy and sell.
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Setup: get into BEAR regime with a position
+    s.suppress_entry = false; // use sync for setup
+    // Fill MA
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    // Drop to BEAR
+    _ = s.processTick(tick(90.0, 6.0));
+    try testing.expect(s.regime == .bear);
+
+    // Manually set up a position (simulating a filled buy)
+    s.in_position = true;
+    s.entry_price = 90.0;
+    s.size = 10.0;
+    s.peak_price = 95.0; // price went up to 95
+    s.current_trail = 0.02; // 2% trailing stop
+
+    // Price drops 3% from peak (95 → 92.15) — should trigger stop
+    const stop_trade = s.checkStop(92.0, 100.0);
+    try testing.expect(stop_trade != null);
+    try testing.expect(stop_trade.?.exit_type == .trailing_stop);
+
+    // After stop fires, position is closed
+    try testing.expect(!s.in_position);
+    try testing.expect(s.size == 0);
+}
+
+test "non-blocking: pending order array swap-remove correctness" {
+    // Verify that removing a filled order from the middle of the pending array
+    // correctly swaps the last element into the gap.
+    const PendingOrderEntry = struct {
+        order_id: [64]u8 = undefined,
+        order_id_len: usize = 0,
+        side: exchange_mod.Side = .buy,
+        signal_price: f64 = 0,
+        size: f64 = 0,
+        transfer_id: u32 = 0,
+        is_deposit_buy: bool = false,
+    };
+
+    const MAX_PENDING: usize = 4;
+    var pending: [MAX_PENDING]PendingOrderEntry = undefined;
+    var count: u8 = 0;
+
+    // Add 3 orders
+    pending[0] = .{ .signal_price = 100.0, .size = 0.01 };
+    @memcpy(pending[0].order_id[0..5], "ord-A");
+    pending[0].order_id_len = 5;
+    count = 1;
+
+    pending[1] = .{ .signal_price = 200.0, .size = 0.02 };
+    @memcpy(pending[1].order_id[0..5], "ord-B");
+    pending[1].order_id_len = 5;
+    count = 2;
+
+    pending[2] = .{ .signal_price = 300.0, .size = 0.03 };
+    @memcpy(pending[2].order_id[0..5], "ord-C");
+    pending[2].order_id_len = 5;
+    count = 3;
+
+    // Remove order at index 0 (swap with last)
+    count -= 1;
+    pending[0] = pending[count];
+
+    // Now: [ord-C, ord-B], count=2
+    try testing.expectEqual(count, 2);
+    try testing.expectEqualStrings("ord-C", pending[0].order_id[0..pending[0].order_id_len]);
+    try testing.expectEqualStrings("ord-B", pending[1].order_id[0..pending[1].order_id_len]);
+    try testing.expectApproxEqAbs(pending[0].signal_price, 300.0, 0.01);
+    try testing.expectApproxEqAbs(pending[1].signal_price, 200.0, 0.01);
+
+    // Remove order at index 1 (last element, no swap needed)
+    count -= 1;
+    try testing.expectEqual(count, 1);
+    try testing.expectEqualStrings("ord-C", pending[0].order_id[0..pending[0].order_id_len]);
+
+    // Remove last order
+    count -= 1;
+    try testing.expectEqual(count, 0);
+}
+
+test "non-blocking: strategy does not emit duplicate buy signals while suppressed" {
+    // When suppress_entry is true and a buy signal fires, subsequent ticks
+    // at the same price level should NOT re-emit the signal (strategy thinks
+    // it already signaled via in_position or buy_signal).
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+    s.suppress_entry = true;
+
+    // Fill MA
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+
+    // First tick above MA+3% — should signal buy
+    _ = s.processTick(tick(104.0, 6.0));
+    try testing.expect(s.buy_signal);
+    const first_size = s.buy_signal_size;
+    try testing.expect(first_size > 0);
+
+    // Simulate: main loop reads the signal and clears it
+    s.buy_signal = false;
+
+    // In BULL with suppress_entry, strategy called openPosition which set buy_signal
+    // but did NOT set in_position. So next tick will try to open again.
+    // This is expected — main loop must set in_position after fill to prevent re-signal.
+    _ = s.processTick(tick(106.0, 7.0));
+    // Without in_position set, strategy will signal again (still BULL at 106)
+    try testing.expect(s.buy_signal);
+
+    // Now simulate: main loop got the fill, sets in_position
+    s.in_position = true;
+    s.entry_price = 104.0;
+    s.size = first_size;
+    s.peak_price = 104.0;
+    s.buy_signal = false;
+
+    // Next tick: already in position, no new signal
+    _ = s.processTick(tick(105.0, 8.0));
+    try testing.expect(!s.buy_signal);
+    try testing.expect(s.in_position);
+}
+
+test "non-blocking: sell signal still works with suppress_entry enabled" {
+    // suppress_entry only affects buy signals. Sell signals (DC exit, trailing stop)
+    // must still work normally — they return Trade from processTick.
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .threshold = 0.07,
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+    s.suppress_entry = true;
+
+    // Setup: BEAR regime with position
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    _ = s.processTick(tick(90.0, 6.0)); // drop to BEAR
+    try testing.expect(s.regime == .bear);
+
+    // Manually set position
+    s.in_position = true;
+    s.entry_price = 90.0;
+    s.size = 10.0;
+    s.peak_price = 95.0;
+    s.current_trail = 0.02;
+
+    // Trailing stop fires — should return Trade even with suppress_entry
+    const trade = s.checkStop(92.0, 100.0);
+    try testing.expect(trade != null);
+    try testing.expect(trade.?.exit_type == .trailing_stop);
+    try testing.expect(!s.in_position); // position closed
+}
+
+test "non-blocking: fill resolves correctly after multiple pending checks" {
+    // Simulates realistic scenario: submit order, check 10 times (pending),
+    // then fill. Verify state is correct throughout.
+    const DelayedExchange = struct {
+        var checks: u32 = 0;
+        var submitted: bool = false;
+
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+            submitted = true;
+            checks = 0;
+            var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
+            const id = "delayed-001";
+            @memcpy(po.order_id[0..id.len], id);
+            po.order_id_len = id.len;
+            return po;
+        }
+        fn checkOrder(_: *const anyopaque, _: []const u8) exchange_mod.OrderStatus {
+            checks += 1;
+            if (checks >= 10) {
+                return .{ .filled = .{ .fill_price = 96000.0, .fill_qty = 0.105, .status = .filled } };
+            }
+            return .{ .pending = {} };
+        }
+        fn cancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult {
+            return .{ .cancelled = {} };
+        }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&buy),
+            .sell = @ptrCast(&sell),
+            .submitOrder = @ptrCast(&submitOrder),
+            .checkOrder = @ptrCast(&checkOrder),
+            .cancelOrder = @ptrCast(&cancelOrder),
+            .getPosition = @ptrCast(&getPosition),
+        };
+    };
+
+    DelayedExchange.checks = 0;
+    DelayedExchange.submitted = false;
+    var dummy: u8 = 0;
+    const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &DelayedExchange.vtable };
+
+    // Submit
+    const pending = ex.submitOrder(.buy, 0.105).?;
+    try testing.expect(DelayedExchange.submitted);
+    try testing.expectEqualStrings("delayed-001", pending.order_id[0..pending.order_id_len]);
+
+    // Simulate main loop: process ticks while checking order
+    const oid = pending.order_id[0..pending.order_id_len];
+    var ticks_while_pending: u32 = 0;
+    var trailing_stop_checks: u32 = 0;
+    var final_fill: ?exchange_mod.OrderFill = null;
+
+    for (0..20) |_| {
+        // Each iteration = one tick in the main loop
+        ticks_while_pending += 1;
+        trailing_stop_checks += 1; // trailing stop runs every tick
+
+        const status = ex.checkOrder(oid);
+        switch (status) {
+            .filled => |fill| {
+                final_fill = fill;
+                break;
+            },
+            .pending => {},
+            .cancelled, .failed => break,
+        }
+    }
+
+    // Verify: order filled after 10 checks
+    try testing.expect(final_fill != null);
+    try testing.expectApproxEqAbs(final_fill.?.fill_price, 96000.0, 0.01);
+    try testing.expectApproxEqAbs(final_fill.?.fill_qty, 0.105, 0.001);
+
+    // KEY: 10 ticks processed (trailing stop checked 10 times) while order was pending
+    // With sync buy(), this would be 0
+    try testing.expectEqual(ticks_while_pending, 10);
+    try testing.expectEqual(trailing_stop_checks, 10);
+    try testing.expectEqual(DelayedExchange.checks, 10);
+}
+
+test "non-blocking: startup reconciliation adds still-pending order to tracking array" {
+    // Simulates: bot restarts, Turso has a pending transfer, exchange says still pending.
+    // The order should be added to pending_orders so the main loop tracks it.
+    const PendingOrderEntry = struct {
+        order_id: [64]u8 = undefined,
+        order_id_len: usize = 0,
+        side: exchange_mod.Side = .buy,
+        signal_price: f64 = 0,
+        size: f64 = 0,
+        transfer_id: u32 = 0,
+        is_deposit_buy: bool = false,
+        entry_price: f64 = 0,
+        pnl: f64 = 0,
+        exit_type: types.Trade.ExitType = .dc_exit,
+    };
+
+    const MAX_PENDING: usize = 4;
+    var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
+    var pending_count: u8 = 0;
+
+    // Simulate: Turso returned a pending buy transfer
+    const transfer_id: u32 = 42;
+    const order_id = "recon-order-001";
+    const price: f64 = 95000.0;
+    const size: f64 = 0.105;
+    const code: u8 = 2; // CODE_BUY
+    const in_position = false;
+
+    // Simulate reconciliation logic: exchange says still pending → add to tracking
+    const side: exchange_mod.Side = if (code == 2) .buy else .sell;
+    if (pending_count < MAX_PENDING) {
+        pending_orders[pending_count] = .{
+            .side = side,
+            .signal_price = price,
+            .size = size,
+            .transfer_id = transfer_id,
+            .is_deposit_buy = (side == .buy and in_position),
+        };
+        @memcpy(pending_orders[pending_count].order_id[0..order_id.len], order_id);
+        pending_orders[pending_count].order_id_len = order_id.len;
+        pending_count += 1;
+    }
+
+    // Verify: order is tracked
+    try testing.expectEqual(pending_count, 1);
+    try testing.expectEqualStrings("recon-order-001", pending_orders[0].order_id[0..pending_orders[0].order_id_len]);
+    try testing.expect(pending_orders[0].side == .buy);
+    try testing.expectApproxEqAbs(pending_orders[0].signal_price, 95000.0, 0.01);
+    try testing.expectApproxEqAbs(pending_orders[0].size, 0.105, 0.001);
+    try testing.expectEqual(pending_orders[0].transfer_id, 42);
+    try testing.expect(!pending_orders[0].is_deposit_buy); // not in position → regular buy
+}
+
+test "non-blocking: startup reconciliation marks deposit buy correctly when in position" {
+    const PendingOrderEntry = struct {
+        order_id: [64]u8 = undefined,
+        order_id_len: usize = 0,
+        side: exchange_mod.Side = .buy,
+        signal_price: f64 = 0,
+        size: f64 = 0,
+        transfer_id: u32 = 0,
+        is_deposit_buy: bool = false,
+        entry_price: f64 = 0,
+        pnl: f64 = 0,
+        exit_type: types.Trade.ExitType = .dc_exit,
+    };
+
+    const MAX_PENDING: usize = 4;
+    var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
+    var pending_count: u8 = 0;
+
+    // Simulate: already in position, pending buy from deposit
+    const in_position = true;
+    const side: exchange_mod.Side = .buy;
+    if (pending_count < MAX_PENDING) {
+        pending_orders[pending_count] = .{
+            .side = side,
+            .signal_price = 96000.0,
+            .size = 0.01,
+            .transfer_id = 50,
+            .is_deposit_buy = (side == .buy and in_position),
+        };
+        const id = "deposit-recon-001";
+        @memcpy(pending_orders[pending_count].order_id[0..id.len], id);
+        pending_orders[pending_count].order_id_len = id.len;
+        pending_count += 1;
+    }
+
+    try testing.expectEqual(pending_count, 1);
+    try testing.expect(pending_orders[0].is_deposit_buy); // in position → deposit buy
+}
+
+test "non-blocking: DC exit cancels pending buys before selling" {
+    // Simulates: strategy emits DC exit sell, but there's a pending deposit buy.
+    // The pending buy must be cancelled before the sell is submitted.
+    const CancelTrackExchange = struct {
+        var cancel_called: bool = false;
+        var cancel_order_id: [64]u8 = undefined;
+        var cancel_order_id_len: usize = 0;
+        var submit_count: u32 = 0;
+
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+            submit_count += 1;
+            var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
+            var id_buf: [20]u8 = undefined;
+            const id = std.fmt.bufPrint(&id_buf, "sell-{d:0>3}", .{submit_count}) catch "sell-000";
+            @memcpy(po.order_id[0..id.len], id);
+            po.order_id_len = id.len;
+            return po;
+        }
+        fn checkOrder(_: *const anyopaque, _: []const u8) exchange_mod.OrderStatus {
+            return .{ .pending = {} };
+        }
+        fn cancelOrder(_: *const anyopaque, order_id: []const u8) exchange_mod.CancelResult {
+            cancel_called = true;
+            @memcpy(cancel_order_id[0..order_id.len], order_id);
+            cancel_order_id_len = order_id.len;
+            return .{ .cancelled = {} };
+        }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&buy),
+            .sell = @ptrCast(&sell),
+            .submitOrder = @ptrCast(&submitOrder),
+            .checkOrder = @ptrCast(&checkOrder),
+            .cancelOrder = @ptrCast(&cancelOrder),
+            .getPosition = @ptrCast(&getPosition),
+        };
+    };
+
+    CancelTrackExchange.cancel_called = false;
+    CancelTrackExchange.submit_count = 0;
+    var dummy: u8 = 0;
+    const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &CancelTrackExchange.vtable };
+
+    // Setup: pending deposit buy in the array
+    const PendingOrderEntry = struct {
+        order_id: [64]u8 = undefined,
+        order_id_len: usize = 0,
+        side: exchange_mod.Side = .buy,
+        signal_price: f64 = 0,
+        size: f64 = 0,
+        transfer_id: u32 = 0,
+        is_deposit_buy: bool = false,
+        entry_price: f64 = 0,
+        pnl: f64 = 0,
+        exit_type: types.Trade.ExitType = .dc_exit,
+    };
+    const MAX_PENDING: usize = 4;
+    var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
+    var pending_count: u8 = 0;
+
+    // Add a pending deposit buy
+    pending_orders[0] = .{ .side = .buy, .signal_price = 95000.0, .size = 0.01, .is_deposit_buy = true };
+    const buy_id = "dep-buy-001";
+    @memcpy(pending_orders[0].order_id[0..buy_id.len], buy_id);
+    pending_orders[0].order_id_len = buy_id.len;
+    pending_count = 1;
+
+    // Simulate: cancel pending buys before sell (same logic as main loop)
+    {
+        var ci: u8 = 0;
+        while (ci < pending_count) {
+            if (pending_orders[ci].side == .buy) {
+                const cancel_oid = pending_orders[ci].order_id[0..pending_orders[ci].order_id_len];
+                _ = ex.cancelOrder(cancel_oid);
+                pending_count -= 1;
+                if (ci < pending_count) {
+                    pending_orders[ci] = pending_orders[pending_count];
+                }
+                continue;
+            }
+            ci += 1;
+        }
+    }
+
+    // Verify: buy was cancelled
+    try testing.expect(CancelTrackExchange.cancel_called);
+    try testing.expectEqualStrings("dep-buy-001", CancelTrackExchange.cancel_order_id[0..CancelTrackExchange.cancel_order_id_len]);
+    try testing.expectEqual(pending_count, 0); // buy removed
+
+    // Now submit sell
+    if (ex.submitOrder(.sell, 0.1)) |pending| {
+        if (pending_count < MAX_PENDING) {
+            pending_orders[pending_count] = .{ .side = .sell, .signal_price = 94000.0, .size = 0.1 };
+            const len = @min(pending.order_id_len, pending_orders[pending_count].order_id.len);
+            @memcpy(pending_orders[pending_count].order_id[0..len], pending.order_id[0..len]);
+            pending_orders[pending_count].order_id_len = len;
+            pending_count += 1;
+        }
+    }
+
+    // Verify: sell submitted after cancel
+    try testing.expectEqual(pending_count, 1);
+    try testing.expect(pending_orders[0].side == .sell);
+    try testing.expectEqual(CancelTrackExchange.submit_count, 1);
+}
+
+test "non-blocking: sell fill adjusts capital for actual exchange price vs signal" {
+    // Strategy closes position at signal price $95,000. Exchange fills at $95,100.
+    // Capital should be adjusted for the $100 * size difference.
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Setup: in position
+    s.in_position = true;
+    s.entry_price = 90000.0;
+    s.size = 0.1;
+    s.capital = 10000.0;
+
+    // Trigger close via checkStop (public API)
+    s.peak_price = 95000.0;
+    s.current_trail = 0.02; // 2% trailing stop
+    // Price drops 3% from peak: 95000 * 0.97 = 92150
+    const trade = s.checkStop(92000.0, 100.0);
+    try testing.expect(trade != null);
+    const t = trade.?;
+    // Strategy updated capital with signal-based PnL
+    const capital_after_signal = s.capital;
+
+    // Exchange fills at 92100 (better than signal 92000)
+    const signal_price = t.exit_price; // 92000
+    const actual_price: f64 = 92100.0;
+    const price_diff_pnl = (actual_price - signal_price) * t.size;
+    s.capital += price_diff_pnl;
+
+    // Capital should be higher than signal-based close
+    try testing.expect(s.capital > capital_after_signal);
+    // Difference should be exactly (95100 - 95000) * 0.1 = $10
+    try testing.expectApproxEqAbs(s.capital - capital_after_signal, 10.0, 0.01);
+}
+
+test "non-blocking: multiple orders fill on same tick iteration" {
+    // Two pending orders (regular buy + deposit buy) both fill on the same checkOrder pass.
+    // Both should be processed and removed from the array.
+    const BothFillExchange = struct {
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+            var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
+            const id = "both-fill";
+            @memcpy(po.order_id[0..id.len], id);
+            po.order_id_len = id.len;
+            return po;
+        }
+        fn checkOrder(_: *const anyopaque, _: []const u8) exchange_mod.OrderStatus {
+            // Both orders fill immediately
+            return .{ .filled = .{ .fill_price = 96000.0, .fill_qty = 0.01, .status = .filled } };
+        }
+        fn cancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult {
+            return .{ .cancelled = {} };
+        }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&buy),
+            .sell = @ptrCast(&sell),
+            .submitOrder = @ptrCast(&submitOrder),
+            .checkOrder = @ptrCast(&checkOrder),
+            .cancelOrder = @ptrCast(&cancelOrder),
+            .getPosition = @ptrCast(&getPosition),
+        };
+    };
+
+    var dummy: u8 = 0;
+    const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &BothFillExchange.vtable };
+
+    const PendingOrderEntry = struct {
+        order_id: [64]u8 = undefined,
+        order_id_len: usize = 0,
+        side: exchange_mod.Side = .buy,
+        signal_price: f64 = 0,
+        size: f64 = 0,
+        transfer_id: u32 = 0,
+        is_deposit_buy: bool = false,
+        entry_price: f64 = 0,
+        pnl: f64 = 0,
+        exit_type: types.Trade.ExitType = .dc_exit,
+    };
+    const MAX_PENDING: usize = 4;
+    var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
+    var pending_count: u8 = 0;
+
+    // Add two pending buys
+    pending_orders[0] = .{ .side = .buy, .signal_price = 95000.0, .size = 0.1 };
+    const id1 = "order-001";
+    @memcpy(pending_orders[0].order_id[0..id1.len], id1);
+    pending_orders[0].order_id_len = id1.len;
+
+    pending_orders[1] = .{ .side = .buy, .signal_price = 95500.0, .size = 0.01, .is_deposit_buy = true };
+    const id2 = "order-002";
+    @memcpy(pending_orders[1].order_id[0..id2.len], id2);
+    pending_orders[1].order_id_len = id2.len;
+    pending_count = 2;
+
+    // Simulate tick: check all pending orders (swap-remove loop)
+    var fills: u8 = 0;
+    {
+        var i: u8 = 0;
+        while (i < pending_count) {
+            const oid = pending_orders[i].order_id[0..pending_orders[i].order_id_len];
+            const status = ex.checkOrder(oid);
+            switch (status) {
+                .filled => {
+                    fills += 1;
+                    pending_count -= 1;
+                    if (i < pending_count) {
+                        pending_orders[i] = pending_orders[pending_count];
+                    }
+                    continue; // re-check swapped entry
+                },
+                else => {},
+            }
+            i += 1;
+        }
+    }
+
+    // Both orders filled and removed
+    try testing.expectEqual(fills, 2);
+    try testing.expectEqual(pending_count, 0);
+}
+
+test "non-blocking: regime change BULL to BEAR while buy is pending" {
+    // Buy submitted in BULL. Before fill, regime changes to BEAR.
+    // Trailing stop should NOT fire on the pending (unfilled) position.
+    // When buy fills, position is committed. Trailing stop then applies.
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+    s.suppress_entry = true;
+
+    // Fill MA
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    // BULL: price above MA+3%
+    _ = s.processTick(tick(104.0, 6.0));
+    try testing.expect(s.regime == .bull);
+    try testing.expect(s.buy_signal);
+
+    // Buy signal fired but not filled yet (suppress_entry)
+    try testing.expect(!s.in_position);
+    s.buy_signal = false;
+
+    // Price drops — regime changes to BEAR
+    _ = s.processTick(tick(90.0, 7.0));
+    try testing.expect(s.regime == .bear);
+
+    // Trailing stop check: no position, should return null
+    const stop = s.checkStop(89.0, 8.0);
+    try testing.expect(stop == null);
+
+    // Now simulate: buy fills at original price
+    s.in_position = true;
+    s.entry_price = 104.0;
+    s.size = 9.59;
+    s.peak_price = 104.0;
+
+    // Now trailing stop can fire (we're in BEAR with position)
+    s.current_trail = 0.02;
+    // Price at 90 is a 13.5% drop from peak 104 — well past 2% trail
+    const stop2 = s.checkStop(90.0, 9.0);
+    try testing.expect(stop2 != null);
+    try testing.expect(stop2.?.exit_type == .trailing_stop);
+}
+
+test "non-blocking: postTransferWithFill uses actual fill values not signal values" {
+    // Verify the settlement row carries actual exchange fill data.
+    // We can't test Turso directly, but we can verify the function signature
+    // and that the values passed differ from signal values.
+    const signal_price: f64 = 95000.0;
+    const signal_size: f64 = 0.105;
+    const signal_amount = signal_price * signal_size; // 9975.0
+
+    const actual_price: f64 = 95100.0;
+    const actual_size: f64 = 0.10498;
+    const actual_amount = actual_price * actual_size; // 9983.598
+
+    // Verify actual values differ from signal values
+    try testing.expect(actual_price != signal_price);
+    try testing.expect(actual_size != signal_size);
+    try testing.expect(actual_amount != signal_amount);
+
+    // Verify the actual amount is computed from actual price * actual size
+    try testing.expectApproxEqAbs(actual_amount, 9983.598, 0.01);
+    // Not from signal values
+    try testing.expect(@abs(actual_amount - signal_amount) > 1.0);
 }

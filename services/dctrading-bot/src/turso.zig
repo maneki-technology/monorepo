@@ -84,6 +84,11 @@ pub const Turso = struct {
         ;
         const core_ok = self.execSync(sql_core);
         const acct_ok = self.execSync(sql_acct);
+        // Migration: add order_id column (silent — ignore duplicate column error)
+        const sql_migrate =
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE transfers ADD COLUMN order_id TEXT"}}]}
+        ;
+        self.execSyncSilent(sql_migrate);
         if (core_ok and acct_ok) {
             std.debug.print("  [turso] Tables ready.\n", .{});
         } else {
@@ -173,17 +178,17 @@ pub const Turso = struct {
 
     /// Create a pending transfer + reserve balances atomically (sync, returns transfer ID).
     /// TigerBeetle convention: debit_account receives credits, credit_account receives debits.
-    pub fn createPendingTransfer(self: *const Turso, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64, price: f64, qty: f64) ?u32 {
+    pub fn createPendingTransfer(self: *const Turso, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64, price: f64, qty: f64, order_id: []const u8) ?u32 {
         var buf: [2048]u8 = undefined;
         const sql = std.fmt.bufPrint(&buf,
             \\{{"requests": [
             \\  {{"type": "execute", "stmt": {{"sql": "BEGIN"}}}},
-            \\  {{"type": "execute", "stmt": {{"sql": "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, user_data, price, size, timestamp) VALUES ({d}, {d}, {d:.8}, {d}, 1, 'pending', '{s}', {d:.8}, {d:.8}, {d:.6}) RETURNING id"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, user_data, price, size, timestamp, order_id) VALUES ({d}, {d}, {d:.8}, {d}, 1, 'pending', '{s}', {d:.8}, {d:.8}, {d:.6}, '{s}') RETURNING id"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET credits_pending = credits_pending + {d:.8} WHERE id = {d}"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET debits_pending = debits_pending + {d:.8} WHERE id = {d}"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "COMMIT"}}}}
             \\]}}
-        , .{ debit_acct, credit_acct, amount, code, user_data, price, qty, timestamp, amount, debit_acct, amount, credit_acct }) catch return null;
+        , .{ debit_acct, credit_acct, amount, code, user_data, price, qty, timestamp, order_id, amount, debit_acct, amount, credit_acct }) catch return null;
         const resp = self.execSyncRead(sql) orelse return null;
         defer resp.deinit();
         return parseTransferId(resp.body);
@@ -204,6 +209,21 @@ pub const Turso = struct {
         , .{ pending_id, pending_id, pending_id, pending_id, pending_id, pending_id, pending_id }) catch return;
         self.execAsync(sql);
     }
+    /// Post a pending transfer with actual fill data — append settlement record with corrected price/size/amount.
+    /// Original pending transfer stays immutable. New row has actual exchange fill values.
+    pub fn postTransferWithFill(self: *const Turso, pending_id: u32, actual_amount: f64, actual_price: f64, actual_size: f64, user_data: []const u8) void {
+        var buf: [4096]u8 = undefined;
+        const sql = std.fmt.bufPrint(&buf,
+            \\{{"requests": [
+            \\  {{"type": "execute", "stmt": {{"sql": "BEGIN"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "INSERT INTO transfers (debit_account_id, credit_account_id, amount, pending_id, code, flags, status, user_data, price, size, timestamp) SELECT debit_account_id, credit_account_id, {d:.8}, id, code, 2, 'posted', '{s}', {d:.8}, {d:.8}, timestamp FROM transfers WHERE id = {d} AND status = 'pending'"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET credits_pending = credits_pending - (SELECT amount FROM transfers WHERE id = {d}), credits_posted = credits_posted + {d:.8} WHERE id = (SELECT debit_account_id FROM transfers WHERE id = {d})"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET debits_pending = debits_pending - (SELECT amount FROM transfers WHERE id = {d}), debits_posted = debits_posted + {d:.8} WHERE id = (SELECT credit_account_id FROM transfers WHERE id = {d})"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "COMMIT"}}}}
+            \\]}}
+        , .{ actual_amount, user_data, actual_price, actual_size, pending_id, pending_id, actual_amount, pending_id, pending_id, actual_amount, pending_id }) catch return;
+        self.execAsync(sql);
+    }
 
     /// Void a pending transfer — append void record + release reserved balances (sync).
     /// Original pending transfer stays immutable. New row references it via pending_id.
@@ -219,6 +239,73 @@ pub const Turso = struct {
             \\]}}
         , .{ pending_id, pending_id, pending_id, pending_id, pending_id }) catch return;
         _ = self.execSync(sql);
+    }
+
+    /// Query unresolved pending transfers for startup reconciliation (blocking).
+    /// Returns the first pending transfer that has no post/void settlement row.
+    /// Caller must check the order_id against the exchange to resolve.
+    pub const PendingTransferInfo = struct {
+        transfer_id: u32,
+        order_id: [64]u8 = undefined,
+        order_id_len: usize = 0,
+        code: u8 = 0,
+        amount: f64 = 0,
+        price: f64 = 0,
+        size: f64 = 0,
+    };
+
+    pub fn queryPendingOrder(self: *const Turso) ?PendingTransferInfo {
+        const sql =
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "SELECT id, order_id, code, amount, price, size FROM transfers WHERE status = 'pending' AND order_id IS NOT NULL AND id NOT IN (SELECT pending_id FROM transfers WHERE pending_id IS NOT NULL) LIMIT 1"}}]}
+        ;
+        const resp = self.execSyncRead(sql) orelse return null;
+        defer resp.deinit();
+        if (std.mem.indexOf(u8, resp.body, "\"rows\":[]") != null) return null;
+
+        // Parse values from first row: id, order_id, code, amount, price, size
+        const r = resp.body;
+        const vkey = "\"value\":";
+        var info: PendingTransferInfo = .{ .transfer_id = 0 };
+        var search_pos: usize = 0;
+        var col: usize = 0;
+        while (col < 6) : (col += 1) {
+            const vpos = std.mem.indexOf(u8, r[search_pos..], vkey) orelse break;
+            var pos = search_pos + vpos + vkey.len;
+            if (pos < r.len and r[pos] == '"') {
+                pos += 1;
+                const end = std.mem.indexOf(u8, r[pos..], "\"") orelse break;
+                const val = r[pos..][0..end];
+                switch (col) {
+                    0 => info.transfer_id = std.fmt.parseInt(u32, val, 10) catch 0,
+                    1 => {
+                        const len = @min(val.len, info.order_id.len);
+                        @memcpy(info.order_id[0..len], val[0..len]);
+                        info.order_id_len = len;
+                    },
+                    2 => info.code = std.fmt.parseInt(u8, val, 10) catch 0,
+                    3 => info.amount = std.fmt.parseFloat(f64, val) catch 0,
+                    4 => info.price = std.fmt.parseFloat(f64, val) catch 0,
+                    5 => info.size = std.fmt.parseFloat(f64, val) catch 0,
+                    else => {},
+                }
+                search_pos = pos + end + 1;
+            } else {
+                var end = pos;
+                while (end < r.len and r[end] != ',' and r[end] != '}') : (end += 1) {}
+                const val = r[pos..end];
+                switch (col) {
+                    0 => info.transfer_id = std.fmt.parseInt(u32, val, 10) catch 0,
+                    2 => info.code = std.fmt.parseInt(u8, val, 10) catch 0,
+                    3 => info.amount = std.fmt.parseFloat(f64, val) catch 0,
+                    4 => info.price = std.fmt.parseFloat(f64, val) catch 0,
+                    5 => info.size = std.fmt.parseFloat(f64, val) catch 0,
+                    else => {},
+                }
+                search_pos = end;
+            }
+        }
+        if (info.transfer_id == 0) return null;
+        return info;
     }
 
 
@@ -354,6 +441,12 @@ pub const Turso = struct {
             return false;
         }
         return true;
+    }
+
+    fn execSyncSilent(self: *const Turso, json_body: []const u8) void {
+        const h = self.headers();
+        const resp = self.http.post(self.url, &h, json_body) catch return;
+        defer resp.deinit();
     }
 
     fn execSyncRead(self: *const Turso, json_body: []const u8) ?HttpClient.Response {
