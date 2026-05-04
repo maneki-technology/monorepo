@@ -198,6 +198,24 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         }
     }
 
+    // --- Pending order tracking ---
+    const PendingOrderEntry = struct {
+        order_id: [64]u8 = undefined,
+        order_id_len: usize = 0,
+        side: exchange_mod.Side,
+        signal_price: f64,
+        size: f64,
+        transfer_id: u32 = 0,
+        is_deposit_buy: bool = false,
+        entry_price: f64 = 0,
+        pnl: f64 = 0,
+        exit_type: types.Trade.ExitType = .dc_exit,
+    };
+    const MAX_PENDING: usize = 4;
+    var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
+    var pending_count: u8 = 0;
+
+
     // Reconcile pending transfers from Turso (orders submitted but not confirmed before restart)
     if (turso != null) {
         while (turso.?.queryPendingOrder()) |pending_info| {
@@ -230,13 +248,23 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                     turso.?.voidTransfer(pending_info.transfer_id);
                 },
                 .pending => {
-                    // Still pending after restart — wait for it in the main loop
-                    std.debug.print("  [reconcile] Order still pending, will track in main loop\n", .{});
-                    // Note: we don't add to pending_orders here because we don't have
-                    // all the context (signal_price, exit_type, etc). The exchange position
-                    // reconciliation above handles the position state. If the order fills
-                    // during the loop, checkOrder will catch it.
-                    break; // stop processing — remaining pendings will resolve next restart
+                    // Still pending after restart — track in main loop
+                    std.debug.print("  [reconcile] Order still pending, tracking in main loop\n", .{});
+                    if (pending_count < MAX_PENDING) {
+                        const side: exchange_mod.Side = if (pending_info.code == turso_mod.Turso.CODE_BUY) .buy else .sell;
+                        pending_orders[pending_count] = .{
+                            .side = side,
+                            .signal_price = pending_info.price,
+                            .size = pending_info.size,
+                            .transfer_id = pending_info.transfer_id,
+                            .is_deposit_buy = (side == .buy and strategy.in_position),
+                            .entry_price = strategy.entry_price,
+                        };
+                        const len = @min(pending_info.order_id_len, pending_orders[pending_count].order_id.len);
+                        @memcpy(pending_orders[pending_count].order_id[0..len], pending_info.order_id[0..len]);
+                        pending_orders[pending_count].order_id_len = len;
+                        pending_count += 1;
+                    }
                 },
             }
         }
@@ -283,26 +311,6 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
         t.notifyStartup(regime_str, strategy.capital, strategy.in_position, instance);
     }
-    // --- Pending order tracking ---
-    const PendingOrderEntry = struct {
-        order_id: [64]u8 = undefined,
-        order_id_len: usize = 0,
-        side: exchange_mod.Side,
-        signal_price: f64,
-        size: f64,
-        transfer_id: u32 = 0, // Turso pending transfer ID (0 = no pending transfer)
-        is_deposit_buy: bool = false,
-        // For sells: the trade that triggered it (needed for PnL calculation)
-        entry_price: f64 = 0,
-        pnl: f64 = 0,
-        exit_type: types.Trade.ExitType = .dc_exit,
-    };
-    const MAX_PENDING: usize = 4;
-    var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
-    var pending_count: u8 = 0;
-
-    // Enable non-blocking mode: strategy signals buys but doesn't commit position
-    strategy.suppress_entry = true;
 
     while (!shutdown_requested) {
         const tick = feed.nextTick() catch |err| {
@@ -489,6 +497,42 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         const was_in_pos = strategy.in_position;
         if (strategy.processTick(t)) |trade| {
             // Sell signal from strategy (DC exit or regime close)
+            // Cancel any pending buy orders before selling
+            {
+                var ci: u8 = 0;
+                while (ci < pending_count) {
+                    if (pending_orders[ci].side == .buy) {
+                        const cancel_oid = pending_orders[ci].order_id[0..pending_orders[ci].order_id_len];
+                        const cancel_result = exchange.cancelOrder(cancel_oid);
+                        switch (cancel_result) {
+                            .filled => |fill| {
+                                const bp = if (fill.fill_price > 0) fill.fill_price else pending_orders[ci].signal_price;
+                                const bs = if (fill.fill_qty > 0) fill.fill_qty else pending_orders[ci].size;
+                                if (pending_orders[ci].is_deposit_buy) {
+                                    strategy.entry_price = (strategy.entry_price * strategy.size + bp * bs) / (strategy.size + bs);
+                                    strategy.size += bs;
+                                    if (bp > strategy.peak_price) strategy.peak_price = bp;
+                                } else {
+                                    strategy.entry_price = bp;
+                                    strategy.size = bs;
+                                    strategy.peak_price = bp;
+                                    strategy.in_position = true;
+                                }
+                                std.debug.print("  BUY filled during cancel, will sell immediately\n", .{});
+                            },
+                            .cancelled, .failed => {
+                                if (pending_orders[ci].transfer_id > 0 and turso != null) turso.?.voidTransfer(pending_orders[ci].transfer_id);
+                            },
+                        }
+                        pending_count -= 1;
+                        if (ci < pending_count) {
+                            pending_orders[ci] = pending_orders[pending_count];
+                        }
+                        continue;
+                    }
+                    ci += 1;
+                }
+            }
             closed_count += 1;
             printLiveTrade(trade, closed_count, &strategy);
             if (exchange.submitOrder(.sell, trade.size)) |pending| {

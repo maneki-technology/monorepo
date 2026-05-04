@@ -2499,3 +2499,203 @@ test "non-blocking: fill resolves correctly after multiple pending checks" {
     try testing.expectEqual(trailing_stop_checks, 10);
     try testing.expectEqual(DelayedExchange.checks, 10);
 }
+
+test "non-blocking: startup reconciliation adds still-pending order to tracking array" {
+    // Simulates: bot restarts, Turso has a pending transfer, exchange says still pending.
+    // The order should be added to pending_orders so the main loop tracks it.
+    const PendingOrderEntry = struct {
+        order_id: [64]u8 = undefined,
+        order_id_len: usize = 0,
+        side: exchange_mod.Side = .buy,
+        signal_price: f64 = 0,
+        size: f64 = 0,
+        transfer_id: u32 = 0,
+        is_deposit_buy: bool = false,
+        entry_price: f64 = 0,
+        pnl: f64 = 0,
+        exit_type: types.Trade.ExitType = .dc_exit,
+    };
+
+    const MAX_PENDING: usize = 4;
+    var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
+    var pending_count: u8 = 0;
+
+    // Simulate: Turso returned a pending buy transfer
+    const transfer_id: u32 = 42;
+    const order_id = "recon-order-001";
+    const price: f64 = 95000.0;
+    const size: f64 = 0.105;
+    const code: u8 = 2; // CODE_BUY
+    const in_position = false;
+
+    // Simulate reconciliation logic: exchange says still pending → add to tracking
+    const side: exchange_mod.Side = if (code == 2) .buy else .sell;
+    if (pending_count < MAX_PENDING) {
+        pending_orders[pending_count] = .{
+            .side = side,
+            .signal_price = price,
+            .size = size,
+            .transfer_id = transfer_id,
+            .is_deposit_buy = (side == .buy and in_position),
+        };
+        @memcpy(pending_orders[pending_count].order_id[0..order_id.len], order_id);
+        pending_orders[pending_count].order_id_len = order_id.len;
+        pending_count += 1;
+    }
+
+    // Verify: order is tracked
+    try testing.expectEqual(pending_count, 1);
+    try testing.expectEqualStrings("recon-order-001", pending_orders[0].order_id[0..pending_orders[0].order_id_len]);
+    try testing.expect(pending_orders[0].side == .buy);
+    try testing.expectApproxEqAbs(pending_orders[0].signal_price, 95000.0, 0.01);
+    try testing.expectApproxEqAbs(pending_orders[0].size, 0.105, 0.001);
+    try testing.expectEqual(pending_orders[0].transfer_id, 42);
+    try testing.expect(!pending_orders[0].is_deposit_buy); // not in position → regular buy
+}
+
+test "non-blocking: startup reconciliation marks deposit buy correctly when in position" {
+    const PendingOrderEntry = struct {
+        order_id: [64]u8 = undefined,
+        order_id_len: usize = 0,
+        side: exchange_mod.Side = .buy,
+        signal_price: f64 = 0,
+        size: f64 = 0,
+        transfer_id: u32 = 0,
+        is_deposit_buy: bool = false,
+        entry_price: f64 = 0,
+        pnl: f64 = 0,
+        exit_type: types.Trade.ExitType = .dc_exit,
+    };
+
+    const MAX_PENDING: usize = 4;
+    var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
+    var pending_count: u8 = 0;
+
+    // Simulate: already in position, pending buy from deposit
+    const in_position = true;
+    const side: exchange_mod.Side = .buy;
+    if (pending_count < MAX_PENDING) {
+        pending_orders[pending_count] = .{
+            .side = side,
+            .signal_price = 96000.0,
+            .size = 0.01,
+            .transfer_id = 50,
+            .is_deposit_buy = (side == .buy and in_position),
+        };
+        const id = "deposit-recon-001";
+        @memcpy(pending_orders[pending_count].order_id[0..id.len], id);
+        pending_orders[pending_count].order_id_len = id.len;
+        pending_count += 1;
+    }
+
+    try testing.expectEqual(pending_count, 1);
+    try testing.expect(pending_orders[0].is_deposit_buy); // in position → deposit buy
+}
+
+test "non-blocking: DC exit cancels pending buys before selling" {
+    // Simulates: strategy emits DC exit sell, but there's a pending deposit buy.
+    // The pending buy must be cancelled before the sell is submitted.
+    const CancelTrackExchange = struct {
+        var cancel_called: bool = false;
+        var cancel_order_id: [64]u8 = undefined;
+        var cancel_order_id_len: usize = 0;
+        var submit_count: u32 = 0;
+
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+            submit_count += 1;
+            var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
+            var id_buf: [20]u8 = undefined;
+            const id = std.fmt.bufPrint(&id_buf, "sell-{d:0>3}", .{submit_count}) catch "sell-000";
+            @memcpy(po.order_id[0..id.len], id);
+            po.order_id_len = id.len;
+            return po;
+        }
+        fn checkOrder(_: *const anyopaque, _: []const u8) exchange_mod.OrderStatus {
+            return .{ .pending = {} };
+        }
+        fn cancelOrder(_: *const anyopaque, order_id: []const u8) exchange_mod.CancelResult {
+            cancel_called = true;
+            @memcpy(cancel_order_id[0..order_id.len], order_id);
+            cancel_order_id_len = order_id.len;
+            return .{ .cancelled = {} };
+        }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&buy),
+            .sell = @ptrCast(&sell),
+            .submitOrder = @ptrCast(&submitOrder),
+            .checkOrder = @ptrCast(&checkOrder),
+            .cancelOrder = @ptrCast(&cancelOrder),
+            .getPosition = @ptrCast(&getPosition),
+        };
+    };
+
+    CancelTrackExchange.cancel_called = false;
+    CancelTrackExchange.submit_count = 0;
+    var dummy: u8 = 0;
+    const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &CancelTrackExchange.vtable };
+
+    // Setup: pending deposit buy in the array
+    const PendingOrderEntry = struct {
+        order_id: [64]u8 = undefined,
+        order_id_len: usize = 0,
+        side: exchange_mod.Side = .buy,
+        signal_price: f64 = 0,
+        size: f64 = 0,
+        transfer_id: u32 = 0,
+        is_deposit_buy: bool = false,
+        entry_price: f64 = 0,
+        pnl: f64 = 0,
+        exit_type: types.Trade.ExitType = .dc_exit,
+    };
+    const MAX_PENDING: usize = 4;
+    var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
+    var pending_count: u8 = 0;
+
+    // Add a pending deposit buy
+    pending_orders[0] = .{ .side = .buy, .signal_price = 95000.0, .size = 0.01, .is_deposit_buy = true };
+    const buy_id = "dep-buy-001";
+    @memcpy(pending_orders[0].order_id[0..buy_id.len], buy_id);
+    pending_orders[0].order_id_len = buy_id.len;
+    pending_count = 1;
+
+    // Simulate: cancel pending buys before sell (same logic as main loop)
+    {
+        var ci: u8 = 0;
+        while (ci < pending_count) {
+            if (pending_orders[ci].side == .buy) {
+                const cancel_oid = pending_orders[ci].order_id[0..pending_orders[ci].order_id_len];
+                _ = ex.cancelOrder(cancel_oid);
+                pending_count -= 1;
+                if (ci < pending_count) {
+                    pending_orders[ci] = pending_orders[pending_count];
+                }
+                continue;
+            }
+            ci += 1;
+        }
+    }
+
+    // Verify: buy was cancelled
+    try testing.expect(CancelTrackExchange.cancel_called);
+    try testing.expectEqualStrings("dep-buy-001", CancelTrackExchange.cancel_order_id[0..CancelTrackExchange.cancel_order_id_len]);
+    try testing.expectEqual(pending_count, 0); // buy removed
+
+    // Now submit sell
+    if (ex.submitOrder(.sell, 0.1)) |pending| {
+        if (pending_count < MAX_PENDING) {
+            pending_orders[pending_count] = .{ .side = .sell, .signal_price = 94000.0, .size = 0.1 };
+            const len = @min(pending.order_id_len, pending_orders[pending_count].order_id.len);
+            @memcpy(pending_orders[pending_count].order_id[0..len], pending.order_id[0..len]);
+            pending_orders[pending_count].order_id_len = len;
+            pending_count += 1;
+        }
+    }
+
+    // Verify: sell submitted after cancel
+    try testing.expectEqual(pending_count, 1);
+    try testing.expect(pending_orders[0].side == .sell);
+    try testing.expectEqual(CancelTrackExchange.submit_count, 1);
+}
