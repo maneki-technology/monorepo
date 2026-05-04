@@ -2993,7 +2993,7 @@ test "capital_reserved: prevents double-ordering from same capital" {
     s.capital_reserved = first_cost;
     s.buy_signal = false;
 
-    // Second buy signal (e.g., duplicate suppression failed)
+    // Deposit buy signal fires while regular buy is reserved — sizes from remaining capital
     _ = s.processTick(tick(106.0, 7.0));
     if (s.buy_signal) {
         // Size should be tiny — only ~$1 available
