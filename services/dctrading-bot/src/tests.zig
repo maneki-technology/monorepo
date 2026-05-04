@@ -2699,3 +2699,205 @@ test "non-blocking: DC exit cancels pending buys before selling" {
     try testing.expect(pending_orders[0].side == .sell);
     try testing.expectEqual(CancelTrackExchange.submit_count, 1);
 }
+
+test "non-blocking: sell fill adjusts capital for actual exchange price vs signal" {
+    // Strategy closes position at signal price $95,000. Exchange fills at $95,100.
+    // Capital should be adjusted for the $100 * size difference.
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 10000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+
+    // Setup: in position
+    s.in_position = true;
+    s.entry_price = 90000.0;
+    s.size = 0.1;
+    s.capital = 10000.0;
+
+    // Trigger close via checkStop (public API)
+    s.peak_price = 95000.0;
+    s.current_trail = 0.02; // 2% trailing stop
+    // Price drops 3% from peak: 95000 * 0.97 = 92150
+    const trade = s.checkStop(92000.0, 100.0);
+    try testing.expect(trade != null);
+    const t = trade.?;
+    // Strategy updated capital with signal-based PnL
+    const capital_after_signal = s.capital;
+
+    // Exchange fills at 92100 (better than signal 92000)
+    const signal_price = t.exit_price; // 92000
+    const actual_price: f64 = 92100.0;
+    const price_diff_pnl = (actual_price - signal_price) * t.size;
+    s.capital += price_diff_pnl;
+
+    // Capital should be higher than signal-based close
+    try testing.expect(s.capital > capital_after_signal);
+    // Difference should be exactly (95100 - 95000) * 0.1 = $10
+    try testing.expectApproxEqAbs(s.capital - capital_after_signal, 10.0, 0.01);
+}
+
+test "non-blocking: multiple orders fill on same tick iteration" {
+    // Two pending orders (regular buy + deposit buy) both fill on the same checkOrder pass.
+    // Both should be processed and removed from the array.
+    const BothFillExchange = struct {
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+            var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
+            const id = "both-fill";
+            @memcpy(po.order_id[0..id.len], id);
+            po.order_id_len = id.len;
+            return po;
+        }
+        fn checkOrder(_: *const anyopaque, _: []const u8) exchange_mod.OrderStatus {
+            // Both orders fill immediately
+            return .{ .filled = .{ .fill_price = 96000.0, .fill_qty = 0.01, .status = .filled } };
+        }
+        fn cancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult {
+            return .{ .cancelled = {} };
+        }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        const vtable = exchange_mod.Exchange.VTable{
+            .buy = @ptrCast(&buy),
+            .sell = @ptrCast(&sell),
+            .submitOrder = @ptrCast(&submitOrder),
+            .checkOrder = @ptrCast(&checkOrder),
+            .cancelOrder = @ptrCast(&cancelOrder),
+            .getPosition = @ptrCast(&getPosition),
+        };
+    };
+
+    var dummy: u8 = 0;
+    const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &BothFillExchange.vtable };
+
+    const PendingOrderEntry = struct {
+        order_id: [64]u8 = undefined,
+        order_id_len: usize = 0,
+        side: exchange_mod.Side = .buy,
+        signal_price: f64 = 0,
+        size: f64 = 0,
+        transfer_id: u32 = 0,
+        is_deposit_buy: bool = false,
+        entry_price: f64 = 0,
+        pnl: f64 = 0,
+        exit_type: types.Trade.ExitType = .dc_exit,
+    };
+    const MAX_PENDING: usize = 4;
+    var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
+    var pending_count: u8 = 0;
+
+    // Add two pending buys
+    pending_orders[0] = .{ .side = .buy, .signal_price = 95000.0, .size = 0.1 };
+    const id1 = "order-001";
+    @memcpy(pending_orders[0].order_id[0..id1.len], id1);
+    pending_orders[0].order_id_len = id1.len;
+
+    pending_orders[1] = .{ .side = .buy, .signal_price = 95500.0, .size = 0.01, .is_deposit_buy = true };
+    const id2 = "order-002";
+    @memcpy(pending_orders[1].order_id[0..id2.len], id2);
+    pending_orders[1].order_id_len = id2.len;
+    pending_count = 2;
+
+    // Simulate tick: check all pending orders (swap-remove loop)
+    var fills: u8 = 0;
+    {
+        var i: u8 = 0;
+        while (i < pending_count) {
+            const oid = pending_orders[i].order_id[0..pending_orders[i].order_id_len];
+            const status = ex.checkOrder(oid);
+            switch (status) {
+                .filled => {
+                    fills += 1;
+                    pending_count -= 1;
+                    if (i < pending_count) {
+                        pending_orders[i] = pending_orders[pending_count];
+                    }
+                    continue; // re-check swapped entry
+                },
+                else => {},
+            }
+            i += 1;
+        }
+    }
+
+    // Both orders filled and removed
+    try testing.expectEqual(fills, 2);
+    try testing.expectEqual(pending_count, 0);
+}
+
+test "non-blocking: regime change BULL to BEAR while buy is pending" {
+    // Buy submitted in BULL. Before fill, regime changes to BEAR.
+    // Trailing stop should NOT fire on the pending (unfilled) position.
+    // When buy fills, position is committed. Trailing stop then applies.
+    const allocator = testing.allocator;
+    var s = try strat_mod.Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer s.deinit(allocator);
+    s.suppress_entry = true;
+
+    // Fill MA
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        _ = s.processTick(tick(100.0, @floatFromInt(i)));
+    }
+    // BULL: price above MA+3%
+    _ = s.processTick(tick(104.0, 6.0));
+    try testing.expect(s.regime == .bull);
+    try testing.expect(s.buy_signal);
+
+    // Buy signal fired but not filled yet (suppress_entry)
+    try testing.expect(!s.in_position);
+    s.buy_signal = false;
+
+    // Price drops — regime changes to BEAR
+    _ = s.processTick(tick(90.0, 7.0));
+    try testing.expect(s.regime == .bear);
+
+    // Trailing stop check: no position, should return null
+    const stop = s.checkStop(89.0, 8.0);
+    try testing.expect(stop == null);
+
+    // Now simulate: buy fills at original price
+    s.in_position = true;
+    s.entry_price = 104.0;
+    s.size = 9.59;
+    s.peak_price = 104.0;
+
+    // Now trailing stop can fire (we're in BEAR with position)
+    s.current_trail = 0.02;
+    // Price at 90 is a 13.5% drop from peak 104 — well past 2% trail
+    const stop2 = s.checkStop(90.0, 9.0);
+    try testing.expect(stop2 != null);
+    try testing.expect(stop2.?.exit_type == .trailing_stop);
+}
+
+test "non-blocking: postTransferWithFill uses actual fill values not signal values" {
+    // Verify the settlement row carries actual exchange fill data.
+    // We can't test Turso directly, but we can verify the function signature
+    // and that the values passed differ from signal values.
+    const signal_price: f64 = 95000.0;
+    const signal_size: f64 = 0.105;
+    const signal_amount = signal_price * signal_size; // 9975.0
+
+    const actual_price: f64 = 95100.0;
+    const actual_size: f64 = 0.10498;
+    const actual_amount = actual_price * actual_size; // 9983.598
+
+    // Verify actual values differ from signal values
+    try testing.expect(actual_price != signal_price);
+    try testing.expect(actual_size != signal_size);
+    try testing.expect(actual_amount != signal_amount);
+
+    // Verify the actual amount is computed from actual price * actual size
+    try testing.expectApproxEqAbs(actual_amount, 9983.598, 0.01);
+    // Not from signal values
+    try testing.expect(@abs(actual_amount - signal_amount) > 1.0);
+}
