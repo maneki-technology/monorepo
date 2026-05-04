@@ -38,6 +38,7 @@ pub const LiveLoop = struct {
     last_feed_ts: f64 = 0,
     last_price: f64 = 0,
     prev_regime: Strategy.Regime = .bear,
+    was_downsampled: bool = false, // true if last processTick ran strategy (1/min)
 
     // Event counters for test assertions
     buys_submitted: u32 = 0,
@@ -59,6 +60,7 @@ pub const LiveLoop = struct {
     /// Process one tick — same logic as the main loop body in runLive().
     /// Returns true if the loop should continue, false to stop.
     pub fn processTick(self: *LiveLoop, t: Tick) void {
+        self.was_downsampled = false;
         self.last_price = t.price;
 
         // --- Phase 1: Check pending orders (every tick) ---
@@ -72,8 +74,8 @@ pub const LiveLoop = struct {
             }
         }
 
-        // --- Phase 3: Downsample to 1/min ---
         if (t.timestamp - self.last_feed_ts < 60.0) return;
+        self.was_downsampled = true;
         self.last_feed_ts = t.timestamp;
 
         // --- Phase 4: Strategy tick ---
