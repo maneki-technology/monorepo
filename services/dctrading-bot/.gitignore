@@ -1,0 +1,4 @@
+*.csv
+*.checkpoint
+zig-out/
+.zig-cache/
