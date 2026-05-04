@@ -46,7 +46,7 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 | `telegram.zig` | Telegram + ntfy push notifications |
 | `http_client.zig` | Shared HTTP client (std.http.Client wrapper) |
 | `types.zig` | Tick, Trade, DC event types |
-| `tests.zig` | 158 tests |
+| `tests.zig` | 160 tests |
 
 ## Setup
 

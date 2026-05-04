@@ -15,6 +15,9 @@ pub const SimExchange = struct {
     fill_delay: u32 = 1, // ticks before order fills (0 = immediate)
     fill_price_offset: f64 = 0, // slippage: actual = signal + offset
     partial_fill_ratio: f64 = 1.0, // 1.0 = full fill, 0.5 = half
+    fill_commission: f64 = 0,
+    fill_commission_asset: [8]u8 = undefined,
+    fill_commission_asset_len: usize = 0,
     fail_next_submit: bool = false,
     fail_next_cancel: bool = false,
     cancel_fills_instead: bool = false, // simulate race: cancel returns .filled
@@ -113,7 +116,7 @@ pub const SimExchange = struct {
             const fq = order.qty * self.partial_fill_ratio;
             self.position_qty += fq;
             self.position_entry = fp;
-            return .{ .fill_price = fp, .fill_qty = fq, .status = .filled };
+            return self.makeFill(fp, fq);
         }
         return null;
     }
@@ -131,7 +134,7 @@ pub const SimExchange = struct {
                 self.position_qty = 0;
                 self.position_entry = 0;
             }
-            return .{ .fill_price = fp, .fill_qty = fq, .status = .filled };
+            return self.makeFill(fp, fq);
         }
         return null;
     }
@@ -179,7 +182,7 @@ pub const SimExchange = struct {
         if (order.filled) {
             const fp = order.price + self.fill_price_offset;
             const fq = order.qty * self.partial_fill_ratio;
-            var fill: OrderFill = .{ .fill_price = fp, .fill_qty = fq, .status = .filled };
+            var fill = self.makeFill(fp, fq);
             const id_str = std.fmt.bufPrint(&fill.order_id, "{d}", .{oid}) catch return .{ .failed = {} };
             fill.order_id_len = id_str.len;
             self.removeOrder(oid);
@@ -206,7 +209,7 @@ pub const SimExchange = struct {
                 }
             }
             self.appendLog(.{ .tick = self.tick_count, .kind = .fill, .order_id = oid, .side = order.side, .qty = fq, .price = fp });
-            var fill: OrderFill = .{ .fill_price = fp, .fill_qty = fq, .status = .filled };
+            var fill = self.makeFill(fp, fq);
             const id_str = std.fmt.bufPrint(&fill.order_id, "{d}", .{oid}) catch return .{ .failed = {} };
             fill.order_id_len = id_str.len;
             self.removeOrder(oid);
@@ -233,7 +236,7 @@ pub const SimExchange = struct {
             order.filled = true;
             const fp = order.price + self.fill_price_offset;
             const fq = order.qty * self.partial_fill_ratio;
-            return .{ .filled = .{ .fill_price = fp, .fill_qty = fq, .status = .filled } };
+            return .{ .filled = self.makeFill(fp, fq) };
         }
 
         order.cancelled = true;
@@ -250,6 +253,17 @@ pub const SimExchange = struct {
             .market_value = self.position_qty * self.position_entry,
             .unrealized_pnl = 0,
         };
+    }
+
+    fn makeFill(self: *const SimExchange, fill_price: f64, fill_qty: f64) OrderFill {
+        var fill: OrderFill = .{ .fill_price = fill_price, .fill_qty = fill_qty, .status = .filled };
+        if (self.fill_commission > 0 or self.fill_commission_asset_len > 0) {
+            fill.commission = self.fill_commission;
+            const len = @min(self.fill_commission_asset_len, fill.commission_asset.len);
+            @memcpy(fill.commission_asset[0..len], self.fill_commission_asset[0..len]);
+            fill.commission_asset_len = len;
+        }
+        return fill;
     }
 
     const vtable = Exchange.VTable{
