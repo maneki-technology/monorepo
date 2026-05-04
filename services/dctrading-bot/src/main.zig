@@ -724,7 +724,6 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                                     pending_count += 1;
                                     strategy.capital_reserved += t.price * add_size;
                                     std.debug.print("  DEPOSIT BUY submitted: {d:.8} BTC @ ${d:.2} tid={d}\n", .{ add_size, t.price, tid });
-                                    std.debug.print("  DEPOSIT BUY submitted: {d:.8} BTC @ ${d:.2} tid={d}\n", .{ add_size, t.price, tid });
                                 }
                             }
                         }
