@@ -128,7 +128,7 @@ final class TursoClient {
     // MARK: - Public API
 
     func fetchTradeTransfers(limit: Int = 50) async throws -> [Transfer] {
-        let sql = "SELECT t.id, t.debit_account_id, t.credit_account_id, COALESCE(s.amount, t.amount) as amount, t.pending_id, t.code, t.flags, COALESCE(s.status, t.status) as resolved_status, t.user_data, COALESCE(s.price, t.price) as price, COALESCE(s.size, t.size) as size, t.timestamp, t.created_at FROM transfers t LEFT JOIN transfers s ON s.pending_id = t.id AND s.flags IN (2, 4) WHERE t.code IN (2, 3) AND t.flags NOT IN (2, 4) ORDER BY t.id DESC LIMIT \(limit)"
+        let sql = "SELECT t.id, t.debit_account_id, t.credit_account_id, COALESCE(s.amount, t.amount) as amount, t.pending_id, t.code, t.flags, COALESCE(s.status, t.status) as resolved_status, COALESCE(s.user_data, t.user_data) as user_data, COALESCE(s.price, t.price) as price, COALESCE(s.size, t.size) as size, t.timestamp, t.created_at FROM transfers t LEFT JOIN transfers s ON s.pending_id = t.id AND s.flags IN (2, 4) WHERE t.code IN (2, 3) AND t.flags NOT IN (2, 4) ORDER BY t.id DESC LIMIT \(limit)"
         let result = try await executeSQL(sql)
         return result.rows.map { row in
             Transfer(
@@ -151,7 +151,7 @@ final class TursoClient {
 
 
     func fetchTransfers(limit: Int = 100) async throws -> [Transfer] {
-        let sql = "SELECT t.id, t.debit_account_id, t.credit_account_id, COALESCE(s.amount, t.amount) as amount, t.pending_id, t.code, t.flags, COALESCE(s.status, t.status) as resolved_status, t.user_data, COALESCE(s.price, t.price) as price, COALESCE(s.size, t.size) as size, t.timestamp, t.created_at FROM transfers t LEFT JOIN transfers s ON s.pending_id = t.id AND s.flags IN (2, 4) WHERE t.flags NOT IN (2, 4) ORDER BY t.id DESC LIMIT \(limit)"
+        let sql = "SELECT t.id, t.debit_account_id, t.credit_account_id, COALESCE(s.amount, t.amount) as amount, t.pending_id, t.code, t.flags, COALESCE(s.status, t.status) as resolved_status, COALESCE(s.user_data, t.user_data) as user_data, COALESCE(s.price, t.price) as price, COALESCE(s.size, t.size) as size, t.timestamp, t.created_at FROM transfers t LEFT JOIN transfers s ON s.pending_id = t.id AND s.flags IN (2, 4) WHERE t.flags NOT IN (2, 4) ORDER BY t.id DESC LIMIT \(limit)"
         let result = try await executeSQL(sql)
         return result.rows.map { row in
             Transfer(

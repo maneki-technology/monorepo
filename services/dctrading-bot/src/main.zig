@@ -353,7 +353,9 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                             if (turso != null) {
                                 // Post the pending transfer with actual fill data
                                 const buy_cost = buy_price * buy_size;
-                                if (po.transfer_id > 0) turso.?.postTransferWithFill(po.transfer_id, buy_cost, buy_price, buy_size);
+                                var ud_buf: [256]u8 = undefined;
+                                const ud = std.fmt.bufPrint(&ud_buf, "BUY signal={d:.2} oid={s}", .{ po.signal_price, oid }) catch "BUY";
+                                if (po.transfer_id > 0) turso.?.postTransferWithFill(po.transfer_id, buy_cost, buy_price, buy_size, ud);
                                 // Fee transfer (separate, always posted directly)
                                 turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "BUY fee", t.timestamp, 0, 0);
                             }
@@ -375,7 +377,9 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                             if (turso != null) {
                                 // Post the pending transfer with actual fill data
                                 const sell_amount = sell_price * po.size;
-                                if (po.transfer_id > 0) turso.?.postTransferWithFill(po.transfer_id, sell_amount, sell_price, po.size);
+                                var ud_buf: [128]u8 = undefined;
+                                const ud = std.fmt.bufPrint(&ud_buf, "SELL exit={s} oid={s}", .{ exit_str, oid }) catch "SELL";
+                                if (po.transfer_id > 0) turso.?.postTransferWithFill(po.transfer_id, sell_amount, sell_price, po.size, ud);
                                 // Fee transfer (separate, always posted directly)
                                 turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, sell_fee, turso_mod.Turso.CODE_FEE, "SELL fee", t.timestamp, 0, 0);
                                 // PnL transfer
