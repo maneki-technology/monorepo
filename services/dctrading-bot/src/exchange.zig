@@ -13,7 +13,13 @@ pub const OrderFill = struct {
     order_id_len: usize = 0,
     fill_price: f64,
     fill_qty: f64,
+    /// Native commission quantity in `commission_asset` units.
     commission: f64 = 0,
+    /// Historical USD value of `commission` at fill time. Required when
+    /// commission_asset is non-USD and the adapter has a valuation rate.
+    /// If omitted, LiveLoop estimates BTC fees from fill_price and falls back
+    /// to configured fee_pct for assets it cannot value locally.
+    commission_usd: f64 = 0,
     commission_asset: [8]u8 = undefined,
     commission_asset_len: usize = 0,
     status: enum { filled, accepted, failed },

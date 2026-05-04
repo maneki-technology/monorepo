@@ -37,6 +37,9 @@ final class AppSettings: ObservableObject {
 // MARK: - Turso Client
 
 final class TursoClient {
+    static let totalRealizedPnLSQL = "SELECT (SELECT COALESCE(credits_posted - debits_posted, 0) FROM accounts WHERE id = 1) + (SELECT COALESCE(credits_posted - debits_posted, 0) FROM accounts WHERE id = 2) + (SELECT COALESCE(credits_posted - debits_posted, 0) FROM accounts WHERE id = 6) - (SELECT COALESCE(SUM(amount), 0) FROM transfers WHERE code = 1 AND status = 'posted') as total"
+    static let managedBalancesSQL = "SELECT (SELECT COALESCE(credits_posted - debits_posted, 0) FROM accounts WHERE id = 1) as cash, COALESCE(SUM(CASE WHEN debit_account_id = 2 THEN size WHEN credit_account_id = 2 THEN -size ELSE 0 END), 0) as btc_qty, COALESCE(SUM(CASE WHEN debit_account_id = 6 THEN size WHEN credit_account_id = 6 THEN -size ELSE 0 END), 0) as bnb_qty FROM transfers WHERE status = 'posted'"
+
     private let settings: AppSettings
 
     init(settings: AppSettings = .shared) {
@@ -227,10 +230,9 @@ final class TursoClient {
     }
 
     func fetchTotalRealizedPnL() async throws -> Double {
-        // Net return = (cash_balance + btc_balance) - total_deposits
-        // Includes fees as cost, BTC cost basis as unrealized allocation
-        let sql = "SELECT (SELECT credits_posted - debits_posted FROM accounts WHERE id = 1) + (SELECT credits_posted - debits_posted FROM accounts WHERE id = 2) - (SELECT COALESCE(SUM(amount), 0) FROM transfers WHERE code = 1 AND status = 'posted') as total"
-        let result = try await executeSQL(sql)
+        // Net return = USD-denominated ledger value - total deposits. Native
+        // fee quantity is stored in transfer size, while amount remains USD.
+        let result = try await executeSQL(Self.totalRealizedPnLSQL)
         guard let row = result.rows.first else { return 0 }
         return getDouble(row, result.cols, "total")
     }
@@ -240,6 +242,18 @@ final class TursoClient {
         let result = try await executeSQL(sql)
         guard let row = result.rows.first else { return 0 }
         return getDouble(row, result.cols, "total")
+    }
+
+    func fetchManagedBalances() async throws -> ManagedBalances {
+        let result = try await executeSQL(Self.managedBalancesSQL)
+        guard let row = result.rows.first else {
+            return ManagedBalances(cash: 0, btcQuantity: 0, bnbQuantity: 0)
+        }
+        return ManagedBalances(
+            cash: getDouble(row, result.cols, "cash"),
+            btcQuantity: getDouble(row, result.cols, "btc_qty"),
+            bnbQuantity: getDouble(row, result.cols, "bnb_qty")
+        )
     }
 
     func fetchBotStatus() async throws -> BotStatus? {

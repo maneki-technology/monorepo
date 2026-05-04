@@ -1,21 +1,16 @@
 $schema: 'https://moonrepo.dev/schemas/project.json'
 
 language: system
-type: application
+stack: systems
 
 tags: [trading, zig]
 
 tasks:
   build:
     command: zig build -Doptimize=ReleaseFast
-    platform: system
   build-linux:
     command: zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux
-    platform: system
   test:
     command: zig build test
-    platform: system
   run:
     command: ./zig-out/bin/dctrading -
-    platform: system
-    local: true

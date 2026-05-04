@@ -4,8 +4,8 @@ SwiftUI dashboard for the DCTrading bot. macOS + iOS.
 
 ## Features
 
-- **Dashboard** — Bot status, regime, equity, BTC price (Binance), open position with unrealized PnL
-- **Ledger** — Account ledger with cash balance summary (DEPOSIT, ENTRY_FEE, BUY, SELL, EXIT_FEE)
+- **Dashboard** — Bot status, regime, managed equity from app-managed BTC/BNB marked at Binance spot, realized P&L, unrealized P&L, BTC price
+- **Ledger** — Account ledger with cash balance summary and account-aware running cash balance
 - **Equity** — Equity chart over time from Turso snapshots
 - **Trades** — Trade history with entry/exit prices, PnL, signal vs fill price drift
 - **Settings** — Turso + Alpaca credential management with persistent status indicators
@@ -15,7 +15,8 @@ SwiftUI dashboard for the DCTrading bot. macOS + iOS.
 | Data | Source | Notes |
 |------|--------|-------|
 | BTC price | Binance API | Free, no auth needed |
-| Bot status, equity, trades, ledger | Turso DB | Requires URL + token |
+| Bot status, equity, trades, ledger | Turso DB | Requires URL + token; transfer amounts are historical USD values, native asset quantities live in transfer size |
+| Estimated equity prices | Binance API | Marks app-managed BTC/BNB quantities at current BTCUSDT/BNBUSDT spot |
 | Open position (qty, entry price) | Alpaca API | Source of truth for position |
 
 ## Setup

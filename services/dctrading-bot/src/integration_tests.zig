@@ -1092,7 +1092,7 @@ test "integration: ledger routes BNB commission to BNB account" {
     defer strategy.deinit(allocator);
     strategy.suppress_entry = true;
 
-    var sim = SimExchange{ .fill_delay = 1, .fill_commission = 0.00123 };
+    var sim = SimExchange{ .fill_delay = 1, .fill_commission = 0.00123, .fill_commission_usd = 0.75 };
     @memcpy(sim.fill_commission_asset[0..3], "BNB");
     sim.fill_commission_asset_len = 3;
     sim.last_price = 104.0;
@@ -1113,7 +1113,9 @@ test "integration: ledger routes BNB commission to BNB account" {
     try testing.expectEqual(turso_mod.Turso.CODE_FEE, ledger.posted[0].code);
     try testing.expectEqual(turso_mod.Turso.ACCT_FEES, ledger.posted[0].debit_acct);
     try testing.expectEqual(turso_mod.Turso.ACCT_BNB, ledger.posted[0].credit_acct);
-    try testing.expectApproxEqAbs(0.00123, ledger.posted[0].amount, 0.000001);
+    try testing.expectApproxEqAbs(0.75, ledger.posted[0].amount, 0.000001);
+    try testing.expectApproxEqAbs(0.00123, ledger.posted[0].qty, 0.000001);
+    try testing.expectApproxEqAbs(0.75 / 0.00123, ledger.posted[0].price, 0.000001);
 }
 
 test "integration: ledger falls back to configured fee when exchange commission is zero" {
@@ -1185,7 +1187,9 @@ test "integration: ledger routes BTC commission to BTC account on sell" {
     try testing.expectEqual(turso_mod.Turso.CODE_FEE, ledger.posted[0].code);
     try testing.expectEqual(turso_mod.Turso.ACCT_FEES, ledger.posted[0].debit_acct);
     try testing.expectEqual(turso_mod.Turso.ACCT_BTC, ledger.posted[0].credit_acct);
-    try testing.expectApproxEqAbs(0.00042, ledger.posted[0].amount, 0.000001);
+    try testing.expectApproxEqAbs(0.00042 * 130.0, ledger.posted[0].amount, 0.000001);
+    try testing.expectApproxEqAbs(0.00042, ledger.posted[0].qty, 0.000001);
+    try testing.expectApproxEqAbs(130.0, ledger.posted[0].price, 0.000001);
     try testing.expectEqual(turso_mod.Turso.CODE_PNL, ledger.posted[1].code);
 }
 
