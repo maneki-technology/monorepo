@@ -6,17 +6,21 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ## Architecture
 
 ### Source Files (`src/`)
-- `main.zig` — Entry point. CLI parsing, `runLive()` (WebSocket trading loop), `runBacktest()` (CSV backtest). Wires all modules together via shared `HttpClient`.
+- `main.zig` — Entry point. CLI parsing, `runLive()` (WebSocket trading loop), `runBacktest()` (CSV backtest), `runSimulate()` (LiveLoop CSV simulation). Wires all modules together via shared `HttpClient`.
 - `strategy.zig` — Core strategy: 3-regime (BULL/SIDEWAYS/BEAR), DC detection, vol-trailing stop, MA regime filter, funding rate entry filter, checkpoint save/load (DCTRADE4 format, 24 scalars + ring buffers).
 - `feed.zig` — Binance WebSocket (native TLS via websocket.zig) + REST kline fetcher + funding rate fetcher (Binance futures API). Configurable host via `BINANCE_WS_HOST`/`BINANCE_API_HOST` env vars.
 - `dc_detector.zig` — Streaming DC event detector. Emits UP/DOWN events when price reverses by λ threshold.
-- `exchange.zig` — Exchange interface (vtable pattern): `buy()`, `sell()`, `getPosition()`. Shared types: `OrderFill`, `Position`.
-- `alpaca.zig` — Alpaca paper trading, implements Exchange interface. Sync market orders (buy/sell with fill polling up to 10s), position queries. Uses `HttpClient`.
-- `turso.zig` — Turso/libsql HTTP client. Tables: `accounts`, `transfers`, `equity_log`, `bot_status`. Async writes via detached threads, sync reads for startup.
+- `exchange.zig` — Exchange interface (vtable pattern): sync `buy()`/`sell()`, async `submitOrder()`/`checkOrder()`/`cancelOrder()`, `getPosition()`. Shared types: `OrderFill`, `PendingOrder`, `OrderStatus`, `CancelResult`, `Position`, `Side`.
+- `alpaca.zig` — Alpaca paper trading, implements Exchange interface. Sync orders (buy/sell with fill polling), async orders (submitOrderAsync/checkOrderStatus/cancelOrderAsync), position queries. Uses `HttpClient`.
+- `turso.zig` — Turso/libsql HTTP client. Tables: `accounts`, `transfers` (with `order_id` column), `equity_log`, `bot_status`. Two-phase transfers (pending/posted/voided, append-only). Async writes via detached threads, sync reads for startup.
 - `telegram.zig` — Telegram + ntfy notifications. Async sends via threads, curl fallback for shutdown reliability.
 - `http_client.zig` — Thread-safe wrapper around `std.http.Client`. Mutex-protected POST/GET/DELETE with auto-retry on stale connections.
 - `types.zig` — Core types: `Tick`, `Trade`, `DCEvent`, `Direction`.
-- `tests.zig` — 95 unit tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter.
+- `live_loop.zig` — Extracted core order flow logic: pending order tracking, trailing stop, strategy signals, buy/sell submission, capital_reserved. Shared by `runLive()` and integration tests.
+- `tick_source.zig` — `TickSource` vtable interface + `SimFeed` (replays ticks from array). For testing.
+- `sim_exchange.zig` — `SimExchange` implementing Exchange vtable with configurable fill delay, slippage, partial fills, cancel races, failure injection, order log. For testing.
+- `integration_tests.zig` — 24 end-to-end scenarios using LiveLoop + SimExchange.
+- `tests.zig` — 155 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, integration scenarios.
 
 ### Scripts (`scripts/`)
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service.
@@ -53,17 +57,18 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # GCP
-zig build test                                 # 102 tests
+zig build test                                 # 155 tests
 ```
 
 ### Trading Flow
 1. Bootstrap: fetch 87,500 1-min klines → fill MA + vol buffers → detect initial regime
-2. Reconcile: read Alpaca position → sync internal state
-3. Stream: Binance WebSocket → downsample to 1-min → `processTick()`
-4. On BUY signal: Alpaca sync order → update state with fill → log to Turso ledger → notify
-5. On SELL signal: Alpaca sync sell → log to Turso ledger → notify
-6. Every 5 min: log equity to Turso, upsert bot_status
-7. Shutdown (SIGINT/SIGTERM): save checkpoint, log to Turso, notify via curl fallback
+2. Reconcile: read Alpaca position → sync internal state. Resolve pending transfers from Turso.
+3. Stream: Binance WebSocket → downsample to 1-min → `LiveLoop.processTick()`
+4. On BUY signal: `submitOrder()` (non-blocking) → pending transfer in Turso → `checkOrder()` each tick → fill → post transfer
+5. On SELL signal: cancel pending buys → `submitOrder()` sell → pending transfer → fill → post transfer + PnL
+6. Every 5 min: log equity to Turso, upsert bot_status, check deposits
+7. Every 8h: refresh funding rate from Binance
+8. Shutdown (SIGINT/SIGTERM): save checkpoint, log to Turso, notify via curl fallback
 
 ### Companion Projects
 - **Neko Trade** — SwiftUI dashboard app (macOS + iOS). Separate repo.

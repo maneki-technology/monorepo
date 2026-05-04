@@ -7,6 +7,8 @@ const alpaca_mod = @import("alpaca.zig");
 const exchange_mod = @import("exchange.zig");
 const http_mod = @import("http_client.zig");
 const turso_mod = @import("turso.zig");
+const live_loop_mod = @import("live_loop.zig");
+const sim_exchange_mod = @import("sim_exchange.zig");
 
 const Tick = types.Tick;
 const Trade = types.Trade;
@@ -56,6 +58,11 @@ pub fn main(init: std.process.Init) !void {
 
     if (live_mode) {
         try runLive(allocator, init.io, threshold, capital);
+    } else if (std.mem.startsWith(u8, first_arg, "sim:")) {
+        // Simulate mode: run LiveLoop on CSV data
+        // Usage: dctrading sim:ticks.csv [threshold] [capital]
+        const csv_path: [*:0]const u8 = @ptrCast(first_arg[4..].ptr);
+        try runSimulate(allocator, csv_path, threshold, capital);
     } else {
         try runBacktest(allocator, first_arg, threshold, capital);
     }
@@ -73,7 +80,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     std.debug.print("  Checkpoint: every {d} ticks\n\n", .{checkpoint_interval});
 
     // Register signal handlers for clean shutdown (SIGINT=2, SIGTERM=15)
-    _ = signal(2, &handleSigint);  // Ctrl-C / local
+    _ = signal(2, &handleSigint); // Ctrl-C / local
     _ = signal(15, &handleSigint); // systemctl stop / GCP
     var strategy = try Strategy.init(allocator, .{
         .threshold = threshold,
@@ -86,7 +93,11 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         loaded_checkpoint = true;
         std.debug.print("  Resumed from checkpoint: capital=${d:.2} regime={s} ticks={d}\n", .{
             strategy.capital,
-            switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" },
+            switch (strategy.regime) {
+                .bull => "BULL",
+                .sideways => "SIDE",
+                .bear => "BEAR",
+            },
             strategy.tick_count,
         });
         if (strategy.in_position) {
@@ -215,7 +226,6 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
     var pending_count: u8 = 0;
 
-
     // Reconcile pending transfers from Turso (orders submitted but not confirmed before restart)
     if (turso != null) {
         while (turso.?.queryPendingOrder()) |pending_info| {
@@ -299,21 +309,44 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             std.debug.print("  Restored closed positions from Turso: {d}\n", .{cnt});
         }
     }
-    var last_feed_ts: f64 = 0;
     var last_equity_ts: f64 = 0;
     var last_deposit_check: f64 = 0;
     var known_total_deposits: f64 = if (turso != null) (turso.?.queryTotalDepositsNew() orelse capital) else capital;
-    var last_price: f64 = 0;
     var last_funding_check: f64 = @floatFromInt(time(null));
-    var prev_regime = strategy.regime;
     const uptime_start: f64 = @floatFromInt(time(null));
     const instance: []const u8 = if (getenv("BOT_INSTANCE")) |ptr| std.mem.sliceTo(ptr, 0) else "local";
     // Notify startup
     if (tg) |t| {
-        const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
+        const regime_str = switch (strategy.regime) {
+            .bull => "BULL",
+            .sideways => "SIDE",
+            .bear => "BEAR",
+        };
         t.notifyStartup(regime_str, strategy.capital, strategy.in_position, instance);
     }
 
+    // Initialize LiveLoop — core order flow logic (shared with integration tests)
+    var loop = live_loop_mod.LiveLoop.init(&strategy, exchange, if (turso != null) &turso.? else null);
+    loop.closed_count = closed_count;
+    // Copy reconciled pending orders into LiveLoop
+    var pi: u8 = 0;
+    while (pi < pending_count) : (pi += 1) {
+        if (loop.pending_count < live_loop_mod.MAX_PENDING) {
+            loop.pending_orders[loop.pending_count] = .{
+                .side = pending_orders[pi].side,
+                .signal_price = pending_orders[pi].signal_price,
+                .size = pending_orders[pi].size,
+                .transfer_id = pending_orders[pi].transfer_id,
+                .is_deposit_buy = pending_orders[pi].is_deposit_buy,
+                .entry_price = pending_orders[pi].entry_price,
+                .pnl = pending_orders[pi].pnl,
+                .exit_type = pending_orders[pi].exit_type,
+            };
+            @memcpy(loop.pending_orders[loop.pending_count].order_id[0..pending_orders[pi].order_id_len], pending_orders[pi].order_id[0..pending_orders[pi].order_id_len]);
+            loop.pending_orders[loop.pending_count].order_id_len = pending_orders[pi].order_id_len;
+            loop.pending_count += 1;
+        }
+    }
     while (!shutdown_requested) {
         const tick = feed.nextTick() catch |err| {
             std.debug.print("\n  FEED ERROR: {s}. Reconnecting...\n", .{@errorName(err)});
@@ -327,408 +360,109 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         };
         if (tick == null) continue;
         const t = tick.?;
-        last_price = t.price;
 
-        // --- Check pending orders on EVERY tick (non-blocking) ---
-        {
-            var i: u8 = 0;
-            while (i < pending_count) {
-                const po = pending_orders[i];
-                const oid = po.order_id[0..po.order_id_len];
-                const status = exchange.checkOrder(oid);
-                switch (status) {
-                    .filled => |fill| {
-                        if (po.side == .buy) {
-                            // Release capital reservation
-                            strategy.capital_reserved -= po.signal_price * po.size;
-                            // Buy filled — commit position
-                            const buy_price = if (fill.fill_price > 0) fill.fill_price else po.signal_price;
-                            const buy_size = if (fill.fill_qty > 0) fill.fill_qty else po.size;
-                            const fee = if (fill.commission > 0) fill.commission else buy_price * buy_size * 0.001;
-                            if (po.is_deposit_buy) {
-                                // Deposit buy: blend into existing position
-                                strategy.entry_price = (strategy.entry_price * strategy.size + buy_price * buy_size) / (strategy.size + buy_size);
-                                strategy.size += buy_size;
-                                strategy.capital -= fee;
-                                if (buy_price > strategy.peak_price) strategy.peak_price = buy_price;
-                                std.debug.print("  DEPOSIT BUY FILLED: +{d:.8} BTC @ ${d:.2}, fee=${d:.4}, blended entry=${d:.2}\n", .{ buy_size, buy_price, fee, strategy.entry_price });
-                            } else {
-                                // Regular buy: set position
-                                const unspent = (po.size - buy_size) * buy_price;
-                                strategy.capital += unspent;
-                                strategy.entry_price = buy_price;
-                                strategy.size = buy_size;
-                                strategy.peak_price = buy_price;
-                                strategy.in_position = true;
-                                std.debug.print("  BUY FILLED: {d:.8} BTC @ ${d:.2} fee=${d:.4}\n", .{ buy_size, buy_price, fee });
-                            }
-                            if (turso != null) {
-                                // Post the pending transfer with actual fill data
-                                const buy_cost = buy_price * buy_size;
-                                var ud_buf: [256]u8 = undefined;
-                                const ud = std.fmt.bufPrint(&ud_buf, "BUY signal={d:.2} oid={s}", .{ po.signal_price, oid }) catch "BUY";
-                                if (po.transfer_id > 0) turso.?.postTransferWithFill(po.transfer_id, buy_cost, buy_price, buy_size, ud);
-                                // Fee transfer (separate, always posted directly)
-                                turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "BUY fee", t.timestamp, 0, 0);
-                            }
-                            if (tg) |tl| {
-                                const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
-                                tl.notifyBuy(buy_price, buy_size, regime_str, instance);
-                            }
-                            // After regular buy fill in BULL: check for undeployed cash (from deposits during pending)
-                            if (!po.is_deposit_buy and strategy.regime == .bull and strategy.in_position) {
-                                const deployed = buy_price * buy_size;
-                                const available = strategy.capital - strategy.capital_reserved - deployed;
-                                if (available > 10.0) {
-                                    const dep_fee = available * strategy.fee_pct;
-                                    const dep_usable = available - dep_fee;
-                                    const dep_size = dep_usable / t.price;
-                                    if (exchange.submitOrder(.buy, dep_size)) |dep_pending| {
-                                        if (pending_count < MAX_PENDING) {
-                                            const dep_oid = dep_pending.order_id[0..dep_pending.order_id_len];
-                                            var dep_tid: u32 = 0;
-                                            if (turso != null) {
-                                                const dep_cost = t.price * dep_size;
-                                                dep_tid = turso.?.createPendingTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, dep_cost, turso_mod.Turso.CODE_BUY, "Deposit buy pending", t.timestamp, t.price, dep_size, dep_oid) orelse 0;
-                                            }
-                                            pending_orders[pending_count] = .{
-                                                .side = .buy,
-                                                .signal_price = t.price,
-                                                .size = dep_size,
-                                                .is_deposit_buy = true,
-                                                .transfer_id = dep_tid,
-                                            };
-                                            const dep_len = @min(dep_pending.order_id_len, pending_orders[pending_count].order_id.len);
-                                            @memcpy(pending_orders[pending_count].order_id[0..dep_len], dep_pending.order_id[0..dep_len]);
-                                            pending_orders[pending_count].order_id_len = dep_len;
-                                            pending_count += 1;
-                                            strategy.capital_reserved += t.price * dep_size;
-                                            std.debug.print("  POST-FILL DEPOSIT BUY submitted: {d:.8} BTC @ ${d:.2} (undeployed cash ${d:.2})\n", .{ dep_size, t.price, available });
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            // Sell filled — adjust capital for actual exchange price
-                            const sell_price = if (fill.fill_price > 0) fill.fill_price else po.signal_price;
-                            const sell_fee = if (fill.commission > 0) fill.commission else sell_price * po.size * 0.001;
-                            const pnl = (sell_price - po.entry_price) * po.size - sell_fee;
-                            // Adjust strategy capital: strategy already deducted based on signal price,
-                            // correct for actual exchange price difference
-                            const price_diff_pnl = (sell_price - po.signal_price) * po.size;
-                            if (price_diff_pnl != 0) strategy.capital += price_diff_pnl;
-                            const exit_str = switch (po.exit_type) { .dc_exit => "DC", .trailing_stop => "SL", .regime_close => "REG", .end_of_data => "END" };
-                            std.debug.print("  SELL FILLED: {d:.8} BTC @ ${d:.2} pnl=${d:.2} ({s})\n", .{ po.size, sell_price, pnl, exit_str });
-                            if (turso != null) {
-                                // Post the pending transfer with actual fill data
-                                const sell_amount = sell_price * po.size;
-                                var ud_buf: [128]u8 = undefined;
-                                const ud = std.fmt.bufPrint(&ud_buf, "SELL exit={s} oid={s}", .{ exit_str, oid }) catch "SELL";
-                                if (po.transfer_id > 0) turso.?.postTransferWithFill(po.transfer_id, sell_amount, sell_price, po.size, ud);
-                                // Fee transfer (separate, always posted directly)
-                                turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, sell_fee, turso_mod.Turso.CODE_FEE, "SELL fee", t.timestamp, 0, 0);
-                                // PnL transfer
-                                if (pnl > 0) {
-                                    turso.?.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_PNL, pnl, turso_mod.Turso.CODE_PNL, "Realized PnL", t.timestamp, 0, 0);
-                                } else if (pnl < 0) {
-                                    turso.?.createPostedTransfer(turso_mod.Turso.ACCT_PNL, turso_mod.Turso.ACCT_CASH, -pnl, turso_mod.Turso.CODE_PNL, "Realized loss", t.timestamp, 0, 0);
-                                }
-                            }
-                            if (tg) |tl| {
-                                const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
-                                tl.notifySell(sell_price, pnl, exit_str, regime_str, instance);
-                            }
-                        }
-                        // Remove from pending array (swap with last)
-                        pending_count -= 1;
-                        if (i < pending_count) {
-                            pending_orders[i] = pending_orders[pending_count];
-                        }
-                        // Don't increment i — re-check swapped entry
-                        continue;
-                    },
-                    .cancelled, .failed => {
-                        std.debug.print("  Order {s}: {s}\n", .{ if (status == .cancelled) "cancelled" else "failed", oid });
-                        // Release capital reservation for buys
-                        if (po.side == .buy) strategy.capital_reserved -= po.signal_price * po.size;
-                        // Void the pending transfer (release reserved balances)
-                        if (po.transfer_id > 0 and turso != null) turso.?.voidTransfer(po.transfer_id);
-                        // Remove from pending array
-                        pending_count -= 1;
-                        if (i < pending_count) {
-                            pending_orders[i] = pending_orders[pending_count];
-                        }
-                        continue;
-                    },
-                    .pending => {},
-                }
-                i += 1;
-            }
-        }
-
-        // Real-time risk: check trailing stop only in BEAR mode (matches backtest)
-        if (strategy.regime == .bear) {
-            if (strategy.checkStop(t.price, t.timestamp)) |trade| {
-                // Cancel any pending buy orders before selling
-                {
-                    var i: u8 = 0;
-                    while (i < pending_count) {
-                        if (pending_orders[i].side == .buy) {
-                            const cancel_oid = pending_orders[i].order_id[0..pending_orders[i].order_id_len];
-                            const cancel_result = exchange.cancelOrder(cancel_oid);
-                            switch (cancel_result) {
-                                .filled => |fill| {
-                                    // Buy filled despite cancel — commit position, then sell will proceed
-                                    const bp = if (fill.fill_price > 0) fill.fill_price else pending_orders[i].signal_price;
-                                    const bs = if (fill.fill_qty > 0) fill.fill_qty else pending_orders[i].size;
-                                    strategy.entry_price = bp;
-                                    strategy.size = bs;
-                                    strategy.peak_price = bp;
-                                    strategy.in_position = true;
-                                    std.debug.print("  BUY filled during cancel, will sell immediately\n", .{});
-                                },
-                                .cancelled, .failed => {
-                                    if (pending_orders[i].transfer_id > 0 and turso != null) turso.?.voidTransfer(pending_orders[i].transfer_id);
-                                },
-                            }
-                            // Release capital reservation
-                            strategy.capital_reserved -= pending_orders[i].signal_price * pending_orders[i].size;
-                            pending_count -= 1;
-                            if (i < pending_count) {
-                                pending_orders[i] = pending_orders[pending_count];
-                            }
-                            continue;
-                        }
-                        i += 1;
-                    }
-                }
-                // Submit async sell
-                closed_count += 1;
-                printLiveTrade(trade, closed_count, &strategy);
-                if (exchange.submitOrder(.sell, trade.size)) |pending| {
-                    if (pending_count < MAX_PENDING) {
-                        const oid_slice = pending.order_id[0..pending.order_id_len];
-                        var tid: u32 = 0;
-                        if (turso != null) {
-                            const sell_amt = trade.exit_price * trade.size;
-                            tid = turso.?.createPendingTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_BTC, sell_amt, turso_mod.Turso.CODE_SELL, "SELL pending", t.timestamp, trade.exit_price, trade.size, oid_slice) orelse 0;
-                        }
-                        pending_orders[pending_count] = .{
-                            .side = .sell,
-                            .signal_price = trade.exit_price,
-                            .size = trade.size,
-                            .entry_price = trade.entry_price,
-                            .pnl = trade.pnl,
-                            .exit_type = trade.exit_type,
-                            .transfer_id = tid,
-                        };
-                        const len = @min(pending.order_id_len, pending_orders[pending_count].order_id.len);
-                        @memcpy(pending_orders[pending_count].order_id[0..len], pending.order_id[0..len]);
-                        pending_orders[pending_count].order_id_len = len;
-                        pending_count += 1;
-                    }
-                }
-            }
-        }
-
-        // Downsample strategy logic (MA, vol, DC) to ~1 tick/minute
-        if (t.timestamp - last_feed_ts < 60.0) continue;
-        last_feed_ts = t.timestamp;
-
-        // Clear any previous buy signal before processing
-        strategy.buy_signal = false;
+        // Core order flow: pending checks, trailing stop, strategy, buy/sell signals
         const was_in_pos = strategy.in_position;
-        if (strategy.processTick(t)) |trade| {
-            // Sell signal from strategy (DC exit or regime close)
-            // Cancel any pending buy orders before selling
-            {
-                var ci: u8 = 0;
-                while (ci < pending_count) {
-                    if (pending_orders[ci].side == .buy) {
-                        const cancel_oid = pending_orders[ci].order_id[0..pending_orders[ci].order_id_len];
-                        const cancel_result = exchange.cancelOrder(cancel_oid);
-                        switch (cancel_result) {
-                            .filled => |fill| {
-                                const bp = if (fill.fill_price > 0) fill.fill_price else pending_orders[ci].signal_price;
-                                const bs = if (fill.fill_qty > 0) fill.fill_qty else pending_orders[ci].size;
-                                if (pending_orders[ci].is_deposit_buy) {
-                                    strategy.entry_price = (strategy.entry_price * strategy.size + bp * bs) / (strategy.size + bs);
-                                    strategy.size += bs;
-                                    if (bp > strategy.peak_price) strategy.peak_price = bp;
-                                } else {
-                                    strategy.entry_price = bp;
-                                    strategy.size = bs;
-                                    strategy.peak_price = bp;
-                                    strategy.in_position = true;
-                                }
-                                std.debug.print("  BUY filled during cancel, will sell immediately\n", .{});
-                            },
-                            .cancelled, .failed => {
-                                if (pending_orders[ci].transfer_id > 0 and turso != null) turso.?.voidTransfer(pending_orders[ci].transfer_id);
-                            },
-                        }
-                        // Release capital reservation
-                        strategy.capital_reserved -= pending_orders[ci].signal_price * pending_orders[ci].size;
-                        pending_count -= 1;
-                        if (ci < pending_count) {
-                            pending_orders[ci] = pending_orders[pending_count];
-                        }
-                        continue;
-                    }
-                    ci += 1;
-                }
-            }
-            closed_count += 1;
-            printLiveTrade(trade, closed_count, &strategy);
-            if (exchange.submitOrder(.sell, trade.size)) |pending| {
-                if (pending_count < MAX_PENDING) {
-                    const oid_slice = pending.order_id[0..pending.order_id_len];
-                    var tid: u32 = 0;
-                    if (turso != null) {
-                        const sell_amt = trade.exit_price * trade.size;
-                        tid = turso.?.createPendingTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_BTC, sell_amt, turso_mod.Turso.CODE_SELL, "SELL pending", t.timestamp, trade.exit_price, trade.size, oid_slice) orelse 0;
-                    }
-                    pending_orders[pending_count] = .{
-                        .side = .sell,
-                        .signal_price = trade.exit_price,
-                        .size = trade.size,
-                        .entry_price = trade.entry_price,
-                        .pnl = trade.pnl,
-                        .exit_type = trade.exit_type,
-                        .transfer_id = tid,
-                    };
-                    const len = @min(pending.order_id_len, pending_orders[pending_count].order_id.len);
-                    @memcpy(pending_orders[pending_count].order_id[0..len], pending.order_id[0..len]);
-                    pending_orders[pending_count].order_id_len = len;
-                    pending_count += 1;
-                }
-            }
-        }
+        loop.processTick(t);
 
-        // Check for buy signal from strategy (suppress_entry mode)
-        if (strategy.buy_signal) {
-            strategy.buy_signal = false;
-            // Prevent duplicate buy submissions while one is pending
-            const has_pending_buy = blk: {
-                var j: u8 = 0;
-                while (j < pending_count) : (j += 1) {
-                    if (pending_orders[j].side == .buy and !pending_orders[j].is_deposit_buy) break :blk true;
-                }
-                break :blk false;
+        const regime_str = switch (strategy.regime) {
+            .bull => "BULL",
+            .sideways => "SIDE",
+            .bear => "BEAR",
+        };
+        if (loop.last_buy_fill) |fill| {
+            std.debug.print("  {s}BUY FILLED: {d:.8} BTC @ ${d:.2}\n", .{ if (fill.is_deposit) "DEPOSIT " else "", fill.size, fill.price });
+            if (tg) |tl| tl.notifyBuy(fill.price, fill.size, regime_str, instance);
+        }
+        if (loop.last_sell_trade) |trade| {
+            printLiveTrade(trade, loop.closed_count, &strategy);
+        }
+        if (loop.last_sell_fill) |fill| {
+            const exit_str = switch (fill.exit_type) {
+                .dc_exit => "DC",
+                .trailing_stop => "SL",
+                .regime_close => "REG",
+                .end_of_data => "END",
             };
-            if (!has_pending_buy) {
-                if (exchange.submitOrder(.buy, strategy.buy_signal_size)) |pending| {
-                    if (pending_count < MAX_PENDING) {
-                        const oid_slice = pending.order_id[0..pending.order_id_len];
-                        var tid: u32 = 0;
-                        if (turso != null) {
-                            const buy_cost = strategy.buy_signal_price * strategy.buy_signal_size;
-                            tid = turso.?.createPendingTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, buy_cost, turso_mod.Turso.CODE_BUY, "BUY pending", t.timestamp, strategy.buy_signal_price, strategy.buy_signal_size, oid_slice) orelse 0;
-                        }
-                        pending_orders[pending_count] = .{
-                            .side = .buy,
-                            .signal_price = strategy.buy_signal_price,
-                            .size = strategy.buy_signal_size,
-                            .transfer_id = tid,
-                        };
-                        const len = @min(pending.order_id_len, pending_orders[pending_count].order_id.len);
-                        @memcpy(pending_orders[pending_count].order_id[0..len], pending.order_id[0..len]);
-                        pending_orders[pending_count].order_id_len = len;
-                        pending_count += 1;
-                        strategy.capital_reserved += strategy.buy_signal_price * strategy.buy_signal_size;
-                        std.debug.print("  BUY submitted: {d:.8} BTC @ signal ${d:.2} tid={d}\n", .{ strategy.buy_signal_size, strategy.buy_signal_price, tid });
-                        std.debug.print("  BUY submitted: {d:.8} BTC @ signal ${d:.2} tid={d}\n", .{ strategy.buy_signal_size, strategy.buy_signal_price, tid });
+            std.debug.print("  SELL FILLED: {d:.8} BTC @ ${d:.2} pnl=${d:.2} ({s})\n", .{ fill.size, fill.price, fill.pnl, exit_str });
+            if (tg) |tl| tl.notifySell(fill.price, fill.pnl, exit_str, regime_str, instance);
+        }
+
+        // --- Periodic tasks (not in LiveLoop) ---
+
+        // Only run periodic tasks on downsampled ticks (1/min)
+        if (loop.was_downsampled) {
+            // Detect regime change
+            if (loop.regime_changed) {
+                if (tg) |tl| {
+                    const from_str = switch (loop.old_regime) {
+                        .bull => "BULL",
+                        .sideways => "SIDE",
+                        .bear => "BEAR",
+                    };
+                    tl.notifyRegimeChange(from_str, regime_str, t.price, instance);
+                }
+            }
+            // Print status
+            const unrealized = if (strategy.in_position) (t.price - strategy.entry_price) * strategy.size else 0.0;
+            const realized = strategy.capital - strategy.initial_capital;
+            const equity = strategy.capital + unrealized;
+            const ts_sec: c_long = @intFromFloat(t.timestamp);
+            const tm = localtime(&ts_sec);
+            if (tm) |lt| {
+                std.debug.print("  {d:0>4}-{d:0>2}-{d:0>2} {d:0>2}:{d:0>2}:{d:0>2} ticks={d} closed={d} equity=${d:.2} realized=${d:.2} unrealized=${d:.2} regime={s} price=${d:.2} pending={d}\n", .{
+                    @as(u32, @intCast(lt.year)) + 1900, @as(u32, @intCast(lt.mon)) + 1, @as(u32, @intCast(lt.mday)),
+                    @as(u32, @intCast(lt.hour)),        @as(u32, @intCast(lt.min)),     @as(u32, @intCast(lt.sec)),
+                    strategy.tick_count,                loop.closed_count,              equity,
+                    realized,                           unrealized,
+                    switch (strategy.regime) {
+                        .bull => "BULL",
+                        .sideways => "SIDE",
+                        .bear => "BEAR",
+                    },
+                    t.price,                            loop.pending_count,
+                });
+            }
+            // Log equity + checkpoint
+            const traded = (was_in_pos != strategy.in_position);
+            const equity_interval = t.timestamp - last_equity_ts >= 300.0;
+            _ = strategy.saveCheckpoint(checkpoint_path);
+            if (turso != null) {
+                turso.?.upsertStatus(t.timestamp, strategy.tick_count, regime_str, strategy.in_position, strategy.entry_price, equity, strategy.capital, unrealized, t.price, uptime_start, instance);
+                if (equity_interval or traded) {
+                    turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, equity, unrealized, regime_str, t.price);
+                    last_equity_ts = t.timestamp;
+                }
+                // Refresh funding rate every 8h
+                const now_ts: f64 = @floatFromInt(time(null));
+                if (now_ts - last_funding_check >= 28800.0) {
+                    last_funding_check = now_ts;
+                    if (feed_mod.fetchFundingRate(&http, 3)) |avg| {
+                        strategy.funding_avg = avg;
                     }
                 }
-            } else {
-                std.debug.print("  BUY signal suppressed: pending buy already in flight\n", .{});
-            }
-        }
+                // Check for new deposits every 5 min
+                if (t.timestamp - last_deposit_check >= 300.0) {
+                    last_deposit_check = t.timestamp;
+                    if (turso.?.queryTotalDepositsNew()) |total| {
+                        if (total > known_total_deposits) {
+                            const deposit = total - known_total_deposits;
+                            strategy.capital += deposit;
+                            strategy.initial_capital += deposit;
+                            known_total_deposits = total;
+                            std.debug.print("  DEPOSIT detected: +${d:.2} (capital now ${d:.2})\n", .{ deposit, strategy.capital });
+                            if (tg) |tel| tel.notifyDeposit(deposit, strategy.capital, instance);
 
-        // Detect regime change
-        if (strategy.regime != prev_regime) {
-            if (tg) |tl| {
-                const from_str = switch (prev_regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
-                const to_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
-                tl.notifyRegimeChange(from_str, to_str, t.price, instance);
-            }
-            prev_regime = strategy.regime;
-        }
-        // Print every strategy tick (~1/min) with timestamp
-        const unrealized = if (strategy.in_position) (t.price - strategy.entry_price) * strategy.size else 0.0;
-        const realized = strategy.capital - strategy.initial_capital;
-        const equity = strategy.capital + unrealized;
-        const ts_sec: c_long = @intFromFloat(t.timestamp);
-        const tm = localtime(&ts_sec);
-        if (tm) |lt| {
-            std.debug.print("  {d:0>4}-{d:0>2}-{d:0>2} {d:0>2}:{d:0>2}:{d:0>2} ticks={d} closed={d} equity=${d:.2} realized=${d:.2} unrealized=${d:.2} regime={s} price=${d:.2} pending={d}\n", .{
-                @as(u32, @intCast(lt.year)) + 1900, @as(u32, @intCast(lt.mon)) + 1, @as(u32, @intCast(lt.mday)),
-                @as(u32, @intCast(lt.hour)), @as(u32, @intCast(lt.min)), @as(u32, @intCast(lt.sec)),
-                strategy.tick_count, closed_count, equity, realized, unrealized,
-                switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" },
-                t.price, pending_count,
-            });
-        }
-        // Log equity to Turso: every 5 min or on trade events
-        const traded = (was_in_pos != strategy.in_position);
-        const equity_interval = t.timestamp - last_equity_ts >= 300.0; // 5 min
-        _ = strategy.saveCheckpoint(checkpoint_path);
-        if (turso != null) {
-            const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
-            turso.?.upsertStatus(t.timestamp, strategy.tick_count, regime_str, strategy.in_position, strategy.entry_price, equity, strategy.capital, unrealized, t.price, uptime_start, instance);
-            if (equity_interval or traded) {
-                turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, equity, unrealized, regime_str, t.price);
-                last_equity_ts = t.timestamp;
-            }
-            // Refresh funding rate every 8h
-            const now_ts: f64 = @floatFromInt(time(null));
-            if (now_ts - last_funding_check >= 28800.0) { // 8h
-                last_funding_check = now_ts;
-                if (feed_mod.fetchFundingRate(&http, 3)) |avg| {
-                    strategy.funding_avg = avg;
-                }
-            }
-            // Check for new deposits every 5 min
-            if (t.timestamp - last_deposit_check >= 300.0) {
-                last_deposit_check = t.timestamp;
-                if (turso.?.queryTotalDepositsNew()) |total| {
-                    if (total > known_total_deposits) {
-                        const deposit = total - known_total_deposits;
-                        strategy.capital += deposit;
-                        strategy.initial_capital += deposit;
-                        known_total_deposits = total;
-                        std.debug.print("  DEPOSIT detected: +${d:.2} (capital now ${d:.2})\n", .{ deposit, strategy.capital });
-                        if (tg) |tel| tel.notifyDeposit(deposit, strategy.capital, instance);
-
-                        // If in BULL with open position, submit async deposit buy
-                        if (strategy.regime == .bull and strategy.in_position and deposit > 10.0) {
-                            const est_fee = deposit * strategy.fee_pct;
-                            const usable = deposit - est_fee;
-                            const add_size = usable / t.price;
-                            if (exchange.submitOrder(.buy, add_size)) |pending| {
-                                if (pending_count < MAX_PENDING) {
-                                    const oid_slice = pending.order_id[0..pending.order_id_len];
-                                    var tid: u32 = 0;
-                                    const dep_buy_cost = t.price * add_size;
-                                    tid = turso.?.createPendingTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, dep_buy_cost, turso_mod.Turso.CODE_BUY, "Deposit buy pending", t.timestamp, t.price, add_size, oid_slice) orelse 0;
-                                    pending_orders[pending_count] = .{
-                                        .side = .buy,
-                                        .signal_price = t.price,
-                                        .size = add_size,
-                                        .is_deposit_buy = true,
-                                        .transfer_id = tid,
-                                    };
-                                    const len = @min(pending.order_id_len, pending_orders[pending_count].order_id.len);
-                                    @memcpy(pending_orders[pending_count].order_id[0..len], pending.order_id[0..len]);
-                                    pending_orders[pending_count].order_id_len = len;
-                                    pending_count += 1;
-                                    strategy.capital_reserved += t.price * add_size;
-                                    std.debug.print("  DEPOSIT BUY submitted: {d:.8} BTC @ ${d:.2} tid={d}\n", .{ add_size, t.price, tid });
-                                }
+                            // If in BULL with open position, submit async deposit buy
+                            if (strategy.regime == .bull and strategy.in_position and deposit > 10.0) {
+                                const est_fee = deposit * strategy.fee_pct;
+                                const usable = deposit - est_fee;
+                                const add_size = usable / t.price;
+                                loop.submitBuy(t.price, add_size, true, t.timestamp);
                             }
-                        }
 
-                        turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, strategy.capital + unrealized, unrealized, regime_str, t.price);
+                            turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, strategy.capital + unrealized, unrealized, regime_str, t.price);
+                        }
                     }
                 }
             }
@@ -738,22 +472,26 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     // Clean shutdown — save state, keep position open
     std.debug.print("\n  Shutting down...\n", .{});
     _ = strategy.saveCheckpoint(checkpoint_path);
-    const final_unrealized = if (strategy.in_position) (last_price - strategy.entry_price) * strategy.size else 0.0;
+    const final_unrealized = if (strategy.in_position) (loop.last_price - strategy.entry_price) * strategy.size else 0.0;
     const eq = strategy.capital + final_unrealized;
     // Log final equity to Turso on shutdown
     if (turso != null) {
-        const regime_str = switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" };
-        turso.?.logEquity(last_feed_ts, strategy.tick_count, strategy.capital, eq, final_unrealized, regime_str, last_price);
+        const regime_str = switch (strategy.regime) {
+            .bull => "BULL",
+            .sideways => "SIDE",
+            .bear => "BEAR",
+        };
+        turso.?.logEquity(loop.last_feed_ts, strategy.tick_count, strategy.capital, eq, final_unrealized, regime_str, loop.last_price);
         turso.?.setStatusStopped();
         _ = usleep(1_000_000);
     }
     if (tg) |t| {
         std.debug.print("  Sending shutdown notification...\n", .{});
-        t.notifyShutdown(eq, closed_count, instance);
+        t.notifyShutdown(eq, loop.closed_count, instance);
         std.debug.print("  Shutdown notification sent.\n", .{});
     }
     std.debug.print("  Final: equity=${d:.2} closed={d} ticks={d} position={s}\n", .{
-        eq, closed_count, strategy.tick_count,
+        eq,                                           loop.closed_count, strategy.tick_count,
         if (strategy.in_position) "OPEN" else "NONE",
     });
     std.debug.print("  Checkpoint saved. Goodbye.\n", .{});
@@ -770,6 +508,130 @@ fn parseTick(line: []const u8) ?Tick {
     return .{ .timestamp = timestamp, .price = price, .volume = volume };
 }
 
+fn runSimulate(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold: f64, capital: f64) !void {
+    std.debug.print("Simulate mode (LiveLoop): loading {s}...\n", .{csv_path});
+    const ticks = try loadCSV(allocator, csv_path);
+    defer allocator.free(ticks);
+
+    if (ticks.len == 0) {
+        std.debug.print("No ticks loaded.\n", .{});
+        return;
+    }
+    std.debug.print("Loaded {d} ticks (${d:.2} - ${d:.2})\n", .{ ticks.len, ticks[0].price, ticks[ticks.len - 1].price });
+
+    var strategy = try Strategy.init(allocator, .{
+        .threshold = threshold,
+        .initial_capital = capital,
+    });
+    defer strategy.deinit(allocator);
+    strategy.suppress_entry = true;
+
+    // SimExchange: instant fills (fill_delay=0), no slippage
+    var sim = sim_exchange_mod.SimExchange{ .fill_delay = 0 };
+    const ex = sim.exchange();
+    var loop = live_loop_mod.LiveLoop.init(&strategy, ex, null);
+
+    // Load funding rates if available
+    const FundingRate = struct { timestamp: f64, rate: f64 };
+    var funding_rates: std.ArrayList(FundingRate) = .empty;
+    defer funding_rates.deinit(allocator);
+    {
+        const fr_fp = fopen("funding_rates.csv", "r");
+        if (fr_fp) |fp| {
+            defer _ = fclose(fp);
+            _ = fseek(fp, 0, 2);
+            const fr_size: usize = @intCast(ftell(fp));
+            _ = fseek(fp, 0, 0);
+            const fr_buf = try allocator.alloc(u8, fr_size);
+            defer allocator.free(fr_buf);
+            _ = fread(fr_buf.ptr, 1, fr_size, fp);
+            var lines = std.mem.splitSequence(u8, fr_buf, "\n");
+            while (lines.next()) |line| {
+                if (line.len == 0) continue;
+                var fields = std.mem.splitSequence(u8, line, ",");
+                const ts_str = fields.next() orelse continue;
+                const rate_str = fields.next() orelse continue;
+                const ts = std.fmt.parseFloat(f64, ts_str) catch continue;
+                const rate = std.fmt.parseFloat(f64, rate_str) catch continue;
+                try funding_rates.append(allocator, .{ .timestamp = ts, .rate = rate });
+            }
+            std.debug.print("Loaded {d} funding rates\n", .{funding_rates.items.len});
+        } else {
+            std.debug.print("No funding_rates.csv found, running without funding filter\n", .{});
+        }
+    }
+
+    if (getenv("FUNDING_SKIP_THRESHOLD")) |ptr| {
+        const val = std.mem.sliceTo(ptr, 0);
+        strategy.funding_skip_threshold = std.fmt.parseFloat(f64, val) catch 0.0001;
+    }
+
+    // Warmup
+    const warmup_n = @min(strategy.ma_period, ticks.len);
+    strategy.warmup = true;
+    for (ticks[0..warmup_n]) |tick_item| {
+        _ = strategy.processTick(tick_item);
+    }
+    strategy.warmup = false;
+    std.debug.print("Warmup: {d} ticks, regime={s}\n", .{
+        warmup_n,
+        switch (strategy.regime) {
+            .bull => "BULL",
+            .sideways => "SIDE",
+            .bear => "BEAR",
+        },
+    });
+    std.debug.print("Funding filter: threshold={d:.4}%, rates={d}\n\n", .{
+        strategy.funding_skip_threshold * 100,
+        funding_rates.items.len,
+    });
+
+    // Funding rate sliding window
+    const FUNDING_WINDOW: f64 = 24.0 * 3600.0;
+    var fr_start: usize = 0;
+    var fr_end: usize = 0;
+    var fr_sum: f64 = 0;
+    var fr_count: usize = 0;
+
+    for (ticks[warmup_n..]) |tick_item| {
+        // Update funding rate
+        const window_start = tick_item.timestamp - FUNDING_WINDOW;
+        while (fr_end < funding_rates.items.len and funding_rates.items[fr_end].timestamp <= tick_item.timestamp) {
+            fr_sum += funding_rates.items[fr_end].rate;
+            fr_count += 1;
+            fr_end += 1;
+        }
+        while (fr_start < fr_end and funding_rates.items[fr_start].timestamp < window_start) {
+            fr_sum -= funding_rates.items[fr_start].rate;
+            fr_count -= 1;
+            fr_start += 1;
+        }
+        if (fr_count > 0) {
+            strategy.funding_avg = fr_sum / @as(f64, @floatFromInt(fr_count));
+        }
+
+        // Set SimExchange price so fills use market price
+        sim.last_price = tick_item.price;
+        sim.advanceTick();
+
+        loop.processTick(tick_item);
+    }
+
+    // Print results
+    const total_pnl = strategy.capital - strategy.initial_capital;
+    const bh_return = (ticks[ticks.len - 1].price - ticks[0].price) / ticks[0].price * 100.0;
+    std.debug.print("=== LiveLoop Simulate Results ===\n", .{});
+    std.debug.print("  PnL:        ${d:.2}\n", .{total_pnl});
+    std.debug.print("  Return:     {d:.2}%\n", .{total_pnl / strategy.initial_capital * 100.0});
+    std.debug.print("  Buy&Hold:   {d:.2}%\n", .{bh_return});
+    std.debug.print("  Trades:     {d}\n", .{loop.closed_count});
+    std.debug.print("  Buys sub:   {d} filled: {d}\n", .{ loop.buys_submitted, loop.buys_filled });
+    std.debug.print("  Sells sub:  {d} filled: {d}\n", .{ loop.sells_submitted, loop.sells_filled });
+    std.debug.print("  Cancels:    {d}\n", .{loop.cancels_issued});
+    std.debug.print("  Capital:    ${d:.2}\n", .{strategy.capital});
+    std.debug.print("  Pending:    {d}\n", .{loop.pending_count});
+}
+
 fn printLiveTrade(trade: Trade, count: u32, strategy: *const Strategy) void {
     const exit_str = switch (trade.exit_type) {
         .dc_exit => "DC",
@@ -781,7 +643,6 @@ fn printLiveTrade(trade: Trade, count: u32, strategy: *const Strategy) void {
         count, exit_str, trade.entry_price, trade.exit_price, trade.pnl, trade.return_pct(), strategy.capital,
     });
 }
-
 
 fn runBacktest(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold: f64, capital: f64) !void {
     std.debug.print("Loading {s}...\n", .{csv_path});
@@ -854,7 +715,11 @@ fn runBacktest(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold:
     strategy.warmup = false;
     std.debug.print("Warmup: {d} ticks, regime={s}, trading from tick {d}\n", .{
         warmup_n,
-        switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" },
+        switch (strategy.regime) {
+            .bull => "BULL",
+            .sideways => "SIDE",
+            .bear => "BEAR",
+        },
         warmup_n,
     });
     std.debug.print("Funding filter: threshold={d:.4}%, rates={d}\n\n", .{
@@ -865,7 +730,7 @@ fn runBacktest(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold:
     // Compute 24h avg funding rate for each tick (sliding window, matches Python)
     const FUNDING_WINDOW: f64 = 24.0 * 3600.0; // 24h in seconds
     var fr_start: usize = 0; // start of window
-    var fr_end: usize = 0;   // end of window (exclusive)
+    var fr_end: usize = 0; // end of window (exclusive)
     var fr_sum: f64 = 0;
     var fr_count: usize = 0;
 
