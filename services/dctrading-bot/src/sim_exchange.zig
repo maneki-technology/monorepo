@@ -34,7 +34,7 @@ pub const SimExchange = struct {
     log: [MAX_LOG]LogEntry = undefined,
     log_count: u32 = 0,
 
-    const MAX_ORDERS: usize = 8;
+    const MAX_ORDERS: usize = 16;
     const MAX_LOG: usize = 64;
 
     pub const SimOrder = struct {
@@ -80,6 +80,20 @@ pub const SimExchange = struct {
             if (o.id == order_id) return o;
         }
         return null;
+    }
+
+    fn removeOrder(self: *SimExchange, order_id: u32) void {
+        var i: u32 = 0;
+        while (i < self.order_count) {
+            if (self.orders[i].id == order_id) {
+                self.order_count -= 1;
+                if (i < self.order_count) {
+                    self.orders[i] = self.orders[self.order_count];
+                }
+                return;
+            }
+            i += 1;
+        }
     }
 
     fn orderIdFromSlice(id_str: []const u8) u32 {
@@ -168,9 +182,13 @@ pub const SimExchange = struct {
             var fill: OrderFill = .{ .fill_price = fp, .fill_qty = fq, .status = .filled };
             const id_str = std.fmt.bufPrint(&fill.order_id, "{d}", .{oid}) catch return .{ .failed = {} };
             fill.order_id_len = id_str.len;
+            self.removeOrder(oid);
             return .{ .filled = fill };
         }
-        if (order.cancelled) return .{ .cancelled = {} };
+        if (order.cancelled) {
+            self.removeOrder(oid);
+            return .{ .cancelled = {} };
+        }
 
         // Check if fill delay has elapsed
         if (self.tick_count >= order.submit_tick + self.fill_delay) {
@@ -191,6 +209,7 @@ pub const SimExchange = struct {
             var fill: OrderFill = .{ .fill_price = fp, .fill_qty = fq, .status = .filled };
             const id_str = std.fmt.bufPrint(&fill.order_id, "{d}", .{oid}) catch return .{ .failed = {} };
             fill.order_id_len = id_str.len;
+            self.removeOrder(oid);
             return .{ .filled = fill };
         }
 

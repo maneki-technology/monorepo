@@ -85,7 +85,6 @@ pub const LiveLoop = struct {
             self.submitSell(trade, t.timestamp);
         }
 
-        // --- Phase 5: Buy signal ---
         if (self.strategy.buy_signal) {
             self.strategy.buy_signal = false;
             if (!self.hasPendingRegularBuy()) {
@@ -155,16 +154,6 @@ pub const LiveLoop = struct {
             self.turso.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "BUY fee", t.timestamp, 0, 0);
         }
 
-        // Post-fill: check for undeployed cash in BULL
-        if (!po.is_deposit_buy and self.strategy.regime == .bull and self.strategy.in_position) {
-            const deployed = buy_price * buy_size;
-            const available = self.strategy.capital - self.strategy.capital_reserved - deployed;
-            if (available > 10.0) {
-                const dep_fee = available * self.strategy.fee_pct;
-                const dep_size = (available - dep_fee) / t.price;
-                self.submitBuy(t.price, dep_size, true, t.timestamp);
-            }
-        }
     }
 
     fn handleSellFill(self: *LiveLoop, po: PendingOrderEntry, fill: exchange_mod.OrderFill) void {

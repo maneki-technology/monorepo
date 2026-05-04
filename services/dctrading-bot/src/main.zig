@@ -8,6 +8,7 @@ const exchange_mod = @import("exchange.zig");
 const http_mod = @import("http_client.zig");
 const turso_mod = @import("turso.zig");
 const live_loop_mod = @import("live_loop.zig");
+const sim_exchange_mod = @import("sim_exchange.zig");
 
 const Tick = types.Tick;
 const Trade = types.Trade;
@@ -57,6 +58,11 @@ pub fn main(init: std.process.Init) !void {
 
     if (live_mode) {
         try runLive(allocator, init.io, threshold, capital);
+    } else if (std.mem.startsWith(u8, first_arg, "sim:")) {
+        // Simulate mode: run LiveLoop on CSV data
+        // Usage: dctrading sim:ticks.csv [threshold] [capital]
+        const csv_path: [*:0]const u8 = @ptrCast(first_arg[4..].ptr);
+        try runSimulate(allocator, csv_path, threshold, capital);
     } else {
         try runBacktest(allocator, first_arg, threshold, capital);
     }
@@ -441,6 +447,127 @@ fn parseTick(line: []const u8) ?Tick {
     const price = std.fmt.parseFloat(f64, price_str) catch return null;
     const volume = if (vol_str) |v| std.fmt.parseFloat(f64, v) catch 0.0 else 0.0;
     return .{ .timestamp = timestamp, .price = price, .volume = volume };
+}
+
+fn runSimulate(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold: f64, capital: f64) !void {
+    std.debug.print("Simulate mode (LiveLoop): loading {s}...\n", .{csv_path});
+    const ticks = try loadCSV(allocator, csv_path);
+    defer allocator.free(ticks);
+
+    if (ticks.len == 0) {
+        std.debug.print("No ticks loaded.\n", .{});
+        return;
+    }
+    std.debug.print("Loaded {d} ticks (${d:.2} - ${d:.2})\n", .{ ticks.len, ticks[0].price, ticks[ticks.len - 1].price });
+
+    var strategy = try Strategy.init(allocator, .{
+        .threshold = threshold,
+        .initial_capital = capital,
+    });
+    defer strategy.deinit(allocator);
+    strategy.suppress_entry = true;
+
+    // SimExchange: instant fills (fill_delay=0), no slippage
+    var sim = sim_exchange_mod.SimExchange{ .fill_delay = 0 };
+    const ex = sim.exchange();
+    var loop = live_loop_mod.LiveLoop.init(&strategy, ex, null);
+
+    // Load funding rates if available
+    const FundingRate = struct { timestamp: f64, rate: f64 };
+    var funding_rates: std.ArrayList(FundingRate) = .empty;
+    defer funding_rates.deinit(allocator);
+    {
+        const fr_fp = fopen("funding_rates.csv", "r");
+        if (fr_fp) |fp| {
+            defer _ = fclose(fp);
+            _ = fseek(fp, 0, 2);
+            const fr_size: usize = @intCast(ftell(fp));
+            _ = fseek(fp, 0, 0);
+            const fr_buf = try allocator.alloc(u8, fr_size);
+            defer allocator.free(fr_buf);
+            _ = fread(fr_buf.ptr, 1, fr_size, fp);
+            var lines = std.mem.splitSequence(u8, fr_buf, "\n");
+            while (lines.next()) |line| {
+                if (line.len == 0) continue;
+                var fields = std.mem.splitSequence(u8, line, ",");
+                const ts_str = fields.next() orelse continue;
+                const rate_str = fields.next() orelse continue;
+                const ts = std.fmt.parseFloat(f64, ts_str) catch continue;
+                const rate = std.fmt.parseFloat(f64, rate_str) catch continue;
+                try funding_rates.append(allocator, .{ .timestamp = ts, .rate = rate });
+            }
+            std.debug.print("Loaded {d} funding rates\n", .{funding_rates.items.len});
+        } else {
+            std.debug.print("No funding_rates.csv found, running without funding filter\n", .{});
+        }
+    }
+
+    if (getenv("FUNDING_SKIP_THRESHOLD")) |ptr| {
+        const val = std.mem.sliceTo(ptr, 0);
+        strategy.funding_skip_threshold = std.fmt.parseFloat(f64, val) catch 0.0001;
+    }
+
+    // Warmup
+    const warmup_n = @min(strategy.ma_period, ticks.len);
+    strategy.warmup = true;
+    for (ticks[0..warmup_n]) |tick_item| {
+        _ = strategy.processTick(tick_item);
+    }
+    strategy.warmup = false;
+    std.debug.print("Warmup: {d} ticks, regime={s}\n", .{
+        warmup_n,
+        switch (strategy.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" },
+    });
+    std.debug.print("Funding filter: threshold={d:.4}%, rates={d}\n\n", .{
+        strategy.funding_skip_threshold * 100,
+        funding_rates.items.len,
+    });
+
+    // Funding rate sliding window
+    const FUNDING_WINDOW: f64 = 24.0 * 3600.0;
+    var fr_start: usize = 0;
+    var fr_end: usize = 0;
+    var fr_sum: f64 = 0;
+    var fr_count: usize = 0;
+
+
+    for (ticks[warmup_n..]) |tick_item| {
+        // Update funding rate
+        const window_start = tick_item.timestamp - FUNDING_WINDOW;
+        while (fr_end < funding_rates.items.len and funding_rates.items[fr_end].timestamp <= tick_item.timestamp) {
+            fr_sum += funding_rates.items[fr_end].rate;
+            fr_count += 1;
+            fr_end += 1;
+        }
+        while (fr_start < fr_end and funding_rates.items[fr_start].timestamp < window_start) {
+            fr_sum -= funding_rates.items[fr_start].rate;
+            fr_count -= 1;
+            fr_start += 1;
+        }
+        if (fr_count > 0) {
+            strategy.funding_avg = fr_sum / @as(f64, @floatFromInt(fr_count));
+        }
+
+        // Set SimExchange price so fills use market price
+        sim.last_price = tick_item.price;
+        sim.advanceTick();
+
+        loop.processTick(tick_item);
+    }
+
+    // Print results
+    const total_pnl = strategy.capital - strategy.initial_capital;
+    const bh_return = (ticks[ticks.len - 1].price - ticks[0].price) / ticks[0].price * 100.0;
+    std.debug.print("=== LiveLoop Simulate Results ===\n", .{});
+    std.debug.print("  PnL:        ${d:.2}\n", .{total_pnl});
+    std.debug.print("  Return:     {d:.2}%\n", .{total_pnl / strategy.initial_capital * 100.0});
+    std.debug.print("  Buy&Hold:   {d:.2}%\n", .{bh_return});
+    std.debug.print("  Trades:     {d}\n", .{loop.closed_count});
+    std.debug.print("  Buys sub:   {d} filled: {d}\n", .{ loop.buys_submitted, loop.buys_filled });
+    std.debug.print("  Sells sub:  {d} filled: {d}\n", .{ loop.sells_submitted, loop.sells_filled });
+    std.debug.print("  Cancels:    {d}\n", .{loop.cancels_issued});
+    std.debug.print("  Capital:    ${d:.2}\n", .{strategy.capital});
+    std.debug.print("  Pending:    {d}\n", .{loop.pending_count});
 }
 
 fn printLiveTrade(trade: Trade, count: u32, strategy: *const Strategy) void {
