@@ -46,7 +46,7 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 | `telegram.zig` | Telegram + ntfy push notifications |
 | `http_client.zig` | Shared HTTP client (std.http.Client wrapper) |
 | `types.zig` | Tick, Trade, DC event types |
-| `tests.zig` | 160 tests |
+| `tests.zig` | 162 tests |
 
 ## Setup
 
@@ -130,6 +130,8 @@ EXIT_FEE      -1.05     bal=1050.02   "SELL fee 0.1%"
 ```
 
 PnL = current balance - total deposits. No double-counting.
+
+Fee transfers are routed by `commission_asset`: `USD`/`USDT` fees reduce `cash`, `BTC` fees reduce `btc_position`, and `BNB` fees reduce `bnb`. The ledger therefore nets a BTC-paid fee out of the BTC account. The in-memory `strategy.size` still uses the fill quantity supplied by the exchange adapter; if a Binance adapter reports gross executed quantity while charging fees in BTC, that adapter must normalize the fill quantity or the strategy must subtract the base-asset commission in a follow-up.
 
 ## Checkpoint
 

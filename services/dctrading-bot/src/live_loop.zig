@@ -234,7 +234,7 @@ pub const LiveLoop = struct {
             var ud_buf: [256]u8 = undefined;
             const ud = std.fmt.bufPrint(&ud_buf, "BUY oid={s}", .{po.order_id[0..po.order_id_len]}) catch "BUY";
             self.ledger.?.postTransferWithFill(po.transfer_id, buy_cost, buy_price, buy_size, ud);
-            self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, fee, turso_mod.Turso.CODE_FEE, "BUY fee", t.timestamp, 0, 0);
+            self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, feeCreditAccount(fill), fee, turso_mod.Turso.CODE_FEE, "BUY fee", t.timestamp, 0, 0);
         }
     }
 
@@ -258,7 +258,7 @@ pub const LiveLoop = struct {
             var ud_buf: [128]u8 = undefined;
             const ud = std.fmt.bufPrint(&ud_buf, "SELL exit={s}", .{exit_str}) catch "SELL";
             self.ledger.?.postTransferWithFill(po.transfer_id, sell_amount, sell_price, po.size, ud);
-            self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, turso_mod.Turso.ACCT_CASH, sell_fee, turso_mod.Turso.CODE_FEE, "SELL fee", 0, 0, 0);
+            self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_FEES, feeCreditAccount(fill), sell_fee, turso_mod.Turso.CODE_FEE, "SELL fee", 0, 0, 0);
             if (pnl > 0) {
                 self.ledger.?.createPostedTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_PNL, pnl, turso_mod.Turso.CODE_PNL, "Realized PnL", 0, 0, 0);
             } else if (pnl < 0) {
@@ -270,6 +270,17 @@ pub const LiveLoop = struct {
     fn fillFee(self: *const LiveLoop, fill: exchange_mod.OrderFill, price: f64, qty: f64) f64 {
         if (fill.commission > 0) return fill.commission;
         return price * qty * self.strategy.fee_pct;
+    }
+
+    // Routes the fee transfer to the asset that paid commission. For BTC fees,
+    // ledger balances net BTC down via this transfer; strategy.size still uses
+    // the fill quantity supplied by the exchange adapter.
+    fn feeCreditAccount(fill: exchange_mod.OrderFill) u8 {
+        if (fill.commission <= 0) return turso_mod.Turso.ACCT_CASH;
+        const asset = fill.commission_asset[0..fill.commission_asset_len];
+        if (std.mem.eql(u8, asset, "BNB")) return turso_mod.Turso.ACCT_BNB;
+        if (std.mem.eql(u8, asset, "BTC")) return turso_mod.Turso.ACCT_BTC;
+        return turso_mod.Turso.ACCT_CASH;
     }
 
     pub fn submitBuy(self: *LiveLoop, price: f64, size: f64, is_deposit: bool, timestamp: f64) void {
