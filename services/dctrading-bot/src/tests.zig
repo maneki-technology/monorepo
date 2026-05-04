@@ -3081,3 +3081,8 @@ test "capital_reserved: recomputed from pending array on startup" {
     // Sell not counted
     try testing.expect(reserved < 95000.0 * 0.1 + 96000.0 * 0.01 + 94000.0 * 0.1);
 }
+
+// Integration tests (LiveLoop + SimExchange + SimFeed)
+comptime {
+    _ = @import("integration_tests.zig");
+}
