@@ -245,6 +245,8 @@ struct DashboardView: View {
                 .padding(.horizontal)
                 .padding(.vertical, 10)
             }
+
+            resourceStatusRow(bs)
         }
         .background {
             RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -255,6 +257,39 @@ struct DashboardView: View {
                 )
                 .shadow(color: statusColor.opacity(0.15), radius: 12, y: 4)
         }
+    }
+
+    private func resourceStatusRow(_ bs: BotStatus) -> some View {
+        let resourceColor: Color = bs.resourceNeedsAttention ? .yellow : .green
+        let detail = bs.resourceError.isEmpty ? "OK" : bs.resourceError
+
+        return VStack(alignment: .leading, spacing: 6) {
+            Divider()
+                .overlay(resourceColor.opacity(0.25))
+
+            HStack(spacing: 8) {
+                Image(systemName: "gauge")
+                    .font(.system(.caption, design: .monospaced, weight: .semibold))
+                    .foregroundStyle(resourceColor)
+                Text("RESOURCE \(bs.resourceHealth.isEmpty ? "OK" : bs.resourceHealth)")
+                    .font(.system(.caption, design: .monospaced, weight: .semibold))
+                    .foregroundStyle(resourceColor)
+                Text(detail)
+                    .font(.system(.caption2, design: .monospaced))
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+                Spacer()
+            }
+            .padding(.horizontal)
+
+            Text("disk \(Int(bs.resourceDiskFreeMb))MB free / \(String(format: "%.1f", bs.resourceDiskUsedPct))% used · rss \(String(format: "%.1f", bs.resourceRssMb))MB · gap \(Int(bs.resourceFeedGapSec))s · lag \(Int(bs.resourceWsLagSec))s · http \(bs.resourceHttpErrors) err / \(Int(bs.resourceHttpMaxMs))ms")
+                .font(.system(.caption2, design: .monospaced))
+                .foregroundStyle(.secondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .padding(.horizontal)
+        }
+        .padding(.vertical, 10)
     }
 
     private func statCard(title: String, value: String, icon: String, color: Color) -> some View {

@@ -10,7 +10,7 @@ SwiftUI dashboard app for the DCTrading bot. Displays bot status, equity, trades
 
 ### Views (`Views/`)
 - `ContentView.swift` — Tab container: Dashboard, Ledger, Equity, Trades, Settings.
-- `DashboardView.swift` — Bot status, regime (BULL=green, SIDE=orange, BEAR=red), managed equity from app-managed BTC/BNB quantities marked at Binance spot, realized P&L, unrealized P&L, active-symbol price from Binance. Auto-refreshes every 30s.
+- `DashboardView.swift` — Bot status, resource health, regime (BULL=green, SIDE=orange, BEAR=red), managed equity from app-managed BTC/BNB quantities marked at Binance spot, realized P&L, unrealized P&L, active-symbol price from Binance. Auto-refreshes every 30s.
 - `LedgerView.swift` — Transfer ledger with cash balance summary, BNB allocation top-up, and running balance per entry.
 - `EquityChartView.swift` — Equity over time using Swift Charts.
 - `TradeHistoryView.swift` — Buy/sell transfers from double-entry ledger, Alpaca position, active-symbol price chart with trade markers.
@@ -27,6 +27,7 @@ SwiftUI dashboard app for the DCTrading bot. Displays bot status, equity, trades
 ### Key Patterns
 - **Alpaca as position source of truth**: Open position qty and entry price come from Alpaca, not Turso.
 - **Active symbol from bot_status**: `trading_symbol`, `base_asset`, `quote_asset`, and `mark_symbol` drive labels, quote-currency formatting, and Binance price lookups. Old databases fall back to `BTC/USD`.
+- **Resource status from bot_status**: `resource_health`, `resource_error`, and latest `resource_*` metrics are shown in the dashboard only when degraded. Resource issues are app-visible status, not Telegram/ntfy notifications.
 - **Price from Binance**: Free API, avoids unnecessary Turso reads. `BTC/USD` mode marks with `BTCUSDT`; BNB is marked with `BNBUSDT` and treated as USD-equivalent in USD mode.
 - **Realized PnL formula**: `(cash_balance + btc_balance + bnb_balance) - total_deposits`; transfer amounts are historical quote-currency values, while native BTC/BNB fee quantities live in transfer `size`.
 - **Estimated equity/PnL formula**: `cash_balance + managed_btc_qty * active mark price + managed_bnb_qty * BNBUSDT`; managed quantities are derived from posted transfer `size`, so exchange assets outside bot-managed transfers are ignored.

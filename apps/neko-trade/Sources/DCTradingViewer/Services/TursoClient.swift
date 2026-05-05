@@ -279,7 +279,16 @@ final class TursoClient {
             quoteAsset: getOptionalString(row, result.cols, "quote_asset") ?? "",
             markSymbol: getOptionalString(row, result.cols, "mark_symbol") ?? "",
             checkpointHealth: getOptionalString(row, result.cols, "checkpoint_health") ?? "OK",
-            checkpointError: getOptionalString(row, result.cols, "checkpoint_error") ?? ""
+            checkpointError: getOptionalString(row, result.cols, "checkpoint_error") ?? "",
+            resourceHealth: getOptionalString(row, result.cols, "resource_health") ?? "OK",
+            resourceError: getOptionalString(row, result.cols, "resource_error") ?? "",
+            resourceRssMb: getDouble(row, result.cols, "resource_rss_mb"),
+            resourceDiskFreeMb: getDouble(row, result.cols, "resource_disk_free_mb"),
+            resourceDiskUsedPct: getDouble(row, result.cols, "resource_disk_used_pct"),
+            resourceFeedGapSec: getDouble(row, result.cols, "resource_feed_gap_sec"),
+            resourceWsLagSec: getDouble(row, result.cols, "resource_ws_lag_sec"),
+            resourceHttpErrors: getInt(row, result.cols, "resource_http_errors"),
+            resourceHttpMaxMs: getDouble(row, result.cols, "resource_http_max_ms")
         )
     }
 

@@ -207,6 +207,15 @@ struct BotStatus {
     let markSymbol: String
     let checkpointHealth: String
     let checkpointError: String
+    let resourceHealth: String
+    let resourceError: String
+    let resourceRssMb: Double
+    let resourceDiskFreeMb: Double
+    let resourceDiskUsedPct: Double
+    let resourceFeedGapSec: Double
+    let resourceWsLagSec: Double
+    let resourceHttpErrors: Int
+    let resourceHttpMaxMs: Double
 
     var symbolMetadata: SymbolMetadata {
         SymbolMetadata(
@@ -223,6 +232,10 @@ struct BotStatus {
 
     var checkpointNeedsAttention: Bool {
         !checkpointHealth.isEmpty && checkpointHealth != "OK"
+    }
+
+    var resourceNeedsAttention: Bool {
+        !resourceHealth.isEmpty && resourceHealth != "OK"
     }
 
     var uptimeDuration: TimeInterval {

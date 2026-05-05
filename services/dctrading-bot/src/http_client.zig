@@ -9,12 +9,19 @@ const Io = std.Io;
 pub const HttpClient = struct {
     client: http.Client,
     allocator: std.mem.Allocator,
+    io: Io,
     mutex: std.atomic.Mutex = .unlocked,
+    request_count: u64 = 0,
+    error_count: u64 = 0,
+    retry_count: u64 = 0,
+    last_latency_ms: f64 = 0,
+    max_latency_ms: f64 = 0,
 
     pub fn init(allocator: std.mem.Allocator, io: Io) HttpClient {
         return .{
             .client = .{ .allocator = allocator, .io = io },
             .allocator = allocator,
+            .io = io,
         };
     }
 
@@ -37,6 +44,14 @@ pub const HttpClient = struct {
         }
     };
 
+    pub const MetricsSnapshot = struct {
+        requests: u64 = 0,
+        errors: u64 = 0,
+        retries: u64 = 0,
+        last_ms: f64 = 0,
+        max_ms: f64 = 0,
+    };
+
     /// POST JSON to a URL with custom headers. Returns owned response body.
     pub fn post(self: *HttpClient, url: []const u8, headers: []const Header, body: []const u8) !Response {
         return self.doRequest(.POST, url, headers, body, 64 * 1024);
@@ -57,6 +72,27 @@ pub const HttpClient = struct {
         return self.doRequest(.GET, url, headers, null, max_response_bytes);
     }
 
+    pub fn snapshotAndResetMetrics(self: *HttpClient) MetricsSnapshot {
+        while (!self.mutex.tryLock()) {
+            std.atomic.spinLoopHint();
+        }
+        defer self.mutex.unlock();
+
+        const snapshot: MetricsSnapshot = .{
+            .requests = self.request_count,
+            .errors = self.error_count,
+            .retries = self.retry_count,
+            .last_ms = self.last_latency_ms,
+            .max_ms = self.max_latency_ms,
+        };
+        self.request_count = 0;
+        self.error_count = 0;
+        self.retry_count = 0;
+        self.last_latency_ms = 0;
+        self.max_latency_ms = 0;
+        return snapshot;
+    }
+
     fn doRequest(
         self: *HttpClient,
         method: http.Method,
@@ -65,6 +101,7 @@ pub const HttpClient = struct {
         body: ?[]const u8,
         max_response_bytes: usize,
     ) !Response {
+        const start_ms = self.nowMs();
         // Spin-lock: Zig 0.16 atomic.Mutex only has tryLock
         while (!self.mutex.tryLock()) {
             std.atomic.spinLoopHint();
@@ -85,15 +122,31 @@ pub const HttpClient = struct {
         while (attempt < 2) : (attempt += 1) {
             const result = self.doRequestInner(method, uri, extra_headers[0..header_count], body, max_response_bytes);
             if (result) |resp| {
+                self.recordMetrics(start_ms, false, attempt);
                 return resp;
             } else |err| {
                 if (attempt == 0 and err == error.HttpConnectionClosing) {
                     continue; // retry with fresh connection
                 }
+                self.recordMetrics(start_ms, true, attempt);
                 return err;
             }
         }
         unreachable;
+    }
+
+    fn recordMetrics(self: *HttpClient, start_ms: i64, failed: bool, attempt: u32) void {
+        const elapsed_ms = @max(0, self.nowMs() - start_ms);
+        const latency: f64 = @floatFromInt(elapsed_ms);
+        self.request_count += 1;
+        if (failed) self.error_count += 1;
+        if (attempt > 0) self.retry_count += attempt;
+        self.last_latency_ms = latency;
+        if (latency > self.max_latency_ms) self.max_latency_ms = latency;
+    }
+
+    fn nowMs(self: *HttpClient) i64 {
+        return Io.Timestamp.now(self.io, .awake).toMilliseconds();
     }
 
     fn doRequestInner(

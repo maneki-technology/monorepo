@@ -9,6 +9,7 @@ const http_mod = @import("http_client.zig");
 const turso_mod = @import("turso.zig");
 const live_loop_mod = @import("live_loop.zig");
 const sim_exchange_mod = @import("sim_exchange.zig");
+const resource_monitor = @import("resource_monitor.zig");
 
 const Tick = types.Tick;
 const Trade = types.Trade;
@@ -77,6 +78,11 @@ fn parseEnvU8(name: [*:0]const u8, default_value: u8) u8 {
 fn parseEnvU32(name: [*:0]const u8, default_value: u32) u32 {
     const raw = getenv(name) orelse return default_value;
     return std.fmt.parseInt(u32, std.mem.sliceTo(raw, 0), 10) catch default_value;
+}
+
+fn parseEnvF64(name: [*:0]const u8, default_value: f64) f64 {
+    const raw = getenv(name) orelse return default_value;
+    return std.fmt.parseFloat(f64, std.mem.sliceTo(raw, 0)) catch default_value;
 }
 
 fn parseSymbolInfo(symbol: []const u8) SymbolInfo {
@@ -157,6 +163,16 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     const checkpoint_interval: u64 = 60; // ~1 hour with 1-min downsampling
     const checkpoint_backup_retention = parseEnvU8("CHECKPOINT_BACKUP_RETENTION", 5);
     const checkpoint_remote_interval = parseEnvU32("CHECKPOINT_REMOTE_BACKUP_INTERVAL", 3600);
+    const resource_interval_sec = parseEnvF64("RESOURCE_LOG_INTERVAL_SEC", 300.0);
+    const resource_disk_path: []const u8 = if (getenv("RESOURCE_DISK_PATH")) |ptr| std.mem.sliceTo(ptr, 0) else ".";
+    const resource_thresholds: resource_monitor.Thresholds = .{
+        .rss_warn_mb = parseEnvF64("RESOURCE_RSS_WARN_MB", 512.0),
+        .disk_free_warn_mb = parseEnvF64("RESOURCE_DISK_FREE_WARN_MB", 1024.0),
+        .disk_used_warn_pct = parseEnvF64("RESOURCE_DISK_USED_WARN_PCT", 90.0),
+        .feed_gap_warn_sec = parseEnvF64("RESOURCE_FEED_GAP_WARN_SEC", 180.0),
+        .ws_lag_warn_sec = parseEnvF64("RESOURCE_WS_LAG_WARN_SEC", 180.0),
+        .http_latency_warn_ms = parseEnvF64("RESOURCE_HTTP_LATENCY_WARN_MS", 5000.0),
+    };
     var last_remote_checkpoint_ts: f64 = 0;
     var checkpoint_health: []const u8 = "OK";
     var checkpoint_error: []const u8 = "";
@@ -170,6 +186,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     std.debug.print("  Strategy: ZI-DCT0 long-only + vol-trail 2%/72h + 60d MA buf=3%\n", .{});
     printCheckpointLocation(checkpoint_path);
     std.debug.print("  Checkpoint: every {d} ticks, backups={d}, remote={d}s\n\n", .{ checkpoint_interval, checkpoint_backup_retention, checkpoint_remote_interval });
+    std.debug.print("  Resource monitor: every {d:.0}s disk={s} warn free<{d:.0}MB used>{d:.0}% rss>{d:.0}MB\n\n", .{ resource_interval_sec, resource_disk_path, resource_thresholds.disk_free_warn_mb, resource_thresholds.disk_used_warn_pct, resource_thresholds.rss_warn_mb });
 
     // Register signal handlers for clean shutdown (SIGINT=2, SIGTERM=15)
     _ = signal(2, &handleSigint); // Ctrl-C / local
@@ -439,6 +456,9 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     }
     var last_equity_ts: f64 = 0;
     var last_deposit_check: f64 = 0;
+    var last_resource_ts: f64 = 0;
+    var last_resource_tick_ts: f64 = 0;
+    var resource_window: resource_monitor.FeedWindow = .{};
     var known_total_deposits: f64 = if (turso != null) (turso.?.queryTotalDepositsNew() orelse capital) else capital;
     var last_funding_check: f64 = if (initial_funding_fetch_ok) initial_funding_now else 0;
     const uptime_start: f64 = @floatFromInt(time(null));
@@ -480,6 +500,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     while (!shutdown_requested) {
         const tick = feed.nextTick() catch |err| {
             std.debug.print("\n  FEED ERROR: {s}. Reconnecting...\n", .{@errorName(err)});
+            resource_window.reconnect_count += 1;
             _ = usleep(3_000_000); // 3s
             feed.deinit();
             feed = feed_mod.Feed.init(allocator, io, trading_symbol) catch |e| {
@@ -490,6 +511,15 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         };
         if (tick == null) continue;
         const t = tick.?;
+        resource_window.ticks += 1;
+        if (last_resource_tick_ts > 0) {
+            const feed_gap = t.timestamp - last_resource_tick_ts;
+            if (feed_gap > resource_window.max_gap_sec) resource_window.max_gap_sec = feed_gap;
+        }
+        last_resource_tick_ts = t.timestamp;
+        const tick_wall_now: f64 = @floatFromInt(time(null));
+        const ws_lag = tick_wall_now - t.timestamp;
+        if (ws_lag > resource_window.max_ws_lag_sec) resource_window.max_ws_lag_sec = ws_lag;
 
         // Refresh funding rate before strategy-minute ticks so DC entries use the latest filter value.
         const is_strategy_tick = t.timestamp - loop.last_feed_ts >= 60.0;
@@ -590,6 +620,30 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 checkpoint_health = "OK";
                 checkpoint_error = "";
                 last_checkpoint_alert = "";
+            }
+            if (resource_interval_sec > 0 and t.timestamp - last_resource_ts >= resource_interval_sec) {
+                const http_metrics = http.snapshotAndResetMetrics();
+                const resource_sample = resource_monitor.sample(tick_wall_now, uptime_start, resource_interval_sec, resource_disk_path, resource_window, http_metrics);
+                const resource_health = resource_monitor.classify(resource_sample, resource_thresholds);
+                std.debug.print("  [resource] health={s} rss={d:.1}MB disk_free={d:.0}MB disk_used={d:.1}% ticks/min={d:.1} gap={d:.0}s lag={d:.0}s reconnects={d} http={d}/{d} retry={d} max={d:.0}ms\n", .{
+                    resource_health.status,
+                    resource_sample.rss_mb,
+                    resource_sample.disk_free_mb,
+                    resource_sample.disk_used_pct,
+                    resource_sample.ticks_per_min,
+                    resource_sample.feed_gap_sec,
+                    resource_sample.ws_lag_sec,
+                    resource_sample.reconnect_count,
+                    resource_sample.http_errors,
+                    resource_sample.http_requests,
+                    resource_sample.http_retries,
+                    resource_sample.http_max_ms,
+                });
+                if (turso != null) {
+                    turso.?.logResource(resource_sample, resource_health.status, resource_health.detail);
+                }
+                last_resource_ts = t.timestamp;
+                resource_window = .{};
             }
             if (turso != null) {
                 if (checkpoint_saved and checkpoint_remote_interval > 0) {
