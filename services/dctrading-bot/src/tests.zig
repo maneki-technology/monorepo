@@ -229,6 +229,7 @@ test "strategy: forceClose returns null when no position" {
 
 // Import the parseBinanceTrade function via feed module
 const feed_mod = @import("feed.zig");
+const telegram_mod = @import("telegram.zig");
 
 test "feed: parse valid Binance trade JSON" {
     const json =
@@ -328,6 +329,15 @@ test "feed: parseFundingRates parses 3 rates and averages" {
     try testing.expectApproxEqAbs(avg.?, 0.0002, 0.000001); // (0.1 + 0.2 + 0.3) / 3 = 0.2
 }
 
+test "feed: parseFundingSnapshot returns average count and latest funding time" {
+    const json = "[{\"symbol\":\"BTCUSDT\",\"fundingTime\":1698768000000,\"fundingRate\":\"0.00010000\"},{\"symbol\":\"BTCUSDT\",\"fundingTime\":1698796800000,\"fundingRate\":\"0.00020000\"},{\"symbol\":\"BTCUSDT\",\"fundingTime\":1698825600000,\"fundingRate\":\"0.00030000\"}]";
+    const snapshot = feed_mod.parseFundingSnapshot(json);
+    try testing.expect(snapshot != null);
+    try testing.expectApproxEqAbs(snapshot.?.avg, 0.0002, 0.000001);
+    try testing.expectEqual(@as(usize, 3), snapshot.?.count);
+    try testing.expectApproxEqAbs(snapshot.?.latest_time, 1698825600.0, 0.001);
+}
+
 test "feed: parseFundingRates parses single rate" {
     const json = "[{\"fundingRate\":\"0.00050000\"}]";
     const avg = feed_mod.parseFundingRates(json);
@@ -350,6 +360,43 @@ test "feed: parseFundingRates returns null for empty array" {
 test "feed: parseFundingRates returns null for invalid json" {
     const avg = feed_mod.parseFundingRates("not json");
     try testing.expect(avg == null);
+}
+
+test "telegram: funding rate status is normal below threshold" {
+    try testing.expectEqualStrings("NORMAL", telegram_mod.fundingRateStatus(0.000053, 0.0001));
+}
+
+test "telegram: funding rate status is elevated above threshold" {
+    try testing.expectEqualStrings("ELEVATED (skip active)", telegram_mod.fundingRateStatus(0.0002, 0.0001));
+}
+
+test "telegram: funding rate status is normal when filter disabled" {
+    try testing.expectEqualStrings("NORMAL", telegram_mod.fundingRateStatus(0.003, 0));
+}
+
+test "telegram: funding cache status reports freshness" {
+    try testing.expectEqualStrings("EMPTY", telegram_mod.fundingCacheStatus(0, 1700000000.0));
+    try testing.expectEqualStrings("FRESH", telegram_mod.fundingCacheStatus(1700000000.0 - 8.0 * 3600.0, 1700000000.0));
+    try testing.expectEqualStrings("STALE", telegram_mod.fundingCacheStatus(1700000000.0 - 10.0 * 3600.0, 1700000000.0));
+    try testing.expectEqualStrings("STALE >24h", telegram_mod.fundingCacheStatus(1700000000.0 - 25.0 * 3600.0, 1700000000.0));
+}
+
+test "telegram: funding rate message includes average threshold and status" {
+    var buf: [256]u8 = undefined;
+    const msg = try telegram_mod.formatFundingRateMessage(&buf, "BTC/USD", 0.000053, 0.0001, 1700000000.0 - 3600.0, 1700000000.0 - 8.0 * 3600.0, 1700000000.0, "local");
+    try testing.expectEqualStrings(
+        "Funding Rate Update\nSymbol: BTC/USD\n24h avg: 0.0053%\nThreshold: 0.0100%\nStatus: NORMAL\nLatest print: 8.0h ago\nCache: FRESH (1.0h)\nInstance: local",
+        msg,
+    );
+}
+
+test "telegram: funding rate stale message includes cache age" {
+    var buf: [256]u8 = undefined;
+    const msg = try telegram_mod.formatFundingRateStaleMessage(&buf, "BTC/USD", 0.000053, 1700000000.0 - 10.0 * 3600.0, 1700000000.0 - 16.0 * 3600.0, 1700000000.0, "local");
+    try testing.expectEqualStrings(
+        "Funding Rate Warning\nSymbol: BTC/USD\nRefresh failed\nCached 24h avg: 0.0053%\nLatest print: 16.0h ago\nCache: STALE (10.0h)\nInstance: local",
+        msg,
+    );
 }
 
 test "strategy: funding filter skips DC entry when funding elevated" {
@@ -799,6 +846,9 @@ test "strategy: checkpoint round-trip preserves sideways regime" {
     s.capital = 5000.0;
     s.tick_count = 42;
     s.last_timestamp = 1700000000.0;
+    s.funding_avg = 0.000053;
+    s.funding_avg_updated_at = 1700000300.0;
+    s.funding_latest_time = 1699999200.0;
 
     const path: [*:0]const u8 = "/tmp/test_ckpt_3reg.bin";
     try testing.expect(s.saveCheckpoint(path));
@@ -811,6 +861,9 @@ test "strategy: checkpoint round-trip preserves sideways regime" {
     try testing.expect(s2.regime == .sideways);
     try testing.expectApproxEqAbs(s2.capital, 5000.0, 0.001);
     try testing.expectEqual(s2.tick_count, 42);
+    try testing.expectApproxEqAbs(s2.funding_avg, 0.000053, 0.000001);
+    try testing.expectApproxEqAbs(s2.funding_avg_updated_at, 1700000300.0, 0.001);
+    try testing.expectApproxEqAbs(s2.funding_latest_time, 1699999200.0, 0.001);
 }
 
 test "strategy: checkpoint round-trip preserves all 3 regimes" {
@@ -877,6 +930,97 @@ test "strategy: old DCTRADE3 checkpoint rejected after upgrade" {
 
     // Should fail to load (magic mismatch)
     try testing.expect(!s.loadCheckpoint(path));
+}
+
+test "strategy: old DCTRADE4 checkpoint loads with empty funding average" {
+    const allocator = testing.allocator;
+    var s = try Strategy.init(allocator, .{ .ma_period = 10, .vol_window = 10 });
+    defer s.deinit(allocator);
+
+    const path: [*:0]const u8 = "/tmp/test_ckpt_v4.bin";
+    const v4_magic: u64 = 0x4443_5452_4144_4534; // DCTRADE4
+    const fp = strat_mod.fopen(path, "wb") orelse unreachable;
+    var scalars: [24]f64 = undefined;
+    @memset(&scalars, 0);
+    scalars[0] = @as(f64, @bitCast(v4_magic));
+    scalars[1] = 1.0;
+    scalars[2] = 95000.0;
+    scalars[6] = 5000.0;
+    scalars[8] = 2.0; // sideways
+    scalars[22] = 42.0;
+    scalars[23] = 1700000000.0;
+    var returns: [10]f64 = .{0} ** 10;
+    var prices: [10]f64 = .{0} ** 10;
+    _ = strat_mod.fwrite(@ptrCast(&scalars), @sizeOf(f64), scalars.len, fp);
+    _ = strat_mod.fwrite(@ptrCast(&returns), @sizeOf(f64), returns.len, fp);
+    _ = strat_mod.fwrite(@ptrCast(&prices), @sizeOf(f64), prices.len, fp);
+    _ = strat_mod.fclose(fp);
+
+    s.funding_avg = 0.003;
+    try testing.expect(s.loadCheckpoint(path));
+    try testing.expect(s.in_position);
+    try testing.expectApproxEqAbs(s.entry_price, 95000.0, 0.001);
+    try testing.expectApproxEqAbs(s.capital, 5000.0, 0.001);
+    try testing.expect(s.regime == .sideways);
+    try testing.expectEqual(s.tick_count, 42);
+    try testing.expectApproxEqAbs(s.funding_avg, 0, 0.000001);
+    try testing.expectApproxEqAbs(s.funding_avg_updated_at, 0, 0.001);
+    try testing.expectApproxEqAbs(s.funding_latest_time, 0, 0.001);
+}
+
+test "strategy: intermediate DCTRADE5 checkpoints load funding fields by file size" {
+    const allocator = testing.allocator;
+    const v5_magic: u64 = 0x4443_5452_4144_4535; // DCTRADE5
+
+    const cases = [_]struct {
+        path: [*:0]const u8,
+        scalar_count: usize,
+        expected_avg: f64,
+        expected_updated_at: f64,
+        expected_latest_time: f64,
+    }{
+        .{
+            .path = "/tmp/test_ckpt_v5_25.bin",
+            .scalar_count = 25,
+            .expected_avg = 0.000053,
+            .expected_updated_at = 0,
+            .expected_latest_time = 0,
+        },
+        .{
+            .path = "/tmp/test_ckpt_v5_26.bin",
+            .scalar_count = 26,
+            .expected_avg = 0.000061,
+            .expected_updated_at = 1700000300.0,
+            .expected_latest_time = 0,
+        },
+    };
+
+    for (cases) |case| {
+        const fp = strat_mod.fopen(case.path, "wb") orelse unreachable;
+        var scalars: [27]f64 = .{0} ** 27;
+        scalars[0] = @as(f64, @bitCast(v5_magic));
+        scalars[6] = 5000.0;
+        scalars[8] = 2.0; // sideways
+        scalars[22] = 42.0;
+        scalars[23] = 1700000000.0;
+        scalars[24] = case.expected_avg;
+        scalars[25] = case.expected_updated_at;
+        var returns: [10]f64 = .{0} ** 10;
+        var prices: [10]f64 = .{0} ** 10;
+        _ = strat_mod.fwrite(@ptrCast(&scalars), @sizeOf(f64), case.scalar_count, fp);
+        _ = strat_mod.fwrite(@ptrCast(&returns), @sizeOf(f64), returns.len, fp);
+        _ = strat_mod.fwrite(@ptrCast(&prices), @sizeOf(f64), prices.len, fp);
+        _ = strat_mod.fclose(fp);
+
+        var s = try Strategy.init(allocator, .{ .ma_period = 10, .vol_window = 10 });
+        defer s.deinit(allocator);
+        try testing.expect(s.loadCheckpoint(case.path));
+        try testing.expect(s.regime == .sideways);
+        try testing.expectEqual(s.tick_count, 42);
+        try testing.expectApproxEqAbs(s.funding_avg, case.expected_avg, 0.000001);
+        try testing.expectApproxEqAbs(s.funding_avg_updated_at, case.expected_updated_at, 0.001);
+        try testing.expectApproxEqAbs(s.funding_latest_time, case.expected_latest_time, 0.001);
+    }
 }
 
 test "strategy: checkpoint backups recover from corrupt primary" {

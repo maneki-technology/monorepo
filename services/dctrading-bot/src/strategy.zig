@@ -12,6 +12,8 @@ const DCDetector = dc_mod.DCDetector;
 // C file I/O for checkpoint persistence
 pub extern "c" fn fopen(path: [*:0]const u8, mode: [*:0]const u8) ?*anyopaque;
 pub extern "c" fn fclose(fp: *anyopaque) c_int;
+extern "c" fn fseek(fp: *anyopaque, offset: c_long, whence: c_int) c_int;
+extern "c" fn ftell(fp: *anyopaque) c_long;
 pub extern "c" fn fread(buf: [*]u8, size: usize, count: usize, fp: *anyopaque) usize;
 pub extern "c" fn fwrite(buf: [*]const u8, size: usize, count: usize, fp: *anyopaque) usize;
 extern "c" fn rename(old: [*:0]const u8, new: [*:0]const u8) c_int;
@@ -53,6 +55,8 @@ pub const Strategy = struct {
 
     // Funding rate filter
     funding_avg: f64 = 0,
+    funding_avg_updated_at: f64 = 0,
+    funding_latest_time: f64 = 0,
     funding_skip_threshold: f64 = 0.0001, // 0.010% default
 
     // Tick counter and last active timestamp for catch-up
@@ -117,7 +121,11 @@ pub const Strategy = struct {
         }
         std.debug.print("  Bootstrapped: {d} ticks, regime={s}, MA filled={s}\n", .{
             self.tick_count,
-            switch (self.regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" },
+            switch (self.regime) {
+                .bull => "BULL",
+                .sideways => "SIDE",
+                .bear => "BEAR",
+            },
             if (self.price_count >= self.ma_period) "yes" else "no",
         });
     }
@@ -141,8 +149,16 @@ pub const Strategy = struct {
         const after_regime = self.regime;
         std.debug.print("  Catch-up: {d} candles replayed, regime {s}→{s}\n", .{
             closes.len,
-            switch (before_regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" },
-            switch (after_regime) { .bull => "BULL", .sideways => "SIDE", .bear => "BEAR" },
+            switch (before_regime) {
+                .bull => "BULL",
+                .sideways => "SIDE",
+                .bear => "BEAR",
+            },
+            switch (after_regime) {
+                .bull => "BULL",
+                .sideways => "SIDE",
+                .bear => "BEAR",
+            },
         });
     }
 
@@ -313,8 +329,12 @@ pub const Strategy = struct {
 
     // --- Checkpoint save/load ---
 
-    const CHECKPOINT_MAGIC: u64 = 0x4443_5452_4144_4534; // "DCTRADE4"
-    const SCALAR_COUNT = 24;
+    const CHECKPOINT_MAGIC_V4: u64 = 0x4443_5452_4144_4534; // "DCTRADE4"
+    const CHECKPOINT_MAGIC: u64 = 0x4443_5452_4144_4535; // "DCTRADE5"
+    const SCALAR_COUNT_V4 = 24;
+    const SCALAR_COUNT_V5_FUNDING_AVG = 25;
+    const SCALAR_COUNT_V5_FUNDING_CACHE = 26;
+    const SCALAR_COUNT = 27;
 
     fn writeCheckpointFile(self: *const Strategy, path: [*:0]const u8) bool {
         const fp = fopen(path, "wb") orelse return false;
@@ -329,7 +349,11 @@ pub const Strategy = struct {
             self.peak_price,
             self.capital,
             self.current_trail,
-            switch (self.regime) { .bull => 1.0, .sideways => 2.0, .bear => 0.0 },
+            switch (self.regime) {
+                .bull => 1.0,
+                .sideways => 2.0,
+                .bear => 0.0,
+            },
             self.cum_vol_sum,
             @as(f64, @floatFromInt(self.cum_vol_count)),
             self.avg_vol,
@@ -345,6 +369,9 @@ pub const Strategy = struct {
             self.detector.extreme_time,
             @as(f64, @floatFromInt(self.tick_count)),
             self.last_timestamp,
+            self.funding_avg,
+            self.funding_avg_updated_at,
+            self.funding_latest_time,
         };
         _ = fwrite(@ptrCast(&scalars), @sizeOf(f64), SCALAR_COUNT, fp);
         _ = fwrite(@ptrCast(self.returns_buf.ptr), @sizeOf(f64), self.vol_window, fp);
@@ -376,9 +403,17 @@ pub const Strategy = struct {
         const fp = fopen(path, "rb") orelse return false;
         defer _ = fclose(fp);
 
+        const file_size = checkpointFileSize(fp) orelse return false;
+
         var scalars: [SCALAR_COUNT]f64 = undefined;
-        if (fread(@ptrCast(&scalars), @sizeOf(f64), SCALAR_COUNT, fp) != SCALAR_COUNT) return false;
-        if (@as(u64, @bitCast(scalars[0])) != CHECKPOINT_MAGIC) return false;
+        if (fread(@ptrCast(&scalars), @sizeOf(f64), SCALAR_COUNT_V4, fp) != SCALAR_COUNT_V4) return false;
+        const magic = @as(u64, @bitCast(scalars[0]));
+        const is_v5 = magic == CHECKPOINT_MAGIC;
+        if (!is_v5 and magic != CHECKPOINT_MAGIC_V4) return false;
+
+        const scalar_count = if (is_v5) checkpointScalarCount(file_size, self.vol_window, self.ma_period) orelse return false else SCALAR_COUNT_V4;
+        if (is_v5 and scalar_count < SCALAR_COUNT_V5_FUNDING_AVG) return false;
+        if (is_v5 and fread(@ptrCast(&scalars[SCALAR_COUNT_V4]), @sizeOf(f64), scalar_count - SCALAR_COUNT_V4, fp) != scalar_count - SCALAR_COUNT_V4) return false;
 
         self.in_position = scalars[1] == 1.0;
         self.entry_price = scalars[2];
@@ -387,7 +422,11 @@ pub const Strategy = struct {
         self.peak_price = scalars[5];
         self.capital = scalars[6];
         self.current_trail = scalars[7];
-        self.regime = switch (@as(u8, @intFromFloat(scalars[8]))) { 1 => .bull, 2 => .sideways, else => .bear };
+        self.regime = switch (@as(u8, @intFromFloat(scalars[8]))) {
+            1 => .bull,
+            2 => .sideways,
+            else => .bear,
+        };
         self.cum_vol_sum = scalars[9];
         self.cum_vol_count = @intFromFloat(scalars[10]);
         self.avg_vol = scalars[11];
@@ -403,6 +442,9 @@ pub const Strategy = struct {
         self.detector.extreme_time = scalars[21];
         self.tick_count = @intFromFloat(scalars[22]);
         self.last_timestamp = scalars[23];
+        self.funding_avg = if (scalar_count >= SCALAR_COUNT_V5_FUNDING_AVG) scalars[24] else 0;
+        self.funding_avg_updated_at = if (scalar_count >= SCALAR_COUNT_V5_FUNDING_CACHE) scalars[25] else 0;
+        self.funding_latest_time = if (scalar_count >= SCALAR_COUNT) scalars[26] else 0;
 
         if (fread(@ptrCast(self.returns_buf.ptr), @sizeOf(f64), self.vol_window, fp) != self.vol_window) return false;
         if (fread(@ptrCast(self.price_buf.ptr), @sizeOf(f64), self.ma_period, fp) != self.ma_period) return false;
@@ -422,6 +464,30 @@ pub const Strategy = struct {
         return false;
     }
 };
+
+fn checkpointFileSize(fp: *anyopaque) ?usize {
+    if (fseek(fp, 0, 2) != 0) return null;
+    const size_raw = ftell(fp);
+    if (size_raw < 0) return null;
+    if (fseek(fp, 0, 0) != 0) return null;
+    return @intCast(size_raw);
+}
+
+fn checkpointScalarCount(file_size: usize, vol_window: usize, ma_period: usize) ?usize {
+    const ring_bytes = (vol_window + ma_period) * @sizeOf(f64);
+    if (file_size < ring_bytes) return null;
+    const scalar_bytes = file_size - ring_bytes;
+    if (scalar_bytes % @sizeOf(f64) != 0) return null;
+    const scalar_count = scalar_bytes / @sizeOf(f64);
+    return switch (scalar_count) {
+        Strategy.SCALAR_COUNT_V4,
+        Strategy.SCALAR_COUNT_V5_FUNDING_AVG,
+        Strategy.SCALAR_COUNT_V5_FUNDING_CACHE,
+        Strategy.SCALAR_COUNT,
+        => scalar_count,
+        else => null,
+    };
+}
 
 fn backupPath(buf: []u8, path: [*:0]const u8, index: u8) ?[:0]u8 {
     return std.fmt.bufPrintZ(buf, "{s}.bak.{d}", .{ std.mem.sliceTo(path, 0), index }) catch null;

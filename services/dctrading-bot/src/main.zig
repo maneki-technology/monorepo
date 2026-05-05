@@ -20,11 +20,13 @@ extern "c" fn fclose(fp: *anyopaque) c_int;
 extern "c" fn fseek(fp: *anyopaque, offset: c_long, whence: c_int) c_int;
 extern "c" fn ftell(fp: *anyopaque) c_long;
 extern "c" fn fread(buf: [*]u8, size: usize, count: usize, fp: *anyopaque) usize;
+extern "c" fn fwrite(buf: [*]const u8, size: usize, count: usize, fp: *anyopaque) usize;
 extern "c" fn usleep(usec: c_uint) c_int;
 extern "c" fn time(tloc: ?*anyopaque) c_long;
 extern "c" fn signal(sig: c_int, handler: *const fn (c_int) callconv(.c) void) ?*const fn (c_int) callconv(.c) void;
 extern "c" fn localtime(timer: *const c_long) ?*const extern struct { sec: c_int, min: c_int, hour: c_int, mday: c_int, mon: c_int, year: c_int, wday: c_int, yday: c_int, isdst: c_int };
 extern "c" fn getenv(name: [*:0]const u8) ?[*:0]const u8;
+extern "c" fn getcwd(buf: [*]u8, size: usize) ?[*:0]u8;
 
 var shutdown_requested: bool = false;
 
@@ -114,11 +116,20 @@ pub fn main(init: std.process.Init) !void {
         std.debug.print("Usage: dctrading <ticks.csv|-> [threshold] [initial_capital]\n\n", .{});
         std.debug.print("  <file.csv>  Backtest mode: read CSV file\n", .{});
         std.debug.print("  -           Live mode: native Binance WebSocket feed\n", .{});
+        std.debug.print("  checkpoint:migrate [path] [backups]  Migrate checkpoint files offline\n", .{});
         std.debug.print("  threshold   DC lambda (default: 0.07)\n", .{});
         std.debug.print("  capital     Initial capital (default: 1000)\n\n", .{});
         std.debug.print("Strategy: ZI-DCT0 long-only, 3-regime (BULL/SIDE/BEAR), vol-trail 2%%/72h, 60d MA buf=3%%\n", .{});
         return;
     };
+
+    if (std.mem.eql(u8, first_arg, "checkpoint:migrate")) {
+        const path_arg = args.next();
+        const retention_arg = args.next();
+        const retention = if (retention_arg) |s| try std.fmt.parseInt(u8, s, 10) else parseEnvU8("CHECKPOINT_BACKUP_RETENTION", 5);
+        try runCheckpointMigrate(allocator, path_arg orelse "dctrading.checkpoint", retention);
+        return;
+    }
 
     const live_mode = std.mem.eql(u8, first_arg, "-");
 
@@ -142,7 +153,7 @@ pub fn main(init: std.process.Init) !void {
 fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f64) !void {
     const feed_mod = @import("feed.zig");
     // turso_mod imported at file scope
-    const checkpoint_path: [*:0]const u8 = "dctrading.checkpoint";
+    const checkpoint_path: [*:0]const u8 = if (getenv("CHECKPOINT_PATH")) |ptr| ptr else "dctrading.checkpoint";
     const checkpoint_interval: u64 = 60; // ~1 hour with 1-min downsampling
     const checkpoint_backup_retention = parseEnvU8("CHECKPOINT_BACKUP_RETENTION", 5);
     const checkpoint_remote_interval = parseEnvU32("CHECKPOINT_REMOTE_BACKUP_INTERVAL", 3600);
@@ -157,6 +168,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     std.debug.print("  lambda={d:.3}, capital=${d:.0}\n", .{ threshold, capital });
     std.debug.print("  symbol={s} quote={s} mark={s}\n", .{ trading_symbol, symbol_info.quoteAsset(), symbol_info.markSymbol() });
     std.debug.print("  Strategy: ZI-DCT0 long-only + vol-trail 2%/72h + 60d MA buf=3%\n", .{});
+    printCheckpointLocation(checkpoint_path);
     std.debug.print("  Checkpoint: every {d} ticks, backups={d}, remote={d}s\n\n", .{ checkpoint_interval, checkpoint_backup_retention, checkpoint_remote_interval });
 
     // Register signal handlers for clean shutdown (SIGINT=2, SIGTERM=15)
@@ -179,14 +191,21 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     var turso = turso_mod.Turso.init(allocator, &http);
     if (turso != null) turso.?.createTables();
 
+    const local_checkpoint_exists = checkpointSetExists(checkpoint_path, checkpoint_backup_retention);
     var loaded_checkpoint = false;
+    var restored_remote = false;
     if (strategy.loadCheckpointWithBackups(checkpoint_path, checkpoint_backup_retention)) {
         loaded_checkpoint = true;
     } else if (turso != null and turso.?.restoreCheckpointBackupToFile(checkpoint_path) and strategy.loadCheckpoint(checkpoint_path)) {
         loaded_checkpoint = true;
+        restored_remote = true;
         checkpoint_health = "RESTORED_REMOTE";
         checkpoint_error = "local_checkpoint_unavailable";
         std.debug.print("  Restored checkpoint from Turso remote backup.\n", .{});
+    }
+    if (!loaded_checkpoint and local_checkpoint_exists) {
+        checkpoint_health = "CHECKPOINT_LOAD_FAILED";
+        checkpoint_error = "local_checkpoint_exists_but_unreadable";
     }
     if (loaded_checkpoint) {
         std.debug.print("  Resumed from checkpoint: capital=${d:.2} regime={s} ticks={d}\n", .{
@@ -213,6 +232,14 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             tl.notifyCheckpointWarning(checkpoint_health, checkpoint_error, if (getenv("BOT_INSTANCE")) |ptr| std.mem.sliceTo(ptr, 0) else "local");
             last_checkpoint_alert = checkpoint_health;
         }
+    }
+    if (!loaded_checkpoint and local_checkpoint_exists) {
+        std.debug.print("ERROR: Checkpoint files exist but none could be loaded. Refusing to bootstrap and overwrite checkpoint state.\n", .{});
+        std.debug.print("       Run `./zig-out/bin/dctrading checkpoint:migrate {s} {d}` or restore a known-good backup first.\n", .{ std.mem.sliceTo(checkpoint_path, 0), checkpoint_backup_retention });
+        return;
+    }
+    if (restored_remote) {
+        std.debug.print("  Local checkpoint will be rewritten from restored remote state on next save.\n", .{});
     }
 
     // Init exchange (Alpaca paper trading)
@@ -379,8 +406,13 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     }
 
     // Fetch initial funding rate
-    if (feed_mod.fetchFundingRate(&http, trading_symbol, 3)) |avg| {
-        strategy.funding_avg = avg;
+    const initial_funding_now: f64 = @floatFromInt(time(null));
+    var initial_funding_fetch_ok = false;
+    if (feed_mod.fetchFundingSnapshot(&http, trading_symbol, 3)) |snapshot| {
+        strategy.funding_avg = snapshot.avg;
+        strategy.funding_avg_updated_at = initial_funding_now;
+        strategy.funding_latest_time = snapshot.latest_time;
+        initial_funding_fetch_ok = true;
     }
 
     // Read funding skip threshold from env (default: 0.0001 = 0.010%)
@@ -408,7 +440,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     var last_equity_ts: f64 = 0;
     var last_deposit_check: f64 = 0;
     var known_total_deposits: f64 = if (turso != null) (turso.?.queryTotalDepositsNew() orelse capital) else capital;
-    var last_funding_check: f64 = @floatFromInt(time(null));
+    var last_funding_check: f64 = if (initial_funding_fetch_ok) initial_funding_now else 0;
     const uptime_start: f64 = @floatFromInt(time(null));
     const instance: []const u8 = if (getenv("BOT_INSTANCE")) |ptr| std.mem.sliceTo(ptr, 0) else "local";
     // Notify startup
@@ -458,6 +490,27 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         };
         if (tick == null) continue;
         const t = tick.?;
+
+        // Refresh funding rate before strategy-minute ticks so DC entries use the latest filter value.
+        const is_strategy_tick = t.timestamp - loop.last_feed_ts >= 60.0;
+        if (is_strategy_tick) {
+            const funding_now_ts: f64 = @floatFromInt(time(null));
+            if (funding_now_ts - last_funding_check >= 3600.0) {
+                last_funding_check = funding_now_ts;
+                if (feed_mod.fetchFundingSnapshot(&http, trading_symbol, 3)) |snapshot| {
+                    const latest_changed = snapshot.latest_time > 0 and snapshot.latest_time != strategy.funding_latest_time;
+                    strategy.funding_avg = snapshot.avg;
+                    strategy.funding_avg_updated_at = funding_now_ts;
+                    strategy.funding_latest_time = snapshot.latest_time;
+                    if (latest_changed) {
+                        if (tg) |tl| tl.notifyFundingRate(trading_symbol, snapshot.avg, strategy.funding_skip_threshold, strategy.funding_avg_updated_at, strategy.funding_latest_time, funding_now_ts, instance);
+                    }
+                } else if (telegram_mod.fundingCacheStatus(strategy.funding_avg_updated_at, funding_now_ts)[0] != 'F') {
+                    std.debug.print("  [funding] WARNING: refresh failed, cache={s}\n", .{telegram_mod.fundingCacheStatus(strategy.funding_avg_updated_at, funding_now_ts)});
+                    if (tg) |tl| tl.notifyFundingRateStale(trading_symbol, strategy.funding_avg, strategy.funding_avg_updated_at, strategy.funding_latest_time, funding_now_ts, instance);
+                }
+            }
+        }
 
         // Core order flow: pending checks, trailing stop, strategy, buy/sell signals
         const was_in_pos = strategy.in_position;
@@ -565,14 +618,6 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                     turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, equity, unrealized, regime_str, t.price);
                     last_equity_ts = t.timestamp;
                 }
-                // Refresh funding rate every 8h
-                const funding_now_ts: f64 = @floatFromInt(time(null));
-                if (funding_now_ts - last_funding_check >= 28800.0) {
-                    last_funding_check = funding_now_ts;
-                    if (feed_mod.fetchFundingRate(&http, trading_symbol, 3)) |avg| {
-                        strategy.funding_avg = avg;
-                    }
-                }
                 // Check for new deposits every 5 min
                 if (t.timestamp - last_deposit_check >= 300.0) {
                     last_deposit_check = t.timestamp;
@@ -639,6 +684,108 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         if (strategy.in_position) "OPEN" else "NONE",
     });
     std.debug.print("  Checkpoint saved. Goodbye.\n", .{});
+}
+
+fn runCheckpointMigrate(allocator: std.mem.Allocator, checkpoint_path: []const u8, retention: u8) !void {
+    var path_buf: [4096]u8 = undefined;
+    const primary = try std.fmt.bufPrintZ(&path_buf, "{s}", .{checkpoint_path});
+
+    var migrated: u32 = 0;
+    var skipped: u32 = 0;
+    var failed: u32 = 0;
+
+    std.debug.print("Checkpoint migration: path={s} backups={d}\n", .{ primary, retention });
+    if (try migrateCheckpointFile(allocator, primary)) {
+        migrated += 1;
+    } else {
+        skipped += 1;
+    }
+
+    var index: u8 = 1;
+    while (index <= retention) : (index += 1) {
+        var backup_buf: [4096]u8 = undefined;
+        const backup = std.fmt.bufPrintZ(&backup_buf, "{s}.bak.{d}", .{ primary, index }) catch {
+            failed += 1;
+            continue;
+        };
+        if (migrateCheckpointFile(allocator, backup)) |did_migrate| {
+            if (did_migrate) {
+                migrated += 1;
+            } else {
+                skipped += 1;
+            }
+        } else |err| {
+            std.debug.print("  FAILED: {s} ({s})\n", .{ backup, @errorName(err) });
+            failed += 1;
+        }
+    }
+
+    std.debug.print("Checkpoint migration complete: migrated={d} skipped={d} failed={d}\n", .{ migrated, skipped, failed });
+    if (failed > 0) return error.CheckpointMigrationFailed;
+}
+
+fn printCheckpointLocation(path: [*:0]const u8) void {
+    var cwd_buf: [4096]u8 = undefined;
+    if (getcwd(&cwd_buf, cwd_buf.len)) |cwd| {
+        std.debug.print("  Working dir: {s}\n", .{std.mem.sliceTo(cwd, 0)});
+    } else {
+        std.debug.print("  Working dir: <unknown>\n", .{});
+    }
+    std.debug.print("  Checkpoint path: {s}\n", .{std.mem.sliceTo(path, 0)});
+}
+
+fn checkpointSetExists(path: [*:0]const u8, retention: u8) bool {
+    if (fileExists(path)) return true;
+    var index: u8 = 1;
+    while (index <= retention) : (index += 1) {
+        var backup_buf: [4096]u8 = undefined;
+        const backup = std.fmt.bufPrintZ(&backup_buf, "{s}.bak.{d}", .{ std.mem.sliceTo(path, 0), index }) catch return true;
+        if (fileExists(backup)) return true;
+    }
+    return false;
+}
+
+fn migrateCheckpointFile(allocator: std.mem.Allocator, path: [*:0]const u8) !bool {
+    if (!fileExists(path)) {
+        std.debug.print("  skip missing: {s}\n", .{std.mem.sliceTo(path, 0)});
+        return false;
+    }
+
+    var strategy = try Strategy.init(allocator, .{});
+    defer strategy.deinit(allocator);
+
+    if (!strategy.loadCheckpoint(path)) {
+        return error.InvalidCheckpoint;
+    }
+
+    var backup_buf: [4096]u8 = undefined;
+    const backup_path = try std.fmt.bufPrintZ(&backup_buf, "{s}.pre-migrate", .{std.mem.sliceTo(path, 0)});
+    if (!copyFile(path, backup_path)) return error.BackupFailed;
+    if (!strategy.saveCheckpoint(path)) return error.SaveFailed;
+
+    std.debug.print("  migrated: {s} (pre-migrate copy: {s})\n", .{ std.mem.sliceTo(path, 0), backup_path });
+    return true;
+}
+
+fn fileExists(path: [*:0]const u8) bool {
+    const fp = fopen(path, "rb") orelse return false;
+    _ = fclose(fp);
+    return true;
+}
+
+fn copyFile(src: [*:0]const u8, dst: [*:0]const u8) bool {
+    const in = fopen(src, "rb") orelse return false;
+    defer _ = fclose(in);
+    const out = fopen(dst, "wb") orelse return false;
+    defer _ = fclose(out);
+
+    var buf: [8192]u8 = undefined;
+    while (true) {
+        const n = fread(&buf, 1, buf.len, in);
+        if (n == 0) break;
+        if (fwrite(&buf, 1, n, out) != n) return false;
+    }
+    return true;
 }
 
 fn parseTick(line: []const u8) ?Tick {
@@ -752,6 +899,8 @@ fn runSimulate(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold:
         }
         if (fr_count > 0) {
             strategy.funding_avg = fr_sum / @as(f64, @floatFromInt(fr_count));
+            strategy.funding_avg_updated_at = tick_item.timestamp;
+            strategy.funding_latest_time = funding_rates.items[fr_end - 1].timestamp;
         }
 
         // Set SimExchange price so fills use market price
@@ -894,6 +1043,8 @@ fn runBacktest(allocator: std.mem.Allocator, csv_path: [*:0]const u8, threshold:
         }
         if (fr_count > 0) {
             strategy.funding_avg = fr_sum / @as(f64, @floatFromInt(fr_count));
+            strategy.funding_avg_updated_at = tick_item.timestamp;
+            strategy.funding_latest_time = funding_rates.items[fr_end - 1].timestamp;
         }
         if (strategy.processTick(tick_item)) |trade| {
             try trades.append(allocator, trade);
