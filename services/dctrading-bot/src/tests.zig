@@ -879,6 +879,63 @@ test "strategy: old DCTRADE3 checkpoint rejected after upgrade" {
     try testing.expect(!s.loadCheckpoint(path));
 }
 
+test "strategy: checkpoint backups recover from corrupt primary" {
+    const allocator = testing.allocator;
+    const path: [*:0]const u8 = "/tmp/test_ckpt_backup.bin";
+
+    var s = try Strategy.init(allocator, .{ .ma_period = 10, .vol_window = 10 });
+    defer s.deinit(allocator);
+    s.capital = 1000.0;
+    s.tick_count = 10;
+    try testing.expect(s.saveCheckpointWithBackups(path, 3));
+
+    s.capital = 2000.0;
+    s.tick_count = 20;
+    try testing.expect(s.saveCheckpointWithBackups(path, 3));
+
+    const fp = strat_mod.fopen(path, "wb") orelse unreachable;
+    var junk: [4]u8 = .{ 'b', 'a', 'd', '\n' };
+    _ = strat_mod.fwrite(&junk, 1, junk.len, fp);
+    _ = strat_mod.fclose(fp);
+
+    var recovered = try Strategy.init(allocator, .{ .ma_period = 10, .vol_window = 10 });
+    defer recovered.deinit(allocator);
+    try testing.expect(recovered.loadCheckpointWithBackups(path, 3));
+    try testing.expectApproxEqAbs(recovered.capital, 1000.0, 0.001);
+    try testing.expectEqual(@as(u64, 10), recovered.tick_count);
+}
+
+test "strategy: checkpoint backup retention keeps older fallback slots" {
+    const allocator = testing.allocator;
+    const path: [*:0]const u8 = "/tmp/test_ckpt_backup_retention.bin";
+
+    var s = try Strategy.init(allocator, .{ .ma_period = 10, .vol_window = 10 });
+    defer s.deinit(allocator);
+
+    var i: u64 = 1;
+    while (i <= 4) : (i += 1) {
+        s.capital = @as(f64, @floatFromInt(i * 1000));
+        s.tick_count = i;
+        try testing.expect(s.saveCheckpointWithBackups(path, 2));
+    }
+
+    const primary = strat_mod.fopen(path, "wb") orelse unreachable;
+    var junk: [4]u8 = .{ 'b', 'a', 'd', '\n' };
+    _ = strat_mod.fwrite(&junk, 1, junk.len, primary);
+    _ = strat_mod.fclose(primary);
+
+    const bak1: [*:0]const u8 = "/tmp/test_ckpt_backup_retention.bin.bak.1";
+    const first_backup = strat_mod.fopen(bak1, "wb") orelse unreachable;
+    _ = strat_mod.fwrite(&junk, 1, junk.len, first_backup);
+    _ = strat_mod.fclose(first_backup);
+
+    var recovered = try Strategy.init(allocator, .{ .ma_period = 10, .vol_window = 10 });
+    defer recovered.deinit(allocator);
+    try testing.expect(recovered.loadCheckpointWithBackups(path, 2));
+    try testing.expectApproxEqAbs(recovered.capital, 2000.0, 0.001);
+    try testing.expectEqual(@as(u64, 2), recovered.tick_count);
+}
+
 // ============================================================
 // HTTP Client / Alpaca / Turso Parsing Tests
 // ============================================================
@@ -1263,6 +1320,23 @@ test "turso: parseTransferId handles unquoted integer" {
     const val = turso_mod.Turso.parseTransferId(json);
     try testing.expect(val != null);
     try testing.expectEqual(val.?, 42);
+}
+
+test "turso: parseValueStringAlloc parses selected value" {
+    const json = "{\"results\":[{\"response\":{\"result\":{\"rows\":[[{\"type\":\"integer\",\"value\":12},{\"type\":\"text\",\"value\":\"YWJj\"}]]}}}]}";
+    const value = turso_mod.Turso.parseValueStringAlloc(testing.allocator, json, 1).?;
+    defer testing.allocator.free(value);
+    try testing.expectEqualStrings("YWJj", value);
+}
+
+test "turso: checkpoint backup response parses checksum and payload" {
+    const json = "{\"results\":[{\"response\":{\"result\":{\"rows\":[[{\"type\":\"integer\",\"value\":3},{\"type\":\"text\",\"value\":\"2a4f1d7cb516c72\"},{\"type\":\"text\",\"value\":\"YWJj\"}]]}}}]}";
+    const checksum = turso_mod.Turso.parseValueStringAlloc(testing.allocator, json, 1).?;
+    defer testing.allocator.free(checksum);
+    const payload = turso_mod.Turso.parseValueStringAlloc(testing.allocator, json, 2).?;
+    defer testing.allocator.free(payload);
+    try testing.expectEqualStrings("2a4f1d7cb516c72", checksum);
+    try testing.expectEqualStrings("YWJj", payload);
 }
 
 test "turso: account constants are correct" {

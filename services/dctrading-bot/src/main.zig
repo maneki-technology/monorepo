@@ -67,6 +67,16 @@ fn upperCopy(dst: []u8, src: []const u8) usize {
     return len;
 }
 
+fn parseEnvU8(name: [*:0]const u8, default_value: u8) u8 {
+    const raw = getenv(name) orelse return default_value;
+    return std.fmt.parseInt(u8, std.mem.sliceTo(raw, 0), 10) catch default_value;
+}
+
+fn parseEnvU32(name: [*:0]const u8, default_value: u32) u32 {
+    const raw = getenv(name) orelse return default_value;
+    return std.fmt.parseInt(u32, std.mem.sliceTo(raw, 0), 10) catch default_value;
+}
+
 fn parseSymbolInfo(symbol: []const u8) SymbolInfo {
     var info: SymbolInfo = undefined;
     info.trading_symbol_len = upperCopy(&info.trading_symbol, symbol);
@@ -134,6 +144,12 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     // turso_mod imported at file scope
     const checkpoint_path: [*:0]const u8 = "dctrading.checkpoint";
     const checkpoint_interval: u64 = 60; // ~1 hour with 1-min downsampling
+    const checkpoint_backup_retention = parseEnvU8("CHECKPOINT_BACKUP_RETENTION", 5);
+    const checkpoint_remote_interval = parseEnvU32("CHECKPOINT_REMOTE_BACKUP_INTERVAL", 3600);
+    var last_remote_checkpoint_ts: f64 = 0;
+    var checkpoint_health: []const u8 = "OK";
+    var checkpoint_error: []const u8 = "";
+    var last_checkpoint_alert: []const u8 = "";
     const symbol_info = parseSymbolInfo(if (getenv("TRADING_SYMBOL")) |ptr| std.mem.sliceTo(ptr, 0) else "BTC/USD");
     const trading_symbol = symbol_info.tradingSymbol();
 
@@ -141,7 +157,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     std.debug.print("  lambda={d:.3}, capital=${d:.0}\n", .{ threshold, capital });
     std.debug.print("  symbol={s} quote={s} mark={s}\n", .{ trading_symbol, symbol_info.quoteAsset(), symbol_info.markSymbol() });
     std.debug.print("  Strategy: ZI-DCT0 long-only + vol-trail 2%/72h + 60d MA buf=3%\n", .{});
-    std.debug.print("  Checkpoint: every {d} ticks\n\n", .{checkpoint_interval});
+    std.debug.print("  Checkpoint: every {d} ticks, backups={d}, remote={d}s\n\n", .{ checkpoint_interval, checkpoint_backup_retention, checkpoint_remote_interval });
 
     // Register signal handlers for clean shutdown (SIGINT=2, SIGTERM=15)
     _ = signal(2, &handleSigint); // Ctrl-C / local
@@ -155,9 +171,24 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     });
     defer strategy.deinit(allocator);
 
+    // Init shared HTTP client
+    var http = http_mod.HttpClient.init(allocator, io);
+    defer http.deinit();
+
+    // Init Turso DB logging (optional — disabled if env vars not set)
+    var turso = turso_mod.Turso.init(allocator, &http);
+    if (turso != null) turso.?.createTables();
+
     var loaded_checkpoint = false;
-    if (strategy.loadCheckpoint(checkpoint_path)) {
+    if (strategy.loadCheckpointWithBackups(checkpoint_path, checkpoint_backup_retention)) {
         loaded_checkpoint = true;
+    } else if (turso != null and turso.?.restoreCheckpointBackupToFile(checkpoint_path) and strategy.loadCheckpoint(checkpoint_path)) {
+        loaded_checkpoint = true;
+        checkpoint_health = "RESTORED_REMOTE";
+        checkpoint_error = "local_checkpoint_unavailable";
+        std.debug.print("  Restored checkpoint from Turso remote backup.\n", .{});
+    }
+    if (loaded_checkpoint) {
         std.debug.print("  Resumed from checkpoint: capital=${d:.2} regime={s} ticks={d}\n", .{
             strategy.capital,
             switch (strategy.regime) {
@@ -175,16 +206,14 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         std.debug.print("\n", .{});
     }
 
-    // Init shared HTTP client
-    var http = http_mod.HttpClient.init(allocator, io);
-    defer http.deinit();
-
-    // Init Turso DB logging (optional — disabled if env vars not set)
-    var turso = turso_mod.Turso.init(allocator, &http);
-    if (turso != null) turso.?.createTables();
-
     // Init Telegram notifications (optional)
     const tg = telegram_mod.Telegram.init(allocator, &http);
+    if (!std.mem.eql(u8, checkpoint_health, "OK")) {
+        if (tg) |tl| {
+            tl.notifyCheckpointWarning(checkpoint_health, checkpoint_error, if (getenv("BOT_INSTANCE")) |ptr| std.mem.sliceTo(ptr, 0) else "local");
+            last_checkpoint_alert = checkpoint_health;
+        }
+    }
 
     // Init exchange (Alpaca paper trading)
     const alpaca = alpaca_mod.Alpaca.init(&http) orelse {
@@ -495,17 +524,51 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             // Log equity + checkpoint
             const traded = (was_in_pos != strategy.in_position);
             const equity_interval = t.timestamp - last_equity_ts >= 300.0;
-            _ = strategy.saveCheckpoint(checkpoint_path);
+            const checkpoint_saved = strategy.saveCheckpointWithBackups(checkpoint_path, checkpoint_backup_retention);
+            if (!checkpoint_saved) {
+                checkpoint_health = "CHECKPOINT_SAVE_FAILED";
+                checkpoint_error = "local_checkpoint_write_failed";
+                std.debug.print("  [checkpoint] ERROR: local checkpoint save failed.\n", .{});
+                if (!std.mem.eql(u8, last_checkpoint_alert, checkpoint_health)) {
+                    if (tg) |tl| tl.notifyCheckpointWarning(checkpoint_health, checkpoint_error, instance);
+                    last_checkpoint_alert = checkpoint_health;
+                }
+            } else if (std.mem.eql(u8, checkpoint_health, "CHECKPOINT_SAVE_FAILED")) {
+                checkpoint_health = "OK";
+                checkpoint_error = "";
+                last_checkpoint_alert = "";
+            }
             if (turso != null) {
-                turso.?.upsertStatus(t.timestamp, strategy.tick_count, regime_str, strategy.in_position, strategy.entry_price, equity, strategy.capital, unrealized, t.price, uptime_start, instance, symbol_info.tradingSymbol(), symbol_info.baseAsset(), symbol_info.quoteAsset(), symbol_info.markSymbol());
+                if (checkpoint_saved and checkpoint_remote_interval > 0) {
+                    const remote_now_ts: f64 = @floatFromInt(time(null));
+                    if (remote_now_ts - last_remote_checkpoint_ts >= @as(f64, @floatFromInt(checkpoint_remote_interval))) {
+                        if (turso.?.backupCheckpointFile(checkpoint_path, strategy.tick_count, false)) {
+                            last_remote_checkpoint_ts = remote_now_ts;
+                            if (std.mem.eql(u8, checkpoint_health, "REMOTE_BACKUP_FAILED")) {
+                                checkpoint_health = "OK";
+                                checkpoint_error = "";
+                                last_checkpoint_alert = "";
+                            }
+                        } else {
+                            checkpoint_health = "REMOTE_BACKUP_FAILED";
+                            checkpoint_error = "turso_checkpoint_backup_failed";
+                            std.debug.print("  [checkpoint] WARNING: Turso checkpoint backup failed.\n", .{});
+                            if (!std.mem.eql(u8, last_checkpoint_alert, checkpoint_health)) {
+                                if (tg) |tl| tl.notifyCheckpointWarning(checkpoint_health, checkpoint_error, instance);
+                                last_checkpoint_alert = checkpoint_health;
+                            }
+                        }
+                    }
+                }
+                turso.?.upsertStatus(t.timestamp, strategy.tick_count, regime_str, strategy.in_position, strategy.entry_price, equity, strategy.capital, unrealized, t.price, uptime_start, instance, symbol_info.tradingSymbol(), symbol_info.baseAsset(), symbol_info.quoteAsset(), symbol_info.markSymbol(), checkpoint_health, checkpoint_error);
                 if (equity_interval or traded) {
                     turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, equity, unrealized, regime_str, t.price);
                     last_equity_ts = t.timestamp;
                 }
                 // Refresh funding rate every 8h
-                const now_ts: f64 = @floatFromInt(time(null));
-                if (now_ts - last_funding_check >= 28800.0) {
-                    last_funding_check = now_ts;
+                const funding_now_ts: f64 = @floatFromInt(time(null));
+                if (funding_now_ts - last_funding_check >= 28800.0) {
+                    last_funding_check = funding_now_ts;
                     if (feed_mod.fetchFundingRate(&http, trading_symbol, 3)) |avg| {
                         strategy.funding_avg = avg;
                     }
@@ -540,7 +603,19 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
 
     // Clean shutdown — save state, keep position open
     std.debug.print("\n  Shutting down...\n", .{});
-    _ = strategy.saveCheckpoint(checkpoint_path);
+    const final_checkpoint_saved = strategy.saveCheckpointWithBackups(checkpoint_path, checkpoint_backup_retention);
+    if (!final_checkpoint_saved) {
+        checkpoint_health = "CHECKPOINT_SAVE_FAILED";
+        checkpoint_error = "shutdown_checkpoint_write_failed";
+        if (tg) |tl| tl.notifyCheckpointWarning(checkpoint_health, checkpoint_error, instance);
+    }
+    if (final_checkpoint_saved and checkpoint_remote_interval > 0 and turso != null) {
+        if (!turso.?.backupCheckpointFile(checkpoint_path, strategy.tick_count, true)) {
+            checkpoint_health = "REMOTE_BACKUP_FAILED";
+            checkpoint_error = "shutdown_turso_checkpoint_backup_failed";
+            if (tg) |tl| tl.notifyCheckpointWarning(checkpoint_health, checkpoint_error, instance);
+        }
+    }
     const final_unrealized = if (strategy.in_position) (loop.last_price - strategy.entry_price) * strategy.size else 0.0;
     const eq = strategy.capital + final_unrealized;
     // Log final equity to Turso on shutdown

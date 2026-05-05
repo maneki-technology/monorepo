@@ -222,6 +222,29 @@ struct DashboardView: View {
             }
             .padding(.horizontal)
             .padding(.vertical, 10)
+
+            if bs.checkpointNeedsAttention {
+                Divider()
+                    .overlay(Color.orange.opacity(0.25))
+
+                HStack(spacing: 8) {
+                    Image(systemName: "externaldrive.trianglebadge.exclamationmark")
+                        .font(.system(.caption, design: .monospaced, weight: .semibold))
+                        .foregroundStyle(.orange)
+                    Text(bs.checkpointHealth)
+                        .font(.system(.caption, design: .monospaced, weight: .semibold))
+                        .foregroundStyle(.orange)
+                    if !bs.checkpointError.isEmpty {
+                        Text(bs.checkpointError)
+                            .font(.system(.caption2, design: .monospaced))
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 10)
+            }
         }
         .background {
             RoundedRectangle(cornerRadius: 12, style: .continuous)

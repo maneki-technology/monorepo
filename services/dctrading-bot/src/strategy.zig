@@ -14,6 +14,8 @@ pub extern "c" fn fopen(path: [*:0]const u8, mode: [*:0]const u8) ?*anyopaque;
 pub extern "c" fn fclose(fp: *anyopaque) c_int;
 pub extern "c" fn fread(buf: [*]u8, size: usize, count: usize, fp: *anyopaque) usize;
 pub extern "c" fn fwrite(buf: [*]const u8, size: usize, count: usize, fp: *anyopaque) usize;
+extern "c" fn rename(old: [*:0]const u8, new: [*:0]const u8) c_int;
+extern "c" fn remove(path: [*:0]const u8) c_int;
 
 pub const Strategy = struct {
     detector: DCDetector,
@@ -314,7 +316,7 @@ pub const Strategy = struct {
     const CHECKPOINT_MAGIC: u64 = 0x4443_5452_4144_4534; // "DCTRADE4"
     const SCALAR_COUNT = 24;
 
-    pub fn saveCheckpoint(self: *const Strategy, path: [*:0]const u8) bool {
+    fn writeCheckpointFile(self: *const Strategy, path: [*:0]const u8) bool {
         const fp = fopen(path, "wb") orelse return false;
         defer _ = fclose(fp);
 
@@ -348,6 +350,25 @@ pub const Strategy = struct {
         _ = fwrite(@ptrCast(self.returns_buf.ptr), @sizeOf(f64), self.vol_window, fp);
         _ = fwrite(@ptrCast(self.price_buf.ptr), @sizeOf(f64), self.ma_period, fp);
 
+        return true;
+    }
+
+    pub fn saveCheckpoint(self: *const Strategy, path: [*:0]const u8) bool {
+        return self.writeCheckpointFile(path);
+    }
+
+    pub fn saveCheckpointWithBackups(self: *const Strategy, path: [*:0]const u8, retention: u8) bool {
+        var tmp_buf: [4096]u8 = undefined;
+        const path_slice = std.mem.sliceTo(path, 0);
+        const tmp_path = std.fmt.bufPrintZ(&tmp_buf, "{s}.tmp", .{path_slice}) catch return false;
+
+        if (!self.writeCheckpointFile(tmp_path)) return false;
+        if (retention > 0) rotateCheckpointBackups(path, retention);
+
+        if (rename(tmp_path, path) != 0) {
+            _ = remove(tmp_path);
+            return false;
+        }
         return true;
     }
 
@@ -388,7 +409,58 @@ pub const Strategy = struct {
 
         return true;
     }
+
+    pub fn loadCheckpointWithBackups(self: *Strategy, path: [*:0]const u8, retention: u8) bool {
+        if (self.loadCheckpoint(path)) return true;
+
+        var backup_buf: [4096]u8 = undefined;
+        var index: u8 = 1;
+        while (index <= retention) : (index += 1) {
+            const backup_path = backupPath(&backup_buf, path, index) orelse return false;
+            if (self.loadCheckpoint(backup_path)) return true;
+        }
+        return false;
+    }
 };
+
+fn backupPath(buf: []u8, path: [*:0]const u8, index: u8) ?[:0]u8 {
+    return std.fmt.bufPrintZ(buf, "{s}.bak.{d}", .{ std.mem.sliceTo(path, 0), index }) catch null;
+}
+
+fn copyFile(src: [*:0]const u8, dst: [*:0]const u8) bool {
+    const in = fopen(src, "rb") orelse return false;
+    defer _ = fclose(in);
+
+    const out = fopen(dst, "wb") orelse return false;
+    defer _ = fclose(out);
+
+    var buf: [8192]u8 = undefined;
+    while (true) {
+        const read_count = fread(&buf, 1, buf.len, in);
+        if (read_count == 0) break;
+        if (fwrite(&buf, 1, read_count, out) != read_count) return false;
+    }
+    return true;
+}
+
+fn rotateCheckpointBackups(path: [*:0]const u8, retention: u8) void {
+    if (retention == 0) return;
+
+    var old_buf: [4096]u8 = undefined;
+    var new_buf: [4096]u8 = undefined;
+
+    var index = retention;
+    while (index > 1) : (index -= 1) {
+        const old_path = backupPath(&old_buf, path, index - 1) orelse return;
+        const new_path = backupPath(&new_buf, path, index) orelse return;
+        _ = remove(new_path);
+        _ = rename(old_path, new_path);
+    }
+
+    const first_backup = backupPath(&new_buf, path, 1) orelse return;
+    _ = remove(first_backup);
+    _ = copyFile(path, first_backup);
+}
 
 fn ringStd(buf: []const f64, count: usize) f64 {
     if (count < 2) return 0;

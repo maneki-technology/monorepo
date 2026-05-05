@@ -277,7 +277,9 @@ final class TursoClient {
             tradingSymbol: getOptionalString(row, result.cols, "trading_symbol") ?? "",
             baseAsset: getOptionalString(row, result.cols, "base_asset") ?? "",
             quoteAsset: getOptionalString(row, result.cols, "quote_asset") ?? "",
-            markSymbol: getOptionalString(row, result.cols, "mark_symbol") ?? ""
+            markSymbol: getOptionalString(row, result.cols, "mark_symbol") ?? "",
+            checkpointHealth: getOptionalString(row, result.cols, "checkpoint_health") ?? "OK",
+            checkpointError: getOptionalString(row, result.cols, "checkpoint_error") ?? ""
         )
     }
 
