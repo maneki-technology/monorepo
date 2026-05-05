@@ -46,7 +46,7 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 | `telegram.zig` | Telegram + ntfy push notifications |
 | `http_client.zig` | Shared HTTP client (std.http.Client wrapper) |
 | `types.zig` | Tick, Trade, DC event types |
-| `tests.zig` | 162 tests |
+| `tests.zig` | 166 tests |
 
 ## Setup
 
@@ -63,6 +63,10 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 # Required
 export ALPACA_API_KEY=PK...
 export ALPACA_API_SECRET=...
+
+# Trading pair (optional; default: BTC/USD)
+# Alpaca uses BTC/USD; Binance feed/funding maps this to BTCUSDT
+export TRADING_SYMBOL=BTC/USD
 
 # Turso (optional but recommended)
 export TURSO_URL=libsql://your-db.turso.io
@@ -122,16 +126,16 @@ Every capital movement is tracked in `account_ledger`:
 
 ```
 DEPOSIT      +1000.00   bal=1000.00   "Initial capital"
-ENTRY_FEE      -1.00    bal= 999.00   "BUY fee 0.1%"
+ENTRY_FEE      -1.00    bal= 999.00   "BUY fee from exchange fill"
 BUY          -998.00    bal=   1.00   "Bought BTC"
 UNSPENT        +0.07    bal=   1.07   "Alpaca qty rounding"
 SELL        +1050.00    bal=1051.07   "Sold BTC"
-EXIT_FEE      -1.05     bal=1050.02   "SELL fee 0.1%"
+EXIT_FEE      -1.05     bal=1050.02   "SELL fee from exchange fill"
 ```
 
 PnL = current balance - total deposits. No double-counting.
 
-Fee transfers are routed by `commission_asset`: `USD`/`USDT` fees reduce `cash`, `BTC` fees reduce `btc_position`, and `BNB` fees reduce `bnb`. The ledger therefore nets a BTC-paid fee out of the BTC account. The in-memory `strategy.size` still uses the fill quantity supplied by the exchange adapter; if a Binance adapter reports gross executed quantity while charging fees in BTC, that adapter must normalize the fill quantity or the strategy must subtract the base-asset commission in a follow-up.
+Fee transfers are routed by `commission_asset`: `USD`/`USDT` fees reduce `cash`, `BTC` fees reduce `btc_position`, and `BNB` fees reduce `bnb`. Adapter-provided zero commission is treated as an actual zero-fee fill, which is required for Alpaca paper trading. The configured `fee_pct` remains a backtest/simulation estimate and a legacy fallback when an adapter provides no commission metadata. The ledger therefore nets a BTC-paid fee out of the BTC account. The in-memory `strategy.size` still uses the fill quantity supplied by the exchange adapter; if a Binance adapter reports gross executed quantity while charging fees in BTC, that adapter must normalize the fill quantity or the strategy must subtract the base-asset commission in a follow-up.
 
 ## Checkpoint
 

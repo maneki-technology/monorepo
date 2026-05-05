@@ -73,9 +73,11 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     // turso_mod imported at file scope
     const checkpoint_path: [*:0]const u8 = "dctrading.checkpoint";
     const checkpoint_interval: u64 = 60; // ~1 hour with 1-min downsampling
+    const trading_symbol: []const u8 = if (getenv("TRADING_SYMBOL")) |ptr| std.mem.sliceTo(ptr, 0) else "BTC/USD";
 
     std.debug.print("Live mode: native Binance WebSocket feed\n", .{});
     std.debug.print("  lambda={d:.3}, capital=${d:.0}\n", .{ threshold, capital });
+    std.debug.print("  symbol={s}\n", .{trading_symbol});
     std.debug.print("  Strategy: ZI-DCT0 long-only + vol-trail 2%/72h + 60d MA buf=3%\n", .{});
     std.debug.print("  Checkpoint: every {d} ticks\n\n", .{checkpoint_interval});
 
@@ -85,6 +87,9 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     var strategy = try Strategy.init(allocator, .{
         .threshold = threshold,
         .initial_capital = capital,
+        // Live mode currently uses zero-commission Alpaca paper trading. Keep
+        // fee_pct for backtest/sim sizing only.
+        .fee_pct = 0.0,
     });
     defer strategy.deinit(allocator);
 
@@ -129,7 +134,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     if (!loaded_checkpoint) {
         // Fresh start: full bootstrap from 60 days of 1m klines
         std.debug.print("  No checkpoint found, bootstrapping from historical data...\n", .{});
-        const closes = feed_mod.fetch1mCloses(allocator, &http, "BTC/USDT", 87500) catch |err| {
+        const closes = feed_mod.fetch1mCloses(allocator, &http, trading_symbol, 87500) catch |err| {
             std.debug.print("  Bootstrap failed: {s}. Starting cold.\n", .{@errorName(err)});
             return;
         };
@@ -169,7 +174,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         // Resumed: catch up missed candles since last checkpoint
         const last_active: u64 = @intFromFloat(strategy.last_timestamp);
         if (last_active > 0) {
-            if (feed_mod.fetch1mClosesSince(allocator, &http, "BTC/USDT", last_active)) |closes| {
+            if (feed_mod.fetch1mClosesSince(allocator, &http, trading_symbol, last_active)) |closes| {
                 if (closes.len > 0) {
                     strategy.catchup(closes);
                 }
@@ -283,7 +288,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     }
 
     // Fetch initial funding rate
-    if (feed_mod.fetchFundingRate(&http, 3)) |avg| {
+    if (feed_mod.fetchFundingRate(&http, trading_symbol, 3)) |avg| {
         strategy.funding_avg = avg;
     }
 
@@ -295,7 +300,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     }
 
     std.debug.print("\n  Connecting to Binance WebSocket...\n", .{});
-    var feed = feed_mod.Feed.init(allocator, io, "BTC/USDT") catch |err| {
+    var feed = feed_mod.Feed.init(allocator, io, trading_symbol) catch |err| {
         std.debug.print("ERROR: Failed to connect: {s}\n", .{@errorName(err)});
         return;
     };
@@ -354,7 +359,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             std.debug.print("\n  FEED ERROR: {s}. Reconnecting...\n", .{@errorName(err)});
             _ = usleep(3_000_000); // 3s
             feed.deinit();
-            feed = feed_mod.Feed.init(allocator, io, "BTC/USDT") catch |e| {
+            feed = feed_mod.Feed.init(allocator, io, trading_symbol) catch |e| {
                 std.debug.print("  Reconnect failed: {s}\n", .{@errorName(e)});
                 return;
             };
@@ -439,7 +444,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 const now_ts: f64 = @floatFromInt(time(null));
                 if (now_ts - last_funding_check >= 28800.0) {
                     last_funding_check = now_ts;
-                    if (feed_mod.fetchFundingRate(&http, 3)) |avg| {
+                    if (feed_mod.fetchFundingRate(&http, trading_symbol, 3)) |avg| {
                         strategy.funding_avg = avg;
                     }
                 }

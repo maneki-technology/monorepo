@@ -271,10 +271,11 @@ pub const LiveLoop = struct {
 
     fn fillFee(self: *const LiveLoop, fill: exchange_mod.OrderFill, price: f64, qty: f64) f64 {
         if (fill.commission_usd > 0) return fill.commission_usd;
-        if (fill.commission > 0) {
+        if (fill.commission_asset_len > 0) {
             const asset = fill.commission_asset[0..fill.commission_asset_len];
             if (std.mem.eql(u8, asset, "USD") or std.mem.eql(u8, asset, "USDT")) return fill.commission;
             if (std.mem.eql(u8, asset, "BTC")) return fill.commission * price;
+            return 0;
         }
         return price * qty * self.strategy.fee_pct;
     }

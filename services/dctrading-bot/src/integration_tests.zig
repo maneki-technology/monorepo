@@ -1118,7 +1118,7 @@ test "integration: ledger routes BNB commission to BNB account" {
     try testing.expectApproxEqAbs(0.75 / 0.00123, ledger.posted[0].price, 0.000001);
 }
 
-test "integration: ledger falls back to configured fee when exchange commission is zero" {
+test "integration: ledger treats adapter-provided zero commission as actual zero" {
     const allocator = testing.allocator;
     var strategy = try Strategy.init(allocator, .{
         .ma_period = 5,
@@ -1132,6 +1132,39 @@ test "integration: ledger falls back to configured fee when exchange commission 
     var sim = SimExchange{ .fill_delay = 1, .fill_commission = 0 };
     @memcpy(sim.fill_commission_asset[0..3], "USD");
     sim.fill_commission_asset_len = 3;
+    sim.last_price = 104.0;
+    const ex = sim.exchange();
+    var ledger = MockLedger{};
+    var loop = LiveLoop.init(&strategy, ex, ledger.ledger());
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        loop.processTick(makeTick(100.0, @as(f64, @floatFromInt(i)) * 60.0));
+    }
+
+    loop.processTick(makeTick(104.0, 360.0));
+    sim.advanceTick();
+    loop.processTick(makeTick(104.0, 420.0));
+
+    try testing.expectEqual(@as(u32, 1), ledger.post_fill_count);
+    try testing.expectEqual(@as(u32, 1), ledger.posted_count);
+    try testing.expectEqual(turso_mod.Turso.CODE_FEE, ledger.posted[0].code);
+    try testing.expectEqual(turso_mod.Turso.ACCT_CASH, ledger.posted[0].credit_acct);
+    try testing.expectApproxEqAbs(0.0, ledger.posted[0].amount, 0.001);
+}
+
+test "integration: ledger falls back to configured fee only when commission metadata is missing" {
+    const allocator = testing.allocator;
+    var strategy = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer strategy.deinit(allocator);
+    strategy.suppress_entry = true;
+
+    var sim = SimExchange{ .fill_delay = 1, .fill_commission = 0 };
     sim.last_price = 104.0;
     const ex = sim.exchange();
     var ledger = MockLedger{};
