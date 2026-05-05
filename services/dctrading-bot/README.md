@@ -46,7 +46,7 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 | `telegram.zig` | Telegram + ntfy push notifications |
 | `http_client.zig` | Shared HTTP client (std.http.Client wrapper) |
 | `types.zig` | Tick, Trade, DC event types |
-| `tests.zig` | 174 tests |
+| `tests.zig` | 179 tests |
 
 ## Setup
 
@@ -82,11 +82,14 @@ export BINANCE_WS_HOST=stream.binance.com
 export BINANCE_API_HOST=api.binance.com
 
 # Funding filter (default: 0.0001 = 0.010%; 0 disables)
-# Funding updates are refreshed and sent to Telegram/ntfy every 8h when notifications are configured.
+# Funding updates are cached, checkpointed, checked hourly, and sent to Telegram/ntfy when Binance publishes a new funding print.
 export FUNDING_SKIP_THRESHOLD=0.0001
 
 # Local checkpoint backups (default: 5; 0 disables)
 export CHECKPOINT_BACKUP_RETENTION=5
+
+# Checkpoint file path (default: dctrading.checkpoint in the process working directory)
+export CHECKPOINT_PATH=dctrading.checkpoint
 
 # Turso remote checkpoint backup interval in seconds (default: 3600; 0 disables)
 export CHECKPOINT_REMOTE_BACKUP_INTERVAL=3600
@@ -109,6 +112,9 @@ source .env && ./zig-out/bin/dctrading -
 
 # Run LiveLoop simulation against CSV ticks
 ./zig-out/bin/dctrading sim:data.csv 0.07 1000
+
+# Migrate checkpoint primary/backups offline to the current DCTRADE5 layout
+./zig-out/bin/dctrading checkpoint:migrate dctrading.checkpoint 5
 
 # Run tests
 zig build test
@@ -154,20 +160,24 @@ Fee transfers are routed by `commission_asset`: `USD`/`USDT` fees reduce `cash`,
 
 ## Checkpoint
 
-Binary checkpoint (DCTRADE4) saves full strategy state every minute:
+Binary checkpoint (DCTRADE5) saves full strategy state every minute:
 - Position, capital, regime, MA buffer, vol buffer, DC detector state
+- Current 24h funding-rate average, local cache update timestamp, and latest Binance funding print timestamp used by the funding filter
 - Survives restarts without re-bootstrapping
+- Old DCTRADE4 checkpoints and earlier DCTRADE5 funding-cache layouts load successfully and are migrated to the current DCTRADE5 layout on the next save or with `checkpoint:migrate`
 - Old DCTRADE3 checkpoints rejected (fresh bootstrap on upgrade)
 - Live mode writes via `dctrading.checkpoint.tmp` and atomically swaps it into place
 - Before each live save, the previous checkpoint is copied into rotated local backups:
   `dctrading.checkpoint.bak.1`, `.bak.2`, and so on
 - `CHECKPOINT_BACKUP_RETENTION` controls how many local backups are kept; default is `5`, `0` disables rotation
+- `CHECKPOINT_PATH` can pin the checkpoint location; startup prints both cwd and checkpoint path
 - Startup tries the primary checkpoint first, then falls back to the newest valid backup
 - When Turso is configured, live mode also stores the latest checkpoint in
   `checkpoint_backups` every `CHECKPOINT_REMOTE_BACKUP_INTERVAL` seconds and on clean shutdown
 - Turso snapshots include a checksum; restore refuses snapshots whose decoded bytes do not match it
 - If all local checkpoint files are missing or corrupt, startup restores the Turso snapshot to
   `dctrading.checkpoint` and loads it before falling back to a fresh bootstrap
+- If any local checkpoint file exists but none can be loaded and Turso restore also fails, live mode refuses to bootstrap so it cannot overwrite possibly recoverable checkpoint state
 - Checkpoint problems are surfaced in `bot_status.checkpoint_health` and
   `bot_status.checkpoint_error`; Telegram/ntfy sends a warning when health first enters a degraded state
 
