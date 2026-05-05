@@ -205,6 +205,8 @@ struct BotStatus {
     let baseAsset: String
     let quoteAsset: String
     let markSymbol: String
+    let checkpointHealth: String
+    let checkpointError: String
 
     var symbolMetadata: SymbolMetadata {
         SymbolMetadata(
@@ -217,6 +219,10 @@ struct BotStatus {
 
     var isLive: Bool {
         status == "RUNNING" && Date().timeIntervalSince1970 - lastTick < 120
+    }
+
+    var checkpointNeedsAttention: Bool {
+        !checkpointHealth.isEmpty && checkpointHealth != "OK"
     }
 
     var uptimeDuration: TimeInterval {

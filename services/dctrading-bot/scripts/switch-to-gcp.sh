@@ -30,14 +30,19 @@ gcloud compute instances start $INSTANCE --zone=$ZONE --quiet
 echo "  Waiting for instance..."
 sleep 20
 
-# Upload binary + checkpoint
+# Upload binary + checkpoint state
 echo "  Uploading binary..."
 gcloud compute ssh $INSTANCE --zone=$ZONE --command="sudo systemctl stop dctrading 2>/dev/null; chmod +w ~/dctrading 2>/dev/null" 2>/dev/null || true
 gcloud compute scp zig-out/bin/dctrading $INSTANCE:~/dctrading --zone=$ZONE
 gcloud compute ssh $INSTANCE --zone=$ZONE --command="chmod +x ~/dctrading"
-if [ -f dctrading.checkpoint ]; then
-    echo "  Uploading checkpoint..."
-    gcloud compute scp dctrading.checkpoint $INSTANCE:~/dctrading.checkpoint --zone=$ZONE
+shopt -s nullglob
+checkpoint_files=(dctrading.checkpoint dctrading.checkpoint.bak.*)
+if [ ${#checkpoint_files[@]} -gt 0 ]; then
+    echo "  Uploading checkpoint state..."
+    gcloud compute ssh $INSTANCE --zone=$ZONE --command="rm -f ~/dctrading.checkpoint.tmp ~/dctrading.checkpoint.bak.*" 2>/dev/null || true
+    gcloud compute scp "${checkpoint_files[@]}" $INSTANCE:~/ --zone=$ZONE
+else
+    echo "  No local checkpoint state to upload; bot can restore from Turso if configured."
 fi
 echo "  Upload complete."
 

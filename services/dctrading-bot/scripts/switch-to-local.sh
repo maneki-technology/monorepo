@@ -12,12 +12,16 @@ cd "$PROJECT_DIR"
 
 echo "🔄 Switching to local..."
 
-# Stop bot on GCP + download checkpoint
+# Stop bot on GCP + download checkpoint state
 echo "  Stopping GCP bot..."
 gcloud compute ssh $INSTANCE --zone=$ZONE --command="sudo systemctl stop dctrading" 2>/dev/null || true
 sleep 2
-echo "  Downloading checkpoint from GCP..."
-gcloud compute scp $INSTANCE:~/dctrading.checkpoint dctrading.checkpoint --zone=$ZONE 2>/dev/null && echo "  Checkpoint downloaded." || echo "  No checkpoint on GCP (fresh start)."
+echo "  Downloading checkpoint state from GCP..."
+rm -f dctrading.checkpoint.tmp dctrading.checkpoint.bak.*
+gcloud compute scp "$INSTANCE:~/dctrading.checkpoint*" . --zone=$ZONE 2>/dev/null && {
+    rm -f dctrading.checkpoint.tmp
+    echo "  Checkpoint state downloaded."
+} || echo "  No checkpoint state on GCP; bot can restore from Turso if configured."
 
 # Stop GCP instance
 echo "  Stopping GCP instance..."

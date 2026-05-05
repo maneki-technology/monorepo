@@ -84,6 +84,12 @@ export BINANCE_API_HOST=api.binance.com
 # Funding filter (default: 0.0001 = 0.010%; 0 disables)
 export FUNDING_SKIP_THRESHOLD=0.0001
 
+# Local checkpoint backups (default: 5; 0 disables)
+export CHECKPOINT_BACKUP_RETENTION=5
+
+# Turso remote checkpoint backup interval in seconds (default: 3600; 0 disables)
+export CHECKPOINT_REMOTE_BACKUP_INTERVAL=3600
+
 # Instance tracking
 export BOT_INSTANCE=local
 ```
@@ -123,6 +129,11 @@ Known-good historical simulation outputs are recorded in
 ./scripts/switch-to-local.sh
 ```
 
+The switch scripts move the checkpoint primary plus local backup files between
+hosts and intentionally ignore `dctrading.checkpoint.tmp`. If no local files are
+available, startup can still restore from Turso when remote checkpoint backup is
+configured.
+
 ## Account Ledger
 
 Every capital movement is tracked in `account_ledger`:
@@ -146,6 +157,18 @@ Binary checkpoint (DCTRADE4) saves full strategy state every minute:
 - Position, capital, regime, MA buffer, vol buffer, DC detector state
 - Survives restarts without re-bootstrapping
 - Old DCTRADE3 checkpoints rejected (fresh bootstrap on upgrade)
+- Live mode writes via `dctrading.checkpoint.tmp` and atomically swaps it into place
+- Before each live save, the previous checkpoint is copied into rotated local backups:
+  `dctrading.checkpoint.bak.1`, `.bak.2`, and so on
+- `CHECKPOINT_BACKUP_RETENTION` controls how many local backups are kept; default is `5`, `0` disables rotation
+- Startup tries the primary checkpoint first, then falls back to the newest valid backup
+- When Turso is configured, live mode also stores the latest checkpoint in
+  `checkpoint_backups` every `CHECKPOINT_REMOTE_BACKUP_INTERVAL` seconds and on clean shutdown
+- Turso snapshots include a checksum; restore refuses snapshots whose decoded bytes do not match it
+- If all local checkpoint files are missing or corrupt, startup restores the Turso snapshot to
+  `dctrading.checkpoint` and loads it before falling back to a fresh bootstrap
+- Checkpoint problems are surfaced in `bot_status.checkpoint_health` and
+  `bot_status.checkpoint_error`; Telegram/ntfy sends a warning when health first enters a degraded state
 
 ## Companion Projects
 

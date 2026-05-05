@@ -6,6 +6,12 @@ const HttpClient = http_mod.HttpClient;
 const Trade = types.Trade;
 
 extern "c" fn getenv(name: [*:0]const u8) ?[*:0]const u8;
+extern "c" fn fopen(path: [*:0]const u8, mode: [*:0]const u8) ?*anyopaque;
+extern "c" fn fclose(fp: *anyopaque) c_int;
+extern "c" fn fread(buf: [*]u8, size: usize, count: usize, fp: *anyopaque) usize;
+extern "c" fn fwrite(buf: [*]const u8, size: usize, count: usize, fp: *anyopaque) usize;
+extern "c" fn fseek(fp: *anyopaque, offset: c_long, whence: c_int) c_int;
+extern "c" fn ftell(fp: *anyopaque) c_long;
 
 pub const Turso = struct {
     url: []const u8, // full pipeline URL: https://host/v2/pipeline
@@ -63,7 +69,8 @@ pub const Turso = struct {
         const sql_core =
             \\{"requests": [
             \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS equity_log (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL, tick_count INTEGER, capital REAL, equity REAL, unrealized REAL, regime TEXT, price REAL, created_at TEXT DEFAULT (datetime('now')))"}},
-            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS bot_status (id INTEGER PRIMARY KEY CHECK (id = 1), status TEXT, last_tick REAL, tick_count INTEGER, regime TEXT, in_position INTEGER, entry_price REAL, equity REAL, capital REAL, unrealized REAL, price REAL, uptime_start REAL, version TEXT, trading_symbol TEXT DEFAULT 'BTC/USD', base_asset TEXT DEFAULT 'BTC', quote_asset TEXT DEFAULT 'USD', mark_symbol TEXT DEFAULT 'BTCUSDT', updated_at TEXT DEFAULT (datetime('now')))"}},
+            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS bot_status (id INTEGER PRIMARY KEY CHECK (id = 1), status TEXT, last_tick REAL, tick_count INTEGER, regime TEXT, in_position INTEGER, entry_price REAL, equity REAL, capital REAL, unrealized REAL, price REAL, uptime_start REAL, version TEXT, trading_symbol TEXT DEFAULT 'BTC/USD', base_asset TEXT DEFAULT 'BTC', quote_asset TEXT DEFAULT 'USD', mark_symbol TEXT DEFAULT 'BTCUSDT', checkpoint_health TEXT DEFAULT 'OK', checkpoint_error TEXT DEFAULT '', updated_at TEXT DEFAULT (datetime('now')))"}},
+            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS checkpoint_backups (id INTEGER PRIMARY KEY CHECK (id = 1), path TEXT NOT NULL, data_base64 TEXT NOT NULL, byte_len INTEGER NOT NULL, checksum TEXT NOT NULL DEFAULT '', tick_count INTEGER NOT NULL, updated_at TEXT DEFAULT (datetime('now')))"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE INDEX IF NOT EXISTS idx_equity_log_timestamp ON equity_log(timestamp)"}}
             \\]}
         ;
@@ -102,6 +109,15 @@ pub const Turso = struct {
         self.execSyncSilent(
             \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN mark_symbol TEXT DEFAULT 'BTCUSDT'"}}]}
         );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN checkpoint_health TEXT DEFAULT 'OK'"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN checkpoint_error TEXT DEFAULT ''"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE checkpoint_backups ADD COLUMN checksum TEXT NOT NULL DEFAULT ''"}}]}
+        );
         if (core_ok and acct_ok) {
             std.debug.print("  [turso] Tables ready.\n", .{});
         } else {
@@ -129,12 +145,12 @@ pub const Turso = struct {
     }
 
     /// Upsert bot status (async, every tick).
-    pub fn upsertStatus(self: *const Turso, last_tick: f64, tick_count: u64, regime: []const u8, in_position: bool, entry_price: f64, equity: f64, capital: f64, unrealized: f64, price: f64, uptime_start: f64, instance: []const u8, trading_symbol: []const u8, base_asset: []const u8, quote_asset: []const u8, mark_symbol: []const u8) void {
-        var buf: [4096]u8 = undefined;
+    pub fn upsertStatus(self: *const Turso, last_tick: f64, tick_count: u64, regime: []const u8, in_position: bool, entry_price: f64, equity: f64, capital: f64, unrealized: f64, price: f64, uptime_start: f64, instance: []const u8, trading_symbol: []const u8, base_asset: []const u8, quote_asset: []const u8, mark_symbol: []const u8, checkpoint_health: []const u8, checkpoint_error: []const u8) void {
+        var buf: [8192]u8 = undefined;
         var ver_buf: [64]u8 = undefined;
         const ver = std.fmt.bufPrint(&ver_buf, "DCTRADE4@{s}", .{instance}) catch "DCTRADE4";
         const sql = std.fmt.bufPrint(&buf,
-            \\{{"requests": [{{"type": "execute", "stmt": {{"sql": "INSERT INTO bot_status (id, status, last_tick, tick_count, regime, in_position, entry_price, equity, capital, unrealized, price, uptime_start, version, trading_symbol, base_asset, quote_asset, mark_symbol) VALUES (1, 'RUNNING', {d:.6}, {d}, '{s}', {d}, {d:.8}, {d:.2}, {d:.2}, {d:.2}, {d:.2}, {d:.6}, '{s}', '{s}', '{s}', '{s}', '{s}') ON CONFLICT(id) DO UPDATE SET status='RUNNING', last_tick={d:.6}, tick_count={d}, regime='{s}', in_position={d}, entry_price={d:.8}, equity={d:.2}, capital={d:.2}, unrealized={d:.2}, price={d:.2}, version='{s}', trading_symbol='{s}', base_asset='{s}', quote_asset='{s}', mark_symbol='{s}', updated_at=datetime('now')"}}}}]}}
+            \\{{"requests": [{{"type": "execute", "stmt": {{"sql": "INSERT INTO bot_status (id, status, last_tick, tick_count, regime, in_position, entry_price, equity, capital, unrealized, price, uptime_start, version, trading_symbol, base_asset, quote_asset, mark_symbol, checkpoint_health, checkpoint_error) VALUES (1, 'RUNNING', {d:.6}, {d}, '{s}', {d}, {d:.8}, {d:.2}, {d:.2}, {d:.2}, {d:.2}, {d:.6}, '{s}', '{s}', '{s}', '{s}', '{s}', '{s}', '{s}') ON CONFLICT(id) DO UPDATE SET status=excluded.status, last_tick=excluded.last_tick, tick_count=excluded.tick_count, regime=excluded.regime, in_position=excluded.in_position, entry_price=excluded.entry_price, equity=excluded.equity, capital=excluded.capital, unrealized=excluded.unrealized, price=excluded.price, version=excluded.version, trading_symbol=excluded.trading_symbol, base_asset=excluded.base_asset, quote_asset=excluded.quote_asset, mark_symbol=excluded.mark_symbol, checkpoint_health=excluded.checkpoint_health, checkpoint_error=excluded.checkpoint_error, updated_at=datetime('now')"}}}}]}}
         , .{
             last_tick,
             tick_count,
@@ -151,20 +167,8 @@ pub const Turso = struct {
             base_asset,
             quote_asset,
             mark_symbol,
-            last_tick,
-            tick_count,
-            regime,
-            @as(u8, if (in_position) 1 else 0),
-            entry_price,
-            equity,
-            capital,
-            unrealized,
-            price,
-            ver,
-            trading_symbol,
-            base_asset,
-            quote_asset,
-            mark_symbol,
+            checkpoint_health,
+            checkpoint_error,
         }) catch return;
         self.execAsync(sql);
     }
@@ -176,6 +180,56 @@ pub const Turso = struct {
             \\]}
         ;
         _ = self.execSync(sql);
+    }
+
+    pub fn backupCheckpointFile(self: *const Turso, path: [*:0]const u8, tick_count: u64, wait: bool) bool {
+        const bytes = readFileAlloc(self.allocator, path) orelse return false;
+        defer self.allocator.free(bytes);
+
+        const encoded_len = std.base64.standard.Encoder.calcSize(bytes.len);
+        const encoded = self.allocator.alloc(u8, encoded_len) catch return false;
+        defer self.allocator.free(encoded);
+        _ = std.base64.standard.Encoder.encode(encoded, bytes);
+
+        const path_slice = std.mem.sliceTo(path, 0);
+        const checksum = std.hash.Wyhash.hash(0, bytes);
+        const sql = std.fmt.allocPrint(self.allocator,
+            \\{{"requests": [{{"type": "execute", "stmt": {{"sql": "INSERT INTO checkpoint_backups (id, path, data_base64, byte_len, checksum, tick_count, updated_at) VALUES (1, '{s}', '{s}', {d}, '{x}', {d}, datetime('now')) ON CONFLICT(id) DO UPDATE SET path='{s}', data_base64='{s}', byte_len={d}, checksum='{x}', tick_count={d}, updated_at=datetime('now')"}}}}]}}
+        , .{ path_slice, encoded, bytes.len, checksum, tick_count, path_slice, encoded, bytes.len, checksum, tick_count }) catch return false;
+        defer self.allocator.free(sql);
+
+        if (wait) return self.execSync(sql);
+        self.execAsync(sql);
+        return true;
+    }
+
+    pub fn restoreCheckpointBackupToFile(self: *const Turso, path: [*:0]const u8) bool {
+        const sql =
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "SELECT byte_len, checksum, data_base64 FROM checkpoint_backups WHERE id = 1"}}]}
+        ;
+        const resp = self.execSyncRead(sql) orelse return false;
+        defer resp.deinit();
+        if (std.mem.indexOf(u8, resp.body, "\"rows\":[]") != null) return false;
+
+        const expected_len = parseFirstValueInt(resp.body) orelse return false;
+        if (expected_len == 0) return false;
+
+        const checksum_text = parseValueStringAlloc(self.allocator, resp.body, 1) orelse return false;
+        defer self.allocator.free(checksum_text);
+        const expected_checksum = std.fmt.parseInt(u64, checksum_text, 16) catch return false;
+
+        const encoded = parseValueStringAlloc(self.allocator, resp.body, 2) orelse return false;
+        defer self.allocator.free(encoded);
+
+        const decoded_len = std.base64.standard.Decoder.calcSizeForSlice(encoded) catch return false;
+        if (decoded_len != expected_len) return false;
+
+        const decoded = self.allocator.alloc(u8, decoded_len) catch return false;
+        defer self.allocator.free(decoded);
+        std.base64.standard.Decoder.decode(decoded, encoded) catch return false;
+        if (std.hash.Wyhash.hash(0, decoded) != expected_checksum) return false;
+
+        return writeFile(path, decoded);
     }
 
     // === Double-Entry Accounting (TigerBeetle-inspired) ===
@@ -469,6 +523,26 @@ pub const Turso = struct {
             return std.fmt.parseInt(u32, r[pos..end], 10) catch null;
         }
     }
+
+    pub fn parseValueStringAlloc(allocator: std.mem.Allocator, json: []const u8, value_index: usize) ?[]u8 {
+        const vkey = "\"value\":";
+        var search_pos: usize = 0;
+        var seen: usize = 0;
+        while (search_pos < json.len) {
+            const rel = std.mem.indexOf(u8, json[search_pos..], vkey) orelse return null;
+            var pos = search_pos + rel + vkey.len;
+            if (seen == value_index) {
+                if (pos >= json.len or json[pos] != '"') return null;
+                pos += 1;
+                const end = std.mem.indexOf(u8, json[pos..], "\"") orelse return null;
+                return allocator.dupe(u8, json[pos..][0..end]) catch null;
+            }
+            seen += 1;
+            search_pos = pos;
+        }
+        return null;
+    }
+
     // --- Internal helpers ---
 
     fn execSync(self: *const Turso, json_body: []const u8) bool {
@@ -496,16 +570,19 @@ pub const Turso = struct {
     fn execAsync(self: *const Turso, json_body: []const u8) void {
         const Context = struct {
             turso: *const Turso,
-            body: [4096]u8,
-            body_len: usize,
+            body: []u8,
         };
 
         var ctx = self.allocator.create(Context) catch return;
         ctx.turso = self;
-        ctx.body_len = json_body.len;
-        @memcpy(ctx.body[0..json_body.len], json_body);
+        ctx.body = self.allocator.alloc(u8, json_body.len) catch {
+            self.allocator.destroy(ctx);
+            return;
+        };
+        @memcpy(ctx.body, json_body);
 
         const thread = std.Thread.spawn(.{}, asyncWorker, .{ ctx, self.allocator }) catch {
+            self.allocator.free(ctx.body);
             self.allocator.destroy(ctx);
             return;
         };
@@ -513,10 +590,12 @@ pub const Turso = struct {
     }
 
     fn asyncWorker(ctx: anytype, allocator: std.mem.Allocator) void {
-        defer allocator.destroy(ctx);
+        defer {
+            allocator.free(ctx.body);
+            allocator.destroy(ctx);
+        }
         const turso: *const Turso = ctx.turso;
-        const body = ctx.body[0..ctx.body_len];
-        _ = turso.execSync(body);
+        _ = turso.execSync(ctx.body);
     }
 
     pub fn parseFirstValueFloat(r: []const u8) ?f64 {
@@ -551,3 +630,25 @@ pub const Turso = struct {
         }
     }
 };
+
+fn readFileAlloc(allocator: std.mem.Allocator, path: [*:0]const u8) ?[]u8 {
+    const fp = fopen(path, "rb") orelse return null;
+    defer _ = fclose(fp);
+
+    if (fseek(fp, 0, 2) != 0) return null;
+    const size_raw = ftell(fp);
+    if (size_raw < 0) return null;
+    if (fseek(fp, 0, 0) != 0) return null;
+
+    const size: usize = @intCast(size_raw);
+    const bytes = allocator.alloc(u8, size) catch return null;
+    errdefer allocator.free(bytes);
+    if (fread(bytes.ptr, 1, size, fp) != size) return null;
+    return bytes;
+}
+
+fn writeFile(path: [*:0]const u8, bytes: []const u8) bool {
+    const fp = fopen(path, "wb") orelse return false;
+    defer _ = fclose(fp);
+    return fwrite(bytes.ptr, 1, bytes.len, fp) == bytes.len;
+}

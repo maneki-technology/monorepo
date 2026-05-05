@@ -127,7 +127,9 @@ final class AccountingTests: XCTestCase {
             tradingSymbol: tradingSymbol,
             baseAsset: baseAsset,
             quoteAsset: quoteAsset,
-            markSymbol: markSymbol
+            markSymbol: markSymbol,
+            checkpointHealth: "OK",
+            checkpointError: ""
         )
     }
 }

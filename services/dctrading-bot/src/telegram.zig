@@ -88,6 +88,15 @@ pub const Telegram = struct {
         self.sendSync(msg);
     }
 
+    pub fn notifyCheckpointWarning(self: *const Telegram, health: []const u8, detail: []const u8, instance: []const u8) void {
+        var buf: [512]u8 = undefined;
+        const msg = std.fmt.bufPrint(&buf,
+            "⚠️ Checkpoint warning\nHealth: {s}\nDetail: {s}\nInstance: {s}",
+            .{ health, detail, instance },
+        ) catch return;
+        self.send(msg);
+    }
+
     fn send(self: *const Telegram, text: []const u8) void {
         const Context = struct {
             tg: *const Telegram,
