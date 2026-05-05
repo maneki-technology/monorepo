@@ -16,7 +16,7 @@ final class AccountingTests: XCTestCase {
         XCTAssertEqual(btcFee.cashEffect, 0)
     }
 
-    func testRealizedPnLQueryIncludesUsdValuedAssetAccounts() {
+    func testRealizedPnLQueryIncludesQuoteValuedAssetAccounts() {
         let sql = TursoClient.totalRealizedPnLSQL
 
         XCTAssertTrue(sql.contains("WHERE id = 1"))
@@ -35,6 +35,57 @@ final class AccountingTests: XCTestCase {
         XCTAssertTrue(sql.contains("WHERE status = 'posted'"))
     }
 
+    func testBnbAllocationStatementsRecordNativeSizeAndQuoteValue() {
+        let statements = TursoClient.bnbAllocationStatements(quantity: 0.05, price: 700, timestamp: 123)
+
+        XCTAssertEqual(statements.first, "BEGIN")
+        XCTAssertTrue(statements[1].contains("debit_account_id, credit_account_id, amount"))
+        XCTAssertTrue(statements[1].contains("VALUES (6, 4, 35.0, 1, 0, 'posted', 'BNB allocation', 700.0, 0.05, 123.0)"))
+        XCTAssertTrue(statements[2].contains("credits_posted = credits_posted + 35.0 WHERE id = 6"))
+        XCTAssertTrue(statements[3].contains("debits_posted = debits_posted + 35.0 WHERE id = 4"))
+        XCTAssertEqual(statements.last, "COMMIT")
+    }
+
+    func testCashDepositStatementsDoNotAffectNativeSize() {
+        let statements = TursoClient.depositStatements(amount: 1000, timestamp: 123)
+
+        XCTAssertTrue(statements[1].contains("VALUES (1, 4, 1000.0, 1, 0, 'posted', 0, 0, 123.0)"))
+        XCTAssertTrue(statements[2].contains("credits_posted = credits_posted + 1000.0 WHERE id = 1"))
+        XCTAssertTrue(statements[3].contains("debits_posted = debits_posted + 1000.0 WHERE id = 4"))
+    }
+
+    func testBotStatusSymbolMetadataFallsBackForOlderDatabases() {
+        let status = botStatus(tradingSymbol: "", baseAsset: "", quoteAsset: "", markSymbol: "")
+        let symbol = status.symbolMetadata
+
+        XCTAssertEqual(symbol.tradingSymbol, "BTC/USD")
+        XCTAssertEqual(symbol.baseAsset, "BTC")
+        XCTAssertEqual(symbol.quoteAsset, "USD")
+        XCTAssertEqual(symbol.markSymbol, "BTCUSDT")
+        XCTAssertEqual(symbol.priceLabel, "BTC/USD")
+    }
+
+    func testBotStatusSymbolMetadataSupportsUsdtQuote() {
+        let status = botStatus(
+            tradingSymbol: "BTC/USDT",
+            baseAsset: "BTC",
+            quoteAsset: "USDT",
+            markSymbol: "BTCUSDT"
+        )
+        let symbol = status.symbolMetadata
+
+        XCTAssertEqual(symbol.tradingSymbol, "BTC/USDT")
+        XCTAssertEqual(symbol.quoteAsset, "USDT")
+        XCTAssertEqual(symbol.markSymbol, "BTCUSDT")
+        XCTAssertEqual(symbol.priceLabel, "BTC/USDT")
+        XCTAssertEqual(symbol.bnbMarkSymbol, "BNBUSDT")
+    }
+
+    func testAlpacaPositionSymbolNormalization() {
+        XCTAssertEqual(AlpacaClient.normalizePositionSymbol("BTC/USD"), "BTCUSD")
+        XCTAssertEqual(AlpacaClient.normalizePositionSymbol(" btc/usdt "), "BTCUSDT")
+    }
+
     private func transfer(debitAccountId: Int, creditAccountId: Int, amount: Double, code: Int) -> Transfer {
         Transfer(
             id: 1,
@@ -50,6 +101,33 @@ final class AccountingTests: XCTestCase {
             size: 0,
             timestamp: "0",
             createdAt: ""
+        )
+    }
+
+    private func botStatus(
+        tradingSymbol: String,
+        baseAsset: String,
+        quoteAsset: String,
+        markSymbol: String
+    ) -> BotStatus {
+        BotStatus(
+            status: "RUNNING",
+            lastTick: Date().timeIntervalSince1970,
+            tickCount: 1,
+            regime: "BULL",
+            inPosition: 0,
+            entryPrice: 0,
+            equity: 0,
+            capital: 0,
+            unrealized: 0,
+            price: 0,
+            uptimeStart: Date().timeIntervalSince1970,
+            version: "test",
+            updatedAt: "",
+            tradingSymbol: tradingSymbol,
+            baseAsset: baseAsset,
+            quoteAsset: quoteAsset,
+            markSymbol: markSymbol
         )
     }
 }

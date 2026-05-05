@@ -266,6 +266,11 @@ test "feed: normalizeSymbol converts BTC/USDT to BTCUSDT" {
     try testing.expectEqualStrings("BTCUSDT", sym.slice());
 }
 
+test "feed: normalizeSymbol maps USD quote to Binance USDT quote" {
+    const sym = feed_mod.normalizeSymbol("BTC/USD");
+    try testing.expectEqualStrings("BTCUSDT", sym.slice());
+}
+
 test "feed: normalizeSymbol uppercases lowercase input" {
     const sym = feed_mod.normalizeSymbol("btc/usdt");
     try testing.expectEqualStrings("BTCUSDT", sym.slice());
@@ -874,7 +879,6 @@ test "strategy: old DCTRADE3 checkpoint rejected after upgrade" {
     try testing.expect(!s.loadCheckpoint(path));
 }
 
-
 // ============================================================
 // HTTP Client / Alpaca / Turso Parsing Tests
 // ============================================================
@@ -882,6 +886,16 @@ test "strategy: old DCTRADE3 checkpoint rejected after upgrade" {
 const alpaca_mod = @import("alpaca.zig");
 const turso_mod = @import("turso.zig");
 const exchange_mod = @import("exchange.zig");
+
+test "alpaca: normalizeOrderSymbol preserves slash and uppercases" {
+    const sym = alpaca_mod.normalizeOrderSymbol("btc/usd");
+    try testing.expectEqualStrings("BTC/USD", sym.slice());
+}
+
+test "alpaca: normalizePositionSymbol removes slash for position URL" {
+    const sym = alpaca_mod.normalizePositionSymbol("BTC/USD");
+    try testing.expectEqualStrings("BTCUSD", sym.slice());
+}
 
 test "alpaca: parseJsonFloat parses quoted float" {
     const json = "{\"filled_avg_price\":\"76960.70\",\"qty\":\"0.01295111\"}";
@@ -921,9 +935,15 @@ test "alpaca: parseJsonString returns null for missing key" {
 // ============================================================
 
 // Shared no-op async stubs for mock exchanges (tests only use sync buy/sell)
-fn noopSubmitOrder(_: *const anyopaque, _: exchange_mod.Side, _: f64) ?exchange_mod.PendingOrder { return null; }
-fn noopCheckOrder(_: *const anyopaque, _: []const u8) exchange_mod.OrderStatus { return .{ .failed = {} }; }
-fn noopCancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult { return .{ .failed = {} }; }
+fn noopSubmitOrder(_: *const anyopaque, _: exchange_mod.Side, _: f64) ?exchange_mod.PendingOrder {
+    return null;
+}
+fn noopCheckOrder(_: *const anyopaque, _: []const u8) exchange_mod.OrderStatus {
+    return .{ .failed = {} };
+}
+fn noopCancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult {
+    return .{ .failed = {} };
+}
 
 test "exchange: mock implementation via vtable" {
     // Create a mock exchange to verify the vtable pattern works
@@ -1101,7 +1121,9 @@ test "exchange: mock exchange returns commission in fill" {
             fill.commission_asset_len = 3;
             return fill;
         }
-        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position {
+            return null;
+        }
         const vtable = exchange_mod.Exchange.VTable{
             .buy = @ptrCast(&buy),
             .sell = @ptrCast(&sell),
@@ -1210,7 +1232,6 @@ test "turso: parseFirstValueFloat handles unquoted number" {
     try testing.expect(val != null);
     try testing.expectApproxEqAbs(val.?, 1234.56, 0.01);
 }
-
 
 // ============================================================
 // Double-Entry Accounting Tests
@@ -1706,9 +1727,9 @@ test "turso: double-entry operation codes cover all trade operations" {
 test "turso: two-phase flags are mutually exclusive powers of 2" {
     const Turso = turso_mod.Turso;
     // Flags should be powers of 2 for bitwise operations
-    try testing.expectEqual(Turso.FLAG_PENDING, 1);       // 0b001
-    try testing.expectEqual(Turso.FLAG_POST_PENDING, 2);  // 0b010
-    try testing.expectEqual(Turso.FLAG_VOID_PENDING, 4);  // 0b100
+    try testing.expectEqual(Turso.FLAG_PENDING, 1); // 0b001
+    try testing.expectEqual(Turso.FLAG_POST_PENDING, 2); // 0b010
+    try testing.expectEqual(Turso.FLAG_VOID_PENDING, 4); // 0b100
     // No two flags share bits
     try testing.expectEqual(Turso.FLAG_PENDING & Turso.FLAG_POST_PENDING, 0);
     try testing.expectEqual(Turso.FLAG_PENDING & Turso.FLAG_VOID_PENDING, 0);
@@ -1852,7 +1873,6 @@ test "strategy: equity correct after Alpaca fill with price drift" {
     try testing.expect(final_capital < 1000.0);
     try testing.expect(final_capital > 996.0);
 }
-
 
 // ============================================================
 // Capital Injection Tests
@@ -2026,7 +2046,9 @@ test "non-blocking: submitOrder returns immediately, checkOrder resolves after N
         fn cancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult {
             return .{ .cancelled = {} };
         }
-        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position {
+            return null;
+        }
         const vtable = exchange_mod.Exchange.VTable{
             .buy = @ptrCast(&buy),
             .sell = @ptrCast(&sell),
@@ -2059,7 +2081,9 @@ test "non-blocking: submitOrder returns immediately, checkOrder resolves after N
                 try testing.expectApproxEqAbs(fill.commission, 0.095, 0.001);
             },
             .pending => {}, // keep processing ticks
-            .cancelled, .failed => { try testing.expect(false); }, // unexpected
+            .cancelled, .failed => {
+                try testing.expect(false);
+            }, // unexpected
         }
     }
 
@@ -2136,8 +2160,12 @@ test "non-blocking: cancelOrder handles race condition (filled before cancel)" {
     // When we cancel a buy but it filled before cancel arrived,
     // cancelOrder returns .filled with the fill details.
     const RaceExchange = struct {
-        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
-        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return null;
+        }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return null;
+        }
         fn submitOrder(_: *const anyopaque, _: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
             var po: exchange_mod.PendingOrder = .{ .side = .buy, .qty = qty };
             const id = "race-order-001";
@@ -2152,7 +2180,9 @@ test "non-blocking: cancelOrder handles race condition (filled before cancel)" {
             // Order filled before cancel took effect
             return .{ .filled = .{ .fill_price = 95000.0, .fill_qty = 0.01, .status = .filled } };
         }
-        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position {
+            return null;
+        }
         const vtable = exchange_mod.Exchange.VTable{
             .buy = @ptrCast(&buy),
             .sell = @ptrCast(&sell),
@@ -2178,8 +2208,12 @@ test "non-blocking: cancelOrder handles race condition (filled before cancel)" {
             try testing.expectApproxEqAbs(fill.fill_price, 95000.0, 0.01);
             try testing.expect(fill.status == .filled);
         },
-        .cancelled => { try testing.expect(false); }, // wrong — it should be filled
-        .failed => { try testing.expect(false); },
+        .cancelled => {
+            try testing.expect(false);
+        }, // wrong — it should be filled
+        .failed => {
+            try testing.expect(false);
+        },
     }
 }
 
@@ -2188,8 +2222,12 @@ test "non-blocking: multiple pending orders tracked independently" {
     const MultiExchange = struct {
         var order_count: u32 = 0;
 
-        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
-        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return null;
+        }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return null;
+        }
         fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
             order_count += 1;
             var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
@@ -2209,7 +2247,9 @@ test "non-blocking: multiple pending orders tracked independently" {
         fn cancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult {
             return .{ .cancelled = {} };
         }
-        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position {
+            return null;
+        }
         const vtable = exchange_mod.Exchange.VTable{
             .buy = @ptrCast(&buy),
             .sell = @ptrCast(&sell),
@@ -2236,8 +2276,12 @@ test "non-blocking: multiple pending orders tracked independently" {
     const status2 = ex.checkOrder(order2.order_id[0..order2.order_id_len]);
 
     switch (status1) {
-        .filled => |fill| { try testing.expectApproxEqAbs(fill.fill_price, 95000.0, 0.01); },
-        else => { try testing.expect(false); },
+        .filled => |fill| {
+            try testing.expectApproxEqAbs(fill.fill_price, 95000.0, 0.01);
+        },
+        else => {
+            try testing.expect(false);
+        },
     }
     try testing.expect(status2 == .pending);
 }
@@ -2428,8 +2472,12 @@ test "non-blocking: fill resolves correctly after multiple pending checks" {
         var checks: u32 = 0;
         var submitted: bool = false;
 
-        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
-        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return null;
+        }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return null;
+        }
         fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
             submitted = true;
             checks = 0;
@@ -2449,7 +2497,9 @@ test "non-blocking: fill resolves correctly after multiple pending checks" {
         fn cancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult {
             return .{ .cancelled = {} };
         }
-        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position {
+            return null;
+        }
         const vtable = exchange_mod.Exchange.VTable{
             .buy = @ptrCast(&buy),
             .sell = @ptrCast(&sell),
@@ -2605,8 +2655,12 @@ test "non-blocking: DC exit cancels pending buys before selling" {
         var cancel_order_id_len: usize = 0;
         var submit_count: u32 = 0;
 
-        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
-        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return null;
+        }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return null;
+        }
         fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
             submit_count += 1;
             var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
@@ -2625,7 +2679,9 @@ test "non-blocking: DC exit cancels pending buys before selling" {
             cancel_order_id_len = order_id.len;
             return .{ .cancelled = {} };
         }
-        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position {
+            return null;
+        }
         const vtable = exchange_mod.Exchange.VTable{
             .buy = @ptrCast(&buy),
             .sell = @ptrCast(&sell),
@@ -2748,8 +2804,12 @@ test "non-blocking: multiple orders fill on same tick iteration" {
     // Two pending orders (regular buy + deposit buy) both fill on the same checkOrder pass.
     // Both should be processed and removed from the array.
     const BothFillExchange = struct {
-        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
-        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill { return null; }
+        fn buy(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return null;
+        }
+        fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
+            return null;
+        }
         fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
             var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
             const id = "both-fill";
@@ -2764,7 +2824,9 @@ test "non-blocking: multiple orders fill on same tick iteration" {
         fn cancelOrder(_: *const anyopaque, _: []const u8) exchange_mod.CancelResult {
             return .{ .cancelled = {} };
         }
-        fn getPosition(_: *const anyopaque) ?exchange_mod.Position { return null; }
+        fn getPosition(_: *const anyopaque) ?exchange_mod.Position {
+            return null;
+        }
         const vtable = exchange_mod.Exchange.VTable{
             .buy = @ptrCast(&buy),
             .sell = @ptrCast(&sell),
@@ -3005,7 +3067,6 @@ test "capital_reserved: prevents double-ordering from same capital" {
         try testing.expect(s.buy_signal_size < first_size * 0.01); // less than 1% of first
     }
 }
-
 
 test "capital_reserved: deposit during pending buy sizes correctly" {
     // $1000 capital, $999 reserved for pending buy.

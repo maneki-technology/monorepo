@@ -33,12 +33,10 @@ pub const Feed = struct {
         @memcpy(path_buf[0..prefix.len], prefix);
         path_len = prefix.len;
 
-        // Convert "BTC/USDT" to "btcusdt"
-        for (symbol) |c| {
-            if (c != '/') {
-                path_buf[path_len] = if (c >= 'A' and c <= 'Z') c + 32 else c;
-                path_len += 1;
-            }
+        const normalized = normalizeSymbol(symbol);
+        for (normalized.slice()) |c| {
+            path_buf[path_len] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+            path_len += 1;
         }
         const suffix = "@trade";
         @memcpy(path_buf[path_len..][0..suffix.len], suffix);
@@ -260,6 +258,10 @@ pub fn normalizeSymbol(symbol: []const u8) SymBuf {
             result.len += 1;
         }
     }
+    if (std.mem.endsWith(u8, result.slice(), "USD") and !std.mem.endsWith(u8, result.slice(), "USDT") and result.len < result.buf.len) {
+        result.buf[result.len] = 'T';
+        result.len += 1;
+    }
     return result;
 }
 
@@ -330,9 +332,10 @@ pub fn parseKlineCloses(json: []const u8) KlineBatchResult {
 
 /// Fetch latest funding rates from Binance futures API (public, no auth).
 /// Returns the average of the last `count` funding rates (default 3 = 24h).
-pub fn fetchFundingRate(http: *HttpClient, count: usize) ?f64 {
+pub fn fetchFundingRate(http: *HttpClient, symbol: []const u8, count: usize) ?f64 {
     var url_buf: [256]u8 = undefined;
-    const url = std.fmt.bufPrint(&url_buf, "https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit={d}", .{count}) catch return null;
+    const sym = normalizeSymbol(symbol);
+    const url = std.fmt.bufPrint(&url_buf, "https://fapi.binance.com/fapi/v1/fundingRate?symbol={s}&limit={d}", .{ sym.slice(), count }) catch return null;
 
     const resp = http.get(url, &.{}) catch return null;
     defer resp.deinit();

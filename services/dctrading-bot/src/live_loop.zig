@@ -271,10 +271,11 @@ pub const LiveLoop = struct {
 
     fn fillFee(self: *const LiveLoop, fill: exchange_mod.OrderFill, price: f64, qty: f64) f64 {
         if (fill.commission_usd > 0) return fill.commission_usd;
-        if (fill.commission > 0) {
+        if (fill.commission_asset_len > 0) {
             const asset = fill.commission_asset[0..fill.commission_asset_len];
             if (std.mem.eql(u8, asset, "USD") or std.mem.eql(u8, asset, "USDT")) return fill.commission;
             if (std.mem.eql(u8, asset, "BTC")) return fill.commission * price;
+            return 0;
         }
         return price * qty * self.strategy.fee_pct;
     }
@@ -290,8 +291,8 @@ pub const LiveLoop = struct {
     }
 
     // Routes the fee transfer to the asset that paid commission. Transfer
-    // amount is historical USD value at fill time; transfer size stores native
-    // commission qty and price stores the valuation rate.
+    // amount is historical quote-currency value at fill time; transfer size
+    // stores native commission qty and price stores the valuation rate.
     fn feeCreditAccount(fill: exchange_mod.OrderFill) u8 {
         if (fill.commission <= 0) return turso_mod.Turso.ACCT_CASH;
         const asset = fill.commission_asset[0..fill.commission_asset_len];

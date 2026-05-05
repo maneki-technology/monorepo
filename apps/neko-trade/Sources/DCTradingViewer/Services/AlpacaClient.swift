@@ -12,9 +12,10 @@ struct AlpacaClient {
         let currentPrice: Double
     }
 
-    /// Fetch current BTC/USD position from Alpaca. Returns nil if no position.
-    static func fetchPosition(apiKey: String, apiSecret: String) async throws -> AlpacaPosition? {
-        let url = URL(string: "\(baseURL)/positions/BTCUSD")!
+    /// Fetch current configured-symbol position from Alpaca. Returns nil if no position.
+    static func fetchPosition(apiKey: String, apiSecret: String, tradingSymbol: String = "BTC/USD") async throws -> AlpacaPosition? {
+        let positionSymbol = normalizePositionSymbol(tradingSymbol)
+        let url = URL(string: "\(baseURL)/positions/\(positionSymbol)")!
         var request = URLRequest(url: url)
         request.setValue(apiKey, forHTTPHeaderField: "APCA-API-KEY-ID")
         request.setValue(apiSecret, forHTTPHeaderField: "APCA-API-SECRET-KEY")
@@ -43,5 +44,9 @@ struct AlpacaClient {
         let price = Double(json["current_price"] as? String ?? "0") ?? 0
 
         return AlpacaPosition(qty: qty, entryPrice: entry, marketValue: mv, unrealizedPnl: pnl, currentPrice: price)
+    }
+
+    static func normalizePositionSymbol(_ symbol: String) -> String {
+        symbol.uppercased().filter { $0 != "/" && !$0.isWhitespace }
     }
 }

@@ -14,10 +14,42 @@ const ExchangePosition = exchange_mod.Position;
 extern "c" fn getenv(name: [*:0]const u8) ?[*:0]const u8;
 extern "c" fn usleep(usec: c_uint) c_int;
 
+pub const SymBuf = struct {
+    buf: [32]u8,
+    len: usize,
+
+    pub fn slice(self: *const SymBuf) []const u8 {
+        return self.buf[0..self.len];
+    }
+};
+
+pub fn normalizeOrderSymbol(symbol: []const u8) SymBuf {
+    var result: SymBuf = .{ .buf = undefined, .len = 0 };
+    for (symbol) |c| {
+        if (result.len >= result.buf.len) break;
+        result.buf[result.len] = if (c >= 'a' and c <= 'z') c - 32 else c;
+        result.len += 1;
+    }
+    return result;
+}
+
+pub fn normalizePositionSymbol(symbol: []const u8) SymBuf {
+    var result: SymBuf = .{ .buf = undefined, .len = 0 };
+    for (symbol) |c| {
+        if (c == '/') continue;
+        if (result.len >= result.buf.len) break;
+        result.buf[result.len] = if (c >= 'a' and c <= 'z') c - 32 else c;
+        result.len += 1;
+    }
+    return result;
+}
+
 pub const Alpaca = struct {
     api_key: []const u8,
     api_secret: []const u8,
     http: *HttpClient,
+    symbol: [32]u8,
+    symbol_len: usize,
 
     pub fn init(http: *HttpClient) ?Alpaca {
         const key_ptr = getenv("ALPACA_API_KEY") orelse {
@@ -30,8 +62,9 @@ pub const Alpaca = struct {
         };
         const key = std.mem.sliceTo(key_ptr, 0);
         const secret = std.mem.sliceTo(secret_ptr, 0);
-        std.debug.print("  [alpaca] Paper trading enabled.\n", .{});
-        return .{ .api_key = key, .api_secret = secret, .http = http };
+        const symbol = normalizeOrderSymbol(if (getenv("TRADING_SYMBOL")) |ptr| std.mem.sliceTo(ptr, 0) else "BTC/USD");
+        std.debug.print("  [alpaca] Paper trading enabled for {s}.\n", .{symbol.slice()});
+        return .{ .api_key = key, .api_secret = secret, .http = http, .symbol = symbol.buf, .symbol_len = symbol.len };
     }
 
     /// Return an Exchange interface backed by this Alpaca instance.
@@ -66,14 +99,18 @@ pub const Alpaca = struct {
         };
     }
 
+    fn tradingSymbol(self: *const Alpaca) []const u8 {
+        return self.symbol[0..self.symbol_len];
+    }
+
     // ========== Sync interface (blocking) ==========
 
     /// Place a synchronous market BUY. Returns fill details or null on failure.
     pub fn buy(self: *const Alpaca, qty: f64) ?OrderFill {
         var body_buf: [256]u8 = undefined;
         const body = std.fmt.bufPrint(&body_buf,
-            \\{{"symbol":"BTC/USD","qty":"{d:.8}","side":"buy","type":"market","time_in_force":"gtc"}}
-        , .{qty}) catch return null;
+            \\{{"symbol":"{s}","qty":"{d:.8}","side":"buy","type":"market","time_in_force":"gtc"}}
+        , .{ self.tradingSymbol(), qty }) catch return null;
         return self.submitOrderSync(body);
     }
 
@@ -81,8 +118,8 @@ pub const Alpaca = struct {
     pub fn sell(self: *const Alpaca, qty: f64) ?OrderFill {
         var body_buf: [256]u8 = undefined;
         const body = std.fmt.bufPrint(&body_buf,
-            \\{{"symbol":"BTC/USD","qty":"{d:.8}","side":"sell","type":"market","time_in_force":"gtc"}}
-        , .{qty}) catch return null;
+            \\{{"symbol":"{s}","qty":"{d:.8}","side":"sell","type":"market","time_in_force":"gtc"}}
+        , .{ self.tradingSymbol(), qty }) catch return null;
         return self.submitOrderSync(body);
     }
 
@@ -94,8 +131,8 @@ pub const Alpaca = struct {
         var body_buf: [256]u8 = undefined;
         const side_str = if (side == .buy) "buy" else "sell";
         const body = std.fmt.bufPrint(&body_buf,
-            \\{{"symbol":"BTC/USD","qty":"{d:.8}","side":"{s}","type":"market","time_in_force":"gtc"}}
-        , .{ qty, side_str }) catch return null;
+            \\{{"symbol":"{s}","qty":"{d:.8}","side":"{s}","type":"market","time_in_force":"gtc"}}
+        , .{ self.tradingSymbol(), qty, side_str }) catch return null;
 
         const h = self.headersWithJson();
         const resp = self.http.post(
@@ -135,7 +172,8 @@ pub const Alpaca = struct {
     /// Check status of a pending order. Single GET, no polling, no sleep.
     pub fn checkOrderStatus(self: *const Alpaca, order_id: []const u8) OrderStatus {
         var url_buf: [256]u8 = undefined;
-        const url = std.fmt.bufPrint(&url_buf,
+        const url = std.fmt.bufPrint(
+            &url_buf,
             "https://paper-api.alpaca.markets/v2/orders/{s}",
             .{order_id},
         ) catch return .{ .failed = {} };
@@ -179,7 +217,8 @@ pub const Alpaca = struct {
     /// Cancel a pending order. DELETE then check final status.
     pub fn cancelOrderAsync(self: *const Alpaca, order_id: []const u8) CancelResult {
         var url_buf: [256]u8 = undefined;
-        const url = std.fmt.bufPrint(&url_buf,
+        const url = std.fmt.bufPrint(
+            &url_buf,
             "https://paper-api.alpaca.markets/v2/orders/{s}",
             .{order_id},
         ) catch return .{ .failed = {} };
@@ -205,18 +244,18 @@ pub const Alpaca = struct {
 
     // ========== Position query ==========
 
-    /// Get current BTC/USD position. Returns ExchangePosition for interface compatibility.
+    /// Get current configured-symbol position. Returns ExchangePosition for interface compatibility.
     fn getPositionExchange(self: *const Alpaca) ?ExchangePosition {
         return self.getPosition();
     }
 
-    /// Get current BTC/USD position from Alpaca. Returns null if no position.
+    /// Get current configured-symbol position from Alpaca. Returns null if no position.
     pub fn getPosition(self: *const Alpaca) ?ExchangePosition {
         const h = self.headers();
-        const resp = self.http.get(
-            "https://paper-api.alpaca.markets/v2/positions/BTCUSD",
-            &h,
-        ) catch return null;
+        const pos_symbol = normalizePositionSymbol(self.tradingSymbol());
+        var url_buf: [256]u8 = undefined;
+        const url = std.fmt.bufPrint(&url_buf, "https://paper-api.alpaca.markets/v2/positions/{s}", .{pos_symbol.slice()}) catch return null;
+        const resp = self.http.get(url, &h) catch return null;
         defer resp.deinit();
 
         const r = resp.body;
@@ -280,7 +319,8 @@ pub const Alpaca = struct {
                 while (poll < 10) : (poll += 1) {
                     _ = usleep(1_000_000);
                     var poll_url_buf: [256]u8 = undefined;
-                    const poll_url = std.fmt.bufPrint(&poll_url_buf,
+                    const poll_url = std.fmt.bufPrint(
+                        &poll_url_buf,
                         "https://paper-api.alpaca.markets/v2/orders/{s}",
                         .{order_id},
                     ) catch break;

@@ -230,8 +230,8 @@ final class TursoClient {
     }
 
     func fetchTotalRealizedPnL() async throws -> Double {
-        // Net return = USD-denominated ledger value - total deposits. Native
-        // fee quantity is stored in transfer size, while amount remains USD.
+        // Net return = historical quote-currency ledger value - total deposits.
+        // Native fee quantity is stored in transfer size.
         let result = try await executeSQL(Self.totalRealizedPnLSQL)
         guard let row = result.rows.first else { return 0 }
         return getDouble(row, result.cols, "total")
@@ -273,7 +273,11 @@ final class TursoClient {
             price: getDouble(row, result.cols, "price"),
             uptimeStart: getDouble(row, result.cols, "uptime_start"),
             version: getString(row, result.cols, "version"),
-            updatedAt: getString(row, result.cols, "updated_at")
+            updatedAt: getString(row, result.cols, "updated_at"),
+            tradingSymbol: getOptionalString(row, result.cols, "trading_symbol") ?? "",
+            baseAsset: getOptionalString(row, result.cols, "base_asset") ?? "",
+            quoteAsset: getOptionalString(row, result.cols, "quote_asset") ?? "",
+            markSymbol: getOptionalString(row, result.cols, "mark_symbol") ?? ""
         )
     }
 
@@ -288,15 +292,35 @@ final class TursoClient {
     /// Insert a deposit atomically: create transfer + update both accounts.
     func insertDeposit(amount: Double) async throws -> Double {
         let timestamp = Date().timeIntervalSince1970
-        let statements = [
+        try await executePipeline(Self.depositStatements(amount: amount, timestamp: timestamp))
+        return try await fetchCashBalance()
+    }
+
+    /// Insert a managed BNB allocation. `quantity` is native BNB and `price` is BNB/quote.
+    func insertBnbAllocation(quantity: Double, price: Double) async throws {
+        let timestamp = Date().timeIntervalSince1970
+        try await executePipeline(Self.bnbAllocationStatements(quantity: quantity, price: price, timestamp: timestamp))
+    }
+
+    static func depositStatements(amount: Double, timestamp: Double) -> [String] {
+        [
             "BEGIN",
             "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, price, size, timestamp) VALUES (1, 4, \(amount), 1, 0, 'posted', 0, 0, \(timestamp))",
             "UPDATE accounts SET credits_posted = credits_posted + \(amount) WHERE id = 1",
             "UPDATE accounts SET debits_posted = debits_posted + \(amount) WHERE id = 4",
             "COMMIT"
         ]
-        try await executePipeline(statements)
-        return try await fetchCashBalance()
+    }
+
+    static func bnbAllocationStatements(quantity: Double, price: Double, timestamp: Double) -> [String] {
+        let amount = quantity * price
+        return [
+            "BEGIN",
+            "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, user_data, price, size, timestamp) VALUES (6, 4, \(amount), 1, 0, 'posted', 'BNB allocation', \(price), \(quantity), \(timestamp))",
+            "UPDATE accounts SET credits_posted = credits_posted + \(amount) WHERE id = 6",
+            "UPDATE accounts SET debits_posted = debits_posted + \(amount) WHERE id = 4",
+            "COMMIT"
+        ]
     }
 
     /// Execute multiple SQL statements in a single pipeline request.

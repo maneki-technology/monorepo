@@ -85,7 +85,7 @@
 | FR-7.3 | Send push notifications on: buy, sell, deposit, regime change, startup, shutdown | ✅ |
 | FR-7.4 | Support multiple notification channels (Telegram + ntfy) | ✅ |
 | FR-7.5 | Print strategy state to stdout every minute | ✅ |
-| FR-7.6 | Companion dashboard app showing equity, trades, ledger, position, live BTC price | ✅ |
+| FR-7.6 | Companion dashboard app showing equity, trades, ledger, position, live active-symbol price | ✅ |
 
 ### FR-8: Deployment
 

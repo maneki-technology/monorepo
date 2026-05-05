@@ -6,12 +6,17 @@ struct LedgerView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showDepositSheet = false
+    @State private var showBnbTopUpSheet = false
     @State private var depositAmount = ""
+    @State private var bnbAmount = ""
     @State private var isDepositing = false
+    @State private var isBnbTopUp = false
     @State private var cashBalance: Double = 0
+    @State private var botStatus: BotStatus?
 
     private let client = TursoClient()
     private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
+    private var quoteAsset: String { (botStatus?.symbolMetadata ?? .fallback).quoteAsset }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -32,8 +37,15 @@ struct LedgerView: View {
         .navigationTitle("Ledger")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { showDepositSheet = true }) {
-                    Label("Deposit", systemImage: "plus.circle")
+                Menu {
+                    Button(action: { showDepositSheet = true }) {
+                        Label("Deposit \(quoteAsset)", systemImage: "plus.circle")
+                    }
+                    Button(action: { showBnbTopUpSheet = true }) {
+                        Label("Top Up BNB", systemImage: "fuelpump")
+                    }
+                } label: {
+                    Label("Add", systemImage: "plus.circle")
                 }
                 .disabled(!settings.isConfigured)
             }
@@ -46,6 +58,9 @@ struct LedgerView: View {
         }
         .sheet(isPresented: $showDepositSheet) {
             depositSheet
+        }
+        .sheet(isPresented: $showBnbTopUpSheet) {
+            bnbTopUpSheet
         }
         .task { await loadData() }
         .onReceive(timer) { _ in
@@ -63,7 +78,7 @@ struct LedgerView: View {
             Text("Deposit Capital")
                 .font(.system(.headline, design: .monospaced))
 
-            TextField("Amount ($)", text: $depositAmount)
+            TextField("Amount (\(quoteAsset))", text: $depositAmount)
                 .font(.system(.body, design: .monospaced))
                 .textFieldStyle(.roundedBorder)
                 .frame(width: 200)
@@ -113,6 +128,63 @@ struct LedgerView: View {
         }
     }
 
+    private var bnbTopUpSheet: some View {
+        VStack(spacing: 16) {
+            Text("Top Up BNB")
+                .font(.system(.headline, design: .monospaced))
+
+            TextField("Amount (BNB)", text: $bnbAmount)
+                .font(.system(.body, design: .monospaced))
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 200)
+                #if os(iOS)
+                .keyboardType(.decimalPad)
+                #endif
+
+            HStack(spacing: 12) {
+                Button("Cancel") {
+                    bnbAmount = ""
+                    showBnbTopUpSheet = false
+                }
+                .keyboardShortcut(.cancelAction)
+
+                Button("Top Up") {
+                    Task { await submitBnbTopUp() }
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(Double(bnbAmount) == nil || Double(bnbAmount)! <= 0 || isBnbTopUp)
+            }
+
+            if isBnbTopUp {
+                ProgressView()
+                    .controlSize(.small)
+            }
+        }
+        .padding(24)
+        .frame(minWidth: 280)
+    }
+
+    private func submitBnbTopUp() async {
+        guard let quantity = Double(bnbAmount), quantity > 0 else { return }
+        isBnbTopUp = true
+        do {
+            let symbol = botStatus?.symbolMetadata ?? .fallback
+            let price = try await BinanceClient.fetchPrice(symbol: symbol.bnbMarkSymbol)
+            try await client.insertBnbAllocation(quantity: quantity, price: price)
+            await MainActor.run {
+                bnbAmount = ""
+                showBnbTopUpSheet = false
+                isBnbTopUp = false
+            }
+            await loadData()
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                isBnbTopUp = false
+            }
+        }
+    }
+
 
     /// Compute running cash balance for each transfer (newest first).
     private var transfersWithBalance: [(Transfer, Double)] {
@@ -133,7 +205,7 @@ struct LedgerView: View {
                     Text("CASH BALANCE")
                         .font(.system(.caption2, design: .monospaced))
                         .foregroundStyle(.secondary)
-                    Text(String(format: "$%.2f", cashBalance))
+                    Text(formatCurrency(cashBalance))
                         .font(.system(.title2, design: .monospaced, weight: .bold))
                         .foregroundStyle(.primary)
                 }
@@ -178,10 +250,10 @@ struct LedgerView: View {
                         Spacer()
 
                         VStack(alignment: .trailing, spacing: 2) {
-                            Text(String(format: "%+.2f", entry.isPositive ? entry.amount : -entry.amount))
+                            Text(formatSignedCurrency(entry.isPositive ? entry.amount : -entry.amount))
                                 .font(.system(.body, design: .monospaced, weight: .semibold))
                                 .foregroundStyle(entry.isPositive ? .green : .red)
-                            Text(String(format: "bal $%.2f", balAfter))
+                            Text("bal \(formatCurrency(balAfter))")
                                 .font(.system(.caption2, design: .monospaced))
                                 .foregroundStyle(.secondary)
                         }
@@ -245,10 +317,12 @@ struct LedgerView: View {
         do {
             async let transfersTask = client.fetchTransfers()
             async let balanceTask = client.fetchCashBalance()
-            let (fetchedTransfers, fetchedBalance) = try await (transfersTask, balanceTask)
+            async let statusTask = client.fetchBotStatus()
+            let (fetchedTransfers, fetchedBalance, status) = try await (transfersTask, balanceTask, statusTask)
             await MainActor.run {
                 transfers = fetchedTransfers
                 cashBalance = fetchedBalance
+                botStatus = status
                 isLoading = false
             }
         } catch {
@@ -257,5 +331,20 @@ struct LedgerView: View {
                 isLoading = false
             }
         }
+    }
+
+    private func formatCurrency(_ value: Double) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = quoteAsset == "USD" ? .currency : .decimal
+        formatter.currencyCode = quoteAsset
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        let formatted = formatter.string(from: NSNumber(value: value)) ?? "0.00"
+        return quoteAsset == "USD" ? formatted : "\(formatted) \(quoteAsset)"
+    }
+
+    private func formatSignedCurrency(_ value: Double) -> String {
+        let sign = value >= 0 ? "+" : "-"
+        return "\(sign)\(formatCurrency(abs(value)))"
     }
 }

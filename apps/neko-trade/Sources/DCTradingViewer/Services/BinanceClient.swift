@@ -19,8 +19,8 @@ struct BinanceClient {
 
     /// Fetch recent 1-minute klines for sparkline/chart.
     /// Returns array of (timestamp, close price).
-    static func fetchKlines(interval: String = "1m", limit: Int = 60, startTime: Date? = nil) async throws -> [(Date, Double)] {
-        var urlString = "\(baseURL)/klines?symbol=BTCUSDT&interval=\(interval)&limit=\(limit)"
+    static func fetchKlines(symbol: String = "BTCUSDT", interval: String = "1m", limit: Int = 60, startTime: Date? = nil) async throws -> [(Date, Double)] {
+        var urlString = "\(baseURL)/klines?symbol=\(symbol)&interval=\(interval)&limit=\(limit)"
         if let start = startTime {
             urlString += "&startTime=\(Int(start.timeIntervalSince1970 * 1000))"
         }

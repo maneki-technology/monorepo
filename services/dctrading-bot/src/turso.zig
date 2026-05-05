@@ -63,7 +63,7 @@ pub const Turso = struct {
         const sql_core =
             \\{"requests": [
             \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS equity_log (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL, tick_count INTEGER, capital REAL, equity REAL, unrealized REAL, regime TEXT, price REAL, created_at TEXT DEFAULT (datetime('now')))"}},
-            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS bot_status (id INTEGER PRIMARY KEY CHECK (id = 1), status TEXT, last_tick REAL, tick_count INTEGER, regime TEXT, in_position INTEGER, entry_price REAL, equity REAL, capital REAL, unrealized REAL, price REAL, uptime_start REAL, version TEXT, updated_at TEXT DEFAULT (datetime('now')))"}},
+            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS bot_status (id INTEGER PRIMARY KEY CHECK (id = 1), status TEXT, last_tick REAL, tick_count INTEGER, regime TEXT, in_position INTEGER, entry_price REAL, equity REAL, capital REAL, unrealized REAL, price REAL, uptime_start REAL, version TEXT, trading_symbol TEXT DEFAULT 'BTC/USD', base_asset TEXT DEFAULT 'BTC', quote_asset TEXT DEFAULT 'USD', mark_symbol TEXT DEFAULT 'BTCUSDT', updated_at TEXT DEFAULT (datetime('now')))"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE INDEX IF NOT EXISTS idx_equity_log_timestamp ON equity_log(timestamp)"}}
             \\]}
         ;
@@ -90,6 +90,18 @@ pub const Turso = struct {
             \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE transfers ADD COLUMN order_id TEXT"}}]}
         ;
         self.execSyncSilent(sql_migrate);
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN trading_symbol TEXT DEFAULT 'BTC/USD'"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN base_asset TEXT DEFAULT 'BTC'"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN quote_asset TEXT DEFAULT 'USD'"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN mark_symbol TEXT DEFAULT 'BTCUSDT'"}}]}
+        );
         if (core_ok and acct_ok) {
             std.debug.print("  [turso] Tables ready.\n", .{});
         } else {
@@ -117,15 +129,42 @@ pub const Turso = struct {
     }
 
     /// Upsert bot status (async, every tick).
-    pub fn upsertStatus(self: *const Turso, last_tick: f64, tick_count: u64, regime: []const u8, in_position: bool, entry_price: f64, equity: f64, capital: f64, unrealized: f64, price: f64, uptime_start: f64, instance: []const u8) void {
-        var buf: [2048]u8 = undefined;
+    pub fn upsertStatus(self: *const Turso, last_tick: f64, tick_count: u64, regime: []const u8, in_position: bool, entry_price: f64, equity: f64, capital: f64, unrealized: f64, price: f64, uptime_start: f64, instance: []const u8, trading_symbol: []const u8, base_asset: []const u8, quote_asset: []const u8, mark_symbol: []const u8) void {
+        var buf: [4096]u8 = undefined;
         var ver_buf: [64]u8 = undefined;
         const ver = std.fmt.bufPrint(&ver_buf, "DCTRADE4@{s}", .{instance}) catch "DCTRADE4";
         const sql = std.fmt.bufPrint(&buf,
-            \\{{"requests": [{{"type": "execute", "stmt": {{"sql": "INSERT INTO bot_status (id, status, last_tick, tick_count, regime, in_position, entry_price, equity, capital, unrealized, price, uptime_start, version) VALUES (1, 'RUNNING', {d:.6}, {d}, '{s}', {d}, {d:.8}, {d:.2}, {d:.2}, {d:.2}, {d:.2}, {d:.6}, '{s}') ON CONFLICT(id) DO UPDATE SET status='RUNNING', last_tick={d:.6}, tick_count={d}, regime='{s}', in_position={d}, entry_price={d:.8}, equity={d:.2}, capital={d:.2}, unrealized={d:.2}, price={d:.2}, version='{s}', updated_at=datetime('now')"}}}}]}}
+            \\{{"requests": [{{"type": "execute", "stmt": {{"sql": "INSERT INTO bot_status (id, status, last_tick, tick_count, regime, in_position, entry_price, equity, capital, unrealized, price, uptime_start, version, trading_symbol, base_asset, quote_asset, mark_symbol) VALUES (1, 'RUNNING', {d:.6}, {d}, '{s}', {d}, {d:.8}, {d:.2}, {d:.2}, {d:.2}, {d:.2}, {d:.6}, '{s}', '{s}', '{s}', '{s}', '{s}') ON CONFLICT(id) DO UPDATE SET status='RUNNING', last_tick={d:.6}, tick_count={d}, regime='{s}', in_position={d}, entry_price={d:.8}, equity={d:.2}, capital={d:.2}, unrealized={d:.2}, price={d:.2}, version='{s}', trading_symbol='{s}', base_asset='{s}', quote_asset='{s}', mark_symbol='{s}', updated_at=datetime('now')"}}}}]}}
         , .{
-            last_tick, tick_count, regime, @as(u8, if (in_position) 1 else 0), entry_price, equity, capital, unrealized, price, uptime_start, ver,
-            last_tick, tick_count, regime, @as(u8, if (in_position) 1 else 0), entry_price, equity, capital, unrealized, price, ver,
+            last_tick,
+            tick_count,
+            regime,
+            @as(u8, if (in_position) 1 else 0),
+            entry_price,
+            equity,
+            capital,
+            unrealized,
+            price,
+            uptime_start,
+            ver,
+            trading_symbol,
+            base_asset,
+            quote_asset,
+            mark_symbol,
+            last_tick,
+            tick_count,
+            regime,
+            @as(u8, if (in_position) 1 else 0),
+            entry_price,
+            equity,
+            capital,
+            unrealized,
+            price,
+            ver,
+            trading_symbol,
+            base_asset,
+            quote_asset,
+            mark_symbol,
         }) catch return;
         self.execAsync(sql);
     }
@@ -138,7 +177,6 @@ pub const Turso = struct {
         ;
         _ = self.execSync(sql);
     }
-
 
     // === Double-Entry Accounting (TigerBeetle-inspired) ===
 
@@ -310,7 +348,6 @@ pub const Turso = struct {
         return info;
     }
 
-
     /// Query account balance: credits_posted - debits_posted (blocking).
     pub fn queryAccountBalance(self: *const Turso, account_id: u8) ?f64 {
         var buf: [256]u8 = undefined;
@@ -468,7 +505,7 @@ pub const Turso = struct {
         ctx.body_len = json_body.len;
         @memcpy(ctx.body[0..json_body.len], json_body);
 
-        const thread = std.Thread.spawn(.{}, asyncWorker, .{ctx, self.allocator}) catch {
+        const thread = std.Thread.spawn(.{}, asyncWorker, .{ ctx, self.allocator }) catch {
             self.allocator.destroy(ctx);
             return;
         };

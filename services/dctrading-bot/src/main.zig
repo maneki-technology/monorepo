@@ -32,6 +32,67 @@ fn handleSigint(_: c_int) callconv(.c) void {
     shutdown_requested = true;
 }
 
+const SymbolInfo = struct {
+    trading_symbol: [32]u8,
+    trading_symbol_len: usize,
+    base_asset: [16]u8,
+    base_asset_len: usize,
+    quote_asset: [16]u8,
+    quote_asset_len: usize,
+    mark_symbol: [32]u8,
+    mark_symbol_len: usize,
+
+    fn tradingSymbol(self: *const SymbolInfo) []const u8 {
+        return self.trading_symbol[0..self.trading_symbol_len];
+    }
+
+    fn baseAsset(self: *const SymbolInfo) []const u8 {
+        return self.base_asset[0..self.base_asset_len];
+    }
+
+    fn quoteAsset(self: *const SymbolInfo) []const u8 {
+        return self.quote_asset[0..self.quote_asset_len];
+    }
+
+    fn markSymbol(self: *const SymbolInfo) []const u8 {
+        return self.mark_symbol[0..self.mark_symbol_len];
+    }
+};
+
+fn upperCopy(dst: []u8, src: []const u8) usize {
+    const len = @min(dst.len, src.len);
+    for (src[0..len], 0..) |c, i| {
+        dst[i] = if (c >= 'a' and c <= 'z') c - 32 else c;
+    }
+    return len;
+}
+
+fn parseSymbolInfo(symbol: []const u8) SymbolInfo {
+    var info: SymbolInfo = undefined;
+    info.trading_symbol_len = upperCopy(&info.trading_symbol, symbol);
+
+    const canonical = info.tradingSymbol();
+    if (std.mem.indexOf(u8, canonical, "/")) |slash| {
+        info.base_asset_len = upperCopy(&info.base_asset, canonical[0..slash]);
+        info.quote_asset_len = upperCopy(&info.quote_asset, canonical[slash + 1 ..]);
+    } else if (std.mem.endsWith(u8, canonical, "USDT")) {
+        info.base_asset_len = upperCopy(&info.base_asset, canonical[0 .. canonical.len - 4]);
+        info.quote_asset_len = upperCopy(&info.quote_asset, "USDT");
+    } else if (std.mem.endsWith(u8, canonical, "USD")) {
+        info.base_asset_len = upperCopy(&info.base_asset, canonical[0 .. canonical.len - 3]);
+        info.quote_asset_len = upperCopy(&info.quote_asset, "USD");
+    } else {
+        info.base_asset_len = upperCopy(&info.base_asset, canonical);
+        info.quote_asset_len = upperCopy(&info.quote_asset, "USD");
+    }
+
+    const mark_quote: []const u8 = if (std.mem.eql(u8, info.quoteAsset(), "USD")) "USDT" else info.quoteAsset();
+    info.mark_symbol_len = 0;
+    info.mark_symbol_len += upperCopy(info.mark_symbol[info.mark_symbol_len..], info.baseAsset());
+    info.mark_symbol_len += upperCopy(info.mark_symbol[info.mark_symbol_len..], mark_quote);
+    return info;
+}
+
 pub fn main(init: std.process.Init) !void {
     const allocator = init.gpa;
 
@@ -73,9 +134,12 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     // turso_mod imported at file scope
     const checkpoint_path: [*:0]const u8 = "dctrading.checkpoint";
     const checkpoint_interval: u64 = 60; // ~1 hour with 1-min downsampling
+    const symbol_info = parseSymbolInfo(if (getenv("TRADING_SYMBOL")) |ptr| std.mem.sliceTo(ptr, 0) else "BTC/USD");
+    const trading_symbol = symbol_info.tradingSymbol();
 
     std.debug.print("Live mode: native Binance WebSocket feed\n", .{});
     std.debug.print("  lambda={d:.3}, capital=${d:.0}\n", .{ threshold, capital });
+    std.debug.print("  symbol={s} quote={s} mark={s}\n", .{ trading_symbol, symbol_info.quoteAsset(), symbol_info.markSymbol() });
     std.debug.print("  Strategy: ZI-DCT0 long-only + vol-trail 2%/72h + 60d MA buf=3%\n", .{});
     std.debug.print("  Checkpoint: every {d} ticks\n\n", .{checkpoint_interval});
 
@@ -85,6 +149,9 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     var strategy = try Strategy.init(allocator, .{
         .threshold = threshold,
         .initial_capital = capital,
+        // Live mode currently uses zero-commission Alpaca paper trading. Keep
+        // fee_pct for backtest/sim sizing only.
+        .fee_pct = 0.0,
     });
     defer strategy.deinit(allocator);
 
@@ -129,7 +196,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     if (!loaded_checkpoint) {
         // Fresh start: full bootstrap from 60 days of 1m klines
         std.debug.print("  No checkpoint found, bootstrapping from historical data...\n", .{});
-        const closes = feed_mod.fetch1mCloses(allocator, &http, "BTC/USDT", 87500) catch |err| {
+        const closes = feed_mod.fetch1mCloses(allocator, &http, trading_symbol, 87500) catch |err| {
             std.debug.print("  Bootstrap failed: {s}. Starting cold.\n", .{@errorName(err)});
             return;
         };
@@ -169,7 +236,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         // Resumed: catch up missed candles since last checkpoint
         const last_active: u64 = @intFromFloat(strategy.last_timestamp);
         if (last_active > 0) {
-            if (feed_mod.fetch1mClosesSince(allocator, &http, "BTC/USDT", last_active)) |closes| {
+            if (feed_mod.fetch1mClosesSince(allocator, &http, trading_symbol, last_active)) |closes| {
                 if (closes.len > 0) {
                     strategy.catchup(closes);
                 }
@@ -283,7 +350,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     }
 
     // Fetch initial funding rate
-    if (feed_mod.fetchFundingRate(&http, 3)) |avg| {
+    if (feed_mod.fetchFundingRate(&http, trading_symbol, 3)) |avg| {
         strategy.funding_avg = avg;
     }
 
@@ -295,7 +362,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     }
 
     std.debug.print("\n  Connecting to Binance WebSocket...\n", .{});
-    var feed = feed_mod.Feed.init(allocator, io, "BTC/USDT") catch |err| {
+    var feed = feed_mod.Feed.init(allocator, io, trading_symbol) catch |err| {
         std.debug.print("ERROR: Failed to connect: {s}\n", .{@errorName(err)});
         return;
     };
@@ -354,7 +421,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             std.debug.print("\n  FEED ERROR: {s}. Reconnecting...\n", .{@errorName(err)});
             _ = usleep(3_000_000); // 3s
             feed.deinit();
-            feed = feed_mod.Feed.init(allocator, io, "BTC/USDT") catch |e| {
+            feed = feed_mod.Feed.init(allocator, io, trading_symbol) catch |e| {
                 std.debug.print("  Reconnect failed: {s}\n", .{@errorName(e)});
                 return;
             };
@@ -430,7 +497,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
             const equity_interval = t.timestamp - last_equity_ts >= 300.0;
             _ = strategy.saveCheckpoint(checkpoint_path);
             if (turso != null) {
-                turso.?.upsertStatus(t.timestamp, strategy.tick_count, regime_str, strategy.in_position, strategy.entry_price, equity, strategy.capital, unrealized, t.price, uptime_start, instance);
+                turso.?.upsertStatus(t.timestamp, strategy.tick_count, regime_str, strategy.in_position, strategy.entry_price, equity, strategy.capital, unrealized, t.price, uptime_start, instance, symbol_info.tradingSymbol(), symbol_info.baseAsset(), symbol_info.quoteAsset(), symbol_info.markSymbol());
                 if (equity_interval or traded) {
                     turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, equity, unrealized, regime_str, t.price);
                     last_equity_ts = t.timestamp;
@@ -439,7 +506,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 const now_ts: f64 = @floatFromInt(time(null));
                 if (now_ts - last_funding_check >= 28800.0) {
                     last_funding_check = now_ts;
-                    if (feed_mod.fetchFundingRate(&http, 3)) |avg| {
+                    if (feed_mod.fetchFundingRate(&http, trading_symbol, 3)) |avg| {
                         strategy.funding_avg = avg;
                     }
                 }

@@ -6,18 +6,20 @@ struct TradeHistoryView: View {
     @State private var trades: [Transfer] = []
     @State private var positions: [Transfer] = []  // buy transfers (open positions)
     @State private var latestPrice: Double = 0
+    @State private var botStatus: BotStatus?
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showingPositions = false
-    @State private var btcPriceHistory: [(Date, Double)] = []
+    @State private var markPriceHistory: [(Date, Double)] = []
     private let client = TursoClient()
     private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
+    private var symbol: SymbolMetadata { botStatus?.symbolMetadata ?? .fallback }
 
     var body: some View {
         ScrollView {
             VStack(spacing: 0) {
                 // Price chart at top
-                if settings.isConfigured && btcPriceHistory.count >= 2 {
+                if settings.isConfigured && markPriceHistory.count >= 2 {
                     priceChartCard
                         .padding(.horizontal)
                         .padding(.top, 8)
@@ -106,7 +108,7 @@ struct TradeHistoryView: View {
                 }
 
             VStack(alignment: .leading, spacing: 3) {
-                Text(formatCurrency(trade.price))
+                Text(formatCurrency(trade.price, quote: symbol.quoteAsset))
                     .font(.system(.body, design: .monospaced, weight: .semibold))
                 Text("Size: \(String(format: "%.8f", trade.size))")
                     .font(.system(.caption2, design: .monospaced))
@@ -155,7 +157,7 @@ struct TradeHistoryView: View {
 
                 Spacer()
 
-                Text("\(String(format: "%.8f", pos.size)) BTC")
+                Text("\(String(format: "%.8f", pos.size)) \(symbol.baseAsset)")
                     .font(.system(.caption, design: .monospaced))
                     .foregroundStyle(.secondary)
             }
@@ -167,7 +169,7 @@ struct TradeHistoryView: View {
                     Text("ENTRY PRICE")
                         .font(.system(.caption2, design: .monospaced))
                         .foregroundStyle(.secondary)
-                    Text(formatCurrency(pos.price))
+                    Text(formatCurrency(pos.price, quote: symbol.quoteAsset))
                         .font(.system(.body, design: .monospaced, weight: .semibold))
                 }
 
@@ -179,7 +181,7 @@ struct TradeHistoryView: View {
                             .font(.system(.caption2, design: .monospaced))
                             .foregroundStyle(.secondary)
                         let unrealized = (latestPrice - pos.price) * pos.size
-                        Text(formatCurrency(unrealized))
+                        Text(formatCurrency(unrealized, quote: symbol.quoteAsset))
                             .font(.system(.body, design: .monospaced, weight: .bold))
                             .foregroundStyle(unrealized >= 0 ? .green : .red)
                     }
@@ -213,17 +215,17 @@ struct TradeHistoryView: View {
 
     @ViewBuilder
     private var priceChartCard: some View {
-        let prices = btcPriceHistory.map(\.1)
+        let prices = markPriceHistory.map(\.1)
         let minPrice = (prices.min() ?? 0) * 0.999
         let maxPrice = (prices.max() ?? 0) * 1.001
 
         VStack(alignment: .leading, spacing: 8) {
-            Text("BTC PRICE")
+            Text(symbol.priceLabel)
                 .font(.system(.caption, design: .monospaced, weight: .medium))
                 .foregroundStyle(.secondary)
 
             Chart {
-                ForEach(Array(btcPriceHistory.enumerated()), id: \.offset) { _, point in
+                ForEach(Array(markPriceHistory.enumerated()), id: \.offset) { _, point in
                     LineMark(
                         x: .value("Time", point.0),
                         y: .value("Price", point.1)
@@ -235,7 +237,7 @@ struct TradeHistoryView: View {
 
                 // Only show trades within the equity data date range
                 let chartTrades = trades.filter { trade in
-                    guard let first = btcPriceHistory.first?.0 else { return false }
+                    guard let first = markPriceHistory.first?.0 else { return false }
                     return trade.date >= first
                 }
                 ForEach(chartTrades) { trade in
@@ -332,21 +334,23 @@ struct TradeHistoryView: View {
         errorMessage = nil
         do {
             async let tradesTask = client.fetchTradeTransfers()
-            async let priceTask = BinanceClient.fetchPrice()
+            async let statusTask = client.fetchBotStatus()
 
-            let btcPrice = try? await priceTask
-            let price = btcPrice ?? 0
+            let status = try await statusTask
+            let symbol = status?.symbolMetadata ?? .fallback
+            async let priceTask = BinanceClient.fetchPrice(symbol: symbol.markSymbol)
+            let price = (try? await priceTask) ?? 0
             let allTransfers = try await tradesTask
 
             // Fetch klines covering all trades (from oldest trade to now)
             let oldestTradeDate = allTransfers.last?.date ?? Date()
-            let klines = (try? await BinanceClient.fetchKlines(interval: "15m", limit: 1000, startTime: oldestTradeDate)) ?? []
+            let klines = (try? await BinanceClient.fetchKlines(symbol: symbol.markSymbol, interval: "15m", limit: 1000, startTime: oldestTradeDate)) ?? []
 
             // Position from Alpaca (source of truth)
             var openPosition: [Transfer] = []
             if settings.isAlpacaConfigured {
                 if let ap = try? await AlpacaClient.fetchPosition(
-                    apiKey: settings.alpacaKey, apiSecret: settings.alpacaSecret
+                    apiKey: settings.alpacaKey, apiSecret: settings.alpacaSecret, tradingSymbol: symbol.tradingSymbol
                 ), ap.qty > 0 {
                     openPosition = [Transfer(
                         id: 0,
@@ -364,7 +368,8 @@ struct TradeHistoryView: View {
             }
 
             await MainActor.run {
-                btcPriceHistory = klines
+                botStatus = status
+                markPriceHistory = klines
                 latestPrice = price
                 trades = allTransfers
                 positions = openPosition
@@ -380,12 +385,14 @@ struct TradeHistoryView: View {
 
     // MARK: - Formatting
 
-    private func formatCurrency(_ value: Double) -> String {
+    private func formatCurrency(_ value: Double, quote: String = "USD") -> String {
         let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
+        formatter.numberStyle = quote == "USD" ? .currency : .decimal
+        formatter.currencyCode = quote
+        formatter.minimumFractionDigits = 2
         formatter.maximumFractionDigits = 2
-        return formatter.string(from: NSNumber(value: value)) ?? "$0.00"
+        let formatted = formatter.string(from: NSNumber(value: value)) ?? "0.00"
+        return quote == "USD" ? formatted : "\(formatted) \(quote)"
     }
 
     private func formatTimestamp(_ ts: String) -> String {

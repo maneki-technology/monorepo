@@ -19,8 +19,8 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `live_loop.zig` — Extracted core order flow logic: pending order tracking, trailing stop, strategy signals, buy/sell submission, capital_reserved, and ledger vtable. Shared by `runLive()` and integration tests.
 - `tick_source.zig` — `TickSource` vtable interface + `SimFeed` (replays ticks from array). For testing.
 - `sim_exchange.zig` — `SimExchange` implementing Exchange vtable with configurable fill delay, slippage, partial fills, cancel races, failure injection, order log. For testing.
-- `integration_tests.zig` — 31 end-to-end scenarios using LiveLoop + SimExchange + mock ledger.
-- `tests.zig` — 162 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, integration scenarios.
+- `integration_tests.zig` — 32 end-to-end scenarios using LiveLoop + SimExchange + mock ledger.
+- `tests.zig` — 166 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, integration scenarios.
 
 ### Scripts (`scripts/`)
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service.
@@ -38,6 +38,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 |----------|----------|---------|
 | `ALPACA_API_KEY` | Yes | alpaca.zig |
 | `ALPACA_API_SECRET` | Yes | alpaca.zig |
+| `TRADING_SYMBOL` | No | main.zig/alpaca.zig/feed.zig (default: BTC/USD; Binance maps USD quote to USDT) |
 | `TURSO_URL` | No | turso.zig |
 | `TURSO_TOKEN` | No | turso.zig |
 | `TELEGRAM_BOT_TOKEN` | No | telegram.zig |
@@ -51,14 +52,14 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ### Database Schema (Turso)
 - `accounts` — Double-entry accounts (TigerBeetle-inspired): cash, btc_position, fees, equity, pnl, bnb. 4 balance fields: debits_pending, debits_posted, credits_pending, credits_posted.
 - `transfers` — Immutable append-only transfer log. Two-phase (pending/posted/voided). Codes: 1=deposit, 2=buy, 3=sell, 4=fee, 5=pnl. Atomic BEGIN/COMMIT pipelines.
-- Fee routing: nonzero `commission_asset` routes fees to the paying asset account (`USD`/`USDT` → cash, `BTC` → btc_position, `BNB` → bnb). Transfer `amount` is historical USD value at fill time; native fee quantity is stored in transfer `size`, with the fill-time asset USD valuation rate in `price`. `strategy.size` remains whatever the exchange adapter reports as fill quantity.
+- Fee routing: adapter-provided `commission_asset` routes fees to the paying asset account (`USD`/`USDT` → cash, `BTC` → btc_position, `BNB` → bnb), even when commission is zero. Transfer `amount` is historical quote-currency value at fill time; native fee quantity is stored in transfer `size`, with the fill-time asset quote valuation rate in `price`. `strategy.size` remains whatever the exchange adapter reports as fill quantity. `fee_pct` is for backtest/simulation estimates and legacy fills with no commission metadata, not for Alpaca paper fills.
 - `equity_log` — Periodic snapshots (every 5 min + on trades): capital, equity, unrealized, regime, price.
 - `bot_status` — Single row (id=1): regime, position, equity, version (DCTRADE4@instance).
 ### Build
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # GCP
-zig build test                                 # 162 tests
+zig build test                                 # 166 tests
 ```
 
 ### Trading Flow
