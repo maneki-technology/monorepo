@@ -17,10 +17,10 @@ apps/neko-trade/
 │   ├── Services/
 │   │   ├── TursoClient.swift       # Turso HTTP client + AppSettings singleton
 │   │   ├── AlpacaClient.swift      # Alpaca REST client (position queries)
-│   │   └── BinanceClient.swift     # Binance REST client (BTC price + klines)
+│   │   └── BinanceClient.swift     # Binance REST client (active-symbol price + klines)
 │   ├── Views/
 │   │   ├── ContentView.swift       # Tab container (5 tabs)
-│   │   ├── DashboardView.swift     # Bot status, regime, equity, BTC price, open position (~470 lines)
+│   │   ├── DashboardView.swift     # Bot status, regime, equity, active-symbol price, open position (~470 lines)
 │   │   ├── LedgerView.swift        # Account ledger with cash balance summary
 │   │   ├── EquityChartView.swift   # Equity over time (Swift Charts)
 │   │   ├── TradeHistoryView.swift  # Trade list with PnL, signal vs fill drift (~474 lines)
@@ -42,7 +42,7 @@ The app reads from three independent APIs. No backend server needed.
        │                    │             └──────┬───────┘
        │                    │                    │
        ▼                    ▼                    ▼
-  BTC price          Bot status            Open position
+  Mark price         Bot status            Open position
   Price history      Equity log            Qty, entry price
                      Trade events          Market value
                      Account ledger
@@ -59,7 +59,7 @@ The app reads from three independent APIs. No backend server needed.
 The main monitoring view. Shows:
 - Bot regime with color coding (BULL=green, SIDEWAYS=orange, BEAR=red)
 - Current equity and total PnL
-- Live BTC price from Binance (free, avoids Turso reads)
+- Live active-symbol price from Binance (free, avoids Turso reads)
 - Open position with unrealized PnL (from Alpaca)
 - Mini equity chart (last 24h)
 - Auto-refreshes every 30s via `Timer.publish`
@@ -85,7 +85,7 @@ HTTP client for Turso's REST API. Queries all 5 bot tables. Also contains `AppSe
 Alpaca REST client. Queries open position (qty, entry price, market value). Used by DashboardView for real-time position data.
 
 ### BinanceClient
-Binance REST client. Current BTC/USDT price and kline history. Free API, no authentication needed. Used instead of Turso for price data to reduce DB reads.
+Binance REST client. Current active-symbol price and kline history. Free API, no authentication needed. The bot publishes `trading_symbol`, `quote_asset`, and `mark_symbol` in `bot_status`; Neko uses that metadata for labels, USD vs USDT formatting, and Binance price URLs.
 
 ## Key Design Decisions
 

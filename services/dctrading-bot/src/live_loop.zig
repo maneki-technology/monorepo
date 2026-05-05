@@ -291,8 +291,8 @@ pub const LiveLoop = struct {
     }
 
     // Routes the fee transfer to the asset that paid commission. Transfer
-    // amount is historical USD value at fill time; transfer size stores native
-    // commission qty and price stores the valuation rate.
+    // amount is historical quote-currency value at fill time; transfer size
+    // stores native commission qty and price stores the valuation rate.
     fn feeCreditAccount(fill: exchange_mod.OrderFill) u8 {
         if (fill.commission <= 0) return turso_mod.Turso.ACCT_CASH;
         const asset = fill.commission_asset[0..fill.commission_asset_len];

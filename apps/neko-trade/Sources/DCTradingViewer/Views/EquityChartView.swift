@@ -4,6 +4,7 @@ import Charts
 struct EquityChartView: View {
     @ObservedObject var settings: AppSettings
     @State private var equityData: [EquityLog] = []
+    @State private var botStatus: BotStatus?
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var selectedDays = 7
@@ -11,6 +12,7 @@ struct EquityChartView: View {
     private let client = TursoClient()
     private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
     private let dayOptions = [1, 3, 7, 14, 30]
+    private var quoteAsset: String { (botStatus?.symbolMetadata ?? .fallback).quoteAsset }
 
     var body: some View {
         ScrollView {
@@ -273,9 +275,12 @@ struct EquityChartView: View {
         if equityData.isEmpty { isLoading = true }
         errorMessage = nil
         do {
-            let data = try await client.fetchEquityLog(days: selectedDays)
+            async let dataTask = client.fetchEquityLog(days: selectedDays)
+            async let statusTask = client.fetchBotStatus()
+            let (data, status) = try await (dataTask, statusTask)
             await MainActor.run {
                 equityData = data
+                botStatus = status
                 isLoading = false
             }
         } catch {
@@ -288,9 +293,11 @@ struct EquityChartView: View {
 
     private func formatCurrency(_ value: Double) -> String {
         let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
+        formatter.numberStyle = quoteAsset == "USD" ? .currency : .decimal
+        formatter.currencyCode = quoteAsset
+        formatter.minimumFractionDigits = 2
         formatter.maximumFractionDigits = 2
-        return formatter.string(from: NSNumber(value: value)) ?? "$0.00"
+        let formatted = formatter.string(from: NSNumber(value: value)) ?? "0.00"
+        return quoteAsset == "USD" ? formatted : "\(formatted) \(quoteAsset)"
     }
 }

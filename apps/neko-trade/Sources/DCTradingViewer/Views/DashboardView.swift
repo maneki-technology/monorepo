@@ -5,14 +5,15 @@ struct DashboardView: View {
     @ObservedObject var settings: AppSettings
     @State private var openPosition: Position?
     @State private var latestEquity: EquityLog?
+    @State private var botStatus: BotStatus?
     @State private var realizedPnL: Double?
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var lastRefresh: Date?
     @State private var equityHistory: [EquityLog] = []
-    @State private var btcPrice: Double = 0
+    @State private var markPrice: Double = 0
     @State private var estimatedEquity: Double?
-    @State private var btcPriceHistory: [(Date, Double)] = []
+    @State private var markPriceHistory: [(Date, Double)] = []
 
     private let client = TursoClient()
     private let timer = Timer.publish(every: 30, on: .main, in: .common).autoconnect()
@@ -60,19 +61,20 @@ struct DashboardView: View {
             }
 
             // Stats grid — keep top-level metrics focused on current account value.
+            let symbol = botStatus?.symbolMetadata ?? .fallback
             let unrealized = openPosition?.pnl ?? latestEquity?.unrealized
-            let price = btcPrice > 0 ? btcPrice : latestEquity?.price ?? openPosition?.entryPrice ?? 0
+            let price = markPrice > 0 ? markPrice : latestEquity?.price ?? openPosition?.entryPrice ?? 0
 
             HStack(spacing: 12) {
                 statCard(
                     title: "EQUITY",
-                    value: estimatedEquity.map { formatCurrency($0) } ?? "—",
+                    value: estimatedEquity.map { formatCurrency($0, quote: symbol.quoteAsset) } ?? "—",
                     icon: "chart.bar.xaxis",
                     color: .mint
                 )
                 statCard(
                     title: "REALIZED P&L",
-                    value: realizedPnL.map { formatCurrency($0) } ?? "—",
+                    value: realizedPnL.map { formatCurrency($0, quote: symbol.quoteAsset) } ?? "—",
                     icon: "banknote",
                     color: (realizedPnL ?? 0) >= 0 ? .green : .red
                 )
@@ -81,23 +83,23 @@ struct DashboardView: View {
             HStack(spacing: 12) {
                 statCard(
                     title: "UNREALIZED P&L",
-                    value: unrealized.map { formatCurrency($0) } ?? "—",
+                    value: unrealized.map { formatCurrency($0, quote: symbol.quoteAsset) } ?? "—",
                     icon: "clock.arrow.circlepath",
                     color: (unrealized ?? 0) >= 0 ? .green : .red
                 )
                 statCard(
-                    title: "BTC PRICE",
-                    value: price > 0 ? formatCurrency(price) : "—",
+                    title: symbol.priceLabel,
+                    value: price > 0 ? formatCurrency(price, quote: symbol.quoteAsset) : "—",
                     icon: "bitcoinsign.circle",
                     color: .orange
                 )
             }
 
             // Sparklines
-            if equityHistory.count >= 2 || btcPriceHistory.count >= 2 {
+            if equityHistory.count >= 2 || markPriceHistory.count >= 2 {
                 HStack(spacing: 12) {
                     sparklineCard("EQUITY", data: equityHistory.suffix(50).map(\.equity), color: .cyan)
-                    sparklineCard("BTC PRICE", data: btcPriceHistory.suffix(60).map(\.1), color: .orange)
+                    sparklineCard(symbol.priceLabel, data: markPriceHistory.suffix(60).map(\.1), color: .orange)
                 }
             }
             // Open position
@@ -121,7 +123,8 @@ struct DashboardView: View {
     // MARK: - Cards
 
     private func regimeCard(_ eq: EquityLog) -> some View {
-        HStack(spacing: 12) {
+        let quote = (botStatus?.symbolMetadata ?? .fallback).quoteAsset
+        return HStack(spacing: 12) {
             Circle()
                 .fill(eq.regimeColor)
                 .frame(width: 12, height: 12)
@@ -137,7 +140,7 @@ struct DashboardView: View {
                 Text("CAPITAL")
                     .font(.system(.caption2, design: .monospaced))
                     .foregroundStyle(.secondary)
-                Text(formatCurrency(eq.capital))
+                Text(formatCurrency(eq.capital, quote: quote))
                     .font(.system(.body, design: .monospaced, weight: .semibold))
             }
         }
@@ -274,7 +277,7 @@ struct DashboardView: View {
                     Text("ENTRY PRICE")
                         .font(.system(.caption2, design: .monospaced))
                         .foregroundStyle(.secondary)
-                    Text(formatCurrency(pos.entryPrice))
+                    Text(formatCurrency(pos.entryPrice, quote: (botStatus?.symbolMetadata ?? .fallback).quoteAsset))
                         .font(.system(.body, design: .monospaced, weight: .semibold))
                 }
                 Spacer()
@@ -358,27 +361,27 @@ struct DashboardView: View {
             async let realizedPnLTask = client.fetchTotalRealizedPnL()
             async let managedBalancesTask = client.fetchManagedBalances()
             async let historyTask = client.fetchRecentEquity(limit: 50)
-            async let priceTask = BinanceClient.fetchPrice()
-            async let bnbPriceTask = BinanceClient.fetchPrice(symbol: "BNBUSDT")
-            async let klinesTask = BinanceClient.fetchKlines(interval: "5m", limit: 60)
+            async let statusTask = client.fetchBotStatus()
 
-            // Fetch Alpaca position (source of truth)
+            let (equity, realized, history, managedBalances, status) = try await (equityTask, realizedPnLTask, historyTask, managedBalancesTask, statusTask)
+            let symbol = status?.symbolMetadata ?? .fallback
             var alpacaPos: AlpacaClient.AlpacaPosition? = nil
             if settings.isAlpacaConfigured {
                 alpacaPos = try? await AlpacaClient.fetchPosition(
-                    apiKey: settings.alpacaKey, apiSecret: settings.alpacaSecret
+                    apiKey: settings.alpacaKey, apiSecret: settings.alpacaSecret, tradingSymbol: symbol.tradingSymbol
                 )
             }
-
-            let (equity, realized, history, managedBalances) = try await (equityTask, realizedPnLTask, historyTask, managedBalancesTask)
+            async let priceTask = BinanceClient.fetchPrice(symbol: symbol.markSymbol)
+            async let bnbPriceTask = BinanceClient.fetchPrice(symbol: symbol.bnbMarkSymbol)
+            async let klinesTask = BinanceClient.fetchKlines(symbol: symbol.markSymbol, interval: "5m", limit: 60)
             let price = try? await priceTask
             let bnb = try? await bnbPriceTask
             let klines = (try? await klinesTask) ?? []
-            let currentBtcPrice = price ?? equity?.price ?? 0
+            let currentMarkPrice = price ?? equity?.price ?? 0
             let bnbPriceRequired = abs(managedBalances.bnbQuantity) > 0.00000001
-            let canMarkEquity = currentBtcPrice > 0 && (!bnbPriceRequired || bnb != nil)
+            let canMarkEquity = currentMarkPrice > 0 && (!bnbPriceRequired || bnb != nil)
             let markedEquity: Double? = canMarkEquity
-                ? managedBalances.cash + managedBalances.btcQuantity * currentBtcPrice + managedBalances.bnbQuantity * (bnb ?? 0)
+                ? managedBalances.cash + managedBalances.btcQuantity * currentMarkPrice + managedBalances.bnbQuantity * (bnb ?? 0)
                 : nil
 
             await MainActor.run {
@@ -399,11 +402,12 @@ struct DashboardView: View {
                     openPosition = nil
                 }
                 latestEquity = equity
+                botStatus = status
                 realizedPnL = realized
                 equityHistory = history
-                if let price { btcPrice = price }
+                if let price { markPrice = price }
                 estimatedEquity = markedEquity
-                btcPriceHistory = klines
+                markPriceHistory = klines
                 lastRefresh = Date()
                 isLoading = false
             }
@@ -417,12 +421,14 @@ struct DashboardView: View {
 
     // MARK: - Formatting
 
-    private func formatCurrency(_ value: Double) -> String {
+    private func formatCurrency(_ value: Double, quote: String = "USD") -> String {
         let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = "USD"
+        formatter.numberStyle = quote == "USD" ? .currency : .decimal
+        formatter.currencyCode = quote
+        formatter.minimumFractionDigits = 2
         formatter.maximumFractionDigits = 2
-        return formatter.string(from: NSNumber(value: value)) ?? "$0.00"
+        let formatted = formatter.string(from: NSNumber(value: value)) ?? "0.00"
+        return quote == "USD" ? formatted : "\(formatted) \(quote)"
     }
 
     private func formatTimestamp(_ ts: String) -> String {

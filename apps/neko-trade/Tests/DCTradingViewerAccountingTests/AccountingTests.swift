@@ -16,7 +16,7 @@ final class AccountingTests: XCTestCase {
         XCTAssertEqual(btcFee.cashEffect, 0)
     }
 
-    func testRealizedPnLQueryIncludesUsdValuedAssetAccounts() {
+    func testRealizedPnLQueryIncludesQuoteValuedAssetAccounts() {
         let sql = TursoClient.totalRealizedPnLSQL
 
         XCTAssertTrue(sql.contains("WHERE id = 1"))
@@ -35,6 +35,38 @@ final class AccountingTests: XCTestCase {
         XCTAssertTrue(sql.contains("WHERE status = 'posted'"))
     }
 
+    func testBotStatusSymbolMetadataFallsBackForOlderDatabases() {
+        let status = botStatus(tradingSymbol: "", baseAsset: "", quoteAsset: "", markSymbol: "")
+        let symbol = status.symbolMetadata
+
+        XCTAssertEqual(symbol.tradingSymbol, "BTC/USD")
+        XCTAssertEqual(symbol.baseAsset, "BTC")
+        XCTAssertEqual(symbol.quoteAsset, "USD")
+        XCTAssertEqual(symbol.markSymbol, "BTCUSDT")
+        XCTAssertEqual(symbol.priceLabel, "BTC/USD")
+    }
+
+    func testBotStatusSymbolMetadataSupportsUsdtQuote() {
+        let status = botStatus(
+            tradingSymbol: "BTC/USDT",
+            baseAsset: "BTC",
+            quoteAsset: "USDT",
+            markSymbol: "BTCUSDT"
+        )
+        let symbol = status.symbolMetadata
+
+        XCTAssertEqual(symbol.tradingSymbol, "BTC/USDT")
+        XCTAssertEqual(symbol.quoteAsset, "USDT")
+        XCTAssertEqual(symbol.markSymbol, "BTCUSDT")
+        XCTAssertEqual(symbol.priceLabel, "BTC/USDT")
+        XCTAssertEqual(symbol.bnbMarkSymbol, "BNBUSDT")
+    }
+
+    func testAlpacaPositionSymbolNormalization() {
+        XCTAssertEqual(AlpacaClient.normalizePositionSymbol("BTC/USD"), "BTCUSD")
+        XCTAssertEqual(AlpacaClient.normalizePositionSymbol(" btc/usdt "), "BTCUSDT")
+    }
+
     private func transfer(debitAccountId: Int, creditAccountId: Int, amount: Double, code: Int) -> Transfer {
         Transfer(
             id: 1,
@@ -50,6 +82,33 @@ final class AccountingTests: XCTestCase {
             size: 0,
             timestamp: "0",
             createdAt: ""
+        )
+    }
+
+    private func botStatus(
+        tradingSymbol: String,
+        baseAsset: String,
+        quoteAsset: String,
+        markSymbol: String
+    ) -> BotStatus {
+        BotStatus(
+            status: "RUNNING",
+            lastTick: Date().timeIntervalSince1970,
+            tickCount: 1,
+            regime: "BULL",
+            inPosition: 0,
+            entryPrice: 0,
+            equity: 0,
+            capital: 0,
+            unrealized: 0,
+            price: 0,
+            uptimeStart: Date().timeIntervalSince1970,
+            version: "test",
+            updatedAt: "",
+            tradingSymbol: tradingSymbol,
+            baseAsset: baseAsset,
+            quoteAsset: quoteAsset,
+            markSymbol: markSymbol
         )
     }
 }

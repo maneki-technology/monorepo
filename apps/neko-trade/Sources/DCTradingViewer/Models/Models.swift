@@ -121,6 +121,32 @@ struct ManagedBalances {
     let bnbQuantity: Double
 }
 
+// MARK: - Symbol Metadata
+
+struct SymbolMetadata {
+    let tradingSymbol: String
+    let baseAsset: String
+    let quoteAsset: String
+    let markSymbol: String
+
+    static let fallback = SymbolMetadata(
+        tradingSymbol: "BTC/USD",
+        baseAsset: "BTC",
+        quoteAsset: "USD",
+        markSymbol: "BTCUSDT"
+    )
+
+    var priceLabel: String {
+        "\(baseAsset)/\(quoteAsset)"
+    }
+
+    var bnbMarkSymbol: String {
+        // Binance spot does not expose a BNB/USD pair; use BNB/USDT as the
+        // valuation source and treat USDT as USD-equivalent in USD mode.
+        "BNBUSDT"
+    }
+}
+
 // MARK: - Equity Log
 
 struct EquityLog: Identifiable, Codable {
@@ -175,6 +201,19 @@ struct BotStatus {
     let uptimeStart: Double
     let version: String
     let updatedAt: String
+    let tradingSymbol: String
+    let baseAsset: String
+    let quoteAsset: String
+    let markSymbol: String
+
+    var symbolMetadata: SymbolMetadata {
+        SymbolMetadata(
+            tradingSymbol: tradingSymbol.isEmpty ? SymbolMetadata.fallback.tradingSymbol : tradingSymbol,
+            baseAsset: baseAsset.isEmpty ? SymbolMetadata.fallback.baseAsset : baseAsset,
+            quoteAsset: quoteAsset.isEmpty ? SymbolMetadata.fallback.quoteAsset : quoteAsset,
+            markSymbol: markSymbol.isEmpty ? SymbolMetadata.fallback.markSymbol : markSymbol
+        )
+    }
 
     var isLive: Bool {
         status == "RUNNING" && Date().timeIntervalSince1970 - lastTick < 120

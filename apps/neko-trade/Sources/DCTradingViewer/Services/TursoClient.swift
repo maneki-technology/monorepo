@@ -230,8 +230,8 @@ final class TursoClient {
     }
 
     func fetchTotalRealizedPnL() async throws -> Double {
-        // Net return = USD-denominated ledger value - total deposits. Native
-        // fee quantity is stored in transfer size, while amount remains USD.
+        // Net return = historical quote-currency ledger value - total deposits.
+        // Native fee quantity is stored in transfer size.
         let result = try await executeSQL(Self.totalRealizedPnLSQL)
         guard let row = result.rows.first else { return 0 }
         return getDouble(row, result.cols, "total")
@@ -273,7 +273,11 @@ final class TursoClient {
             price: getDouble(row, result.cols, "price"),
             uptimeStart: getDouble(row, result.cols, "uptime_start"),
             version: getString(row, result.cols, "version"),
-            updatedAt: getString(row, result.cols, "updated_at")
+            updatedAt: getString(row, result.cols, "updated_at"),
+            tradingSymbol: getOptionalString(row, result.cols, "trading_symbol") ?? "",
+            baseAsset: getOptionalString(row, result.cols, "base_asset") ?? "",
+            quoteAsset: getOptionalString(row, result.cols, "quote_asset") ?? "",
+            markSymbol: getOptionalString(row, result.cols, "mark_symbol") ?? ""
         )
     }
 

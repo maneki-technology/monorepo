@@ -80,6 +80,26 @@ struct SettingsView: View {
                         }
                         .padding(.horizontal)
                         .padding(.vertical, 10)
+
+                        Divider()
+                            .overlay(statusColor.opacity(0.2))
+
+                        HStack {
+                            HStack(spacing: 6) {
+                                Image(systemName: "tag")
+                                    .font(.system(.caption2, design: .monospaced))
+                                    .foregroundStyle(.secondary)
+                                Text(bs.symbolMetadata.tradingSymbol)
+                                    .font(.system(.caption, design: .monospaced))
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Text("QUOTE \(bs.symbolMetadata.quoteAsset)")
+                                .font(.system(.caption, design: .monospaced))
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 10)
                     }
                     .background {
                         RoundedRectangle(cornerRadius: 12, style: .continuous)

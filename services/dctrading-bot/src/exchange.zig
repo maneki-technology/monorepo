@@ -15,8 +15,9 @@ pub const OrderFill = struct {
     fill_qty: f64,
     /// Native commission quantity in `commission_asset` units.
     commission: f64 = 0,
-    /// Historical USD value of `commission` at fill time. Required when
-    /// commission_asset is non-USD and the adapter has a valuation rate.
+    /// Historical quote-currency value of `commission` at fill time. Required
+    /// when commission_asset is not the active quote and the adapter has a
+    /// valuation rate.
     /// If omitted, LiveLoop estimates BTC fees from fill_price. A nonzero
     /// commission_asset_len means the adapter supplied commission metadata
     /// explicitly, even when commission is zero.
