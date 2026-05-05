@@ -292,15 +292,35 @@ final class TursoClient {
     /// Insert a deposit atomically: create transfer + update both accounts.
     func insertDeposit(amount: Double) async throws -> Double {
         let timestamp = Date().timeIntervalSince1970
-        let statements = [
+        try await executePipeline(Self.depositStatements(amount: amount, timestamp: timestamp))
+        return try await fetchCashBalance()
+    }
+
+    /// Insert a managed BNB allocation. `quantity` is native BNB and `price` is BNB/quote.
+    func insertBnbAllocation(quantity: Double, price: Double) async throws {
+        let timestamp = Date().timeIntervalSince1970
+        try await executePipeline(Self.bnbAllocationStatements(quantity: quantity, price: price, timestamp: timestamp))
+    }
+
+    static func depositStatements(amount: Double, timestamp: Double) -> [String] {
+        [
             "BEGIN",
             "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, price, size, timestamp) VALUES (1, 4, \(amount), 1, 0, 'posted', 0, 0, \(timestamp))",
             "UPDATE accounts SET credits_posted = credits_posted + \(amount) WHERE id = 1",
             "UPDATE accounts SET debits_posted = debits_posted + \(amount) WHERE id = 4",
             "COMMIT"
         ]
-        try await executePipeline(statements)
-        return try await fetchCashBalance()
+    }
+
+    static func bnbAllocationStatements(quantity: Double, price: Double, timestamp: Double) -> [String] {
+        let amount = quantity * price
+        return [
+            "BEGIN",
+            "INSERT INTO transfers (debit_account_id, credit_account_id, amount, code, flags, status, user_data, price, size, timestamp) VALUES (6, 4, \(amount), 1, 0, 'posted', 'BNB allocation', \(price), \(quantity), \(timestamp))",
+            "UPDATE accounts SET credits_posted = credits_posted + \(amount) WHERE id = 6",
+            "UPDATE accounts SET debits_posted = debits_posted + \(amount) WHERE id = 4",
+            "COMMIT"
+        ]
     }
 
     /// Execute multiple SQL statements in a single pipeline request.

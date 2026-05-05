@@ -21,7 +21,7 @@ apps/neko-trade/
 │   ├── Views/
 │   │   ├── ContentView.swift       # Tab container (5 tabs)
 │   │   ├── DashboardView.swift     # Bot status, regime, equity, active-symbol price, open position (~470 lines)
-│   │   ├── LedgerView.swift        # Account ledger with cash balance summary
+│   │   ├── LedgerView.swift        # Account ledger with cash balance summary + BNB allocation
 │   │   ├── EquityChartView.swift   # Equity over time (Swift Charts)
 │   │   ├── TradeHistoryView.swift  # Trade list with PnL, signal vs fill drift (~474 lines)
 │   │   └── SettingsView.swift      # Credential management with status indicators
@@ -65,7 +65,7 @@ The main monitoring view. Shows:
 - Auto-refreshes every 30s via `Timer.publish`
 
 ### LedgerView
-Account ledger from Turso's `account_ledger` table. Shows cash balance summary at top, scrollable entry list below. Each entry: type, amount, balance_after, note, timestamp.
+Account ledger from Turso transfers and accounts. Shows cash balance summary at top, scrollable entry list below, quote-currency deposits, and BNB allocation top-up. Each entry: type, amount, balance_after, note, timestamp.
 
 ### EquityChartView
 Equity over time using Swift Charts. Reads from `equity_log` table. Supports time range selection.

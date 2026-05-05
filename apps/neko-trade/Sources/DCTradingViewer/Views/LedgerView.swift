@@ -6,8 +6,11 @@ struct LedgerView: View {
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showDepositSheet = false
+    @State private var showBnbTopUpSheet = false
     @State private var depositAmount = ""
+    @State private var bnbAmount = ""
     @State private var isDepositing = false
+    @State private var isBnbTopUp = false
     @State private var cashBalance: Double = 0
     @State private var botStatus: BotStatus?
 
@@ -34,8 +37,15 @@ struct LedgerView: View {
         .navigationTitle("Ledger")
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button(action: { showDepositSheet = true }) {
-                    Label("Deposit", systemImage: "plus.circle")
+                Menu {
+                    Button(action: { showDepositSheet = true }) {
+                        Label("Deposit \(quoteAsset)", systemImage: "plus.circle")
+                    }
+                    Button(action: { showBnbTopUpSheet = true }) {
+                        Label("Top Up BNB", systemImage: "fuelpump")
+                    }
+                } label: {
+                    Label("Add", systemImage: "plus.circle")
                 }
                 .disabled(!settings.isConfigured)
             }
@@ -48,6 +58,9 @@ struct LedgerView: View {
         }
         .sheet(isPresented: $showDepositSheet) {
             depositSheet
+        }
+        .sheet(isPresented: $showBnbTopUpSheet) {
+            bnbTopUpSheet
         }
         .task { await loadData() }
         .onReceive(timer) { _ in
@@ -111,6 +124,63 @@ struct LedgerView: View {
             await MainActor.run {
                 errorMessage = error.localizedDescription
                 isDepositing = false
+            }
+        }
+    }
+
+    private var bnbTopUpSheet: some View {
+        VStack(spacing: 16) {
+            Text("Top Up BNB")
+                .font(.system(.headline, design: .monospaced))
+
+            TextField("Amount (BNB)", text: $bnbAmount)
+                .font(.system(.body, design: .monospaced))
+                .textFieldStyle(.roundedBorder)
+                .frame(width: 200)
+                #if os(iOS)
+                .keyboardType(.decimalPad)
+                #endif
+
+            HStack(spacing: 12) {
+                Button("Cancel") {
+                    bnbAmount = ""
+                    showBnbTopUpSheet = false
+                }
+                .keyboardShortcut(.cancelAction)
+
+                Button("Top Up") {
+                    Task { await submitBnbTopUp() }
+                }
+                .keyboardShortcut(.defaultAction)
+                .disabled(Double(bnbAmount) == nil || Double(bnbAmount)! <= 0 || isBnbTopUp)
+            }
+
+            if isBnbTopUp {
+                ProgressView()
+                    .controlSize(.small)
+            }
+        }
+        .padding(24)
+        .frame(minWidth: 280)
+    }
+
+    private func submitBnbTopUp() async {
+        guard let quantity = Double(bnbAmount), quantity > 0 else { return }
+        isBnbTopUp = true
+        do {
+            let symbol = botStatus?.symbolMetadata ?? .fallback
+            let price = try await BinanceClient.fetchPrice(symbol: symbol.bnbMarkSymbol)
+            try await client.insertBnbAllocation(quantity: quantity, price: price)
+            await MainActor.run {
+                bnbAmount = ""
+                showBnbTopUpSheet = false
+                isBnbTopUp = false
+            }
+            await loadData()
+        } catch {
+            await MainActor.run {
+                errorMessage = error.localizedDescription
+                isBnbTopUp = false
             }
         }
     }

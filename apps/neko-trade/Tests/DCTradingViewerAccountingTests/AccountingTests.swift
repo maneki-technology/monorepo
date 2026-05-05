@@ -35,6 +35,25 @@ final class AccountingTests: XCTestCase {
         XCTAssertTrue(sql.contains("WHERE status = 'posted'"))
     }
 
+    func testBnbAllocationStatementsRecordNativeSizeAndQuoteValue() {
+        let statements = TursoClient.bnbAllocationStatements(quantity: 0.05, price: 700, timestamp: 123)
+
+        XCTAssertEqual(statements.first, "BEGIN")
+        XCTAssertTrue(statements[1].contains("debit_account_id, credit_account_id, amount"))
+        XCTAssertTrue(statements[1].contains("VALUES (6, 4, 35.0, 1, 0, 'posted', 'BNB allocation', 700.0, 0.05, 123.0)"))
+        XCTAssertTrue(statements[2].contains("credits_posted = credits_posted + 35.0 WHERE id = 6"))
+        XCTAssertTrue(statements[3].contains("debits_posted = debits_posted + 35.0 WHERE id = 4"))
+        XCTAssertEqual(statements.last, "COMMIT")
+    }
+
+    func testCashDepositStatementsDoNotAffectNativeSize() {
+        let statements = TursoClient.depositStatements(amount: 1000, timestamp: 123)
+
+        XCTAssertTrue(statements[1].contains("VALUES (1, 4, 1000.0, 1, 0, 'posted', 0, 0, 123.0)"))
+        XCTAssertTrue(statements[2].contains("credits_posted = credits_posted + 1000.0 WHERE id = 1"))
+        XCTAssertTrue(statements[3].contains("debits_posted = debits_posted + 1000.0 WHERE id = 4"))
+    }
+
     func testBotStatusSymbolMetadataFallsBackForOlderDatabases() {
         let status = botStatus(tradingSymbol: "", baseAsset: "", quoteAsset: "", markSymbol: "")
         let symbol = status.symbolMetadata
