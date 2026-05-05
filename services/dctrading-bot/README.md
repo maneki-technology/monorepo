@@ -46,7 +46,7 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 | `telegram.zig` | Telegram + ntfy push notifications |
 | `http_client.zig` | Shared HTTP client (std.http.Client wrapper) |
 | `types.zig` | Tick, Trade, DC event types |
-| `tests.zig` | 166 tests |
+| `tests.zig` | 174 tests |
 
 ## Setup
 
@@ -82,6 +82,7 @@ export BINANCE_WS_HOST=stream.binance.com
 export BINANCE_API_HOST=api.binance.com
 
 # Funding filter (default: 0.0001 = 0.010%; 0 disables)
+# Funding updates are refreshed and sent to Telegram/ntfy every 8h when notifications are configured.
 export FUNDING_SKIP_THRESHOLD=0.0001
 
 # Local checkpoint backups (default: 5; 0 disables)

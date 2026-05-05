@@ -565,14 +565,6 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                     turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, equity, unrealized, regime_str, t.price);
                     last_equity_ts = t.timestamp;
                 }
-                // Refresh funding rate every 8h
-                const funding_now_ts: f64 = @floatFromInt(time(null));
-                if (funding_now_ts - last_funding_check >= 28800.0) {
-                    last_funding_check = funding_now_ts;
-                    if (feed_mod.fetchFundingRate(&http, trading_symbol, 3)) |avg| {
-                        strategy.funding_avg = avg;
-                    }
-                }
                 // Check for new deposits every 5 min
                 if (t.timestamp - last_deposit_check >= 300.0) {
                     last_deposit_check = t.timestamp;
@@ -596,6 +588,15 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                             turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, strategy.capital + unrealized, unrealized, regime_str, t.price);
                         }
                     }
+                }
+            }
+            // Refresh funding rate every 8h
+            const funding_now_ts: f64 = @floatFromInt(time(null));
+            if (funding_now_ts - last_funding_check >= 28800.0) {
+                last_funding_check = funding_now_ts;
+                if (feed_mod.fetchFundingRate(&http, trading_symbol, 3)) |avg| {
+                    strategy.funding_avg = avg;
+                    if (tg) |tl| tl.notifyFundingRate(trading_symbol, avg, strategy.funding_skip_threshold, instance);
                 }
             }
         }

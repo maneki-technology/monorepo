@@ -229,6 +229,7 @@ test "strategy: forceClose returns null when no position" {
 
 // Import the parseBinanceTrade function via feed module
 const feed_mod = @import("feed.zig");
+const telegram_mod = @import("telegram.zig");
 
 test "feed: parse valid Binance trade JSON" {
     const json =
@@ -350,6 +351,27 @@ test "feed: parseFundingRates returns null for empty array" {
 test "feed: parseFundingRates returns null for invalid json" {
     const avg = feed_mod.parseFundingRates("not json");
     try testing.expect(avg == null);
+}
+
+test "telegram: funding rate status is normal below threshold" {
+    try testing.expectEqualStrings("NORMAL", telegram_mod.fundingRateStatus(0.000053, 0.0001));
+}
+
+test "telegram: funding rate status is elevated above threshold" {
+    try testing.expectEqualStrings("ELEVATED (skip active)", telegram_mod.fundingRateStatus(0.0002, 0.0001));
+}
+
+test "telegram: funding rate status is normal when filter disabled" {
+    try testing.expectEqualStrings("NORMAL", telegram_mod.fundingRateStatus(0.003, 0));
+}
+
+test "telegram: funding rate message includes average threshold and status" {
+    var buf: [256]u8 = undefined;
+    const msg = try telegram_mod.formatFundingRateMessage(&buf, "BTC/USD", 0.000053, 0.0001, "local");
+    try testing.expectEqualStrings(
+        "Funding Rate Update\nSymbol: BTC/USD\n24h avg: 0.0053%\nThreshold: 0.0100%\nStatus: NORMAL\nInstance: local",
+        msg,
+    );
 }
 
 test "strategy: funding filter skips DC entry when funding elevated" {

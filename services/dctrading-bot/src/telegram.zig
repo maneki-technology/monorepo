@@ -97,6 +97,12 @@ pub const Telegram = struct {
         self.send(msg);
     }
 
+    pub fn notifyFundingRate(self: *const Telegram, symbol: []const u8, avg: f64, threshold: f64, instance: []const u8) void {
+        var buf: [512]u8 = undefined;
+        const msg = formatFundingRateMessage(&buf, symbol, avg, threshold, instance) catch return;
+        self.send(msg);
+    }
+
     fn send(self: *const Telegram, text: []const u8) void {
         const Context = struct {
             tg: *const Telegram,
@@ -211,3 +217,15 @@ pub const Telegram = struct {
         }
     }
 };
+
+pub fn fundingRateStatus(avg: f64, threshold: f64) []const u8 {
+    return if (threshold > 0 and avg > threshold) "ELEVATED (skip active)" else "NORMAL";
+}
+
+pub fn formatFundingRateMessage(buf: []u8, symbol: []const u8, avg: f64, threshold: f64, instance: []const u8) ![]const u8 {
+    return std.fmt.bufPrint(
+        buf,
+        "Funding Rate Update\nSymbol: {s}\n24h avg: {d:.4}%\nThreshold: {d:.4}%\nStatus: {s}\nInstance: {s}",
+        .{ symbol, avg * 100, threshold * 100, fundingRateStatus(avg, threshold), instance },
+    );
+}

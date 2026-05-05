@@ -20,7 +20,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `tick_source.zig` — `TickSource` vtable interface + `SimFeed` (replays ticks from array). For testing.
 - `sim_exchange.zig` — `SimExchange` implementing Exchange vtable with configurable fill delay, slippage, partial fills, cancel races, failure injection, order log. For testing.
 - `integration_tests.zig` — 32 end-to-end scenarios using LiveLoop + SimExchange + mock ledger.
-- `tests.zig` — 166 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, integration scenarios.
+- `tests.zig` — 174 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, integration scenarios.
 
 ### Scripts (`scripts/`)
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files.
@@ -63,7 +63,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # GCP
-zig build test                                 # 166 tests
+zig build test                                 # 174 tests
 ```
 
 ### Trading Flow
@@ -73,7 +73,7 @@ zig build test                                 # 166 tests
 4. On BUY signal: `submitOrder()` (non-blocking) → pending transfer in Turso → `checkOrder()` each tick → fill → post transfer
 5. On SELL signal: cancel pending buys → `submitOrder()` sell → pending transfer → fill → post transfer + PnL
 6. Every 5 min: log equity to Turso, upsert bot_status, check deposits
-7. Every 8h: refresh funding rate from Binance
+7. Every 8h: refresh funding rate from Binance and send Telegram/ntfy status
 8. Shutdown (SIGINT/SIGTERM): save checkpoint with backup rotation, log to Turso, notify via curl fallback
 
 ### Companion Projects
