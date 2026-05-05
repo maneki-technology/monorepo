@@ -110,6 +110,9 @@ zig build test
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux
 ```
 
+Known-good historical simulation outputs are recorded in
+[`docs/DCTRADING_SIMULATION_BASELINES.md`](../../docs/DCTRADING_SIMULATION_BASELINES.md).
+
 ### GCP Deployment
 
 ```bash
