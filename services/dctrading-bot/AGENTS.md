@@ -8,7 +8,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ### Source Files (`src/`)
 - `main.zig` — Entry point. CLI parsing, `runLive()` (WebSocket trading loop), `runBacktest()` (CSV backtest), `runSimulate()` (LiveLoop CSV simulation). Wires all modules together via shared `HttpClient`.
 - `strategy.zig` — Core strategy: 3-regime (BULL/SIDEWAYS/BEAR), DC detection, vol-trailing stop, MA regime filter, funding rate entry filter, checkpoint save/load (DCTRADE5 format, 27 scalars + ring buffers; DCTRADE4 and earlier DCTRADE5 funding-cache layout migration).
-- `feed.zig` — Binance WebSocket (native TLS via websocket.zig) + REST kline fetcher + funding rate fetcher (Binance futures API). Configurable host via `BINANCE_WS_HOST`/`BINANCE_API_HOST` env vars.
+- `feed.zig` — Binance WebSocket (native TLS via websocket.zig) + REST kline/ticker fetcher + funding rate fetcher (Binance futures API). Configurable host via `BINANCE_WS_HOST`/`BINANCE_API_HOST` env vars.
 - `dc_detector.zig` — Streaming DC event detector. Emits UP/DOWN events when price reverses by λ threshold.
 - `exchange.zig` — Exchange interface (vtable pattern): sync `buy()`/`sell()`, async `submitOrder()`/`checkOrder()`/`cancelOrder()`, `getPosition()`. Shared types: `OrderFill`, `PendingOrder`, `OrderStatus`, `CancelResult`, `Position`, `Side`.
 - `alpaca.zig` — Alpaca paper trading, implements Exchange interface. Sync orders (buy/sell with fill polling), async orders (submitOrderAsync/checkOrderStatus/cancelOrderAsync), position queries. Uses `HttpClient`.
@@ -16,12 +16,13 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `telegram.zig` — Telegram + ntfy notifications. Async sends via threads, curl fallback for shutdown reliability.
 - `http_client.zig` — Thread-safe wrapper around `std.http.Client`. Mutex-protected POST/GET/DELETE with auto-retry on stale connections and per-window request/error/retry/latency metrics.
 - `resource_monitor.zig` — Resource health sampler/classifier. Tracks process RSS/CPU, disk free/used, WebSocket feed gaps/lag/reconnects, and HTTP metrics for app-visible status.
+- `bnb_monitor.zig` — Managed BNB low-balance alert state machine. Computes quote value, low/healthy state, and Telegram/ntfy cooldown eligibility.
 - `types.zig` — Core types: `Tick`, `Trade`, `DCEvent`, `Direction`.
 - `live_loop.zig` — Extracted core order flow logic: pending order tracking, trailing stop, strategy signals, buy/sell submission, capital_reserved, and ledger vtable. Shared by `runLive()` and integration tests.
 - `tick_source.zig` — `TickSource` vtable interface + `SimFeed` (replays ticks from array). For testing.
 - `sim_exchange.zig` — `SimExchange` implementing Exchange vtable with configurable fill delay, slippage, partial fills, cancel races, failure injection, order log. For testing.
 - `integration_tests.zig` — 32 end-to-end scenarios using LiveLoop + SimExchange + mock ledger.
-- `tests.zig` — 182 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, resource monitoring, integration scenarios.
+- `tests.zig` — 194 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, managed BNB low-balance alerts, non-blocking order flow, capital_reserved, resource monitoring, integration scenarios.
 - CLI `checkpoint:migrate [path] [backups]` migrates checkpoint primary/backups offline to the current DCTRADE5 layout after writing `.pre-migrate` copies.
 
 ### Scripts (`scripts/`)
@@ -49,6 +50,10 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 | `TELEGRAM_CHAT_ID` | No | telegram.zig |
 | `NTFY_TOPIC` | No | telegram.zig |
 | `FUNDING_SKIP_THRESHOLD` | No | main.zig (default: 0.0001 = 0.010%) |
+| `BNB_LOW_ALERT` | No | main.zig/bnb_monitor.zig (auto/on/off; default: auto) |
+| `BNB_LOW_THRESHOLD_QUOTE` | No | main.zig/bnb_monitor.zig (default: 5 quote units; 0 disables) |
+| `BNB_LOW_CHECK_INTERVAL_SEC` | No | main.zig (default: 300s) |
+| `BNB_LOW_ALERT_COOLDOWN_SEC` | No | main.zig/bnb_monitor.zig (default: 86400s) |
 | `CHECKPOINT_PATH` | No | main.zig (default: dctrading.checkpoint in cwd) |
 | `CHECKPOINT_BACKUP_RETENTION` | No | main.zig (default: 5) |
 | `CHECKPOINT_REMOTE_BACKUP_INTERVAL` | No | main.zig (default: 3600s, 0 disables) |
@@ -70,6 +75,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `accounts` — Double-entry accounts (TigerBeetle-inspired): cash, btc_position, fees, equity, pnl, bnb. 4 balance fields: debits_pending, debits_posted, credits_pending, credits_posted.
 - `transfers` — Immutable append-only transfer log. Two-phase (pending/posted/voided). Codes: 1=deposit, 2=buy, 3=sell, 4=fee, 5=pnl. Atomic BEGIN/COMMIT pipelines.
 - Fee routing: adapter-provided `commission_asset` routes fees to the paying asset account (`USD`/`USDT` → cash, `BTC` → btc_position, `BNB` → bnb), even when commission is zero. Transfer `amount` is historical quote-currency value at fill time; native fee quantity is stored in transfer `size`, with the fill-time asset quote valuation rate in `price`. `strategy.size` remains whatever the exchange adapter reports as fill quantity. `fee_pct` is for backtest/simulation estimates and legacy fills with no commission metadata, not for Alpaca paper fills.
+- Managed BNB quantity is derived from posted transfer `size`: rows debiting account 6 add native BNB, rows crediting account 6 subtract native BNB. Live mode marks that quantity at `BNBUSDT` and sends low-BNB Telegram/ntfy alerts with cooldown. In `BNB_LOW_ALERT=auto`, monitoring activates only after a posted BNB fee transfer exists.
 - `equity_log` — Periodic snapshots (every 5 min + on trades): capital, equity, unrealized, regime, price.
 - `bot_status` — Single row (id=1): regime, position, equity, version (DCTRADE5@instance), active symbol metadata, checkpoint health/error, and latest resource health/metrics for Neko.
 - `resource_log` — Periodic process/feed/HTTP resource snapshots used for dashboard status and diagnostics. Resource degradation is app-visible only; Telegram/ntfy stays reserved for trading, checkpoint, funding, startup/shutdown events.
@@ -78,7 +84,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # GCP
-zig build test                                 # 182 tests
+zig build test                                 # 194 tests
 ./zig-out/bin/dctrading checkpoint:migrate dctrading.checkpoint 5
 ```
 
@@ -88,7 +94,7 @@ zig build test                                 # 182 tests
 3. Stream: Binance WebSocket → downsample to 1-min → `LiveLoop.processTick()`
 4. On BUY signal: `submitOrder()` (non-blocking) → pending transfer in Turso → `checkOrder()` each tick → fill → post transfer
 5. On SELL signal: cancel pending buys → `submitOrder()` sell → pending transfer → fill → post transfer + PnL
-6. Every 5 min: log equity/resource snapshots to Turso, upsert bot_status, check deposits
+6. Every 5 min: log equity/resource snapshots to Turso, upsert bot_status, check deposits, and check managed BNB quote value
 7. Hourly: refresh cached funding rate before strategy-minute processing; notify only when Binance publishes a new funding print
 8. Shutdown (SIGINT/SIGTERM): save checkpoint with backup rotation, log to Turso, notify via curl fallback
 

@@ -483,6 +483,28 @@ pub const Turso = struct {
         return parseFirstValueFloat(resp.body);
     }
 
+    /// Query bot-managed native BNB quantity from posted transfers.
+    /// BNB top-ups debit ACCT_BNB and BNB-paid fees credit ACCT_BNB.
+    pub fn queryManagedBnbQuantity(self: *const Turso) ?f64 {
+        const sql =
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "SELECT COALESCE(SUM(CASE WHEN debit_account_id = 6 THEN size WHEN credit_account_id = 6 THEN -size ELSE 0 END), 0) FROM transfers WHERE status = 'posted'"}}]}
+        ;
+        const resp = self.execSyncRead(sql) orelse return null;
+        defer resp.deinit();
+        return parseFirstValueFloat(resp.body);
+    }
+
+    /// True when the ledger has observed posted fees paid from the BNB account.
+    pub fn hasPostedBnbFees(self: *const Turso) ?bool {
+        const sql =
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "SELECT COUNT(*) FROM transfers WHERE status = 'posted' AND code = 4 AND credit_account_id = 6"}}]}
+        ;
+        const resp = self.execSyncRead(sql) orelse return null;
+        defer resp.deinit();
+        const count = parseFirstValueInt(resp.body) orelse return null;
+        return count > 0;
+    }
+
     /// Query account debits_posted (blocking). Used for deposit detection on equity account.
     pub fn queryAccountDebitsPosted(self: *const Turso, account_id: u8) ?f64 {
         var buf: [256]u8 = undefined;

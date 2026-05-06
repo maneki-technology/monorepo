@@ -10,6 +10,7 @@ const turso_mod = @import("turso.zig");
 const live_loop_mod = @import("live_loop.zig");
 const sim_exchange_mod = @import("sim_exchange.zig");
 const resource_monitor = @import("resource_monitor.zig");
+const bnb_monitor = @import("bnb_monitor.zig");
 
 const Tick = types.Tick;
 const Trade = types.Trade;
@@ -163,6 +164,10 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     const checkpoint_interval: u64 = 60; // ~1 hour with 1-min downsampling
     const checkpoint_backup_retention = parseEnvU8("CHECKPOINT_BACKUP_RETENTION", 5);
     const checkpoint_remote_interval = parseEnvU32("CHECKPOINT_REMOTE_BACKUP_INTERVAL", 3600);
+    const bnb_low_alert_mode = bnb_monitor.parseAlertMode(if (getenv("BNB_LOW_ALERT")) |ptr| std.mem.sliceTo(ptr, 0) else "auto");
+    const bnb_low_threshold_quote = parseEnvF64("BNB_LOW_THRESHOLD_QUOTE", 5.0);
+    const bnb_low_check_interval = parseEnvF64("BNB_LOW_CHECK_INTERVAL_SEC", 300.0);
+    const bnb_low_alert_cooldown = parseEnvF64("BNB_LOW_ALERT_COOLDOWN_SEC", 86400.0);
     const resource_interval_sec = parseEnvF64("RESOURCE_LOG_INTERVAL_SEC", 300.0);
     const resource_disk_path: []const u8 = if (getenv("RESOURCE_DISK_PATH")) |ptr| std.mem.sliceTo(ptr, 0) else ".";
     const resource_thresholds: resource_monitor.Thresholds = .{
@@ -186,6 +191,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     std.debug.print("  Strategy: ZI-DCT0 long-only + vol-trail 2%/72h + 60d MA buf=3%\n", .{});
     printCheckpointLocation(checkpoint_path);
     std.debug.print("  Checkpoint: every {d} ticks, backups={d}, remote={d}s\n\n", .{ checkpoint_interval, checkpoint_backup_retention, checkpoint_remote_interval });
+    std.debug.print("  BNB alert: mode={s} threshold=${d:.2}, check={d:.0}s, cooldown={d:.0}s\n", .{ bnb_monitor.alertModeLabel(bnb_low_alert_mode), bnb_low_threshold_quote, bnb_low_check_interval, bnb_low_alert_cooldown });
     std.debug.print("  Resource monitor: every {d:.0}s disk={s} warn free<{d:.0}MB used>{d:.0}% rss>{d:.0}MB\n\n", .{ resource_interval_sec, resource_disk_path, resource_thresholds.disk_free_warn_mb, resource_thresholds.disk_used_warn_pct, resource_thresholds.rss_warn_mb });
 
     // Register signal handlers for clean shutdown (SIGINT=2, SIGTERM=15)
@@ -458,6 +464,8 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     var last_deposit_check: f64 = 0;
     var last_resource_ts: f64 = 0;
     var last_resource_tick_ts: f64 = 0;
+    var last_bnb_low_check_ts: f64 = 0;
+    var bnb_low_state: bnb_monitor.AlertState = .{};
     var resource_window: resource_monitor.FeedWindow = .{};
     var known_total_deposits: f64 = if (turso != null) (turso.?.queryTotalDepositsNew() orelse capital) else capital;
     var last_funding_check: f64 = if (initial_funding_fetch_ok) initial_funding_now else 0;
@@ -671,6 +679,27 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 if (equity_interval or traded) {
                     turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, equity, unrealized, regime_str, t.price);
                     last_equity_ts = t.timestamp;
+                }
+                if (bnb_low_threshold_quote > 0 and bnb_low_check_interval > 0 and t.timestamp - last_bnb_low_check_ts >= bnb_low_check_interval) {
+                    last_bnb_low_check_ts = t.timestamp;
+                    const has_bnb_fee = if (bnb_low_alert_mode == .auto) (turso.?.hasPostedBnbFees() orelse false) else false;
+                    if (bnb_monitor.shouldMonitor(bnb_low_alert_mode, has_bnb_fee)) {
+                        if (turso.?.queryManagedBnbQuantity()) |managed_bnb_qty| {
+                            if (feed_mod.fetchSpotPrice(&http, "BNBUSDT")) |bnb_price| {
+                                const bnb_check = bnb_monitor.evaluate(managed_bnb_qty, bnb_price, bnb_low_threshold_quote, tick_wall_now, bnb_low_alert_cooldown, &bnb_low_state);
+                                if (bnb_check.is_low) {
+                                    std.debug.print("  [bnb] WARNING: managed={d:.8} BNB value=${d:.2} threshold=${d:.2}\n", .{ bnb_check.quantity, bnb_check.value_quote, bnb_check.threshold_quote });
+                                }
+                                if (bnb_check.should_alert) {
+                                    if (tg) |tl| tl.notifyLowBnb(bnb_check.quantity, bnb_check.price, bnb_check.value_quote, bnb_check.threshold_quote, instance);
+                                }
+                            } else {
+                                std.debug.print("  [bnb] WARNING: failed to fetch BNBUSDT spot price.\n", .{});
+                            }
+                        } else {
+                            std.debug.print("  [bnb] WARNING: failed to query managed BNB quantity.\n", .{});
+                        }
+                    }
                 }
                 // Check for new deposits every 5 min
                 if (t.timestamp - last_deposit_check >= 300.0) {
