@@ -104,6 +104,16 @@ pub const Telegram = struct {
         self.send(msg);
     }
 
+    pub fn notifyLowBnb(self: *const Telegram, quantity: f64, price: f64, value_quote: f64, threshold_quote: f64, instance: []const u8) void {
+        var buf: [512]u8 = undefined;
+        const msg = std.fmt.bufPrint(
+            &buf,
+            "Low Managed BNB\nBalance: {d:.8} BNB\nPrice: ${d:.2}\nValue: ${d:.2}\nThreshold: ${d:.2}\nInstance: {s}",
+            .{ quantity, price, value_quote, threshold_quote, instance },
+        ) catch return;
+        self.send(msg);
+    }
+
     pub fn notifyFundingRate(self: *const Telegram, symbol: []const u8, avg: f64, threshold: f64, updated_at: f64, latest_time: f64, now: f64, instance: []const u8) void {
         var buf: [512]u8 = undefined;
         const msg = formatFundingRateMessage(&buf, symbol, avg, threshold, updated_at, latest_time, now, instance) catch return;

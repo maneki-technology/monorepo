@@ -361,6 +361,23 @@ pub fn fetchFundingRate(http: *HttpClient, symbol: []const u8, count: usize) ?f6
     return snapshot.avg;
 }
 
+/// Fetch the latest Binance spot ticker price for a symbol.
+pub fn fetchSpotPrice(http: *HttpClient, symbol: []const u8) ?f64 {
+    var url_buf: [256]u8 = undefined;
+    const sym = normalizeSymbol(symbol);
+    const url = std.fmt.bufPrint(&url_buf, "https://{s}/api/v3/ticker/price?symbol={s}", .{ apiHost(), sym.slice() }) catch return null;
+
+    const resp = http.get(url, &.{}) catch return null;
+    defer resp.deinit();
+
+    return parseTickerPrice(resp.body);
+}
+
+/// Parse Binance ticker/price JSON, e.g. {"symbol":"BNBUSDT","price":"600.12"}.
+pub fn parseTickerPrice(json: []const u8) ?f64 {
+    return parseJsonFieldFloat(json, "\"price\":");
+}
+
 /// Parse funding rate from JSON for testing.
 pub fn parseFundingRates(json: []const u8) ?f64 {
     const snapshot = parseFundingSnapshot(json) orelse return null;

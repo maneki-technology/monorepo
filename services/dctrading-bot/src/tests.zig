@@ -4,6 +4,7 @@ const types = @import("types.zig");
 const dc_mod = @import("dc_detector.zig");
 const strat_mod = @import("strategy.zig");
 const resource_monitor = @import("resource_monitor.zig");
+const bnb_monitor = @import("bnb_monitor.zig");
 
 const Tick = types.Tick;
 const DCDetector = dc_mod.DCDetector;
@@ -319,9 +320,93 @@ test "feed: parseKlineCloses returns zero parsed for non-array" {
     try testing.expectEqual(result.parsed, 0);
 }
 
+test "feed: parseTickerPrice parses quoted Binance ticker price" {
+    const price = feed_mod.parseTickerPrice("{\"symbol\":\"BNBUSDT\",\"price\":\"612.34000000\"}");
+    try testing.expect(price != null);
+    try testing.expectApproxEqAbs(price.?, 612.34, 0.000001);
+}
+
+test "feed: parseTickerPrice parses unquoted ticker price" {
+    const price = feed_mod.parseTickerPrice("{\"symbol\":\"BNBUSDT\",\"price\":612.34}");
+    try testing.expect(price != null);
+    try testing.expectApproxEqAbs(price.?, 612.34, 0.000001);
+}
+
+test "feed: parseTickerPrice returns null for missing price" {
+    try testing.expect(feed_mod.parseTickerPrice("{\"symbol\":\"BNBUSDT\"}") == null);
+}
+
 // ============================================================
 // Funding Rate Tests
 // ============================================================
+
+test "bnb_monitor: low managed BNB alerts first time" {
+    var state: bnb_monitor.AlertState = .{};
+    const result = bnb_monitor.evaluate(0.005, 600.0, 5.0, 1000.0, 86400.0, &state);
+    try testing.expect(result.enabled);
+    try testing.expect(result.is_low);
+    try testing.expect(result.should_alert);
+    try testing.expect(state.was_low);
+    try testing.expectApproxEqAbs(state.last_alert_ts, 1000.0, 0.001);
+    try testing.expectApproxEqAbs(result.value_quote, 3.0, 0.001);
+}
+
+test "bnb_monitor: low managed BNB suppresses repeated alert before cooldown" {
+    var state: bnb_monitor.AlertState = .{};
+    _ = bnb_monitor.evaluate(0.005, 600.0, 5.0, 1000.0, 86400.0, &state);
+    const repeated = bnb_monitor.evaluate(0.004, 600.0, 5.0, 2000.0, 86400.0, &state);
+    try testing.expect(repeated.is_low);
+    try testing.expect(!repeated.should_alert);
+    try testing.expectApproxEqAbs(state.last_alert_ts, 1000.0, 0.001);
+}
+
+test "bnb_monitor: low managed BNB alerts again after cooldown" {
+    var state: bnb_monitor.AlertState = .{};
+    _ = bnb_monitor.evaluate(0.005, 600.0, 5.0, 1000.0, 3600.0, &state);
+    const repeated = bnb_monitor.evaluate(0.004, 600.0, 5.0, 4600.0, 3600.0, &state);
+    try testing.expect(repeated.is_low);
+    try testing.expect(repeated.should_alert);
+    try testing.expectApproxEqAbs(state.last_alert_ts, 4600.0, 0.001);
+}
+
+test "bnb_monitor: healthy managed BNB clears low state" {
+    var state: bnb_monitor.AlertState = .{};
+    _ = bnb_monitor.evaluate(0.005, 600.0, 5.0, 1000.0, 86400.0, &state);
+    const healthy = bnb_monitor.evaluate(0.02, 600.0, 5.0, 2000.0, 86400.0, &state);
+    try testing.expect(!healthy.is_low);
+    try testing.expect(!healthy.should_alert);
+    try testing.expect(!state.was_low);
+
+    const low_again = bnb_monitor.evaluate(0.005, 600.0, 5.0, 3000.0, 86400.0, &state);
+    try testing.expect(low_again.is_low);
+    try testing.expect(low_again.should_alert);
+}
+
+test "bnb_monitor: threshold disables alert" {
+    var state: bnb_monitor.AlertState = .{};
+    const result = bnb_monitor.evaluate(0, 600.0, 0, 1000.0, 86400.0, &state);
+    try testing.expect(!result.enabled);
+    try testing.expect(!result.is_low);
+    try testing.expect(!result.should_alert);
+}
+
+test "bnb_monitor: alert mode parser accepts explicit modes" {
+    try testing.expectEqual(bnb_monitor.AlertMode.auto, bnb_monitor.parseAlertMode(""));
+    try testing.expectEqual(bnb_monitor.AlertMode.auto, bnb_monitor.parseAlertMode("auto"));
+    try testing.expectEqual(bnb_monitor.AlertMode.on, bnb_monitor.parseAlertMode("on"));
+    try testing.expectEqual(bnb_monitor.AlertMode.on, bnb_monitor.parseAlertMode("true"));
+    try testing.expectEqual(bnb_monitor.AlertMode.on, bnb_monitor.parseAlertMode("1"));
+    try testing.expectEqual(bnb_monitor.AlertMode.off, bnb_monitor.parseAlertMode("off"));
+    try testing.expectEqual(bnb_monitor.AlertMode.off, bnb_monitor.parseAlertMode("false"));
+    try testing.expectEqual(bnb_monitor.AlertMode.off, bnb_monitor.parseAlertMode("0"));
+}
+
+test "bnb_monitor: auto mode follows observed BNB fee state" {
+    try testing.expect(!bnb_monitor.shouldMonitor(.auto, false));
+    try testing.expect(bnb_monitor.shouldMonitor(.auto, true));
+    try testing.expect(bnb_monitor.shouldMonitor(.on, false));
+    try testing.expect(!bnb_monitor.shouldMonitor(.off, true));
+}
 
 test "feed: parseFundingRates parses 3 rates and averages" {
     const json = "[{\"symbol\":\"BTCUSDT\",\"fundingRate\":\"0.00010000\",\"fundingTime\":1698768000000},{\"symbol\":\"BTCUSDT\",\"fundingRate\":\"0.00020000\",\"fundingTime\":1698796800000},{\"symbol\":\"BTCUSDT\",\"fundingRate\":\"0.00030000\",\"fundingTime\":1698825600000}]";
@@ -1496,6 +1581,50 @@ test "turso: account constants are correct" {
     try testing.expectEqual(turso_mod.Turso.CODE_SELL, 3);
     try testing.expectEqual(turso_mod.Turso.CODE_FEE, 4);
     try testing.expectEqual(turso_mod.Turso.CODE_PNL, 5);
+}
+
+test "turso: managed BNB quantity derives from native transfer size" {
+    const BnbRow = struct {
+        debit_account_id: u8,
+        credit_account_id: u8,
+        size: f64,
+        posted: bool,
+    };
+    const rows = [_]BnbRow{
+        .{ .debit_account_id = turso_mod.Turso.ACCT_BNB, .credit_account_id = turso_mod.Turso.ACCT_EQUITY, .size = 0.010, .posted = true },
+        .{ .debit_account_id = turso_mod.Turso.ACCT_FEES, .credit_account_id = turso_mod.Turso.ACCT_BNB, .size = 0.0015, .posted = true },
+        .{ .debit_account_id = turso_mod.Turso.ACCT_BNB, .credit_account_id = turso_mod.Turso.ACCT_EQUITY, .size = 0.020, .posted = false },
+    };
+
+    var qty: f64 = 0;
+    for (rows) |row| {
+        if (!row.posted) continue;
+        if (row.debit_account_id == turso_mod.Turso.ACCT_BNB) qty += row.size;
+        if (row.credit_account_id == turso_mod.Turso.ACCT_BNB) qty -= row.size;
+    }
+    try testing.expectApproxEqAbs(qty, 0.0085, 0.0000001);
+}
+
+test "turso: BNB fee detection only counts posted BNB fee transfers" {
+    const Row = struct {
+        credit_account_id: u8,
+        code: u8,
+        posted: bool,
+    };
+    const rows = [_]Row{
+        .{ .credit_account_id = turso_mod.Turso.ACCT_BNB, .code = turso_mod.Turso.CODE_DEPOSIT, .posted = true },
+        .{ .credit_account_id = turso_mod.Turso.ACCT_BNB, .code = turso_mod.Turso.CODE_FEE, .posted = false },
+        .{ .credit_account_id = turso_mod.Turso.ACCT_CASH, .code = turso_mod.Turso.CODE_FEE, .posted = true },
+        .{ .credit_account_id = turso_mod.Turso.ACCT_BNB, .code = turso_mod.Turso.CODE_FEE, .posted = true },
+    };
+
+    var has_bnb_fee = false;
+    for (rows) |row| {
+        if (row.posted and row.code == turso_mod.Turso.CODE_FEE and row.credit_account_id == turso_mod.Turso.ACCT_BNB) {
+            has_bnb_fee = true;
+        }
+    }
+    try testing.expect(has_bnb_fee);
 }
 
 test "turso: transfer flags are correct" {

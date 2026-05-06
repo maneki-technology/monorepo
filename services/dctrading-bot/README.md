@@ -47,7 +47,7 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 | `http_client.zig` | Shared HTTP client (std.http.Client wrapper + request metrics) |
 | `resource_monitor.zig` | Process, disk, feed, and HTTP resource health snapshots |
 | `types.zig` | Tick, Trade, DC event types |
-| `tests.zig` | 182 tests |
+| `tests.zig` | 194 tests |
 
 ## Setup
 
@@ -85,6 +85,13 @@ export BINANCE_API_HOST=api.binance.com
 # Funding filter (default: 0.0001 = 0.010%; 0 disables)
 # Funding updates are cached, checkpointed, checked hourly, and sent to Telegram/ntfy when Binance publishes a new funding print.
 export FUNDING_SKIP_THRESHOLD=0.0001
+
+# Managed BNB low-balance alert.
+# auto monitors only after posted BNB fee transfers exist; on forces monitoring; off disables.
+export BNB_LOW_ALERT=auto
+export BNB_LOW_THRESHOLD_QUOTE=5
+export BNB_LOW_CHECK_INTERVAL_SEC=300
+export BNB_LOW_ALERT_COOLDOWN_SEC=86400
 
 # Local checkpoint backups (default: 5; 0 disables)
 export CHECKPOINT_BACKUP_RETENTION=5
@@ -168,6 +175,8 @@ EXIT_FEE      -1.05     bal=1050.02   "SELL fee from exchange fill"
 PnL = current balance - total deposits. No double-counting.
 
 Fee transfers are routed by `commission_asset`: `USD`/`USDT` fees reduce `cash`, `BTC` fees reduce `btc_position`, and `BNB` fees reduce `bnb`. Adapter-provided zero commission is treated as an actual zero-fee fill, which is required for Alpaca paper trading. The configured `fee_pct` remains a backtest/simulation estimate and a legacy fallback when an adapter provides no commission metadata. The ledger therefore nets a BTC-paid fee out of the BTC account. The in-memory `strategy.size` still uses the fill quantity supplied by the exchange adapter; if a Binance adapter reports gross executed quantity while charging fees in BTC, that adapter must normalize the fill quantity or the strategy must subtract the base-asset commission in a follow-up.
+
+With `BNB_LOW_ALERT=auto`, live mode checks bot-managed BNB only after the ledger has observed a posted BNB-paid fee transfer (`code = fee`, `credit_account_id = bnb`). This keeps Alpaca and BTC/USDT-fee setups quiet without manual exchange flags. `BNB_LOW_ALERT=on` forces monitoring before the first BNB fee, and `off` disables it. The quantity comes from posted Turso transfers (`debit_account_id = bnb` adds native `size`, `credit_account_id = bnb` subtracts native `size`) and is marked at Binance `BNBUSDT`. If its quote value falls below `BNB_LOW_THRESHOLD_QUOTE`, Telegram/ntfy sends a low-BNB alert with `BNB_LOW_ALERT_COOLDOWN_SEC` no-spam cooldown.
 
 ## Checkpoint
 
