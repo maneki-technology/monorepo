@@ -10,6 +10,7 @@ SwiftUI dashboard app for the DCTrading bot. Displays bot status, equity, trades
 
 ### Views (`Views/`)
 - `ContentView.swift` — Tab container: Dashboard, Ledger, Equity, Trades, Settings.
+- `AppCardSurface.swift` — Shared material card surface used by dashboard, equity, and settings cards.
 - `DashboardView.swift` — Bot status, resource health, regime (BULL=green, SIDE=orange, BEAR=red), managed equity from app-managed BTC/BNB quantities marked at Binance spot, realized P&L, unrealized P&L, active-symbol price from Binance. Auto-refreshes every 30s.
 - `LedgerView.swift` — Transfer ledger with cash balance summary, BNB allocation top-up, and running balance per entry.
 - `EquityChartView.swift` — Equity over time using Swift Charts.

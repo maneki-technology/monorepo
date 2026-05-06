@@ -149,15 +149,7 @@ struct DashboardView: View {
         }
         .padding()
         .background {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .strokeBorder(
-                            (eq.isBull ? Color.green : Color.red).opacity(0.3),
-                            lineWidth: 1
-                        )
-                )
+            AppCardSurface(accent: eq.regimeColor, borderOpacity: 0.24)
         }
     }
 
@@ -192,12 +184,7 @@ struct DashboardView: View {
             }
             .padding()
             .background {
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(.orange.opacity(0.12))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .strokeBorder(.orange.opacity(0.35), lineWidth: 1)
-                    )
+                AppCardSurface(accent: .orange, borderOpacity: 0.32)
             }
         }
         .buttonStyle(.plain)
@@ -236,8 +223,7 @@ struct DashboardView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(.ultraThinMaterial)
+            AppCardSurface()
         }
     }
 
@@ -275,12 +261,7 @@ struct DashboardView: View {
         }
         .padding()
         .background {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .strokeBorder(Color.green.opacity(0.2), lineWidth: 1)
-                )
+            AppCardSurface(accent: .green, borderOpacity: 0.20)
         }
     }
 
@@ -295,8 +276,7 @@ struct DashboardView: View {
         .frame(maxWidth: .infinity)
         .padding()
         .background {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(.ultraThinMaterial)
+            AppCardSurface()
         }
     }
 
@@ -448,7 +428,7 @@ struct DashboardView: View {
                     )
                     .foregroundStyle(color)
                     .lineStyle(StrokeStyle(lineWidth: 1.5))
-                    .interpolationMethod(.catmullRom)
+                    .interpolationMethod(.monotone)
                 }
             }
             .chartXAxis(.hidden)
@@ -460,8 +440,7 @@ struct DashboardView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(.ultraThinMaterial)
+            AppCardSurface()
         }
-}
+    }
 }

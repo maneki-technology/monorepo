@@ -118,8 +118,7 @@ struct EquityChartView: View {
         }
         .padding()
         .background {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(.ultraThinMaterial)
+            AppCardSurface()
         }
     }
 
@@ -182,7 +181,7 @@ struct EquityChartView: View {
                     )
                 )
                 .lineStyle(StrokeStyle(lineWidth: 2))
-                .interpolationMethod(.catmullRom)
+                .interpolationMethod(.monotone)
 
                 AreaMark(
                     x: .value("Time", point.date),
@@ -195,7 +194,7 @@ struct EquityChartView: View {
                         endPoint: .bottom
                     )
                 )
-                .interpolationMethod(.catmullRom)
+                .interpolationMethod(.monotone)
             }
         }
         .chartYScale(domain: minEq...maxEq)

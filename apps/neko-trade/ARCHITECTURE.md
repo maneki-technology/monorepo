@@ -20,6 +20,7 @@ apps/neko-trade/
 │   │   └── BinanceClient.swift     # Binance REST client (active-symbol price + klines)
 │   ├── Views/
 │   │   ├── ContentView.swift       # Tab container (5 tabs)
+│   │   ├── AppCardSurface.swift    # Shared material card surface
 │   │   ├── DashboardView.swift     # Bot status, regime, equity, active-symbol price, open position (~470 lines)
 │   │   ├── LedgerView.swift        # Account ledger with cash balance summary + BNB allocation
 │   │   ├── EquityChartView.swift   # Equity over time (Swift Charts)
