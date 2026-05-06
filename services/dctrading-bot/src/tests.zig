@@ -3,6 +3,7 @@ const testing = std.testing;
 const types = @import("types.zig");
 const dc_mod = @import("dc_detector.zig");
 const strat_mod = @import("strategy.zig");
+const resource_monitor = @import("resource_monitor.zig");
 
 const Tick = types.Tick;
 const DCDetector = dc_mod.DCDetector;
@@ -3363,6 +3364,56 @@ test "capital_reserved: recomputed from pending array on startup" {
     try testing.expectApproxEqAbs(reserved, expected, 0.01);
     // Sell not counted
     try testing.expect(reserved < 95000.0 * 0.1 + 96000.0 * 0.01 + 94000.0 * 0.1);
+}
+
+test "resource_monitor: parses df output" {
+    const output =
+        \\Filesystem     1K-blocks     Used Available Use% Mounted on
+        \\/dev/disk3s1s1 488245288 12345678 123904000 73% /
+        \\
+    ;
+    const sample = resource_monitor.parseDf(output) orelse return error.ExpectedDiskSample;
+    try testing.expectApproxEqAbs(@as(f64, 123904000.0 / 1024.0), sample.free_mb, 0.001);
+    try testing.expectApproxEqAbs(@as(f64, 73.0), sample.used_pct, 0.001);
+}
+
+test "resource_monitor: classifies disk pressure before secondary warnings" {
+    const sample: resource_monitor.ResourceSample = .{
+        .timestamp = 1,
+        .uptime_sec = 1,
+        .rss_mb = 2048,
+        .cpu_sec = 1,
+        .disk_free_mb = 100,
+        .disk_used_pct = 95,
+        .disk_path = ".",
+        .ticks_per_min = 60,
+        .feed_gap_sec = 0,
+        .ws_lag_sec = 0,
+        .reconnect_count = 0,
+        .http_requests = 0,
+        .http_errors = 0,
+        .http_retries = 0,
+        .http_last_ms = 0,
+        .http_max_ms = 0,
+    };
+    const health = resource_monitor.classify(sample, .{});
+    try testing.expectEqualStrings("DISK_LOW", health.status);
+    try testing.expectEqualStrings("disk_free_mb_below_threshold", health.detail);
+}
+
+test "resource_monitor: computes ticks per minute from configured interval" {
+    const sample = resource_monitor.sample(
+        1200,
+        900,
+        120,
+        ".",
+        .{ .ticks = 180 },
+        .{ .requests = 3, .errors = 1, .retries = 1, .last_ms = 25, .max_ms = 50 },
+    );
+    try testing.expectApproxEqAbs(@as(f64, 90.0), sample.ticks_per_min, 0.001);
+    try testing.expectApproxEqAbs(@as(f64, 300.0), sample.uptime_sec, 0.001);
+    try testing.expectEqual(@as(u64, 3), sample.http_requests);
+    try testing.expectEqual(@as(u64, 1), sample.http_errors);
 }
 
 // Integration tests (LiveLoop + SimExchange + SimFeed)

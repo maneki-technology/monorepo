@@ -3,6 +3,7 @@ import Charts
 
 struct DashboardView: View {
     @ObservedObject var settings: AppSettings
+    var openSettings: () -> Void = {}
     @State private var openPosition: Position?
     @State private var latestEquity: EquityLog?
     @State private var botStatus: BotStatus?
@@ -53,7 +54,9 @@ struct DashboardView: View {
     @ViewBuilder
     private var dashboardContent: some View {
         LazyVStack(spacing: 16) {
-            // Bot status indicator
+            if let bs = botStatus, botNeedsAttention(bs) {
+                botWarningButton(bs)
+            }
 
             // Regime + Equity header
             if let eq = latestEquity {
@@ -158,103 +161,60 @@ struct DashboardView: View {
         }
     }
 
-    private func botStatusCard(_ bs: BotStatus) -> some View {
-        let statusColor: Color = bs.isLive ? .green : .red
-        let statusText = bs.isLive ? "LIVE" : "OFFLINE"
+    private func botNeedsAttention(_ bs: BotStatus) -> Bool {
+        !bs.isLive || bs.checkpointNeedsAttention || bs.resourceNeedsAttention
+    }
 
-        return VStack(spacing: 0) {
-            // Main status row
-            HStack(spacing: 14) {
-                // Pulsing status dot
-                ZStack {
-                    Circle()
-                        .fill(statusColor.opacity(0.25))
-                        .frame(width: 32, height: 32)
-                    Circle()
-                        .fill(statusColor)
-                        .frame(width: 14, height: 14)
-                        .shadow(color: statusColor.opacity(0.8), radius: 8)
-                }
+    private func botWarningButton(_ bs: BotStatus) -> some View {
+        let issues = botWarningIssues(bs)
+
+        return Button(action: openSettings) {
+            HStack(spacing: 12) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(.title3, design: .monospaced, weight: .semibold))
+                    .foregroundStyle(.orange)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(statusText)
-                        .font(.system(.title2, design: .monospaced, weight: .heavy))
-                        .foregroundStyle(statusColor)
-                    Text("v\(bs.version)")
-                        .font(.system(.caption2, design: .monospaced))
+                    Text("Bot needs attention")
+                        .font(.system(.body, design: .monospaced, weight: .semibold))
+                        .foregroundStyle(.primary)
+                    Text(issues)
+                        .font(.system(.caption, design: .monospaced))
                         .foregroundStyle(.secondary)
+                        .lineLimit(1)
                 }
 
                 Spacer()
 
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text("UPTIME")
-                        .font(.system(.caption2, design: .monospaced))
-                        .foregroundStyle(.secondary)
-                    Text(bs.formattedUptime)
-                        .font(.system(.body, design: .monospaced, weight: .semibold))
-                }
+                Image(systemName: "gearshape")
+                    .font(.system(.body, design: .monospaced, weight: .semibold))
+                    .foregroundStyle(.secondary)
             }
             .padding()
-
-            Divider()
-                .overlay(statusColor.opacity(0.2))
-
-            // Detail row
-            HStack {
-                HStack(spacing: 6) {
-                    Image(systemName: "clock.arrow.circlepath")
-                        .font(.system(.caption2, design: .monospaced))
-                        .foregroundStyle(.secondary)
-                    Text("Last tick: \(bs.lastTickRelative)")
-                        .font(.system(.caption, design: .monospaced))
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                HStack(spacing: 6) {
-                    Image(systemName: "number")
-                        .font(.system(.caption2, design: .monospaced))
-                        .foregroundStyle(.secondary)
-                    Text("\(bs.tickCount) ticks")
-                        .font(.system(.caption, design: .monospaced))
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 10)
-
-            if bs.checkpointNeedsAttention {
-                Divider()
-                    .overlay(Color.orange.opacity(0.25))
-
-                HStack(spacing: 8) {
-                    Image(systemName: "externaldrive.trianglebadge.exclamationmark")
-                        .font(.system(.caption, design: .monospaced, weight: .semibold))
-                        .foregroundStyle(.orange)
-                    Text(bs.checkpointHealth)
-                        .font(.system(.caption, design: .monospaced, weight: .semibold))
-                        .foregroundStyle(.orange)
-                    if !bs.checkpointError.isEmpty {
-                        Text(bs.checkpointError)
-                            .font(.system(.caption2, design: .monospaced))
-                            .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                    }
-                    Spacer()
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 10)
+            .background {
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(.orange.opacity(0.12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .strokeBorder(.orange.opacity(0.35), lineWidth: 1)
+                    )
             }
         }
-        .background {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .strokeBorder(statusColor.opacity(0.4), lineWidth: 1.5)
-                )
-                .shadow(color: statusColor.opacity(0.15), radius: 12, y: 4)
+        .buttonStyle(.plain)
+    }
+
+    private func botWarningIssues(_ bs: BotStatus) -> String {
+        var issues: [String] = []
+        if !bs.isLive {
+            issues.append("offline")
         }
+        if bs.checkpointNeedsAttention {
+            issues.append("checkpoint \(bs.checkpointHealth)")
+        }
+        if bs.resourceNeedsAttention {
+            issues.append("resource \(bs.resourceHealth)")
+        }
+        return issues.joined(separator: " · ")
     }
 
     private func statCard(title: String, value: String, icon: String, color: Color) -> some View {

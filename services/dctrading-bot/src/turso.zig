@@ -2,6 +2,7 @@
 const std = @import("std");
 const types = @import("types.zig");
 const http_mod = @import("http_client.zig");
+const resource_monitor = @import("resource_monitor.zig");
 const HttpClient = http_mod.HttpClient;
 const Trade = types.Trade;
 
@@ -69,8 +70,10 @@ pub const Turso = struct {
         const sql_core =
             \\{"requests": [
             \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS equity_log (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL, tick_count INTEGER, capital REAL, equity REAL, unrealized REAL, regime TEXT, price REAL, created_at TEXT DEFAULT (datetime('now')))"}},
-            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS bot_status (id INTEGER PRIMARY KEY CHECK (id = 1), status TEXT, last_tick REAL, tick_count INTEGER, regime TEXT, in_position INTEGER, entry_price REAL, equity REAL, capital REAL, unrealized REAL, price REAL, uptime_start REAL, version TEXT, trading_symbol TEXT DEFAULT 'BTC/USD', base_asset TEXT DEFAULT 'BTC', quote_asset TEXT DEFAULT 'USD', mark_symbol TEXT DEFAULT 'BTCUSDT', checkpoint_health TEXT DEFAULT 'OK', checkpoint_error TEXT DEFAULT '', updated_at TEXT DEFAULT (datetime('now')))"}},
+            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS bot_status (id INTEGER PRIMARY KEY CHECK (id = 1), status TEXT, last_tick REAL, tick_count INTEGER, regime TEXT, in_position INTEGER, entry_price REAL, equity REAL, capital REAL, unrealized REAL, price REAL, uptime_start REAL, version TEXT, trading_symbol TEXT DEFAULT 'BTC/USD', base_asset TEXT DEFAULT 'BTC', quote_asset TEXT DEFAULT 'USD', mark_symbol TEXT DEFAULT 'BTCUSDT', checkpoint_health TEXT DEFAULT 'OK', checkpoint_error TEXT DEFAULT '', resource_health TEXT DEFAULT 'OK', resource_error TEXT DEFAULT '', resource_rss_mb REAL DEFAULT 0, resource_disk_free_mb REAL DEFAULT 0, resource_disk_used_pct REAL DEFAULT 0, resource_feed_gap_sec REAL DEFAULT 0, resource_ws_lag_sec REAL DEFAULT 0, resource_http_errors INTEGER DEFAULT 0, resource_http_max_ms REAL DEFAULT 0, updated_at TEXT DEFAULT (datetime('now')))"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS checkpoint_backups (id INTEGER PRIMARY KEY CHECK (id = 1), path TEXT NOT NULL, data_base64 TEXT NOT NULL, byte_len INTEGER NOT NULL, checksum TEXT NOT NULL DEFAULT '', tick_count INTEGER NOT NULL, updated_at TEXT DEFAULT (datetime('now')))"}},
+            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS resource_log (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL NOT NULL, uptime_sec REAL NOT NULL, rss_mb REAL NOT NULL, cpu_sec REAL NOT NULL, disk_path TEXT NOT NULL, disk_free_mb REAL NOT NULL, disk_used_pct REAL NOT NULL, ticks_per_min REAL NOT NULL, feed_gap_sec REAL NOT NULL, ws_lag_sec REAL NOT NULL, reconnect_count INTEGER NOT NULL, http_requests INTEGER NOT NULL, http_errors INTEGER NOT NULL, http_retries INTEGER NOT NULL, http_last_ms REAL NOT NULL, http_max_ms REAL NOT NULL, resource_health TEXT NOT NULL, resource_error TEXT NOT NULL, created_at TEXT DEFAULT (datetime('now')))"}},
+            \\  {"type": "execute", "stmt": {"sql": "CREATE INDEX IF NOT EXISTS idx_resource_log_timestamp ON resource_log(timestamp)"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE INDEX IF NOT EXISTS idx_equity_log_timestamp ON equity_log(timestamp)"}}
             \\]}
         ;
@@ -116,6 +119,33 @@ pub const Turso = struct {
             \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN checkpoint_error TEXT DEFAULT ''"}}]}
         );
         self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN resource_health TEXT DEFAULT 'OK'"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN resource_error TEXT DEFAULT ''"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN resource_rss_mb REAL DEFAULT 0"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN resource_disk_free_mb REAL DEFAULT 0"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN resource_disk_used_pct REAL DEFAULT 0"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN resource_feed_gap_sec REAL DEFAULT 0"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN resource_ws_lag_sec REAL DEFAULT 0"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN resource_http_errors INTEGER DEFAULT 0"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN resource_http_max_ms REAL DEFAULT 0"}}]}
+        );
+        self.execSyncSilent(
             \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE checkpoint_backups ADD COLUMN checksum TEXT NOT NULL DEFAULT ''"}}]}
         );
         if (core_ok and acct_ok) {
@@ -141,6 +171,46 @@ pub const Turso = struct {
         const sql = std.fmt.bufPrint(&buf,
             \\{{"requests": [{{"type": "execute", "stmt": {{"sql": "INSERT INTO equity_log (timestamp, tick_count, capital, equity, unrealized, regime, price) VALUES ({d:.6}, {d}, {d:.2}, {d:.2}, {d:.2}, '{s}', {d:.2})"}}}}]}}
         , .{ timestamp, tick_count, capital, equity, unrealized, regime, price }) catch return;
+        self.execAsync(sql);
+    }
+
+    /// Log process/feed/HTTP resource health (async).
+    pub fn logResource(self: *const Turso, sample: resource_monitor.ResourceSample, health: []const u8, detail: []const u8) void {
+        var buf: [4096]u8 = undefined;
+        const sql = std.fmt.bufPrint(&buf,
+            \\{{"requests": [
+            \\  {{"type": "execute", "stmt": {{"sql": "INSERT INTO resource_log (timestamp, uptime_sec, rss_mb, cpu_sec, disk_path, disk_free_mb, disk_used_pct, ticks_per_min, feed_gap_sec, ws_lag_sec, reconnect_count, http_requests, http_errors, http_retries, http_last_ms, http_max_ms, resource_health, resource_error) VALUES ({d:.6}, {d:.2}, {d:.2}, {d:.2}, '{s}', {d:.2}, {d:.2}, {d:.2}, {d:.2}, {d:.2}, {d}, {d}, {d}, {d}, {d:.2}, {d:.2}, '{s}', '{s}')"}}}},
+            \\  {{"type": "execute", "stmt": {{"sql": "UPDATE bot_status SET resource_health='{s}', resource_error='{s}', resource_rss_mb={d:.2}, resource_disk_free_mb={d:.2}, resource_disk_used_pct={d:.2}, resource_feed_gap_sec={d:.2}, resource_ws_lag_sec={d:.2}, resource_http_errors={d}, resource_http_max_ms={d:.2}, updated_at=datetime('now') WHERE id=1"}}}}
+            \\]}}
+        , .{
+            sample.timestamp,
+            sample.uptime_sec,
+            sample.rss_mb,
+            sample.cpu_sec,
+            sample.disk_path,
+            sample.disk_free_mb,
+            sample.disk_used_pct,
+            sample.ticks_per_min,
+            sample.feed_gap_sec,
+            sample.ws_lag_sec,
+            sample.reconnect_count,
+            sample.http_requests,
+            sample.http_errors,
+            sample.http_retries,
+            sample.http_last_ms,
+            sample.http_max_ms,
+            health,
+            detail,
+            health,
+            detail,
+            sample.rss_mb,
+            sample.disk_free_mb,
+            sample.disk_used_pct,
+            sample.feed_gap_sec,
+            sample.ws_lag_sec,
+            sample.http_errors,
+            sample.http_max_ms,
+        }) catch return;
         self.execAsync(sql);
     }
 

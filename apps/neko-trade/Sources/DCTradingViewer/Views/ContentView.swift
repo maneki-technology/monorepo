@@ -57,7 +57,9 @@ struct ContentView: View {
     private var iOSLayout: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
-                DashboardView(settings: settings)
+                DashboardView(settings: settings) {
+                    selectedTab = .settings
+                }
             }
             .tabItem {
                 Label(AppTab.dashboard.rawValue, systemImage: AppTab.dashboard.icon)
@@ -105,7 +107,9 @@ struct ContentView: View {
     private func detailView(for tab: AppTab) -> some View {
         switch tab {
         case .dashboard:
-            DashboardView(settings: settings)
+            DashboardView(settings: settings) {
+                selectedTab = .settings
+            }
         case .equity:
             EquityChartView(settings: settings)
         case .trades:

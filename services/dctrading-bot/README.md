@@ -44,9 +44,10 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 | `integration_tests.zig` | End-to-end LiveLoop scenarios using SimExchange and mock ledger |
 | `turso.zig` | Turso DB client (equity log, positions, bot status, two-phase ledger) |
 | `telegram.zig` | Telegram + ntfy push notifications |
-| `http_client.zig` | Shared HTTP client (std.http.Client wrapper) |
+| `http_client.zig` | Shared HTTP client (std.http.Client wrapper + request metrics) |
+| `resource_monitor.zig` | Process, disk, feed, and HTTP resource health snapshots |
 | `types.zig` | Tick, Trade, DC event types |
-| `tests.zig` | 179 tests |
+| `tests.zig` | 182 tests |
 
 ## Setup
 
@@ -93,6 +94,16 @@ export CHECKPOINT_PATH=dctrading.checkpoint
 
 # Turso remote checkpoint backup interval in seconds (default: 3600; 0 disables)
 export CHECKPOINT_REMOTE_BACKUP_INTERVAL=3600
+
+# App-visible resource monitoring (defaults shown; 0 interval disables)
+export RESOURCE_LOG_INTERVAL_SEC=300
+export RESOURCE_DISK_PATH=.
+export RESOURCE_RSS_WARN_MB=512
+export RESOURCE_DISK_FREE_WARN_MB=1024
+export RESOURCE_DISK_USED_WARN_PCT=90
+export RESOURCE_FEED_GAP_WARN_SEC=180
+export RESOURCE_WS_LAG_WARN_SEC=180
+export RESOURCE_HTTP_LATENCY_WARN_MS=5000
 
 # Instance tracking
 export BOT_INSTANCE=local
@@ -180,6 +191,14 @@ Binary checkpoint (DCTRADE5) saves full strategy state every minute:
 - If any local checkpoint file exists but none can be loaded and Turso restore also fails, live mode refuses to bootstrap so it cannot overwrite possibly recoverable checkpoint state
 - Checkpoint problems are surfaced in `bot_status.checkpoint_health` and
   `bot_status.checkpoint_error`; Telegram/ntfy sends a warning when health first enters a degraded state
+
+## Resource Monitoring
+
+Live mode writes resource snapshots to Turso every five minutes by default:
+- `resource_log` stores RSS, CPU seconds, disk free/used, ticks/min, feed gap, WebSocket lag, reconnect count, and HTTP request/error/retry/latency metrics
+- `bot_status.resource_*` columns expose the current classified health and latest key metrics for Neko Trade
+- Disk pressure is classified before secondary warnings (`DISK_LOW`, then `DISK_HIGH`)
+- Resource warnings are intentionally not sent to Telegram/ntfy; those channels stay reserved for trading, checkpoint, funding, startup, and shutdown events
 
 ## Companion Projects
 
