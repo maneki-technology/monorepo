@@ -130,27 +130,57 @@ source .env && ./zig-out/bin/dctrading -
 # Run tests
 zig build test
 
-# Cross-compile for Linux (GCP deployment)
+# Cross-compile for Linux (cloud deployment)
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux
 ```
 
 Known-good historical simulation outputs are recorded in
 [`docs/DCTRADING_SIMULATION_BASELINES.md`](../../docs/DCTRADING_SIMULATION_BASELINES.md).
 
-### GCP Deployment
+### AWS Tokyo Deployment
 
 ```bash
-# Switch to GCP Tokyo
-./scripts/switch-to-gcp.sh
+# Required once in your shell or .env
+export AWS_REGION=ap-northeast-1
+export AWS_INSTANCE_ID=i-...
+export AWS_SSH_USER=ec2-user
+export AWS_SSH_KEY=~/.ssh/dctrading-aws.pem
+
+# Optional when the instance DNS cannot be derived from AWS CLI
+export AWS_SSH_HOST=ec2-...ap-northeast-1.compute.amazonaws.com
+
+# Switch to AWS Tokyo
+./scripts/switch-to-aws.sh
 
 # Switch back to local
 ./scripts/switch-to-local.sh
 ```
 
+`switch-to-aws.sh` starts the EC2 instance, waits for SSH, uploads the Linux
+binary and checkpoint state, then starts the `dctrading` systemd service.
+`switch-to-local.sh` defaults to AWS, stops the remote service, downloads
+checkpoint state, stops the EC2 instance, then starts the local tmux process.
+
 The switch scripts move the checkpoint primary plus local backup files between
 hosts and intentionally ignore `dctrading.checkpoint.tmp`. If no local files are
 available, startup can still restore from Turso when remote checkpoint backup is
 configured.
+
+Expected AWS instance setup:
+- Tokyo region (`ap-northeast-1`) with a free-tier-compatible Linux EC2 instance
+- Security group allowing SSH from your IP and outbound HTTPS
+- AWS CLI authenticated locally with permission to start, stop, wait, and
+  describe the instance
+- SSH access through `AWS_SSH_USER` and `AWS_SSH_KEY`
+- `~/dctrading`, `~/.env`, and a systemd service named `dctrading` that runs
+  the binary from the same remote directory
+
+The previous GCP flow remains available while AWS is verified:
+
+```bash
+./scripts/switch-to-gcp.sh
+CLOUD_TARGET=gcp ./scripts/switch-to-local.sh
+```
 
 ## Account Ledger
 
