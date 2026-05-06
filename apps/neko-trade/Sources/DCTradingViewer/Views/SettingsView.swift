@@ -123,6 +123,8 @@ struct SettingsView: View {
                         }
                         .padding(.horizontal)
                         .padding(.vertical, 10)
+
+                        resourceStatusRow(bs)
                     }
                     .background {
                         RoundedRectangle(cornerRadius: 12, style: .continuous)
@@ -255,6 +257,66 @@ struct SettingsView: View {
             wasLive = isLive
         } catch {
             // Silently fail, status will remain nil or stale
+        }
+    }
+
+    private func resourceStatusRow(_ bs: BotStatus) -> some View {
+        let resourceColor: Color = bs.resourceNeedsAttention ? .yellow : .green
+        let detail = bs.resourceError.isEmpty ? "OK" : bs.resourceError
+
+        let columns = [GridItem(.adaptive(minimum: 130), alignment: .leading)]
+
+        return VStack(alignment: .leading, spacing: 10) {
+            Divider()
+                .overlay(resourceColor.opacity(0.25))
+
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: "gauge")
+                    .font(.system(.body, design: .monospaced, weight: .semibold))
+                    .foregroundStyle(resourceColor)
+                Text("RESOURCE \(bs.resourceHealth.isEmpty ? "OK" : bs.resourceHealth)")
+                    .font(.system(.body, design: .monospaced, weight: .semibold))
+                    .foregroundStyle(resourceColor)
+                Spacer()
+            }
+            .padding(.horizontal)
+
+            Text(detail)
+                .font(.system(.caption, design: .monospaced))
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .padding(.horizontal)
+
+            LazyVGrid(columns: columns, alignment: .leading, spacing: 8) {
+                resourceMetric("Disk free", "\(Int(bs.resourceDiskFreeMb)) MB")
+                resourceMetric("Disk used", "\(String(format: "%.1f", bs.resourceDiskUsedPct))%")
+                resourceMetric("Memory", "\(String(format: "%.1f", bs.resourceRssMb)) MB")
+                resourceMetric("Feed gap", "\(Int(bs.resourceFeedGapSec))s")
+                resourceMetric("WS lag", "\(Int(bs.resourceWsLagSec))s")
+                resourceMetric("HTTP", "\(bs.resourceHttpErrors) err / \(Int(bs.resourceHttpMaxMs))ms")
+            }
+            .padding(.horizontal)
+        }
+        .padding(.vertical, 10)
+    }
+
+    private func resourceMetric(_ title: String, _ value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title.uppercased())
+                .font(.system(.caption2, design: .monospaced, weight: .medium))
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.system(.caption, design: .monospaced, weight: .semibold))
+                .foregroundStyle(.primary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 6)
+        .padding(.horizontal, 8)
+        .background {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(.secondary.opacity(0.08))
         }
     }
 
