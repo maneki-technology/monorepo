@@ -25,6 +25,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - CLI `checkpoint:migrate [path] [backups]` migrates checkpoint primary/backups offline to the current DCTRADE5 layout after writing `.pre-migrate` copies.
 
 ### Scripts (`scripts/`)
+- `create-aws-instance.sh` — One-time AWS infrastructure setup: security group, key pair, EC2 instance, and systemd service.
 - `switch-to-aws.sh` — Stop local bot, start AWS Tokyo EC2 instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files.
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files.
 - `switch-to-local.sh` — Stop cloud bot + instance, download checkpoint primary/local backups, start local bot in tmux. Defaults to AWS; use `CLOUD_TARGET=gcp` for the legacy GCP path.

@@ -140,6 +140,9 @@ Known-good historical simulation outputs are recorded in
 ### AWS Tokyo Deployment
 
 ```bash
+# One-time: create the EC2 instance, security group, and key pair
+./scripts/create-aws-instance.sh
+
 # Required once in your shell or .env
 export AWS_REGION=ap-northeast-1
 export AWS_INSTANCE_ID=i-...
