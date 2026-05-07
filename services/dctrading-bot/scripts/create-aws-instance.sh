@@ -105,9 +105,33 @@ AMI_ID=$(echo "$AMI_JSON" | jq -r '.ImageId')
 ROOT_DEVICE=$(echo "$AMI_JSON" | jq -r '.RootDeviceName')
 echo "  AMI: $AMI_ID (root: $ROOT_DEVICE)"
 
-# --- Launch Instance ---
-echo "  Launching EC2 instance ($AWS_INSTANCE_TYPE)..."
-INSTANCE_ID=$(aws ec2 run-instances \
+# --- Check for existing instance ---
+EXISTING=$(aws ec2 describe-instances \
+    --region "$AWS_REGION" \
+    --filters "Name=tag:Name,Values=dctrading" "Name=instance-state-name,Values=running,stopped" \
+    --query 'Reservations[0].Instances[0].InstanceId' \
+    --output text 2>/dev/null || true)
+
+if [ -n "$EXISTING" ] && [ "$EXISTING" != "None" ]; then
+    echo "  Existing dctrading instance found: $EXISTING"
+    INSTANCE_ID="$EXISTING"
+
+    STATE=$(aws ec2 describe-instances \
+        --region "$AWS_REGION" \
+        --instance-ids "$INSTANCE_ID" \
+        --query 'Reservations[0].Instances[0].State.Name' \
+        --output text)
+
+    if [ "$STATE" = "stopped" ]; then
+        echo "  Instance is stopped. Starting it..."
+        aws ec2 start-instances --region "$AWS_REGION" --instance-ids "$INSTANCE_ID" >/dev/null
+        aws ec2 wait instance-running --region "$AWS_REGION" --instance-ids "$INSTANCE_ID"
+    else
+        echo "  Instance is already running."
+    fi
+else
+    echo "  Launching EC2 instance ($AWS_INSTANCE_TYPE)..."
+    INSTANCE_ID=$(aws ec2 run-instances \
     --region "$AWS_REGION" \
     --image-id "$AMI_ID" \
     --instance-type "$AWS_INSTANCE_TYPE" \
@@ -142,8 +166,9 @@ EOF
 )" \
     --query 'Instances[0].InstanceId' \
     --output text)
+fi
 
-echo "  Instance launched: $INSTANCE_ID"
+echo "  Instance ready: $INSTANCE_ID"
 
 aws ec2 wait instance-running --region "$AWS_REGION" --instance-ids "$INSTANCE_ID"
 
