@@ -182,6 +182,16 @@ The previous GCP flow remains available while AWS is verified:
 CLOUD_TARGET=gcp ./scripts/switch-to-local.sh
 ```
 
+### Nuke
+
+```bash
+# Nuke everything — stops remote bot, drops Turso tables, deletes checkpoints, closes Alpaca positions
+CLOUD_TARGET=aws ./scripts/nuke.sh
+
+# Or skip remote cleanup and only nuke local state + Turso + Alpaca
+CLOUD_TARGET=local ./scripts/nuke.sh
+```
+
 ## Account Ledger
 
 Every capital movement is tracked in `account_ledger`:

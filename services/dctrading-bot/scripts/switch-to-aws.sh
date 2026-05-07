@@ -13,6 +13,11 @@ AWS_SSH_KEY="${AWS_SSH_KEY:-}"
 AWS_REMOTE_DIR="${AWS_REMOTE_DIR:-.}"
 AWS_SERVICE_NAME="${AWS_SERVICE_NAME:-dctrading}"
 
+if ! command -v aws >/dev/null 2>&1; then
+    echo "aws CLI not found. Install it and authenticate first." >&2
+    exit 1
+fi
+
 ssh_opts=(-o StrictHostKeyChecking=accept-new)
 if [ -n "$AWS_SSH_KEY" ]; then
     ssh_opts+=(-i "$AWS_SSH_KEY")
@@ -31,7 +36,7 @@ aws_host() {
         --output text
 }
 
-remote() {
+aws_remote() {
     local host="$1"
     shift
     ssh "${ssh_opts[@]}" "$AWS_SSH_USER@$host" "$@"
@@ -72,7 +77,7 @@ fi
 
 echo "  Waiting for SSH at $HOST..."
 for attempt in {1..30}; do
-    if remote "$HOST" "true" 2>/dev/null; then
+    if aws_remote "$HOST" "true" 2>/dev/null; then
         break
     fi
     if [ "$attempt" -eq 30 ]; then
@@ -82,26 +87,29 @@ for attempt in {1..30}; do
     sleep 5
 done
 
+echo "  Ensuring remote directory exists..."
+aws_remote "$HOST" "mkdir -p '$AWS_REMOTE_DIR'"
+
 echo "  Uploading binary..."
-remote "$HOST" "sudo systemctl stop '$AWS_SERVICE_NAME' 2>/dev/null || true; chmod +w '$AWS_REMOTE_DIR/dctrading' 2>/dev/null || true"
+aws_remote "$HOST" "sudo systemctl stop '$AWS_SERVICE_NAME' 2>/dev/null || true; chmod +w '$AWS_REMOTE_DIR/dctrading' 2>/dev/null || true"
 upload "$HOST" zig-out/bin/dctrading
-remote "$HOST" "chmod +x '$AWS_REMOTE_DIR/dctrading'"
+aws_remote "$HOST" "chmod +x '$AWS_REMOTE_DIR/dctrading'"
 
 shopt -s nullglob
 checkpoint_files=(dctrading.checkpoint dctrading.checkpoint.bak.*)
 if [ ${#checkpoint_files[@]} -gt 0 ]; then
     echo "  Uploading checkpoint state..."
-    remote "$HOST" "rm -f '$AWS_REMOTE_DIR/dctrading.checkpoint.tmp' '$AWS_REMOTE_DIR'/dctrading.checkpoint.bak.*"
+    aws_remote "$HOST" "rm -f '$AWS_REMOTE_DIR/dctrading.checkpoint.tmp' '$AWS_REMOTE_DIR'/dctrading.checkpoint.bak.*"
     upload "$HOST" "${checkpoint_files[@]}"
 else
     echo "  No local checkpoint state to upload; bot can restore from Turso if configured."
 fi
 
 echo "  Starting bot on AWS..."
-remote "$HOST" "sudo systemctl start '$AWS_SERVICE_NAME'"
+aws_remote "$HOST" "sudo systemctl start '$AWS_SERVICE_NAME'"
 
 sleep 5
 echo "  Checking AWS bot..."
-remote "$HOST" "sudo journalctl -u '$AWS_SERVICE_NAME' -n 5 --no-pager"
+aws_remote "$HOST" "sudo journalctl -u '$AWS_SERVICE_NAME' -n 5 --no-pager"
 
 echo "Bot running on AWS Tokyo"

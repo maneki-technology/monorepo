@@ -28,7 +28,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `switch-to-aws.sh` — Stop local bot, start AWS Tokyo EC2 instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files.
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files.
 - `switch-to-local.sh` — Stop cloud bot + instance, download checkpoint primary/local backups, start local bot in tmux. Defaults to AWS; use `CLOUD_TARGET=gcp` for the legacy GCP path.
-- `nuke.sh` — Destructive reset for Turso state, local checkpoint primary/backups, and Alpaca positions.
+- `nuke.sh` — Destructive reset for Turso state, local + remote checkpoint primary/backups, and Alpaca positions. Uses `CLOUD_TARGET` to stop and clear remote state.
 
 ### Key Patterns
 - **HTTP calls**: All modules use shared `HttpClient` (native `std.http.Client`). Exception: `feed.zig` bootstrap uses `popen("curl")` for Binance REST, and `telegram.zig` shutdown uses curl fallback.
@@ -74,6 +74,11 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 | `AWS_SSH_HOST` | No | switch-to-aws.sh/switch-to-local.sh; overrides AWS CLI DNS lookup |
 | `AWS_REMOTE_DIR` | No | switch-to-aws.sh/switch-to-local.sh (default: remote home via `.`) |
 | `AWS_SERVICE_NAME` | No | switch-to-aws.sh/switch-to-local.sh (default: dctrading) |
+| `CLOUD_TARGET` | No | nuke.sh/switch-to-local.sh (default: aws; set gcp or local) |
+| `GCP_ZONE` | No | switch-to-gcp.sh/switch-to-local.sh (default: asia-northeast1-b) |
+| `GCP_INSTANCE` | No | switch-to-gcp.sh/switch-to-local.sh (default: dctrading-asia) |
+| `GCP_REMOTE_DIR` | No | switch-to-gcp.sh (default: remote home via `.`) |
+| `GCP_SERVICE_NAME` | No | switch-to-gcp.sh (default: dctrading) |
 
 ### Database Schema (Turso)
 - `accounts` — Double-entry accounts (TigerBeetle-inspired): cash, btc_position, fees, equity, pnl, bnb. 4 balance fields: debits_pending, debits_posted, credits_pending, credits_posted.
