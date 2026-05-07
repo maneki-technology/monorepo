@@ -97,6 +97,26 @@ else
 fi
 echo "  Upload complete."
 
+# Update systemd service
+echo "  Updating systemd service..."
+gcloud compute ssh "$GCP_INSTANCE" --zone="$GCP_ZONE" --command="sudo tee /etc/systemd/system/$GCP_SERVICE_NAME.service > /dev/null <<'EOF'
+[Unit]
+Description=DCTrading Bot
+After=network.target
+
+[Service]
+Type=simple
+User=\$USER
+WorkingDirectory=\$HOME
+ExecStart=/bin/bash -lc 'source \$HOME/.env && \$HOME/$GCP_REMOTE_DIR/dctrading -'
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload" 2>/dev/null
+
 # Start bot on GCP
 echo "  Starting bot on GCP..."
 gcloud compute ssh "$GCP_INSTANCE" --zone="$GCP_ZONE" --command="sudo systemctl start '$GCP_SERVICE_NAME'" 2>/dev/null

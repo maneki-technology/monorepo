@@ -191,6 +191,25 @@ else
     echo "  No local checkpoint state to upload; bot can restore from Turso if configured."
 fi
 
+echo "  Updating systemd service..."
+aws_remote "$HOST" "sudo tee /etc/systemd/system/$AWS_SERVICE_NAME.service > /dev/null <<'EOF'
+[Unit]
+Description=DCTrading Bot
+After=network.target
+
+[Service]
+Type=simple
+User=$AWS_SSH_USER
+WorkingDirectory=/home/$AWS_SSH_USER
+ExecStart=/bin/bash -lc 'source /home/$AWS_SSH_USER/.env && /home/$AWS_SSH_USER/$AWS_REMOTE_DIR/dctrading -'
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload"
+
 echo "  Starting bot on AWS..."
 aws_remote "$HOST" "sudo systemctl start '$AWS_SERVICE_NAME'"
 
