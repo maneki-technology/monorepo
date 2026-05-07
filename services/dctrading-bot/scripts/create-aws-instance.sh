@@ -1,7 +1,14 @@
 #!/bin/bash
 # One-time AWS infrastructure setup for DCTrading bot.
-# Provisions: security group, key pair, EC2 instance, systemd service.
+# Provisions: security group, key pair, EC2 instance (free-tier by default),
+#             8GB gp3 root volume, systemd service.
 # Run this once, then use switch-to-aws.sh for deployments.
+#
+# Free-tier notes:
+#   - t2.micro is free for 12 months (750 hrs/mo).
+#   - 8GB gp3 stays within the 30GB EBS free-tier allowance.
+#   - An Elastic IP is free while attached to a running instance.
+#   - Monitor your bill; data-transfer out is not free-tier.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -79,13 +86,15 @@ fi
 
 # --- AMI ---
 echo "  Finding latest Amazon Linux 2023 AMI..."
-AMI_ID=$(aws ec2 describe-images \
+AMI_JSON=$(aws ec2 describe-images \
     --region "$AWS_REGION" \
     --owners amazon \
     --filters "Name=name,Values=al2023-ami-*-x86_64" "Name=state,Values=available" \
-    --query 'Images | sort_by(@, &CreationDate) | [-1].ImageId' \
-    --output text)
-echo "  AMI: $AMI_ID"
+    --query 'Images | sort_by(@, &CreationDate) | [-1]' \
+    --output json)
+AMI_ID=$(echo "$AMI_JSON" | jq -r '.ImageId')
+ROOT_DEVICE=$(echo "$AMI_JSON" | jq -r '.RootDeviceName')
+echo "  AMI: $AMI_ID (root: $ROOT_DEVICE)"
 
 # --- Launch Instance ---
 echo "  Launching EC2 instance ($AWS_INSTANCE_TYPE)..."
@@ -95,6 +104,7 @@ INSTANCE_ID=$(aws ec2 run-instances \
     --instance-type "$AWS_INSTANCE_TYPE" \
     --key-name "$AWS_KEY_NAME" \
     --security-group-ids "$SG_ID" \
+    --block-device-mappings "[{\"DeviceName\":\"$ROOT_DEVICE\",\"Ebs\":{\"VolumeSize\":8,\"VolumeType\":\"gp3\",\"DeleteOnTermination\":true}}]" \
     --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=dctrading}]" \
     --user-data "$(cat <<EOF
 #!/bin/bash

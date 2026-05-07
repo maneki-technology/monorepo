@@ -171,12 +171,17 @@ configured.
 
 Expected AWS instance setup:
 - Tokyo region (`ap-northeast-1`) with a free-tier-compatible Linux EC2 instance
+  (`t2.micro` by default, 8GB gp3 root volume to stay within free-tier limits)
 - Security group allowing SSH from your IP and outbound HTTPS
 - AWS CLI authenticated locally with permission to start, stop, wait, and
   describe the instance
 - SSH access through `AWS_SSH_USER` and `AWS_SSH_KEY`
 - `~/dctrading`, `~/.env`, and a systemd service named `dctrading` that runs
   the binary from the same remote directory
+
+> **Billing warning:** Data transfer out is not free-tier. Monitor your AWS
+> bill and set up billing alerts. The bot only needs outbound HTTPS so costs
+> are typically negligible, but not zero.
 
 The previous GCP flow remains available while AWS is verified:
 
