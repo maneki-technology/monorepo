@@ -201,7 +201,7 @@ After=network.target
 Type=simple
 User=$AWS_SSH_USER
 WorkingDirectory=/home/$AWS_SSH_USER
-ExecStart=/bin/bash -lc 'source /home/$AWS_SSH_USER/.env && /home/$AWS_SSH_USER/$AWS_REMOTE_DIR/dctrading -'
+ExecStart=/bin/bash -lc 'export BOT_INSTANCE=aws-tokyo && source /home/$AWS_SSH_USER/.env && /home/$AWS_SSH_USER/$AWS_REMOTE_DIR/dctrading -'
 Restart=on-failure
 RestartSec=5
 

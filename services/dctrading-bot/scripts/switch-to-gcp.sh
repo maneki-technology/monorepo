@@ -108,7 +108,7 @@ After=network.target
 Type=simple
 User=\$USER
 WorkingDirectory=\$HOME
-ExecStart=/bin/bash -lc 'source \$HOME/.env && \$HOME/$GCP_REMOTE_DIR/dctrading -'
+ExecStart=/bin/bash -lc 'export BOT_INSTANCE=gcp-tokyo && source \$HOME/.env && \$HOME/$GCP_REMOTE_DIR/dctrading -'
 Restart=on-failure
 RestartSec=5
 
