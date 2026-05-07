@@ -77,13 +77,8 @@ stop_local_bot() {
         return
     fi
 
-    if tmux has-session -t trading 2>/dev/null; then
-        echo "  Stopping local bot via tmux (Ctrl-C)..."
-        tmux send-keys -t trading C-c
-    else
-        echo "  Stopping local bot (PID $pid, SIGINT)..."
-        kill -INT "$pid" 2>/dev/null || true
-    fi
+    echo "  Stopping local bot (PID $pid, SIGINT)..."
+    kill -INT "$pid" 2>/dev/null || true
 
     echo "  Waiting for graceful shutdown (checkpoint save + Turso flush)..."
     for i in {1..30}; do
