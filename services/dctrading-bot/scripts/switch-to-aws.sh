@@ -118,6 +118,30 @@ if [ -z "$HOST" ] || [ "$HOST" = "None" ]; then
     exit 1
 fi
 
+# Ensure security group allows SSH from current IP
+MY_IP=$(curl -s https://checkip.amazonaws.com)
+SG_IDS=$(aws ec2 describe-instances \
+    --region "$AWS_REGION" \
+    --instance-ids "$AWS_INSTANCE_ID" \
+    --query 'Reservations[0].Instances[0].SecurityGroups[*].GroupId' \
+    --output text)
+for sg in $SG_IDS; do
+    HAS_RULE=$(aws ec2 describe-security-groups \
+        --region "$AWS_REGION" \
+        --group-ids "$sg" \
+        --query "SecurityGroups[0].IpPermissions[?FromPort==\`22\` && ToPort==\`22\` && IpRanges[?CidrIp==\`${MY_IP}/32\`]]" \
+        --output text)
+    if [ -z "$HAS_RULE" ] || [ "$HAS_RULE" = "None" ]; then
+        echo "  Updating security group $sg to allow SSH from $MY_IP..."
+        aws ec2 authorize-security-group-ingress \
+            --region "$AWS_REGION" \
+            --group-id "$sg" \
+            --protocol tcp \
+            --port 22 \
+            --cidr "${MY_IP}/32" >/dev/null 2>&1 || true
+    fi
+done
+
 echo "  Waiting for SSH at $HOST..."
 for attempt in {1..30}; do
     if aws_remote "$HOST" "true" 2>/dev/null; then
