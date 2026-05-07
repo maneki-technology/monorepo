@@ -27,7 +27,7 @@ if ! aws sts get-caller-identity >/dev/null 2>&1; then
     fi
 fi
 
-ssh_opts=(-o StrictHostKeyChecking=accept-new)
+ssh_opts=(-o StrictHostKeyChecking=accept-new -o LogLevel=ERROR)
 if [ -n "$AWS_SSH_KEY" ]; then
     ssh_opts+=(-i "$AWS_SSH_KEY")
 fi

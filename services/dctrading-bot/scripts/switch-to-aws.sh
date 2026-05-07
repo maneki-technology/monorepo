@@ -35,7 +35,7 @@ if ! aws ec2 describe-instances --region "$AWS_REGION" --instance-ids "$AWS_INST
     exit 1
 fi
 
-ssh_opts=(-o StrictHostKeyChecking=accept-new)
+ssh_opts=(-o StrictHostKeyChecking=accept-new -o LogLevel=ERROR)
 if [ -n "$AWS_SSH_KEY" ]; then
     ssh_opts+=(-i "$AWS_SSH_KEY")
 fi
@@ -154,7 +154,7 @@ done
 echo "  Waiting for SSH at $HOST..."
 for attempt in {1..30}; do
     printf "    attempt %d/30...\r" "$attempt"
-    if ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -o BatchMode=yes \
+    if ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -o BatchMode=yes -o LogLevel=ERROR \
         "${ssh_opts[@]}" "$AWS_SSH_USER@$HOST" "true" 2>/dev/null; then
         echo ""
         break
