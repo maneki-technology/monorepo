@@ -15,12 +15,21 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
 AWS_REGION="${AWS_REGION:-ap-northeast-1}"
-AWS_INSTANCE_TYPE="${AWS_INSTANCE_TYPE:-t2.micro}"
+AWS_INSTANCE_TYPE="${AWS_INSTANCE_TYPE:-t3.micro}"
 AWS_KEY_NAME="${AWS_KEY_NAME:-dctrading-aws}"
 AWS_SERVICE_NAME="${AWS_SERVICE_NAME:-dctrading}"
 AWS_REMOTE_DIR="${AWS_REMOTE_DIR:-.}"
 AWS_SSH_USER="${AWS_SSH_USER:-ec2-user}"
 export AWS_PROFILE="${AWS_PROFILE:-AdministratorAccess-118740508718}"
+
+if ! aws sts get-caller-identity >/dev/null 2>&1; then
+    echo "AWS SSO token expired or invalid. Launching login..."
+    aws sso login --profile "$AWS_PROFILE"
+    if ! aws sts get-caller-identity >/dev/null 2>&1; then
+        echo "AWS authentication failed after login." >&2
+        exit 1
+    fi
+fi
 
 for cmd in aws jq curl; do
     if ! command -v "$cmd" >/dev/null 2>&1; then

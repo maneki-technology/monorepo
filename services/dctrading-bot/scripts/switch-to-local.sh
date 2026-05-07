@@ -18,6 +18,15 @@ AWS_REMOTE_DIR="${AWS_REMOTE_DIR:-.}"
 AWS_SERVICE_NAME="${AWS_SERVICE_NAME:-dctrading}"
 export AWS_PROFILE="${AWS_PROFILE:-AdministratorAccess-118740508718}"
 
+if ! aws sts get-caller-identity >/dev/null 2>&1; then
+    echo "AWS SSO token expired or invalid. Launching login..."
+    aws sso login --profile "$AWS_PROFILE"
+    if ! aws sts get-caller-identity >/dev/null 2>&1; then
+        echo "AWS authentication failed after login." >&2
+        exit 1
+    fi
+fi
+
 ssh_opts=(-o StrictHostKeyChecking=accept-new)
 if [ -n "$AWS_SSH_KEY" ]; then
     ssh_opts+=(-i "$AWS_SSH_KEY")

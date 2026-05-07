@@ -19,6 +19,15 @@ if ! command -v aws >/dev/null 2>&1; then
     exit 1
 fi
 
+if ! aws sts get-caller-identity >/dev/null 2>&1; then
+    echo "AWS SSO token expired or invalid. Launching login..."
+    aws sso login --profile "$AWS_PROFILE"
+    if ! aws sts get-caller-identity >/dev/null 2>&1; then
+        echo "AWS authentication failed after login." >&2
+        exit 1
+    fi
+fi
+
 # Verify instance exists before starting
 if ! aws ec2 describe-instances --region "$AWS_REGION" --instance-ids "$AWS_INSTANCE_ID" >/dev/null 2>&1; then
     echo "Instance $AWS_INSTANCE_ID not found in $AWS_REGION." >&2
