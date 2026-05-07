@@ -22,7 +22,7 @@ echo "🔄 Switching to GCP Tokyo..."
 
 stop_local_bot() {
     local pid
-    pid=$(ps aux | awk '/[d]ctrading -/ && !/caffeinate/ {print $2; exit}')
+    pid=$(ps aux | awk '/[d]ctrading -/ && !/caffeinate/ {print $2}' | head -1)
     if [ -z "$pid" ]; then
         echo "  Local bot not running."
         return
@@ -33,14 +33,14 @@ stop_local_bot() {
 
     echo "  Waiting for graceful shutdown (checkpoint save + Turso flush)..."
     for i in {1..30}; do
-        if ! ps aux | awk '/[d]ctrading -/ && !/caffeinate/ {found=1; exit} END {exit !found}'; then
+        if ! ps aux | awk '/[d]ctrading -/ && !/caffeinate/ {found=1} END {exit !found}'; then
             echo "  Local bot stopped gracefully."
             return
         fi
         sleep 1
     done
 
-    pid=$(ps aux | awk '/[d]ctrading -/ && !/caffeinate/ {print $2; exit}')
+    pid=$(ps aux | awk '/[d]ctrading -/ && !/caffeinate/ {print $2}' | head -1)
     if [ -n "$pid" ]; then
         echo "  WARNING: Bot still running after 30s. Force-killing (checkpoint may be lost)..." >&2
         kill -KILL "$pid" 2>/dev/null || true
