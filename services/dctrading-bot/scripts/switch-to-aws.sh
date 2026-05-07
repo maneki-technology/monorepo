@@ -82,7 +82,7 @@ stop_local_bot() {
 
     echo "  Waiting for graceful shutdown (checkpoint save + Turso flush)..."
     for i in {1..30}; do
-        if ! ps aux | awk '/[d]ctrading -/ && !/caffeinate/ {exit 1}'; then
+        if ! ps aux | awk '/[d]ctrading -/ && !/caffeinate/ {found=1; exit} END {exit !found}'; then
             echo "  Local bot stopped gracefully."
             return
         fi
