@@ -118,6 +118,13 @@ if [ -z "$HOST" ] || [ "$HOST" = "None" ]; then
     exit 1
 fi
 
+PUBLIC_IP=$(aws ec2 describe-instances \
+    --region "$AWS_REGION" \
+    --instance-ids "$AWS_INSTANCE_ID" \
+    --query 'Reservations[0].Instances[0].PublicIpAddress' \
+    --output text)
+echo "  Public IP: $PUBLIC_IP"
+
 # Ensure security group allows SSH from current IP
 MY_IP=$(curl -s https://checkip.amazonaws.com)
 SG_IDS=$(aws ec2 describe-instances \
@@ -125,8 +132,9 @@ SG_IDS=$(aws ec2 describe-instances \
     --instance-ids "$AWS_INSTANCE_ID" \
     --query 'Reservations[0].Instances[0].SecurityGroups[*].GroupId' \
     --output text)
+echo "  Security groups: $SG_IDS"
 for sg in $SG_IDS; do
-    echo "  Ensuring security group $sg allows SSH from $MY_IP..."
+    echo "  Ensuring SG $sg allows SSH from $MY_IP..."
     aws ec2 authorize-security-group-ingress \
         --region "$AWS_REGION" \
         --group-id "$sg" \
@@ -137,11 +145,16 @@ done
 
 echo "  Waiting for SSH at $HOST..."
 for attempt in {1..30}; do
-    if aws_remote "$HOST" "true" 2>/dev/null; then
+    printf "    attempt %d/30...\r" "$attempt"
+    if ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -o BatchMode=yes \
+        "${ssh_opts[@]}" "$AWS_SSH_USER@$HOST" "true" 2>/dev/null; then
+        echo ""
         break
     fi
     if [ "$attempt" -eq 30 ]; then
+        echo ""
         echo "Timed out waiting for SSH." >&2
+        echo "Check AWS console: ensure the instance has a public IP and security group allows port 22 from ${MY_IP}/32." >&2
         exit 1
     fi
     sleep 5
