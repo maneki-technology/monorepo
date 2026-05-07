@@ -71,33 +71,34 @@ echo "Switching to AWS Tokyo..."
 
 stop_local_bot() {
     local pid
-    pid=$(pgrep -f "dctrading\s+-" | head -1)
+    pid=$(ps aux | awk '/[d]ctrading -/ && !/caffeinate/ {print $2; exit}')
     if [ -z "$pid" ]; then
         echo "  Local bot not running."
         return
     fi
 
     if tmux has-session -t trading 2>/dev/null; then
-        echo "  Stopping local bot via tmux..."
+        echo "  Stopping local bot via tmux (Ctrl-C)..."
         tmux send-keys -t trading C-c
     else
-        echo "  Stopping local bot (PID $pid)..."
-        kill -TERM "$pid" 2>/dev/null || true
+        echo "  Stopping local bot (PID $pid, SIGINT)..."
+        kill -INT "$pid" 2>/dev/null || true
     fi
 
-    for i in {1..10}; do
-        if ! pgrep -f "dctrading\s+-" >/dev/null; then
-            echo "  Local bot stopped."
+    echo "  Waiting for graceful shutdown (checkpoint save + Turso flush)..."
+    for i in {1..30}; do
+        if ! ps aux | awk '/[d]ctrading -/ && !/caffeinate/ {exit 1}'; then
+            echo "  Local bot stopped gracefully."
             return
         fi
         sleep 1
     done
 
-    pid=$(pgrep -f "dctrading\s+-" | head -1)
+    pid=$(ps aux | awk '/[d]ctrading -/ && !/caffeinate/ {print $2; exit}')
     if [ -n "$pid" ]; then
-        echo "  Force killing local bot (PID $pid)..."
+        echo "  WARNING: Bot still running after 30s. Force-killing (checkpoint may be lost)..." >&2
         kill -KILL "$pid" 2>/dev/null || true
-        sleep 1
+        sleep 2
     fi
 }
 
