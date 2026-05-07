@@ -25,9 +25,11 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - CLI `checkpoint:migrate [path] [backups]` migrates checkpoint primary/backups offline to the current DCTRADE5 layout after writing `.pre-migrate` copies.
 
 ### Scripts (`scripts/`)
+- `create-aws-instance.sh` — One-time AWS infrastructure setup: security group, key pair, EC2 instance, and systemd service.
+- `switch-to-aws.sh` — Stop local bot, start AWS Tokyo EC2 instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files.
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files.
-- `switch-to-local.sh` — Stop GCP bot + instance, download checkpoint primary/local backups, start local bot in tmux.
-- `nuke.sh` — Destructive reset for Turso state, local checkpoint primary/backups, and Alpaca positions.
+- `switch-to-local.sh` — Stop cloud bot + instance, download checkpoint primary/local backups, start local bot in tmux. Defaults to AWS; use `CLOUD_TARGET=gcp` for the legacy GCP path.
+- `nuke.sh` — Destructive reset for Turso state, local + remote checkpoint primary/backups, and Alpaca positions. Uses `CLOUD_TARGET` to stop and clear remote state.
 
 ### Key Patterns
 - **HTTP calls**: All modules use shared `HttpClient` (native `std.http.Client`). Exception: `feed.zig` bootstrap uses `popen("curl")` for Binance REST, and `telegram.zig` shutdown uses curl fallback.
@@ -65,6 +67,20 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 | `BOT_INSTANCE` | No | main.zig (default: "local") |
 | `CHECKPOINT_BACKUP_RETENTION` | No | main.zig (default: 5 local rotated backups; 0 disables) |
 | `CHECKPOINT_REMOTE_BACKUP_INTERVAL` | No | main.zig/Turso (default: 3600 seconds; 0 disables) |
+| `CLOUD_TARGET` | No | switch-to-local.sh (default: aws; set gcp for legacy GCP) |
+| `AWS_REGION` | No | switch-to-aws.sh/switch-to-local.sh (default: ap-northeast-1) |
+| `AWS_INSTANCE_ID` | Yes for AWS scripts | switch-to-aws.sh/switch-to-local.sh |
+| `AWS_SSH_USER` | No | switch-to-aws.sh/switch-to-local.sh (default: ec2-user) |
+| `AWS_SSH_KEY` | No | switch-to-aws.sh/switch-to-local.sh |
+| `AWS_SSH_HOST` | No | switch-to-aws.sh/switch-to-local.sh; overrides AWS CLI DNS lookup |
+| `AWS_REMOTE_DIR` | No | switch-to-aws.sh/switch-to-local.sh (default: remote home via `.`) |
+| `AWS_SERVICE_NAME` | No | switch-to-aws.sh/switch-to-local.sh (default: dctrading) |
+| `AWS_PROFILE` | No | All AWS scripts (default: AdministratorAccess-118740508718) |
+| `CLOUD_TARGET` | No | nuke.sh/switch-to-local.sh (default: aws; set gcp or local) |
+| `GCP_ZONE` | No | switch-to-gcp.sh/switch-to-local.sh (default: asia-northeast1-b) |
+| `GCP_INSTANCE` | No | switch-to-gcp.sh/switch-to-local.sh (default: dctrading-asia) |
+| `GCP_REMOTE_DIR` | No | switch-to-gcp.sh (default: remote home via `.`) |
+| `GCP_SERVICE_NAME` | No | switch-to-gcp.sh (default: dctrading) |
 
 ### Database Schema (Turso)
 - `accounts` — Double-entry accounts (TigerBeetle-inspired): cash, btc_position, fees, equity, pnl, bnb. 4 balance fields: debits_pending, debits_posted, credits_pending, credits_posted.
@@ -77,7 +93,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ### Build
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
-zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # GCP
+zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # cloud Linux
 zig build test                                 # 182 tests
 ./zig-out/bin/dctrading checkpoint:migrate dctrading.checkpoint 5
 ```

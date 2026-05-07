@@ -95,6 +95,7 @@
 | FR-8.2 | Cross-compile for target deployment platform | ✅ |
 | FR-8.3 | Auto-restart on crash in cloud deployment | ✅ |
 | FR-8.4 | Prevent host sleep during local execution | ✅ |
+| FR-8.5 | Support AWS Tokyo free-tier-compatible deployment while preserving the legacy GCP path | ✅ |
 
 ---
 

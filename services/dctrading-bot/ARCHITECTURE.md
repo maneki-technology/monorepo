@@ -4,7 +4,7 @@
 
 ## Overview
 
-BTC algorithmic trading bot using Directional Change (DC) theory. Single Zig 0.16 static binary (~4MB), runs 24/7 on GCP e2-micro (Tokyo) or local macOS. Processes real-time Binance WebSocket ticks, executes Alpaca paper trades, persists to Turso DB, notifies via Telegram/ntfy.
+BTC algorithmic trading bot using Directional Change (DC) theory. Single Zig 0.16 static binary (~4MB), runs 24/7 on AWS EC2 free-tier-compatible Linux in Tokyo or local macOS. The legacy GCP Tokyo script remains available during migration. Processes real-time Binance WebSocket ticks, executes Alpaca paper trades, persists to Turso DB, notifies via Telegram/ntfy.
 
 ## Structure
 
@@ -22,8 +22,9 @@ services/dctrading-bot/
 │   ├── types.zig          # Core types: Tick, Trade, DCEvent, Direction
 │   └── tests.zig          # 39 unit tests
 ├── scripts/
+│   ├── switch-to-aws.sh   # Build Linux binary, upload, start AWS Tokyo instance
 │   ├── switch-to-gcp.sh   # Build Linux binary, upload, start GCP instance
-│   └── switch-to-local.sh # Build macOS binary, start local in tmux
+│   └── switch-to-local.sh # Stop cloud instance, build macOS binary, start local in tmux
 ├── build.zig              # Zig build config
 └── build.zig.zon          # Dependencies (websocket.zig)
 ```
@@ -113,10 +114,11 @@ Two deployment targets, switched via scripts:
 
 | Target | Instance | Binary | Script |
 |--------|----------|--------|--------|
+| AWS Tokyo | Free-tier-compatible EC2, ap-northeast-1 | x86_64-linux | `switch-to-aws.sh` |
 | GCP Tokyo | e2-micro, asia-northeast1-b | x86_64-linux | `switch-to-gcp.sh` |
 | Local macOS | M-series Mac | aarch64-macos | `switch-to-local.sh` |
 
-Only one instance runs at a time. Scripts handle build, upload (GCP), and process management. GCP instance is STOPPED when local is running (billing).
+Only one instance runs at a time. Scripts handle build, upload, checkpoint transfer, and process management. AWS is the default cloud target for `switch-to-local.sh`; set `CLOUD_TARGET=gcp` to use the legacy GCP shutdown path.
 
 ## Key Design Decisions
 

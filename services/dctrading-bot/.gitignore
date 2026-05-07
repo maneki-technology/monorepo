@@ -3,3 +3,4 @@
 *.checkpoint.*
 zig-out/
 .zig-cache/
+*.pem
