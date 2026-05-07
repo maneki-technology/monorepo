@@ -56,6 +56,11 @@ gcloud compute ssh "$GCP_INSTANCE" --zone="$GCP_ZONE" --command="sudo systemctl 
 gcloud compute scp zig-out/bin/dctrading "$GCP_INSTANCE:$GCP_REMOTE_DIR/dctrading" --zone="$GCP_ZONE"
 gcloud compute ssh "$GCP_INSTANCE" --zone="$GCP_ZONE" --command="chmod +x '$GCP_REMOTE_DIR/dctrading'"
 
+if [ -f "$PROJECT_DIR/.env" ]; then
+    echo "  Uploading .env..."
+    gcloud compute scp "$PROJECT_DIR/.env" "$GCP_INSTANCE:$GCP_REMOTE_DIR/.env" --zone="$GCP_ZONE" 2>/dev/null || true
+fi
+
 shopt -s nullglob
 checkpoint_files=(dctrading.checkpoint dctrading.checkpoint.bak.*)
 if [ ${#checkpoint_files[@]} -gt 0 ]; then

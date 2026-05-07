@@ -112,6 +112,11 @@ aws_remote "$HOST" "sudo systemctl stop '$AWS_SERVICE_NAME' 2>/dev/null || true;
 upload "$HOST" zig-out/bin/dctrading
 aws_remote "$HOST" "chmod +x '$AWS_REMOTE_DIR/dctrading'"
 
+if [ -f "$PROJECT_DIR/.env" ]; then
+    echo "  Uploading .env..."
+    upload "$HOST" "$PROJECT_DIR/.env"
+fi
+
 shopt -s nullglob
 checkpoint_files=(dctrading.checkpoint dctrading.checkpoint.bak.*)
 if [ ${#checkpoint_files[@]} -gt 0 ]; then
