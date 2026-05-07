@@ -75,6 +75,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 | `AWS_SSH_HOST` | No | switch-to-aws.sh/switch-to-local.sh; overrides AWS CLI DNS lookup |
 | `AWS_REMOTE_DIR` | No | switch-to-aws.sh/switch-to-local.sh (default: remote home via `.`) |
 | `AWS_SERVICE_NAME` | No | switch-to-aws.sh/switch-to-local.sh (default: dctrading) |
+| `AWS_PROFILE` | No | All AWS scripts (default: AdministratorAccess-118740508718) |
 | `CLOUD_TARGET` | No | nuke.sh/switch-to-local.sh (default: aws; set gcp or local) |
 | `GCP_ZONE` | No | switch-to-gcp.sh/switch-to-local.sh (default: asia-northeast1-b) |
 | `GCP_INSTANCE` | No | switch-to-gcp.sh/switch-to-local.sh (default: dctrading-asia) |

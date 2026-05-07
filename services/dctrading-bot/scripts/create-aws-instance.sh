@@ -13,6 +13,7 @@ AWS_KEY_NAME="${AWS_KEY_NAME:-dctrading-aws}"
 AWS_SERVICE_NAME="${AWS_SERVICE_NAME:-dctrading}"
 AWS_REMOTE_DIR="${AWS_REMOTE_DIR:-.}"
 AWS_SSH_USER="${AWS_SSH_USER:-ec2-user}"
+export AWS_PROFILE="${AWS_PROFILE:-AdministratorAccess-118740508718}"
 
 for cmd in aws jq curl; do
     if ! command -v "$cmd" >/dev/null 2>&1; then

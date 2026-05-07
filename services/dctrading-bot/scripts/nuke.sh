@@ -13,6 +13,7 @@ AWS_SSH_USER="${AWS_SSH_USER:-ec2-user}"
 AWS_SSH_KEY="${AWS_SSH_KEY:-}"
 AWS_REMOTE_DIR="${AWS_REMOTE_DIR:-.}"
 AWS_SERVICE_NAME="${AWS_SERVICE_NAME:-dctrading}"
+export AWS_PROFILE="${AWS_PROFILE:-AdministratorAccess-118740508718}"
 
 GCP_ZONE="${GCP_ZONE:-asia-northeast1-b}"
 GCP_INSTANCE="${GCP_INSTANCE:-dctrading-asia}"

@@ -12,6 +12,7 @@ AWS_SSH_USER="${AWS_SSH_USER:-ec2-user}"
 AWS_SSH_KEY="${AWS_SSH_KEY:-}"
 AWS_REMOTE_DIR="${AWS_REMOTE_DIR:-.}"
 AWS_SERVICE_NAME="${AWS_SERVICE_NAME:-dctrading}"
+export AWS_PROFILE="${AWS_PROFILE:-AdministratorAccess-118740508718}"
 
 if ! command -v aws >/dev/null 2>&1; then
     echo "aws CLI not found. Install it and authenticate first." >&2
