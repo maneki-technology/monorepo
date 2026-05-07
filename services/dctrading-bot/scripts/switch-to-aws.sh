@@ -41,16 +41,24 @@ if [ -n "$AWS_SSH_KEY" ]; then
 fi
 
 aws_host() {
+    local live_host
+    live_host=$(aws ec2 describe-instances \
+        --region "$AWS_REGION" \
+        --instance-ids "$AWS_INSTANCE_ID" \
+        --query "Reservations[0].Instances[0].PublicDnsName" \
+        --output text)
+
+    if [ -n "$live_host" ] && [ "$live_host" != "None" ]; then
+        printf "%s\n" "$live_host"
+        return
+    fi
+
     if [ -n "${AWS_SSH_HOST:-}" ]; then
         printf "%s\n" "$AWS_SSH_HOST"
         return
     fi
 
-    aws ec2 describe-instances \
-        --region "$AWS_REGION" \
-        --instance-ids "$AWS_INSTANCE_ID" \
-        --query "Reservations[0].Instances[0].PublicDnsName" \
-        --output text
+    echo ""
 }
 
 aws_remote() {
