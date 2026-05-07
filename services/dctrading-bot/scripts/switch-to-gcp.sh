@@ -20,10 +20,39 @@ cd "$PROJECT_DIR"
 
 echo "🔄 Switching to GCP Tokyo..."
 
-# Stop local bot
-echo "  Stopping local bot..."
-tmux send-keys -t trading C-c 2>/dev/null || true
-sleep 3
+stop_local_bot() {
+    local pid
+    pid=$(pgrep -f "dctrading\s+-" | head -1)
+    if [ -z "$pid" ]; then
+        echo "  Local bot not running."
+        return
+    fi
+
+    if tmux has-session -t trading 2>/dev/null; then
+        echo "  Stopping local bot via tmux..."
+        tmux send-keys -t trading C-c
+    else
+        echo "  Stopping local bot (PID $pid)..."
+        kill -TERM "$pid" 2>/dev/null || true
+    fi
+
+    for i in {1..10}; do
+        if ! pgrep -f "dctrading\s+-" >/dev/null; then
+            echo "  Local bot stopped."
+            return
+        fi
+        sleep 1
+    done
+
+    pid=$(pgrep -f "dctrading\s+-" | head -1)
+    if [ -n "$pid" ]; then
+        echo "  Force killing local bot (PID $pid)..."
+        kill -KILL "$pid" 2>/dev/null || true
+        sleep 1
+    fi
+}
+
+stop_local_bot
 
 # Build Linux binary
 echo "  Building Linux binary..."
