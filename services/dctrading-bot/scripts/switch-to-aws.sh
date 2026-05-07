@@ -126,20 +126,13 @@ SG_IDS=$(aws ec2 describe-instances \
     --query 'Reservations[0].Instances[0].SecurityGroups[*].GroupId' \
     --output text)
 for sg in $SG_IDS; do
-    HAS_RULE=$(aws ec2 describe-security-groups \
+    echo "  Ensuring security group $sg allows SSH from $MY_IP..."
+    aws ec2 authorize-security-group-ingress \
         --region "$AWS_REGION" \
-        --group-ids "$sg" \
-        --query "SecurityGroups[0].IpPermissions[?FromPort==\`22\` && ToPort==\`22\` && IpRanges[?CidrIp==\`${MY_IP}/32\`]]" \
-        --output text)
-    if [ -z "$HAS_RULE" ] || [ "$HAS_RULE" = "None" ]; then
-        echo "  Updating security group $sg to allow SSH from $MY_IP..."
-        aws ec2 authorize-security-group-ingress \
-            --region "$AWS_REGION" \
-            --group-id "$sg" \
-            --protocol tcp \
-            --port 22 \
-            --cidr "${MY_IP}/32" >/dev/null 2>&1 || true
-    fi
+        --group-id "$sg" \
+        --protocol tcp \
+        --port 22 \
+        --cidr "${MY_IP}/32" >/dev/null 2>&1 || true
 done
 
 echo "  Waiting for SSH at $HOST..."
