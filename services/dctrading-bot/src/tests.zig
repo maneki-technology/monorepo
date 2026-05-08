@@ -3416,6 +3416,48 @@ test "resource_monitor: computes ticks per minute from configured interval" {
     try testing.expectEqual(@as(u64, 1), sample.http_errors);
 }
 
+// Binance Spot JSON parsing tests
+const binance_spot_mod = @import("binance_spot.zig");
+
+test "binance_spot: parseJsonFloat handles quoted string numbers" {
+    const json = "{\"price\":\"50000.50\",\"qty\":0.01}";
+    try testing.expectApproxEqAbs(@as(f64, 50000.50), binance_spot_mod.BinanceSpot.parseJsonFloat(json, "\"price\":\"").?, 0.001);
+    try testing.expectApproxEqAbs(@as(f64, 0.01), binance_spot_mod.BinanceSpot.parseJsonFloat(json, "\"qty\":").?, 0.001);
+}
+
+test "binance_spot: parseJsonString extracts orderId" {
+    const json = "{\"orderId\":12345,\"status\":\"FILLED\"}";
+    try testing.expectEqualStrings("12345", binance_spot_mod.BinanceSpot.parseJsonString(json, "\"orderId\":").?);
+    try testing.expectEqualStrings("FILLED", binance_spot_mod.BinanceSpot.parseJsonString(json, "\"status\":\"").?);
+}
+
+test "binance_spot: parseFillCommission extracts commission from fills" {
+    const json = "{\"fills\":[{\"price\":\"50000.00\",\"qty\":\"0.01\",\"commission\":\"0.00000100\",\"commissionAsset\":\"BTC\"}]}";
+    var commission: f64 = 0;
+    var asset: [8]u8 = undefined;
+    var asset_len: usize = 0;
+    try testing.expect(binance_spot_mod.BinanceSpot.parseFillCommission(json, &commission, &asset, &asset_len));
+    try testing.expectApproxEqAbs(@as(f64, 0.00000100), commission, 0.00000001);
+    try testing.expectEqualStrings("BTC", asset[0..asset_len]);
+}
+
+test "binance_spot: parseAccountBalance finds asset in balances array" {
+    const json = "{\"balances\":[{\"asset\":\"BTC\",\"free\":\"0.50000000\",\"locked\":\"0.10000000\"},{\"asset\":\"USDT\",\"free\":\"1000.00\",\"locked\":\"0.00\"}]}";
+    const btc = binance_spot_mod.BinanceSpot.parseAccountBalance(json, "BTC");
+    try testing.expectApproxEqAbs(@as(f64, 0.60), btc.?, 0.001);
+    const usdt = binance_spot_mod.BinanceSpot.parseAccountBalance(json, "USDT");
+    try testing.expectApproxEqAbs(@as(f64, 1000.0), usdt.?, 0.001);
+    const missing = binance_spot_mod.BinanceSpot.parseAccountBalance(json, "ETH");
+    try testing.expect(missing == null);
+}
+
+test "binance_spot: hexEncode produces correct hex string" {
+    const bytes = &[_]u8{ 0xAB, 0xCD, 0xEF };
+    var out: [6]u8 = undefined;
+    const hex = binance_spot_mod.hexEncode(bytes, &out);
+    try testing.expectEqualStrings("abcdef", hex);
+}
+
 // Integration tests (LiveLoop + SimExchange + SimFeed)
 comptime {
     _ = @import("integration_tests.zig");

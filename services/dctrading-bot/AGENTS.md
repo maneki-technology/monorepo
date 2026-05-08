@@ -31,12 +31,14 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `setup-aws-iam.sh` — Standalone IAM instance profile creation for CloudWatch. Creates the role, attaches `CloudWatchAgentServerPolicy`, creates the instance profile, and waits for propagation.
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files.
 - `switch-to-local.sh` — Stop cloud bot + instance, download checkpoint primary/local backups, start local bot in tmux. Defaults to AWS; use `CLOUD_TARGET=gcp` for the legacy GCP path.
-- `nuke.sh` — Destructive reset for Turso state, local + remote checkpoint primary/backups, and Alpaca positions. Uses `CLOUD_TARGET` to stop and clear remote state.
+- `nuke.sh` — Destructive reset for Turso state, local + remote checkpoint primary/backups, and exchange positions. Uses `CLOUD_TARGET` to stop and clear remote state.
 
 ### Key Patterns
 - **HTTP calls**: All modules use shared `HttpClient` (native `std.http.Client`). Exception: `feed.zig` bootstrap uses `popen("curl")` for Binance REST, and `telegram.zig` shutdown uses curl fallback.
 - **Async writes**: Turso and Telegram fire-and-forget via `std.Thread.spawn` + `detach()`. Context struct heap-allocated, freed in worker.
 - **Sync reads**: Startup queries (capital, position, trade count) are blocking HTTP calls.
+- **Exchange selection**: Runtime-selectable via `EXCHANGE` env var. `alpaca` (paper trading) and `binance_spot` (live Spot trading) are supported. The exchange vtable pattern keeps `live_loop.zig` and `strategy.zig` venue-agnostic.
+- **Spot position model**: On Binance Spot, account balance is NOT position. The bot tracks its own position via Turso `transfers` (immutable fill history). `getPosition()` replays buy/sell transfers chronologically to compute `qty` and `entry_price`. `/api/v3/account` is used only for discrepancy alerts.
 - **Checkpoint**: Binary file with magic number validation. DCTRADE5 writes 27 f64 scalars, including `funding_avg`, `funding_avg_updated_at`, and `funding_latest_time`, plus two ring buffers (vol, MA). DCTRADE4 and earlier DCTRADE5 funding-cache files are still accepted and migrated on the next save. Saved every minute through an atomic temp-file swap. Live mode keeps rotated local backups (`dctrading.checkpoint.bak.N`) and falls back to the newest valid backup if the primary checkpoint cannot be loaded.
 - **Checkpoint startup guard**: Live mode prints cwd/checkpoint path and refuses to bootstrap if any local checkpoint primary/backup exists but none can be loaded and Turso restore fails. Use `checkpoint:migrate` or manually promote a known-good backup instead.
 - **Regime**: `enum { bull, sideways, bear }`. Encoded as 0/1/2 in checkpoint scalar[8].
@@ -44,8 +46,11 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ### Environment Variables
 | Variable | Required | Used By |
 |----------|----------|---------|
-| `ALPACA_API_KEY` | Yes | alpaca.zig |
-| `ALPACA_API_SECRET` | Yes | alpaca.zig |
+| `EXCHANGE` | No | main.zig (default: `alpaca`; options: `alpaca`, `binance_spot`) |
+| `ALPACA_API_KEY` | Yes (if EXCHANGE=alpaca) | alpaca.zig |
+| `ALPACA_API_SECRET` | Yes (if EXCHANGE=alpaca) | alpaca.zig |
+| `BINANCE_API_KEY` | Yes (if EXCHANGE=binance_spot) | binance_spot.zig |
+| `BINANCE_API_SECRET` | Yes (if EXCHANGE=binance_spot) | binance_spot.zig |
 | `TRADING_SYMBOL` | No | main.zig/alpaca.zig/feed.zig (default: BTC/USD; Binance maps USD quote to USDT) |
 | `TURSO_URL` | No | turso.zig |
 | `TURSO_TOKEN` | No | turso.zig |
@@ -64,8 +69,8 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 | `RESOURCE_FEED_GAP_WARN_SEC` | No | resource_monitor.zig (default: 180) |
 | `RESOURCE_WS_LAG_WARN_SEC` | No | resource_monitor.zig (default: 180) |
 | `RESOURCE_HTTP_LATENCY_WARN_MS` | No | resource_monitor.zig (default: 5000) |
-| `BINANCE_WS_HOST` | No | feed.zig (default: stream.binance.com) |
-| `BINANCE_API_HOST` | No | feed.zig (default: api.binance.com) |
+| `BINANCE_WS_HOST` | No | feed.zig / binance_spot.zig (default: stream.binance.com) |
+| `BINANCE_API_HOST` | No | feed.zig / binance_spot.zig (default: api.binance.com; testnet: testnet.binance.vision) |
 | `BOT_INSTANCE` | No | main.zig (default: "local") |
 | `CHECKPOINT_BACKUP_RETENTION` | No | main.zig (default: 5 local rotated backups; 0 disables) |
 | `CHECKPOINT_REMOTE_BACKUP_INTERVAL` | No | main.zig/Turso (default: 3600 seconds; 0 disables) |

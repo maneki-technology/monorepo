@@ -4,6 +4,7 @@ const types = @import("types.zig");
 const strat_mod = @import("strategy.zig");
 const telegram_mod = @import("telegram.zig");
 const alpaca_mod = @import("alpaca.zig");
+const binance_spot_mod = @import("binance_spot.zig");
 const exchange_mod = @import("exchange.zig");
 const http_mod = @import("http_client.zig");
 const turso_mod = @import("turso.zig");
@@ -259,12 +260,29 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         std.debug.print("  Local checkpoint will be rewritten from restored remote state on next save.\n", .{});
     }
 
-    // Init exchange (Alpaca paper trading)
-    const alpaca = alpaca_mod.Alpaca.init(&http) orelse {
-        std.debug.print("ERROR: Exchange not configured. Set ALPACA_API_KEY + ALPACA_API_SECRET.\n", .{});
-        return;
+    // Init exchange (runtime selectable: alpaca | binance_spot)
+    var maybe_alpaca: ?alpaca_mod.Alpaca = null;
+    var maybe_binance_spot: ?binance_spot_mod.BinanceSpot = null;
+
+    const exchange_cfg = getenv("EXCHANGE") orelse "alpaca";
+    const exchange_cfg_str = std.mem.sliceTo(exchange_cfg, 0);
+    const exchange_is_spot = std.mem.eql(u8, exchange_cfg_str, "binance_spot");
+
+    const exchange = if (exchange_is_spot) blk: {
+        maybe_binance_spot = binance_spot_mod.BinanceSpot.init(&http);
+        const b = maybe_binance_spot orelse {
+            std.debug.print("ERROR: Binance Spot not configured. Set BINANCE_API_KEY + BINANCE_API_SECRET.\n", .{});
+            return;
+        };
+        break :blk b.exchange();
+    } else blk: {
+        maybe_alpaca = alpaca_mod.Alpaca.init(&http);
+        const a = maybe_alpaca orelse {
+            std.debug.print("ERROR: Alpaca not configured. Set ALPACA_API_KEY + ALPACA_API_SECRET.\n", .{});
+            return;
+        };
+        break :blk a.exchange();
     };
-    const exchange = alpaca.exchange();
     // Bootstrap or catch-up
     if (!loaded_checkpoint) {
         // Fresh start: full bootstrap from 60 days of 1m klines
@@ -331,22 +349,27 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     }
 
     // Reconcile with exchange position (source of truth for execution)
-    if (exchange.getPosition()) |pos| {
-        if (pos.qty > 0) {
-            strategy.in_position = true;
-            strategy.entry_price = pos.entry_price;
-            strategy.size = pos.qty;
-            strategy.peak_price = pos.entry_price;
-            std.debug.print("  [exchange] Synced position: entry=${d:.2} qty={d:.8}\n", .{ pos.entry_price, pos.qty });
+    // For Spot, skip exchange reconciliation — Turso is the source of truth.
+    if (!exchange_is_spot) {
+        if (exchange.getPosition()) |pos| {
+            if (pos.qty > 0) {
+                strategy.in_position = true;
+                strategy.entry_price = pos.entry_price;
+                strategy.size = pos.qty;
+                strategy.peak_price = pos.entry_price;
+                std.debug.print("  [exchange] Synced position: entry=${d:.2} qty={d:.8}\n", .{ pos.entry_price, pos.qty });
+            }
+        } else {
+            // Exchange has no position — if we think we have one, clear it
+            if (strategy.in_position) {
+                std.debug.print("  [exchange] No position on exchange, clearing internal state.\n", .{});
+                strategy.in_position = false;
+                strategy.size = 0;
+                strategy.capital = strategy.initial_capital;
+            }
         }
     } else {
-        // Exchange has no position — if we think we have one, clear it
-        if (strategy.in_position) {
-            std.debug.print("  [exchange] No position on exchange, clearing internal state.\n", .{});
-            strategy.in_position = false;
-            strategy.size = 0;
-            strategy.capital = strategy.initial_capital;
-        }
+        std.debug.print("  [exchange] Spot mode — skipping exchange position reconciliation (Turso is source of truth).\n", .{});
     }
 
     // --- Pending order tracking ---

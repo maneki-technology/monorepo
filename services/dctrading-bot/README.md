@@ -19,7 +19,7 @@ Parameters: λ=0.07, 60-day MA, 3% buffer, 2% trailing stop (72h vol lookback)
 ## Architecture
 
 ```
-Binance WebSocket → Zig Bot → Alpaca Paper Trading
+Binance WebSocket → Zig Bot → Alpaca Paper Trading / Binance Spot
                       ↓
                     Turso DB ← Neko Trade App (SwiftUI)
                       ↓
@@ -38,6 +38,7 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 | `dc_detector.zig` | Streaming DC event detector |
 | `exchange.zig` | Exchange vtable interface for sync and async order flow |
 | `alpaca.zig` | Alpaca paper trading (sync/async orders, position queries) |
+| `binance_spot.zig` | Binance Spot live trading (HMAC-signed orders, fills, balances) |
 | `live_loop.zig` | Shared live order-flow engine and ledger interface used by production and simulation tests |
 | `sim_exchange.zig` | Configurable simulated exchange for integration tests |
 | `tick_source.zig` | Tick source interface and simulated feed |
@@ -47,13 +48,15 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 | `http_client.zig` | Shared HTTP client (std.http.Client wrapper + request metrics) |
 | `resource_monitor.zig` | Process, disk, feed, and HTTP resource health snapshots |
 | `types.zig` | Tick, Trade, DC event types |
-| `tests.zig` | 182 tests |
+| `tests.zig` | 187 tests |
 
 ## Setup
 
 ### Prerequisites
 - [Zig 0.16](https://ziglang.org/download/)
-- Alpaca paper trading account (free): https://app.alpaca.markets
+- Exchange account (one of):
+  - **Alpaca** paper trading (free): https://app.alpaca.markets
+  - **Binance** Spot (live): https://www.binance.com — API key + secret required
 - Turso database (free tier): https://turso.tech
 - Telegram bot (optional): @BotFather
 - ntfy.sh (optional): https://ntfy.sh
@@ -61,12 +64,19 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 ### Environment Variables
 
 ```bash
-# Required
+# Exchange selection (default: alpaca)
+export EXCHANGE=alpaca          # or: binance_spot
+
+# Alpaca (required if EXCHANGE=alpaca)
 export ALPACA_API_KEY=PK...
 export ALPACA_API_SECRET=...
 
+# Binance Spot (required if EXCHANGE=binance_spot)
+export BINANCE_API_KEY=...
+export BINANCE_API_SECRET=...
+
 # Trading pair (optional; default: BTC/USD)
-# Alpaca uses BTC/USD; Binance feed/funding maps this to BTCUSDT
+# Alpaca uses BTC/USD; Binance Spot uses BTCUSDT automatically
 export TRADING_SYMBOL=BTC/USD
 
 # Turso (optional but recommended)
@@ -79,6 +89,7 @@ export TELEGRAM_CHAT_ID=...
 export NTFY_TOPIC=your-topic
 
 # Binance host (default: stream.binance.com / api.binance.com)
+# For testnet: testnet.binance.vision (both WS and API must match)
 export BINANCE_WS_HOST=stream.binance.com
 export BINANCE_API_HOST=api.binance.com
 
@@ -196,7 +207,7 @@ CLOUD_TARGET=gcp ./scripts/switch-to-local.sh
 ### Nuke
 
 ```bash
-# Nuke everything — stops remote bot, drops Turso tables, deletes checkpoints, closes Alpaca positions
+# Nuke everything — stops remote bot, drops Turso tables, deletes checkpoints, closes exchange positions
 CLOUD_TARGET=aws ./scripts/nuke.sh
 
 # Or skip remote cleanup and only nuke local state + Turso + Alpaca
