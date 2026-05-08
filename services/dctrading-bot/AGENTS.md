@@ -25,9 +25,10 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - CLI `checkpoint:migrate [path] [backups]` migrates checkpoint primary/backups offline to the current DCTRADE5 layout after writing `.pre-migrate` copies.
 
 ### Scripts (`scripts/`)
-- `create-aws-instance.sh` — One-time AWS infrastructure setup: security group, key pair, EC2 instance, and systemd service.
-- `deploy-aws.sh` — Build Linux binary, upload to running AWS EC2 instance, restart systemd. Does not stop local bot or migrate checkpoints.
-- `switch-to-aws.sh` — Stop local bot, start AWS Tokyo EC2 instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files.
+- `create-aws-instance.sh` — One-time AWS infrastructure setup: security group, key pair, EC2 instance (with optional IAM instance profile), systemd service, and CloudWatch agent.
+- `deploy-aws.sh` — Build Linux binary, upload to running AWS EC2 instance, restart systemd. Does not stop local bot or migrate checkpoints. Ensures CloudWatch agent, log file, and IAM instance profile attachment exist.
+- `switch-to-aws.sh` — Stop local bot, start AWS Tokyo EC2 instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files. Ensures CloudWatch agent, log file, and IAM instance profile attachment exist.
+- `setup-aws-iam.sh` — Standalone IAM instance profile creation for CloudWatch. Creates the role, attaches `CloudWatchAgentServerPolicy`, creates the instance profile, and waits for propagation.
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files.
 - `switch-to-local.sh` — Stop cloud bot + instance, download checkpoint primary/local backups, start local bot in tmux. Defaults to AWS; use `CLOUD_TARGET=gcp` for the legacy GCP path.
 - `nuke.sh` — Destructive reset for Turso state, local + remote checkpoint primary/backups, and Alpaca positions. Uses `CLOUD_TARGET` to stop and clear remote state.
@@ -77,6 +78,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 | `AWS_REMOTE_DIR` | No | switch-to-aws.sh/switch-to-local.sh (default: remote home via `.`) |
 | `AWS_SERVICE_NAME` | No | switch-to-aws.sh/switch-to-local.sh (default: dctrading) |
 | `AWS_PROFILE` | No | All AWS scripts (default: AdministratorAccess-118740508718) |
+| `AWS_IAM_INSTANCE_PROFILE` | No | create-aws-instance.sh — IAM instance profile name to attach to the EC2 instance. Must have `CloudWatchAgentServerPolicy` for CloudWatch Logs/Metrics.
 | `CLOUD_TARGET` | No | nuke.sh/switch-to-local.sh (default: aws; set gcp or local) |
 | `GCP_ZONE` | No | switch-to-gcp.sh/switch-to-local.sh (default: asia-northeast1-b) |
 | `GCP_INSTANCE` | No | switch-to-gcp.sh/switch-to-local.sh (default: dctrading-asia) |
@@ -98,6 +100,38 @@ zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # cloud Linux
 zig build test                                 # 182 tests
 ./zig-out/bin/dctrading checkpoint:migrate dctrading.checkpoint 5
 ```
+
+### CloudWatch Observability
+CloudWatch Logs and Metrics are automatically configured on AWS instances.
+
+**What is collected:**
+- **Logs:** `/var/log/dctrading.log` → CloudWatch log group `dctrading` (stream = `{instance_id}`)
+- **Metrics:** `mem_used_percent`, `disk_used_percent` → CloudWatch namespace `dctrading` every **5 minutes**
+
+**IAM Role Setup:**
+All AWS scripts automatically create the IAM instance profile if it does not exist, provided your AWS principal has IAM permissions (`iam:CreateRole`, `iam:AttachRolePolicy`, `iam:CreateInstanceProfile`, `iam:AddRoleToInstanceProfile`).
+
+1. Set `AWS_IAM_INSTANCE_PROFILE=dctrading-ec2-role` in your `.env`.
+2. For new instances: run `./scripts/create-aws-instance.sh`.
+3. For existing instances: run `./scripts/setup-aws-iam.sh` to create the IAM profile, then `./scripts/deploy-aws.sh` (or `./scripts/switch-to-aws.sh`) to attach it to the running instance and install the CloudWatch agent.
+
+If you do not have IAM permissions, create the role manually:
+- In the AWS Console, go to **IAM → Roles → Create role**.
+- Trusted entity: **AWS service → EC2**.
+- Attach the managed policy **CloudWatchAgentServerPolicy**.
+- Name the role `dctrading-ec2-role`.
+- Run `create-aws-instance.sh` with `AWS_IAM_INSTANCE_PROFILE=dctrading-ec2-role`.
+
+**For existing instances without the profile:**
+`deploy-aws.sh` and `switch-to-aws.sh` will detect a missing profile and attach it automatically if `AWS_IAM_INSTANCE_PROFILE` is set. The instance does not need to be stopped.
+
+**Estimated CloudWatch cost (Tokyo, 24/7):**
+| Item | Monthly |
+|------|---------|
+| 2 custom metrics | ~$0.60 |
+| `PutMetricData` API (5-min interval) | ~$0.17 |
+| Logs (~0.5–1 GB) | ~$0.25–0.50 |
+| **Total** | **~$1.05** |
 
 ### Trading Flow
 1. Bootstrap: fetch 87,500 1-min klines → fill MA + vol buffers → detect initial regime

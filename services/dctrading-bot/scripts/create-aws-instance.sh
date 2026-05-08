@@ -20,6 +20,7 @@ AWS_KEY_NAME="${AWS_KEY_NAME:-dctrading-aws}"
 AWS_SERVICE_NAME="${AWS_SERVICE_NAME:-dctrading}"
 AWS_REMOTE_DIR="${AWS_REMOTE_DIR:-.}"
 AWS_SSH_USER="${AWS_SSH_USER:-ec2-user}"
+AWS_IAM_INSTANCE_PROFILE="${AWS_IAM_INSTANCE_PROFILE:-}"
 export AWS_PROFILE="${AWS_PROFILE:-AdministratorAccess-118740508718}"
 
 if ! aws sts get-caller-identity >/dev/null 2>&1; then
@@ -131,6 +132,12 @@ if [ -n "$EXISTING" ] && [ "$EXISTING" != "None" ]; then
     fi
 else
     echo "  Launching EC2 instance ($AWS_INSTANCE_TYPE)..."
+    IAM_ARG=""
+    if [ -n "$AWS_IAM_INSTANCE_PROFILE" ]; then
+        "$SCRIPT_DIR/setup-aws-iam.sh" || true
+        IAM_ARG="--iam-instance-profile Name=$AWS_IAM_INSTANCE_PROFILE"
+    fi
+
     INSTANCE_ID=$(aws ec2 run-instances \
     --region "$AWS_REGION" \
     --image-id "$AMI_ID" \
@@ -139,9 +146,58 @@ else
     --security-group-ids "$SG_ID" \
     --block-device-mappings "[{\"DeviceName\":\"$ROOT_DEVICE\",\"Ebs\":{\"VolumeSize\":8,\"VolumeType\":\"gp3\",\"DeleteOnTermination\":true}}]" \
     --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=dctrading}]" \
+    $IAM_ARG \
     --user-data "$(cat <<EOF
 #!/bin/bash
 set -e
+
+# Install CloudWatch agent
+dnf install -y amazon-cloudwatch-agent
+
+# Create log file for bot
+touch /var/log/dctrading.log
+chown $AWS_SSH_USER:$AWS_SSH_USER /var/log/dctrading.log
+chmod 644 /var/log/dctrading.log
+
+# CloudWatch agent config (logs + memory metrics)
+cat > /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json <<'CWCONFIG'
+{
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/var/log/dctrading.log",
+            "log_group_name": "dctrading",
+            "log_stream_name": "{instance_id}",
+            "timezone": "UTC"
+          }
+        ]
+      }
+    }
+  },
+  "metrics": {
+    "namespace": "dctrading",
+    "metrics_collected": {
+      "mem": {
+        "measurement": ["mem_used_percent"],
+        "metrics_collection_interval": 300
+      },
+      "disk": {
+        "measurement": ["disk_used_percent"],
+        "metrics_collection_interval": 300,
+        "resources": ["/"]
+      }
+    }
+  }
+}
+CWCONFIG
+
+/opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+    -a fetch-config -m ec2 -s \
+    -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+
+# Systemd service
 mkdir -p /home/$AWS_SSH_USER/$AWS_REMOTE_DIR
 cat > /etc/systemd/system/$AWS_SERVICE_NAME.service <<'UNIT'
 [Unit]
@@ -152,7 +208,9 @@ After=network.target
 Type=simple
 User=$AWS_SSH_USER
 WorkingDirectory=/home/$AWS_SSH_USER
-ExecStart=/bin/bash -lc 'source /home/$AWS_SSH_USER/.env && /home/$AWS_SSH_USER/$AWS_REMOTE_DIR/dctrading -'
+ExecStart=/bin/bash -lc 'export BOT_INSTANCE=aws-tokyo && source /home/$AWS_SSH_USER/.env && /home/$AWS_SSH_USER/$AWS_REMOTE_DIR/dctrading -'
+StandardOutput=append:/var/log/dctrading.log
+StandardError=append:/var/log/dctrading.log
 Restart=on-failure
 RestartSec=5
 
@@ -212,5 +270,12 @@ echo "  AWS_SSH_HOST=$HOST"
 echo "  AWS_REMOTE_DIR=$AWS_REMOTE_DIR"
 echo "  AWS_SERVICE_NAME=$AWS_SERVICE_NAME"
 echo ""
+if [ -z "$AWS_IAM_INSTANCE_PROFILE" ]; then
+    echo "⚠️  CloudWatch requires an IAM instance profile."
+    echo "   Create a role with the CloudWatchAgentServerPolicy managed policy,"
+    echo "   then set AWS_IAM_INSTANCE_PROFILE=your-role-name before re-running."
+    echo "   See README.md for step-by-step instructions."
+    echo ""
+fi
 echo "Then deploy with:"
-echo "  ./scripts/switch-to-aws.sh"
+echo "  ./scripts/deploy-aws.sh"
