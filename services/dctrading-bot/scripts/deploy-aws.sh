@@ -86,6 +86,45 @@ upload() {
     scp "${ssh_opts[@]}" "$@" "$AWS_SSH_USER@$host:$AWS_REMOTE_DIR/"
 }
 
+ensure_instance_iam_profile() {
+    local instance_id="$1"
+    local profile_name="$2"
+
+    # Ensure IAM profile exists
+    "$SCRIPT_DIR/setup-aws-iam.sh" || true
+
+    # Check current association
+    local assoc_json
+    assoc_json=$(aws ec2 describe-iam-instance-profile-associations \
+        --region "$AWS_REGION" \
+        --filters "Name=instance-id,Values=$instance_id" \
+        --query 'IamInstanceProfileAssociations[0]' \
+        --output json 2>/dev/null || echo 'null')
+
+    if [ "$assoc_json" != "null" ] && [ -n "$assoc_json" ] && [ "$assoc_json" != "" ]; then
+        local current_name
+        current_name=$(echo "$assoc_json" | jq -r '.IamInstanceProfile.Arn // empty' | awk -F/ '{print $NF}')
+        if [ "$current_name" = "$profile_name" ]; then
+            echo "  IAM instance profile '$profile_name' already attached to instance."
+            return 0
+        else
+            echo "  Instance already has IAM profile '$current_name'. Skipping attachment." >&2
+            echo "  To change it, stop the instance and use the AWS console or replace-iam-instance-profile-association." >&2
+            return 0
+        fi
+    fi
+
+    echo "  Attaching IAM instance profile '$profile_name' to instance $instance_id..."
+    if aws ec2 associate-iam-instance-profile \
+        --region "$AWS_REGION" \
+        --instance-id "$instance_id" \
+        --iam-instance-profile "Name=$profile_name" >/dev/null 2>&1; then
+        echo "  IAM instance profile attached."
+    else
+        echo "  WARNING: Failed to attach IAM instance profile. CloudWatch may not work." >&2
+    fi
+}
+
 cd "$PROJECT_DIR"
 
 echo "Deploying to AWS Tokyo..."
@@ -142,8 +181,59 @@ for attempt in {1..30}; do
     sleep 5
 done
 
+if [ -n "$AWS_IAM_INSTANCE_PROFILE" ]; then
+    echo "  Ensuring IAM instance profile..."
+    ensure_instance_iam_profile "$AWS_INSTANCE_ID" "$AWS_IAM_INSTANCE_PROFILE"
+fi
+
 echo "  Ensuring remote directory exists..."
 aws_remote "$HOST" "mkdir -p '$AWS_REMOTE_DIR'"
+
+echo "  Ensuring CloudWatch agent..."
+aws_remote "$HOST" "
+if [ ! -f /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent ]; then
+    sudo dnf install -y amazon-cloudwatch-agent
+fi
+sudo mkdir -p /opt/aws/amazon-cloudwatch-agent/etc
+sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json > /dev/null <<'CWCONFIG'
+{
+  \"logs\": {
+    \"logs_collected\": {
+      \"files\": {
+        \"collect_list\": [
+          {
+            \"file_path\": \"/var/log/dctrading.log\",
+            \"log_group_name\": \"dctrading\",
+            \"log_stream_name\": \"{instance_id}\",
+            \"timezone\": \"UTC\"
+          }
+        ]
+      }
+    }
+  },
+  \"metrics\": {
+    \"namespace\": \"dctrading\",
+    \"metrics_collected\": {
+      \"mem\": {
+        \"measurement\": [\"mem_used_percent\"],
+        \"metrics_collection_interval\": 300
+      },
+      \"disk\": {
+        \"measurement\": [\"disk_used_percent\"],
+        \"metrics_collection_interval\": 300,
+        \"resources\": [\"/\"]
+      }
+    }
+  }
+}
+CWCONFIG
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+    -a fetch-config -m ec2 -s \
+    -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json
+sudo touch /var/log/dctrading.log
+sudo chown '$AWS_SSH_USER':'$AWS_SSH_USER' /var/log/dctrading.log
+sudo chmod 644 /var/log/dctrading.log
+"
 
 echo "  Stopping remote bot..."
 aws_remote "$HOST" "sudo systemctl stop '$AWS_SERVICE_NAME' 2>/dev/null || true"
@@ -169,6 +259,8 @@ Type=simple
 User=$AWS_SSH_USER
 WorkingDirectory=/home/$AWS_SSH_USER
 ExecStart=/bin/bash -lc 'export BOT_INSTANCE=aws-tokyo && source /home/$AWS_SSH_USER/.env && /home/$AWS_SSH_USER/$AWS_REMOTE_DIR/dctrading -'
+StandardOutput=append:/var/log/dctrading.log
+StandardError=append:/var/log/dctrading.log
 Restart=on-failure
 RestartSec=5
 
