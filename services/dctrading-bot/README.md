@@ -152,6 +152,9 @@ export AWS_SSH_KEY=~/.ssh/dctrading-aws.pem
 # Optional when the instance DNS cannot be derived from AWS CLI
 export AWS_SSH_HOST=ec2-...ap-northeast-1.compute.amazonaws.com
 
+# Quick deploy (update binary + restart, don't touch local bot)
+./scripts/deploy-aws.sh
+
 # Switch to AWS Tokyo
 ./scripts/switch-to-aws.sh
 
