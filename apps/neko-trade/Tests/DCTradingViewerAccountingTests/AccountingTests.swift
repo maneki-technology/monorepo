@@ -129,7 +129,18 @@ final class AccountingTests: XCTestCase {
             quoteAsset: quoteAsset,
             markSymbol: markSymbol,
             checkpointHealth: "OK",
-            checkpointError: ""
+            checkpointError: "",
+            exchangeHealth: "OK",
+            exchangeError: "",
+            resourceHealth: "OK",
+            resourceError: "",
+            resourceRssMb: 0,
+            resourceDiskFreeMb: 0,
+            resourceDiskUsedPct: 0,
+            resourceFeedGapSec: 0,
+            resourceWsLagSec: 0,
+            resourceHttpErrors: 0,
+            resourceHttpMaxMs: 0
         )
     }
 }

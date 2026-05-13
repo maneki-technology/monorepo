@@ -20,8 +20,8 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `live_loop.zig` — Extracted core order flow logic: pending order tracking, trailing stop, strategy signals, buy/sell submission, capital_reserved, and ledger vtable. Shared by `runLive()` and integration tests.
 - `tick_source.zig` — `TickSource` vtable interface + `SimFeed` (replays ticks from array). For testing.
 - `sim_exchange.zig` — `SimExchange` implementing Exchange vtable with configurable fill delay, slippage, partial fills, cancel races, failure injection, order log. For testing.
-- `integration_tests.zig` — 32 end-to-end scenarios using LiveLoop + SimExchange + mock ledger.
-- `tests.zig` — 182 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, resource monitoring, integration scenarios.
+- `integration_tests.zig` — 34 end-to-end scenarios using LiveLoop + SimExchange + mock ledger.
+- `tests.zig` — 195 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, resource monitoring, Binance Spot parsing, integration scenarios.
 - CLI `checkpoint:migrate [path] [backups]` migrates checkpoint primary/backups offline to the current DCTRADE5 layout after writing `.pre-migrate` copies.
 
 ### Scripts (`scripts/`)
@@ -51,6 +51,10 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 | `ALPACA_API_SECRET` | Yes (if EXCHANGE=alpaca) | alpaca.zig |
 | `BINANCE_API_KEY` | Yes (if EXCHANGE=binance_spot) | binance_spot.zig |
 | `BINANCE_API_SECRET` | Yes (if EXCHANGE=binance_spot) | binance_spot.zig |
+| `BINANCE_BNB_VALUATION_SYMBOL` | No | binance_spot.zig (default: BNBUSDT; override for testnet/alternate quote) |
+| `BINANCE_FEE_LOOKUP_MAX_CHECKS` | No | binance_spot.zig (default: 20 checks before fallback/manual reconciliation log) |
+| `BINANCE_SLIPPAGE_WARN_PCT` | No | live_loop.zig (default: 0.01 = 1% post-fill warning) |
+| `BINANCE_SLIPPAGE_WARN_TTL_SEC` | No | live_loop.zig/main.zig (default: 3600s; app-visible slippage warning retention) |
 | `TRADING_SYMBOL` | No | main.zig/alpaca.zig/feed.zig (default: BTC/USD; Binance maps USD quote to USDT) |
 | `TURSO_URL` | No | turso.zig |
 | `TURSO_TOKEN` | No | turso.zig |
@@ -95,14 +99,14 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `transfers` — Immutable append-only transfer log. Two-phase (pending/posted/voided). Codes: 1=deposit, 2=buy, 3=sell, 4=fee, 5=pnl. Atomic BEGIN/COMMIT pipelines.
 - Fee routing: adapter-provided `commission_asset` routes fees to the paying asset account (`USD`/`USDT` → cash, `BTC` → btc_position, `BNB` → bnb), even when commission is zero. Transfer `amount` is historical quote-currency value at fill time; native fee quantity is stored in transfer `size`, with the fill-time asset quote valuation rate in `price`. `strategy.size` remains whatever the exchange adapter reports as fill quantity. `fee_pct` is for backtest/simulation estimates and legacy fills with no commission metadata, not for Alpaca paper fills.
 - `equity_log` — Periodic snapshots (every 5 min + on trades): capital, equity, unrealized, regime, price.
-- `bot_status` — Single row (id=1): regime, position, equity, version (DCTRADE5@instance), active symbol metadata, checkpoint health/error, and latest resource health/metrics for Neko.
+- `bot_status` — Single row (id=1): regime, position, equity, version (DCTRADE5@instance), active symbol metadata, checkpoint health/error, exchange health/error, and latest resource health/metrics for Neko.
 - `resource_log` — Periodic process/feed/HTTP resource snapshots used for dashboard status and diagnostics. Resource degradation is app-visible only; Telegram/ntfy stays reserved for trading, checkpoint, funding, startup/shutdown events.
 - `checkpoint_backups` — Single remote checkpoint snapshot (id=1): base64-encoded DCTRADE5 checkpoint, byte length, checksum, tick count, and update time. Used only if local primary/backups cannot be loaded.
 ### Build
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # cloud Linux
-zig build test                                 # 182 tests
+zig build test                                 # 195 tests
 ./zig-out/bin/dctrading checkpoint:migrate dctrading.checkpoint 5
 ```
 

@@ -16,6 +16,7 @@ pub const HttpClient = struct {
     retry_count: u64 = 0,
     last_latency_ms: f64 = 0,
     max_latency_ms: f64 = 0,
+    mock: ?*MockTransport = null,
 
     pub fn init(allocator: std.mem.Allocator, io: Io) HttpClient {
         return .{
@@ -50,6 +51,52 @@ pub const HttpClient = struct {
         retries: u64 = 0,
         last_ms: f64 = 0,
         max_ms: f64 = 0,
+    };
+
+    pub const MockResponse = struct {
+        method: http.Method,
+        url_contains: []const u8,
+        status: http.Status,
+        body: []const u8,
+    };
+
+    pub const MockRequest = struct {
+        method: http.Method = .GET,
+        url: [1024]u8 = undefined,
+        url_len: usize = 0,
+    };
+
+    pub const MockTransport = struct {
+        responses: []const MockResponse,
+        index: usize = 0,
+        requests: [32]MockRequest = undefined,
+        request_count: usize = 0,
+
+        pub fn handle(self: *MockTransport, allocator: std.mem.Allocator, method: http.Method, url: []const u8) !Response {
+            if (self.request_count < self.requests.len) {
+                const len = @min(url.len, self.requests[self.request_count].url.len);
+                self.requests[self.request_count].method = method;
+                @memcpy(self.requests[self.request_count].url[0..len], url[0..len]);
+                self.requests[self.request_count].url_len = len;
+            }
+            self.request_count += 1;
+
+            if (self.index >= self.responses.len) return error.UnexpectedMockRequest;
+            const expected = self.responses[self.index];
+            self.index += 1;
+            if (expected.method != method or std.mem.indexOf(u8, url, expected.url_contains) == null) {
+                return error.UnexpectedMockRequest;
+            }
+
+            const body = try allocator.alloc(u8, expected.body.len);
+            @memcpy(body, expected.body);
+            return .{ .status = expected.status, .body = body, .allocator = allocator };
+        }
+
+        pub fn requestUrl(self: *const MockTransport, index: usize) []const u8 {
+            if (index >= self.request_count or index >= self.requests.len) return "";
+            return self.requests[index].url[0..self.requests[index].url_len];
+        }
     };
 
     /// POST JSON to a URL with custom headers. Returns owned response body.
@@ -101,6 +148,17 @@ pub const HttpClient = struct {
         body: ?[]const u8,
         max_response_bytes: usize,
     ) !Response {
+        if (self.mock) |mock| {
+            const result = mock.handle(self.allocator, method, url);
+            if (result) |resp| {
+                self.request_count += 1;
+                return resp;
+            } else |err| {
+                self.request_count += 1;
+                self.error_count += 1;
+                return err;
+            }
+        }
         const start_ms = self.nowMs();
         // Spin-lock: Zig 0.16 atomic.Mutex only has tryLock
         while (!self.mutex.tryLock()) {

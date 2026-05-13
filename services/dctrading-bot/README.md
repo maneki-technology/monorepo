@@ -48,7 +48,7 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 | `http_client.zig` | Shared HTTP client (std.http.Client wrapper + request metrics) |
 | `resource_monitor.zig` | Process, disk, feed, and HTTP resource health snapshots |
 | `types.zig` | Tick, Trade, DC event types |
-| `tests.zig` | 187 tests |
+| `tests.zig` | 195 tests |
 
 ## Setup
 
@@ -74,6 +74,7 @@ export ALPACA_API_SECRET=...
 # Binance Spot (required if EXCHANGE=binance_spot)
 export BINANCE_API_KEY=...
 export BINANCE_API_SECRET=...
+# Required API permissions: read + spot trading. Do not enable withdrawals.
 
 # Trading pair (optional; default: BTC/USD)
 # Alpaca uses BTC/USD; Binance Spot uses BTCUSDT automatically
@@ -89,9 +90,14 @@ export TELEGRAM_CHAT_ID=...
 export NTFY_TOPIC=your-topic
 
 # Binance host (default: stream.binance.com / api.binance.com)
-# For testnet: testnet.binance.vision (both WS and API must match)
+# For testnet: testnet.binance.vision (both WS and API must match).
+# BNB valuation may need a different symbol on testnet.
 export BINANCE_WS_HOST=stream.binance.com
 export BINANCE_API_HOST=api.binance.com
+export BINANCE_BNB_VALUATION_SYMBOL=BNBUSDT
+export BINANCE_FEE_LOOKUP_MAX_CHECKS=20
+export BINANCE_SLIPPAGE_WARN_PCT=0.01
+export BINANCE_SLIPPAGE_WARN_TTL_SEC=3600
 
 # Funding filter (default: 0.0001 = 0.010%; 0 disables)
 # Funding updates are cached, checkpointed, checked hourly, and sent to Telegram/ntfy when Binance publishes a new funding print.
@@ -147,6 +153,30 @@ zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux
 
 Known-good historical simulation outputs are recorded in
 [`docs/DCTRADING_SIMULATION_BASELINES.md`](../../docs/DCTRADING_SIMULATION_BASELINES.md).
+
+### Binance Spot Accounting Edge Cases
+
+The live Spot adapter records exact exchange quote notional when Binance returns
+`cummulativeQuoteQty`, and fee transfers are routed to the asset that paid the
+commission. The following edge cases are intentionally documented because they
+require operator awareness or follow-up work:
+
+- **Partially filled then canceled orders:** Binance can return a terminal
+  `CANCELED` order with non-zero `executedQty`. The current order-status model
+  only has `filled` or `cancelled`, so this path should be reconciled manually
+  until partial-cancel settlement is implemented.
+- **Mixed commission assets:** If an order's fills are charged in different
+  assets, the adapter does not collapse them into one fee transfer. It leaves
+  the order pending until the configured lookup limit, then marks exchange
+  health as `EXCHANGE_RECONCILE` for manual accounting.
+- **Fee lookup lag:** `/api/v3/myTrades` can lag `/api/v3/order`. The bot keeps
+  the fill pending while fee metadata is missing. After
+  `BINANCE_FEE_LOOKUP_MAX_CHECKS`, it posts using the configured fee fallback
+  and surfaces `EXCHANGE_RECONCILE` in Neko.
+- **Slippage warnings:** Fill prices are compared to the strategy signal price.
+  Warnings persist in `bot_status.exchange_health` for
+  `BINANCE_SLIPPAGE_WARN_TTL_SEC` seconds so the dashboard does not miss a
+  one-tick warning.
 
 ### AWS Tokyo Deployment
 
@@ -253,6 +283,8 @@ Binary checkpoint (DCTRADE5) saves full strategy state every minute:
 - If any local checkpoint file exists but none can be loaded and Turso restore also fails, live mode refuses to bootstrap so it cannot overwrite possibly recoverable checkpoint state
 - Checkpoint problems are surfaced in `bot_status.checkpoint_health` and
   `bot_status.checkpoint_error`; Telegram/ntfy sends a warning when health first enters a degraded state
+- Binance exchange problems that need app review are surfaced in
+  `bot_status.exchange_health` and `bot_status.exchange_error`
 
 ## Resource Monitoring
 

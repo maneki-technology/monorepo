@@ -267,21 +267,27 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     const exchange_cfg = getenv("EXCHANGE") orelse "alpaca";
     const exchange_cfg_str = std.mem.sliceTo(exchange_cfg, 0);
     const exchange_is_spot = std.mem.eql(u8, exchange_cfg_str, "binance_spot");
+    if (!exchange_is_spot and !std.mem.eql(u8, exchange_cfg_str, "alpaca")) {
+        std.debug.print("ERROR: Unsupported EXCHANGE={s}. Use alpaca or binance_spot.\n", .{exchange_cfg_str});
+        return;
+    }
 
     const exchange = if (exchange_is_spot) blk: {
         maybe_binance_spot = binance_spot_mod.BinanceSpot.init(&http);
-        const b = maybe_binance_spot orelse {
+        if (maybe_binance_spot) |*b| {
+            break :blk b.exchange();
+        } else {
             std.debug.print("ERROR: Binance Spot not configured. Set BINANCE_API_KEY + BINANCE_API_SECRET.\n", .{});
             return;
-        };
-        break :blk b.exchange();
+        }
     } else blk: {
         maybe_alpaca = alpaca_mod.Alpaca.init(&http);
-        const a = maybe_alpaca orelse {
+        if (maybe_alpaca) |*a| {
+            break :blk a.exchange();
+        } else {
             std.debug.print("ERROR: Alpaca not configured. Set ALPACA_API_KEY + ALPACA_API_SECRET.\n", .{});
             return;
-        };
-        break :blk a.exchange();
+        }
     };
     // Bootstrap or catch-up
     if (!loaded_checkpoint) {
@@ -500,6 +506,8 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     var turso_ledger = if (turso != null) live_loop_mod.TursoLedger{ .turso = &turso.? } else null;
     const ledger = if (turso_ledger) |*tl| tl.ledger() else null;
     var loop = live_loop_mod.LiveLoop.init(&strategy, exchange, ledger);
+    loop.slippage_warn_pct = parseEnvF64("BINANCE_SLIPPAGE_WARN_PCT", 0.01);
+    loop.slippage_warning_ttl_sec = parseEnvF64("BINANCE_SLIPPAGE_WARN_TTL_SEC", 3600);
     loop.closed_count = closed_count;
     // Copy reconciled pending orders into LiveLoop
     var pi: u8 = 0;
@@ -690,7 +698,11 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                         }
                     }
                 }
-                turso.?.upsertStatus(t.timestamp, strategy.tick_count, regime_str, strategy.in_position, strategy.entry_price, equity, strategy.capital, unrealized, t.price, uptime_start, instance, symbol_info.tradingSymbol(), symbol_info.baseAsset(), symbol_info.quoteAsset(), symbol_info.markSymbol(), checkpoint_health, checkpoint_error);
+                const exchange_health = if (maybe_binance_spot) |*b| b.healthStatus() else "OK";
+                const exchange_error = if (maybe_binance_spot) |*b| b.healthError() else "";
+                const status_exchange_health = if (loop.last_warning) |warning| warning else exchange_health;
+                const status_exchange_error = if (loop.last_warning != null) loop.last_warning_error else exchange_error;
+                turso.?.upsertStatus(t.timestamp, strategy.tick_count, regime_str, strategy.in_position, strategy.entry_price, equity, strategy.capital, unrealized, t.price, uptime_start, instance, symbol_info.tradingSymbol(), symbol_info.baseAsset(), symbol_info.quoteAsset(), symbol_info.markSymbol(), checkpoint_health, checkpoint_error, status_exchange_health, status_exchange_error);
                 if (equity_interval or traded) {
                     turso.?.logEquity(t.timestamp, strategy.tick_count, strategy.capital, equity, unrealized, regime_str, t.price);
                     last_equity_ts = t.timestamp;

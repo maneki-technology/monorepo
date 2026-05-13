@@ -13,6 +13,9 @@ pub const OrderFill = struct {
     order_id_len: usize = 0,
     fill_price: f64,
     fill_qty: f64,
+    /// Exact quote-currency notional reported by the exchange for this fill.
+    /// Zero means unavailable; callers may fall back to fill_price * fill_qty.
+    quote_amount: f64 = 0,
     /// Native commission quantity in `commission_asset` units.
     commission: f64 = 0,
     /// Historical quote-currency value of `commission` at fill time. Required
@@ -31,7 +34,15 @@ pub const PendingOrder = struct {
     order_id: [64]u8 = undefined,
     order_id_len: usize = 0,
     side: Side,
+    /// Submitted base-asset quantity when the exchange accepts base quantity.
+    /// For quote-notional buys this may be an estimate for local tracking.
     qty: f64,
+    /// Submitted quote-currency notional when the exchange accepts quoteOrderQty.
+    /// Zero means the order was not submitted as quote-notional.
+    quote_amount: f64 = 0,
+    /// Base-asset dust threshold for remaining qty after a sell.
+    /// Zero means caller default.
+    dust_qty_threshold: f64 = 0,
 };
 
 /// Result of checking a pending order's status.
@@ -77,7 +88,7 @@ pub const Exchange = struct {
         buy: *const fn (ptr: *const anyopaque, qty: f64) ?OrderFill,
         sell: *const fn (ptr: *const anyopaque, qty: f64) ?OrderFill,
         // Async (non-blocking)
-        submitOrder: *const fn (ptr: *const anyopaque, side: Side, qty: f64) ?PendingOrder,
+        submitOrder: *const fn (ptr: *const anyopaque, side: Side, qty: f64, signal_price: f64) ?PendingOrder,
         checkOrder: *const fn (ptr: *const anyopaque, order_id: []const u8) OrderStatus,
         cancelOrder: *const fn (ptr: *const anyopaque, order_id: []const u8) CancelResult,
         // Query
@@ -94,8 +105,8 @@ pub const Exchange = struct {
     }
 
     // Async interface
-    pub fn submitOrder(self: Exchange, side: Side, qty: f64) ?PendingOrder {
-        return self.vtable.submitOrder(self.ptr, side, qty);
+    pub fn submitOrder(self: Exchange, side: Side, qty: f64, signal_price: f64) ?PendingOrder {
+        return self.vtable.submitOrder(self.ptr, side, qty, signal_price);
     }
 
     pub fn checkOrder(self: Exchange, order_id: []const u8) OrderStatus {

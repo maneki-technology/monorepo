@@ -84,6 +84,9 @@ pub const PendingOrderEntry = struct {
     side: exchange_mod.Side,
     signal_price: f64,
     size: f64,
+    requested_size: f64 = 0,
+    reserved_amount: f64 = 0,
+    dust_qty_threshold: f64 = 0,
     transfer_id: u32 = 0,
     is_deposit_buy: bool = false,
     entry_price: f64 = 0,
@@ -120,6 +123,11 @@ pub const LiveLoop = struct {
     last_buy_fill: ?struct { price: f64, size: f64, is_deposit: bool } = null,
     last_sell_fill: ?struct { price: f64, size: f64, pnl: f64, exit_type: types.Trade.ExitType } = null,
     last_sell_trade: ?types.Trade = null, // for printLiveTrade
+    last_warning: ?[]const u8 = null,
+    last_warning_error: []const u8 = "",
+    last_warning_ts: f64 = 0,
+    slippage_warn_pct: f64 = 0.01,
+    slippage_warning_ttl_sec: f64 = 3600,
     pub fn init(strategy: *Strategy, exchange: Exchange, ledger: ?Ledger) LiveLoop {
         return .{
             .strategy = strategy,
@@ -138,6 +146,11 @@ pub const LiveLoop = struct {
         self.last_buy_fill = null;
         self.last_sell_fill = null;
         self.last_sell_trade = null;
+        if (self.last_warning != null and self.slippage_warning_ttl_sec > 0 and self.last_warning_ts > 0 and t.timestamp - self.last_warning_ts >= self.slippage_warning_ttl_sec) {
+            self.last_warning = null;
+            self.last_warning_error = "";
+            self.last_warning_ts = 0;
+        }
         self.last_price = t.price;
 
         // --- Phase 1: Check pending orders (every tick) ---
@@ -190,13 +203,16 @@ pub const LiveLoop = struct {
                     if (po.side == .buy) {
                         self.handleBuyFill(po, fill, t);
                     } else {
-                        self.handleSellFill(po, fill);
+                        self.handleSellFill(po, fill, t);
                     }
                     self.removePending(i);
                     continue; // re-check swapped entry
                 },
                 .cancelled, .failed => {
-                    if (po.side == .buy) self.strategy.capital_reserved -= po.signal_price * po.size;
+                    if (po.side == .buy) {
+                        const reserved_amount = if (po.reserved_amount > 0) po.reserved_amount else po.signal_price * po.size;
+                        self.strategy.capital_reserved -= reserved_amount;
+                    }
                     if (po.transfer_id > 0 and self.ledger != null) self.ledger.?.voidTransfer(po.transfer_id);
                     self.removePending(i);
                     continue;
@@ -208,10 +224,14 @@ pub const LiveLoop = struct {
     }
 
     fn handleBuyFill(self: *LiveLoop, po: PendingOrderEntry, fill: exchange_mod.OrderFill, t: Tick) void {
-        self.strategy.capital_reserved -= po.signal_price * po.size;
+        const reserved_amount = if (po.reserved_amount > 0) po.reserved_amount else po.signal_price * po.size;
+        self.strategy.capital_reserved -= reserved_amount;
         const buy_price = if (fill.fill_price > 0) fill.fill_price else po.signal_price;
         const buy_size = if (fill.fill_qty > 0) fill.fill_qty else po.size;
         const fee = self.fillFee(fill, buy_price, buy_size);
+        const actual_notional = if (fill.quote_amount > 0) fill.quote_amount else buy_price * buy_size;
+        const unspent = @max(0, reserved_amount - actual_notional);
+        self.warnOnSlippage("BUY", po.signal_price, buy_price, t.timestamp);
 
         if (po.is_deposit_buy) {
             self.strategy.entry_price = (self.strategy.entry_price * self.strategy.size + buy_price * buy_size) / (self.strategy.size + buy_size);
@@ -219,7 +239,6 @@ pub const LiveLoop = struct {
             self.strategy.capital -= fee;
             if (buy_price > self.strategy.peak_price) self.strategy.peak_price = buy_price;
         } else {
-            const unspent = (po.size - buy_size) * buy_price;
             self.strategy.capital += unspent;
             self.strategy.entry_price = buy_price;
             self.strategy.size = buy_size;
@@ -230,7 +249,7 @@ pub const LiveLoop = struct {
         self.last_buy_fill = .{ .price = buy_price, .size = buy_size, .is_deposit = po.is_deposit_buy };
 
         if (po.transfer_id > 0 and self.ledger != null) {
-            const buy_cost = buy_price * buy_size;
+            const buy_cost = actual_notional;
             const fee_asset_price = self.feeAssetPrice(fill, buy_price);
             var ud_buf: [256]u8 = undefined;
             const ud = std.fmt.bufPrint(&ud_buf, "BUY oid={s}", .{po.order_id[0..po.order_id_len]}) catch "BUY";
@@ -239,17 +258,26 @@ pub const LiveLoop = struct {
         }
     }
 
-    fn handleSellFill(self: *LiveLoop, po: PendingOrderEntry, fill: exchange_mod.OrderFill) void {
+    fn handleSellFill(self: *LiveLoop, po: PendingOrderEntry, fill: exchange_mod.OrderFill, t: Tick) void {
         const sell_price = if (fill.fill_price > 0) fill.fill_price else po.signal_price;
         const sell_fee = self.fillFee(fill, sell_price, po.size);
-        const pnl = (sell_price - po.entry_price) * po.size - sell_fee;
-        const price_diff_pnl = (sell_price - po.signal_price) * po.size;
-        if (price_diff_pnl != 0) self.strategy.capital += price_diff_pnl;
+        const sell_amount = if (fill.quote_amount > 0) fill.quote_amount else sell_price * po.size;
+        const pnl = sell_amount - (po.entry_price * po.size) - sell_fee;
+        self.strategy.capital += pnl - po.pnl;
+        const requested_size = if (po.requested_size > 0) po.requested_size else po.size;
+        const dust_size = @max(0, requested_size - po.size);
+        const dust_threshold = if (po.dust_qty_threshold > 0) po.dust_qty_threshold else 0.00000001;
+        if (dust_size >= dust_threshold) {
+            self.strategy.in_position = true;
+            self.strategy.entry_price = po.entry_price;
+            self.strategy.size = dust_size;
+            self.strategy.peak_price = @max(po.entry_price, sell_price);
+        }
+        self.warnOnSlippage("SELL", po.signal_price, sell_price, t.timestamp);
         self.sells_filled += 1;
         self.last_sell_fill = .{ .price = sell_price, .size = po.size, .pnl = pnl, .exit_type = po.exit_type };
 
         if (po.transfer_id > 0 and self.ledger != null) {
-            const sell_amount = sell_price * po.size;
             const fee_asset_price = self.feeAssetPrice(fill, sell_price);
             const exit_str = switch (po.exit_type) {
                 .dc_exit => "DC",
@@ -301,19 +329,34 @@ pub const LiveLoop = struct {
         return turso_mod.Turso.ACCT_CASH;
     }
 
+    fn warnOnSlippage(self: *LiveLoop, side: []const u8, signal_price: f64, fill_price: f64, timestamp: f64) void {
+        if (self.slippage_warn_pct <= 0 or signal_price <= 0 or fill_price <= 0) return;
+        const slip = @abs(fill_price - signal_price) / signal_price;
+        if (slip >= self.slippage_warn_pct) {
+            self.last_warning = "EXCHANGE_SLIPPAGE";
+            self.last_warning_error = "exchange_slippage_warn_threshold_exceeded";
+            self.last_warning_ts = timestamp;
+            std.debug.print("  [exchange] WARNING: {s} slippage {d:.3}% signal=${d:.2} fill=${d:.2}\n", .{ side, slip * 100, signal_price, fill_price });
+        }
+    }
+
     pub fn submitBuy(self: *LiveLoop, price: f64, size: f64, is_deposit: bool, timestamp: f64) void {
-        if (self.exchange.submitOrder(.buy, size)) |pending| {
+        if (self.exchange.submitOrder(.buy, size, price)) |pending| {
             if (self.pending_count < MAX_PENDING) {
+                const submitted_size = if (pending.qty > 0) pending.qty else size;
+                const reserved_amount = if (pending.quote_amount > 0) pending.quote_amount else price * submitted_size;
                 const oid_slice = pending.order_id[0..pending.order_id_len];
                 var tid: u32 = 0;
                 if (self.ledger != null) {
-                    const cost = price * size;
-                    tid = self.ledger.?.createPendingTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, cost, turso_mod.Turso.CODE_BUY, "BUY pending", timestamp, price, size, oid_slice) orelse 0;
+                    tid = self.ledger.?.createPendingTransfer(turso_mod.Turso.ACCT_BTC, turso_mod.Turso.ACCT_CASH, reserved_amount, turso_mod.Turso.CODE_BUY, "BUY pending", timestamp, price, submitted_size, oid_slice) orelse 0;
                 }
                 self.pending_orders[self.pending_count] = .{
                     .side = .buy,
                     .signal_price = price,
-                    .size = size,
+                    .size = submitted_size,
+                    .requested_size = size,
+                    .reserved_amount = reserved_amount,
+                    .dust_qty_threshold = pending.dust_qty_threshold,
                     .is_deposit_buy = is_deposit,
                     .transfer_id = tid,
                 };
@@ -321,7 +364,7 @@ pub const LiveLoop = struct {
                 @memcpy(self.pending_orders[self.pending_count].order_id[0..len], pending.order_id[0..len]);
                 self.pending_orders[self.pending_count].order_id_len = len;
                 self.pending_count += 1;
-                self.strategy.capital_reserved += price * size;
+                self.strategy.capital_reserved += reserved_amount;
                 if (is_deposit) {
                     self.deposit_buys_submitted += 1;
                 } else {
@@ -334,18 +377,21 @@ pub const LiveLoop = struct {
     fn submitSell(self: *LiveLoop, trade: Trade, timestamp: f64) void {
         self.closed_count += 1;
         self.last_sell_trade = trade; // for printLiveTrade in main.zig
-        if (self.exchange.submitOrder(.sell, trade.size)) |pending| {
+        if (self.exchange.submitOrder(.sell, trade.size, trade.exit_price)) |pending| {
             if (self.pending_count < MAX_PENDING) {
+                const submitted_size = if (pending.qty > 0) pending.qty else trade.size;
                 const oid_slice = pending.order_id[0..pending.order_id_len];
                 var tid: u32 = 0;
                 if (self.ledger != null) {
-                    const sell_amt = trade.exit_price * trade.size;
-                    tid = self.ledger.?.createPendingTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_BTC, sell_amt, turso_mod.Turso.CODE_SELL, "SELL pending", timestamp, trade.exit_price, trade.size, oid_slice) orelse 0;
+                    const sell_amt = trade.exit_price * submitted_size;
+                    tid = self.ledger.?.createPendingTransfer(turso_mod.Turso.ACCT_CASH, turso_mod.Turso.ACCT_BTC, sell_amt, turso_mod.Turso.CODE_SELL, "SELL pending", timestamp, trade.exit_price, submitted_size, oid_slice) orelse 0;
                 }
                 self.pending_orders[self.pending_count] = .{
                     .side = .sell,
                     .signal_price = trade.exit_price,
-                    .size = trade.size,
+                    .size = submitted_size,
+                    .requested_size = trade.size,
+                    .dust_qty_threshold = pending.dust_qty_threshold,
                     .entry_price = trade.entry_price,
                     .pnl = trade.pnl,
                     .exit_type = trade.exit_type,
@@ -377,7 +423,8 @@ pub const LiveLoop = struct {
                         if (self.pending_orders[i].transfer_id > 0 and self.ledger != null) {
                             self.ledger.?.voidTransfer(self.pending_orders[i].transfer_id);
                         }
-                        self.strategy.capital_reserved -= self.pending_orders[i].signal_price * self.pending_orders[i].size;
+                        const reserved_amount = if (self.pending_orders[i].reserved_amount > 0) self.pending_orders[i].reserved_amount else self.pending_orders[i].signal_price * self.pending_orders[i].size;
+                        self.strategy.capital_reserved -= reserved_amount;
                     },
                 }
                 self.cancels_issued += 1;
