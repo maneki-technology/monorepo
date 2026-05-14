@@ -5,7 +5,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 
-CLOUD_TARGET="${CLOUD_TARGET:-aws}"
+CLOUD_TARGET="${CLOUD_TARGET:-oci}"
 
 AWS_REGION="${AWS_REGION:-ap-northeast-1}"
 AWS_INSTANCE_ID="${AWS_INSTANCE_ID:-}"
@@ -15,7 +15,7 @@ AWS_REMOTE_DIR="${AWS_REMOTE_DIR:-.}"
 AWS_SERVICE_NAME="${AWS_SERVICE_NAME:-dctrading}"
 export AWS_PROFILE="${AWS_PROFILE:-AdministratorAccess-118740508718}"
 
-if ! aws sts get-caller-identity >/dev/null 2>&1; then
+if [ "$CLOUD_TARGET" = "aws" ] && ! aws sts get-caller-identity >/dev/null 2>&1; then
     echo "AWS SSO token expired or invalid. Launching login..."
     aws sso login --profile "$AWS_PROFILE"
     if ! aws sts get-caller-identity >/dev/null 2>&1; then
@@ -29,6 +29,13 @@ GCP_INSTANCE="${GCP_INSTANCE:-dctrading-asia}"
 GCP_REMOTE_DIR="${GCP_REMOTE_DIR:-.}"
 GCP_SERVICE_NAME="${GCP_SERVICE_NAME:-dctrading}"
 
+OCI_SSH_HOST="${OCI_SSH_HOST:-}"
+OCI_SSH_USER="${OCI_SSH_USER:-ubuntu}"
+OCI_SSH_KEY="${OCI_SSH_KEY:-}"
+OCI_REMOTE_DIR="${OCI_REMOTE_DIR:-.}"
+OCI_SERVICE_NAME="${OCI_SERVICE_NAME:-dctrading}"
+OCI_INSTANCE_OCID="${OCI_INSTANCE_OCID:-}"
+
 source "$PROJECT_DIR/.env"
 
 TURSO_HOST=$(echo "$TURSO_URL" | sed 's|libsql://||; s|https://||')
@@ -36,6 +43,11 @@ TURSO_HOST=$(echo "$TURSO_URL" | sed 's|libsql://||; s|https://||')
 ssh_opts=(-o StrictHostKeyChecking=accept-new)
 if [ -n "$AWS_SSH_KEY" ]; then
     ssh_opts+=(-i "$AWS_SSH_KEY")
+fi
+
+oci_ssh_opts=(-o StrictHostKeyChecking=accept-new)
+if [ -n "$OCI_SSH_KEY" ]; then
+    oci_ssh_opts+=(-i "$OCI_SSH_KEY")
 fi
 
 aws_host() {
@@ -58,6 +70,24 @@ stop_remote() {
     case "$CLOUD_TARGET" in
         local)
             echo "  Skipping remote cleanup (CLOUD_TARGET=local)."
+            ;;
+        oci)
+            if [ -z "$OCI_SSH_HOST" ]; then
+                echo "  OCI_SSH_HOST not set. Skipping OCI remote cleanup." >&2
+                return
+            fi
+
+            echo "  Stopping OCI bot..."
+            ssh "${oci_ssh_opts[@]}" "$OCI_SSH_USER@$OCI_SSH_HOST" "sudo systemctl stop '$OCI_SERVICE_NAME' 2>/dev/null || true" 2>/dev/null || true
+            sleep 2
+
+            echo "  Removing OCI checkpoint state..."
+            ssh "${oci_ssh_opts[@]}" "$OCI_SSH_USER@$OCI_SSH_HOST" "rm -f '$OCI_REMOTE_DIR'/dctrading.checkpoint '$OCI_REMOTE_DIR'/dctrading.checkpoint.tmp '$OCI_REMOTE_DIR'/dctrading.checkpoint.bak.*" 2>/dev/null || true
+
+            if [ -n "$OCI_INSTANCE_OCID" ] && command -v oci >/dev/null 2>&1; then
+                echo "  Stopping OCI instance..."
+                oci compute instance action --instance-id "$OCI_INSTANCE_OCID" --action STOP >/dev/null || true
+            fi
             ;;
         aws)
             local host
@@ -94,7 +124,7 @@ stop_remote() {
             gcloud compute instances stop "$GCP_INSTANCE" --zone="$GCP_ZONE" --quiet >/dev/null || true
             ;;
         *)
-            echo "Unsupported CLOUD_TARGET=$CLOUD_TARGET. Use aws, gcp, or local." >&2
+            echo "Unsupported CLOUD_TARGET=$CLOUD_TARGET. Use oci, aws, gcp, or local." >&2
             exit 1
             ;;
     esac

@@ -130,65 +130,92 @@ source .env && ./zig-out/bin/dctrading -
 # Run tests
 zig build test
 
-# Cross-compile for Linux (cloud deployment)
+# Cross-compile for x86_64 Linux (legacy AWS/GCP)
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux
+
+# Cross-compile for ARM Linux (OCI Ampere A1)
+zig build -Doptimize=ReleaseFast -Dtarget=aarch64-linux
 ```
 
 Known-good historical simulation outputs are recorded in
 [`docs/DCTRADING_SIMULATION_BASELINES.md`](../../docs/DCTRADING_SIMULATION_BASELINES.md).
 
-### AWS Tokyo Deployment
+### OCI Ampere A1 Deployment
+
+Requires OCI CLI configured with an API key, plus `jq`, `curl`, and `ssh`.
 
 ```bash
-# One-time: create the EC2 instance, security group, and key pair
-./scripts/create-aws-instance.sh
+# Create the VM once with OCI CLI:
+export OCI_REGION=ap-singapore-1
+export OCI_COMPARTMENT_OCID=ocid1.compartment...
+./scripts/create-oci-instance.sh
 
-# Required once in your shell or .env
-export AWS_REGION=ap-northeast-1
-export AWS_INSTANCE_ID=i-...
-export AWS_SSH_USER=ec2-user
-export AWS_SSH_KEY=~/.ssh/dctrading-aws.pem
-
-# Optional when the instance DNS cannot be derived from AWS CLI
-export AWS_SSH_HOST=ec2-...ap-northeast-1.compute.amazonaws.com
+# The create script prints these values for your shell or .env:
+export CLOUD_TARGET=oci
+export OCI_SSH_HOST=...
+export OCI_SSH_USER=ubuntu
+export OCI_INSTANCE_OCID=ocid1.instance...
+export OCI_SSH_KEY=/path/to/dctrading-oci.key
 
 # Quick deploy (update binary + restart, don't touch local bot)
-./scripts/deploy-aws.sh
+./scripts/deploy-oci.sh
 
-# Switch to AWS Tokyo
-./scripts/switch-to-aws.sh
+# Switch to OCI
+./scripts/switch-to-oci.sh
 
 # Switch back to local
 ./scripts/switch-to-local.sh
 ```
 
-`switch-to-aws.sh` starts the EC2 instance, waits for SSH, uploads the Linux
-binary and checkpoint state, then starts the `dctrading` systemd service.
-`switch-to-local.sh` defaults to AWS, stops the remote service, downloads
-checkpoint state, stops the EC2 instance, then starts the local tmux process.
+OCI Always Free Ampere A1 allows up to 4 OCPUs and 24GB memory total across A1
+instances in the tenancy home region. `create-oci-instance.sh` defaults to
+using that full pool as one `VM.Standard.A1.Flex` instance: 4 OCPUs, 24GB RAM,
+a 50GB boot volume, Ubuntu 22.04, and the Singapore home region
+(`ap-singapore-1`). It creates or reuses a VCN, public
+subnet, internet gateway, route table, security list with SSH ingress from your
+current public IP, SSH key, instance, log file, and `dctrading` systemd
+service. Override `OCI_OCPUS`, `OCI_MEMORY_GB`, `OCI_BOOT_VOLUME_GB`,
+`OCI_IMAGE_OCID`, `OCI_AVAILABILITY_DOMAIN`, or `OCI_REGION` when needed.
+If OCI returns `Out of host capacity`, the create script tries every
+availability domain and falls back through `OCI_FALLBACK_SIZES`
+(`4:24 3:18 2:12 1:6`) before failing. Rerun later if all sizes are out of
+capacity.
+
+`switch-to-oci.sh` stops the local bot, builds an ARM Linux binary
+(`aarch64-linux`), uploads the binary, `.env`, and checkpoint state, then starts
+the `dctrading` systemd service.
+`switch-to-local.sh` now defaults to OCI, downloads checkpoint state, optionally
+stops the OCI instance when `OCI_INSTANCE_OCID` and the OCI CLI are configured,
+then starts the local tmux process.
 
 The switch scripts move the checkpoint primary plus local backup files between
 hosts and intentionally ignore `dctrading.checkpoint.tmp`. If no local files are
 available, startup can still restore from Turso when remote checkpoint backup is
 configured.
 
-Expected AWS instance setup:
-- Tokyo region (`ap-northeast-1`) with a free-tier-compatible Linux EC2 instance
-  (`t2.micro` by default, 8GB gp3 root volume to stay within free-tier limits)
-- Security group allowing SSH from your IP and outbound HTTPS
-- AWS CLI authenticated locally with permission to start, stop, wait, and
-  describe the instance
-- SSH access through `AWS_SSH_USER` and `AWS_SSH_KEY`
-- `~/dctrading`, `~/.env`, and a systemd service named `dctrading` that runs
-  the binary from the same remote directory
+Expected OCI instance setup:
+- Always Free eligible `VM.Standard.A1.Flex` shape.
+- No more than 4 OCPUs and 24GB memory total across all Always Free A1
+  instances.
+- Boot volume allocation kept within the Always Free block-volume allowance.
+- SSH ingress from your IP and outbound HTTPS. Rerun
+  `create-oci-instance.sh` if your public IP changes and SSH stops working.
+- SSH access through `OCI_SSH_USER`, `OCI_SSH_HOST`, and `OCI_SSH_KEY`.
+- `~/dctrading`, `~/.env`, and a systemd service named `dctrading` managed by
+  the scripts.
 
-> **Billing warning:** Data transfer out is not free-tier. Monitor your AWS
-> bill and set up billing alerts. The bot only needs outbound HTTPS so costs
-> are typically negligible, but not zero.
+> **OCI capacity note:** Always Free A1 capacity can be temporarily unavailable
+> in a region or availability domain. If provisioning returns an out-of-capacity
+> error, try another availability domain or wait and retry.
 
-The previous GCP flow remains available while AWS is verified:
+The previous AWS/GCP flows remain available as legacy targets:
 
 ```bash
+./scripts/create-aws-instance.sh
+./scripts/deploy-aws.sh
+./scripts/switch-to-aws.sh
+CLOUD_TARGET=aws ./scripts/switch-to-local.sh
+
 ./scripts/switch-to-gcp.sh
 CLOUD_TARGET=gcp ./scripts/switch-to-local.sh
 ```
@@ -197,7 +224,7 @@ CLOUD_TARGET=gcp ./scripts/switch-to-local.sh
 
 ```bash
 # Nuke everything — stops remote bot, drops Turso tables, deletes checkpoints, closes Alpaca positions
-CLOUD_TARGET=aws ./scripts/nuke.sh
+CLOUD_TARGET=oci ./scripts/nuke.sh
 
 # Or skip remote cleanup and only nuke local state + Turso + Alpaca
 CLOUD_TARGET=local ./scripts/nuke.sh
