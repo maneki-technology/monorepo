@@ -25,12 +25,15 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - CLI `checkpoint:migrate [path] [backups]` migrates checkpoint primary/backups offline to the current DCTRADE5 layout after writing `.pre-migrate` copies.
 
 ### Scripts (`scripts/`)
-- `create-aws-instance.sh` — One-time AWS infrastructure setup: security group, key pair, EC2 instance (with optional IAM instance profile), systemd service, and CloudWatch agent.
-- `deploy-aws.sh` — Build Linux binary, upload to running AWS EC2 instance, restart systemd. Does not stop local bot or migrate checkpoints. Ensures CloudWatch agent, log file, and IAM instance profile attachment exist.
-- `switch-to-aws.sh` — Stop local bot, start AWS Tokyo EC2 instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files. Ensures CloudWatch agent, log file, and IAM instance profile attachment exist.
+- `create-oci-instance.sh` — One-time OCI Ampere A1 setup: creates or reuses VCN, public subnet, internet gateway, route table, SSH-restricted security list, SSH key, max Always Free A1 VM by default (4 OCPUs/24GB RAM), log file, and systemd service.
+- `deploy-oci.sh` — Build ARM Linux binary for OCI Ampere A1, upload to running OCI instance, restart systemd. Does not stop local bot or migrate checkpoints.
+- `switch-to-oci.sh` — Stop local bot, optionally start OCI instance via OCI CLI, upload ARM Linux binary plus checkpoint primary/local backups, excluding temp files, and start systemd.
+- `create-aws-instance.sh` — Legacy one-time AWS infrastructure setup: security group, key pair, EC2 instance (with optional IAM instance profile), systemd service, and CloudWatch agent.
+- `deploy-aws.sh` — Legacy AWS deploy: build Linux binary, upload to running AWS EC2 instance, restart systemd.
+- `switch-to-aws.sh` — Legacy AWS switch path.
 - `setup-aws-iam.sh` — Standalone IAM instance profile creation for CloudWatch. Creates the role, attaches `CloudWatchAgentServerPolicy`, creates the instance profile, and waits for propagation.
 - `switch-to-gcp.sh` — Stop local bot, start GCP Tokyo instance + systemd service. Copies binary plus checkpoint primary/local backups, excluding temp files.
-- `switch-to-local.sh` — Stop cloud bot + instance, download checkpoint primary/local backups, start local bot in tmux. Defaults to AWS; use `CLOUD_TARGET=gcp` for the legacy GCP path.
+- `switch-to-local.sh` — Stop cloud bot + instance, download checkpoint primary/local backups, start local bot in tmux. Defaults to OCI; use `CLOUD_TARGET=aws` or `gcp` for legacy paths.
 - `nuke.sh` — Destructive reset for Turso state, local + remote checkpoint primary/backups, and Alpaca positions. Uses `CLOUD_TARGET` to stop and clear remote state.
 
 ### Key Patterns
@@ -69,7 +72,24 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 | `BOT_INSTANCE` | No | main.zig (default: "local") |
 | `CHECKPOINT_BACKUP_RETENTION` | No | main.zig (default: 5 local rotated backups; 0 disables) |
 | `CHECKPOINT_REMOTE_BACKUP_INTERVAL` | No | main.zig/Turso (default: 3600 seconds; 0 disables) |
-| `CLOUD_TARGET` | No | switch-to-local.sh (default: aws; set gcp for legacy GCP) |
+| `CLOUD_TARGET` | No | switch-to-local.sh/nuke.sh (default: oci; set aws/gcp/local for legacy or local-only paths) |
+| `OCI_REGION` | No | create-oci-instance.sh and OCI CLI calls; defaults to ap-singapore-1 |
+| `OCI_HOME_REGION` | No | create-oci-instance.sh warning guard; defaults to ap-singapore-1 |
+| `OCI_COMPARTMENT_OCID` | Yes for OCI create | create-oci-instance.sh |
+| `OCI_INSTANCE_NAME` | No | create-oci-instance.sh (default: dctrading) |
+| `OCI_SHAPE` | No | create-oci-instance.sh (default: VM.Standard.A1.Flex) |
+| `OCI_OCPUS` | No | create-oci-instance.sh (default: 4, max Always Free A1 pool as one VM) |
+| `OCI_MEMORY_GB` | No | create-oci-instance.sh (default: 24, max Always Free A1 pool as one VM) |
+| `OCI_FALLBACK_SIZES` | No | create-oci-instance.sh fallback list when A1 capacity is unavailable (default: `4:24 3:18 2:12 1:6`) |
+| `OCI_BOOT_VOLUME_GB` | No | create-oci-instance.sh (default: 50) |
+| `OCI_IMAGE_OCID` | No | create-oci-instance.sh image override when automatic Ubuntu lookup fails |
+| `OCI_AVAILABILITY_DOMAIN` | No | create-oci-instance.sh AD override when default AD has no A1 capacity |
+| `OCI_SSH_HOST` | Yes for OCI scripts | deploy-oci.sh/switch-to-oci.sh/switch-to-local.sh/nuke.sh |
+| `OCI_SSH_USER` | No | OCI scripts (default: ubuntu) |
+| `OCI_SSH_KEY` | No | OCI scripts |
+| `OCI_REMOTE_DIR` | No | OCI scripts (default: `.`) |
+| `OCI_SERVICE_NAME` | No | OCI scripts (default: dctrading) |
+| `OCI_INSTANCE_OCID` | No | OCI scripts; optional OCI CLI start/stop |
 | `AWS_REGION` | No | switch-to-aws.sh/switch-to-local.sh (default: ap-northeast-1) |
 | `AWS_INSTANCE_ID` | Yes for AWS scripts | switch-to-aws.sh/switch-to-local.sh |
 | `AWS_SSH_USER` | No | switch-to-aws.sh/switch-to-local.sh (default: ec2-user) |
@@ -79,7 +99,6 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 | `AWS_SERVICE_NAME` | No | switch-to-aws.sh/switch-to-local.sh (default: dctrading) |
 | `AWS_PROFILE` | No | All AWS scripts (default: AdministratorAccess-118740508718) |
 | `AWS_IAM_INSTANCE_PROFILE` | No | create-aws-instance.sh — IAM instance profile name to attach to the EC2 instance. Must have `CloudWatchAgentServerPolicy` for CloudWatch Logs/Metrics.
-| `CLOUD_TARGET` | No | nuke.sh/switch-to-local.sh (default: aws; set gcp or local) |
 | `GCP_ZONE` | No | switch-to-gcp.sh/switch-to-local.sh (default: asia-northeast1-b) |
 | `GCP_INSTANCE` | No | switch-to-gcp.sh/switch-to-local.sh (default: dctrading-asia) |
 | `GCP_REMOTE_DIR` | No | switch-to-gcp.sh (default: remote home via `.`) |
@@ -96,7 +115,8 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ### Build
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
-zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # cloud Linux
+zig build -Doptimize=ReleaseFast -Dtarget=aarch64-linux  # OCI Ampere A1 ARM Linux
+zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # legacy AWS/GCP x86_64 Linux
 zig build test                                 # 182 tests
 ./zig-out/bin/dctrading checkpoint:migrate dctrading.checkpoint 5
 ```
