@@ -378,48 +378,46 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         std.debug.print("  [exchange] Spot mode — skipping exchange position reconciliation (Turso is source of truth).\n", .{});
     }
 
-    // --- Pending order tracking ---
-    const PendingOrderEntry = struct {
-        order_id: [64]u8 = undefined,
-        order_id_len: usize = 0,
-        side: exchange_mod.Side,
-        signal_price: f64,
-        size: f64,
-        transfer_id: u32 = 0,
-        is_deposit_buy: bool = false,
-        entry_price: f64 = 0,
-        pnl: f64 = 0,
-        exit_type: types.Trade.ExitType = .dc_exit,
-    };
-    const MAX_PENDING: usize = 4;
-    var pending_orders: [MAX_PENDING]PendingOrderEntry = undefined;
-    var pending_count: u8 = 0;
+    // Initialize LiveLoop before startup reconciliation so restart-resolved fills
+    // use the same state and ledger path as normal live fills.
+    var turso_ledger = if (turso != null) live_loop_mod.TursoLedger{ .turso = &turso.? } else null;
+    if (turso_ledger) |*tl| tl.sync_writes = true;
+    const ledger = if (turso_ledger) |*tl| tl.ledger() else null;
+    var loop = live_loop_mod.LiveLoop.init(&strategy, exchange, ledger);
+    loop.slippage_warn_pct = parseEnvF64("BINANCE_SLIPPAGE_WARN_PCT", 0.01);
+    loop.slippage_warning_ttl_sec = parseEnvF64("BINANCE_SLIPPAGE_WARN_TTL_SEC", 3600);
 
     // Reconcile pending transfers from Turso (orders submitted but not confirmed before restart)
     if (turso != null) {
-        while (turso.?.queryPendingOrder()) |pending_info| {
+        var last_reconciled_pending_id: u32 = 0;
+        while (turso.?.queryPendingOrderAfter(last_reconciled_pending_id)) |pending_info| {
+            last_reconciled_pending_id = pending_info.transfer_id;
             const oid = pending_info.order_id[0..pending_info.order_id_len];
             std.debug.print("  [reconcile] Pending transfer id={d} order_id={s} code={d}\n", .{ pending_info.transfer_id, oid, pending_info.code });
+            const side: exchange_mod.Side = if (pending_info.code == turso_mod.Turso.CODE_BUY) .buy else .sell;
+            const po: live_loop_mod.PendingOrderEntry = .{
+                .side = side,
+                .signal_price = pending_info.price,
+                .size = pending_info.size,
+                .requested_size = pending_info.size,
+                .reserved_amount = pending_info.amount,
+                .transfer_id = pending_info.transfer_id,
+                .is_deposit_buy = (side == .buy and strategy.in_position),
+                .entry_price = strategy.entry_price,
+            };
             const order_status = exchange.checkOrder(oid);
             switch (order_status) {
                 .filled => |fill| {
                     std.debug.print("  [reconcile] Order filled: price=${d:.2} qty={d:.8}\n", .{ fill.fill_price, fill.fill_qty });
-                    turso.?.postTransfer(pending_info.transfer_id);
-                    // If it was a buy, update strategy state
-                    if (pending_info.code == turso_mod.Turso.CODE_BUY) {
-                        const bp = if (fill.fill_price > 0) fill.fill_price else pending_info.price;
-                        const bs = if (fill.fill_qty > 0) fill.fill_qty else pending_info.size;
-                        if (!strategy.in_position) {
-                            strategy.in_position = true;
-                            strategy.entry_price = bp;
-                            strategy.size = bs;
-                            strategy.peak_price = bp;
-                        } else {
-                            // Deposit buy: blend
-                            strategy.entry_price = (strategy.entry_price * strategy.size + bp * bs) / (strategy.size + bs);
-                            strategy.size += bs;
-                            if (bp > strategy.peak_price) strategy.peak_price = bp;
-                        }
+                    const fill_tick: types.Tick = .{
+                        .timestamp = @floatFromInt(time(null)),
+                        .price = if (fill.fill_price > 0) fill.fill_price else pending_info.price,
+                    };
+                    if (side == .buy) {
+                        strategy.capital_reserved += pending_info.amount;
+                        loop.handleBuyFill(po, fill, fill_tick);
+                    } else {
+                        loop.handleSellFill(po, fill, fill_tick);
                     }
                 },
                 .cancelled, .failed => {
@@ -429,27 +427,25 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                 .pending => {
                     // Still pending after restart — track in main loop
                     std.debug.print("  [reconcile] Order still pending, tracking in main loop\n", .{});
-                    if (pending_count < MAX_PENDING) {
-                        const side: exchange_mod.Side = if (pending_info.code == turso_mod.Turso.CODE_BUY) .buy else .sell;
-                        pending_orders[pending_count] = .{
-                            .side = side,
-                            .signal_price = pending_info.price,
-                            .size = pending_info.size,
-                            .transfer_id = pending_info.transfer_id,
-                            .is_deposit_buy = (side == .buy and strategy.in_position),
-                            .entry_price = strategy.entry_price,
-                        };
-                        const len = @min(pending_info.order_id_len, pending_orders[pending_count].order_id.len);
-                        @memcpy(pending_orders[pending_count].order_id[0..len], pending_info.order_id[0..len]);
-                        pending_orders[pending_count].order_id_len = len;
-                        pending_count += 1;
-                        // Reserve capital for pending buy
-                        if (side == .buy) strategy.capital_reserved += pending_info.price * pending_info.size;
+                    if (!loop.trackPendingOrder(po, oid)) {
+                        std.debug.print("ERROR: Too many pending orders at startup; refusing to run without tracking order {s}.\n", .{oid});
+                        return;
+                    }
+                },
+                .partial => |fill| {
+                    std.debug.print("  [reconcile] Order partially filled: price=${d:.2} qty={d:.8}, tracking in main loop\n", .{ fill.fill_price, fill.fill_qty });
+                    var partial_po = po;
+                    partial_po.filled_qty = fill.fill_qty;
+                    partial_po.filled_quote_amount = fill.quote_amount;
+                    if (!loop.trackPendingOrder(partial_po, oid)) {
+                        std.debug.print("ERROR: Too many pending orders at startup; refusing to run without tracking order {s}.\n", .{oid});
+                        return;
                     }
                 },
             }
         }
     }
+    if (turso_ledger) |*tl| tl.sync_writes = false;
 
     // Fetch initial funding rate
     const initial_funding_now: f64 = @floatFromInt(time(null));
@@ -485,6 +481,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
     }
     var last_equity_ts: f64 = 0;
     var last_deposit_check: f64 = 0;
+    var last_exchange_balance_check: f64 = 0;
     var last_resource_ts: f64 = 0;
     var last_resource_tick_ts: f64 = 0;
     var resource_window: resource_monitor.FeedWindow = .{};
@@ -502,32 +499,7 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
         t.notifyStartup(regime_str, strategy.capital, strategy.in_position, instance);
     }
 
-    // Initialize LiveLoop — core order flow logic (shared with integration tests)
-    var turso_ledger = if (turso != null) live_loop_mod.TursoLedger{ .turso = &turso.? } else null;
-    const ledger = if (turso_ledger) |*tl| tl.ledger() else null;
-    var loop = live_loop_mod.LiveLoop.init(&strategy, exchange, ledger);
-    loop.slippage_warn_pct = parseEnvF64("BINANCE_SLIPPAGE_WARN_PCT", 0.01);
-    loop.slippage_warning_ttl_sec = parseEnvF64("BINANCE_SLIPPAGE_WARN_TTL_SEC", 3600);
     loop.closed_count = closed_count;
-    // Copy reconciled pending orders into LiveLoop
-    var pi: u8 = 0;
-    while (pi < pending_count) : (pi += 1) {
-        if (loop.pending_count < live_loop_mod.MAX_PENDING) {
-            loop.pending_orders[loop.pending_count] = .{
-                .side = pending_orders[pi].side,
-                .signal_price = pending_orders[pi].signal_price,
-                .size = pending_orders[pi].size,
-                .transfer_id = pending_orders[pi].transfer_id,
-                .is_deposit_buy = pending_orders[pi].is_deposit_buy,
-                .entry_price = pending_orders[pi].entry_price,
-                .pnl = pending_orders[pi].pnl,
-                .exit_type = pending_orders[pi].exit_type,
-            };
-            @memcpy(loop.pending_orders[loop.pending_count].order_id[0..pending_orders[pi].order_id_len], pending_orders[pi].order_id[0..pending_orders[pi].order_id_len]);
-            loop.pending_orders[loop.pending_count].order_id_len = pending_orders[pi].order_id_len;
-            loop.pending_count += 1;
-        }
-    }
     while (!shutdown_requested) {
         const tick = feed.nextTick() catch |err| {
             std.debug.print("\n  FEED ERROR: {s}. Reconnecting...\n", .{@errorName(err)});
@@ -696,6 +668,14 @@ fn runLive(allocator: std.mem.Allocator, io: std.Io, threshold: f64, capital: f6
                                 last_checkpoint_alert = checkpoint_health;
                             }
                         }
+                    }
+                }
+                if (exchange_is_spot and t.timestamp - last_exchange_balance_check >= 300.0) {
+                    last_exchange_balance_check = t.timestamp;
+                    if (maybe_binance_spot) |*b| {
+                        const expected_base = turso.?.queryAccountBalance(turso_mod.Turso.ACCT_BTC) orelse strategy.size;
+                        const expected_quote = turso.?.queryAccountBalance(turso_mod.Turso.ACCT_CASH) orelse strategy.capital;
+                        b.reconcileBalances(symbol_info.baseAsset(), symbol_info.quoteAsset(), expected_base, expected_quote);
                     }
                 }
                 const exchange_health = if (maybe_binance_spot) |*b| b.healthStatus() else "OK";

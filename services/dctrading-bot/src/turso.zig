@@ -331,6 +331,16 @@ pub const Turso = struct {
     pub const FLAG_PENDING: u8 = 1;
     pub const FLAG_POST_PENDING: u8 = 2;
     pub const FLAG_VOID_PENDING: u8 = 4;
+    pub const OPEN_POSITION_REPLAY_LIMIT: u32 = 2048;
+    pub const OPEN_POSITION_FIELD_COUNT: u8 = 4;
+    pub const OPEN_POSITION_MIN_QTY: f64 = 0.00000001;
+
+    pub const OpenPosition = struct {
+        entry_price: f64,
+        entry_time: f64,
+        size: f64,
+        fee: f64,
+    };
 
     /// Create a posted transfer + update account balances atomically (async).
     /// TigerBeetle convention: debit_account receives credits, credit_account receives debits.
@@ -384,6 +394,14 @@ pub const Turso = struct {
     /// Post a pending transfer with actual fill data — append settlement record with corrected price/size/amount.
     /// Original pending transfer stays immutable. New row has actual exchange fill values.
     pub fn postTransferWithFill(self: *const Turso, pending_id: u32, actual_amount: f64, actual_price: f64, actual_size: f64, user_data: []const u8) void {
+        _ = self.postTransferWithFillInternal(pending_id, actual_amount, actual_price, actual_size, user_data, false);
+    }
+
+    pub fn postTransferWithFillSync(self: *const Turso, pending_id: u32, actual_amount: f64, actual_price: f64, actual_size: f64, user_data: []const u8) bool {
+        return self.postTransferWithFillInternal(pending_id, actual_amount, actual_price, actual_size, user_data, true);
+    }
+
+    fn postTransferWithFillInternal(self: *const Turso, pending_id: u32, actual_amount: f64, actual_price: f64, actual_size: f64, user_data: []const u8, wait: bool) bool {
         var buf: [4096]u8 = undefined;
         const sql = std.fmt.bufPrint(&buf,
             \\{{"requests": [
@@ -393,8 +411,10 @@ pub const Turso = struct {
             \\  {{"type": "execute", "stmt": {{"sql": "UPDATE accounts SET debits_pending = debits_pending - (SELECT amount FROM transfers WHERE id = {d}), debits_posted = debits_posted + {d:.8} WHERE id = (SELECT credit_account_id FROM transfers WHERE id = {d})"}}}},
             \\  {{"type": "execute", "stmt": {{"sql": "COMMIT"}}}}
             \\]}}
-        , .{ actual_amount, user_data, actual_price, actual_size, pending_id, pending_id, actual_amount, pending_id, pending_id, actual_amount, pending_id }) catch return;
+        , .{ actual_amount, user_data, actual_price, actual_size, pending_id, pending_id, actual_amount, pending_id, pending_id, actual_amount, pending_id }) catch return false;
+        if (wait) return self.execSync(sql);
         self.execAsync(sql);
+        return true;
     }
 
     /// Void a pending transfer — append void record + release reserved balances (sync).
@@ -427,9 +447,14 @@ pub const Turso = struct {
     };
 
     pub fn queryPendingOrder(self: *const Turso) ?PendingTransferInfo {
-        const sql =
-            \\{"requests": [{"type": "execute", "stmt": {"sql": "SELECT id, order_id, code, amount, price, size FROM transfers WHERE status = 'pending' AND order_id IS NOT NULL AND id NOT IN (SELECT pending_id FROM transfers WHERE pending_id IS NOT NULL) LIMIT 1"}}]}
-        ;
+        return self.queryPendingOrderAfter(0);
+    }
+
+    pub fn queryPendingOrderAfter(self: *const Turso, after_id: u32) ?PendingTransferInfo {
+        var sql_buf: [512]u8 = undefined;
+        const sql = std.fmt.bufPrint(&sql_buf,
+            \\{{"requests": [{{"type": "execute", "stmt": {{"sql": "SELECT id, order_id, code, amount, price, size FROM transfers WHERE status = 'pending' AND order_id IS NOT NULL AND id > {d} AND id NOT IN (SELECT pending_id FROM transfers WHERE pending_id IS NOT NULL) ORDER BY id ASC LIMIT 1"}}}}]}}
+        , .{after_id}) catch return null;
         const resp = self.execSyncRead(sql) orelse return null;
         defer resp.deinit();
         if (std.mem.indexOf(u8, resp.body, "\"rows\":[]") != null) return null;
@@ -512,42 +537,85 @@ pub const Turso = struct {
         return parseFirstValueFloat(resp.body);
     }
 
-    /// Query open position from latest buy transfer (blocking).
-    /// Reads price/size columns directly.
-    pub fn queryOpenPositionNew(self: *const Turso) ?struct { entry_price: f64, entry_time: f64, size: f64, fee: f64 } {
+    /// Query open Spot position by replaying posted buy/sell settlement transfers.
+    /// This avoids resurrecting a closed position from the latest historical buy.
+    pub fn queryOpenPositionNew(self: *const Turso) ?OpenPosition {
         const sql =
-            \\{"requests": [{"type": "execute", "stmt": {"sql": "SELECT price, timestamp, size FROM transfers WHERE code = 2 AND status = 'posted' ORDER BY id DESC LIMIT 1"}}]}
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "SELECT code, price, timestamp, size FROM transfers WHERE status = 'posted' AND code IN (2, 3) ORDER BY id ASC LIMIT 2048"}}]}
         ;
         const resp = self.execSyncRead(sql) orelse return null;
         defer resp.deinit();
-        const r = resp.body;
+        const position = parseOpenPositionTransfers(resp.body) orelse return null;
+        std.debug.print("  [turso] Replayed open position from transfers: entry=${d:.2} size={d:.8}\n", .{ position.entry_price, position.size });
+        return position;
+    }
+
+    pub fn parseOpenPositionTransfers(r: []const u8) ?OpenPosition {
         if (std.mem.indexOf(u8, r, "\"rows\":[]") != null) return null;
 
-        // Parse 3 values: price, timestamp, size
         const rows_pos = std.mem.indexOf(u8, r, "\"rows\":") orelse return null;
         var pos = rows_pos;
-        var values: [3]f64 = .{ 0, 0, 0 };
-        var vi: usize = 0;
-        while (vi < 3 and pos < r.len) {
-            const vkey = "\"value\":";
-            const vpos = std.mem.indexOf(u8, r[pos..], vkey) orelse break;
-            pos = pos + vpos + vkey.len;
-            if (pos < r.len and r[pos] == '"') {
-                pos += 1;
-                const end = std.mem.indexOf(u8, r[pos..], "\"") orelse break;
-                values[vi] = std.fmt.parseFloat(f64, r[pos..][0..end]) catch 0;
-                pos += end + 1;
-            } else {
-                var end = pos;
-                while (end < r.len and r[end] != ',' and r[end] != '}') : (end += 1) {}
-                values[vi] = std.fmt.parseFloat(f64, r[pos..end]) catch 0;
-                pos = end;
+        var field: u8 = 0;
+        var values_seen: u32 = 0;
+        var row: [4]f64 = .{ 0, 0, 0, 0 };
+        var qty: f64 = 0;
+        var entry_price: f64 = 0;
+        var entry_time: f64 = 0;
+
+        while (values_seen < OPEN_POSITION_REPLAY_LIMIT * OPEN_POSITION_FIELD_COUNT) {
+            const value = parseOpenPositionValue(r, &pos) orelse break;
+
+            std.debug.assert(field < OPEN_POSITION_FIELD_COUNT);
+            row[field] = value;
+            field += 1;
+            values_seen += 1;
+            if (field == OPEN_POSITION_FIELD_COUNT) {
+                const code: u8 = @intFromFloat(row[0]);
+                const price = row[1];
+                const ts = row[2];
+                const size = row[3];
+                if (code == CODE_BUY) {
+                    if (size <= 0) return null;
+                    entry_price = if (qty > 0) ((entry_price * qty) + (price * size)) / (qty + size) else price;
+                    qty += size;
+                    if (entry_time == 0) entry_time = ts;
+                } else if (code == CODE_SELL) {
+                    if (size <= 0) return null;
+                    qty -= size;
+                    if (qty <= OPEN_POSITION_MIN_QTY) {
+                        qty = 0;
+                        entry_price = 0;
+                        entry_time = 0;
+                    }
+                } else {
+                    return null;
+                }
+                row = .{ 0, 0, 0, 0 };
+                field = 0;
             }
-            vi += 1;
         }
-        if (values[0] == 0) return null;
-        std.debug.print("  [turso] Found position from transfers: entry=${d:.2} size={d:.8}\n", .{ values[0], values[2] });
-        return .{ .entry_price = values[0], .entry_time = values[1], .size = values[2], .fee = 0 };
+        if (field != 0) return null;
+        if (qty <= OPEN_POSITION_MIN_QTY or entry_price <= 0) return null;
+        return .{ .entry_price = entry_price, .entry_time = entry_time, .size = qty, .fee = 0 };
+    }
+
+    fn parseOpenPositionValue(r: []const u8, pos: *usize) ?f64 {
+        const vkey = "\"value\":";
+        const vpos = std.mem.indexOf(u8, r[pos.*..], vkey) orelse return null;
+        pos.* = pos.* + vpos + vkey.len;
+        if (pos.* < r.len and r[pos.*] == '"') {
+            pos.* += 1;
+            const end = std.mem.indexOf(u8, r[pos.*..], "\"") orelse return null;
+            const value = std.fmt.parseFloat(f64, r[pos.*..][0..end]) catch return null;
+            pos.* += end + 1;
+            return value;
+        } else {
+            var end = pos.*;
+            while (end < r.len and r[end] != ',' and r[end] != '}') : (end += 1) {}
+            const value = std.fmt.parseFloat(f64, r[pos.*..end]) catch return null;
+            pos.* = end;
+            return value;
+        }
     }
 
     /// Query closed trade count from transfers (blocking).

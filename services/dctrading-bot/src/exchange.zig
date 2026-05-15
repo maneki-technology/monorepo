@@ -47,11 +47,13 @@ pub const PendingOrder = struct {
 
 /// Result of checking a pending order's status.
 /// - filled: order executed, OrderFill has price/qty/commission
+/// - partial: order has some executed qty/notional but is not terminal yet
 /// - pending: still waiting, check again next tick
 /// - cancelled: order was cancelled (by us or exchange)
 /// - failed: order rejected/expired
 pub const OrderStatus = union(enum) {
     filled: OrderFill,
+    partial: OrderFill,
     pending: void,
     cancelled: void,
     failed: void,
@@ -60,10 +62,12 @@ pub const OrderStatus = union(enum) {
 /// Result of attempting to cancel an order.
 /// - cancelled: successfully cancelled before fill
 /// - filled: order filled before cancel arrived (race condition)
+/// - pending: cancel request accepted or ambiguous, but exchange has not confirmed terminal state
 /// - failed: cancel request failed (network error, unknown order)
 pub const CancelResult = union(enum) {
     cancelled: void,
     filled: OrderFill,
+    pending: void,
     failed: void,
 };
 

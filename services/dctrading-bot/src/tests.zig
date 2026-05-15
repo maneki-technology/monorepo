@@ -1435,6 +1435,66 @@ test "turso: parseFirstValueFloat handles unquoted number" {
     try testing.expectApproxEqAbs(val.?, 1234.56, 0.01);
 }
 
+test "turso: queryOpenPositionNew replays buys and sells chronologically" {
+    const body =
+        \\{"results":[{"response":{"result":{"rows":[
+        \\[{"value":"2"},{"value":"100.0"},{"value":"1.0"},{"value":"0.50000000"}],
+        \\[{"value":"2"},{"value":"120.0"},{"value":"2.0"},{"value":"0.50000000"}],
+        \\[{"value":"3"},{"value":"130.0"},{"value":"3.0"},{"value":"0.25000000"}]
+        \\]}}}]}
+    ;
+    const responses = [_]http_client_mod.HttpClient.MockResponse{
+        .{ .method = .POST, .url_contains = "/v2/pipeline", .status = .ok, .body = body },
+    };
+    var transport = http_client_mod.HttpClient.MockTransport{ .responses = responses[0..] };
+    var http = http_client_mod.HttpClient{
+        .client = undefined,
+        .allocator = testing.allocator,
+        .io = undefined,
+        .mock = &transport,
+    };
+    const turso = turso_mod.Turso{
+        .url = "https://turso.test/v2/pipeline",
+        .token = "token",
+        .auth_header = "Bearer token",
+        .http = &http,
+        .allocator = testing.allocator,
+    };
+
+    const pos = turso.queryOpenPositionNew().?;
+    try testing.expectApproxEqAbs(@as(f64, 0.75), pos.size, 0.00000001);
+    try testing.expectApproxEqAbs(@as(f64, 110.0), pos.entry_price, 0.000001);
+    try testing.expectApproxEqAbs(@as(f64, 1.0), pos.entry_time, 0.000001);
+}
+
+test "turso: queryOpenPositionNew returns null after full sell" {
+    const body =
+        \\{"results":[{"response":{"result":{"rows":[
+        \\[{"value":"2"},{"value":"100.0"},{"value":"1.0"},{"value":"0.50000000"}],
+        \\[{"value":"3"},{"value":"105.0"},{"value":"2.0"},{"value":"0.50000000"}]
+        \\]}}}]}
+    ;
+    const responses = [_]http_client_mod.HttpClient.MockResponse{
+        .{ .method = .POST, .url_contains = "/v2/pipeline", .status = .ok, .body = body },
+    };
+    var transport = http_client_mod.HttpClient.MockTransport{ .responses = responses[0..] };
+    var http = http_client_mod.HttpClient{
+        .client = undefined,
+        .allocator = testing.allocator,
+        .io = undefined,
+        .mock = &transport,
+    };
+    const turso = turso_mod.Turso{
+        .url = "https://turso.test/v2/pipeline",
+        .token = "token",
+        .auth_header = "Bearer token",
+        .http = &http,
+        .allocator = testing.allocator,
+    };
+
+    try testing.expect(turso.queryOpenPositionNew() == null);
+}
+
 // ============================================================
 // Double-Entry Accounting Tests
 // ============================================================
@@ -2299,7 +2359,7 @@ test "non-blocking: submitOrder returns immediately, checkOrder resolves after N
                 try testing.expectApproxEqAbs(fill.fill_price, 95100.0, 0.01);
                 try testing.expectApproxEqAbs(fill.commission, 0.095, 0.001);
             },
-            .pending => {}, // keep processing ticks
+            .pending, .partial => {}, // keep processing ticks
             .cancelled, .failed => {
                 try testing.expect(false);
             }, // unexpected
@@ -2431,6 +2491,9 @@ test "non-blocking: cancelOrder handles race condition (filled before cancel)" {
             try testing.expect(false);
         }, // wrong — it should be filled
         .failed => {
+            try testing.expect(false);
+        },
+        .pending => {
             try testing.expect(false);
         },
     }
@@ -2756,7 +2819,7 @@ test "non-blocking: fill resolves correctly after multiple pending checks" {
                 final_fill = fill;
                 break;
             },
-            .pending => {},
+            .pending, .partial => {},
             .cancelled, .failed => break,
         }
     }
@@ -3528,9 +3591,10 @@ test "binance_spot: adapter submits quote buy and fetches myTrades commission" {
     client.min_notional = 1;
 
     const pending = client.submitOrderAsync(.buy, 0.01, 104.0).?;
-    try testing.expectEqualStrings("12345", pending.order_id[0..pending.order_id_len]);
+    try testing.expect(std.mem.startsWith(u8, pending.order_id[0..pending.order_id_len], "dctB"));
     try testing.expectApproxEqAbs(@as(f64, 1.04), pending.quote_amount, 0.000001);
     try testing.expect(std.mem.indexOf(u8, transport.requestUrl(0), "quoteOrderQty=1.04000000") != null);
+    try testing.expect(std.mem.indexOf(u8, transport.requestUrl(0), "newClientOrderId=dctB") != null);
 
     const status = client.checkOrderStatus(pending.order_id[0..pending.order_id_len]);
     const fill = switch (status) {
@@ -3578,6 +3642,34 @@ test "binance_spot: adapter persists reconcile health after fee lookup timeout" 
     try testing.expectEqual(@as(usize, 0), fill.commission_asset_len);
     try testing.expectEqualStrings("EXCHANGE_RECONCILE", client.healthStatus());
     try testing.expectEqualStrings("binance_fee_lookup_timeout_manual_reconciliation_required", client.healthError());
+}
+
+test "binance_spot: partially filled order returns partial status" {
+    const responses = [_]http_client_mod.HttpClient.MockResponse{
+        .{
+            .method = .GET,
+            .url_contains = "origClientOrderId=dctB123",
+            .status = .ok,
+            .body = "{\"orderId\":12345,\"status\":\"PARTIALLY_FILLED\",\"executedQty\":\"0.00500000\",\"cummulativeQuoteQty\":\"520.00000000\"}",
+        },
+    };
+    var transport = http_client_mod.HttpClient.MockTransport{ .responses = responses[0..] };
+    var http = http_client_mod.HttpClient{
+        .client = undefined,
+        .allocator = testing.allocator,
+        .io = undefined,
+        .mock = &transport,
+    };
+    var client = binance_spot_mod.BinanceSpot.initForTest(&http, "key", "secret", "BTC/USD", "https://binance.test");
+
+    const status = client.checkOrderStatus("dctB123");
+    const fill = switch (status) {
+        .partial => |f| f,
+        else => return error.ExpectedPartial,
+    };
+    try testing.expectApproxEqAbs(@as(f64, 0.005), fill.fill_qty, 0.00000001);
+    try testing.expectApproxEqAbs(@as(f64, 520.0), fill.quote_amount, 0.000001);
+    try testing.expectApproxEqAbs(@as(f64, 104000.0), fill.fill_price, 0.000001);
 }
 
 // Integration tests (LiveLoop + SimExchange + SimFeed)

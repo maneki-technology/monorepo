@@ -42,6 +42,7 @@ pub const Ledger = struct {
 
 pub const TursoLedger = struct {
     turso: *const turso_mod.Turso,
+    sync_writes: bool = false,
 
     pub fn ledger(self: *const TursoLedger) Ledger {
         return .{
@@ -57,7 +58,11 @@ pub const TursoLedger = struct {
 
     fn postTransferWithFill(ptr: *const anyopaque, pending_id: u32, actual_amount: f64, actual_price: f64, actual_size: f64, user_data: []const u8) void {
         const self: *const TursoLedger = @ptrCast(@alignCast(ptr));
-        self.turso.postTransferWithFill(pending_id, actual_amount, actual_price, actual_size, user_data);
+        if (self.sync_writes) {
+            _ = self.turso.postTransferWithFillSync(pending_id, actual_amount, actual_price, actual_size, user_data);
+        } else {
+            self.turso.postTransferWithFill(pending_id, actual_amount, actual_price, actual_size, user_data);
+        }
     }
 
     fn createPostedTransfer(ptr: *const anyopaque, debit_acct: u8, credit_acct: u8, amount: f64, code: u8, user_data: []const u8, timestamp: f64, price: f64, qty: f64) void {
@@ -86,6 +91,8 @@ pub const PendingOrderEntry = struct {
     size: f64,
     requested_size: f64 = 0,
     reserved_amount: f64 = 0,
+    filled_qty: f64 = 0,
+    filled_quote_amount: f64 = 0,
     dust_qty_threshold: f64 = 0,
     transfer_id: u32 = 0,
     is_deposit_buy: bool = false,
@@ -95,6 +102,8 @@ pub const PendingOrderEntry = struct {
 };
 
 pub const MAX_PENDING: usize = 4;
+const WARN_UNTRACKED_ORDER: []const u8 = "EXCHANGE_UNTRACKED_ORDER";
+const ERR_PENDING_CAPACITY: []const u8 = "pending_capacity_manual_reconciliation_required";
 
 pub const LiveLoop = struct {
     strategy: *Strategy,
@@ -192,6 +201,34 @@ pub const LiveLoop = struct {
 
     // ========== Internal helpers ==========
 
+    pub fn trackPendingOrder(self: *LiveLoop, po: PendingOrderEntry, order_id: []const u8) bool {
+        std.debug.assert(po.size >= 0);
+        std.debug.assert(order_id.len > 0);
+        std.debug.assert(order_id.len <= po.order_id.len);
+        if (self.pending_count >= MAX_PENDING) return false;
+
+        self.pending_orders[self.pending_count] = po;
+        const len = @min(order_id.len, self.pending_orders[self.pending_count].order_id.len);
+        @memcpy(self.pending_orders[self.pending_count].order_id[0..len], order_id[0..len]);
+        self.pending_orders[self.pending_count].order_id_len = len;
+        self.pending_count += 1;
+        if (po.side == .buy) {
+            const reserved_amount = if (po.reserved_amount > 0) po.reserved_amount else po.signal_price * po.size;
+            self.strategy.capital_reserved += reserved_amount;
+        }
+        return true;
+    }
+
+    fn markUntrackedOrder(self: *LiveLoop, timestamp: f64) void {
+        self.last_warning = WARN_UNTRACKED_ORDER;
+        self.last_warning_error = ERR_PENDING_CAPACITY;
+        self.last_warning_ts = timestamp;
+        std.debug.print(
+            "  [exchange] ERROR: submitted order untracked; manual reconciliation required.\n",
+            .{},
+        );
+    }
+
     fn checkPendingOrders(self: *LiveLoop, t: Tick) void {
         var i: u8 = 0;
         while (i < self.pending_count) {
@@ -217,13 +254,19 @@ pub const LiveLoop = struct {
                     self.removePending(i);
                     continue;
                 },
+                .partial => |fill| {
+                    self.pending_orders[i].filled_qty = fill.fill_qty;
+                    self.pending_orders[i].filled_quote_amount = fill.quote_amount;
+                },
                 .pending => {},
             }
             i += 1;
         }
     }
 
-    fn handleBuyFill(self: *LiveLoop, po: PendingOrderEntry, fill: exchange_mod.OrderFill, t: Tick) void {
+    pub fn handleBuyFill(self: *LiveLoop, po: PendingOrderEntry, fill: exchange_mod.OrderFill, t: Tick) void {
+        std.debug.assert(po.side == .buy);
+        std.debug.assert(po.size >= 0);
         const reserved_amount = if (po.reserved_amount > 0) po.reserved_amount else po.signal_price * po.size;
         self.strategy.capital_reserved -= reserved_amount;
         const buy_price = if (fill.fill_price > 0) fill.fill_price else po.signal_price;
@@ -258,7 +301,9 @@ pub const LiveLoop = struct {
         }
     }
 
-    fn handleSellFill(self: *LiveLoop, po: PendingOrderEntry, fill: exchange_mod.OrderFill, t: Tick) void {
+    pub fn handleSellFill(self: *LiveLoop, po: PendingOrderEntry, fill: exchange_mod.OrderFill, t: Tick) void {
+        std.debug.assert(po.side == .sell);
+        std.debug.assert(po.size >= 0);
         const sell_price = if (fill.fill_price > 0) fill.fill_price else po.signal_price;
         const sell_fee = self.fillFee(fill, sell_price, po.size);
         const sell_amount = if (fill.quote_amount > 0) fill.quote_amount else sell_price * po.size;
@@ -370,6 +415,9 @@ pub const LiveLoop = struct {
                 } else {
                     self.buys_submitted += 1;
                 }
+            } else {
+                _ = self.exchange.cancelOrder(pending.order_id[0..pending.order_id_len]);
+                self.markUntrackedOrder(timestamp);
             }
         }
     }
@@ -402,6 +450,9 @@ pub const LiveLoop = struct {
                 self.pending_orders[self.pending_count].order_id_len = len;
                 self.pending_count += 1;
                 self.sells_submitted += 1;
+            } else {
+                _ = self.exchange.cancelOrder(pending.order_id[0..pending.order_id_len]);
+                self.markUntrackedOrder(timestamp);
             }
         }
     }
@@ -425,6 +476,10 @@ pub const LiveLoop = struct {
                         }
                         const reserved_amount = if (self.pending_orders[i].reserved_amount > 0) self.pending_orders[i].reserved_amount else self.pending_orders[i].signal_price * self.pending_orders[i].size;
                         self.strategy.capital_reserved -= reserved_amount;
+                    },
+                    .pending => {
+                        i += 1;
+                        continue;
                     },
                 }
                 self.cancels_issued += 1;

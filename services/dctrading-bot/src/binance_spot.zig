@@ -63,6 +63,7 @@ pub const BinanceSpot = struct {
     fee_missing_order_len: usize = 0,
     fee_missing_count: u32 = 0,
     fee_missing_max_checks: u32 = 20,
+    client_order_seq: u32 = 0,
     exchange_health: [32]u8 = undefined,
     exchange_health_len: usize = 0,
     exchange_error: [128]u8 = undefined,
@@ -299,6 +300,30 @@ pub const BinanceSpot = struct {
         self.exchange_error_len = 0;
     }
 
+    fn healthIs(self: *const BinanceSpot, status: []const u8) bool {
+        return self.exchange_health_len == status.len and std.mem.eql(u8, self.exchange_health[0..self.exchange_health_len], status);
+    }
+
+    pub fn reconcileBalances(self: *BinanceSpot, base_asset: []const u8, quote_asset: []const u8, expected_base: f64, expected_quote: f64) void {
+        const base_actual = self.queryAccountBalance(base_asset) orelse return;
+        const quote_actual = self.queryAccountBalance(quote_asset) orelse return;
+        const base_tol = @max(self.min_qty, 0.00000001);
+        const quote_tol = @max(self.min_notional, 1.0);
+        if (@abs(base_actual - expected_base) > base_tol or @abs(quote_actual - expected_quote) > quote_tol) {
+            std.debug.print("  [binance_spot] balance mismatch {s}: actual={d:.8} expected={d:.8}, {s}: actual={d:.2} expected={d:.2}\n", .{
+                base_asset,
+                base_actual,
+                expected_base,
+                quote_asset,
+                quote_actual,
+                expected_quote,
+            });
+            self.setHealth("EXCHANGE_BALANCE_MISMATCH", "binance_spot_balance_mismatch_manual_reconciliation_required");
+        } else if (self.healthIs("EXCHANGE_BALANCE_MISMATCH")) {
+            self.clearHealth();
+        }
+    }
+
     pub fn parseSymbolFilters(json: []const u8, min_qty: *f64, step_size: *f64, min_notional: *f64) ?void {
         const lot_pos = std.mem.indexOf(u8, json, "\"filterType\":\"LOT_SIZE\"") orelse return null;
         const lot_end = std.mem.indexOf(u8, json[lot_pos..], "}") orelse return null;
@@ -357,6 +382,7 @@ pub const BinanceSpot = struct {
             const status = self.checkOrderStatus(order_id);
             switch (status) {
                 .filled => |fill| return fill,
+                .partial => {},
                 .cancelled => return null,
                 .failed => return null,
                 .pending => {},
@@ -371,20 +397,24 @@ pub const BinanceSpot = struct {
 
     pub fn submitOrderAsync(self: *const BinanceSpot, side: Side, qty: f64, signal_price: f64) ?PendingOrder {
         const side_str = if (side == .buy) "BUY" else "SELL";
+        const seq = @constCast(self).client_order_seq;
+        @constCast(self).client_order_seq +%= 1;
+        var client_id_buf: [36]u8 = undefined;
+        const client_order_id = std.fmt.bufPrint(&client_id_buf, "dct{s}{d}{d}", .{ if (side == .buy) "B" else "S", nowMs(), seq }) catch return null;
         const quote_amount = if (side == .buy) self.quoteOrderAmount(qty, signal_price) orelse return null else 0;
         const order_qty = if (side == .buy) qty else self.normalizeOrderQty(qty) orelse return null;
         var query_buf: [512]u8 = undefined;
         const query = if (side == .buy)
             std.fmt.bufPrint(
                 &query_buf,
-                "symbol={s}&side={s}&type=MARKET&quoteOrderQty={d:.8}",
-                .{ self.tradingSymbol(), side_str, quote_amount },
+                "symbol={s}&side={s}&type=MARKET&quoteOrderQty={d:.8}&newClientOrderId={s}",
+                .{ self.tradingSymbol(), side_str, quote_amount, client_order_id },
             ) catch return null
         else
             std.fmt.bufPrint(
                 &query_buf,
-                "symbol={s}&side={s}&type=MARKET&quantity={d:.8}",
-                .{ self.tradingSymbol(), side_str, order_qty },
+                "symbol={s}&side={s}&type=MARKET&quantity={d:.8}&newClientOrderId={s}",
+                .{ self.tradingSymbol(), side_str, order_qty, client_order_id },
             ) catch return null;
 
         var signed_buf: [1024]u8 = undefined;
@@ -414,12 +444,10 @@ pub const BinanceSpot = struct {
 
         const pending_qty = if (side == .buy) qty else order_qty;
         var pending: PendingOrder = .{ .side = side, .qty = pending_qty, .quote_amount = quote_amount, .dust_qty_threshold = self.min_qty };
-        if (parseJsonString(r, "\"orderId\":")) |id_str| {
-            const len = @min(id_str.len, pending.order_id.len);
-            @memcpy(pending.order_id[0..len], id_str[0..len]);
+        {
+            const len = @min(client_order_id.len, pending.order_id.len);
+            @memcpy(pending.order_id[0..len], client_order_id[0..len]);
             pending.order_id_len = len;
-        } else {
-            return null;
         }
 
         // Check if already filled (common for market orders on liquid pairs)
@@ -432,11 +460,18 @@ pub const BinanceSpot = struct {
 
     pub fn checkOrderStatus(self: *const BinanceSpot, order_id: []const u8) OrderStatus {
         var query_buf: [512]u8 = undefined;
-        const query = std.fmt.bufPrint(
-            &query_buf,
-            "symbol={s}&orderId={s}",
-            .{ self.tradingSymbol(), order_id },
-        ) catch return .{ .failed = {} };
+        const query = if (std.mem.startsWith(u8, order_id, "dct"))
+            std.fmt.bufPrint(
+                &query_buf,
+                "symbol={s}&origClientOrderId={s}",
+                .{ self.tradingSymbol(), order_id },
+            ) catch return .{ .failed = {} }
+        else
+            std.fmt.bufPrint(
+                &query_buf,
+                "symbol={s}&orderId={s}",
+                .{ self.tradingSymbol(), order_id },
+            ) catch return .{ .failed = {} };
 
         var signed_buf: [1024]u8 = undefined;
         const signed = self.sign(query, &signed_buf);
@@ -463,7 +498,8 @@ pub const BinanceSpot = struct {
                 fill.fill_price = quote_qty / fill.fill_qty;
             }
 
-            if (!self.attachTradeCommission(order_id, &fill)) {
+            const commission_order_id = parseJsonString(r, "\"orderId\":") orelse order_id;
+            if (!self.attachTradeCommission(commission_order_id, &fill)) {
                 return .{ .pending = {} };
             }
 
@@ -478,6 +514,18 @@ pub const BinanceSpot = struct {
                 fill.commission_asset[0..fill.commission_asset_len],
             });
             return .{ .filled = fill };
+        }
+
+        if (std.mem.indexOf(u8, r, "\"status\":\"PARTIALLY_FILLED\"") != null) {
+            var fill: OrderFill = .{ .fill_price = 0, .fill_qty = 0, .status = .accepted };
+            fill.fill_qty = parseJsonFloat(r, "\"executedQty\":\"") orelse parseJsonFloat(r, "\"executedQty\":") orelse 0;
+            const quote_qty = parseJsonFloat(r, "\"cummulativeQuoteQty\":\"") orelse parseJsonFloat(r, "\"cummulativeQuoteQty\":") orelse 0;
+            fill.quote_amount = quote_qty;
+            if (fill.fill_qty > 0) fill.fill_price = quote_qty / fill.fill_qty;
+            const len = @min(order_id.len, fill.order_id.len);
+            @memcpy(fill.order_id[0..len], order_id[0..len]);
+            fill.order_id_len = len;
+            return .{ .partial = fill };
         }
 
         if (std.mem.indexOf(u8, r, "\"status\":\"CANCELED\"") != null or
@@ -496,11 +544,18 @@ pub const BinanceSpot = struct {
 
     pub fn cancelOrderAsync(self: *const BinanceSpot, order_id: []const u8) CancelResult {
         var query_buf: [512]u8 = undefined;
-        const query = std.fmt.bufPrint(
-            &query_buf,
-            "symbol={s}&orderId={s}",
-            .{ self.tradingSymbol(), order_id },
-        ) catch return .{ .failed = {} };
+        const query = if (std.mem.startsWith(u8, order_id, "dct"))
+            std.fmt.bufPrint(
+                &query_buf,
+                "symbol={s}&origClientOrderId={s}",
+                .{ self.tradingSymbol(), order_id },
+            ) catch return .{ .failed = {} }
+        else
+            std.fmt.bufPrint(
+                &query_buf,
+                "symbol={s}&orderId={s}",
+                .{ self.tradingSymbol(), order_id },
+            ) catch return .{ .failed = {} };
 
         var signed_buf: [1024]u8 = undefined;
         const signed = self.sign(query, &signed_buf);
@@ -524,8 +579,9 @@ pub const BinanceSpot = struct {
         const status = self.checkOrderStatus(order_id);
         return switch (status) {
             .filled => |fill| .{ .filled = fill },
+            .partial => .{ .pending = {} },
             .cancelled => .{ .cancelled = {} },
-            .pending => .{ .cancelled = {} },
+            .pending => .{ .pending = {} },
             .failed => .{ .failed = {} },
         };
     }

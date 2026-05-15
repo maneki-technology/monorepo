@@ -237,8 +237,9 @@ pub const Alpaca = struct {
         const status = self.checkOrderStatus(order_id);
         return switch (status) {
             .filled => |fill| .{ .filled = fill },
+            .partial => .{ .pending = {} },
             .cancelled => .{ .cancelled = {} },
-            .pending => .{ .cancelled = {} }, // cancel was accepted, treat as cancelled
+            .pending => .{ .pending = {} },
             .failed => .{ .failed = {} },
         };
     }

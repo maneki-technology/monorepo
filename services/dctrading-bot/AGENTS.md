@@ -21,7 +21,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - `tick_source.zig` — `TickSource` vtable interface + `SimFeed` (replays ticks from array). For testing.
 - `sim_exchange.zig` — `SimExchange` implementing Exchange vtable with configurable fill delay, slippage, partial fills, cancel races, failure injection, order log. For testing.
 - `integration_tests.zig` — 34 end-to-end scenarios using LiveLoop + SimExchange + mock ledger.
-- `tests.zig` — 195 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, resource monitoring, Binance Spot parsing, integration scenarios.
+- `tests.zig` — 198 tests covering DC detector, strategy, checkpoint, regime transitions, JSON parsing, capital accounting, double-entry transfers, exchange interface, funding rate filter, non-blocking order flow, capital_reserved, resource monitoring, Binance Spot parsing, integration scenarios.
 - CLI `checkpoint:migrate [path] [backups]` migrates checkpoint primary/backups offline to the current DCTRADE5 layout after writing `.pre-migrate` copies.
 
 ### Scripts (`scripts/`)
@@ -38,7 +38,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 - **Async writes**: Turso and Telegram fire-and-forget via `std.Thread.spawn` + `detach()`. Context struct heap-allocated, freed in worker.
 - **Sync reads**: Startup queries (capital, position, trade count) are blocking HTTP calls.
 - **Exchange selection**: Runtime-selectable via `EXCHANGE` env var. `alpaca` (paper trading) and `binance_spot` (live Spot trading) are supported. The exchange vtable pattern keeps `live_loop.zig` and `strategy.zig` venue-agnostic.
-- **Spot position model**: On Binance Spot, account balance is NOT position. The bot tracks its own position via Turso `transfers` (immutable fill history). `getPosition()` replays buy/sell transfers chronologically to compute `qty` and `entry_price`. `/api/v3/account` is used only for discrepancy alerts.
+- **Spot position model**: On Binance Spot, account balance is NOT position. The bot tracks its own position via Turso `transfers` (immutable fill history). Startup restores by replaying posted buy/sell transfers chronologically to compute `qty` and `entry_price`. `/api/v3/account` is used only for discrepancy alerts surfaced as exchange health.
 - **Checkpoint**: Binary file with magic number validation. DCTRADE5 writes 27 f64 scalars, including `funding_avg`, `funding_avg_updated_at`, and `funding_latest_time`, plus two ring buffers (vol, MA). DCTRADE4 and earlier DCTRADE5 funding-cache files are still accepted and migrated on the next save. Saved every minute through an atomic temp-file swap. Live mode keeps rotated local backups (`dctrading.checkpoint.bak.N`) and falls back to the newest valid backup if the primary checkpoint cannot be loaded.
 - **Checkpoint startup guard**: Live mode prints cwd/checkpoint path and refuses to bootstrap if any local checkpoint primary/backup exists but none can be loaded and Turso restore fails. Use `checkpoint:migrate` or manually promote a known-good backup instead.
 - **Regime**: `enum { bull, sideways, bear }`. Encoded as 0/1/2 in checkpoint scalar[8].
@@ -106,7 +106,7 @@ BTC algorithmic trading bot using Directional Change (DC) theory. Zig 0.16 produ
 ```bash
 zig build -Doptimize=ReleaseFast              # macOS arm64
 zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux  # cloud Linux
-zig build test                                 # 195 tests
+zig build test                                 # 198 tests
 ./zig-out/bin/dctrading checkpoint:migrate dctrading.checkpoint 5
 ```
 

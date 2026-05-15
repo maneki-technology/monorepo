@@ -48,7 +48,7 @@ Single static binary. No Python, no Docker, no runtime dependencies (except curl
 | `http_client.zig` | Shared HTTP client (std.http.Client wrapper + request metrics) |
 | `resource_monitor.zig` | Process, disk, feed, and HTTP resource health snapshots |
 | `types.zig` | Tick, Trade, DC event types |
-| `tests.zig` | 195 tests |
+| `tests.zig` | 198 tests |
 
 ## Setup
 
@@ -161,10 +161,16 @@ The live Spot adapter records exact exchange quote notional when Binance returns
 commission. The following edge cases are intentionally documented because they
 require operator awareness or follow-up work:
 
-- **Partially filled then canceled orders:** Binance can return a terminal
-  `CANCELED` order with non-zero `executedQty`. The current order-status model
-  only has `filled` or `cancelled`, so this path should be reconciled manually
-  until partial-cancel settlement is implemented.
+- **Partial fills:** Binance `PARTIALLY_FILLED` responses are tracked as
+  partial order state in the live loop. Terminal `CANCELED` responses with
+  non-zero executed quantity still require manual reconciliation if Binance
+  reports them after a cancel race.
+- **Client order IDs:** Spot orders include a generated `newClientOrderId`.
+  The bot stores and checks orders by that client id so restart reconciliation
+  does not depend only on the exchange numeric order id.
+- **Balance mismatch alerts:** `/api/v3/account` BTC/quote balances are checked
+  against Turso periodically. Mismatches surface as
+  `EXCHANGE_BALANCE_MISMATCH`; Turso remains the strategy source of truth.
 - **Mixed commission assets:** If an order's fills are charged in different
   assets, the adapter does not collapse them into one fee transfer. It leaves
   the order pending until the configured lookup limit, then marks exchange
