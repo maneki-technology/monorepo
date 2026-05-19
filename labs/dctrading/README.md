@@ -2,6 +2,28 @@
 
 Python research environment for the DCTrading system. Backtesting, sentiment analysis, and real-time news monitoring.
 
+## Production Strategy Reference
+
+Production trading runs in `services/dctrading-bot` (`src/strategy.zig`). The
+current production strategy is the direct 3-regime ZI-DCT0 model:
+
+| Regime | Condition | Behavior |
+|--------|-----------|----------|
+| BULL | Price > 60d MA + 3% | Buy if flat, then hold passively. DC trade actions are ignored. |
+| SIDEWAYS | Inside the 60d MA ± 3% band | DC UP entry, DC DOWN exit. No trailing stop. |
+| BEAR | Price < 60d MA - 3% | DC UP entry, DC DOWN exit, plus vol-trailing stop. |
+
+The Python scripts that mirror Zig production behavior are:
+
+- `scripts/backtest_crossval.py`
+- `scripts/backtest_fast.py` in `3reg` mode
+- `scripts/backtest_regimes.py` `ThreeRegimeStrategy`
+- funding backtests that use the same direct BULL/SIDEWAYS/BEAR classifier
+
+The experimental async live engine at `src/dctrading/live/engine.py` is not the
+production reference. It uses older sticky BULL/BEAR transitions and does not
+model production `SIDEWAYS` behavior.
+
 ## Setup
 
 ```bash
@@ -62,8 +84,8 @@ moon run dctrading:test-sentiment     # Sentiment mock test
 
 ## Key Results
 
-- 3-regime strategy: +4,071% over 2019–2026 on $1K (λ=0.07, 60d MA, buf=3%)
-- 2-regime baseline: +3,140% same period
+- Production 3-regime cross-validation: +4,039% over 2019-2024 on $1K with funding filter (λ=0.07, 60d MA, buf=3%)
+- Historical 2-regime baseline study: +3,140% over the prior 2019-2026 research window
 - Sentiment filter: hurts returns (skipped a $371 winner), not used for trade gating
 
 ## Environment Variables

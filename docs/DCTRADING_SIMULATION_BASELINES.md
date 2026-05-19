@@ -69,8 +69,17 @@ cd labs/dctrading
 PYTHONPATH=src python3 scripts/backtest_crossval.py
 ```
 
+The Python lab's production-equivalent strategy reference is
+`scripts/backtest_crossval.py`, which uses the same direct 3-regime classifier
+as Zig production:
+
+- `price > 60d MA * 1.03` -> `BULL`
+- `price < 60d MA * 0.97` -> `BEAR`
+- otherwise -> `SIDEWAYS`
+
 The Python `With Funding Filter` result should match the Zig LiveLoop simulation
-on the key totals:
+on the key totals when the Zig process sees `funding_rates.csv` in its working
+directory:
 
 | Metric | Expected |
 | --- | ---: |
@@ -80,5 +89,17 @@ on the key totals:
 | Capital | $41,390.77 |
 | Funding skips | 22 |
 
-The Python `Without Funding Filter` result is a separate research baseline and
-is not expected to match the LiveLoop simulation when funding data is present.
+The Python `Without Funding Filter` result matches Zig direct backtest and
+`sim:` LiveLoop when Zig is run from a directory without `funding_rates.csv`:
+
+| Metric | Expected |
+| --- | ---: |
+| Trades | 156 |
+| PnL | $30,128.23 |
+| Return | 3,012.82% |
+| Capital | $31,128.23 |
+
+Do not compare these production baselines to
+`labs/dctrading/src/dctrading/live/engine.py`; that module is an older
+experimental sticky BULL/BEAR prototype and does not implement the current
+production `SIDEWAYS` behavior.
