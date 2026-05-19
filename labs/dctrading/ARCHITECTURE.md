@@ -48,6 +48,7 @@ labs/dctrading/
 │   └── types.py                # Shared type definitions
 ├── scripts/
 │   ├── backtest_fast.py        # Vectorized 3-regime backtest (numpy, ~100x faster)
+│   ├── backtest_crossval.py    # Production parity check against Zig
 │   ├── backtest_regimes.py     # 2-regime vs 3-regime comparison
 │   ├── backtest_sentiment.py   # Backtest with sentiment filter
 │   ├── backtest_yearly.py      # Year-by-year breakdown
@@ -74,18 +75,45 @@ numpy arrays: prices, timestamps
     │
     ▼
 simulate_trades() — walk forward through events
-    ├── Entry: DC UP event → buy (capital × (1 - fee))
-    ├── Exit: DC DOWN or trailing stop (BEAR only)
+    ├── BULL: buy if flat, then hold passively
+    ├── SIDEWAYS: DC UP entry, DC DOWN exit, no trailing stop
+    ├── BEAR: DC UP entry, DC DOWN exit, trailing stop enabled
     ├── Track: capital, equity, drawdown per trade
     │
     ▼
 Results: total return, max drawdown, Sharpe, trade count, win rate
 ```
 
-**Key results (2019–2026, $1K initial):**
-- 3-regime: +4,071% ($40.7K), 47 trades
-- 2-regime: +3,140% ($31.4K), 52 trades
-- Sentiment filter: hurts returns (skipped $371 winner)
+### Production Parity
+
+The Zig bot is the production implementation. The Python lab's
+production-equivalent references are the direct 3-regime backtests:
+
+- `scripts/backtest_crossval.py`
+- `scripts/backtest_fast.py` in `3reg` mode
+- `scripts/backtest_regimes.py` `ThreeRegimeStrategy`
+- funding variants that keep the same direct BULL/SIDEWAYS/BEAR classifier
+
+Production regime classification is recomputed on each one-minute strategy tick:
+
+- `price > 60d MA * 1.03` -> `BULL`
+- `price < 60d MA * 0.97` -> `BEAR`
+- otherwise -> `SIDEWAYS`
+
+`BULL` buys if flat and then holds passively. `SIDEWAYS` allows DC UP entries
+and DC DOWN exits with no trailing stop. `BEAR` allows DC UP entries, DC DOWN
+exits, and the volatility-adjusted trailing stop.
+
+The experimental async live engine in `src/dctrading/live/engine.py` is an older
+prototype. It uses sticky BULL/BEAR transitions and is not production-equivalent.
+
+**Verified production parity (2019-2024, $1K initial):**
+- Zig direct backtest, Zig `sim:` LiveLoop, and Python `backtest_crossval.py`
+  match without funding: +3,012.82%, 156 trades.
+- Zig direct backtest and Python `backtest_crossval.py` match with funding
+  filter: +4,039.08%, 136 trades.
+- Buy and hold over the same 2019-2024 BTC dataset: +2,436.87%.
+- Sentiment filter: hurts returns (skipped $371 winner).
 
 ## Sentiment Pipeline
 

@@ -19,8 +19,9 @@ Python research environment for the DCTrading system. Vectorized backtesting, ML
 - `agents/`, `envs/`, `live/`, `risk/`, `store/`, `training/`, `dashboard/` — RL and live trading modules (experimental).
 
 ### Scripts (`scripts/`)
-- `backtest_fast.py` — Vectorized 3-regime backtest using numpy (~100x faster than per-tick).
-- `backtest_regimes.py` — 2-regime vs 3-regime comparison with date range.
+- `backtest_fast.py` — Vectorized production-equivalent direct 3-regime backtest using numpy (~100x faster than per-tick); use `3reg` results as Zig strategy reference.
+- `backtest_crossval.py` — Trade-by-trade production parity check against Zig direct backtest / `sim:` LiveLoop.
+- `backtest_regimes.py` — 2-regime vs 3-regime comparison with date range; `ThreeRegimeStrategy` matches current Zig production regime behavior.
 - `backtest_sentiment.py` — Backtest with sentiment filter overlay.
 - `backtest_yearly.py` — Year-by-year performance breakdown.
 - `fetch_1m_data.py` — Fetch Binance 1-min kline data.
@@ -30,6 +31,7 @@ Python research environment for the DCTrading system. Vectorized backtesting, ML
 
 ### Key Patterns
 - **Vectorized backtesting**: numpy arrays for price/MA/DC detection, no per-tick Python loop.
+- **Production parity**: current production is Zig `strategy.zig`, using direct BULL/SIDEWAYS/BEAR classification each strategy-minute tick (`price > MA*1.03` BULL, `price < MA*0.97` BEAR, otherwise SIDEWAYS). Python `backtest_crossval.py`, `backtest_fast.py` 3-regime, and `backtest_regimes.py` `ThreeRegimeStrategy` mirror this. `src/dctrading/live/engine.py` is an older sticky BULL/BEAR prototype and is not production-equivalent.
 - **Lazy MLX loading**: `news_monitor.py` lazy-loads the MLX model on first use (takes a few seconds).
 - **Alpaca WebSocket**: `websocket-client` library for real-time news stream.
 - **Telegram + ntfy**: Dual notification channels for sentiment alerts.

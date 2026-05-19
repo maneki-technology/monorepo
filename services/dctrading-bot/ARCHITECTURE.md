@@ -40,10 +40,10 @@ feed.zig (downsample to 1-min candles)
     ▼
 strategy.processTick()
     ├── DC detector: UP/DOWN events when price reverses by λ=0.07
-    ├── Regime filter: BULL/SIDEWAYS/BEAR from 60-day MA ± 3% buffer
-    ├── Entry: DC UP event in any regime → BUY signal
-    ├── Exit: DC DOWN event → SELL (all regimes)
-    │         Vol-trailing stop → SELL (BEAR only)
+    ├── Regime filter: direct BULL/SIDEWAYS/BEAR from 60-day MA ± 3% buffer
+    ├── BULL: buy if flat, then ignore DC trade actions and hold passively
+    ├── SIDEWAYS: DC UP → BUY, DC DOWN → SELL, no trailing stop
+    ├── BEAR: DC UP → BUY, DC DOWN or vol-trailing stop → SELL
     │
     ▼
 main.zig (trade lifecycle)
@@ -69,9 +69,22 @@ The core strategy in `strategy.zig` (~371 lines):
 
 | Regime | Entry | Exit | Trailing Stop |
 |--------|-------|------|---------------|
-| BULL | DC UP | DC DOWN | No |
+| BULL | Immediate buy if flat | None (hold passively) | No |
 | SIDEWAYS | DC UP | DC DOWN | No |
 | BEAR | DC UP | DC DOWN + trailing | Yes (2% / 72h vol) |
+
+Regime is recomputed directly on each strategy-minute tick:
+
+- `price > MA * 1.03` → `BULL`
+- `price < MA * 0.97` → `BEAR`
+- otherwise → `SIDEWAYS`
+
+There is no debounce or sticky state between `BULL` and `SIDEWAYS`. This is the
+latest production behavior and is mirrored by the Python lab's 3-regime
+backtests (`backtest_crossval.py`, `backtest_fast.py` `3reg`, and
+`backtest_regimes.py` `ThreeRegimeStrategy`). The Python lab's experimental
+`src/dctrading/live/engine.py` is older sticky BULL/BEAR prototype code and is
+not production-equivalent.
 
 **Checkpoint (DCTRADE4):**
 Binary file with magic number validation (`0x4443_5452_4144_4534`). 24 f64 scalars (capital, entry price, regime, DC state, MA state, vol state) + two ring buffers (volatility window, MA window). Saved every 60 seconds. Old DCTRADE3 format rejected on load.

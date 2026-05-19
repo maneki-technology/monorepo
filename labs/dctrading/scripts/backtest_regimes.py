@@ -211,10 +211,10 @@ class BaseStrategy:
         }
 
 
-# ── Strategy A: 2-regime (current production) ──────────────────────
+# ── Strategy A: legacy 2-regime baseline ────────────────────────────
 
 class TwoRegimeStrategy(BaseStrategy):
-    """bull=hold, bear=DC+trailing_stop. Matches Zig production bot."""
+    """Legacy bull=hold, bear=DC+trailing_stop baseline."""
 
     def __init__(self, cfg: StrategyConfig) -> None:
         super().__init__(cfg)

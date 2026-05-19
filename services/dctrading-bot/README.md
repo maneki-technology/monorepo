@@ -4,17 +4,37 @@ A BTC algorithmic trading bot using Directional Change (DC) theory with a 3-regi
 
 ## Strategy
 
-**ZI-DCT0 Long-Only** with 3-regime filter:
+**ZI-DCT0 Long-Only** with direct 3-regime classification:
 
 | Regime | Condition | Behavior |
 |--------|-----------|----------|
-| BULL | Price > MA + 3% | Hold passively |
-| SIDEWAYS | MA ± 3% | DC trade (no trailing stop) |
-| BEAR | Price < MA - 3% | DC trade + vol-trailing stop |
+| BULL | Price > MA + 3% | Buy if flat, then hold passively. DC events are tracked but ignored for trading. |
+| SIDEWAYS | MA ± 3% | DC UP entry, DC DOWN exit. No trailing stop. |
+| BEAR | Price < MA - 3% | DC UP entry, DC DOWN exit, plus vol-trailing stop. |
 
 Parameters: λ=0.07, 60-day MA, 3% buffer, 2% trailing stop (72h vol lookback)
 
+Regime is recomputed on every strategy-minute tick from the current price and
+the 60-day moving-average band. `SIDEWAYS` is not sticky or debounced: price
+crossing above the upper band immediately becomes `BULL`, and moving back inside
+the band immediately becomes `SIDEWAYS`.
+
 **Backtested**: $1K → $41.4K over 2019-2024 (+4,039%) with funding filter, outperforming buy-and-hold (+2,437%).
+
+### Python Lab Parity
+
+The production strategy source of truth is `src/strategy.zig`. The matching
+Python research references are:
+
+- `labs/dctrading/scripts/backtest_crossval.py`
+- `labs/dctrading/scripts/backtest_fast.py` in `3reg` mode
+- `labs/dctrading/scripts/backtest_regimes.py` `ThreeRegimeStrategy`
+- funding variants that use the same direct BULL/SIDEWAYS/BEAR classifier
+
+`labs/dctrading/src/dctrading/live/engine.py` is an older experimental live
+prototype. It uses sticky BULL/BEAR transitions and does not model the current
+production `SIDEWAYS` behavior, so it must not be used as the production return
+reference.
 
 ## Architecture
 

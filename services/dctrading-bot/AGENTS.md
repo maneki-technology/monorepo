@@ -145,4 +145,4 @@ If you do not have IAM permissions, create the role manually:
 
 ### Companion Projects
 - **Neko Trade** — SwiftUI dashboard app (macOS + iOS). Separate repo.
-- **Python Research Lab** — Backtesting, sentiment analysis, MLX local LLM, news monitor. Separate repo.
+- **Python Research Lab** — Backtesting, sentiment analysis, MLX local LLM, news monitor. Production-equivalent strategy references are `labs/dctrading/scripts/backtest_crossval.py`, `backtest_fast.py` in `3reg` mode, and `backtest_regimes.py` `ThreeRegimeStrategy`; the experimental Python `live/engine.py` is older sticky BULL/BEAR prototype code and does not match current Zig production.
