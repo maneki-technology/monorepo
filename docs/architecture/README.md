@@ -16,9 +16,6 @@ Unlike ADRs (which record individual decisions), these docs describe the overall
 | [Charts](../../packages/charts/ARCHITECTURE.md) | `packages/charts/` | SVG chart components |
 | [Catalog](../../apps/catalog/ARCHITECTURE.md) | `apps/catalog/` | Visual regression testing, page registration |
 | [Blog](../../apps/blog/ARCHITECTURE.md) | `apps/blog/` | Full-stack architecture, build-time data baking, editor |
-| [DCTrading Bot](../../services/dctrading-bot/ARCHITECTURE.md) | `services/dctrading-bot/` | Zig trading bot, DC strategy, Alpaca, Turso |
-| [Neko Trade](../../apps/neko-trade/ARCHITECTURE.md) | `apps/neko-trade/` | SwiftUI dashboard, macOS + iOS |
-| [DCTrading Lab](../../labs/dctrading/ARCHITECTURE.md) | `labs/dctrading/` | Python research, backtesting, MLX sentiment |
 
 ## When to Update
 
