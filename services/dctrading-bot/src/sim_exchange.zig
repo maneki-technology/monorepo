@@ -15,6 +15,9 @@ pub const SimExchange = struct {
     fill_delay: u32 = 1, // ticks before order fills (0 = immediate)
     fill_price_offset: f64 = 0, // slippage: actual = signal + offset
     partial_fill_ratio: f64 = 1.0, // 1.0 = full fill, 0.5 = half
+    submitted_qty_ratio: f64 = 1.0, // exchange-side quantity normalization
+    submitted_quote_amount: f64 = 0,
+    fill_quote_amount: f64 = 0,
     fill_commission: f64 = 0,
     fill_commission_usd: f64 = 0,
     fill_commission_asset: [8]u8 = undefined,
@@ -150,18 +153,19 @@ pub const SimExchange = struct {
         const id = self.next_order_id;
         self.next_order_id += 1;
 
+        const submitted_qty = qty * self.submitted_qty_ratio;
         self.orders[self.order_count] = .{
             .id = id,
             .side = side,
-            .qty = qty,
+            .qty = submitted_qty,
             .price = self.last_price, // market price at submission
             .submit_tick = self.tick_count,
         };
         self.order_count += 1;
 
-        self.appendLog(.{ .tick = self.tick_count, .kind = .submit, .order_id = id, .side = side, .qty = qty });
+        self.appendLog(.{ .tick = self.tick_count, .kind = .submit, .order_id = id, .side = side, .qty = submitted_qty });
 
-        var pending: PendingOrder = .{ .side = side, .qty = qty };
+        var pending: PendingOrder = .{ .side = side, .qty = submitted_qty, .quote_amount = self.submitted_quote_amount };
         var id_buf: [16]u8 = undefined;
         const id_str = std.fmt.bufPrint(&id_buf, "{d}", .{id}) catch "0";
         @memcpy(pending.order_id[0..id_str.len], id_str);
@@ -169,7 +173,8 @@ pub const SimExchange = struct {
         return pending;
     }
 
-    fn submitOrder(ptr: *anyopaque, side: Side, qty: f64) ?PendingOrder {
+    fn submitOrder(ptr: *anyopaque, side: Side, qty: f64, signal_price: f64) ?PendingOrder {
+        _ = signal_price;
         const self: *SimExchange = @ptrCast(@alignCast(ptr));
         return submitOrderImpl(self, side, qty);
     }
@@ -258,6 +263,7 @@ pub const SimExchange = struct {
 
     fn makeFill(self: *const SimExchange, fill_price: f64, fill_qty: f64) OrderFill {
         var fill: OrderFill = .{ .fill_price = fill_price, .fill_qty = fill_qty, .status = .filled };
+        fill.quote_amount = self.fill_quote_amount;
         if (self.fill_commission > 0 or self.fill_commission_asset_len > 0) {
             fill.commission = self.fill_commission;
             fill.commission_usd = self.fill_commission_usd;

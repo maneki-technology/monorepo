@@ -207,6 +207,8 @@ struct BotStatus {
     let markSymbol: String
     let checkpointHealth: String
     let checkpointError: String
+    let exchangeHealth: String
+    let exchangeError: String
     let resourceHealth: String
     let resourceError: String
     let resourceRssMb: Double
@@ -232,6 +234,10 @@ struct BotStatus {
 
     var checkpointNeedsAttention: Bool {
         !checkpointHealth.isEmpty && checkpointHealth != "OK"
+    }
+
+    var exchangeNeedsAttention: Bool {
+        !exchangeHealth.isEmpty && exchangeHealth != "OK"
     }
 
     var resourceNeedsAttention: Bool {

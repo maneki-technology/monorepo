@@ -1137,7 +1137,7 @@ test "alpaca: parseJsonString returns null for missing key" {
 // ============================================================
 
 // Shared no-op async stubs for mock exchanges (tests only use sync buy/sell)
-fn noopSubmitOrder(_: *const anyopaque, _: exchange_mod.Side, _: f64) ?exchange_mod.PendingOrder {
+fn noopSubmitOrder(_: *const anyopaque, _: exchange_mod.Side, _: f64, _: f64) ?exchange_mod.PendingOrder {
     return null;
 }
 fn noopCheckOrder(_: *const anyopaque, _: []const u8) exchange_mod.OrderStatus {
@@ -2241,7 +2241,7 @@ test "non-blocking: submitOrder returns immediately, checkOrder resolves after N
         fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
             return .{ .fill_price = 95000.0, .fill_qty = 0.01, .status = .filled };
         }
-        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64, _: f64) ?exchange_mod.PendingOrder {
             _ = side;
             var po: exchange_mod.PendingOrder = .{ .side = .buy, .qty = qty };
             const id = "mock-order-001";
@@ -2282,7 +2282,7 @@ test "non-blocking: submitOrder returns immediately, checkOrder resolves after N
     const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &AsyncExchange.vtable };
 
     // Submit order — returns immediately
-    const pending = ex.submitOrder(.buy, 0.01);
+    const pending = ex.submitOrder(.buy, 0.01, 0);
     try testing.expect(pending != null);
     try testing.expectEqualStrings("mock-order-001", pending.?.order_id[0..pending.?.order_id_len]);
 
@@ -2385,7 +2385,7 @@ test "non-blocking: cancelOrder handles race condition (filled before cancel)" {
         fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
             return null;
         }
-        fn submitOrder(_: *const anyopaque, _: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+        fn submitOrder(_: *const anyopaque, _: exchange_mod.Side, qty: f64, _: f64) ?exchange_mod.PendingOrder {
             var po: exchange_mod.PendingOrder = .{ .side = .buy, .qty = qty };
             const id = "race-order-001";
             @memcpy(po.order_id[0..id.len], id);
@@ -2416,7 +2416,7 @@ test "non-blocking: cancelOrder handles race condition (filled before cancel)" {
     const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &RaceExchange.vtable };
 
     // Submit buy
-    const pending = ex.submitOrder(.buy, 0.01);
+    const pending = ex.submitOrder(.buy, 0.01, 0);
     try testing.expect(pending != null);
 
     // Try to cancel — but it already filled
@@ -2447,7 +2447,7 @@ test "non-blocking: multiple pending orders tracked independently" {
         fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
             return null;
         }
-        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64, _: f64) ?exchange_mod.PendingOrder {
             order_count += 1;
             var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
             var id_buf: [20]u8 = undefined;
@@ -2484,8 +2484,8 @@ test "non-blocking: multiple pending orders tracked independently" {
     const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &MultiExchange.vtable };
 
     // Submit two orders
-    const order1 = ex.submitOrder(.buy, 0.01).?;
-    const order2 = ex.submitOrder(.buy, 0.005).?;
+    const order1 = ex.submitOrder(.buy, 0.01, 0).?;
+    const order2 = ex.submitOrder(.buy, 0.005, 0).?;
 
     // They have different IDs
     try testing.expect(!std.mem.eql(u8, order1.order_id[0..order1.order_id_len], order2.order_id[0..order2.order_id_len]));
@@ -2697,7 +2697,7 @@ test "non-blocking: fill resolves correctly after multiple pending checks" {
         fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
             return null;
         }
-        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64, _: f64) ?exchange_mod.PendingOrder {
             submitted = true;
             checks = 0;
             var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
@@ -2735,7 +2735,7 @@ test "non-blocking: fill resolves correctly after multiple pending checks" {
     const ex = exchange_mod.Exchange{ .ptr = @ptrCast(&dummy), .vtable = &DelayedExchange.vtable };
 
     // Submit
-    const pending = ex.submitOrder(.buy, 0.105).?;
+    const pending = ex.submitOrder(.buy, 0.105, 0).?;
     try testing.expect(DelayedExchange.submitted);
     try testing.expectEqualStrings("delayed-001", pending.order_id[0..pending.order_id_len]);
 
@@ -2880,7 +2880,7 @@ test "non-blocking: DC exit cancels pending buys before selling" {
         fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
             return null;
         }
-        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64, _: f64) ?exchange_mod.PendingOrder {
             submit_count += 1;
             var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
             var id_buf: [20]u8 = undefined;
@@ -2963,7 +2963,7 @@ test "non-blocking: DC exit cancels pending buys before selling" {
     try testing.expectEqual(pending_count, 0); // buy removed
 
     // Now submit sell
-    if (ex.submitOrder(.sell, 0.1)) |pending| {
+    if (ex.submitOrder(.sell, 0.1, 0)) |pending| {
         if (pending_count < MAX_PENDING) {
             pending_orders[pending_count] = .{ .side = .sell, .signal_price = 94000.0, .size = 0.1 };
             const len = @min(pending.order_id_len, pending_orders[pending_count].order_id.len);
@@ -3029,7 +3029,7 @@ test "non-blocking: multiple orders fill on same tick iteration" {
         fn sell(_: *const anyopaque, _: f64) ?exchange_mod.OrderFill {
             return null;
         }
-        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64) ?exchange_mod.PendingOrder {
+        fn submitOrder(_: *const anyopaque, side: exchange_mod.Side, qty: f64, _: f64) ?exchange_mod.PendingOrder {
             var po: exchange_mod.PendingOrder = .{ .side = side, .qty = qty };
             const id = "both-fill";
             @memcpy(po.order_id[0..id.len], id);
@@ -3414,6 +3414,170 @@ test "resource_monitor: computes ticks per minute from configured interval" {
     try testing.expectApproxEqAbs(@as(f64, 300.0), sample.uptime_sec, 0.001);
     try testing.expectEqual(@as(u64, 3), sample.http_requests);
     try testing.expectEqual(@as(u64, 1), sample.http_errors);
+}
+
+// Binance Spot JSON parsing tests
+const binance_spot_mod = @import("binance_spot.zig");
+const http_client_mod = @import("http_client.zig");
+
+test "binance_spot: parseJsonFloat handles quoted string numbers" {
+    const json = "{\"price\":\"50000.50\",\"qty\":0.01}";
+    try testing.expectApproxEqAbs(@as(f64, 50000.50), binance_spot_mod.BinanceSpot.parseJsonFloat(json, "\"price\":\"").?, 0.001);
+    try testing.expectApproxEqAbs(@as(f64, 0.01), binance_spot_mod.BinanceSpot.parseJsonFloat(json, "\"qty\":").?, 0.001);
+}
+
+test "binance_spot: parseJsonString extracts orderId" {
+    const json = "{\"orderId\":12345,\"status\":\"FILLED\"}";
+    try testing.expectEqualStrings("12345", binance_spot_mod.BinanceSpot.parseJsonString(json, "\"orderId\":").?);
+    try testing.expectEqualStrings("FILLED", binance_spot_mod.BinanceSpot.parseJsonString(json, "\"status\":\"").?);
+}
+
+test "binance_spot: parseFillCommission extracts commission from fills" {
+    const json = "{\"fills\":[{\"price\":\"50000.00\",\"qty\":\"0.01\",\"commission\":\"0.00000100\",\"commissionAsset\":\"BTC\"}]}";
+    var commission: f64 = 0;
+    var asset: [8]u8 = undefined;
+    var asset_len: usize = 0;
+    try testing.expect(binance_spot_mod.BinanceSpot.parseFillCommission(json, &commission, &asset, &asset_len));
+    try testing.expectApproxEqAbs(@as(f64, 0.00000100), commission, 0.00000001);
+    try testing.expectEqualStrings("BTC", asset[0..asset_len]);
+}
+
+test "binance_spot: parseTradeCommissions sums same-asset fills" {
+    const json = "[{\"id\":1,\"orderId\":12345,\"commission\":\"0.00000100\",\"commissionAsset\":\"BNB\"},{\"id\":2,\"orderId\":12345,\"commission\":\"0.00000250\",\"commissionAsset\":\"BNB\"}]";
+    var commission: f64 = 0;
+    var asset: [8]u8 = undefined;
+    var asset_len: usize = 0;
+    try testing.expect(binance_spot_mod.BinanceSpot.parseTradeCommissions(json, &commission, &asset, &asset_len));
+    try testing.expectApproxEqAbs(@as(f64, 0.00000350), commission, 0.00000001);
+    try testing.expectEqualStrings("BNB", asset[0..asset_len]);
+}
+
+test "binance_spot: parseTradeCommissions rejects mixed commission assets" {
+    const json = "[{\"commission\":\"0.00000100\",\"commissionAsset\":\"BTC\"},{\"commission\":\"0.01000000\",\"commissionAsset\":\"USDT\"}]";
+    var commission: f64 = 0;
+    var asset: [8]u8 = undefined;
+    var asset_len: usize = 0;
+    try testing.expect(!binance_spot_mod.BinanceSpot.parseTradeCommissions(json, &commission, &asset, &asset_len));
+}
+
+test "binance_spot: parseSymbolFilters extracts lot size and min notional" {
+    const json =
+        \\{"symbols":[{"symbol":"BTCUSDT","filters":[
+        \\{"filterType":"PRICE_FILTER","tickSize":"0.01000000"},
+        \\{"filterType":"LOT_SIZE","minQty":"0.00001000","maxQty":"9000.00000000","stepSize":"0.00001000"},
+        \\{"filterType":"MIN_NOTIONAL","minNotional":"5.00000000"}
+        \\]}]}
+    ;
+    var min_qty: f64 = 0;
+    var step_size: f64 = 0;
+    var min_notional: f64 = 0;
+    try testing.expect(binance_spot_mod.BinanceSpot.parseSymbolFilters(json, &min_qty, &step_size, &min_notional) != null);
+    try testing.expectApproxEqAbs(@as(f64, 0.00001), min_qty, 0.00000001);
+    try testing.expectApproxEqAbs(@as(f64, 0.00001), step_size, 0.00000001);
+    try testing.expectApproxEqAbs(@as(f64, 5.0), min_notional, 0.000001);
+}
+
+test "binance_spot: parseAccountBalance finds asset in balances array" {
+    const json = "{\"balances\":[{\"asset\":\"BTC\",\"free\":\"0.50000000\",\"locked\":\"0.10000000\"},{\"asset\":\"USDT\",\"free\":\"1000.00\",\"locked\":\"0.00\"}]}";
+    const btc = binance_spot_mod.BinanceSpot.parseAccountBalance(json, "BTC");
+    try testing.expectApproxEqAbs(@as(f64, 0.60), btc.?, 0.001);
+    const usdt = binance_spot_mod.BinanceSpot.parseAccountBalance(json, "USDT");
+    try testing.expectApproxEqAbs(@as(f64, 1000.0), usdt.?, 0.001);
+    const missing = binance_spot_mod.BinanceSpot.parseAccountBalance(json, "ETH");
+    try testing.expect(missing == null);
+}
+
+test "binance_spot: hexEncode produces correct hex string" {
+    const bytes = &[_]u8{ 0xAB, 0xCD, 0xEF };
+    var out: [6]u8 = undefined;
+    const hex = binance_spot_mod.hexEncode(bytes, &out);
+    try testing.expectEqualStrings("abcdef", hex);
+}
+
+test "binance_spot: adapter submits quote buy and fetches myTrades commission" {
+    const responses = [_]http_client_mod.HttpClient.MockResponse{
+        .{
+            .method = .POST,
+            .url_contains = "/api/v3/order?",
+            .status = .ok,
+            .body = "{\"orderId\":12345,\"status\":\"NEW\"}",
+        },
+        .{
+            .method = .GET,
+            .url_contains = "/api/v3/order?",
+            .status = .ok,
+            .body = "{\"orderId\":12345,\"status\":\"FILLED\",\"executedQty\":\"0.01000000\",\"cummulativeQuoteQty\":\"1.04000000\"}",
+        },
+        .{
+            .method = .GET,
+            .url_contains = "/api/v3/myTrades?",
+            .status = .ok,
+            .body = "[{\"orderId\":12345,\"commission\":\"0.00104000\",\"commissionAsset\":\"USDT\"}]",
+        },
+    };
+    var transport = http_client_mod.HttpClient.MockTransport{ .responses = responses[0..] };
+    var http = http_client_mod.HttpClient{
+        .client = undefined,
+        .allocator = testing.allocator,
+        .io = undefined,
+        .mock = &transport,
+    };
+    var client = binance_spot_mod.BinanceSpot.initForTest(&http, "key", "secret", "BTC/USD", "https://binance.test");
+    client.min_qty = 0.00001;
+    client.step_size = 0.00001;
+    client.min_notional = 1;
+
+    const pending = client.submitOrderAsync(.buy, 0.01, 104.0).?;
+    try testing.expectEqualStrings("12345", pending.order_id[0..pending.order_id_len]);
+    try testing.expectApproxEqAbs(@as(f64, 1.04), pending.quote_amount, 0.000001);
+    try testing.expect(std.mem.indexOf(u8, transport.requestUrl(0), "quoteOrderQty=1.04000000") != null);
+
+    const status = client.checkOrderStatus(pending.order_id[0..pending.order_id_len]);
+    const fill = switch (status) {
+        .filled => |f| f,
+        else => return error.ExpectedFilled,
+    };
+    try testing.expectApproxEqAbs(@as(f64, 1.04), fill.quote_amount, 0.000001);
+    try testing.expectApproxEqAbs(@as(f64, 104.0), fill.fill_price, 0.000001);
+    try testing.expectApproxEqAbs(@as(f64, 0.00104), fill.commission, 0.00000001);
+    try testing.expectApproxEqAbs(@as(f64, 0.00104), fill.commission_usd, 0.00000001);
+    try testing.expectEqualStrings("USDT", fill.commission_asset[0..fill.commission_asset_len]);
+    try testing.expect(std.mem.indexOf(u8, transport.requestUrl(2), "/api/v3/myTrades?") != null);
+}
+
+test "binance_spot: adapter persists reconcile health after fee lookup timeout" {
+    const responses = [_]http_client_mod.HttpClient.MockResponse{
+        .{ .method = .GET, .url_contains = "/api/v3/order?", .status = .ok, .body = "{\"orderId\":12345,\"status\":\"FILLED\",\"executedQty\":\"0.01000000\",\"cummulativeQuoteQty\":\"1.04000000\"}" },
+        .{ .method = .GET, .url_contains = "/api/v3/myTrades?", .status = .ok, .body = "[]" },
+        .{ .method = .GET, .url_contains = "/api/v3/myTrades?", .status = .ok, .body = "[]" },
+        .{ .method = .GET, .url_contains = "/api/v3/myTrades?", .status = .ok, .body = "[]" },
+        .{ .method = .GET, .url_contains = "/api/v3/order?", .status = .ok, .body = "{\"orderId\":12345,\"status\":\"FILLED\",\"executedQty\":\"0.01000000\",\"cummulativeQuoteQty\":\"1.04000000\"}" },
+        .{ .method = .GET, .url_contains = "/api/v3/myTrades?", .status = .ok, .body = "[]" },
+        .{ .method = .GET, .url_contains = "/api/v3/myTrades?", .status = .ok, .body = "[]" },
+        .{ .method = .GET, .url_contains = "/api/v3/myTrades?", .status = .ok, .body = "[]" },
+    };
+    var transport = http_client_mod.HttpClient.MockTransport{ .responses = responses[0..] };
+    var http = http_client_mod.HttpClient{
+        .client = undefined,
+        .allocator = testing.allocator,
+        .io = undefined,
+        .mock = &transport,
+    };
+    var client = binance_spot_mod.BinanceSpot.initForTest(&http, "key", "secret", "BTC/USD", "https://binance.test");
+    client.fee_missing_max_checks = 2;
+
+    switch (client.checkOrderStatus("12345")) {
+        .pending => {},
+        else => return error.ExpectedPending,
+    }
+    const status = client.checkOrderStatus("12345");
+    const fill = switch (status) {
+        .filled => |f| f,
+        else => return error.ExpectedFilled,
+    };
+    try testing.expectEqual(@as(usize, 0), fill.commission_asset_len);
+    try testing.expectEqualStrings("EXCHANGE_RECONCILE", client.healthStatus());
+    try testing.expectEqualStrings("binance_fee_lookup_timeout_manual_reconciliation_required", client.healthError());
 }
 
 // Integration tests (LiveLoop + SimExchange + SimFeed)

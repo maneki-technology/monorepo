@@ -70,7 +70,7 @@ pub const Turso = struct {
         const sql_core =
             \\{"requests": [
             \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS equity_log (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL, tick_count INTEGER, capital REAL, equity REAL, unrealized REAL, regime TEXT, price REAL, created_at TEXT DEFAULT (datetime('now')))"}},
-            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS bot_status (id INTEGER PRIMARY KEY CHECK (id = 1), status TEXT, last_tick REAL, tick_count INTEGER, regime TEXT, in_position INTEGER, entry_price REAL, equity REAL, capital REAL, unrealized REAL, price REAL, uptime_start REAL, version TEXT, trading_symbol TEXT DEFAULT 'BTC/USD', base_asset TEXT DEFAULT 'BTC', quote_asset TEXT DEFAULT 'USD', mark_symbol TEXT DEFAULT 'BTCUSDT', checkpoint_health TEXT DEFAULT 'OK', checkpoint_error TEXT DEFAULT '', resource_health TEXT DEFAULT 'OK', resource_error TEXT DEFAULT '', resource_rss_mb REAL DEFAULT 0, resource_disk_free_mb REAL DEFAULT 0, resource_disk_used_pct REAL DEFAULT 0, resource_feed_gap_sec REAL DEFAULT 0, resource_ws_lag_sec REAL DEFAULT 0, resource_http_errors INTEGER DEFAULT 0, resource_http_max_ms REAL DEFAULT 0, updated_at TEXT DEFAULT (datetime('now')))"}},
+            \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS bot_status (id INTEGER PRIMARY KEY CHECK (id = 1), status TEXT, last_tick REAL, tick_count INTEGER, regime TEXT, in_position INTEGER, entry_price REAL, equity REAL, capital REAL, unrealized REAL, price REAL, uptime_start REAL, version TEXT, trading_symbol TEXT DEFAULT 'BTC/USD', base_asset TEXT DEFAULT 'BTC', quote_asset TEXT DEFAULT 'USD', mark_symbol TEXT DEFAULT 'BTCUSDT', checkpoint_health TEXT DEFAULT 'OK', checkpoint_error TEXT DEFAULT '', exchange_health TEXT DEFAULT 'OK', exchange_error TEXT DEFAULT '', resource_health TEXT DEFAULT 'OK', resource_error TEXT DEFAULT '', resource_rss_mb REAL DEFAULT 0, resource_disk_free_mb REAL DEFAULT 0, resource_disk_used_pct REAL DEFAULT 0, resource_feed_gap_sec REAL DEFAULT 0, resource_ws_lag_sec REAL DEFAULT 0, resource_http_errors INTEGER DEFAULT 0, resource_http_max_ms REAL DEFAULT 0, updated_at TEXT DEFAULT (datetime('now')))"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS checkpoint_backups (id INTEGER PRIMARY KEY CHECK (id = 1), path TEXT NOT NULL, data_base64 TEXT NOT NULL, byte_len INTEGER NOT NULL, checksum TEXT NOT NULL DEFAULT '', tick_count INTEGER NOT NULL, updated_at TEXT DEFAULT (datetime('now')))"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE TABLE IF NOT EXISTS resource_log (id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp REAL NOT NULL, uptime_sec REAL NOT NULL, rss_mb REAL NOT NULL, cpu_sec REAL NOT NULL, disk_path TEXT NOT NULL, disk_free_mb REAL NOT NULL, disk_used_pct REAL NOT NULL, ticks_per_min REAL NOT NULL, feed_gap_sec REAL NOT NULL, ws_lag_sec REAL NOT NULL, reconnect_count INTEGER NOT NULL, http_requests INTEGER NOT NULL, http_errors INTEGER NOT NULL, http_retries INTEGER NOT NULL, http_last_ms REAL NOT NULL, http_max_ms REAL NOT NULL, resource_health TEXT NOT NULL, resource_error TEXT NOT NULL, created_at TEXT DEFAULT (datetime('now')))"}},
             \\  {"type": "execute", "stmt": {"sql": "CREATE INDEX IF NOT EXISTS idx_resource_log_timestamp ON resource_log(timestamp)"}},
@@ -117,6 +117,12 @@ pub const Turso = struct {
         );
         self.execSyncSilent(
             \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN checkpoint_error TEXT DEFAULT ''"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN exchange_health TEXT DEFAULT 'OK'"}}]}
+        );
+        self.execSyncSilent(
+            \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN exchange_error TEXT DEFAULT ''"}}]}
         );
         self.execSyncSilent(
             \\{"requests": [{"type": "execute", "stmt": {"sql": "ALTER TABLE bot_status ADD COLUMN resource_health TEXT DEFAULT 'OK'"}}]}
@@ -215,12 +221,12 @@ pub const Turso = struct {
     }
 
     /// Upsert bot status (async, every tick).
-    pub fn upsertStatus(self: *const Turso, last_tick: f64, tick_count: u64, regime: []const u8, in_position: bool, entry_price: f64, equity: f64, capital: f64, unrealized: f64, price: f64, uptime_start: f64, instance: []const u8, trading_symbol: []const u8, base_asset: []const u8, quote_asset: []const u8, mark_symbol: []const u8, checkpoint_health: []const u8, checkpoint_error: []const u8) void {
+    pub fn upsertStatus(self: *const Turso, last_tick: f64, tick_count: u64, regime: []const u8, in_position: bool, entry_price: f64, equity: f64, capital: f64, unrealized: f64, price: f64, uptime_start: f64, instance: []const u8, trading_symbol: []const u8, base_asset: []const u8, quote_asset: []const u8, mark_symbol: []const u8, checkpoint_health: []const u8, checkpoint_error: []const u8, exchange_health: []const u8, exchange_error: []const u8) void {
         var buf: [8192]u8 = undefined;
         var ver_buf: [64]u8 = undefined;
         const ver = std.fmt.bufPrint(&ver_buf, "DCTRADE5@{s}", .{instance}) catch "DCTRADE5";
         const sql = std.fmt.bufPrint(&buf,
-            \\{{"requests": [{{"type": "execute", "stmt": {{"sql": "INSERT INTO bot_status (id, status, last_tick, tick_count, regime, in_position, entry_price, equity, capital, unrealized, price, uptime_start, version, trading_symbol, base_asset, quote_asset, mark_symbol, checkpoint_health, checkpoint_error) VALUES (1, 'RUNNING', {d:.6}, {d}, '{s}', {d}, {d:.8}, {d:.2}, {d:.2}, {d:.2}, {d:.2}, {d:.6}, '{s}', '{s}', '{s}', '{s}', '{s}', '{s}', '{s}') ON CONFLICT(id) DO UPDATE SET status=excluded.status, last_tick=excluded.last_tick, tick_count=excluded.tick_count, regime=excluded.regime, in_position=excluded.in_position, entry_price=excluded.entry_price, equity=excluded.equity, capital=excluded.capital, unrealized=excluded.unrealized, price=excluded.price, version=excluded.version, trading_symbol=excluded.trading_symbol, base_asset=excluded.base_asset, quote_asset=excluded.quote_asset, mark_symbol=excluded.mark_symbol, checkpoint_health=excluded.checkpoint_health, checkpoint_error=excluded.checkpoint_error, updated_at=datetime('now')"}}}}]}}
+            \\{{"requests": [{{"type": "execute", "stmt": {{"sql": "INSERT INTO bot_status (id, status, last_tick, tick_count, regime, in_position, entry_price, equity, capital, unrealized, price, uptime_start, version, trading_symbol, base_asset, quote_asset, mark_symbol, checkpoint_health, checkpoint_error, exchange_health, exchange_error) VALUES (1, 'RUNNING', {d:.6}, {d}, '{s}', {d}, {d:.8}, {d:.2}, {d:.2}, {d:.2}, {d:.2}, {d:.6}, '{s}', '{s}', '{s}', '{s}', '{s}', '{s}', '{s}', '{s}', '{s}') ON CONFLICT(id) DO UPDATE SET status=excluded.status, last_tick=excluded.last_tick, tick_count=excluded.tick_count, regime=excluded.regime, in_position=excluded.in_position, entry_price=excluded.entry_price, equity=excluded.equity, capital=excluded.capital, unrealized=excluded.unrealized, price=excluded.price, version=excluded.version, trading_symbol=excluded.trading_symbol, base_asset=excluded.base_asset, quote_asset=excluded.quote_asset, mark_symbol=excluded.mark_symbol, checkpoint_health=excluded.checkpoint_health, checkpoint_error=excluded.checkpoint_error, exchange_health=excluded.exchange_health, exchange_error=excluded.exchange_error, updated_at=datetime('now')"}}}}]}}
         , .{
             last_tick,
             tick_count,
@@ -239,6 +245,8 @@ pub const Turso = struct {
             mark_symbol,
             checkpoint_health,
             checkpoint_error,
+            exchange_health,
+            exchange_error,
         }) catch return;
         self.execAsync(sql);
     }

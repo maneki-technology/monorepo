@@ -143,6 +143,8 @@ struct SettingsView: View {
                 .padding(.vertical, 10)
             }
 
+            exchangeStatusRow(bs)
+
             cardDivider(statusColor)
 
             HStack {
@@ -299,6 +301,35 @@ struct SettingsView: View {
                 resourceMetric("HTTP", "\(bs.resourceHttpErrors) err / \(Int(bs.resourceHttpMaxMs))ms")
             }
             .padding(.horizontal)
+        }
+        .padding(.vertical, 10)
+    }
+
+    private func exchangeStatusRow(_ bs: BotStatus) -> some View {
+        let exchangeColor: Color = bs.exchangeNeedsAttention ? .orange : .green
+        let health = bs.exchangeHealth.isEmpty ? "OK" : bs.exchangeHealth
+        let detail = bs.exchangeError.isEmpty ? "OK" : bs.exchangeError
+
+        return VStack(alignment: .leading, spacing: 8) {
+            Divider()
+                .overlay(exchangeColor.opacity(0.25))
+
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: bs.exchangeNeedsAttention ? "exclamationmark.triangle.fill" : "checkmark.seal.fill")
+                    .font(.system(.body, design: .monospaced, weight: .semibold))
+                    .foregroundStyle(exchangeColor)
+                Text("EXCHANGE \(health)")
+                    .font(.system(.body, design: .monospaced, weight: .semibold))
+                    .foregroundStyle(exchangeColor)
+                Spacer()
+            }
+            .padding(.horizontal)
+
+            Text(detail)
+                .font(.system(.caption, design: .monospaced))
+                .foregroundStyle(.secondary)
+                .lineLimit(2)
+                .padding(.horizontal)
         }
         .padding(.vertical, 10)
     }

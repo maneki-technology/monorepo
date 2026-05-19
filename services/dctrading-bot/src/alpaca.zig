@@ -127,7 +127,8 @@ pub const Alpaca = struct {
 
     /// Submit order without waiting for fill. Returns PendingOrder with order ID.
     /// Typically completes in ~200ms (just the POST, no polling).
-    pub fn submitOrderAsync(self: *const Alpaca, side: Side, qty: f64) ?PendingOrder {
+    pub fn submitOrderAsync(self: *const Alpaca, side: Side, qty: f64, signal_price: f64) ?PendingOrder {
+        _ = signal_price;
         var body_buf: [256]u8 = undefined;
         const side_str = if (side == .buy) "buy" else "sell";
         const body = std.fmt.bufPrint(&body_buf,

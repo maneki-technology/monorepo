@@ -154,7 +154,7 @@ struct DashboardView: View {
     }
 
     private func botNeedsAttention(_ bs: BotStatus) -> Bool {
-        !bs.isLive || bs.checkpointNeedsAttention || bs.resourceNeedsAttention
+        !bs.isLive || bs.checkpointNeedsAttention || bs.exchangeNeedsAttention || bs.resourceNeedsAttention
     }
 
     private func botWarningButton(_ bs: BotStatus) -> some View {
@@ -197,6 +197,9 @@ struct DashboardView: View {
         }
         if bs.checkpointNeedsAttention {
             issues.append("checkpoint \(bs.checkpointHealth)")
+        }
+        if bs.exchangeNeedsAttention {
+            issues.append("exchange \(bs.exchangeHealth)")
         }
         if bs.resourceNeedsAttention {
             issues.append("resource \(bs.resourceHealth)")

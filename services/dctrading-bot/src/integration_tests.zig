@@ -1047,6 +1047,115 @@ test "integration: ledger records buy pending and actual fill settlement" {
     try testing.expectApproxEqAbs(420.0, ledger.posted[0].timestamp, 0.001);
 }
 
+test "integration: buy pending reserves exchange-normalized submitted quantity" {
+    const allocator = testing.allocator;
+    var strategy = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer strategy.deinit(allocator);
+    strategy.suppress_entry = true;
+
+    var sim = SimExchange{ .fill_delay = 1, .submitted_qty_ratio = 0.9 };
+    sim.last_price = 104.0;
+    const ex = sim.exchange();
+    var ledger = MockLedger{};
+    var loop = LiveLoop.init(&strategy, ex, ledger.ledger());
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        loop.processTick(makeTick(100.0, @as(f64, @floatFromInt(i)) * 60.0));
+    }
+
+    loop.processTick(makeTick(104.0, 360.0));
+    try testing.expectEqual(@as(u32, 1), ledger.pending_count);
+    try testing.expectApproxEqAbs(loop.pending_orders[0].size, ledger.last_pending.qty, 0.000001);
+    try testing.expectApproxEqAbs(104.0 * loop.pending_orders[0].size, ledger.last_pending.amount, 0.001);
+    try testing.expectApproxEqAbs(104.0 * loop.pending_orders[0].size, strategy.capital_reserved, 0.001);
+
+    sim.advanceTick();
+    loop.processTick(makeTick(104.0, 420.0));
+    try testing.expectEqual(@as(u32, 1), ledger.post_fill_count);
+    try testing.expectApproxEqAbs(ledger.last_pending.qty, ledger.last_post_fill.actual_size, 0.000001);
+    try testing.expectApproxEqAbs(0.0, strategy.capital_reserved, 0.001);
+}
+
+test "integration: buy ledger uses exchange quote amounts for reserve and fill" {
+    const allocator = testing.allocator;
+    var strategy = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer strategy.deinit(allocator);
+    strategy.suppress_entry = true;
+
+    var sim = SimExchange{
+        .fill_delay = 1,
+        .submitted_quote_amount = 123.45,
+        .fill_quote_amount = 120.12,
+    };
+    sim.last_price = 104.0;
+    const ex = sim.exchange();
+    var ledger = MockLedger{};
+    var loop = LiveLoop.init(&strategy, ex, ledger.ledger());
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        loop.processTick(makeTick(100.0, @as(f64, @floatFromInt(i)) * 60.0));
+    }
+
+    loop.processTick(makeTick(104.0, 360.0));
+    try testing.expectEqual(@as(u32, 1), ledger.pending_count);
+    try testing.expectApproxEqAbs(123.45, ledger.last_pending.amount, 0.001);
+    try testing.expectApproxEqAbs(123.45, strategy.capital_reserved, 0.001);
+
+    sim.advanceTick();
+    loop.processTick(makeTick(104.0, 420.0));
+    try testing.expectEqual(@as(u32, 1), ledger.post_fill_count);
+    try testing.expectApproxEqAbs(120.12, ledger.last_post_fill.actual_amount, 0.001);
+    try testing.expectApproxEqAbs(0.0, strategy.capital_reserved, 0.001);
+}
+
+test "integration: slippage warning persists until ttl expires" {
+    const allocator = testing.allocator;
+    var strategy = try Strategy.init(allocator, .{
+        .ma_period = 5,
+        .ma_buffer = 0.03,
+        .initial_capital = 1000.0,
+        .fee_pct = 0.001,
+    });
+    defer strategy.deinit(allocator);
+    strategy.suppress_entry = true;
+
+    var sim = SimExchange{ .fill_delay = 1, .fill_price_offset = 2.0 };
+    sim.last_price = 104.0;
+    const ex = sim.exchange();
+    var loop = LiveLoop.init(&strategy, ex, null);
+    loop.slippage_warn_pct = 0.01;
+    loop.slippage_warning_ttl_sec = 120;
+
+    var i: usize = 0;
+    while (i < 5) : (i += 1) {
+        loop.processTick(makeTick(100.0, @as(f64, @floatFromInt(i)) * 60.0));
+    }
+
+    loop.processTick(makeTick(104.0, 360.0));
+    sim.advanceTick();
+    loop.processTick(makeTick(104.0, 420.0));
+    try testing.expectEqualStrings("EXCHANGE_SLIPPAGE", loop.last_warning.?);
+    try testing.expectEqualStrings("exchange_slippage_warn_threshold_exceeded", loop.last_warning_error);
+
+    loop.processTick(makeTick(104.0, 480.0));
+    try testing.expect(loop.last_warning != null);
+
+    loop.processTick(makeTick(104.0, 540.0));
+    try testing.expect(loop.last_warning == null);
+}
+
 test "integration: ledger uses actual exchange commission for buy fee" {
     const allocator = testing.allocator;
     var strategy = try Strategy.init(allocator, .{
@@ -1336,7 +1445,7 @@ test "integration: reconciled pending orders are tracked by LiveLoop" {
 
     // Simulate: a pending buy was reconciled from Turso at startup
     // and copied into LiveLoop (the fix)
-    const recon_order = ex.submitOrder(.buy, 0.1);
+    const recon_order = ex.submitOrder(.buy, 0.1, 0);
     try testing.expect(recon_order != null);
     const pending = recon_order.?;
 
@@ -1387,7 +1496,7 @@ test "integration: reconciled pending sell fills correctly" {
     strategy.capital = 10000.0;
 
     // Reconciled pending sell
-    const recon_order = ex.submitOrder(.sell, 0.1);
+    const recon_order = ex.submitOrder(.sell, 0.1, 0);
     try testing.expect(recon_order != null);
     const pending = recon_order.?;
 

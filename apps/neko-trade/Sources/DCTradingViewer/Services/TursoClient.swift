@@ -280,6 +280,8 @@ final class TursoClient {
             markSymbol: getOptionalString(row, result.cols, "mark_symbol") ?? "",
             checkpointHealth: getOptionalString(row, result.cols, "checkpoint_health") ?? "OK",
             checkpointError: getOptionalString(row, result.cols, "checkpoint_error") ?? "",
+            exchangeHealth: getOptionalString(row, result.cols, "exchange_health") ?? "OK",
+            exchangeError: getOptionalString(row, result.cols, "exchange_error") ?? "",
             resourceHealth: getOptionalString(row, result.cols, "resource_health") ?? "OK",
             resourceError: getOptionalString(row, result.cols, "resource_error") ?? "",
             resourceRssMb: getDouble(row, result.cols, "resource_rss_mb"),
