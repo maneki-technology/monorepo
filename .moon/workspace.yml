@@ -4,5 +4,3 @@ projects:
   globs:
     - 'apps/*'
     - 'packages/*'
-    - 'services/*'
-    - 'labs/*'

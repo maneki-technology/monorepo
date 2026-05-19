@@ -1,14 +1,12 @@
 # MANEKI MONOREPO — KNOWLEDGE BASE
 
 ## OVERVIEW
-Maneki Technology monorepo. Polyglot: TypeScript, Zig, Swift, Python.
+Maneki Technology monorepo. TypeScript-focused workspace for Web Components, design system packages, the visual catalog, and the blog/portfolio app.
 
 | Area | Projects | Stack |
 |------|----------|-------|
-| `packages/` | Foundation, UI Components, Grid/Flex Layout | TypeScript, Lit, Vite |
-| `apps/` | Blog, Catalog, Neko Trade | TypeScript (blog/catalog), SwiftUI (Neko Trade) |
-| `services/` | DCTrading Bot | Zig, Binance WS, Alpaca, Turso |
-| `labs/` | DCTrading Research | Python, MLX, sentiment analysis |
+| `packages/` | Foundation, UI Components, Grid/Flex Layout, Charts | TypeScript, Lit, Vite |
+| `apps/` | Blog, Catalog | TypeScript, Hono, Lit, Vite |
 
 Toolchain: proto (version pinning) + Moon (task runner) + npm workspaces.
 
@@ -17,7 +15,7 @@ Toolchain: proto (version pinning) + Moon (task runner) + npm workspaces.
 maneki-monorepo/
 ├── .prototools              # node 22.16.0, moon 2.0.4
 ├── .moon/
-│   ├── workspace.yml        # projects: apps/*, packages/*, services/*, labs/*
+│   ├── workspace.yml        # projects: apps/*, packages/*
 │   └── toolchains.yml       # npm package manager
 ├── .husky/                   # Pre-commit hook (lint-staged → html-validate + stylelint)
 ├── .htmlvalidate.json       # HTML linting config
@@ -44,19 +42,8 @@ maneki-monorepo/
 │   │                        # Tabs: tab-item, tab-group
 │   │                        # Tags: tag (selectable/toggle)
 │   └── foundation/          # Design tokens: colors, semantic, typography, spacing, elevation, breakpoints, dark-theme, token-constants, shape (@maneki/foundation)
-├── services/
-│   └── dctrading-bot/       # BTC trading bot (Zig 0.16, Binance WS, Alpaca, Turso)
-│       ├── src/              # main, strategy, feed, alpaca, turso, telegram, http_client, tests
-│       ├── scripts/          # switch-to-gcp.sh, switch-to-local.sh
-│       └── build.zig
-├── labs/
-│   └── dctrading/           # Trading research lab (Python, MLX, sentiment)
-│       ├── src/dctrading/    # DC strategy, sentiment module, backtest
-│       └── scripts/          # backtest_fast, news_monitor, test_sentiment
-├── .env.example             # Shared env template (Alpaca, Turso, Telegram, ntfy)
 ├── apps/
 │   ├── catalog/             # Visual catalog app + Playwright regression tests (@maneki/catalog)
-│   ├── neko-trade/          # DCTrading dashboard (SwiftUI, macOS + iOS)
 │   └── blog/                # Personal blog + portfolio (@maneki/blog)
 │       ├── admin.html            # Admin hub entry point (/admin)
 │       ├── admin/                # Admin sub-pages

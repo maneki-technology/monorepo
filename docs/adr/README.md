@@ -35,10 +35,3 @@ This directory contains Architectural Decision Records (ADRs) for the Maneki des
 | [028](028-lit-in-ui-components.md) | Lit in UI Components — Gradual Migration | Accepted | 2026-04 |
 | [029](029-generic-editable-pages.md) | Generic Editable Pages System | Accepted | 2026-04 |
 | [030](030-published-snapshot.md) | Published Snapshot for Change Detection | Accepted | 2026-04 |
-| [031](031-zig-trading-bot.md) | Zig for Production Trading Bot | Accepted | 2026-04 |
-| [032](032-three-regime-dc-strategy.md) | Three-Regime Directional Change Strategy | Accepted | 2026-04 |
-| [033](033-alpaca-source-of-truth.md) | Alpaca as Source of Truth for Positions | Accepted | 2026-04 |
-| [034](034-account-ledger.md) | Account Ledger for Capital Audit Trail | Accepted | 2026-04 |
-| [035](035-native-zig-http-client.md) | Native Zig HTTP Client | Accepted | 2026-04 |
-| [036](036-mlx-local-sentiment.md) | MLX Local Sentiment Analysis | Accepted | 2026-04 |
-| [037](037-swiftui-trading-dashboard.md) | SwiftUI Trading Dashboard | Accepted | 2026-04 |
