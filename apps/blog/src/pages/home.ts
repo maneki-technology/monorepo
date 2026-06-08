@@ -75,11 +75,11 @@ export const homeRoute: Route = {
       <div class="project-grid mt-3 reveal-stagger">
         ${pinnedProjects.map((project: any) => `
           <div class="reveal">
-            <ui-card size="m" bordered>
-              ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" slot="image" style="width:100%;height:180px;--ui-image-fit:cover;"></ui-image>` : ""}
+            <ui-card class="featured-project-card" size="m" bordered>
+              ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" slot="image" style="width:100%;height:150px;--ui-image-fit:cover;"></ui-image>` : ""}
               <div class="stack gap-1" style="padding:20px;">
                 <a href="/project/${project.slug}" class="project-card-title heading-05">${project.title}</a>
-                <p class="body-02 text-secondary">${project.description}</p>
+                <p class="featured-project-description body-02 text-secondary">${project.description}</p>
                 <div class="tags">
                   ${project.tech.map((t: string) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
                 </div>
