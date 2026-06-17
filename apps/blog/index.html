@@ -423,6 +423,27 @@
     .post-content p { font-size: var(--fd-type-body-01-font-size); line-height: var(--fd-type-body-01-line-height); margin: 0 0 var(--fd-space-2); }
     .post-content ul, .post-content ol { font-size: var(--fd-type-body-01-font-size); line-height: var(--fd-type-body-01-line-height); margin: 0 0 var(--fd-space-2); padding-left: var(--fd-space-3); }
     .post-content li { margin-bottom: var(--fd-space-0-5); }
+    .post-content a,
+    .post-content ui-link {
+      color: var(--blog-accent);
+      --ui-link-color: var(--blog-accent);
+      --ui-link-hover-color: var(--fd-text-primary, #18181b);
+      --ui-link-active-color: var(--fd-text-primary, #18181b);
+      --ui-link-visited-color: var(--blog-accent);
+    }
+    .post-content a,
+    .post-content ui-link::part(link) {
+      text-decoration: underline;
+      text-decoration-color: color-mix(in srgb, var(--blog-accent) 70%, transparent);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+      text-decoration-skip-ink: auto;
+      transition: color 150ms ease, text-decoration-color 150ms ease;
+    }
+    .post-content a:hover,
+    .post-content ui-link:hover::part(link) {
+      text-decoration-color: currentColor;
+    }
 
     /* ── Mute mode: soften all text globally (toggled via data-muted on :root) ── */
     [data-muted] { --fd-text-primary: var(--fd-color-gray-30, #C1CCD6); }
