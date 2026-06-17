@@ -14,14 +14,19 @@ function formatDate(dateStr: string): string {
 
 export const homeRoute: Route = {
   id: "home",
-  meta: { title: "Home", description: "Senior Software Engineer. Distributed systems, micro-frontend architecture, and design systems." },
+  meta: {
+    title: "Home",
+    description: "Senior Software Engineer. Distributed systems, micro-frontend architecture, and design systems.",
+  },
   render: () => `
     <section class="mb-5 reveal">
       <h1 class="display-03" style="margin-bottom:var(--fd-space-3);">Hey, I'm <strong class="hero-accent">Kien Nguyen<svg class="sig-underline" viewBox="0 0 200 18" preserveAspectRatio="none"><path d="M0 16 C25 14, 45 15, 70 12 S110 8, 140 9 S175 4, 200 3 L200 1.5 C175 2.5, 140 6, 110 5 S70 8, 45 11 S25 9, 0 11 Z"/></svg></strong></h1>
       <p class="body-01 text-secondary mt-2">Senior Software Engineer. Distributed systems, micro-frontends, and design systems. Amateur photographer.</p>
     </section>
 
-    ${featuredPhotos.length > 0 ? `
+    ${
+      featuredPhotos.length > 0
+        ? `
     <section class="mb-5 reveal">
       <div class="row items-center" style="justify-content:space-between;">
         <h2 class="heading-05">Photography</h2>
@@ -33,23 +38,38 @@ export const homeRoute: Route = {
           const angles = [-10, 3, 8, -6, 11];
           const defaultSpacing = 120;
           const fanSpacing = 460;
-          return featuredPhotos.slice(0, count).map((p, i) => {
-            const fanX = (i - (count - 1) / 2) * fanSpacing;
-            const dx = (i - (count - 1) / 2) * defaultSpacing;
-            const dy = [8, -14, 10, -8, 12][i] || 0;
-            return `
+          return featuredPhotos
+            .slice(0, count)
+            .map((p, i) => {
+              const fanX = (i - (count - 1) / 2) * fanSpacing;
+              const dx = (i - (count - 1) / 2) * defaultSpacing;
+              const dy = [8, -14, 10, -8, 12][i] || 0;
+              return `
             <div class="polaroid" data-photo-index="${i}" style="--rot:${angles[i]}deg;--ox:${dx}px;--oy:${dy}px;--fan-x:${fanX}px;">
-              <ui-image src="${p.thumbnailUrl || p.url}" alt="${p.title || ''}"
+              <ui-image src="${p.thumbnailUrl || p.url}" alt="${p.title || ""}"
                    style="aspect-ratio:${p.width}/${p.height};width:100%;display:block;"
                    width="${p.width}" height="${p.height}"
-                   ${p.thumbhash ? `placeholder="${(() => { try { return thumbHashBase64ToDataURL(p.thumbhash); } catch { return ''; } })()}"` : ''}
+                   ${
+                     p.thumbhash
+                       ? `placeholder="${(() => {
+                           try {
+                             return thumbHashBase64ToDataURL(p.thumbhash);
+                           } catch {
+                             return "";
+                           }
+                         })()}"`
+                       : ""
+                   }
                    loading="eager" decoding="async" fetchpriority="high"></ui-image>
             </div>`;
-          }).join("");
+            })
+            .join("");
         })()}
       </a>
     </section>
-    ` : ""}
+    `
+        : ""
+    }
 
     <section class="mb-5 reveal">
       <div class="row items-center" style="justify-content:space-between;">
@@ -57,13 +77,18 @@ export const homeRoute: Route = {
         <a href="/blog" class="body-02 text-link arrow-link" style="text-decoration:none;">View all <span class="arrow-right">→</span></a>
       </div>
       <div class="stack mt-3 reveal-stagger">
-        ${posts.slice(0, 3).map((post) => `
+        ${posts
+          .slice(0, 3)
+          .map(
+            (post) => `
           <div class="post-card reveal">
             <a class="post-card-title" href="/post/${post.slug}">${post.title}</a>
             <div class="post-meta">${formatDate(post.date)} \u00b7 ${post.readTime}</div>
             <p class="post-excerpt">${post.excerpt}</p>
           </div>
-        `).join("")}
+        `,
+          )
+          .join("")}
       </div>
     </section>
 
@@ -73,10 +98,14 @@ export const homeRoute: Route = {
         <a href="/portfolio" class="body-02 text-link arrow-link" style="text-decoration:none;">View all <span class="arrow-right">→</span></a>
       </div>
       <div class="project-grid mt-3 reveal-stagger">
-        ${pinnedProjects.map((project: any) => `
+        ${pinnedProjects
+          .map(
+            (project: any) => `
           <div class="reveal">
             <ui-card class="featured-project-card" size="m" bordered>
-              ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" slot="image" style="width:100%;height:150px;--ui-image-fit:cover;"></ui-image>` : ""}
+              <div class="project-card-media project-card-media--featured${project.image ? "" : " is-empty"}" slot="image">
+                ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" style="width:100%;height:100%;--ui-image-fit:cover;"></ui-image>` : ""}
+              </div>
               <div class="stack gap-1" style="padding:20px;">
                 <a href="/project/${project.slug}" class="project-card-title heading-05">${project.title}</a>
                 <p class="featured-project-description body-02 text-secondary">${project.description}</p>
@@ -90,7 +119,9 @@ export const homeRoute: Route = {
               </div>
             </ui-card>
           </div>
-        `).join("")}
+        `,
+          )
+          .join("")}
       </div>
     </section>
   `,
@@ -120,7 +151,7 @@ export const homeRoute: Route = {
 
       polaroids.forEach((el, i) => {
         const order = indices[i];
-        const rot = (Math.random() * 12 - 6);
+        const rot = Math.random() * 12 - 6;
         const dx = (order - (count - 1) / 2) * defaultSpacing + (Math.random() * 6 - 3);
         const dy = Math.random() * 10 - 5;
         const fanX = (order - (count - 1) / 2) * fanSpacing;
