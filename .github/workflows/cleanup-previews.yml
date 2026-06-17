@@ -26,7 +26,7 @@ on:
 
 jobs:
   cleanup:
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - name: Cleanup old preview deployments
         env:
