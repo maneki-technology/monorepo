@@ -45,6 +45,17 @@ export function getCurrentRoute(): string {
   return path || "home";
 }
 
+function findClickedAnchor(event: MouseEvent): HTMLAnchorElement | null {
+  for (const target of event.composedPath()) {
+    if (target instanceof HTMLAnchorElement && target.matches("a[href]")) {
+      return target;
+    }
+  }
+
+  const target = event.target;
+  return target instanceof Element ? target.closest("a[href]") : null;
+}
+
 async function resolveRoute(routeId: string): Promise<Route | undefined> {
   // Check exact match first
   const exact = routes[routeId];
@@ -160,7 +171,6 @@ function flipSignature(
     { duration, easing, fill: "forwards" },
   );
 
-
   // SVG underline: retract on forward (un-draw right-to-left), fade in on reverse
   if (svgInClone) {
     const isForward = direction === "forward";
@@ -175,10 +185,12 @@ function flipSignature(
         { duration: 250, easing: "ease-in", fill: "forwards" },
       );
     } else {
-      svgInClone.animate(
-        [{ opacity: 0 }, { opacity: 1 }],
-        { duration: 200, delay: 200, easing: "ease-in", fill: "forwards" },
-      );
+      svgInClone.animate([{ opacity: 0 }, { opacity: 1 }], {
+        duration: 200,
+        delay: 200,
+        easing: "ease-in",
+        fill: "forwards",
+      });
     }
   }
 
@@ -234,13 +246,11 @@ export async function renderRoute(): Promise<void> {
 
     // Forward: capture hero clone + rect BEFORE content swap destroys it
     // Fire FLIP immediately — don't wait for exit animation
-    let forwardClone: HTMLElement | null = null;
-    let forwardSourceRect: DOMRect | null = null;
     if (isLeavingHome && siteName) {
       const heroEl = document.querySelector(".hero-accent") as HTMLElement | null;
       if (heroEl) {
-        forwardSourceRect = heroEl.getBoundingClientRect();
-        forwardClone = heroEl.cloneNode(true) as HTMLElement;
+        const forwardSourceRect = heroEl.getBoundingClientRect();
+        const forwardClone = heroEl.cloneNode(true) as HTMLElement;
         // Capture computed font-size while hero is still in its original context
         // (1.8em resolves differently on <body> vs inside <h1>)
         forwardClone.style.fontSize = getComputedStyle(heroEl).fontSize;
@@ -321,8 +331,6 @@ function updateMeta(routeId: string, route: Route | undefined): void {
   // Toggle page identifier for conditional styling (e.g., hide site-name on home)
   document.documentElement.dataset.page = routeId === "home" ? "home" : "";
 
-
-
   // Update active nav link with directional underline
   const navLinks = Array.from(document.querySelectorAll("nav a[data-route]")) as HTMLAnchorElement[];
   const oldIndex = navLinks.findIndex((a) => a.classList.contains("active"));
@@ -332,7 +340,7 @@ function updateMeta(routeId: string, route: Route | undefined): void {
       el.dataset.route === routeId ||
       (routeId === "home" && !el.dataset.route) ||
       (routeId.startsWith("post/") && el.dataset.route === "blog");
-      (routeId.startsWith("photography/") && el.dataset.route === "photography");
+    routeId.startsWith("photography/") && el.dataset.route === "photography";
     if (isActive) newIndex = i;
   });
   const dir = oldIndex >= 0 && newIndex >= 0 && oldIndex !== newIndex ? (newIndex > oldIndex ? "right" : "left") : null;
@@ -341,7 +349,7 @@ function updateMeta(routeId: string, route: Route | undefined): void {
       el.dataset.route === routeId ||
       (routeId === "home" && !el.dataset.route) ||
       (routeId.startsWith("post/") && el.dataset.route === "blog");
-      (routeId.startsWith("photography/") && el.dataset.route === "photography");
+    routeId.startsWith("photography/") && el.dataset.route === "photography";
     if (dir) {
       // Outgoing: shrink toward the new item. Incoming: grow from the old item.
       el.dataset.navDir = i === oldIndex ? dir : i === newIndex ? (dir === "right" ? "left" : "right") : "";
@@ -366,10 +374,17 @@ export function initRouter(): void {
 
   // Intercept link clicks for SPA navigation
   document.addEventListener("click", (e) => {
-    const anchor = (e.target as Element).closest("a[href]") as HTMLAnchorElement | null;
+    const anchor = findClickedAnchor(e);
     if (!anchor) return;
     const href = anchor.getAttribute("href");
-    if (!href || href.startsWith("http") || href.startsWith("mailto:") || anchor.hasAttribute("external") || /\.[a-z]+$/i.test(href)) return;
+    if (
+      !href ||
+      href.startsWith("http") ||
+      href.startsWith("mailto:") ||
+      anchor.hasAttribute("external") ||
+      /\.[a-z]+$/i.test(href)
+    )
+      return;
     if (href.startsWith("/")) {
       e.preventDefault();
       history.pushState(null, "", href);
