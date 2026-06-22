@@ -18,8 +18,13 @@ export const blogRoute: Route = {
       posts.length === 0
         ? `
     <div class="empty-state reveal">
-      <p class="body-01 text-secondary">No published posts yet. The writing section is here for engineering notes and longer essays once they are ready.</p>
-      <a href="/portfolio" class="inline-link body-02 arrow-link"><span class="link-text">View my portfolio instead</span> <span class="arrow-right">→</span></a>
+      <p class="empty-state-kicker body-03">Writing desk</p>
+      <h2 class="heading-04">I have not published any posts here yet.</h2>
+      <p class="body-01 text-secondary">I use this space for engineering notes, design-system lessons, and longer write-ups once they are ready. For now, the best way to understand my work is through the projects I have shipped.</p>
+      <div class="row gap-2 empty-state-actions">
+        <a href="/portfolio" class="inline-link body-02 arrow-link"><span class="link-text">View my portfolio</span> <span class="arrow-right">→</span></a>
+        <a href="/resume" class="inline-link body-02 arrow-link"><span class="link-text">Read my resume</span> <span class="arrow-right">→</span></a>
+      </div>
     </div>`
         : `
     <ui-search id="post-search" placeholder="Search posts..." size="m" class="mb-4"></ui-search>
