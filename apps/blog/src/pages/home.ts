@@ -22,17 +22,81 @@ export const homeRoute: Route = {
     <section class="mb-5 reveal">
       <h1 class="display-03" style="margin-bottom:var(--fd-space-3);">Hey, I'm <strong class="hero-accent">Kien Nguyen<svg class="sig-underline" viewBox="0 0 200 18" preserveAspectRatio="none"><path d="M0 16 C25 14, 45 15, 70 12 S110 8, 140 9 S175 4, 200 3 L200 1.5 C175 2.5, 140 6, 110 5 S70 8, 45 11 S25 9, 0 11 Z"/></svg></strong></h1>
       <p class="body-01 text-secondary mt-2">Senior Software Engineer. Distributed systems, micro-frontends, and design systems. Amateur photographer.</p>
+      <div class="row gap-2 mt-3">
+        <a href="/portfolio" class="inline-link body-02 arrow-link"><span class="link-text">View portfolio</span> <span class="arrow-right">→</span></a>
+        <a href="/resume" class="inline-link body-02 arrow-link"><span class="link-text">Read resume</span> <span class="arrow-right">→</span></a>
+      </div>
     </section>
+
+    <section class="mb-5 reveal">
+      <div class="row items-center" style="justify-content:space-between;">
+        <h2 class="heading-05">Featured projects</h2>
+        <a href="/portfolio" class="body-02 text-link arrow-link" style="text-decoration:none;">View all <span class="arrow-right">→</span></a>
+      </div>
+      <div class="project-grid mt-3 reveal-stagger">
+        ${pinnedProjects
+          .map(
+            (project) => `
+          <div class="reveal">
+            <ui-card class="featured-project-card" size="m" bordered>
+              <div class="project-card-media project-card-media--featured${project.image ? "" : " is-empty"}" slot="image">
+                ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" style="width:100%;height:100%;--ui-image-fit:cover;"></ui-image>` : ""}
+              </div>
+              <div class="stack gap-1" style="padding:20px;">
+                <a href="/project/${project.slug}" class="project-card-title heading-05">${project.title}</a>
+                <p class="featured-project-description body-02 text-secondary">${project.description}</p>
+                <div class="tags">
+                  ${project.tech.map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
+                </div>
+                <div class="row gap-2 mt-1">
+                  ${project.url ? `<ui-link size="s" href="${project.url}" external>Live</ui-link>` : ""}
+                  ${project.repo ? `<ui-link size="s" href="${project.repo}" external>Source</ui-link>` : ""}
+                </div>
+              </div>
+            </ui-card>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>
+    </section>
+
+    ${
+      posts.length > 0
+        ? `
+    <section class="mb-5 reveal">
+      <div class="row items-center" style="justify-content:space-between;">
+        <h2 class="heading-05">Recent posts</h2>
+        <a href="/blog" class="body-02 text-link arrow-link" style="text-decoration:none;">View all <span class="arrow-right">→</span></a>
+      </div>
+      <div class="stack mt-3 reveal-stagger">
+        ${posts
+          .slice(0, 3)
+          .map(
+            (post) => `
+          <div class="post-card reveal">
+            <a class="post-card-title" href="/post/${post.slug}">${post.title}</a>
+            <div class="post-meta">${formatDate(post.date)} \u00b7 ${post.readTime}</div>
+            <p class="post-excerpt">${post.excerpt}</p>
+          </div>
+        `,
+          )
+          .join("")}
+      </div>
+    </section>
+    `
+        : ""
+    }
 
     ${
       featuredPhotos.length > 0
         ? `
-    <section class="mb-5 reveal">
+    <section class="reveal">
       <div class="row items-center" style="justify-content:space-between;">
         <h2 class="heading-05">Photography</h2>
         <a href="/photography" class="body-02 text-link arrow-link" style="text-decoration:none;">View all <span class="arrow-right">→</span></a>
       </div>
-      <a href="/photography" class="polaroid-stack mt-3" id="polaroid-stack" aria-label="View photography">
+      <a href="/photography" class="polaroid-stack mt-3" id="polaroid-stack" aria-label="View photography gallery">
         ${(() => {
           const count = Math.min(featuredPhotos.length, 5);
           const angles = [-10, 3, 8, -6, 11];
@@ -60,7 +124,7 @@ export const homeRoute: Route = {
                          })()}"`
                        : ""
                    }
-                   loading="eager" decoding="async" fetchpriority="high"></ui-image>
+                   loading="lazy" decoding="async"></ui-image>
             </div>`;
             })
             .join("");
@@ -70,60 +134,6 @@ export const homeRoute: Route = {
     `
         : ""
     }
-
-    <section class="mb-5 reveal">
-      <div class="row items-center" style="justify-content:space-between;">
-        <h2 class="heading-05">Recent posts</h2>
-        <a href="/blog" class="body-02 text-link arrow-link" style="text-decoration:none;">View all <span class="arrow-right">→</span></a>
-      </div>
-      <div class="stack mt-3 reveal-stagger">
-        ${posts
-          .slice(0, 3)
-          .map(
-            (post) => `
-          <div class="post-card reveal">
-            <a class="post-card-title" href="/post/${post.slug}">${post.title}</a>
-            <div class="post-meta">${formatDate(post.date)} \u00b7 ${post.readTime}</div>
-            <p class="post-excerpt">${post.excerpt}</p>
-          </div>
-        `,
-          )
-          .join("")}
-      </div>
-    </section>
-
-    <section class="reveal">
-      <div class="row items-center" style="justify-content:space-between;">
-        <h2 class="heading-05">Featured projects</h2>
-        <a href="/portfolio" class="body-02 text-link arrow-link" style="text-decoration:none;">View all <span class="arrow-right">→</span></a>
-      </div>
-      <div class="project-grid mt-3 reveal-stagger">
-        ${pinnedProjects
-          .map(
-            (project: any) => `
-          <div class="reveal">
-            <ui-card class="featured-project-card" size="m" bordered>
-              <div class="project-card-media project-card-media--featured${project.image ? "" : " is-empty"}" slot="image">
-                ${project.image ? `<ui-image src="${project.image}" alt="${project.title}" style="width:100%;height:100%;--ui-image-fit:cover;"></ui-image>` : ""}
-              </div>
-              <div class="stack gap-1" style="padding:20px;">
-                <a href="/project/${project.slug}" class="project-card-title heading-05">${project.title}</a>
-                <p class="featured-project-description body-02 text-secondary">${project.description}</p>
-                <div class="tags">
-                  ${project.tech.map((t: string) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
-                </div>
-                <div class="row gap-2 mt-1">
-                  ${project.url ? `<ui-link size="s" href="${project.url}" external>Live</ui-link>` : ""}
-                  ${project.repo ? `<ui-link size="s" href="${project.repo}" external>Source</ui-link>` : ""}
-                </div>
-              </div>
-            </ui-card>
-          </div>
-        `,
-          )
-          .join("")}
-      </div>
-    </section>
   `,
   setup: () => {
     const stack = document.getElementById("polaroid-stack");

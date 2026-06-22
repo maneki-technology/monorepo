@@ -3,14 +3,17 @@ import type { Route } from "../router.js";
 
 export const portfolioRoute: Route = {
   id: "portfolio",
-  meta: { title: "Portfolio", description: "Things I've built \u2014 from design systems to CLI tools." },
+  meta: {
+    title: "Portfolio",
+    description: "Selected engineering work across authorization, fintech dashboards, and frontend platforms.",
+  },
   render: () => `
     <h1 class="heading-02 mb-2">Portfolio</h1>
-    <p class="body-01 text-secondary mb-4">Things I've built \u2014 from design systems to CLI tools.</p>
+    <p class="body-01 text-secondary mb-4">Selected engineering work across authorization, fintech dashboards, and frontend platforms.</p>
     <div class="project-grid reveal-stagger">
       ${projects
         .map(
-          (project: any) => `
+          (project) => `
         <div class="reveal">
           <ui-card size="m" bordered>
             <div class="project-card-media${project.image ? "" : " is-empty"}" slot="image">
@@ -20,7 +23,7 @@ export const portfolioRoute: Route = {
               <a href="/project/${project.slug}" class="project-card-title heading-05">${project.title}</a>
               <p class="body-02 text-secondary">${project.description}</p>
               <div class="tags">
-                ${project.tech.map((t: string) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
+                ${project.tech.map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
               </div>
               <div class="row gap-2 mt-1">
                 ${project.url ? `<ui-link size="s" href="${project.url}" external>Live</ui-link>` : ""}

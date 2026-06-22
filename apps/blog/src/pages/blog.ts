@@ -14,9 +14,19 @@ export const blogRoute: Route = {
   meta: { title: "Blog", description: "Posts about fullstack development, design systems, and the web." },
   render: () => `
     <h1 class="heading-02 mb-2">Blog</h1>
+    ${
+      posts.length === 0
+        ? `
+    <div class="empty-state reveal">
+      <p class="body-01 text-secondary">No published posts yet. The writing section is here for engineering notes and longer essays once they are ready.</p>
+      <a href="/portfolio" class="inline-link body-02 arrow-link"><span class="link-text">View portfolio instead</span> <span class="arrow-right">→</span></a>
+    </div>`
+        : `
     <ui-search id="post-search" placeholder="Search posts..." size="m" class="mb-4"></ui-search>
     <div id="post-list" class="stack reveal-stagger">
-      ${posts.map((post) => `
+      ${posts
+        .map(
+          (post) => `
         <div class="post-card reveal" data-title="${post.title.toLowerCase()}" data-tags="${post.tags.join(",").toLowerCase()}" data-excerpt="${post.excerpt.toLowerCase()}">
           <a class="post-card-title" href="/post/${post.slug}">${post.title}</a>
           <div class="post-meta">${formatDate(post.date)} \u00b7 ${post.readTime}</div>
@@ -25,9 +35,12 @@ export const blogRoute: Route = {
             ${post.tags.map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
           </div>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
-    <p id="no-results" class="body-01 text-secondary" style="display:none;">No posts found.</p>
+    <p id="no-results" class="body-01 text-secondary" style="display:none;">No posts found.</p>`
+    }
   `,
   setup: () => {
     const search = document.getElementById("post-search") as HTMLElement;

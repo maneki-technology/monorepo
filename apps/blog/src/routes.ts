@@ -25,7 +25,10 @@ export const routes: Route[] = [
   },
   {
     id: "portfolio",
-    meta: { title: "Portfolio", description: "Things I've built — from design systems to CLI tools." },
+    meta: {
+      title: "Portfolio",
+      description: "Selected engineering work across authorization, fintech dashboards, and frontend platforms.",
+    },
     load: () => import("./pages/portfolio.js").then((m) => m.portfolioRoute),
   },
   {
