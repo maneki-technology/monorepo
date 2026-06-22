@@ -19,7 +19,7 @@ export const blogRoute: Route = {
         ? `
     <div class="empty-state reveal">
       <p class="body-01 text-secondary">No published posts yet. The writing section is here for engineering notes and longer essays once they are ready.</p>
-      <a href="/portfolio" class="inline-link body-02 arrow-link"><span class="link-text">View portfolio instead</span> <span class="arrow-right">→</span></a>
+      <a href="/portfolio" class="inline-link body-02 arrow-link"><span class="link-text">View my portfolio instead</span> <span class="arrow-right">→</span></a>
     </div>`
         : `
     <ui-search id="post-search" placeholder="Search posts..." size="m" class="mb-4"></ui-search>

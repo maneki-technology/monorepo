@@ -23,8 +23,8 @@ export const homeRoute: Route = {
       <h1 class="display-03" style="margin-bottom:var(--fd-space-3);">Hey, I'm <strong class="hero-accent">Kien Nguyen<svg class="sig-underline" viewBox="0 0 200 18" preserveAspectRatio="none"><path d="M0 16 C25 14, 45 15, 70 12 S110 8, 140 9 S175 4, 200 3 L200 1.5 C175 2.5, 140 6, 110 5 S70 8, 45 11 S25 9, 0 11 Z"/></svg></strong></h1>
       <p class="body-01 text-secondary mt-2">Senior Software Engineer. Distributed systems, micro-frontends, and design systems. Amateur photographer.</p>
       <div class="row gap-2 mt-3">
-        <a href="/portfolio" class="inline-link body-02 arrow-link"><span class="link-text">View portfolio</span> <span class="arrow-right">→</span></a>
-        <a href="/resume" class="inline-link body-02 arrow-link"><span class="link-text">Read resume</span> <span class="arrow-right">→</span></a>
+        <a href="/portfolio" class="inline-link body-02 arrow-link"><span class="link-text">View my portfolio</span> <span class="arrow-right">→</span></a>
+        <a href="/resume" class="inline-link body-02 arrow-link"><span class="link-text">Read my resume</span> <span class="arrow-right">→</span></a>
       </div>
     </section>
 
@@ -34,7 +34,7 @@ export const homeRoute: Route = {
     <section class="mb-5 reveal">
       <div class="row items-center" style="justify-content:space-between;">
         <h2 class="heading-05">Recent posts</h2>
-        <a href="/blog" class="body-02 text-link arrow-link" style="text-decoration:none;">View all <span class="arrow-right">→</span></a>
+        <a href="/blog" class="body-02 text-link arrow-link" style="text-decoration:none;">Read my posts <span class="arrow-right">→</span></a>
       </div>
       <div class="stack mt-3 reveal-stagger">
         ${posts
@@ -61,7 +61,7 @@ export const homeRoute: Route = {
     <section class="mb-5 reveal">
       <div class="row items-center" style="justify-content:space-between;">
         <h2 class="heading-05">Photography</h2>
-        <a href="/photography" class="body-02 text-link arrow-link" style="text-decoration:none;">View all <span class="arrow-right">→</span></a>
+        <a href="/photography" class="body-02 text-link arrow-link" style="text-decoration:none;">View my photos <span class="arrow-right">→</span></a>
       </div>
       <a href="/photography" class="polaroid-stack mt-3" id="polaroid-stack" aria-label="View photography gallery">
         ${(() => {
@@ -105,7 +105,7 @@ export const homeRoute: Route = {
     <section class="reveal">
       <div class="row items-center" style="justify-content:space-between;">
         <h2 class="heading-05">Featured projects</h2>
-        <a href="/portfolio" class="body-02 text-link arrow-link" style="text-decoration:none;">View all <span class="arrow-right">→</span></a>
+        <a href="/portfolio" class="body-02 text-link arrow-link" style="text-decoration:none;">View my projects <span class="arrow-right">→</span></a>
       </div>
       <div class="project-grid mt-3 reveal-stagger">
         ${pinnedProjects
