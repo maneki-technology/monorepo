@@ -70,11 +70,6 @@ function initReadingProgress(): void {
   );
 }
 
-// ─── Init ──────────────────────────────────────────────────────────────────
-
-initReadingProgress();
-initRouter();
-
 // ─── Scroll Reveal ──────────────────────────────────────────────────────
 
 const revealObserver = new IntersectionObserver(
@@ -89,12 +84,28 @@ const revealObserver = new IntersectionObserver(
   { threshold: 0.1, rootMargin: "0px 0px -40px 0px" },
 );
 
-function observeReveals(): void {
-  document.querySelectorAll(".reveal:not(.revealed)").forEach((el) => revealObserver.observe(el));
+function isAlreadyVisible(el: Element): boolean {
+  const rect = el.getBoundingClientRect();
+  return rect.bottom > 0 && rect.top < window.innerHeight - 40;
 }
 
-observeReveals();
+function observeReveals(): void {
+  document.querySelectorAll(".reveal:not(.revealed)").forEach((el) => {
+    if (isAlreadyVisible(el)) {
+      el.classList.add("revealed");
+      return;
+    }
+    revealObserver.observe(el);
+  });
+}
+
 window.addEventListener("route-changed", observeReveals);
+
+// ─── Init ──────────────────────────────────────────────────────────────────
+
+observeReveals();
+initReadingProgress();
+initRouter();
 
 // Auto-refresh on service worker update (reload when user returns to tab)
 import "./sw-refresh.js";

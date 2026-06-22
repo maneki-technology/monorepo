@@ -14,9 +14,22 @@ export const blogRoute: Route = {
   meta: { title: "Blog", description: "Posts about fullstack development, design systems, and the web." },
   render: () => `
     <h1 class="heading-02 mb-2">Blog</h1>
+    ${
+      posts.length === 0
+        ? `
+    <div class="empty-state reveal">
+      <p class="body-01 text-secondary">I use this space for engineering notes and longer write-ups when they are ready. For now, my portfolio and resume are the best places to understand my work.</p>
+      <div class="row gap-2 empty-state-actions">
+        <a href="/portfolio" class="inline-link body-02 arrow-link"><span class="link-text">View my portfolio</span> <span class="arrow-right">→</span></a>
+        <a href="/resume" class="inline-link body-02 arrow-link"><span class="link-text">Read my resume</span> <span class="arrow-right">→</span></a>
+      </div>
+    </div>`
+        : `
     <ui-search id="post-search" placeholder="Search posts..." size="m" class="mb-4"></ui-search>
     <div id="post-list" class="stack reveal-stagger">
-      ${posts.map((post) => `
+      ${posts
+        .map(
+          (post) => `
         <div class="post-card reveal" data-title="${post.title.toLowerCase()}" data-tags="${post.tags.join(",").toLowerCase()}" data-excerpt="${post.excerpt.toLowerCase()}">
           <a class="post-card-title" href="/post/${post.slug}">${post.title}</a>
           <div class="post-meta">${formatDate(post.date)} \u00b7 ${post.readTime}</div>
@@ -25,9 +38,12 @@ export const blogRoute: Route = {
             ${post.tags.map((t) => `<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`).join("")}
           </div>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
-    <p id="no-results" class="body-01 text-secondary" style="display:none;">No posts found.</p>
+    <p id="no-results" class="body-01 text-secondary" style="display:none;">No posts found.</p>`
+    }
   `,
   setup: () => {
     const search = document.getElementById("post-search") as HTMLElement;
