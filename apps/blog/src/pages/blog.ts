@@ -18,9 +18,9 @@ export const blogRoute: Route = {
       posts.length === 0
         ? `
     <div class="empty-state reveal">
-      <p class="empty-state-kicker body-03">Writing desk</p>
-      <h2 class="heading-04">I have not published any posts here yet.</h2>
-      <p class="body-01 text-secondary">I use this space for engineering notes, design-system lessons, and longer write-ups once they are ready. For now, the best way to understand my work is through the projects I have shipped.</p>
+      <p class="empty-state-kicker body-03">No posts yet</p>
+      <h2 class="heading-04">I have not published writing here yet.</h2>
+      <p class="body-01 text-secondary">I use this space for engineering notes and longer write-ups when they are ready. For now, my portfolio and resume are the best places to understand my work.</p>
       <div class="row gap-2 empty-state-actions">
         <a href="/portfolio" class="inline-link body-02 arrow-link"><span class="link-text">View my portfolio</span> <span class="arrow-right">→</span></a>
         <a href="/resume" class="inline-link body-02 arrow-link"><span class="link-text">Read my resume</span> <span class="arrow-right">→</span></a>

@@ -409,41 +409,21 @@
     }
 
     .empty-state {
-      position: relative;
-      overflow: hidden;
-      padding: var(--fd-space-5);
-      border: 1px solid var(--fd-border-minimal, #e4e4e7);
-      border-radius: var(--fd-radius-md);
+      padding: var(--fd-space-3) var(--fd-space-2);
+      border-top: 1px solid var(--fd-border-minimal, #e4e4e7);
+      border-bottom: 1px solid var(--fd-border-minimal, #e4e4e7);
       margin-top: var(--fd-space-4);
-      background:
-        radial-gradient(ellipse 80% 120% at 0% 0%, var(--blog-accent-subtle) 0%, transparent 55%),
-        var(--fd-surface-primary, #fff);
-    }
-
-    .empty-state::after {
-      content: "";
-      position: absolute;
-      right: var(--fd-space-4);
-      bottom: var(--fd-space-4);
-      width: 72px;
-      height: 72px;
-      border-right: 1px solid color-mix(in srgb, var(--blog-accent) 35%, transparent);
-      border-bottom: 1px solid color-mix(in srgb, var(--blog-accent) 35%, transparent);
-      opacity: 0.45;
-      pointer-events: none;
+      margin-left: calc(-1 * var(--fd-space-2));
+      margin-right: calc(-1 * var(--fd-space-2));
     }
 
     .empty-state-kicker {
       margin: 0 0 var(--fd-space-1);
-      color: var(--blog-accent);
-      font-weight: var(--fd-font-weight-semibold, 600);
-      text-transform: uppercase;
-      letter-spacing: 0;
+      color: var(--fd-text-tertiary, #71717a);
     }
 
     .empty-state h2 {
-      max-width: 20ch;
-      margin: 0 0 var(--fd-space-1-5);
+      margin: 0 0 var(--fd-space-1);
     }
 
     .empty-state p {
@@ -452,7 +432,7 @@
     }
 
     .empty-state-actions {
-      margin-top: var(--fd-space-3);
+      margin-top: var(--fd-space-2);
     }
 
     .tags {
