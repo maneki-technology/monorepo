@@ -1,6 +1,14 @@
 import { SITE_URL, SITE_TITLE } from "./config.js";
 /** Minimal History API router for the blog app. */
 
+const GA_MEASUREMENT_ID = "G-TFK84DSH0B";
+
+declare global {
+  interface Window {
+    gtag?: (command: "event", eventName: "page_view", params: Record<string, string>) => void;
+  }
+}
+
 export interface Route {
   id: string;
   render?: () => string;
@@ -54,6 +62,15 @@ function findClickedAnchor(event: MouseEvent): HTMLAnchorElement | null {
 
   const target = event.target;
   return target instanceof Element ? target.closest("a[href]") : null;
+}
+
+function trackPageView(routeId: string, route: Route): void {
+  window.gtag?.("event", "page_view", {
+    page_title: route.meta?.title ? `${route.meta.title} — ${SITE_TITLE}` : SITE_TITLE,
+    page_location: window.location.href,
+    page_path: routeId === "home" ? "/" : `/${routeId}`,
+    send_to: GA_MEASUREMENT_ID,
+  });
 }
 
 async function resolveRoute(routeId: string): Promise<Route | undefined> {
@@ -305,6 +322,9 @@ export async function renderRoute(): Promise<void> {
     }
   }
   updateMeta(routeId, route);
+  if (prevRoute && prevRoute !== routeId) {
+    trackPageView(routeId, route);
+  }
   window.dispatchEvent(new Event("route-changed"));
   previousRoute = routeId;
 }
