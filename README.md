@@ -40,20 +40,23 @@ maneki-monorepo/
 
 ## Packages
 
-| Package | npm name | Description |
-|---|---|---|
-| `foundation` | `@maneki/foundation` | Design tokens: 131 colors, semantic tokens, typography, spacing, elevation, breakpoints, dark theme, shape, token constants |
+| Package         | npm name                | Description                                                                                                                                                                           |
+| --------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `foundation`    | `@maneki/foundation`    | Design tokens: 131 colors, semantic tokens, typography, spacing, elevation, breakpoints, dark theme, shape, token constants                                                           |
 | `ui-components` | `@maneki/ui-components` | 78 Web Components: primitives, form controls, data display, navigation, disclosure, menus, overlays, tabs, calendar, datetime picker, list, tree, steps, progress, carousel, and more |
-| `charts` | `@maneki/charts` | 11 SVG chart Web Components: bar, line, pie, radar, scatter, polar, stacked bar, horizontal bar, stacked horizontal bar, multi-line, multitype |
-| `grid-layout` | `@maneki/grid-layout` | Zero-dep drag/resize grid layout (3 components, 220 tests) |
-| `flex-layout` | `@maneki/flex-layout` | Panel-based flex layout for dashboard-style interfaces (3 components, 50 tests) |
+| `charts`        | `@maneki/charts`        | 11 SVG chart Web Components: bar, line, pie, radar, scatter, polar, stacked bar, horizontal bar, stacked horizontal bar, multi-line, multitype                                        |
+| `grid-layout`   | `@maneki/grid-layout`   | Zero-dep drag/resize grid layout (3 components, 220 tests)                                                                                                                            |
+| `flex-layout`   | `@maneki/flex-layout`   | Panel-based flex layout for dashboard-style interfaces (3 components, 50 tests)                                                                                                       |
 
 ### Apps
 
-| App | Description |
-|---|---|
-| `catalog` | Visual catalog for all design system packages. 69 pages, 120 Playwright tests (58 visual + 58 a11y + sidebar + full layout). Lazy-loaded pages, History API routing, PWA, theme switcher. |
-| `blog` | Full-stack blog + portfolio. Hono API + Turso DB, CF Pages Functions, static prerendering, admin system (`/admin` hub, editor, gallery, pages editor), AI review/brainstorm panels (Claude via CF AI Gateway), photography management, deploy trigger, History API routing, PWA. |
+| App       | Description                                                                                                                                                                                                                                                                      |
+| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `catalog` | Visual catalog for all design system packages. 69 pages, 120 Playwright tests (58 visual + 58 a11y + sidebar + full layout). Lazy-loaded pages, History API routing, PWA, theme switcher.                                                                                        |
+| `blog`    | Full-stack blog + portfolio. Hono API + Turso DB, CF Pages Functions, static prerendering, admin system (`/admin` hub, editor, gallery, pages editor), AI review/brainstorm panels (Claude via CF AI Gateway), photography management, deploy trigger, History API routing, PWA. |
+
+Blog signature transitions capture rendered typography and animate to the final page layout without delayed scale or width changes. The 21 Playwright signature tests cover both directions, photography sizing, reduced motion, and interrupted navigation (`cd apps/blog && npx playwright test`).
+
 ---
 
 ## Getting Started
