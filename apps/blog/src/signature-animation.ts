@@ -1,6 +1,7 @@
 export interface SignatureSnapshot {
   readonly clone: HTMLElement;
   readonly frame: Keyframe;
+  readonly strokeWidth: number;
 }
 
 export function captureSignature(element: HTMLElement): SignatureSnapshot {
@@ -11,6 +12,7 @@ export function captureSignature(element: HTMLElement): SignatureSnapshot {
   if (!(clone instanceof HTMLElement)) throw new TypeError("Signature must be an HTML element");
   return {
     clone,
+    strokeWidth: parseFloat(styles.webkitTextStrokeWidth) * scale,
     frame: {
       top: `${rect.top}px`,
       left: `${rect.left}px`,
@@ -19,7 +21,6 @@ export function captureSignature(element: HTMLElement): SignatureSnapshot {
       fontWeight: styles.fontWeight,
       fontFamily: styles.fontFamily,
       color: styles.color,
-      webkitTextStrokeWidth: `${parseFloat(styles.webkitTextStrokeWidth) * scale}px`,
     },
   };
 }
@@ -40,6 +41,7 @@ export function animateSignature(source: SignatureSnapshot, target: HTMLElement)
     zIndex: "9999",
     willChange: "font-size, top, left",
     ...source.frame,
+    webkitTextStrokeWidth: `${source.strokeWidth}px`,
   });
   const underline = clone.querySelector<SVGElement>(".sig-underline");
   if (underline) {
@@ -66,10 +68,20 @@ export function animateSignature(source: SignatureSnapshot, target: HTMLElement)
     easing: "cubic-bezier(0.33, 0, 0.2, 1)",
     fill: "forwards",
   });
+  let strokeFrame = 0;
+  const updateStroke = () => {
+    const progress = animation.effect?.getComputedTiming().progress;
+    if (typeof progress === "number") {
+      clone.style.webkitTextStrokeWidth = `${source.strokeWidth + (destination.strokeWidth - source.strokeWidth) * progress}px`;
+    }
+    strokeFrame = requestAnimationFrame(updateStroke);
+  };
+  strokeFrame = requestAnimationFrame(updateStroke);
   let finished = false;
   const cleanup = () => {
     if (finished) return;
     finished = true;
+    cancelAnimationFrame(strokeFrame);
     target.style.visibility = visibility;
     clone.remove();
     const path = target.querySelector<SVGElement>(".sig-underline path");

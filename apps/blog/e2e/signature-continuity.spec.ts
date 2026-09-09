@@ -97,3 +97,53 @@ test("a new navigation cancels the previous signature and layout changes", async
   await expect(page.locator(".site-name")).toBeVisible();
   await expect(page.locator(".site-name")).toHaveCSS("opacity", "1");
 });
+
+for (const [from, to] of [
+  ["home", "blog"],
+  ["home", "photography"],
+  ["blog", "home"],
+  ["photography", "home"],
+]) {
+  test(`stroke follows signature scaling from ${from} to ${to}`, async ({ page }) => {
+    await page.goto(from === "home" ? "/" : `/${from}`);
+    await page.waitForLoadState("networkidle");
+    const source = await page.locator(from === "home" ? ".hero-accent" : ".site-name").evaluate((el) => {
+      const style = getComputedStyle(el);
+      const scale = new DOMMatrixReadOnly(style.transform).a;
+      return { font: parseFloat(style.fontSize) * scale, stroke: parseFloat(style.webkitTextStrokeWidth) * scale };
+    });
+    await page.evaluate(() => {
+      new MutationObserver((_, observer) => {
+        const clone = document.querySelector(".sig-clone");
+        if (!clone) return;
+        clone.getAnimations().forEach((animation) => {
+          animation.pause();
+          animation.currentTime = 0;
+        });
+        observer.disconnect();
+      }).observe(document.body, { childList: true });
+    });
+    await page.locator(to === "home" ? ".site-name" : `nav a[data-route="${to}"]`).click();
+    const clone = page.locator(".sig-clone");
+    await expect(clone).toBeAttached();
+    const target = await page.locator(to === "home" ? ".hero-accent" : ".site-name").evaluate((el) => {
+      const style = getComputedStyle(el);
+      const scale = new DOMMatrixReadOnly(style.transform).a;
+      return { font: parseFloat(style.fontSize) * scale, stroke: parseFloat(style.webkitTextStrokeWidth) * scale };
+    });
+    for (const time of [0, 100, 200, 300, 399]) {
+      const actual = await clone.evaluate(async (el, time) => {
+        el.getAnimations().forEach((animation) => {
+          animation.currentTime = time;
+        });
+        await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+        const style = getComputedStyle(el);
+        return { font: parseFloat(style.fontSize), stroke: parseFloat(style.webkitTextStrokeWidth) };
+      }, time);
+      const progress = (actual.font - source.font) / (target.font - source.font);
+      expect(actual.stroke).toBeCloseTo(source.stroke + (target.stroke - source.stroke) * progress, 2);
+    }
+    await clone.evaluate((el) => el.getAnimations().forEach((animation) => animation.finish()));
+    await expect(clone).toHaveCount(0);
+  });
+}
