@@ -172,7 +172,7 @@
       color: var(--fd-text-primary, #27272a);
       text-decoration: none;
       -webkit-text-stroke: 1.5px currentColor;
-      transition: opacity 200ms ease, transform 0.4s ease;
+      transition: color 150ms ease, transform 0.4s ease;
       transform-origin: left center;
     }
 
@@ -245,6 +245,13 @@
       body.wide-layout footer {
         padding-inline: 24px;
       }
+    }
+
+    body.signature-transition header,
+    body.signature-transition main,
+    body.signature-transition footer,
+    body.signature-transition .site-name {
+      transition: none;
     }
 
     /* Override tag selected color to match blog aesthetic */
@@ -799,7 +806,6 @@
     /* ─── Link transitions ─── */
 
     .post-card-title,
-    .site-name,
     footer ui-link {
       transition: color 150ms ease;
     }
@@ -922,6 +928,7 @@
     /* ─── Reduced motion ─── */
 
     @media (prefers-reduced-motion: reduce) {
+      header, main, footer, .site-name { transition: none; }
       #content { animation: none; }
       #content.page-exit { transition: none; }
       .reveal { opacity: 1; filter: none; transition: none; }

@@ -1,16 +1,18 @@
 # MANEKI MONOREPO — KNOWLEDGE BASE
 
 ## OVERVIEW
+
 Maneki Technology monorepo. TypeScript-focused workspace for Web Components, design system packages, the visual catalog, and the blog/portfolio app.
 
-| Area | Projects | Stack |
-|------|----------|-------|
-| `packages/` | Foundation, UI Components, Grid/Flex Layout, Charts | TypeScript, Lit, Vite |
-| `apps/` | Blog, Catalog | TypeScript, Hono, Lit, Vite |
+| Area        | Projects                                            | Stack                       |
+| ----------- | --------------------------------------------------- | --------------------------- |
+| `packages/` | Foundation, UI Components, Grid/Flex Layout, Charts | TypeScript, Lit, Vite       |
+| `apps/`     | Blog, Catalog                                       | TypeScript, Hono, Lit, Vite |
 
 Toolchain: proto (version pinning) + Moon (task runner) + npm workspaces.
 
 ## STRUCTURE
+
 ```
 maneki-monorepo/
 ├── .prototools              # node 22.16.0, moon 2.0.4
@@ -79,41 +81,44 @@ maneki-monorepo/
 │           │   └── api.ts        # Typed RPC client (hc<AppType>)
 │           ├── config.ts     # Site URL/title config
 │           ├── routes.ts     # Route definitions
+│           ├── signature-animation.ts # Typography snapshots + cancellable signature flight
 │           └── pages/        # 6 routes + editor module (Lit sidebar + tabbar, 20 files under editor/ incl. review-panel + brainstorm-panel)
 ```
 
 ## WHERE TO LOOK
-| Task | Location | Notes |
-|------|----------|-------|
-| Add a new package | `packages/` | Moon auto-discovers via glob |
-| Add a new app | `apps/` | Same auto-discovery |
-| Pin tool versions | `.prototools` | Flat format: `node = "22.16.0"` |
-| Configure Moon tasks | `packages/*/moon.yml` | Per-package task definitions |
-| Change package manager | `.moon/toolchains.yml` | Currently npm |
-| Design tokens (colors, spacing, type) | `packages/foundation/` | Extracted from Figma |
-| UI components | `packages/ui-components/` | Web Components |
-| Grid layout library | `packages/grid-layout/` | Has its own detailed AGENTS.md |
-| Flex layout library | `packages/flex-layout/` | Panel-based flex layout, has its own AGENTS.md |
-| Visual catalog + Playwright tests | `apps/catalog/` | 55 pages, 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout). History API routing, workbox caching. |
-| Personal blog + portfolio | `apps/blog/` | Hono API + Turso DB, CF Pages Functions, static prerendering, admin system at /admin, editor with RPC client |
-| Blog API routes | `apps/blog/src/api/` | Hono: posts CRUD, ui-state, deploy trigger, image upload (R2), photos CRUD, albums CRUD, review (AI streaming), brainstorm (AI streaming), review-conversations, brainstorm-conversations |
-| Blog editor | `apps/blog/src/pages/editor/` | 20 modules: state, sidebar (Lit), tabbar (Lit), preview, toolbar, upload, api, types, review-panel, brainstorm-panel + more |
-| Blog Vite plugins | `apps/blog/plugins/` | markdown-posts (Turso), auto-ui-components, sitemap (Turso), rss-feed (Turso), photography (virtual:photos, virtual:albums), pages (virtual:pages) |
-| Blog scripts | `apps/blog/scripts/` | prerender.ts, migrate.ts, seed-posts.ts, seed-resume.ts, seed-about.ts |
-| Shared Vite config | `shared/` | Dev aliases for cross-package HMR |
-| Linting | `.stylelintrc.json`, `.htmlvalidate.json`, `.husky/` | CSS + HTML linting with pre-commit hook |
-| Admin hub | `apps/blog/admin.html` | Hub with Editor, Gallery, Pages, View Site cards |
-| Admin gallery | `apps/blog/admin/gallery.html` | Photo/album management (Lit component) |
-| Admin editor | `apps/blog/admin/editor.html` | Editor at /admin/editor (new URL) |
-| Photography backend | `apps/blog/src/api/routes/photos.ts`, `albums.ts` | CRUD for photos + albums, Zod validation, soft delete |
-| Pages API + plugin | `apps/blog/src/api/routes/pages.ts`, `plugins/pages.ts` | Generic CRUD + virtual:pages Vite plugin |
-| Seed scripts | `apps/blog/scripts/` | prerender.ts, migrate.ts, seed-posts.ts, seed-resume.ts, seed-about.ts |
-| Admin pages editor | `apps/blog/admin/pages.html` | Edit about, resume, and other pages |
-| AI review panel | `apps/blog/src/pages/editor/review-panel.ts` | Lit side panel, Claude streaming via CF AI Gateway, audience selector, conversation persistence |
-| AI brainstorm panel | `apps/blog/src/pages/editor/brainstorm-panel.ts` | Lit side panel, focus areas (structure/hooks/angles/audience/SEO/open), conversation persistence |
-| Mute toggle | `apps/blog/src/components/mute-toggle.ts` | Contrast mute toggle (vanilla WC, ui-button based, localStorage persisted) |
+
+| Task                                  | Location                                                | Notes                                                                                                                                                                                     |
+| ------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Add a new package                     | `packages/`                                             | Moon auto-discovers via glob                                                                                                                                                              |
+| Add a new app                         | `apps/`                                                 | Same auto-discovery                                                                                                                                                                       |
+| Pin tool versions                     | `.prototools`                                           | Flat format: `node = "22.16.0"`                                                                                                                                                           |
+| Configure Moon tasks                  | `packages/*/moon.yml`                                   | Per-package task definitions                                                                                                                                                              |
+| Change package manager                | `.moon/toolchains.yml`                                  | Currently npm                                                                                                                                                                             |
+| Design tokens (colors, spacing, type) | `packages/foundation/`                                  | Extracted from Figma                                                                                                                                                                      |
+| UI components                         | `packages/ui-components/`                               | Web Components                                                                                                                                                                            |
+| Grid layout library                   | `packages/grid-layout/`                                 | Has its own detailed AGENTS.md                                                                                                                                                            |
+| Flex layout library                   | `packages/flex-layout/`                                 | Panel-based flex layout, has its own AGENTS.md                                                                                                                                            |
+| Visual catalog + Playwright tests     | `apps/catalog/`                                         | 55 pages, 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout). History API routing, workbox caching.                                                                       |
+| Personal blog + portfolio             | `apps/blog/`                                            | Hono API + Turso DB, CF Pages Functions, static prerendering, admin system at /admin, editor with RPC client                                                                              |
+| Blog API routes                       | `apps/blog/src/api/`                                    | Hono: posts CRUD, ui-state, deploy trigger, image upload (R2), photos CRUD, albums CRUD, review (AI streaming), brainstorm (AI streaming), review-conversations, brainstorm-conversations |
+| Blog editor                           | `apps/blog/src/pages/editor/`                           | 20 modules: state, sidebar (Lit), tabbar (Lit), preview, toolbar, upload, api, types, review-panel, brainstorm-panel + more                                                               |
+| Blog Vite plugins                     | `apps/blog/plugins/`                                    | markdown-posts (Turso), auto-ui-components, sitemap (Turso), rss-feed (Turso), photography (virtual:photos, virtual:albums), pages (virtual:pages)                                        |
+| Blog scripts                          | `apps/blog/scripts/`                                    | prerender.ts, migrate.ts, seed-posts.ts, seed-resume.ts, seed-about.ts                                                                                                                    |
+| Shared Vite config                    | `shared/`                                               | Dev aliases for cross-package HMR                                                                                                                                                         |
+| Linting                               | `.stylelintrc.json`, `.htmlvalidate.json`, `.husky/`    | CSS + HTML linting with pre-commit hook                                                                                                                                                   |
+| Admin hub                             | `apps/blog/admin.html`                                  | Hub with Editor, Gallery, Pages, View Site cards                                                                                                                                          |
+| Admin gallery                         | `apps/blog/admin/gallery.html`                          | Photo/album management (Lit component)                                                                                                                                                    |
+| Admin editor                          | `apps/blog/admin/editor.html`                           | Editor at /admin/editor (new URL)                                                                                                                                                         |
+| Photography backend                   | `apps/blog/src/api/routes/photos.ts`, `albums.ts`       | CRUD for photos + albums, Zod validation, soft delete                                                                                                                                     |
+| Pages API + plugin                    | `apps/blog/src/api/routes/pages.ts`, `plugins/pages.ts` | Generic CRUD + virtual:pages Vite plugin                                                                                                                                                  |
+| Seed scripts                          | `apps/blog/scripts/`                                    | prerender.ts, migrate.ts, seed-posts.ts, seed-resume.ts, seed-about.ts                                                                                                                    |
+| Admin pages editor                    | `apps/blog/admin/pages.html`                            | Edit about, resume, and other pages                                                                                                                                                       |
+| AI review panel                       | `apps/blog/src/pages/editor/review-panel.ts`            | Lit side panel, Claude streaming via CF AI Gateway, audience selector, conversation persistence                                                                                           |
+| AI brainstorm panel                   | `apps/blog/src/pages/editor/brainstorm-panel.ts`        | Lit side panel, focus areas (structure/hooks/angles/audience/SEO/open), conversation persistence                                                                                          |
+| Mute toggle                           | `apps/blog/src/components/mute-toggle.ts`               | Contrast mute toggle (vanilla WC, ui-button based, localStorage persisted)                                                                                                                |
 
 ## CONVENTIONS
+
 - **Zero runtime deps** (except `ui-components`, `grid-layout`, and `flex-layout` → `@maneki/foundation`). Foundation has zero production dependencies.
 - **Web Components + Shadow DOM.** All UI is custom elements with `attachShadow({ mode: "open" })`.
 - **CSS custom properties.** Each package has its own prefix: `--grid-*` (grid-layout), `--flex-*` (flex-layout), `--fd-*` (foundation), `--ui-*` (ui-components).
@@ -138,7 +143,7 @@ maneki-monorepo/
 - **`<theme-toggle>` for theme switching.** Vanilla Web Component shared across all pages (public + admin). Uses `ui-button` internally, no Lit dependency. Supports `fab` attribute for fixed-position semi-transparent mode.
 - **Admin as static HTML files.** Each admin page (`/admin`, `/admin/editor`, `/admin/gallery`, `/admin/pages`) has its own HTML file and entry script. No SPA routing — CF Pages serves them as static files.
 - **Blog accent color.** `--blog-accent` (terracotta) used for post card hover, nav underline, post title hover. Light: `#c2785c`, dark: `#d4956e`.
-- **FLIP signature animation.** Hero "Kien Nguyen" animates to header site-name on leaving home. Uses `font-size` interpolation (not `transform: scale`) for crisp text rendering.
+- **FLIP signature animation.** Hero "Kien Nguyen" animates to header site-name on leaving home. Uses `font-size` interpolation (not `transform: scale`) for crisp text rendering. Capture rendered typography before layout changes; settle the destination layout before measuring the flight. Navigation cancels the active clone.
 - **Homeland signature font.** Self-hosted subset woff2 (4.6KB, "Kien Nguyen" chars only), preloaded. Used for hero and header site-name.
 - **Generic editable pages system.** pages table in Turso, /api/pages CRUD, virtual:pages Vite plugin. Public pages (about.ts, resume.ts) read from getPage(slug). Content is markdown with inline HTML/web components. Page-specific CSS stored in styles column.
 - **Deploy FAB uses ui-button.** <deploy-fab> is a Lit component wrapping ui-button (action="secondary", icon-only, round via --ui-btn-radius:50%). Shows rocket_launch icon, loading/success/error status via ui-button status attribute.
@@ -152,6 +157,7 @@ maneki-monorepo/
 - **Graceful stream disconnect.** If connection drops mid-stream, partial content is saved to messages array and persisted. Error only shown if no content was received.
 
 ## ANTI-PATTERNS
+
 - **No `as any`, `@ts-ignore`, `@ts-expect-error`** — never suppress types
 - **No runtime dependencies** — if you need a dep, justify it
 - **Don't mutate layouts externally** — always use property setters on components
@@ -197,22 +203,27 @@ Every change — component, fix, refactor, docs — follows this workflow:
 7. **Accept unfixable transitive vulnerabilities** if they're build-time only (e.g., `workbox-build` → `serialize-javascript`) — note them in the PR description
 
 ## COMMANDS
+
 # Proto / Moon (run from repo root)
-proto use                    # Install pinned tool versions
-moon run <pkg>:build         # Build a specific package
-moon run <pkg>:test          # Test a specific package
-moon check --all             # Run all tasks across all packages
+
+proto use # Install pinned tool versions
+moon run <pkg>:build # Build a specific package
+moon run <pkg>:test # Test a specific package
+moon check --all # Run all tasks across all packages
 
 # Per-package (run from package dir)
-npx vitest --run             # Unit tests
-npx tsc --noEmit             # Type check
-npx vite build               # Build
+
+npx vitest --run # Unit tests
+npx tsc --noEmit # Type check
+npx vite build # Build
 
 # Blog (run from apps/blog/)
-moon run blog:dev            # Vite dev server (builds deps first)
-moon run blog:dev-pages      # Full CF Pages dev (builds all → wrangler)
-npm run migrate              # Run Turso DB migrations
-npm run seed-posts           # Seed markdown posts into Turso (one-time)
+
+moon run blog:dev # Vite dev server (builds deps first)
+moon run blog:dev-pages # Full CF Pages dev (builds all → wrangler)
+npm run migrate # Run Turso DB migrations
+npm run seed-posts # Seed markdown posts into Turso (one-time)
+
 ```
 
 ## NOTES
@@ -224,4 +235,5 @@ npm run seed-posts           # Seed markdown posts into Turso (one-time)
 - LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead
 - Dark theme: two systems — default (`[data-theme="dark"]`) and HeroUI (`[data-theme="heroui"]` / `[data-theme="heroui-dark"]`). Blog uses HeroUI. Catalog supports both.
 - ADRs in `docs/adr/` — 29 architectural decision records
-- `apps/blog/` — Personal blog + portfolio. Hono API + Turso DB, CF Pages Functions, CF Access auth, typed RPC client (hc<AppType>), static prerendering via `scripts/prerender.ts`, History API routing, workbox service worker (JS/CSS/fonts cached, HTML from network), Shiki syntax highlighting (build-time + editor preview), SEO meta tags, sitemap generation (Turso), RSS feed (Turso), FOUC prevention, reading progress bar, client-side search, editor at `/admin/editor` with modular architecture (18 files, Lit sidebar + tabbar), sidebar with multi-select + batch operations for posts and projects, tabs with Map-based DOM patching + prefix slot (📝/📦), reactive store (setState + selective rendering), image upload (R2 + client-side WebP optimization + gallery side panel), deploy trigger (GitHub Actions repository_dispatch + status polling), deploy FAB (ui-button based with rocket_launch icon), portfolio management (projects CRUD + reorder + pin), soft delete, unpublished changes tracking (published_snapshot JSON comparison), undo stack (setRangeText-based, avoids execCommand), scroll sync, circular context menu, UI state persistence, resume page, admin system at /admin (hub, editor, gallery, pages), generic editable pages (virtual:pages), published_snapshot change detection, admin pages editor at /admin/pages, theme toggle FAB, photography backend (albums + photos tables in Turso), FLIP signature animation (hero to header, 16 Playwright e2e tests), blur-to-sharp micro-interactions, terracotta accent color (`--blog-accent`), Homeland signature font (self-hosted subset woff2), AI review panel (Claude streaming via CF AI Gateway, audience selector, conversation persistence), AI brainstorm panel (focus areas, conversation persistence), mute toggle (`data-muted` attribute, localStorage persisted). Port 5175. ESLint + Prettier for linting/formatting.
+- `apps/blog/` — Personal blog + portfolio. Hono API + Turso DB, CF Pages Functions, CF Access auth, typed RPC client (hc<AppType>), static prerendering via `scripts/prerender.ts`, History API routing, workbox service worker (JS/CSS/fonts cached, HTML from network), Shiki syntax highlighting (build-time + editor preview), SEO meta tags, sitemap generation (Turso), RSS feed (Turso), FOUC prevention, reading progress bar, client-side search, editor at `/admin/editor` with modular architecture (18 files, Lit sidebar + tabbar), sidebar with multi-select + batch operations for posts and projects, tabs with Map-based DOM patching + prefix slot (📝/📦), reactive store (setState + selective rendering), image upload (R2 + client-side WebP optimization + gallery side panel), deploy trigger (GitHub Actions repository_dispatch + status polling), deploy FAB (ui-button based with rocket_launch icon), portfolio management (projects CRUD + reorder + pin), soft delete, unpublished changes tracking (published_snapshot JSON comparison), undo stack (setRangeText-based, avoids execCommand), scroll sync, circular context menu, UI state persistence, resume page, admin system at /admin (hub, editor, gallery, pages), generic editable pages (virtual:pages), published_snapshot change detection, admin pages editor at /admin/pages, theme toggle FAB, photography backend (albums + photos tables in Turso), FLIP signature animation (hero to header, 25 Playwright signature e2e tests), blur-to-sharp micro-interactions, terracotta accent color (`--blog-accent`), Homeland signature font (self-hosted subset woff2), AI review panel (Claude streaming via CF AI Gateway, audience selector, conversation persistence), AI brainstorm panel (focus areas, conversation persistence), mute toggle (`data-muted` attribute, localStorage persisted). Port 5175. ESLint + Prettier for linting/formatting.
+```
