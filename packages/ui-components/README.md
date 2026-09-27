@@ -69,7 +69,7 @@ npm install @maneki/ui-components
 | `<ui-dropdown-split>` | Split button (action + chevron trigger): 4 sizes, 5 actions, opt-in `selectable` |
 | `<ui-menu>` | Standalone floating menu panel: 2 sizes, open/close animation, dismiss, single/multi-select |
 | | **Overlays** |
-| `<ui-modal>` | Dialog with backdrop, header, scrollable body, footer: 3 sizes, 2 layouts |
+| `<ui-modal>` | Native modal dialog with inert background, header, scrollable body, footer: 3 sizes, 2 layouts |
 | | **Tabs** |
 | `<ui-tab-item>` | Tab item: 2 sizes, 3 states, 2 orientations, leading/trailing icon slots |
 | `<ui-tab-group>` | Tab group wrapper: size/orientation propagation, roving tabindex, arrow key navigation |

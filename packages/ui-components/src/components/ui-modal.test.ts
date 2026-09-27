@@ -212,20 +212,20 @@ describe("ui-modal", () => {
   it("escape key closes when dismissible and open", () => {
     el.setAttribute("dismissible", "");
     el.setAttribute("open", "");
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    el.shadowRoot!.querySelector(".backdrop")!.dispatchEvent(new Event("cancel", { cancelable: true }));
     vi.advanceTimersByTime(250);
     expect(el.hasAttribute("open")).toBe(false);
   });
 
   it("escape key does not close when not dismissible", () => {
     el.setAttribute("open", "");
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    el.shadowRoot!.querySelector(".backdrop")!.dispatchEvent(new Event("cancel", { cancelable: true }));
     expect(el.hasAttribute("open")).toBe(true);
   });
 
   it("escape key does not close when not open", () => {
     el.setAttribute("dismissible", "");
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    el.shadowRoot!.querySelector(".backdrop")!.dispatchEvent(new Event("cancel", { cancelable: true }));
     expect(el.hasAttribute("open")).toBe(false);
   });
 
@@ -269,7 +269,7 @@ describe("ui-modal", () => {
     el.addEventListener("close", () => {
       eventFired = true;
     });
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    el.shadowRoot!.querySelector(".backdrop")!.dispatchEvent(new Event("cancel", { cancelable: true }));
     vi.advanceTimersByTime(250);
     expect(eventFired).toBe(true);
   });
@@ -291,7 +291,7 @@ describe("ui-modal", () => {
   it("escape key starts close animation", () => {
     el.setAttribute("dismissible", "");
     el.setAttribute("open", "");
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    el.shadowRoot!.querySelector(".backdrop")!.dispatchEvent(new Event("cancel", { cancelable: true }));
     // open still true during animation
     expect(el.hasAttribute("open")).toBe(true);
     vi.advanceTimersByTime(250);
@@ -357,21 +357,25 @@ describe("ui-modal", () => {
 
   // ── ARIA attributes ─────────────────────────────────────────────────────
 
-  it("dialog has role='dialog'", () => {
+  it("uses a native dialog for the modal top layer", () => {
     const shadow = el.shadowRoot!;
-    const dialog = shadow.querySelector(".dialog") as HTMLElement;
-    expect(dialog.getAttribute("role")).toBe("dialog");
+    const dialog = shadow.querySelector(".backdrop") as HTMLDialogElement;
+    expect(dialog.tagName).toBe("DIALOG");
+    el.setAttribute("open", "");
+    expect(dialog.open).toBe(true);
   });
 
-  it("dialog has aria-modal='true'", () => {
+  it("closes the native dialog when the modal closes", () => {
     const shadow = el.shadowRoot!;
-    const dialog = shadow.querySelector(".dialog") as HTMLElement;
-    expect(dialog.getAttribute("aria-modal")).toBe("true");
+    const dialog = shadow.querySelector(".backdrop") as HTMLDialogElement;
+    el.setAttribute("open", "");
+    el.removeAttribute("open");
+    expect(dialog.open).toBe(false);
   });
 
   it("dialog has aria-labelledby pointing to title", () => {
     const shadow = el.shadowRoot!;
-    const dialog = shadow.querySelector(".dialog") as HTMLElement;
+    const dialog = shadow.querySelector(".backdrop") as HTMLElement;
     const title = shadow.querySelector("#modal-title");
     expect(dialog.getAttribute("aria-labelledby")).toBe("modal-title");
     expect(title).toBeTruthy();
@@ -524,23 +528,21 @@ describe("ui-modal", () => {
     modal2.setAttribute("open", "");
     document.body.appendChild(modal2);
 
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    modal2.shadowRoot!.querySelector(".backdrop")!.dispatchEvent(new Event("cancel", { cancelable: true }));
     vi.advanceTimersByTime(250);
 
-    // Both modals close since both are dismissible and open
     expect(modal2.hasAttribute("open")).toBe(false);
+    expect(modal1.hasAttribute("open")).toBe(true);
   });
 
   // ── Disconnected cleanup ────────────────────────────────────────────────
 
-  it("removes keydown listener on disconnect", () => {
+  it("closes the native dialog on disconnect", () => {
     el.setAttribute("dismissible", "");
     el.setAttribute("open", "");
+    const dialog = el.shadowRoot!.querySelector(".backdrop") as HTMLDialogElement;
     document.body.removeChild(el);
-    // After disconnect, escape should not affect the element
-    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
-    // Element still has open attribute since listener was removed
-    expect(el.hasAttribute("open")).toBe(true);
+    expect(dialog.open).toBe(false);
   });
 
   // ── observedAttributes ──────────────────────────────────────────────────
