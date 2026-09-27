@@ -13,24 +13,18 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// SSR shims — photography page imports Web Components that use browser-only APIs at module level
-declare global {
-  var CSSStyleSheet: { new (): { replaceSync(_: string): void } };
-
-  var HTMLElement: { new (): unknown };
-
-  var customElements: { define(_n: string, _c: unknown): void; get(_n: string): unknown };
-}
 if (typeof globalThis.CSSStyleSheet === "undefined") {
-  globalThis.CSSStyleSheet = class CSSStyleSheet {
-    replaceSync() {}
-  } as never;
+  Object.defineProperty(globalThis, "CSSStyleSheet", {
+    value: class CSSStyleSheet {
+      replaceSync() {}
+    },
+  });
 }
 if (typeof globalThis.HTMLElement === "undefined") {
-  globalThis.HTMLElement = class HTMLElement {} as never;
+  Object.defineProperty(globalThis, "HTMLElement", { value: class HTMLElement {} });
 }
 if (typeof globalThis.customElements === "undefined") {
-  globalThis.customElements = { define() {}, get() {} } as never;
+  Object.defineProperty(globalThis, "customElements", { value: { define() {}, get() {} } });
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

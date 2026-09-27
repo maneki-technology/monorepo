@@ -1,33 +1,51 @@
-$schema: 'https://moonrepo.dev/schemas/project.json'
+$schema: "https://moonrepo.dev/schemas/project.json"
 
-language: 'typescript'
+language: "typescript"
 
 dependsOn:
-  - 'foundation'
-  - 'ui-components'
-  - 'grid-layout'
+  - "foundation"
+  - "ui-components"
+  - "grid-layout"
 
 tasks:
   dev:
-    command: 'vite --port 5175'
+    command: "vite --port 5175"
     deps:
-      - '^:build'
-    preset: 'server'
+      - "^:build"
+    preset: "server"
 
   build:
-    script: 'vite build'
+    script: "vite build"
     inputs:
-      - 'src/**/*'
-      - 'index.html'
-      - 'tsconfig.json'
-      - 'vite.config.ts'
+      - "src/**/*"
+      - "index.html"
+      - "tsconfig.json"
+      - "vite.config.ts"
     outputs:
-      - 'dist'
+      - "dist"
     deps:
-      - '^:build'
+      - "^:build"
+
+  test:
+    command: "vitest --run src"
+    inputs:
+      - "src/**/*"
+      - "vite.config.ts"
+
+  typecheck:
+    command: "tsc --noEmit"
+    inputs:
+      - "src/**/*"
+      - "functions/**/*"
+      - "plugins/**/*"
+      - "scripts/**/*"
+      - "vite.config.ts"
+      - "tsconfig.json"
+    deps:
+      - "^:build"
 
   dev-pages:
-    command: 'wrangler pages dev dist --compatibility-date 2024-12-01'
+    command: "wrangler pages dev dist --compatibility-date 2024-12-01"
     deps:
-      - '~:build'
-    preset: 'server'
+      - "~:build"
+    preset: "server"
