@@ -76,8 +76,6 @@ export class UiMenu extends HTMLElement {
     const slot = document.createElement("slot");
     shadow.appendChild(slot);
 
-    this.setAttribute("role", "menu");
-
     // Propagate size on slotchange
     slot.addEventListener("slotchange", () => this._propagateSize());
 
@@ -86,6 +84,7 @@ export class UiMenu extends HTMLElement {
   }
 
   connectedCallback(): void {
+    if (!this.hasAttribute("role")) this.setAttribute("role", "menu");
     // Only register dismiss handlers when standalone (not composed inside another shadow root)
     const root = this.getRootNode();
     if (!(root instanceof ShadowRoot)) {

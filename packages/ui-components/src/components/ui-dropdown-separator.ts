@@ -36,9 +36,11 @@ export class UiDropdownSeparator extends HTMLElement {
     const line = document.createElement("div");
     line.className = "line";
     shadow.appendChild(line);
+  }
 
-    this.setAttribute("role", "separator");
-    this.setAttribute("aria-hidden", "true");
+  connectedCallback(): void {
+    if (!this.hasAttribute("role")) this.setAttribute("role", "separator");
+    if (!this.hasAttribute("aria-hidden")) this.setAttribute("aria-hidden", "true");
   }
 }
 
