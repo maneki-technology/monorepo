@@ -4,19 +4,19 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/blog/**'
-      - 'packages/ui-components/**'
-      - 'packages/foundation/**'
-      - 'packages/grid-layout/**'
-      - '.github/workflows/deploy-blog.yml'
+      - "apps/blog/**"
+      - "packages/ui-components/**"
+      - "packages/foundation/**"
+      - "packages/grid-layout/**"
+      - ".github/workflows/deploy-blog.yml"
   pull_request:
     branches: [main]
     paths:
-      - 'apps/blog/**'
-      - 'packages/ui-components/**'
-      - 'packages/foundation/**'
-      - 'packages/grid-layout/**'
-      - '.github/workflows/deploy-blog.yml'
+      - "apps/blog/**"
+      - "packages/ui-components/**"
+      - "packages/foundation/**"
+      - "packages/grid-layout/**"
+      - ".github/workflows/deploy-blog.yml"
   repository_dispatch:
     types: [deploy-blog]
 
@@ -31,8 +31,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.16.0'
-          cache: 'npm'
+          node-version: "22.16.0"
+          cache: "npm"
 
       - run: npm ci
 
@@ -48,7 +48,16 @@ jobs:
         run: npm run build
         working-directory: packages/grid-layout
 
+      - name: Build blog preview
+        if: github.event_name == 'pull_request'
+        run: test -n "$TURSO_AUTH_TOKEN" && npm run build
+        working-directory: apps/blog
+        env:
+          TURSO_URL: ${{ secrets.TURSO_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_READ_ONLY_AUTH_TOKEN }}
+
       - name: Build blog
+        if: github.event_name != 'pull_request'
         run: npm run build
         working-directory: apps/blog
         env:
@@ -56,6 +65,7 @@ jobs:
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
 
       - name: Create Cloudflare Pages project (if needed)
+        if: github.event_name != 'pull_request'
         uses: cloudflare/wrangler-action@v3
         continue-on-error: true
         with:
@@ -64,6 +74,7 @@ jobs:
           command: pages project create maneki-blog --production-branch=main
 
       - name: Deploy to Cloudflare Pages
+        if: github.event_name != 'pull_request'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

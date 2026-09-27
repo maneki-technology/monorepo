@@ -18,8 +18,10 @@ export const deploy = new Hono<Env>()
     const email = c.get("userEmail");
     const deployId = `gh-${Date.now().toString(36)}`;
 
-    if (ghToken) {
-      await fetch(`https://api.github.com/repos/${REPO}/dispatches`, {
+    if (!ghToken) return c.json({ error: "GH_DEPLOY_TOKEN not configured" }, 500);
+
+    try {
+      const response = await fetch(`https://api.github.com/repos/${REPO}/dispatches`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${ghToken}`,
@@ -29,6 +31,14 @@ export const deploy = new Hono<Env>()
         },
         body: JSON.stringify({ event_type: "deploy-blog" }),
       });
+      if (!response.ok) {
+        return c.json(
+          { error: "GitHub dispatch failed", status: response.status, message: await response.text() },
+          502,
+        );
+      }
+    } catch {
+      return c.json({ error: "GitHub dispatch failed" }, 502);
     }
 
     await db.execute({
@@ -114,13 +124,19 @@ export const deploy = new Hono<Env>()
 
         // When deploy succeeds, bulk-update deployed_at from manifest
         if (newStatus === "success") {
-          const manifestResult = await db.execute({ sql: "SELECT manifest FROM deployments WHERE id = ?", args: [deployId] });
+          const manifestResult = await db.execute({
+            sql: "SELECT manifest FROM deployments WHERE id = ?",
+            args: [deployId],
+          });
           const manifestJson = manifestResult.rows[0]?.manifest as string | null;
           if (manifestJson) {
             const entries = JSON.parse(manifestJson) as { slug: string; type: string }[];
             for (const entry of entries) {
               const table = entry.type === "project" ? "projects" : "posts";
-              await db.execute({ sql: `UPDATE ${table} SET deployed_at = datetime('now') WHERE slug = ?`, args: [entry.slug] });
+              await db.execute({
+                sql: `UPDATE ${table} SET deployed_at = datetime('now') WHERE slug = ?`,
+                args: [entry.slug],
+              });
             }
           }
         }
