@@ -680,7 +680,7 @@ const herouiComponentCssShared = [
 
 // Light-only component overrides
 const herouiComponentCssLight = [
-  "--ui-select-hover-border: transparent;",
+  "--ui-select-hover-border: #71717a;",
   "--ui-select-hover-bg: rgba(249, 249, 249, 0.92);",
   "--ui-search-category-bg: #ebebec;",
   "--ui-search-item-hover-bg: #e4e4e7;",
@@ -695,7 +695,7 @@ const herouiComponentCssLight = [
 
 // Dark-only component overrides
 const herouiComponentCssDark = [
-  "--ui-select-hover-border: transparent;",
+  "--ui-select-hover-border: #a1a1aa;",
   "--ui-select-hover-bg: rgba(39, 39, 42, 0.92);",
   "--ui-search-category-bg: #27272a;",
   "--ui-search-item-hover-bg: #3f3f46;",
