@@ -1,9 +1,11 @@
 # packages/foundation — Design Tokens
 
 ## OVERVIEW
+
 Design tokens extracted from the "Foundation UI Kit (Community)" Figma file. Generates CSS custom properties for colors, semantic tokens, elevation, typography, and spacing. Zero deps, pure TypeScript.
 
 ## STRUCTURE
+
 ```
 foundation/
 ├── assets/
@@ -23,24 +25,27 @@ foundation/
     ├── shape.ts              # Shape tokens: border-radius + border-width CSS custom properties
     ├── tokens.ts             # CSS custom property generators + var() helpers
     ├── tokens.test.ts        # 32 tests
+    ├── contrast.test.ts      # 3 semantic contrast tests
     └── breakpoints.test.ts   # 27 tests
 ```
 
 ## WHERE TO LOOK
-| Task | Location | Notes |
-|------|----------|-------|
-| Add new color family | `colors.ts` | Add to `colors` object, 10 steps (10–100) |
-| Add semantic token group | `semantic-tokens.ts` | Add group + update `semanticTokens` aggregate |
-| Add new typography token | `typography.ts` | Add to appropriate group, update `typography` aggregate |
-| Add spacing step | `spacing.ts` | Add to `spacing` object |
-| Wire new token type to CSS | `tokens.ts` | Add `*ToCssProperties()` + `*Var()` + add to `injectAllTokens()` |
-| Update barrel exports | `index.ts` | Re-export new functions/types |
-| Add new icon | `assets/icon-manifest.txt` | See SOP below |
-| Dark theme overrides | `dark-theme.ts` | Mirrors all semantic groups for `[data-theme="dark"]` |
-| Token constants | `token-constants.ts` | Pre-computed `var()` references (`TEXT_PRIMARY`, `SP_1`, etc.) |
-| Shape tokens | `shape.ts` | Border-radius + border-width CSS custom properties |
+
+| Task                       | Location                   | Notes                                                            |
+| -------------------------- | -------------------------- | ---------------------------------------------------------------- |
+| Add new color family       | `colors.ts`                | Add to `colors` object, 10 steps (10–100)                        |
+| Add semantic token group   | `semantic-tokens.ts`       | Add group + update `semanticTokens` aggregate                    |
+| Add new typography token   | `typography.ts`            | Add to appropriate group, update `typography` aggregate          |
+| Add spacing step           | `spacing.ts`               | Add to `spacing` object                                          |
+| Wire new token type to CSS | `tokens.ts`                | Add `*ToCssProperties()` + `*Var()` + add to `injectAllTokens()` |
+| Update barrel exports      | `index.ts`                 | Re-export new functions/types                                    |
+| Add new icon               | `assets/icon-manifest.txt` | See SOP below                                                    |
+| Dark theme overrides       | `dark-theme.ts`            | Mirrors all semantic groups for `[data-theme="dark"]`            |
+| Token constants            | `token-constants.ts`       | Pre-computed `var()` references (`TEXT_PRIMARY`, `SP_1`, etc.)   |
+| Shape tokens               | `shape.ts`                 | Border-radius + border-width CSS custom properties               |
 
 ## TOKEN ARCHITECTURE
+
 ```
 Raw data (colors.ts, semantic-tokens.ts, typography.ts, spacing.ts, shape.ts)
     ↓
@@ -54,24 +59,26 @@ var() helpers — colorVar(), semanticVar(), elevationVar(), typeVar(), spaceVar
 ```
 
 ## CSS CUSTOM PROPERTY PREFIXES
-| Module | Prefix | Example |
-|--------|--------|---------|
-| Palette colors | `--fd-color-{family}-{step}` | `--fd-color-blue-60` |
-| Semantic surface | `--fd-surface-{name}` | `--fd-surface-primary` |
-| Semantic border | `--fd-border-{name}` | `--fd-border-minimal` |
-| Semantic text | `--fd-text-{name}` | `--fd-text-primary` |
-| Semantic icon | `--fd-icon-{name}` | `--fd-icon-action` |
-| Global | `--fd-global-{name}` | `--fd-global-brand` |
-| Status | `--fd-status-{group}-{name}` | `--fd-status-surface-error-bold` |
-| Elevation | `--fd-elevation-{level}` | `--fd-elevation-03` |
-| Typography | `--fd-type-{group}-{key}-{prop}` | `--fd-type-heading-01-font-size` |
-| Spacing | `--fd-space-{step}` | `--fd-space-2-5` |
-| Tag | `--fd-tag-{name}` | `--fd-tag-bold` |
-| Button | `--fd-button-{name}` | `--fd-button-secondary` |
-| Shape radius | `--fd-radius-{name}` | `--fd-radius-s` |
-| Shape border-width | `--fd-border-width-{name}` | `--fd-border-width-s` |
+
+| Module             | Prefix                           | Example                          |
+| ------------------ | -------------------------------- | -------------------------------- |
+| Palette colors     | `--fd-color-{family}-{step}`     | `--fd-color-blue-60`             |
+| Semantic surface   | `--fd-surface-{name}`            | `--fd-surface-primary`           |
+| Semantic border    | `--fd-border-{name}`             | `--fd-border-minimal`            |
+| Semantic text      | `--fd-text-{name}`               | `--fd-text-primary`              |
+| Semantic icon      | `--fd-icon-{name}`               | `--fd-icon-action`               |
+| Global             | `--fd-global-{name}`             | `--fd-global-brand`              |
+| Status             | `--fd-status-{group}-{name}`     | `--fd-status-surface-error-bold` |
+| Elevation          | `--fd-elevation-{level}`         | `--fd-elevation-03`              |
+| Typography         | `--fd-type-{group}-{key}-{prop}` | `--fd-type-heading-01-font-size` |
+| Spacing            | `--fd-space-{step}`              | `--fd-space-2-5`                 |
+| Tag                | `--fd-tag-{name}`                | `--fd-tag-bold`                  |
+| Button             | `--fd-button-{name}`             | `--fd-button-secondary`          |
+| Shape radius       | `--fd-radius-{name}`             | `--fd-radius-s`                  |
+| Shape border-width | `--fd-border-width-{name}`       | `--fd-border-width-s`            |
 
 ## CONVENTIONS
+
 - **Figma is source of truth.** All values extracted from "Foundation UI Kit (Community)".
 - **Semantic tokens reference palette.** `SemanticValue` is either a hex string, rgba string, or `PaletteRef` (`{ family, step }`).
 - **`resolveSemanticValue()`** resolves `PaletteRef` → hex at CSS generation time (not runtime).
@@ -86,6 +93,7 @@ var() helpers — colorVar(), semanticVar(), elevationVar(), typeVar(), spaceVar
 - **Custom icon registry** — `registerIcon()`, `resolveIcon()`, `hasIcon()`, `clearIcons()` allow registering custom SVG icons alongside Material Symbols.
 
 ## ANTI-PATTERNS
+
 - **Don't hardcode color values in components** — use `colorVar()` / `semanticVar()` helpers
 - **Don't add tokens not in Figma** — this is a faithful extraction, not a creative exercise. Exception: interactive state tokens (e.g., `text.linkHover`, `text.linkActive`) may be added when needed by components, even if not explicitly defined in Figma.
 - **Don't forget to update `injectAllTokens()`** when adding a new token category
@@ -107,17 +115,18 @@ When a Figma design uses a token that doesn't exist in foundation:
 
 ### Naming Convention
 
-| Figma group | Foundation group name | CSS prefix | Example |
-|---|---|---|---|
-| `Form/*` | `form` | `--fd-form-*` | `--fd-form-input-border` |
-| `State/Hover/*` | `stateHover` | `--fd-state-hover-*` | `--fd-state-hover-border-moderate` |
-| `State/Selected/*` | `stateSelected` | `--fd-state-selected-*` | `--fd-state-selected-surface-bold` |
-| `State/Disabled/*` | `stateDisabled` | `--fd-state-disabled-*` | `--fd-state-disabled-border` |
-| `State/Focus/*` | (use `border.focus`) | `--fd-border-focus` | already exists |
+| Figma group        | Foundation group name | CSS prefix              | Example                            |
+| ------------------ | --------------------- | ----------------------- | ---------------------------------- |
+| `Form/*`           | `form`                | `--fd-form-*`           | `--fd-form-input-border`           |
+| `State/Hover/*`    | `stateHover`          | `--fd-state-hover-*`    | `--fd-state-hover-border-moderate` |
+| `State/Selected/*` | `stateSelected`       | `--fd-state-selected-*` | `--fd-state-selected-surface-bold` |
+| `State/Disabled/*` | `stateDisabled`       | `--fd-state-disabled-*` | `--fd-state-disabled-border`       |
+| `State/Focus/*`    | (use `border.focus`)  | `--fd-border-focus`     | already exists                     |
 
 ## COMMANDS
+
 ```bash
-moon run foundation:test            # vitest --run (59 tests)
+moon run foundation:test            # vitest --run (62 tests)
 moon run foundation:build           # vite build + tsc --emitDeclarationOnly
 moon run catalog:dev                # foundation token pages live in apps/catalog
 ```

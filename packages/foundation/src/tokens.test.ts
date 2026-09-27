@@ -1,6 +1,17 @@
 import { describe, it, expect } from "vitest";
 import { colors } from "./colors.js";
-import { colorsToCssProperties, colorVar, semanticToCssProperties, elevationToCssProperties, semanticVar, elevationVar, typographyToCssProperties, typeVar, spacingToCssProperties, spaceVar } from "./tokens.js";
+import {
+  colorsToCssProperties,
+  colorVar,
+  semanticToCssProperties,
+  elevationToCssProperties,
+  semanticVar,
+  elevationVar,
+  typographyToCssProperties,
+  typeVar,
+  spacingToCssProperties,
+  spaceVar,
+} from "./tokens.js";
 
 describe("colors", () => {
   it("has 13 color families", () => {
@@ -112,7 +123,7 @@ describe("semanticToCssProperties", () => {
   });
   it("generates form tokens", () => {
     const css = semanticToCssProperties();
-    expect(css).toContain("--fd-form-input-border: #9fb1bd;");
+    expect(css).toContain("--fd-form-input-border: #5b7282;");
     expect(css).toContain("--fd-form-input-background: #ffffff;");
   });
 

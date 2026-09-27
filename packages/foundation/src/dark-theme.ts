@@ -18,33 +18,33 @@ function ref(family: ColorFamily, step: number): { family: ColorFamily; step: nu
 // ─── Surface ────────────────────────────────────────────────────────────────
 
 export const darkSurface = {
-  primary: ref("gray", 100),           // #0D1826 — main background
-  secondary: ref("gray", 110),         // #090F14 — sidebar, panels
-  tertiary: ref("gray", 90),           // #1C2B36 — cards, elevated surfaces
-  moderate: ref("gray", 80),           // #2C3E4C
-  bold: ref("gray", 60),              // #5B7282
-  strong: ref("gray", 40),            // #9FB1BD
-  action: ref("blue", 60),            // stays
-  actionHover: ref("blue", 50),       // lighter blue for hover on dark
-  actionContrast: ref("gray", 80),    // #2B3C49 — dark surface for info bold bg
-  destructive: ref("red", 60),        // stays
-  destructiveHover: ref("red", 50),   // lighter red for hover on dark
-  success: ref("green", 60),          // stays
-  contrast: "#ffffff",                 // inverted
-  overlay: "rgba(0, 0, 0, 0.7)",      // darker overlay
-  light: "#ffffff",                    // stays (structural)
-  dark: ref("gray", 110),             // stays
+  primary: ref("gray", 100), // #0D1826 — main background
+  secondary: ref("gray", 110), // #090F14 — sidebar, panels
+  tertiary: ref("gray", 90), // #1C2B36 — cards, elevated surfaces
+  moderate: ref("gray", 80), // #2C3E4C
+  bold: ref("gray", 60), // #5B7282
+  strong: ref("gray", 40), // #9FB1BD
+  action: ref("blue", 60), // stays
+  actionHover: ref("blue", 50), // lighter blue for hover on dark
+  actionContrast: ref("gray", 80), // #2B3C49 — dark surface for info bold bg
+  destructive: ref("red", 60), // stays
+  destructiveHover: ref("red", 50), // lighter red for hover on dark
+  success: ref("green", 60), // stays
+  contrast: "#ffffff", // inverted
+  overlay: "rgba(0, 0, 0, 0.7)", // darker overlay
+  light: "#ffffff", // stays (structural)
+  dark: ref("gray", 110), // stays
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── Border ─────────────────────────────────────────────────────────────────
 
 export const darkBorder = {
-  minimal: ref("gray", 80),           // #2C3E4C
-  subtle: ref("gray", 70),            // #3E5463
-  moderate: ref("gray", 60),          // #5B7282
-  bold: ref("gray", 40),              // #9FB1BD
-  focus: ref("blue", 50),             // #4D94FF — slightly lighter for visibility
-  contrast: ref("gray", 10),          // #EEF1F4
+  minimal: ref("gray", 80), // #2C3E4C
+  subtle: ref("gray", 70), // #3E5463
+  moderate: ref("gray", 60), // #5B7282
+  bold: ref("gray", 40), // #9FB1BD
+  focus: ref("blue", 50), // #4D94FF — slightly lighter for visibility
+  contrast: ref("gray", 10), // #EEF1F4
   light: "#ffffff",
   dark: ref("gray", 110),
 } as const satisfies Record<string, SemanticValue>;
@@ -52,17 +52,17 @@ export const darkBorder = {
 // ─── Text ───────────────────────────────────────────────────────────────────
 
 export const darkText = {
-  primary: ref("gray", 20),           // #DCE3E8 — softer than pure white
-  secondary: ref("gray", 30),         // #C1CCD6
-  tertiary: ref("gray", 50),          // #7A909E
-  link: ref("blue", 40),              // #5BA3F5 — lighter blue for readability
-  linkHover: ref("blue", 30),         // #A3C9F9
-  linkActive: ref("blue", 20),        // #D4E4FA
-  visited: ref("purple", 40),         // lighter purple
+  primary: ref("gray", 20), // #DCE3E8 — softer than pure white
+  secondary: ref("gray", 30), // #C1CCD6
+  tertiary: ref("gray", 50), // #7A909E
+  link: ref("blue", 40), // #5BA3F5 — lighter blue for readability
+  linkHover: ref("blue", 30), // #A3C9F9
+  linkActive: ref("blue", 20), // #D4E4FA
+  visited: ref("purple", 40), // lighter purple
   selected: ref("blue", 40),
   destructive: ref("red", 40),
-  actionContrast: ref("blue", 40),    // #5BA3F5 — lighter blue for info subtle/minimal on dark bg
-  reversed: "#ffffff",                // stays white — used on colored backgrounds that don't change
+  actionContrast: ref("blue", 40), // #5BA3F5 — lighter blue for info subtle/minimal on dark bg
+  reversed: "#ffffff", // stays white — used on colored backgrounds that don't change
   light: "#ffffff",
   dark: ref("gray", 110),
 } as const satisfies Record<string, SemanticValue>;
@@ -70,12 +70,12 @@ export const darkText = {
 // ─── Icon ───────────────────────────────────────────────────────────────────
 
 export const darkIcon = {
-  action: ref("blue", 40),            // lighter blue
-  primary: ref("gray", 10),           // #EEF1F4
-  secondary: ref("gray", 50),         // #7A909E
+  action: ref("blue", 40), // lighter blue
+  primary: ref("gray", 10), // #EEF1F4
+  secondary: ref("gray", 50), // #7A909E
   destructive: ref("red", 40),
-  contrast: "#ffffff",                 // inverted
-  reversed: "#ffffff",                // stays white — used on colored backgrounds
+  contrast: "#ffffff", // inverted
+  reversed: "#ffffff", // stays white — used on colored backgrounds
   light: "#ffffff",
   dark: ref("gray", 110),
 } as const satisfies Record<string, SemanticValue>;
@@ -83,8 +83,8 @@ export const darkIcon = {
 // ─── Global ─────────────────────────────────────────────────────────────────
 
 export const darkGlobal = {
-  brand: "#7399c6",                    // stays
-  globalHeader: ref("blue", 100),     // stays dark
+  brand: "#7399c6", // stays
+  globalHeader: ref("blue", 100), // stays dark
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── Status Surface ─────────────────────────────────────────────────────────
@@ -165,8 +165,8 @@ export const darkStateDisabled = {
 // ─── Form ───────────────────────────────────────────────────────────────────
 
 export const darkForm = {
-  inputBorder: ref("gray", 60),
-  inputBackground: ref("gray", 90),   // dark input bg
+  inputBorder: ref("gray", 50),
+  inputBackground: ref("gray", 90), // dark input bg
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── State — Hover ──────────────────────────────────────────────────────────
@@ -223,32 +223,25 @@ export const darkGridRow = {
 export const darkElevation = {
   "00": { boxShadow: "none" },
   "01": {
-    boxShadow:
-      "0px 1px 2px 0px rgba(0,0,0,0.5), 0px 1px 3px 1px rgba(0,0,0,0.3)",
+    boxShadow: "0px 1px 2px 0px rgba(0,0,0,0.5), 0px 1px 3px 1px rgba(0,0,0,0.3)",
   },
   "02": {
-    boxShadow:
-      "0px 1px 2px 0px rgba(0,0,0,0.5), 0px 2px 6px 2px rgba(0,0,0,0.3)",
+    boxShadow: "0px 1px 2px 0px rgba(0,0,0,0.5), 0px 2px 6px 2px rgba(0,0,0,0.3)",
   },
   "03": {
-    boxShadow:
-      "0px 4px 8px 3px rgba(0,0,0,0.3), 0px 1px 3px 0px rgba(0,0,0,0.5)",
+    boxShadow: "0px 4px 8px 3px rgba(0,0,0,0.3), 0px 1px 3px 0px rgba(0,0,0,0.5)",
   },
   "04": {
-    boxShadow:
-      "0px 6px 10px 4px rgba(0,0,0,0.3), 0px 2px 3px 0px rgba(0,0,0,0.5)",
+    boxShadow: "0px 6px 10px 4px rgba(0,0,0,0.3), 0px 2px 3px 0px rgba(0,0,0,0.5)",
   },
   "05": {
-    boxShadow:
-      "0px 8px 12px 6px rgba(0,0,0,0.3), 0px 4px 4px 0px rgba(0,0,0,0.5)",
+    boxShadow: "0px 8px 12px 6px rgba(0,0,0,0.3), 0px 4px 4px 0px rgba(0,0,0,0.5)",
   },
   "06": {
-    boxShadow:
-      "0px 12px 17px 2px rgba(0,0,0,0.4), 0px 5px 22px 4px rgba(0,0,0,0.3), 0px 7px 8px -4px rgba(0,0,0,0.5)",
+    boxShadow: "0px 12px 17px 2px rgba(0,0,0,0.4), 0px 5px 22px 4px rgba(0,0,0,0.3), 0px 7px 8px -4px rgba(0,0,0,0.5)",
   },
   "07": {
-    boxShadow:
-      "0px 16px 24px 2px rgba(0,0,0,0.4), 0px 6px 30px 5px rgba(0,0,0,0.3), 0px 8px 10px -5px rgba(0,0,0,0.5)",
+    boxShadow: "0px 16px 24px 2px rgba(0,0,0,0.4), 0px 6px 30px 5px rgba(0,0,0,0.3), 0px 8px 10px -5px rgba(0,0,0,0.5)",
   },
   "08": {
     boxShadow:
@@ -266,18 +259,16 @@ export const darkShadow = {
     boxShadow: "none",
   },
   overlay: {
-    boxShadow:
-      "0px 8px 10px 1px rgba(0,0,0,0.4), 0px 3px 14px 2px rgba(0,0,0,0.3), 0px 5px 5px -3px rgba(0,0,0,0.5)",
+    boxShadow: "0px 8px 10px 1px rgba(0,0,0,0.4), 0px 3px 14px 2px rgba(0,0,0,0.3), 0px 5px 5px -3px rgba(0,0,0,0.5)",
   },
 } as const satisfies Record<string, ElevationToken>;
-
 
 // ─── Default (Dark) ─────────────────────────────────────────────────────────
 
 export const darkDefaultTokens = {
-  default: ref("gray", 80),               // #2B3C49 — dark default background
-  defaultForeground: "#ffffff",           // white text on dark default
-  defaultHover: ref("gray", 70),           // #3E5463 — hover state
+  default: ref("gray", 80), // #2B3C49 — dark default background
+  defaultForeground: "#ffffff", // white text on dark default
+  defaultHover: ref("gray", 70), // #3E5463 — hover state
 } as const satisfies Record<string, SemanticValue>;
 // ─── Aggregate ──────────────────────────────────────────────────────────────
 
@@ -301,4 +292,3 @@ export const darkSemanticTokens = {
   defaultTokens: darkDefaultTokens,
   gridRow: darkGridRow,
 } as const;
-
