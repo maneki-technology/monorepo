@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import "./ui-tooltip.js";
 import type { TooltipSize, TooltipPlacement } from "./ui-tooltip.js";
 import { UiTooltip } from "./ui-tooltip.js";
@@ -90,14 +90,7 @@ describe("ui-tooltip", () => {
   // ── observedAttributes ─────────────────────────────────────────────────────
 
   it("observes the correct attributes", () => {
-    expect(UiTooltip.observedAttributes).toEqual([
-      "size",
-      "placement",
-      "text",
-      "dismissible",
-      "open",
-      "trigger",
-    ]);
+    expect(UiTooltip.observedAttributes).toEqual(["size", "placement", "text", "dismissible", "open", "trigger"]);
   });
 
   // ── Size attribute ─────────────────────────────────────────────────────────
@@ -368,19 +361,41 @@ describe("ui-tooltip", () => {
     expect(panel.getAttribute("role")).toBe("tooltip");
   });
 
+  it("describes the trigger through a light-DOM node and preserves existing descriptions", () => {
+    const trigger = document.createElement("button");
+    trigger.setAttribute("aria-describedby", "existing");
+    el.append(trigger);
+    (el as UiTooltip).text = "Helpful detail";
+    (el as UiTooltip).open = true;
+
+    const ids = trigger.getAttribute("aria-describedby")!.split(" ");
+    expect(ids).toContain("existing");
+    const description = document.getElementById(ids[1]) as HTMLElement;
+    expect(description.textContent).toBe("Helpful detail");
+    expect(description.hidden).toBe(true);
+    expect(el.shadowRoot!.contains(description)).toBe(false);
+
+    (el as UiTooltip).open = false;
+    expect(trigger.getAttribute("aria-describedby")).toBe("existing");
+  });
+
+  it("does not duplicate host listeners after reconnection", () => {
+    document.body.removeChild(el);
+    document.body.appendChild(el);
+    const setAttribute = vi.spyOn(el, "setAttribute");
+    el.dispatchEvent(new MouseEvent("mouseenter"));
+    expect(setAttribute.mock.calls.filter(([name]) => name === "open")).toHaveLength(1);
+  });
+
   // ── Close button icon ──────────────────────────────────────────────────────
 
   it("close button contains a material icon span", () => {
-    const icon = el.shadowRoot!.querySelector(
-      ".close .material-symbols-outlined",
-    ) as HTMLElement;
+    const icon = el.shadowRoot!.querySelector(".close .material-symbols-outlined") as HTMLElement;
     expect(icon).not.toBeNull();
   });
 
   it("close icon has content", () => {
-    const icon = el.shadowRoot!.querySelector(
-      ".close .material-symbols-outlined",
-    ) as HTMLElement;
+    const icon = el.shadowRoot!.querySelector(".close .material-symbols-outlined") as HTMLElement;
     expect(icon.textContent).toBeTruthy();
   });
 });
