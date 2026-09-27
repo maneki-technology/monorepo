@@ -2,8 +2,8 @@
 
 Visual catalog app for the Maneki design system. Renders all foundation tokens and UI components with key variants on deterministic pages. Used as the target for Playwright visual and accessibility regression tests.
 
-- 55 pages (6 foundation + 49 component)
-- 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout)
+- 56 pages (6 foundation + 48 component + 2 layout)
+- 122 Playwright tests per browser project (56 visual + 56 a11y + icon-only button, layout, and mobile checks)
 - History API routing, sidebar navigation, dark theme toggle
 - Pure Vite + vanilla TypeScript
 
@@ -14,7 +14,7 @@ Visual catalog app for the Maneki design system. Renders all foundation tokens a
 moon run catalog:dev          # http://localhost:5174
 
 # Visual regression tests
-moon run catalog:test-visual  # Run 114 Playwright tests
+moon run catalog:test-visual  # Run 244 Playwright tests across both browser projects
 ```
 
 ## Pages
@@ -72,7 +72,7 @@ moon run catalog:test-visual
 moon run catalog:test-visual-update
 ```
 
-114 tests: 55 visual screenshots (one per page targeting `#content`), 55 a11y scans (axe-core per page), plus sidebar + full layout screenshots. Chromium only, 1280×900 viewport, 1% pixel diff threshold.
+122 tests per browser project: 56 visual screenshots, 56 a11y scans, an icon-only button check, sidebar and full-layout checks, and five mobile checks. Chromium runs at desktop and mobile viewports with a 1% pixel diff threshold.
 
 ## Development
 

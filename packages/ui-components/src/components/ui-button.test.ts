@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import "./ui-button.js";
 
 describe("ui-button", () => {
@@ -60,7 +60,56 @@ describe("ui-button", () => {
       "icon",
       "status",
       "disabled",
+      "type",
+      "aria-label",
+      "aria-labelledby",
+      "aria-describedby",
     ]);
+  });
+
+  it("forwards and updates an accessible label on the inner button", () => {
+    const button = el.shadowRoot?.querySelector("button");
+    el.setAttribute("aria-label", "example");
+    expect(button?.getAttribute("aria-label")).toBe("example");
+    el.removeAttribute("aria-label");
+    expect(button?.hasAttribute("aria-label")).toBe(false);
+  });
+
+  it("resolves light-DOM label and description references for the shadow button", () => {
+    const label = document.createElement("span");
+    label.id = "button-label";
+    label.textContent = "External label";
+    const description = document.createElement("span");
+    description.id = "button-description";
+    description.textContent = "External description";
+    document.body.append(label, description);
+    el.setAttribute("aria-labelledby", label.id);
+    el.setAttribute("aria-describedby", description.id);
+
+    const button = el.shadowRoot?.querySelector("button");
+    expect(button?.getAttribute("aria-label")).toBe("External label");
+    expect(button?.getAttribute("aria-description")).toBe("External description");
+  });
+
+  it("submits or resets its associated form according to type", () => {
+    const form = document.createElement("form");
+    form.appendChild(el);
+    document.body.appendChild(form);
+    const submit = vi.spyOn(form, "requestSubmit").mockImplementation(() => {});
+    const reset = vi.spyOn(form, "reset").mockImplementation(() => {});
+    const button = el.shadowRoot?.querySelector("button") as HTMLButtonElement;
+
+    button.click();
+    expect(submit).not.toHaveBeenCalled();
+    el.setAttribute("type", "submit");
+    button.click();
+    expect(submit).toHaveBeenCalledOnce();
+    el.setAttribute("type", "reset");
+    button.click();
+    expect(reset).toHaveBeenCalledOnce();
+    el.setAttribute("disabled", "");
+    button.click();
+    expect(reset).toHaveBeenCalledOnce();
   });
 
   // ── Action property ─────────────────────────────────────────────────────
