@@ -33,11 +33,15 @@ describe("POST /api/deploy", () => {
   });
 
   it("creates a building deployment only after GitHub accepts the dispatch", async () => {
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(null, { status: 204 })));
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal("fetch", fetchMock);
     const response = await app.request("/api/deploy", { method: "POST" }, env);
 
     expect(response.status).toBe(200);
+    const { deploymentId } = (await response.json()) as { deploymentId: string };
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).client_payload).toEqual({ deploy_id: deploymentId });
     expect(dbExecute).toHaveBeenCalledOnce();
     expect(dbExecute.mock.calls[0][0].sql).toContain("INSERT INTO deployments");
+    expect(dbExecute.mock.calls[0][0].args[0]).toBe(deploymentId);
   });
 });

@@ -48,21 +48,18 @@ jobs:
         run: npm run build
         working-directory: packages/grid-layout
 
-      - name: Build blog preview
-        if: github.event_name == 'pull_request'
-        run: test -n "$TURSO_AUTH_TOKEN" && npm run build
+      # The build only reads Turso; record-deploy below is the only writer.
+      - name: Build blog
+        run: |
+          if [ -z "$TURSO_AUTH_TOKEN" ] && [ "$GITHUB_EVENT_NAME" = pull_request ]; then
+            echo "::notice::Read-only Turso token unavailable (fork PR?); skipping blog build"
+            exit 0
+          fi
+          npm run build
         working-directory: apps/blog
         env:
           TURSO_URL: ${{ secrets.TURSO_URL }}
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_READ_ONLY_AUTH_TOKEN }}
-
-      - name: Build blog
-        if: github.event_name != 'pull_request'
-        run: npm run build
-        working-directory: apps/blog
-        env:
-          TURSO_URL: ${{ secrets.TURSO_URL }}
-          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
 
       - name: Create Cloudflare Pages project (if needed)
         if: github.event_name != 'pull_request'
@@ -81,3 +78,21 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=maneki-blog --branch=${{ github.head_ref || github.ref_name }} --commit-dirty=true
           workingDirectory: apps/blog
+
+      - name: Record deploy
+        if: github.event_name != 'pull_request'
+        run: npx tsx scripts/record-deploy.ts success
+        working-directory: apps/blog
+        env:
+          TURSO_URL: ${{ secrets.TURSO_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          DEPLOY_ID: ${{ github.event.client_payload.deploy_id }}
+
+      - name: Record failed deploy
+        if: github.event_name != 'pull_request' && (failure() || cancelled())
+        run: npx tsx scripts/record-deploy.ts failure
+        working-directory: apps/blog
+        env:
+          TURSO_URL: ${{ secrets.TURSO_URL }}
+          TURSO_AUTH_TOKEN: ${{ secrets.TURSO_AUTH_TOKEN }}
+          DEPLOY_ID: ${{ github.event.client_payload.deploy_id }}

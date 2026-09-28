@@ -16,8 +16,8 @@ Use GitHub Actions `repository_dispatch` to trigger the deploy workflow, and pol
 1. Author clicks Publish → `PUT /api/posts/:slug/publish`
 2. Backend sets `status = 'published'`, `published_at = now()`, triggers `repository_dispatch`
 3. Editor polls `GET /api/deploy/status` every 5s
-4. Backend queries GitHub API for latest workflow run created after the trigger
-5. Maps run status: `queued` → building, `in_progress` → deploying, `completed` → success/failure
+4. The dispatch carries `client_payload.deploy_id`; after the Cloudflare Pages deploy, the workflow runs `scripts/record-deploy.ts`, which sets the row to success/failure and stamps `deployed_at` on the deployed posts/projects. Pushes to `main` record a `gh-run-<run id>` row.
+5. `/api/deploy/status` returns the latest row; it no longer polls GitHub
 6. Editor shows spinner on deploying items, disables Save/Publish buttons
 
 ### Deployments Table
@@ -38,6 +38,7 @@ CREATE TABLE deployments (
 - Unpublished changes tracked via `published_at` column — `*` indicator derived from content comparison, not timestamps
 - `beforeunload` warning when unpublished changes exist
 - Resume polling on editor load for in-progress deployments
+- The build (`vite build` + prerender) only reads Turso and runs with `TURSO_READ_ONLY_AUTH_TOKEN`, so PR builds cannot mutate production. `record-deploy.ts` is the only CI step that writes, using `TURSO_AUTH_TOKEN`.
 
 ### Env Vars
 
