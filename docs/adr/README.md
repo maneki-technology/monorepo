@@ -25,7 +25,7 @@ This directory contains Architectural Decision Records (ADRs) for the Maneki des
 | [018](018-editor-architecture.md) | Editor Architecture — Reactive Store + Modular Split | Accepted | 2026-04 |
 | [019](019-portfolio-management.md) | Portfolio Management — Dual Content Types | Accepted | 2026-04 |
 | [020](020-image-pipeline.md) | Image Pipeline — R2 Storage + Client Optimization | Accepted | 2026-04 |
-| [021](021-deploy-flow.md) | Deploy Flow — GitHub Actions + Status Polling | Accepted | 2026-04 |
+| [021](021-deploy-flow.md) | Deploy Flow — GitHub Actions + Status Polling | Amended by 031 | 2026-04 |
 | [022](022-eslint-prettier.md) | ESLint + Prettier — Monorepo Linting | Accepted | 2026-04 |
 | [023](023-remove-storybook.md) | Remove Storybook | Accepted | 2026-04 |
 | [024](024-blog-micro-interactions.md) | Blog Micro-Interactions + Signature Animation | Accepted | 2026-04 |
@@ -35,3 +35,4 @@ This directory contains Architectural Decision Records (ADRs) for the Maneki des
 | [028](028-lit-in-ui-components.md) | Lit in UI Components — Gradual Migration | Accepted | 2026-04 |
 | [029](029-generic-editable-pages.md) | Generic Editable Pages System | Accepted | 2026-04 |
 | [030](030-published-snapshot.md) | Published Snapshot for Change Detection | Accepted | 2026-04 |
+| [031](031-read-only-build-deploy-recording.md) | Read-Only Build + Deploy Recording in CI | Accepted | 2026-09 |
