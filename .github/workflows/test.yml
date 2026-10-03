@@ -81,7 +81,7 @@ jobs:
       - run: npm ci
       - name: Require read-only Turso credentials
         run: test -n "$TURSO_URL" && test -n "$TURSO_AUTH_TOKEN"
-      - run: moon run --force blog:build
+      - run: moon run blog:build
       - run: npx playwright install --with-deps chromium
       - name: Blog browser tests
         run: npx playwright test
