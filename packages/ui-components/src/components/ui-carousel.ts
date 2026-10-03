@@ -81,6 +81,14 @@ const STYLES = /* css */ `
     scrollbar-width: none;
   }
 
+  /* Inset: the track clips outlines drawn outside it */
+  .track:focus-visible {
+    outline-width: ${BW_MD};
+    outline-style: solid;
+    outline-color: ${SELECTED_BOLD};
+    outline-offset: calc(-1 * ${BW_MD});
+  }
+
   .track::-webkit-scrollbar {
     display: none;
   }
@@ -109,7 +117,7 @@ const STYLES = /* css */ `
     transition: background 0.2s ease;
   }
 
-  .dot[aria-selected="true"] {
+  .dot[aria-current="true"] {
     background: ${SELECTED_BOLD};
   }
 
@@ -152,7 +160,6 @@ export class UiCarousel extends HTMLElement {
   #track: HTMLDivElement;
   #indicators: HTMLDivElement;
   #arrowGroup: HTMLDivElement;
-  #actionsBar!: HTMLDivElement;
   #prevBtn: HTMLButtonElement;
   #nextBtn: HTMLButtonElement;
   #defaultSlot: HTMLSlotElement;
@@ -172,7 +179,6 @@ export class UiCarousel extends HTMLElement {
     // Actions bar
     const actionsBar = document.createElement("div");
     actionsBar.className = "actions";
-    this.#actionsBar = actionsBar;
 
     // Dot indicators container
     const indicators = document.createElement("div");
@@ -213,6 +219,7 @@ export class UiCarousel extends HTMLElement {
     // Track
     const track = document.createElement("div");
     track.className = "track";
+    track.tabIndex = 0;
     this.#track = track;
 
     const defaultSlot = document.createElement("slot");
@@ -393,7 +400,7 @@ export class UiCarousel extends HTMLElement {
       dot.type = "button";
       dot.setAttribute("aria-label", `Go to slide ${i + 1}`);
       dot.setAttribute(
-        "aria-selected",
+        "aria-current",
         i === this.#activeIndex ? "true" : "false",
       );
       dot.addEventListener("click", () => this.#goToSlide(i));
@@ -405,7 +412,7 @@ export class UiCarousel extends HTMLElement {
     const dots = this.#indicators.children;
     for (let i = 0; i < dots.length; i++) {
       dots[i].setAttribute(
-        "aria-selected",
+        "aria-current",
         i === this.#activeIndex ? "true" : "false",
       );
     }

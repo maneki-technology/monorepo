@@ -599,6 +599,7 @@ describe("Composition", () => {
     document.body.appendChild(carousel);
     const items = carousel.querySelectorAll("ui-carousel-item");
     expect(items.length).toBe(3);
+    expect(carousel.shadowRoot!.querySelector(".track")?.getAttribute("tabindex")).toBe("0");
   });
 
   it("creates 3 dot indicators for 3 items", async () => {
@@ -650,9 +651,9 @@ describe("Composition", () => {
     document.body.appendChild(carousel);
     await tick();
     const dots = carousel.shadowRoot!.querySelectorAll(".dot");
-    expect(dots[0].getAttribute("aria-selected")).toBe("true");
-    expect(dots[1].getAttribute("aria-selected")).toBe("false");
-    expect(dots[2].getAttribute("aria-selected")).toBe("false");
+    expect(dots[0].getAttribute("aria-current")).toBe("true");
+    expect(dots[1].getAttribute("aria-current")).toBe("false");
+    expect(dots[2].getAttribute("aria-current")).toBe("false");
   });
 
   it("arrow buttons have correct aria-labels", () => {

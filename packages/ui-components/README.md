@@ -79,6 +79,7 @@ npm install @maneki/ui-components
 | `<ui-table>` | Table container: 3 sizes, 2 separators (minimal/moderate), zebra striping, bordered |
 | `<ui-table-row>` | Table row: header, selected, disabled states |
 | `<ui-table-cell>` | Table cell: header, 3 alignments (left/center/right) |
+| `<ui-carousel>` | Keyboard-scrollable carousel with labeled arrows and current-slide indicators |
 | | **Calendar** |
 | `<ui-calendar>` | Standalone calendar: 3 sizes, daily + monthly views, single/range select, events, min/max |
 | `<ui-calendar-quicklinks>` | Composable quicklinks panel: 3 sizes, 2 orientations (side/bottom), sections, selected state |
