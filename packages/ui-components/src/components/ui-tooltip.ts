@@ -350,18 +350,13 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiTooltip extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "placement",
-    "text",
-    "dismissible",
-    "open",
-    "trigger",
-  ];
+  static readonly observedAttributes = ["size", "placement", "text", "dismissible", "open", "trigger"];
 
   #panel!: HTMLElement;
   #textEl!: HTMLElement;
   #closeBtn!: HTMLButtonElement;
+  #description: HTMLSpanElement;
+  #childObserver: MutationObserver;
 
   constructor() {
     super();
@@ -370,6 +365,9 @@ export class UiTooltip extends HTMLElement {
 
     // Trigger slot
     const triggerSlot = document.createElement("slot");
+    this.#childObserver = new MutationObserver(() => {
+      if (this.open) this._open();
+    });
 
     // Panel
     this.#panel = document.createElement("div");
@@ -384,6 +382,11 @@ export class UiTooltip extends HTMLElement {
     this.#textEl = document.createElement("span");
     this.#textEl.className = "text";
 
+    this.#description = document.createElement("span");
+    this.#description.id = `tooltip-${Math.random().toString(36).slice(2, 8)}`;
+    this.#description.hidden = true;
+    this.#description.textContent = this.text;
+
     // Close button
     this.#closeBtn = document.createElement("button");
     this.#closeBtn.className = "close";
@@ -396,30 +399,17 @@ export class UiTooltip extends HTMLElement {
 
     this.#panel.append(this.#textEl, this.#closeBtn, arrow);
     shadow.append(triggerSlot, this.#panel);
-  }
-
-  connectedCallback(): void {
-    if (!this.hasAttribute("size")) this.setAttribute("size", "m");
-    if (!this.hasAttribute("placement")) this.setAttribute("placement", "top");
-    if (!this.hasAttribute("trigger")) this.setAttribute("trigger", "hover");
-    // Generate unique ID for aria-describedby linkage
-    const tooltipId = `tooltip-${Math.random().toString(36).slice(2, 8)}`;
-    this.#panel.id = tooltipId;
 
     this.#closeBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       this._close();
     });
-
-    // Hover trigger
     this.addEventListener("mouseenter", () => {
       if (this.trigger === "hover") this._open();
     });
     this.addEventListener("mouseleave", () => {
       if (this.trigger === "hover" && !this.hasAttribute("dismissible")) this._close();
     });
-
-    // Focus trigger
     this.addEventListener("focusin", () => {
       if (this.trigger === "hover") this._open();
     });
@@ -428,14 +418,24 @@ export class UiTooltip extends HTMLElement {
     });
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  connectedCallback(): void {
+    if (!this.hasAttribute("size")) this.setAttribute("size", "m");
+    if (!this.hasAttribute("placement")) this.setAttribute("placement", "top");
+    if (!this.hasAttribute("trigger")) this.setAttribute("trigger", "hover");
+    this.append(this.#description);
+    this.#childObserver.observe(this, { childList: true });
+    if (this.open) this._open();
+  }
+
+  disconnectedCallback(): void {
+    this.#childObserver.disconnect();
+  }
+
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     switch (name) {
       case "text":
         this.#textEl.textContent = newValue ?? "";
+        this.#description.textContent = newValue ?? "";
         break;
     }
   }
@@ -490,17 +490,33 @@ export class UiTooltip extends HTMLElement {
 
   private _open(): void {
     this.setAttribute("open", "");
-    // Link trigger to tooltip for screen readers
-    const trigger = this.querySelector('[slot="trigger"]') as HTMLElement;
-    if (trigger) trigger.setAttribute("aria-describedby", this.#panel.id);
+    const trigger = this._trigger();
+    if (!trigger) return;
+    const ids = trigger.getAttribute("aria-describedby")?.split(/\s+/).filter(Boolean) ?? [];
+    if (!ids.includes(this.#description.id)) {
+      trigger.setAttribute("aria-describedby", [...ids, this.#description.id].join(" "));
+    }
   }
 
   private _close(): void {
     this.removeAttribute("open");
-    const trigger = this.querySelector('[slot="trigger"]') as HTMLElement;
-    if (trigger) trigger.removeAttribute("aria-describedby");
+    const trigger = this._trigger();
+    if (!trigger) return;
+    const ids =
+      trigger
+        .getAttribute("aria-describedby")
+        ?.split(/\s+/)
+        .filter((id) => id && id !== this.#description.id) ?? [];
+    if (ids.length) trigger.setAttribute("aria-describedby", ids.join(" "));
+    else trigger.removeAttribute("aria-describedby");
+  }
+
+  private _trigger(): HTMLElement | null {
+    const children = Array.from(this.children).filter((child) => child !== this.#description);
+    return (children.find((child) => child.getAttribute("slot") === "trigger") ??
+      children[0] ??
+      null) as HTMLElement | null;
   }
 }
-
 
 customElements.define("ui-tooltip", UiTooltip);
