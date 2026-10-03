@@ -81,6 +81,14 @@ const STYLES = /* css */ `
     scrollbar-width: none;
   }
 
+  /* Inset: the track clips outlines drawn outside it */
+  .track:focus-visible {
+    outline-width: ${BW_MD};
+    outline-style: solid;
+    outline-color: ${SELECTED_BOLD};
+    outline-offset: calc(-1 * ${BW_MD});
+  }
+
   .track::-webkit-scrollbar {
     display: none;
   }
