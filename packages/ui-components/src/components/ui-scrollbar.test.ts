@@ -36,6 +36,7 @@ describe("ui-scrollbar", () => {
   it("renders a .container element", () => {
     const container = el.shadowRoot!.querySelector(".container");
     expect(container).not.toBeNull();
+    expect(container?.getAttribute("tabindex")).toBe("0");
   });
 
   it("renders a <slot> inside the container", () => {

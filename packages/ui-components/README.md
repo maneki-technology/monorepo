@@ -77,6 +77,7 @@ npm install @maneki/ui-components
 | `<ui-tag>` | Tag pill/toggle: 4 sizes, 3 types (basic/selectable/toggle), 3 emphases, 3 states, dismissible, check |
 | | **Data Display** |
 | `<ui-table>` | Table container: 3 sizes, 2 separators (minimal/moderate), zebra striping, bordered |
+| `<ui-scrollbar>` | Scroll container with keyboard-focusable content |
 | `<ui-table-row>` | Table row: header, selected, disabled states |
 | `<ui-table-cell>` | Table cell: header, 3 alignments (left/center/right) |
 | | **Calendar** |
