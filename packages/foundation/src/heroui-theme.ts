@@ -15,20 +15,20 @@ import { resolveSemanticValue, type SemanticValue, type ElevationToken } from ".
 // ─── Surface ────────────────────────────────────────────────────────────────
 
 export const herouiSurface = {
-  primary: "#ffffff",                    // surface/surface
-  secondary: "#f5f5f5",                  // background/background
-  tertiary: "#efeff0",                   // surface/surface-secondary
-  moderate: "#d4d4d8",                   // zinc-300
-  bold: "#a1a1aa",                       // --muted (~zinc-400)
-  strong: "#71717a",                     // zinc-500
-  action: "#0485f7",                     // accent/accent
-  actionHover: "#3592f9",               // accent/accent-hover
-  actionContrast: "#001731",             // deep navy
-  destructive: "#ff383c",               // danger/danger
-  destructiveHover: "#ff5c5f",          // danger lighter
-  success: "#17c964",                    // --success
-  contrast: "#18181b",                   // --eclipse (foreground)
-  overlay: "rgba(0, 0, 0, 0.5)",        // --backdrop
+  primary: "#ffffff", // surface/surface
+  secondary: "#f5f5f5", // background/background
+  tertiary: "#efeff0", // surface/surface-secondary
+  moderate: "#d4d4d8", // zinc-300
+  bold: "#a1a1aa", // --muted (~zinc-400)
+  strong: "#71717a", // zinc-500
+  action: "#006fee",
+  actionHover: "#0064d6",
+  actionContrast: "#001731", // deep navy
+  destructive: "#d50020",
+  destructiveHover: "#c8001e",
+  success: "#17c964", // --success
+  contrast: "#18181b", // --eclipse (foreground)
+  overlay: "rgba(0, 0, 0, 0.5)", // --backdrop
   light: "#ffffff",
   dark: "#18181b",
 } as const satisfies Record<string, SemanticValue>;
@@ -36,11 +36,11 @@ export const herouiSurface = {
 // ─── Border ─────────────────────────────────────────────────────────────────
 
 export const herouiBorder = {
-  minimal: "#dedee0",                    // border
-  subtle: "#e4e4e7",                     // separator/separator
+  minimal: "#dedee0", // border
+  subtle: "#e4e4e7", // separator/separator
   moderate: "#a1a1aa", // zinc-400
   bold: "#71717a", // zinc-500
-  focus: "#0485f7",                      // focus-ring
+  focus: "#0485f7", // focus-ring
   contrast: "#27272a", // zinc-800
   light: "#ffffff",
   dark: "#18181b",
@@ -51,14 +51,14 @@ export const herouiBorder = {
 export const herouiText = {
   primary: "#18181b", // --foreground (eclipse)
   secondary: "#71717a", // --muted
-  tertiary: "#a1a1aa", // zinc-400
-  link: "#18181b",                       // foreground/link
-  linkHover: "#0485f7",                  // accent on hover
-  linkActive: "#3592f9",                 // accent-hover
+  tertiary: "#71717a",
+  link: "#18181b", // foreground/link
+  linkHover: "#006fee",
+  linkActive: "#0064d6",
   visited: "#7828c8", // purple
-  selected: "#0485f7",                   // accent/accent
-  destructive: "#ff383c",               // danger/danger
-  actionContrast: "#001731",             // deep navy — info subtle/minimal text on light bg
+  selected: "#006fee",
+  destructive: "#d50020",
+  actionContrast: "#001731", // deep navy — info subtle/minimal text on light bg
   light: "#ffffff",
   dark: "#18181b",
 } as const satisfies Record<string, SemanticValue>;
@@ -66,10 +66,10 @@ export const herouiText = {
 // ─── Icon ───────────────────────────────────────────────────────────────────
 
 export const herouiIcon = {
-  action: "#0485f7",                     // accent/accent
+  action: "#0485f7", // accent/accent
   primary: "#18181b", // --foreground
-  secondary: "#71717a",                  // zinc-500
-  destructive: "#ff383c",               // danger/danger
+  secondary: "#71717a", // zinc-500
+  destructive: "#ff383c", // danger/danger
   contrast: "#18181b", // --foreground
   reversed: "#ffffff",
   light: "#ffffff",
@@ -79,7 +79,7 @@ export const herouiIcon = {
 // ─── Global ─────────────────────────────────────────────────────────────────
 
 export const herouiGlobal = {
-  brand: "#0485f7",                      // accent/accent
+  brand: "#0485f7", // accent/accent
   globalHeader: "#18181b", // --eclipse
 } as const satisfies Record<string, SemanticValue>;
 
@@ -87,14 +87,14 @@ export const herouiGlobal = {
 
 export const herouiStatusSurface = {
   noneBold: "#71717a", // zinc-500
-  informationBold: "#0485f7",            // accent/accent
+  informationBold: "#006fee",
   successBold: "#17c964", // --success
-  errorBold: "#ff383c",                  // danger/danger
+  errorBold: "#d50020",
   warningBold: "#f5a524", // --warning
   openBold: "#17c964",
   completeBold: "#17c964",
   suspendedBold: "#f5a524",
-  cancelledBold: "#ff383c",
+  cancelledBold: "#d50020",
   noneSubtle: "#f4f4f5", // zinc-100
   informationSubtle: "rgba(4, 133, 247, 0.15)", // accent-soft
   successSubtle: "#d4f8e5", // success-soft
@@ -157,7 +157,7 @@ export const herouiStateDisabled = {
 // ─── Form ───────────────────────────────────────────────────────────────────
 
 export const herouiForm = {
-  inputBorder: "rgba(222, 222, 224, 0)", // field/border (transparent — shadow provides boundary)
+  inputBorder: "#71717a",
   inputBackground: "#ffffff", // pure white for clean input fields
 } as const satisfies Record<string, SemanticValue>;
 
@@ -181,7 +181,7 @@ export const herouiStateActive = {
 // ─── State — Selected ───────────────────────────────────────────────────────
 
 export const herouiStateSelected = {
-  surfaceBold: "#0485f7",                // accent/accent
+  surfaceBold: "#006fee",
   surfaceMinimal: "rgba(4, 133, 247, 0.15)", // accent-soft
   surfaceOverlay: "rgba(4, 133, 247, 0.15)", // accent @15%
 } as const satisfies Record<string, SemanticValue>;
@@ -189,26 +189,26 @@ export const herouiStateSelected = {
 // ─── Tag ────────────────────────────────────────────────────────────────────
 
 export const herouiTag = {
-  bold: "#0485f7",                       // accent/accent
-  subtle: "rgba(4, 133, 247, 0.15)",     // accent-soft
-  minimal: "#ebebec",                    // default/default
+  bold: "#006fee",
+  subtle: "rgba(4, 133, 247, 0.15)", // accent-soft
+  minimal: "#ebebec", // default/default
   textBold: "#ffffff",
-  textSubtle: "#0485f7",                 // accent
+  textSubtle: "#0485f7", // accent
   textMinimal: "#52525b", // zinc-600
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── Button ─────────────────────────────────────────────────────────────────
 
 export const herouiButton = {
-  secondary: "#ebebec",                  // default/default
+  secondary: "#ebebec", // default/default
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── Default ─────────────────────────────────────────────────────────────────
 
 export const herouiDefaultTokens = {
-  default: "#ebebec",                     // default/default
-  defaultForeground: "#18181b",           // default/default-foreground
-  defaultHover: "#e1e1e2",               // default/default-hover
+  default: "#ebebec", // default/default
+  defaultForeground: "#18181b", // default/default-foreground
+  defaultHover: "#e1e1e2", // default/default-hover
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── Grid Row ───────────────────────────────────────────────────────────────
@@ -260,8 +260,7 @@ export const herouiElevation = {
 
 export const herouiShadow = {
   field: {
-    boxShadow:
-      "0px 0px 1px 0px rgba(0,0,0,0.06), 0px 1px 2px 0px rgba(0,0,0,0.06), 0px 2px 4px 0px rgba(0,0,0,0.04)",
+    boxShadow: "0px 0px 1px 0px rgba(0,0,0,0.06), 0px 1px 2px 0px rgba(0,0,0,0.06), 0px 2px 4px 0px rgba(0,0,0,0.04)",
   },
   surface: {
     boxShadow:
@@ -303,20 +302,20 @@ export const herouiSemanticTokens = {
 // ─── Surface (Dark) ──────────────────────────────────────────────────────
 
 export const herouiDarkSurface = {
-  primary: "#18181b",                    // --surface (eclipse)
-  secondary: "#060607",                  // background/background (dark)
-  tertiary: "#27272a",                   // --surface-secondary
-  moderate: "#3f3f46",                   // zinc-700
-  bold: "#71717a",                       // zinc-500
-  strong: "#a1a1aa",                     // --muted (dark)
-  action: "#0485f7",                     // accent/accent
-  actionHover: "#3592f9",               // accent/accent-hover
-  actionContrast: "#1e293b",             // slate-800 — blue-tinted dark surface
-  destructive: "#ff383c",               // danger/danger
-  destructiveHover: "#ff5c5f",          // danger lighter
-  success: "#17c964",                    // --success (stays)
-  contrast: "#fcfcfc",                   // --snow (inverted)
-  overlay: "rgba(0, 0, 0, 0.6)",        // --backdrop (darker)
+  primary: "#18181b", // --surface (eclipse)
+  secondary: "#060607", // background/background (dark)
+  tertiary: "#27272a", // --surface-secondary
+  moderate: "#3f3f46", // zinc-700
+  bold: "#71717a", // zinc-500
+  strong: "#a1a1aa", // --muted (dark)
+  action: "#006fee",
+  actionHover: "#0064d6",
+  actionContrast: "#1e293b", // slate-800 — blue-tinted dark surface
+  destructive: "#d50020",
+  destructiveHover: "#c8001e",
+  success: "#17c964", // --success (stays)
+  contrast: "#fcfcfc", // --snow (inverted)
+  overlay: "rgba(0, 0, 0, 0.6)", // --backdrop (darker)
   light: "#ffffff",
   dark: "#18181b",
 } as const satisfies Record<string, SemanticValue>;
@@ -324,12 +323,12 @@ export const herouiDarkSurface = {
 // ─── Border (Dark) ───────────────────────────────────────────────────────
 
 export const herouiDarkBorder = {
-  minimal: "#28282c",                    // border (dark)
-  subtle: "#3f3f46",                     // zinc-700
-  moderate: "#52525b",                   // zinc-600
-  bold: "#71717a",                       // zinc-500
-  focus: "#0485f7",                      // focus-ring
-  contrast: "#e4e4e7",                   // zinc-200
+  minimal: "#28282c", // border (dark)
+  subtle: "#3f3f46", // zinc-700
+  moderate: "#52525b", // zinc-600
+  bold: "#71717a", // zinc-500
+  focus: "#0485f7", // focus-ring
+  contrast: "#e4e4e7", // zinc-200
   light: "#ffffff",
   dark: "#18181b",
 } as const satisfies Record<string, SemanticValue>;
@@ -337,16 +336,16 @@ export const herouiDarkBorder = {
 // ─── Text (Dark) ────────────────────────────────────────────────────────
 
 export const herouiDarkText = {
-  primary: "#fcfcfc",                    // --snow (foreground)
-  secondary: "#a1a1aa",                  // --muted (dark)
-  tertiary: "#71717a",                   // zinc-500
-  link: "#fcfcfc",                       // foreground (dark)
-  linkHover: "#0485f7",                  // accent
-  linkActive: "#3592f9",                 // accent-hover
-  visited: "#a855f7",                    // purple lighter
-  selected: "#0485f7",                   // accent
-  destructive: "#ff383c",               // danger
-  actionContrast: "#5bb3f5",             // lighter blue — info subtle/minimal text on dark bg
+  primary: "#fcfcfc", // --snow (foreground)
+  secondary: "#a1a1aa", // --muted (dark)
+  tertiary: "#a1a1aa",
+  link: "#fcfcfc", // foreground (dark)
+  linkHover: "#0485f7", // accent
+  linkActive: "#3592f9", // accent-hover
+  visited: "#a855f7", // purple lighter
+  selected: "#0485f7", // accent
+  destructive: "#ff383c", // danger
+  actionContrast: "#5bb3f5", // lighter blue — info subtle/minimal text on dark bg
   light: "#ffffff",
   dark: "#18181b",
 } as const satisfies Record<string, SemanticValue>;
@@ -354,11 +353,11 @@ export const herouiDarkText = {
 // ─── Icon (Dark) ────────────────────────────────────────────────────────
 
 export const herouiDarkIcon = {
-  action: "#0485f7",                     // accent
-  primary: "#fcfcfc",                    // --snow
-  secondary: "#a1a1aa",                  // zinc-400 (lighter for dark bg)
-  destructive: "#ff383c",               // danger
-  contrast: "#fcfcfc",                   // --snow
+  action: "#0485f7", // accent
+  primary: "#fcfcfc", // --snow
+  secondary: "#a1a1aa", // zinc-400 (lighter for dark bg)
+  destructive: "#ff383c", // danger
+  contrast: "#fcfcfc", // --snow
   reversed: "#ffffff",
   light: "#ffffff",
   dark: "#18181b",
@@ -367,27 +366,27 @@ export const herouiDarkIcon = {
 // ─── Global (Dark) ──────────────────────────────────────────────────────
 
 export const herouiDarkGlobal = {
-  brand: "#0485f7",                      // accent
-  globalHeader: "#0a0a0b",              // deep black
+  brand: "#0485f7", // accent
+  globalHeader: "#0a0a0b", // deep black
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── Status Surface (Dark) ──────────────────────────────────────────────
 
 export const herouiDarkStatusSurface = {
   noneBold: "#71717a",
-  informationBold: "#0485f7",
+  informationBold: "#006fee",
   successBold: "#17c964",
-  errorBold: "#ff383c",
+  errorBold: "#d50020",
   warningBold: "#f5a524",
   openBold: "#17c964",
   completeBold: "#17c964",
   suspendedBold: "#f5a524",
-  cancelledBold: "#ff383c",
-  noneSubtle: "#27272a",                 // zinc-800
-  informationSubtle: "#0a1e3d",          // accent-deep
-  successSubtle: "#052e16",              // success-deep
-  errorSubtle: "#3b0a1e",               // danger-deep
-  warningSubtle: "#3b2506",             // warning-deep
+  cancelledBold: "#d50020",
+  noneSubtle: "#27272a", // zinc-800
+  informationSubtle: "#0a1e3d", // accent-deep
+  successSubtle: "#052e16", // success-deep
+  errorSubtle: "#3b0a1e", // danger-deep
+  warningSubtle: "#3b2506", // warning-deep
   openSubtle: "#052e16",
   completeSubtle: "#27272a",
   suspendedSubtle: "#3b2506",
@@ -402,11 +401,11 @@ export const herouiDarkStatusText = {
   successBoldText: "#18181b",
   errorBoldText: "#ffffff",
   warningBoldText: "#18181b",
-  noneSubtleText: "#a1a1aa",             // zinc-400
-  informationSubtleText: "#5bb3f5",      // accent-light
-  successSubtleText: "#4ade80",          // success-light
-  errorSubtleText: "#f87171",            // danger-light
-  warningSubtleText: "#fbbf24",          // warning-light
+  noneSubtleText: "#a1a1aa", // zinc-400
+  informationSubtleText: "#5bb3f5", // accent-light
+  successSubtleText: "#4ade80", // success-light
+  errorSubtleText: "#f87171", // danger-light
+  warningSubtleText: "#fbbf24", // warning-light
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── Status Icon (Dark) ─────────────────────────────────────────────────
@@ -437,22 +436,22 @@ export const herouiDarkStatusGeneral = {
 // ─── State — Disabled (Dark) ────────────────────────────────────────────
 
 export const herouiDarkStateDisabled = {
-  border: "rgba(161, 161, 170, 0.3)",    // muted-dark @30%
-  minimal: "rgba(161, 161, 170, 0.15)",  // muted-dark @15%
-  text: "rgba(161, 161, 170, 0.5)",      // muted-dark @50%
+  border: "rgba(161, 161, 170, 0.3)", // muted-dark @30%
+  minimal: "rgba(161, 161, 170, 0.15)", // muted-dark @15%
+  text: "rgba(161, 161, 170, 0.5)", // muted-dark @50%
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── Form (Dark) ────────────────────────────────────────────────────────
 
 export const herouiDarkForm = {
-  inputBorder: "#3f3f46",               // zinc-700 — subtle visible border in dark
-  inputBackground: "#3f3f46",            // zinc-700 — lighter than modal body (#27272a)
+  inputBorder: "#a1a1aa",
+  inputBackground: "#3f3f46", // zinc-700 — lighter than modal body (#27272a)
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── State — Hover (Dark) ───────────────────────────────────────────────
 
 export const herouiDarkStateHover = {
-  borderModerate: "#52525b",             // zinc-600
+  borderModerate: "#52525b", // zinc-600
   surfaceMinimal: "rgba(161, 161, 170, 0.08)",
   surfaceModerate: "rgba(161, 161, 170, 0.15)",
   surfaceBold: "rgba(255, 255, 255, 0.1)",
@@ -469,7 +468,7 @@ export const herouiDarkStateActive = {
 // ─── State — Selected (Dark) ────────────────────────────────────────────
 
 export const herouiDarkStateSelected = {
-  surfaceBold: "#0485f7",                // accent
+  surfaceBold: "#006fee",
   surfaceMinimal: "rgba(4, 133, 247, 0.2)", // accent-soft (dark)
   surfaceOverlay: "rgba(4, 133, 247, 0.25)",
 } as const satisfies Record<string, SemanticValue>;
@@ -477,34 +476,34 @@ export const herouiDarkStateSelected = {
 // ─── Tag (Dark) ─────────────────────────────────────────────────────────
 
 export const herouiDarkTag = {
-  bold: "#0485f7",
-  subtle: "rgba(4, 133, 247, 0.2)",      // accent-soft (dark)
-  minimal: "#27272a",                    // zinc-800
+  bold: "#006fee",
+  subtle: "rgba(4, 133, 247, 0.2)", // accent-soft (dark)
+  minimal: "#27272a", // zinc-800
   textBold: "#ffffff",
-  textSubtle: "#5bb3f5",                 // accent-light
-  textMinimal: "#a1a1aa",               // zinc-400
+  textSubtle: "#5bb3f5", // accent-light
+  textMinimal: "#a1a1aa", // zinc-400
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── Button (Dark) ──────────────────────────────────────────────────────
 
 export const herouiDarkButton = {
-  secondary: "#27272a",                  // --default (dark)
+  secondary: "#27272a", // --default (dark)
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── Default (Dark) ──────────────────────────────────────────────────────
 
 export const herouiDarkDefaultTokens = {
-  default: "#27272a",                     // default/default (dark)
-  defaultForeground: "#fcfcfc",           // default/default-foreground (dark)
-  defaultHover: "#3f3f46",               // zinc-700
+  default: "#27272a", // default/default (dark)
+  defaultForeground: "#fcfcfc", // default/default-foreground (dark)
+  defaultHover: "#3f3f46", // zinc-700
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── Grid Row (Dark) ────────────────────────────────────────────────────
 
 export const herouiDarkGridRow = {
-  rowDefault: "#18181b",                 // --surface
-  rowAlt: "#1f1f23",                     // slightly lighter
-  rowSelected: "#0a1e3d",               // accent-deep
+  rowDefault: "#18181b", // --surface
+  rowAlt: "#1f1f23", // slightly lighter
+  rowSelected: "#0a1e3d", // accent-deep
 } as const satisfies Record<string, SemanticValue>;
 
 // ─── Elevation (Dark) ───────────────────────────────────────────────────
@@ -568,12 +567,12 @@ export const herouiDarkSemanticTokens = {
 
 export const herouiRadius = {
   none: "0px",
-  xs: "6px",                              // rounded-md — checkboxes, radios, small controls
-  sm: "12px",                             // field/radius — inputs, default component radius
-  md: "16px",                             // rounded-2xl — small buttons
-  lg: "24px",                             // rounded-3xl — large buttons, cards, panels
-  pill: "9999px",                          // rounded-full — avatars, tags, switches
-  circle: "50%",                           // unchanged
+  xs: "6px", // rounded-md — checkboxes, radios, small controls
+  sm: "12px", // field/radius — inputs, default component radius
+  md: "16px", // rounded-2xl — small buttons
+  lg: "24px", // rounded-3xl — large buttons, cards, panels
+  pill: "9999px", // rounded-full — avatars, tags, switches
+  circle: "50%", // unchanged
 } as const;
 
 export const herouiDarkRadius = herouiRadius;
@@ -614,7 +613,6 @@ function shadowToCss(tokens: Record<string, { boxShadow: string }>): string {
     .join("\n");
 }
 
-
 // HeroUI component-level overrides (not semantic tokens, but theme-specific)
 // Shared component overrides (both light and dark)
 const herouiComponentCssShared = [
@@ -629,7 +627,7 @@ const herouiComponentCssShared = [
   "--ui-modal-radius: 24px;",
   "--ui-qf-menu-gap: 8px;",
   "--ui-modal-padding: 24px;",
-  "--ui-modal-body-bg: #fafafa;",  // zinc-50 — subtle tint for modal body
+  "--ui-modal-body-bg: #fafafa;", // zinc-50 — subtle tint for modal body
   "--ui-qf-menu-radius: 20px;",
   "--ui-acc-group-bg: var(--fd-surface-primary, #ffffff);",
   "--ui-acc-group-radius: 24px;",
@@ -682,7 +680,7 @@ const herouiComponentCssShared = [
 
 // Light-only component overrides
 const herouiComponentCssLight = [
-  "--ui-select-hover-border: transparent;",
+  "--ui-select-hover-border: #71717a;",
   "--ui-select-hover-bg: rgba(249, 249, 249, 0.92);",
   "--ui-search-category-bg: #ebebec;",
   "--ui-search-item-hover-bg: #e4e4e7;",
@@ -697,7 +695,7 @@ const herouiComponentCssLight = [
 
 // Dark-only component overrides
 const herouiComponentCssDark = [
-  "--ui-select-hover-border: transparent;",
+  "--ui-select-hover-border: #a1a1aa;",
   "--ui-select-hover-bg: rgba(39, 39, 42, 0.92);",
   "--ui-search-category-bg: #27272a;",
   "--ui-search-item-hover-bg: #3f3f46;",
@@ -706,7 +704,7 @@ const herouiComponentCssDark = [
   "--ui-tab-selected-bg: #3f3f46;",
   "--ui-tab-selected-shadow: none;",
   "--ui-card-border-width: 1px;",
-  "--ui-modal-body-bg: #27272a;",  // zinc-800 — warmer modal body in dark
+  "--ui-modal-body-bg: #27272a;", // zinc-800 — warmer modal body in dark
   "--ui-cb-border: #3f3f46;",
   "--ui-radio-border: #3f3f46;",
   "--ui-spmi-hover-bg: rgba(255, 255, 255, 0.06);",
@@ -714,7 +712,7 @@ const herouiComponentCssDark = [
   "--ui-spmi-selected-bg: rgba(4, 133, 247, 0.15);",
   "--ui-spmi-child-selected-bg: rgba(4, 133, 247, 0.08);",
   "--ui-toolbar-attached-bg: rgba(24, 24, 27, 0.85);",
-  "--ui-dtp-panel-border: #28282c;",  // border/minimal (dark) — visible panel edge
+  "--ui-dtp-panel-border: #28282c;", // border/minimal (dark) — visible panel edge
 ].join("\n");
 
 const STYLE_ID = "maneki-heroui-theme";
@@ -728,8 +726,22 @@ export function injectHerouiTheme(): void {
   if (typeof document === "undefined") return;
 
   const existing = document.getElementById(STYLE_ID);
-  const herouiCss = [semanticTokensToCss(herouiSemanticTokens), elevationToCss(herouiElevation), shadowToCss(herouiShadow), radiusToCss(herouiRadius), herouiComponentCssShared, herouiComponentCssLight].join("\n");
-  const herouiDarkCss = [semanticTokensToCss(herouiDarkSemanticTokens), elevationToCss(herouiDarkElevation), shadowToCss(herouiDarkShadow), radiusToCss(herouiDarkRadius), herouiComponentCssShared, herouiComponentCssDark].join("\n");
+  const herouiCss = [
+    semanticTokensToCss(herouiSemanticTokens),
+    elevationToCss(herouiElevation),
+    shadowToCss(herouiShadow),
+    radiusToCss(herouiRadius),
+    herouiComponentCssShared,
+    herouiComponentCssLight,
+  ].join("\n");
+  const herouiDarkCss = [
+    semanticTokensToCss(herouiDarkSemanticTokens),
+    elevationToCss(herouiDarkElevation),
+    shadowToCss(herouiDarkShadow),
+    radiusToCss(herouiDarkRadius),
+    herouiComponentCssShared,
+    herouiComponentCssDark,
+  ].join("\n");
   const cssContent = `[data-theme="heroui"] {\n${herouiCss}\n}\n\n[data-theme="heroui-dark"] {\n${herouiDarkCss}\n}`;
 
   if (existing) {
@@ -750,7 +762,21 @@ export function injectHerouiTheme(): void {
  * Returns the full CSS with [data-theme="heroui"] and [data-theme="heroui-dark"] blocks.
  */
 export function generateHerouiCss(): string {
-  const herouiCss = [semanticTokensToCss(herouiSemanticTokens), elevationToCss(herouiElevation), shadowToCss(herouiShadow), radiusToCss(herouiRadius), herouiComponentCssShared, herouiComponentCssLight].join("\n");
-  const herouiDarkCss = [semanticTokensToCss(herouiDarkSemanticTokens), elevationToCss(herouiDarkElevation), shadowToCss(herouiDarkShadow), radiusToCss(herouiDarkRadius), herouiComponentCssShared, herouiComponentCssDark].join("\n");
+  const herouiCss = [
+    semanticTokensToCss(herouiSemanticTokens),
+    elevationToCss(herouiElevation),
+    shadowToCss(herouiShadow),
+    radiusToCss(herouiRadius),
+    herouiComponentCssShared,
+    herouiComponentCssLight,
+  ].join("\n");
+  const herouiDarkCss = [
+    semanticTokensToCss(herouiDarkSemanticTokens),
+    elevationToCss(herouiDarkElevation),
+    shadowToCss(herouiDarkShadow),
+    radiusToCss(herouiDarkRadius),
+    herouiComponentCssShared,
+    herouiComponentCssDark,
+  ].join("\n");
   return `[data-theme="heroui"] {\n${herouiCss}\n}\n\n[data-theme="heroui-dark"] {\n${herouiDarkCss}\n}`;
 }
