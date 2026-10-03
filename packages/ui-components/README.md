@@ -111,7 +111,7 @@ Interactive previews and visual regression coverage live in **`apps/catalog/`** 
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (3564 tests)
+moon run ui-components:test   # vitest --run (3635 tests)
 ```
 
 ---

@@ -88,6 +88,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 ui-components/
 ├── src/
 │   ├── index.ts             # Barrel export + custom element registration
+│   ├── test/setup.ts        # happy-dom ElementInternals shim
 │   ├── components/
 │   │   ├── ui-badge.ts
 │   │   ├── ui-image.ts
@@ -349,7 +350,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 
 ## COMMANDS
 ```bash
-moon run ui-components:test            # vitest --run (3564 tests)
+moon run ui-components:test            # vitest --run (3635 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run catalog:dev                   # visual catalog (apps/catalog)
 ```

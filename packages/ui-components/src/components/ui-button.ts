@@ -1,5 +1,3 @@
-
-
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type ButtonAction = "primary" | "secondary" | "destructive" | "info" | "contrast";
@@ -8,6 +6,7 @@ export type ButtonSize = "s" | "m" | "l" | "xl";
 export type ButtonShape = "basic" | "rounded";
 export type ButtonIcon = "text-only" | "leading-icon" | "trailing-icon" | "icon-only";
 export type ButtonStatus = "none" | "error" | "loading" | "success";
+export type ButtonType = "button" | "submit" | "reset";
 
 import {
   ACTIVE_BOLD,
@@ -473,6 +472,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiButton extends HTMLElement {
+  static formAssociated = true;
   static readonly observedAttributes = [
     "action",
     "emphasis",
@@ -481,20 +481,33 @@ export class UiButton extends HTMLElement {
     "icon",
     "status",
     "disabled",
+    "type",
+    "aria-label",
+    "aria-labelledby",
+    "aria-describedby",
   ];
 
+  private _internals: ElementInternals;
   private _button: HTMLButtonElement;
   private _contentWrapper: HTMLElement;
   private _statusIcon: HTMLElement;
 
   constructor() {
     super();
+    this._internals = this.attachInternals();
     const shadow = this.attachShadow({ mode: "open" });
 
     shadow.adoptedStyleSheets = [sheet];
 
     const button = document.createElement("button");
+    button.type = "button";
     button.setAttribute("part", "button");
+    button.addEventListener("click", () => {
+      const form = this._internals.form;
+      if (!form || this.disabled) return;
+      if (this.type === "submit") form.requestSubmit();
+      if (this.type === "reset") form.reset();
+    });
 
     // Icon start slot
     const iconStartWrapper = document.createElement("span");
@@ -542,18 +555,18 @@ export class UiButton extends HTMLElement {
   connectedCallback(): void {
     this._syncDisabled();
     this._syncStatus();
+    this._syncAria();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (name === "disabled") {
       this._syncDisabled();
     }
     if (name === "status") {
       this._syncStatus();
+    }
+    if (name.startsWith("aria-")) {
+      this._syncAria();
     }
   }
 
@@ -619,10 +632,47 @@ export class UiButton extends HTMLElement {
     }
   }
 
+  get type(): ButtonType {
+    const value = this.getAttribute("type");
+    return value === "submit" || value === "reset" ? value : "button";
+  }
+
+  set type(value: ButtonType) {
+    this.setAttribute("type", value);
+  }
+
+  get form(): HTMLFormElement | null {
+    return this._internals.form;
+  }
+
   // ── Private ─────────────────────────────────────────────────────────────
 
   private _syncDisabled(): void {
     this._button.disabled = this.disabled;
+  }
+
+  private _syncAria(): void {
+    // ID references on the host cannot cross into the button's shadow root.
+    const label = this._referencedText("aria-labelledby") || this.getAttribute("aria-label");
+    if (label) this._button.setAttribute("aria-label", label);
+    else this._button.removeAttribute("aria-label");
+
+    const description = this._referencedText("aria-describedby");
+    if (description) this._button.setAttribute("aria-description", description);
+    else this._button.removeAttribute("aria-description");
+  }
+
+  private _referencedText(attribute: string): string {
+    const ids = this.getAttribute(attribute);
+    if (!ids) return "";
+    const root = this.getRootNode();
+    if (!("getElementById" in root)) return "";
+    const idRoot = root as Document | ShadowRoot;
+    return ids
+      .split(/\s+/)
+      .map((id) => idRoot.getElementById(id)?.textContent?.trim() ?? "")
+      .filter(Boolean)
+      .join(" ");
   }
 
   private _syncStatus(): void {

@@ -12,6 +12,7 @@ export type {
   ButtonShape,
   ButtonIcon,
   ButtonStatus,
+  ButtonType,
 } from "./components/ui-button.js";
 export { UiAvatar } from "./components/ui-avatar.js";
 export type {

@@ -14,7 +14,7 @@ catalog/
 ├── package.json            # @maneki/catalog — deps on foundation + ui-components
 ├── src/
 │   ├── main.ts             # App entry: injects tokens, registers icon font, imports all pages, History API router, theme toggle
-│   └── pages/              # 55 page modules (6 foundation + 49 component)
+│   └── pages/              # 56 page modules (6 foundation + 48 component + 2 layout)
 │       ├── colors.ts
 │       ├── spacing.ts
 │       ├── typography.ts
@@ -53,11 +53,11 @@ catalog/
 │       ├── datetime-picker.ts
 │       ├── clock.ts
 │       ├── list.ts
-│       └── ... (55 pages total)
+│       └── ... (56 pages total)
 └── e2e/
     ├── helpers.ts          # Shared page list + test utilities
-    ├── visual.spec.ts      # 55 Playwright visual screenshot tests + sidebar + full layout
-    ├── a11y.spec.ts        # 55 Playwright accessibility tests (axe-core) + sidebar + full layout
+    ├── visual.spec.ts      # 56 Playwright visual screenshot tests + sidebar + full layout
+    ├── a11y.spec.ts        # 56 page scans + icon-only button, sidebar, and full-layout checks
     ├── test-results/        # Playwright test artifacts (gitignored)
     └── snapshots/           # Baseline screenshots (committed)
         └── visual.spec.ts/
@@ -65,7 +65,7 @@ catalog/
             ├── visual-button/button-chromium.png
             ├── visual-sidebar/sidebar-chromium.png
             ├── visual-full-layout/full-layout-chromium.png
-            └── ... (55+ snapshot directories total)
+            └── ... (56+ snapshot directories total)
 ```
 
 ## WHERE TO LOOK
@@ -123,7 +123,7 @@ npx vite --port 5174               # Same, from apps/catalog/
 moon run catalog:build              # Vite production build → dist/
 
 # Visual regression tests
-moon run catalog:test-visual        # Run 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout)
+moon run catalog:test-visual        # Run 244 Playwright tests across two browser projects
 moon run catalog:test-visual-update # Regenerate baseline snapshots
 
 # From apps/catalog/ directly
@@ -145,6 +145,6 @@ npx playwright test --update-snapshots  # Update baselines
 ## NOTES
 - Vite aliases resolve `@maneki/foundation` and `@maneki/ui-components` to source (not dist) for HMR in dev
 - Playwright uses `vite preview` (production build) for deterministic rendering
-- 114 tests (55 visual + 55 a11y + sidebar + full layout) run on Chromium
+- 122 tests per browser project (56 visual + 56 a11y + focused button, layout, and mobile checks)
 - Snapshots are platform-specific (chromium on macOS) — CI may need its own baselines
 - The `setup()` callback uses `requestAnimationFrame` to ensure DOM is ready before imperative manipulation

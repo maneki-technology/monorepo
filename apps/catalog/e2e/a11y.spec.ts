@@ -19,6 +19,17 @@ for (const pageId of pages) {
   });
 }
 
+test("a11y: icon-only button has an accessible name", async ({ page }) => {
+  await page.goto("/button");
+  await expect(page.getByRole("button", { name: "Add" })).toBeVisible();
+
+  const results = await new AxeBuilder({ page })
+    .include('ui-button[icon="icon-only"]')
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(results.violations).toEqual([]);
+});
+
 // ─── Sidebar accessibility ────────────────────────────────────────────────────
 
 test("a11y: sidebar", async ({ page }) => {
