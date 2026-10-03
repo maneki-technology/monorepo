@@ -172,8 +172,7 @@
       color: var(--fd-text-primary, #27272a);
       text-decoration: none;
       -webkit-text-stroke: 1.5px currentColor;
-      transition: color 150ms ease, transform 0.4s ease;
-      transform-origin: left center;
+      transition: color 150ms ease, font-size 0.4s ease, -webkit-text-stroke-width 0.4s ease;
     }
 
     :root[data-page="home"] .site-name {
@@ -260,8 +259,11 @@
       --ui-tag-color: var(--fd-surface-primary);
     }
     @media (min-width: 1024px) {
+      /* Font size, not transform: scale, so the signature clone lands on the same glyph metrics */
       body.wide-layout .site-name {
-        transform: scale(1.5625);
+        font-size: 50px;
+        -webkit-text-stroke-width: 2.34375px;
+        line-height: 41px;
       }
       body.wide-layout nav {
         gap: var(--fd-space-4);

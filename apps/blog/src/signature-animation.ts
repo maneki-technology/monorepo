@@ -7,16 +7,15 @@ export interface SignatureSnapshot {
 export function captureSignature(element: HTMLElement): SignatureSnapshot {
   const rect = element.getBoundingClientRect();
   const styles = getComputedStyle(element);
-  const scale = new DOMMatrixReadOnly(styles.transform).a;
   const clone = element.cloneNode(true);
   if (!(clone instanceof HTMLElement)) throw new TypeError("Signature must be an HTML element");
   return {
     clone,
-    strokeWidth: parseFloat(styles.webkitTextStrokeWidth) * scale,
+    strokeWidth: parseFloat(styles.webkitTextStrokeWidth),
     frame: {
       top: `${rect.top}px`,
       left: `${rect.left}px`,
-      fontSize: `${parseFloat(styles.fontSize) * scale}px`,
+      fontSize: styles.fontSize,
       lineHeight: `${rect.height}px`,
       fontWeight: styles.fontWeight,
       fontFamily: styles.fontFamily,
