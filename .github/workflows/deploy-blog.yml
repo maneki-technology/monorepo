@@ -26,6 +26,7 @@ jobs:
     permissions:
       contents: read
       deployments: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -62,7 +63,7 @@ jobs:
           TURSO_AUTH_TOKEN: ${{ secrets.TURSO_READ_ONLY_AUTH_TOKEN }}
 
       - name: Create Cloudflare Pages project (if needed)
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: cloudflare/wrangler-action@v3
         continue-on-error: true
         with:
@@ -71,13 +72,30 @@ jobs:
           command: pages project create maneki-blog --production-branch=main
 
       - name: Deploy to Cloudflare Pages
-        if: github.event_name != 'pull_request'
+        id: deploy
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=maneki-blog --branch=${{ github.head_ref || github.ref_name }} --commit-dirty=true
           workingDirectory: apps/blog
+
+      - name: Comment preview URL
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        env:
+          URL: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
+        with:
+          script: |
+            const marker = "<!-- blog-preview -->";
+            const body = `${marker}\n**Blog preview:** ${process.env.URL}\n\nCommit: ${context.payload.pull_request.head.sha}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const existing = comments.find((c) => c.body?.startsWith(marker));
+            if (existing) await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            else await github.rest.issues.createComment({ owner, repo, issue_number, body });
 
       - name: Record deploy
         if: github.event_name != 'pull_request'
