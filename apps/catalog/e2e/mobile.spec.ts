@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { navigateToPage } from "./helpers.js";
 
 // Mobile-only tests — skip on desktop project
-test.skip(({ browserName }, testInfo) => testInfo.project.name === "chromium", "mobile only");
+test.skip(({ isMobile }) => !isMobile, "mobile only");
 
 // ─── Sidebar auto-collapses on mobile ───────────────────────────────────
 

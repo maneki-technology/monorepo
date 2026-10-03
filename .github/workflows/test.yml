@@ -4,70 +4,85 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - 'packages/foundation/**'
-      - 'packages/ui-components/**'
-      - 'packages/charts/**'
-      - 'packages/grid-layout/**'
-      - 'apps/blog/**'
-      - 'apps/catalog/**'
-      - '.github/workflows/test.yml'
-      - 'package.json'
-      - 'package-lock.json'
+      - "packages/**"
+      - "apps/**"
+      - "shared/**"
+      - ".moon/**"
+      - ".prototools"
+      - ".github/workflows/test.yml"
+      - "package.json"
+      - "package-lock.json"
   push:
     branches: [main]
     paths:
-      - 'packages/foundation/**'
-      - 'packages/ui-components/**'
-      - 'packages/charts/**'
-      - 'packages/grid-layout/**'
-      - 'apps/blog/**'
-      - 'apps/catalog/**'
-      - '.github/workflows/test.yml'
-      - 'package.json'
-      - 'package-lock.json'
+      - "packages/**"
+      - "apps/**"
+      - "shared/**"
+      - ".moon/**"
+      - ".prototools"
+      - ".github/workflows/test.yml"
+      - "package.json"
+      - "package-lock.json"
+
+permissions:
+  contents: read
 
 jobs:
-  test:
+  unit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
         with:
-          node-version: '22.16.0'
-          cache: 'npm'
-
+          fetch-depth: 0
+      - uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
       - run: npm ci
+      - name: Build packages and catalog
+        run: moon run foundation:build ui-components:build grid-layout:build flex-layout:build charts:build catalog:build
+      - name: Test and type-check
+        run: moon run :test blog:typecheck
 
-      - name: Build foundation
-        run: npm run build
-        working-directory: packages/foundation
+  catalog-browser:
+    runs-on: ubuntu-latest
+    # Snapshots are generated in this image; the bare runner renders differently
+    container: mcr.microsoft.com/playwright:v1.59.1-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # proto's installer unpacks .tar.xz archives; moon runs git as the container's root user
+      - run: |
+          apt-get update && apt-get install -y --no-install-recommends xz-utils
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
+      - run: npm ci
+      - run: moon run catalog:build
+      - name: Catalog visual and accessibility tests
+        run: npx playwright test --project=chromium --project=mobile-chromium
+        working-directory: apps/catalog
 
-      - name: Test foundation
-        run: npx vitest --run
-        working-directory: packages/foundation
-
-      - name: Build ui-components
-        run: npm run build
-        working-directory: packages/ui-components
-
-      - name: Test ui-components
-        run: npx vitest --run
-        working-directory: packages/ui-components
-
-      - name: Build grid-layout
-        run: npm run build
-        working-directory: packages/grid-layout
-
-      - name: Type check blog
-        run: npx tsc --noEmit
+  blog-browser:
+    needs: unit
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    env:
+      TURSO_URL: ${{ secrets.TURSO_URL }}
+      TURSO_AUTH_TOKEN: ${{ secrets.TURSO_READ_ONLY_AUTH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
+      - run: npm ci
+      - name: Require read-only Turso credentials
+        run: test -n "$TURSO_URL" && test -n "$TURSO_AUTH_TOKEN"
+      - run: moon run --force blog:build
+      - run: npx playwright install --with-deps chromium
+      - name: Blog browser tests
+        run: npx playwright test
         working-directory: apps/blog
-
-
-      - name: Build charts
-        run: npm run build
-        working-directory: packages/charts
-
-      - name: Test charts
-        run: npx vitest --run
-        working-directory: packages/charts

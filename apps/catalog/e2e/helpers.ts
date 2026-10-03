@@ -64,7 +64,7 @@ export const pages = [
 ];
 
 export async function navigateToPage(page: Page, pageId: string) {
-  await page.goto(`/#${pageId}`);
+  await page.goto(`/${pageId}`);
   // Wait for custom elements to upgrade + render
   await page.waitForTimeout(500);
   // Wait for any fonts to load

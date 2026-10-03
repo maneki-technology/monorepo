@@ -17,7 +17,10 @@ function parseFrontmatter(raw: string): { data: Record<string, unknown>; content
     if (!m) continue;
     const [, key, val] = m;
     if (val.startsWith("[") && val.endsWith("]")) {
-      data[key] = val.slice(1, -1).split(",").map((s) => s.trim());
+      data[key] = val
+        .slice(1, -1)
+        .split(",")
+        .map((s) => s.trim());
     } else if (val.startsWith('"') && val.endsWith('"')) {
       data[key] = val.slice(1, -1);
     } else {
@@ -38,7 +41,10 @@ if (!url) {
 const db = createClient({ url, authToken: authToken || undefined });
 const postsDir = path.resolve(import.meta.dirname, "../content/posts");
 
-const files = fs.readdirSync(postsDir).filter((f) => f.endsWith(".md")).sort();
+const files = fs
+  .readdirSync(postsDir)
+  .filter((f) => f.endsWith(".md"))
+  .sort();
 
 console.log(`Seeding ${files.length} posts from content/posts/...`);
 
@@ -60,11 +66,11 @@ for (const file of files) {
             updated_at = excluded.updated_at`,
     args: [
       slug,
-      data.title ?? slug,
+      typeof data.title === "string" ? data.title : slug,
       content.trim(),
-      data.excerpt ?? "",
+      typeof data.excerpt === "string" ? data.excerpt : "",
       JSON.stringify(data.tags ?? []),
-      data.date ?? new Date().toISOString().split("T")[0],
+      typeof data.date === "string" ? data.date : new Date().toISOString().split("T")[0],
     ],
   });
 

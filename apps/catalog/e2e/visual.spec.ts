@@ -15,10 +15,17 @@ for (const pageId of pages) {
 
 // ─── Sidebar visual regression ───────────────────────────────────────────────
 
-test("visual: sidebar", async ({ page }) => {
+test("visual: sidebar", async ({ page, isMobile }) => {
   await page.goto("/");
   await page.waitForTimeout(500);
   await page.evaluate(() => document.fonts.ready);
+  if (isMobile) {
+    await page.getByRole("button", { name: "Open navigation" }).click();
+    await expect(page).toHaveScreenshot("sidebar.png", {
+      maxDiffPixelRatio: 0.01,
+    });
+    return;
+  }
   const sidebar = page.locator("#sidebar");
   await expect(sidebar).toHaveScreenshot("sidebar.png", {
     maxDiffPixelRatio: 0.01,
