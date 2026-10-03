@@ -8,7 +8,6 @@ import { pages, navigateToPage } from "./helpers.js";
 const knownViolations = new Set([
   "button",
   "calendar",
-  "dropdown",
   "file-upload",
   "flex-layout",
   "input",

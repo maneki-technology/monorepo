@@ -63,11 +63,11 @@ npm install @maneki/ui-components
 | `<ui-accordion-item>` | Expandable panel: 3 sizes, 2 emphases, 4 statuses |
 | `<ui-accordion-group>` | Wrapper with size/emphasis propagation + exclusive mode |
 | | **Menus & Dropdowns** |
-| `<ui-dropdown>` | Button + floating menu: 4 sizes, 5 actions, opt-in `selectable` |
+| `<ui-dropdown>` | Labeled button + floating menu: 4 sizes, 5 actions, opt-in `selectable` |
 | `<ui-dropdown-item>` | Menu item with select event, checkmark, disabled support |
 | `<ui-dropdown-heading>` | Uppercase section heading |
 | `<ui-dropdown-separator>` | Horizontal divider line |
-| `<ui-dropdown-split>` | Split button (action + chevron trigger): 4 sizes, 5 actions, opt-in `selectable` |
+| `<ui-dropdown-split>` | Labeled split button (action + chevron trigger): 4 sizes, 5 actions, opt-in `selectable` |
 | `<ui-menu>` | Standalone floating menu panel: 2 sizes, open/close animation, dismiss, single/multi-select |
 | | **Overlays** |
 | `<ui-modal>` | Native modal dialog with inert background, header, scrollable body, footer: 3 sizes, 2 layouts |
@@ -113,7 +113,7 @@ Interactive previews and visual regression coverage live in **`apps/catalog/`** 
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (3717 tests)
+moon run ui-components:test   # vitest --run (3718 tests)
 ```
 
 ---

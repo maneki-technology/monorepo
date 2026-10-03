@@ -524,6 +524,16 @@ describe("UiDropdownSplit — label", () => {
     el.setAttribute("label", "Save");
     const textSlot = el.shadowRoot!.querySelector(".slot-text slot") as HTMLSlotElement;
     expect(textSlot.textContent).toBe("Save");
+    expect(el.shadowRoot!.querySelector(".left")?.getAttribute("aria-label")).toBe("Save");
+  });
+
+  it("uses slotted text as the action button's accessible name", async () => {
+    const text = document.createElement("span");
+    text.slot = "text";
+    text.textContent = "Publish now";
+    el.appendChild(text);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(el.shadowRoot!.querySelector(".left")?.getAttribute("aria-label")).toBe("Publish now");
   });
 
   it("should set label via property accessor", () => {
