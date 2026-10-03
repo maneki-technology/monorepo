@@ -20,6 +20,7 @@ export class UiScrollbar extends HTMLElement {
 
     const container = document.createElement("div");
     container.className = "container";
+    container.tabIndex = 0;
     const slot = document.createElement("slot");
     container.appendChild(slot);
     shadow.appendChild(container);

@@ -53,6 +53,7 @@ npm install @maneki/ui-components
 | | **Containers** |
 | `<ui-card>` | Slot-based container: 3 sizes, 4 elevations, bordered variant |
 | `<ui-button-group>` | Segmented bar wrapping `<ui-button>` elements |
+| `<ui-scrollbar>` | Scroll container with keyboard-focusable content |
 | | **Navigation** |
 | `<ui-breadcrumb-item>` | Breadcrumb link: 3 sizes, 7 states |
 | `<ui-breadcrumb-group>` | Nav wrapper with size propagation |

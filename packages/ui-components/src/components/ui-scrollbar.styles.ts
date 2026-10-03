@@ -1,6 +1,7 @@
 import {
   BORDER_MINIMAL,
   BW_MD,
+  SELECTED_BOLD,
   SP_1,
   SP_1_5,
   SURFACE_BOLD,
@@ -26,6 +27,14 @@ export const STYLES = /* css */ `
   .container {
     width: 100%;
     height: 100%;
+  }
+
+  /* Inset: the host clips outlines drawn outside it */
+  .container:focus-visible {
+    outline-width: ${BW_MD};
+    outline-style: solid;
+    outline-color: ${SELECTED_BOLD};
+    outline-offset: calc(-1 * ${BW_MD});
   }
 
   /* ── Bold emphasis (default) ─────────────────────────────────────────── */

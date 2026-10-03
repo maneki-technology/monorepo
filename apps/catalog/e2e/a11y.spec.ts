@@ -14,7 +14,6 @@ const knownViolations = new Set([
   "input",
   "list",
   "menu",
-  "scrollbar",
   "select",
   "slider",
   "tabs",
