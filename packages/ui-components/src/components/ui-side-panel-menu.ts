@@ -172,7 +172,7 @@ export class UiSidePanelMenu extends LitElement {
     this._handleMenuKeydown(e);
   };
 
-  private _getPanel(): HTMLElement | null {
+  private _getPanel(): UiSidePanel | null {
     return this.shadowRoot!.querySelector("ui-side-panel");
   }
 
@@ -212,17 +212,16 @@ export class UiSidePanelMenu extends LitElement {
     this._syncPanelAttributes();
     // Panel's connectedCallback fires _syncMobileState which overrides state.
     // If not mobile, re-assert the intended state.
-    if (panel && !panel.hasAttribute("mobile") && intendedState) {
+    if (panel && !panel.mobile && intendedState) {
       this._syncingState = true;
       this.setAttribute("state", intendedState);
       panel.setAttribute("state", intendedState);
       this._syncingState = false;
     }
     // If mobile, sync from panel
-    if (panel && panel.hasAttribute("mobile")) {
+    if (panel?.mobile) {
       this.setAttribute("mobile", "");
-      const panelState = panel.getAttribute("state");
-      if (panelState) this.setAttribute("state", panelState);
+      this.setAttribute("state", panel.state);
     }
     // Scrollable region must be keyboard-focusable
     if (!this.hasAttribute("tabindex")) this.setAttribute("tabindex", "0");
@@ -269,7 +268,7 @@ export class UiSidePanelMenu extends LitElement {
     if (changedProperties.has("mobile")) {
       if (panel) {
         if (this.mobile) panel.setAttribute("mobile", "");
-        else {
+        else if (changedProperties.get("mobile") !== undefined) {
           panel.removeAttribute("mobile");
           panel.removeAttribute("overlay");
         }
@@ -282,7 +281,6 @@ export class UiSidePanelMenu extends LitElement {
       }
     }
   }
-
 
   // ── Private: sync panel ─────────────────────────────────────────────────
 
