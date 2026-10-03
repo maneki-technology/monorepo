@@ -1,4 +1,3 @@
-
 import {
   BW_MD,
   HOVER_BOLD,
@@ -109,7 +108,7 @@ const STYLES = /* css */ `
     transition: background 0.2s ease;
   }
 
-  .dot[aria-selected="true"] {
+  .dot[aria-current="true"] {
     background: ${SELECTED_BOLD};
   }
 
@@ -152,7 +151,6 @@ export class UiCarousel extends HTMLElement {
   #track: HTMLDivElement;
   #indicators: HTMLDivElement;
   #arrowGroup: HTMLDivElement;
-  #actionsBar!: HTMLDivElement;
   #prevBtn: HTMLButtonElement;
   #nextBtn: HTMLButtonElement;
   #defaultSlot: HTMLSlotElement;
@@ -172,7 +170,6 @@ export class UiCarousel extends HTMLElement {
     // Actions bar
     const actionsBar = document.createElement("div");
     actionsBar.className = "actions";
-    this.#actionsBar = actionsBar;
 
     // Dot indicators container
     const indicators = document.createElement("div");
@@ -213,6 +210,7 @@ export class UiCarousel extends HTMLElement {
     // Track
     const track = document.createElement("div");
     track.className = "track";
+    track.tabIndex = 0;
     this.#track = track;
 
     const defaultSlot = document.createElement("slot");
@@ -270,11 +268,7 @@ export class UiCarousel extends HTMLElement {
     this.removeEventListener("focusout", this.#onResumeAutoPlay);
   }
 
-  attributeChangedCallback(
-    attrName: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(attrName: string, _oldValue: string | null, _newValue: string | null): void {
     switch (attrName) {
       case "gap":
         this.#applyGap();
@@ -314,9 +308,7 @@ export class UiCarousel extends HTMLElement {
   // ── Items helper ─────────────────────────────────────────────────────────
 
   #getItems(): Element[] {
-    return this.#defaultSlot
-      .assignedElements()
-      .filter((el) => el.tagName === "UI-CAROUSEL-ITEM");
+    return this.#defaultSlot.assignedElements().filter((el) => el.tagName === "UI-CAROUSEL-ITEM");
   }
 
   // ── Gap ──────────────────────────────────────────────────────────────────
@@ -392,10 +384,7 @@ export class UiCarousel extends HTMLElement {
       dot.className = "dot";
       dot.type = "button";
       dot.setAttribute("aria-label", `Go to slide ${i + 1}`);
-      dot.setAttribute(
-        "aria-selected",
-        i === this.#activeIndex ? "true" : "false",
-      );
+      dot.setAttribute("aria-current", i === this.#activeIndex ? "true" : "false");
       dot.addEventListener("click", () => this.#goToSlide(i));
       this.#indicators.appendChild(dot);
     }
@@ -404,10 +393,7 @@ export class UiCarousel extends HTMLElement {
   #syncDots(): void {
     const dots = this.#indicators.children;
     for (let i = 0; i < dots.length; i++) {
-      dots[i].setAttribute(
-        "aria-selected",
-        i === this.#activeIndex ? "true" : "false",
-      );
+      dots[i].setAttribute("aria-current", i === this.#activeIndex ? "true" : "false");
     }
   }
 

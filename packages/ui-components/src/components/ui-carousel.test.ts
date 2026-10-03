@@ -43,9 +43,7 @@ describe("ui-carousel", () => {
   });
 
   it("defaults autoPlayInterval to 5000", () => {
-    expect(
-      (el as unknown as { autoPlayInterval: number }).autoPlayInterval,
-    ).toBe(5000);
+    expect((el as unknown as { autoPlayInterval: number }).autoPlayInterval).toBe(5000);
   });
 
   it("defaults hideArrows to false", () => {
@@ -53,9 +51,7 @@ describe("ui-carousel", () => {
   });
 
   it("defaults hideIndicators to false", () => {
-    expect(
-      (el as unknown as { hideIndicators: boolean }).hideIndicators,
-    ).toBe(false);
+    expect((el as unknown as { hideIndicators: boolean }).hideIndicators).toBe(false);
   });
 
   // ── gap attribute ─────────────────────────────────────────────────────────
@@ -125,15 +121,11 @@ describe("ui-carousel", () => {
 
   it("reads autoPlayInterval from attribute", () => {
     el.setAttribute("auto-play-interval", "7000");
-    expect(
-      (el as unknown as { autoPlayInterval: number }).autoPlayInterval,
-    ).toBe(7000);
+    expect((el as unknown as { autoPlayInterval: number }).autoPlayInterval).toBe(7000);
   });
 
   it("returns 5000 when auto-play-interval attribute is absent", () => {
-    expect(
-      (el as unknown as { autoPlayInterval: number }).autoPlayInterval,
-    ).toBe(5000);
+    expect((el as unknown as { autoPlayInterval: number }).autoPlayInterval).toBe(5000);
   });
 
   // ── hide-arrows boolean attribute ─────────────────────────────────────────
@@ -169,9 +161,7 @@ describe("ui-carousel", () => {
 
   it("reads hideIndicators from attribute", () => {
     el.setAttribute("hide-indicators", "");
-    expect(
-      (el as unknown as { hideIndicators: boolean }).hideIndicators,
-    ).toBe(true);
+    expect((el as unknown as { hideIndicators: boolean }).hideIndicators).toBe(true);
   });
 
   // ── ARIA ──────────────────────────────────────────────────────────────────
@@ -273,45 +263,33 @@ describe("ui-carousel", () => {
   });
 
   it("has a prev arrow button", () => {
-    const btn = el.shadowRoot!.querySelector(
-      '.arrow-btn[aria-label="Previous slide"]',
-    );
+    const btn = el.shadowRoot!.querySelector('.arrow-btn[aria-label="Previous slide"]');
     expect(btn).toBeTruthy();
   });
 
   it("has a next arrow button", () => {
-    const btn = el.shadowRoot!.querySelector(
-      '.arrow-btn[aria-label="Next slide"]',
-    );
+    const btn = el.shadowRoot!.querySelector('.arrow-btn[aria-label="Next slide"]');
     expect(btn).toBeTruthy();
   });
 
   it("prev button contains a ui-icon", () => {
-    const btn = el.shadowRoot!.querySelector(
-      '.arrow-btn[aria-label="Previous slide"]',
-    );
+    const btn = el.shadowRoot!.querySelector('.arrow-btn[aria-label="Previous slide"]');
     expect(btn!.querySelector("ui-icon")).toBeTruthy();
   });
 
   it("next button contains a ui-icon", () => {
-    const btn = el.shadowRoot!.querySelector(
-      '.arrow-btn[aria-label="Next slide"]',
-    );
+    const btn = el.shadowRoot!.querySelector('.arrow-btn[aria-label="Next slide"]');
     expect(btn!.querySelector("ui-icon")).toBeTruthy();
   });
 
   it("prev button icon has name chevron_left", () => {
-    const btn = el.shadowRoot!.querySelector(
-      '.arrow-btn[aria-label="Previous slide"]',
-    );
+    const btn = el.shadowRoot!.querySelector('.arrow-btn[aria-label="Previous slide"]');
     const icon = btn!.querySelector("ui-icon");
     expect(icon!.getAttribute("name")).toBe("chevron_left");
   });
 
   it("next button icon has name chevron_right", () => {
-    const btn = el.shadowRoot!.querySelector(
-      '.arrow-btn[aria-label="Next slide"]',
-    );
+    const btn = el.shadowRoot!.querySelector('.arrow-btn[aria-label="Next slide"]');
     const icon = btn!.querySelector("ui-icon");
     expect(icon!.getAttribute("name")).toBe("chevron_right");
   });
@@ -412,9 +390,7 @@ describe("ui-carousel", () => {
     const el2 = document.createElement("ui-carousel");
     (el2 as unknown as { autoPlayInterval: number }).autoPlayInterval = 2000;
     document.body.appendChild(el2);
-    expect(
-      (el2 as unknown as { autoPlayInterval: number }).autoPlayInterval,
-    ).toBe(2000);
+    expect((el2 as unknown as { autoPlayInterval: number }).autoPlayInterval).toBe(2000);
   });
 
   it("upgrades hideArrows property set before connectedCallback", () => {
@@ -430,44 +406,34 @@ describe("ui-carousel", () => {
     const el2 = document.createElement("ui-carousel");
     (el2 as unknown as { hideIndicators: boolean }).hideIndicators = true;
     document.body.appendChild(el2);
-    expect(
-      (el2 as unknown as { hideIndicators: boolean }).hideIndicators,
-    ).toBe(true);
+    expect((el2 as unknown as { hideIndicators: boolean }).hideIndicators).toBe(true);
   });
 
   // ── Actions visibility ────────────────────────────────────────────────────
 
   it("hides arrow-group when hideArrows is true", () => {
     (el as unknown as { hideArrows: boolean }).hideArrows = true;
-    const arrowGroup = el.shadowRoot!.querySelector(
-      ".arrow-group",
-    ) as HTMLElement;
+    const arrowGroup = el.shadowRoot!.querySelector(".arrow-group") as HTMLElement;
     expect(arrowGroup.hidden).toBe(true);
   });
 
   it("shows arrow-group when hideArrows is false", () => {
     (el as unknown as { hideArrows: boolean }).hideArrows = true;
     (el as unknown as { hideArrows: boolean }).hideArrows = false;
-    const arrowGroup = el.shadowRoot!.querySelector(
-      ".arrow-group",
-    ) as HTMLElement;
+    const arrowGroup = el.shadowRoot!.querySelector(".arrow-group") as HTMLElement;
     expect(arrowGroup.hidden).toBe(false);
   });
 
   it("hides indicators when hideIndicators is true", () => {
     (el as unknown as { hideIndicators: boolean }).hideIndicators = true;
-    const indicators = el.shadowRoot!.querySelector(
-      ".indicators",
-    ) as HTMLElement;
+    const indicators = el.shadowRoot!.querySelector(".indicators") as HTMLElement;
     expect(indicators.hidden).toBe(true);
   });
 
   it("shows indicators when hideIndicators is false", () => {
     (el as unknown as { hideIndicators: boolean }).hideIndicators = true;
     (el as unknown as { hideIndicators: boolean }).hideIndicators = false;
-    const indicators = el.shadowRoot!.querySelector(
-      ".indicators",
-    ) as HTMLElement;
+    const indicators = el.shadowRoot!.querySelector(".indicators") as HTMLElement;
     expect(indicators.hidden).toBe(false);
   });
 
@@ -599,6 +565,7 @@ describe("Composition", () => {
     document.body.appendChild(carousel);
     const items = carousel.querySelectorAll("ui-carousel-item");
     expect(items.length).toBe(3);
+    expect(carousel.shadowRoot!.querySelector(".track")?.getAttribute("tabindex")).toBe("0");
   });
 
   it("creates 3 dot indicators for 3 items", async () => {
@@ -650,20 +617,16 @@ describe("Composition", () => {
     document.body.appendChild(carousel);
     await tick();
     const dots = carousel.shadowRoot!.querySelectorAll(".dot");
-    expect(dots[0].getAttribute("aria-selected")).toBe("true");
-    expect(dots[1].getAttribute("aria-selected")).toBe("false");
-    expect(dots[2].getAttribute("aria-selected")).toBe("false");
+    expect(dots[0].getAttribute("aria-current")).toBe("true");
+    expect(dots[1].getAttribute("aria-current")).toBe("false");
+    expect(dots[2].getAttribute("aria-current")).toBe("false");
   });
 
   it("arrow buttons have correct aria-labels", () => {
     const carousel = buildCarousel(3);
     document.body.appendChild(carousel);
-    const prevBtn = carousel.shadowRoot!.querySelector(
-      '.arrow-btn[aria-label="Previous slide"]',
-    );
-    const nextBtn = carousel.shadowRoot!.querySelector(
-      '.arrow-btn[aria-label="Next slide"]',
-    );
+    const prevBtn = carousel.shadowRoot!.querySelector('.arrow-btn[aria-label="Previous slide"]');
+    const nextBtn = carousel.shadowRoot!.querySelector('.arrow-btn[aria-label="Next slide"]');
     expect(prevBtn).toBeTruthy();
     expect(nextBtn).toBeTruthy();
   });
@@ -672,9 +635,7 @@ describe("Composition", () => {
     const carousel = buildCarousel(3);
     (carousel as unknown as { hideArrows: boolean }).hideArrows = true;
     document.body.appendChild(carousel);
-    const arrowGroup = carousel.shadowRoot!.querySelector(
-      ".arrow-group",
-    ) as HTMLElement;
+    const arrowGroup = carousel.shadowRoot!.querySelector(".arrow-group") as HTMLElement;
     expect(arrowGroup.hidden).toBe(true);
   });
 
@@ -682,9 +643,7 @@ describe("Composition", () => {
     const carousel = buildCarousel(3);
     (carousel as unknown as { hideIndicators: boolean }).hideIndicators = true;
     document.body.appendChild(carousel);
-    const indicators = carousel.shadowRoot!.querySelector(
-      ".indicators",
-    ) as HTMLElement;
+    const indicators = carousel.shadowRoot!.querySelector(".indicators") as HTMLElement;
     expect(indicators.hidden).toBe(true);
   });
 
@@ -744,9 +703,7 @@ describe("Composition", () => {
     const carousel = buildCarousel(3);
     carousel.setAttribute("hide-arrows", "");
     document.body.appendChild(carousel);
-    const arrowGroup = carousel.shadowRoot!.querySelector(
-      ".arrow-group",
-    ) as HTMLElement;
+    const arrowGroup = carousel.shadowRoot!.querySelector(".arrow-group") as HTMLElement;
     expect(arrowGroup.hidden).toBe(true);
   });
 
@@ -754,9 +711,7 @@ describe("Composition", () => {
     const carousel = buildCarousel(3);
     carousel.setAttribute("hide-indicators", "");
     document.body.appendChild(carousel);
-    const indicators = carousel.shadowRoot!.querySelector(
-      ".indicators",
-    ) as HTMLElement;
+    const indicators = carousel.shadowRoot!.querySelector(".indicators") as HTMLElement;
     expect(indicators.hidden).toBe(true);
   });
 
@@ -775,9 +730,7 @@ describe("Composition", () => {
     const carousel = buildCarousel(3);
     document.body.appendChild(carousel);
     (carousel as unknown as { hideArrows: boolean }).hideArrows = true;
-    const arrowGroup = carousel.shadowRoot!.querySelector(
-      ".arrow-group",
-    ) as HTMLElement;
+    const arrowGroup = carousel.shadowRoot!.querySelector(".arrow-group") as HTMLElement;
     expect(arrowGroup.hidden).toBe(true);
     (carousel as unknown as { hideArrows: boolean }).hideArrows = false;
     expect(arrowGroup.hidden).toBe(false);
@@ -787,9 +740,7 @@ describe("Composition", () => {
     const carousel = buildCarousel(3);
     document.body.appendChild(carousel);
     (carousel as unknown as { hideIndicators: boolean }).hideIndicators = true;
-    const indicators = carousel.shadowRoot!.querySelector(
-      ".indicators",
-    ) as HTMLElement;
+    const indicators = carousel.shadowRoot!.querySelector(".indicators") as HTMLElement;
     expect(indicators.hidden).toBe(true);
     (carousel as unknown as { hideIndicators: boolean }).hideIndicators = false;
     expect(indicators.hidden).toBe(false);
