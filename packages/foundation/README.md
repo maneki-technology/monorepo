@@ -4,6 +4,8 @@
 
 Design tokens extracted from the "Foundation UI Kit (Community)" Figma file. Generates CSS custom properties for colors, semantic tokens, elevation, typography, spacing, and responsive breakpoints. Zero dependencies, pure TypeScript.
 
+HeroUI light and dark component overrides share semantic colour references, so accordion text and separators follow the active theme.
+
 - 131 palette colors (13 families × 10 steps + Gray 110)
 - Semantic tokens: surface, elevation, border, text, icon, global, status
 - 19 typography tokens across 7 groups (display, heading, body, ui, caption, badge, code)
@@ -141,7 +143,7 @@ All tokens (except breakpoints) are injected as CSS custom properties on `:root`
 
 ```bash
 moon run foundation:build    # vite build + tsc --emitDeclarationOnly → dist/
-moon run foundation:test     # vitest --run (62 tests)
+moon run foundation:test     # vitest --run (64 tests)
 ```
 
 ## License

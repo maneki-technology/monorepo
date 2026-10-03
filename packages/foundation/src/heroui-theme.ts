@@ -627,9 +627,8 @@ const herouiComponentCssShared = [
   "--ui-modal-radius: 24px;",
   "--ui-qf-menu-gap: 8px;",
   "--ui-modal-padding: 24px;",
-  "--ui-modal-body-bg: #fafafa;", // zinc-50 — subtle tint for modal body
   "--ui-qf-menu-radius: 20px;",
-  "--ui-acc-group-bg: var(--fd-surface-primary, #ffffff);",
+  "--ui-acc-group-bg: var(--fd-surface-primary);",
   "--ui-acc-group-radius: 24px;",
   "--ui-acc-group-shadow: var(--fd-shadow-surface, none);",
   "--ui-acc-group-overflow: clip;",
@@ -646,12 +645,12 @@ const herouiComponentCssShared = [
   "--ui-spm-item-gap: 2px;",
   "--ui-spmi-actions-pr: 8px;",
   "--ui-card-border-width: 0;",
-  "--ui-acc-separator-color: #dedee0;",
+  "--ui-acc-separator-color: var(--fd-border-minimal);",
   "--ui-acc-separator-margin: 0 16px;",
   "--ui-acc-header-padding: 16px;",
   "--ui-acc-label-font-size: 14px;",
   "--ui-acc-label-font-weight: 500;",
-  "--ui-acc-content-color: #71717a;",
+  "--ui-acc-content-color: var(--fd-text-secondary);",
   "--ui-acc-content-padding: 8px 16px 16px;",
   "--ui-modal-padding-l: 24px;",
   "--ui-modal-close-radius: 9999px;",
@@ -680,6 +679,7 @@ const herouiComponentCssShared = [
 
 // Light-only component overrides
 const herouiComponentCssLight = [
+  "--ui-modal-body-bg: #fafafa;", // zinc-50 — subtle tint for modal body
   "--ui-select-hover-border: #71717a;",
   "--ui-select-hover-bg: rgba(249, 249, 249, 0.92);",
   "--ui-search-category-bg: #ebebec;",

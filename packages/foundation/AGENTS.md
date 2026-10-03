@@ -25,7 +25,7 @@ foundation/
     ├── shape.ts              # Shape tokens: border-radius + border-width CSS custom properties
     ├── tokens.ts             # CSS custom property generators + var() helpers
     ├── tokens.test.ts        # 32 tests
-    ├── contrast.test.ts      # 3 semantic contrast tests
+    ├── contrast.test.ts      # 5 semantic and HeroUI theme tests
     └── breakpoints.test.ts   # 27 tests
 ```
 
@@ -126,7 +126,7 @@ When a Figma design uses a token that doesn't exist in foundation:
 ## COMMANDS
 
 ```bash
-moon run foundation:test            # vitest --run (62 tests)
+moon run foundation:test            # vitest --run (64 tests)
 moon run foundation:build           # vite build + tsc --emitDeclarationOnly
 moon run catalog:dev                # foundation token pages live in apps/catalog
 ```
