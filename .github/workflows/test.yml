@@ -45,16 +45,21 @@ jobs:
 
   catalog-browser:
     runs-on: ubuntu-latest
+    # Snapshots are generated in this image; the bare runner renders differently
+    container: mcr.microsoft.com/playwright:v1.59.1-noble
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      # proto's installer unpacks .tar.xz archives; moon runs git as the container's root user
+      - run: |
+          apt-get update && apt-get install -y --no-install-recommends xz-utils
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - uses: moonrepo/setup-toolchain@v0
         with:
           auto-install: true
       - run: npm ci
       - run: moon run catalog:build
-      - run: npx playwright install --with-deps chromium
       - name: Catalog visual and accessibility tests
         run: npx playwright test --project=chromium --project=mobile-chromium
         working-directory: apps/catalog
