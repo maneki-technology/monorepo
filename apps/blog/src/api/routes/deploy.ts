@@ -1,13 +1,13 @@
 /**
- * Deploy status route — poll latest deployment status from GitHub Actions.
- * GET /deploy/status → polls latest workflow run status
+ * Deploy routes — trigger the deploy workflow and read its recorded status.
+ * POST /deploy        → repository_dispatch with the new deployment id
+ * GET  /deploy/status → latest deployment row (written by scripts/record-deploy.ts)
  */
 
 import { Hono } from "hono";
 import type { Env } from "../index.js";
 
 const REPO = "maneki-technology/monorepo";
-const WORKFLOW = "deploy-blog.yml";
 
 export const deploy = new Hono<Env>()
 
@@ -18,8 +18,10 @@ export const deploy = new Hono<Env>()
     const email = c.get("userEmail");
     const deployId = `gh-${Date.now().toString(36)}`;
 
-    if (ghToken) {
-      await fetch(`https://api.github.com/repos/${REPO}/dispatches`, {
+    if (!ghToken) return c.json({ error: "GH_DEPLOY_TOKEN not configured" }, 500);
+
+    try {
+      const response = await fetch(`https://api.github.com/repos/${REPO}/dispatches`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${ghToken}`,
@@ -27,8 +29,16 @@ export const deploy = new Hono<Env>()
           "X-GitHub-Api-Version": "2022-11-28",
           "User-Agent": "maneki-blog",
         },
-        body: JSON.stringify({ event_type: "deploy-blog" }),
+        body: JSON.stringify({ event_type: "deploy-blog", client_payload: { deploy_id: deployId } }),
       });
+      if (!response.ok) {
+        return c.json(
+          { error: "GitHub dispatch failed", status: response.status, message: await response.text() },
+          502,
+        );
+      }
+    } catch {
+      return c.json({ error: "GitHub dispatch failed" }, 502);
     }
 
     await db.execute({
@@ -39,95 +49,16 @@ export const deploy = new Hono<Env>()
     return c.json({ ok: true, deploymentId: deployId });
   })
 
-  // Poll latest deployment status from GitHub Actions
+  // Latest deployment status — the deploy workflow records the outcome
   .get("/status", async (c) => {
-    const db = c.get("db");
-    const ghToken = c.env.GH_DEPLOY_TOKEN;
-
-    const result = await db.execute(
-      "SELECT id, status, triggered_by, created_at FROM deployments ORDER BY created_at DESC LIMIT 1",
-    );
-
-    if (!result.rows.length) {
-      return c.json({ status: "none", message: "no deployments" });
-    }
-
+    const result = await c
+      .get("db")
+      .execute("SELECT id, status, created_at FROM deployments ORDER BY created_at DESC LIMIT 1");
     const row = result.rows[0];
-    const deployId = row.id as string;
-    const dbStatus = row.status as string;
-
-    if (dbStatus === "success" || dbStatus === "failure") {
-      return c.json({
-        deploymentId: deployId,
-        status: dbStatus,
-        createdAt: row.created_at as string,
-      });
-    }
-
-    if (!ghToken) {
-      return c.json({
-        deploymentId: deployId,
-        status: dbStatus,
-        createdAt: row.created_at as string,
-        message: "GH_DEPLOY_TOKEN not configured",
-      });
-    }
-
-    const deployCreatedAt = row.created_at as string;
-    try {
-      const ghRes = await fetch(
-        `https://api.github.com/repos/${REPO}/actions/workflows/${WORKFLOW}/runs?per_page=5&branch=main`,
-        {
-          headers: {
-            Authorization: `Bearer ${ghToken}`,
-            Accept: "application/vnd.github+json",
-            "X-GitHub-Api-Version": "2022-11-28",
-            "User-Agent": "maneki-blog",
-          },
-        },
-      );
-
-      if (!ghRes.ok) {
-        return c.json({ deploymentId: deployId, status: dbStatus, createdAt: row.created_at as string });
-      }
-
-      const ghData = (await ghRes.json()) as {
-        workflow_runs?: Array<{ status: string; conclusion: string | null; created_at: string }>;
-      };
-
-      const deployTime = new Date(deployCreatedAt + "Z").getTime();
-      const run = ghData.workflow_runs?.find((r) => new Date(r.created_at).getTime() >= deployTime - 30000);
-      let newStatus = dbStatus;
-
-      if (run) {
-        if (run.status === "completed") {
-          newStatus = run.conclusion === "success" ? "success" : "failure";
-        } else if (run.status === "in_progress") {
-          newStatus = "deploying";
-        } else {
-          newStatus = "building";
-        }
-      }
-
-      if (newStatus !== dbStatus) {
-        await db.execute({ sql: "UPDATE deployments SET status = ? WHERE id = ?", args: [newStatus, deployId] });
-
-        // When deploy succeeds, bulk-update deployed_at from manifest
-        if (newStatus === "success") {
-          const manifestResult = await db.execute({ sql: "SELECT manifest FROM deployments WHERE id = ?", args: [deployId] });
-          const manifestJson = manifestResult.rows[0]?.manifest as string | null;
-          if (manifestJson) {
-            const entries = JSON.parse(manifestJson) as { slug: string; type: string }[];
-            for (const entry of entries) {
-              const table = entry.type === "project" ? "projects" : "posts";
-              await db.execute({ sql: `UPDATE ${table} SET deployed_at = datetime('now') WHERE slug = ?`, args: [entry.slug] });
-            }
-          }
-        }
-      }
-
-      return c.json({ deploymentId: deployId, status: newStatus, createdAt: row.created_at as string });
-    } catch {
-      return c.json({ deploymentId: deployId, status: dbStatus, createdAt: row.created_at as string });
-    }
+    if (!row) return c.json({ status: "none", message: "no deployments" });
+    return c.json({
+      deploymentId: row.id as string,
+      status: row.status as string,
+      createdAt: row.created_at as string,
+    });
   });

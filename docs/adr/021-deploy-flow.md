@@ -1,6 +1,6 @@
 # ADR-021: Deploy Flow — GitHub Actions + Status Polling
 
-**Status:** Accepted
+**Status:** Accepted, amended by [ADR-031](031-read-only-build-deploy-recording.md)
 **Date:** 2026-04
 
 ## Context
