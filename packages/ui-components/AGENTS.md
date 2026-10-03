@@ -143,6 +143,7 @@ ui-components/
 │   │   ├── ui-list-header.ts      + ui-list-header.styles.ts
 │   │   ├── ui-popover.ts           + ui-popover.styles.ts
 │   │   ├── ui-tooltip.ts
+│   │   ├── constructor-attributes.test.ts # Registered-element construction
 │   │   └── *.test.ts            # Co-located tests
 ```
 
@@ -350,7 +351,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 
 ## COMMANDS
 ```bash
-moon run ui-components:test            # vitest --run (3637 tests)
+moon run ui-components:test            # vitest --run (3717 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run catalog:dev                   # visual catalog (apps/catalog)
 ```
