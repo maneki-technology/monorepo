@@ -1,4 +1,3 @@
-
 import "./ui-button.js";
 import "./ui-icon.js";
 import {
@@ -44,21 +43,40 @@ const STYLES = /* css */ `
   .backdrop {
     position: fixed;
     inset: 0;
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
     z-index: 9999;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: var(--ui-modal-backdrop, ${SURFACE_OVERLAY});
+    background: transparent;
     opacity: 0;
     pointer-events: none;
-    visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
+    transition: opacity 0.2s ease;
+  }
+
+  .backdrop:not([open]) {
+    display: none;
+  }
+
+  .backdrop::backdrop {
+    background-color: var(--ui-modal-backdrop, ${SURFACE_OVERLAY});
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .backdrop.visible::backdrop {
+    opacity: 1;
   }
 
   .backdrop.visible {
     opacity: 1;
     pointer-events: auto;
-    visibility: visible;
   }
 
   /* ── Dialog ──────────────────────────────────────────────────────────────── */
@@ -274,7 +292,8 @@ const STYLES = /* css */ `
   /* ── Reduced motion ──────────────────────────────────────────────────────── */
 
   @media (prefers-reduced-motion: reduce) {
-    .backdrop {
+    .backdrop,
+    .backdrop::backdrop {
       transition-duration: 0.01ms !important;
     }
     .dialog {
@@ -289,14 +308,9 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiModal extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "open",
-    "dismissible",
-    "layout",
-  ];
+  static readonly observedAttributes = ["size", "open", "dismissible", "layout"];
 
-  private _backdrop!: HTMLElement;
+  private _backdrop!: HTMLDialogElement;
   private _dialog!: HTMLElement;
   private _subtitleSlot!: HTMLSlotElement;
   private _footerStartSlot!: HTMLSlotElement;
@@ -310,15 +324,13 @@ export class UiModal extends HTMLElement {
     shadow.adoptedStyleSheets = [sheet];
 
     // Backdrop
-    const backdrop = document.createElement("div");
+    const backdrop = document.createElement("dialog");
     backdrop.className = "backdrop";
+    backdrop.setAttribute("aria-labelledby", "modal-title");
 
     // Dialog
     const dialog = document.createElement("div");
     dialog.className = "dialog";
-    dialog.setAttribute("role", "dialog");
-    dialog.setAttribute("aria-modal", "true");
-    dialog.setAttribute("aria-labelledby", "modal-title");
     dialog.setAttribute("tabindex", "-1");
 
     // Header
@@ -407,6 +419,10 @@ export class UiModal extends HTMLElement {
         this.close();
       }
     });
+    backdrop.addEventListener("cancel", (e: Event) => {
+      e.preventDefault();
+      if (this.dismissible) this.close();
+    });
 
     // Slot change listeners
     subtitleSlot.addEventListener("slotchange", () => this._syncSubtitle());
@@ -415,20 +431,17 @@ export class UiModal extends HTMLElement {
   }
 
   connectedCallback(): void {
-    document.addEventListener("keydown", this._handleKeydown);
     this._syncSubtitle();
     this._syncFooter();
+    if (this.open) this._syncOpen();
   }
 
   disconnectedCallback(): void {
-    document.removeEventListener("keydown", this._handleKeydown);
+    if (this._backdrop.open) this._backdrop.close();
+    this._backdrop.classList.remove("visible");
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     switch (name) {
       case "open":
         this._syncOpen();
@@ -492,18 +505,25 @@ export class UiModal extends HTMLElement {
   // ── Private ─────────────────────────────────────────────────────────────
 
   private _syncOpen(): void {
+    if (!this.isConnected) return;
     if (this.open) {
-      this._previouslyFocused = document.activeElement;
+      if (!this._backdrop.open) {
+        this._previouslyFocused = document.activeElement;
+        this._backdrop.showModal();
+      }
       // Double-raf for animation trigger
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          this._backdrop.classList.add("visible");
-          this._dialog.focus();
+          if (this.open) {
+            this._backdrop.classList.add("visible");
+            this._dialog.focus();
+          }
         });
       });
     } else {
       // Direct attribute removal — clean up immediately
       this._backdrop.classList.remove("visible");
+      if (this._backdrop.open) this._backdrop.close();
       if (this._previouslyFocused && this._previouslyFocused instanceof HTMLElement) {
         this._previouslyFocused.focus();
         this._previouslyFocused = null;
@@ -546,57 +566,6 @@ export class UiModal extends HTMLElement {
     } else {
       this.removeAttribute("has-footer");
     }
-  }
-
-  private _getFocusableElements(): HTMLElement[] {
-    const selector = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
-    const shadowEls = Array.from(this._dialog.querySelectorAll(selector)) as HTMLElement[];
-    const slotEls: HTMLElement[] = [];
-    for (const slot of Array.from(this._dialog.querySelectorAll('slot'))) {
-      for (const node of (slot as HTMLSlotElement).assignedElements({ flatten: true })) {
-        if (node instanceof HTMLElement && node.matches(selector)) {
-          slotEls.push(node);
-        }
-        if (node instanceof HTMLElement) {
-          slotEls.push(...Array.from(node.querySelectorAll(selector)) as HTMLElement[]);
-        }
-      }
-    }
-    return [...shadowEls, ...slotEls].filter((el) => el.offsetParent !== null || el.tagName === 'SUMMARY');
-  }
-
-  private _handleKeydown = (e: KeyboardEvent): void => {
-    if (!this.open) return;
-    if (e.key === "Escape" && this.dismissible) {
-      this.close();
-      return;
-    }
-    // Focus trap: cycle Tab/Shift+Tab within the dialog
-    if (e.key === "Tab") {
-      const focusable = this._getFocusableElements();
-      if (focusable.length === 0) {
-        e.preventDefault();
-        return;
-      }
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (e.shiftKey && this._getDeepActiveElement() === first) {
-        e.preventDefault();
-        last.focus();
-      } else if (!e.shiftKey && this._getDeepActiveElement() === last) {
-        e.preventDefault();
-        first.focus();
-      }
-    }
-  };
-
-  /** Walk shadowRoot.activeElement chain to find the truly focused element. */
-  private _getDeepActiveElement(): Element | null {
-    let active: Element | null = document.activeElement;
-    while (active?.shadowRoot?.activeElement) {
-      active = active.shadowRoot.activeElement;
-    }
-    return active;
   }
 }
 

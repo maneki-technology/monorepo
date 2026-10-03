@@ -73,7 +73,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-menu>` — standalone floating menu panel: 3 sizes (s/m/l), open/close animation, outside-click + Escape dismiss, opt-in `selectable` for single/multi-select, size propagation to children, composes `<ui-dropdown-item>` / `<ui-dropdown-heading>` / `<ui-dropdown-separator>`
 
 **Overlays:**
-- `<ui-modal>` — modal dialog with backdrop, header (title+subtitle+close), scrollable body, footer button slots, 3 sizes, 2 layouts (auto/fluid), dismiss behavior
+- `<ui-modal>` — native modal dialog with top-layer backdrop and inert background, header (title+subtitle+close), scrollable body, footer button slots, 3 sizes, 2 layouts (auto/fluid), dismiss behavior
 - `<ui-popover>` — focus-managed popover: trigger element, floating panel, outside-click + Escape dismiss, focus trap, arrow key navigation
 - `<ui-tooltip>` — tooltip with aria-describedby: hover/focus trigger, configurable placement, delay, accessible label
 **Tabs:**
