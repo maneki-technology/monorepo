@@ -5,6 +5,7 @@
 
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { SITE_URL } from "../config.js";
 import type { Client } from "@libsql/client";
 import { createDb, type DbEnv } from "./db/client.js";
 import { cfAuth } from "./middleware/auth.js";
@@ -27,6 +28,7 @@ export type Env = {
   Bindings: DbEnv & {
     CF_ACCESS_TEAM_DOMAIN: string;
     CF_ACCESS_AUD: string;
+    DEV_AUTH_BYPASS?: string;
     GH_DEPLOY_TOKEN: string;
     IMAGES_BUCKET: R2Bucket;
     IMAGES_BASE_URL: string;
@@ -40,8 +42,8 @@ export type Env = {
 };
 
 const app = new Hono<Env>()
+  .use("/*", cors({ origin: SITE_URL }))
   .basePath("/api")
-  .use("/*", cors())
   // Inject DB client per request
   .use("/*", async (c, next) => {
     const db = createDb({
