@@ -52,10 +52,12 @@ maneki-monorepo/
 
 | App       | Description                                                                                                                                                                                                                                                                      |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `catalog` | Visual catalog for all design system packages. 69 pages, 120 Playwright tests (58 visual + 58 a11y + sidebar + full layout). Lazy-loaded pages, History API routing, PWA, theme switcher.                                                                                        |
+| `catalog` | Visual catalog for all design system packages. 56 pages, 242 Playwright cases across desktop and mobile Chromium. Lazy-loaded pages, History API routing, PWA, theme switcher.                                                                                        |
 | `blog`    | Full-stack blog + portfolio. Hono API + Turso DB, CF Pages Functions, static prerendering, admin system (`/admin` hub, editor, gallery, pages editor), AI review/brainstorm panels (Claude via CF AI Gateway), photography management, deploy trigger, History API routing, PWA. |
 
 Blog signature transitions capture rendered typography and animate to the final page layout without delayed scale or width changes. The 25 Playwright signature tests cover both directions, photography sizing, stroke scaling, reduced motion, and interrupted navigation (`cd apps/blog && npx playwright test`).
+
+CI builds and tests packages without database credentials. The blog browser job uses a read-only Turso token to build and prerender the site, then runs Playwright against the production preview server.
 
 ---
 

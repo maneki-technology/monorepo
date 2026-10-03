@@ -37,7 +37,7 @@ test("a11y: sidebar", async ({ page }) => {
   await page.waitForTimeout(500);
 
   const results = await new AxeBuilder({ page })
-    .include("nav")
+    .include("#sidebar")
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
     .disableRules(["color-contrast"])
     .analyze();

@@ -30,9 +30,6 @@ permissions:
 jobs:
   unit:
     runs-on: ubuntu-latest
-    env:
-      TURSO_URL: ${{ secrets.TURSO_URL }}
-      TURSO_AUTH_TOKEN: ${{ secrets.TURSO_READ_ONLY_AUTH_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,10 +38,10 @@ jobs:
         with:
           auto-install: true
       - run: npm ci
-      - name: Require read-only Turso credentials
-        run: test -n "$TURSO_URL" && test -n "$TURSO_AUTH_TOKEN"
-      - name: Build, test, and type-check
-        run: moon run :build :test blog:typecheck
+      - name: Build packages and catalog
+        run: moon run foundation:build ui-components:build grid-layout:build flex-layout:build charts:build catalog:build
+      - name: Test and type-check
+        run: moon run :test blog:typecheck
 
   catalog-browser:
     runs-on: ubuntu-latest
@@ -64,6 +61,7 @@ jobs:
 
   blog-browser:
     needs: unit
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     env:
       TURSO_URL: ${{ secrets.TURSO_URL }}
@@ -76,7 +74,9 @@ jobs:
         with:
           auto-install: true
       - run: npm ci
-      - run: moon run blog:build
+      - name: Require read-only Turso credentials
+        run: test -n "$TURSO_URL" && test -n "$TURSO_AUTH_TOKEN"
+      - run: moon run --force blog:build
       - run: npx playwright install --with-deps chromium
       - name: Blog browser tests
         run: npx playwright test

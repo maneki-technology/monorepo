@@ -15,9 +15,11 @@ tasks:
     preset: "server"
 
   build:
-    script: "vite build"
+    script: "npm run build"
     inputs:
       - "src/**/*"
+      - "plugins/**/*"
+      - "scripts/**/*"
       - "index.html"
       - "tsconfig.json"
       - "vite.config.ts"
