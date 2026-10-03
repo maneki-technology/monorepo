@@ -389,6 +389,7 @@ export class UiDropdown extends HTMLElement {
   private _syncLabel(): void {
     // Set text content on trigger, preserving the chevron icon child
     const label = this.label;
+    this._trigger.setAttribute("aria-label", label);
     // The first child text node is the label
     const firstChild = this._trigger.firstChild;
     if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {

@@ -79,6 +79,7 @@ export class UiDropdownSplit extends HTMLElement {
     textWrapper.className = "slot-text";
     const textSlot = document.createElement("slot");
     textSlot.name = "text";
+    textSlot.addEventListener("slotchange", () => this._syncLabel());
     textWrapper.appendChild(textSlot);
     contentWrapper.appendChild(textWrapper);
 
@@ -400,7 +401,12 @@ export class UiDropdownSplit extends HTMLElement {
   private _syncLabel(): void {
     const slot = this._textSlot?.querySelector("slot");
     if (!slot) return;
-    slot.textContent = this.label;
+    if (slot.textContent !== this.label) slot.textContent = this.label;
+    const slottedText = slot.assignedNodes({ flatten: true })
+      .map((node) => node.textContent?.trim() ?? "")
+      .filter(Boolean)
+      .join(" ");
+    this._leftBtn.setAttribute("aria-label", slottedText || this.label);
   }
 
   private _getSlottedChildren(): Element[] {

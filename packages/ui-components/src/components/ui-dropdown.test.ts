@@ -509,6 +509,7 @@ describe("UiDropdown", () => {
     el.setAttribute("label", "Options");
     const trigger = el.shadowRoot!.querySelector("ui-button")!;
     expect(trigger.textContent).toContain("Options");
+    expect(trigger.shadowRoot!.querySelector("button")?.getAttribute("aria-label")).toBe("Options");
   });
 
   it("should set label via property accessor", () => {
