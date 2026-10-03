@@ -615,7 +615,7 @@ function shadowToCss(tokens: Record<string, { boxShadow: string }>): string {
 
 // HeroUI component-level overrides (not semantic tokens, but theme-specific)
 // Shared component overrides (both light and dark)
-const herouiComponentCssShared = [
+export const herouiComponentCssShared = [
   "--ui-ring-offset: 2px;",
   "--ui-ring-width: 4px;",
   "--ui-disabled-opacity: 0.5;",
@@ -633,10 +633,6 @@ const herouiComponentCssShared = [
   "--ui-acc-group-shadow: var(--fd-shadow-surface, none);",
   "--ui-acc-group-overflow: clip;",
   "--ui-spmi-bg: transparent;",
-  "--ui-spmi-hover-bg: rgba(0, 0, 0, 0.04);",
-  "--ui-spmi-active-bg: rgba(0, 0, 0, 0.08);",
-  "--ui-spmi-selected-bg: rgba(4, 133, 247, 0.1);",
-  "--ui-spmi-child-selected-bg: rgba(4, 133, 247, 0.05);",
   "--ui-spmi-indicator: transparent;",
   "--ui-spmi-row-radius: 12px;",
   "--ui-spmi-row-margin: 0 8px;",
@@ -680,6 +676,10 @@ const herouiComponentCssShared = [
 // Light-only component overrides
 const herouiComponentCssLight = [
   "--ui-modal-body-bg: #fafafa;", // zinc-50 — subtle tint for modal body
+  "--ui-spmi-hover-bg: rgba(0, 0, 0, 0.04);",
+  "--ui-spmi-active-bg: rgba(0, 0, 0, 0.08);",
+  "--ui-spmi-selected-bg: rgba(4, 133, 247, 0.1);",
+  "--ui-spmi-child-selected-bg: rgba(4, 133, 247, 0.05);",
   "--ui-select-hover-border: #71717a;",
   "--ui-select-hover-bg: rgba(249, 249, 249, 0.92);",
   "--ui-search-category-bg: #ebebec;",

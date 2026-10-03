@@ -1,7 +1,11 @@
-import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { darkSemanticTokens } from "./dark-theme.js";
-import { generateHerouiCss, herouiDarkSemanticTokens, herouiSemanticTokens } from "./heroui-theme.js";
+import {
+  generateHerouiCss,
+  herouiComponentCssShared,
+  herouiDarkSemanticTokens,
+  herouiSemanticTokens,
+} from "./heroui-theme.js";
 import { resolveSemanticValue, semanticTokens, type SemanticValue } from "./semantic-tokens.js";
 
 function luminance(value: SemanticValue): number {
@@ -18,11 +22,9 @@ function expectContrast(foreground: SemanticValue, background: SemanticValue, mi
   expect((values[0] + 0.05) / (values[1] + 0.05)).toBeGreaterThanOrEqual(minimum);
 }
 
-describe("semantic token contrast", () => {
-  it("keeps theme-specific hex colours out of shared HeroUI overrides", () => {
-    const source = readFileSync("src/heroui-theme.ts", "utf8");
-    const shared = source.match(/const herouiComponentCssShared = \[([\s\S]*?)\]\.join/);
-    expect(shared?.[1]).not.toMatch(/#[\da-f]{3,8}\b/i);
+describe("HeroUI component overrides", () => {
+  it("keeps theme-specific colours out of shared HeroUI overrides", () => {
+    expect(herouiComponentCssShared).not.toMatch(/#[\da-f]{3,8}\b|rgba?\(|hsla?\(/i);
   });
 
   it("uses theme-aware accordion colours in both HeroUI modes", () => {
@@ -34,7 +36,9 @@ describe("semantic token contrast", () => {
     expect(light).toContain("--ui-modal-body-bg: #fafafa;");
     expect(dark).not.toContain("#fafafa");
   });
+});
 
+describe("semantic token contrast", () => {
   it("keeps Foundation text, icons, and input borders visible", () => {
     expectContrast(semanticTokens.text.tertiary, semanticTokens.surface.primary, 4.5);
     expectContrast(semanticTokens.icon.secondary, semanticTokens.surface.primary, 3);
