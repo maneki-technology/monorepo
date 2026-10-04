@@ -29,8 +29,6 @@ npm install @maneki/ui-components
 
 ## Components
 
-HeroUI dark uses dark palette fills and bright matching text for coloured subtle tags, and bright text/borders for minimal tags. Yellow bold tags and yellow/warning bold badges use the warning text token for contrast. `--ui-tag-bg`, `--ui-tag-color`, `--ui-tag-border`, `--ui-badge-bg`, and `--ui-badge-color` continue to override theme defaults.
-
 | Component | Description |
 |---|---|
 | | **Primitives** |

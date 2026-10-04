@@ -31,10 +31,6 @@ injectAllTokens();
 
 ## Usage
 
-### HeroUI tag colours
-
-HeroUI dark provides `--ui-tag-{family}-subtle-bg` and `--ui-tag-{family}-text` for the twelve chromatic palette families. Subtle fills use palette step 90; subtle text and minimal text/borders use step 30. These defaults are scoped to `[data-theme="heroui-dark"]`; component-level colour overrides take precedence.
-
 ### Colors
 
 13 families: Red, Orange, Yellow, Lime, Green, Teal, Turquoise, Aqua, Blue, Ultramarine, Purple, Pink, Gray. Steps 10–100 (plus Gray 110).
@@ -62,6 +58,10 @@ semanticVar("global", "brand"); // "var(--fd-global-brand)"
 semanticVar("status", "surface-error-bold"); // "var(--fd-status-surface-error-bold)"
 elevationVar("03"); // "var(--fd-elevation-03)"
 ```
+
+### HeroUI tag colours
+
+HeroUI dark provides `--ui-tag-{family}-subtle-bg` and `--ui-tag-{family}-text` for the twelve chromatic palette families. Subtle fills use palette step 90; subtle text and minimal text/borders use step 30. These defaults are scoped to `[data-theme="heroui-dark"]`; component-level colour overrides take precedence.
 
 ### Typography
 
@@ -145,7 +145,7 @@ All tokens (except breakpoints) are injected as CSS custom properties on `:root`
 
 ```bash
 moon run foundation:build    # vite build + tsc --emitDeclarationOnly → dist/
-moon run foundation:test     # vitest --run (64 tests)
+moon run foundation:test     # vitest --run (66 tests)
 ```
 
 ## License
