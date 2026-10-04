@@ -217,7 +217,7 @@ Chevron and clear button use `semanticVar("icon", "secondary")` token.
 
 To add a new icon, see the SOP in `packages/foundation/AGENTS.md`.
 
-The legacy `src/assets/icons.ts` file has been removed. All components now use `<ui-icon>` or direct Material Symbols codepoints from `@maneki/foundation`.
+Components render icons with `<ui-icon>` or Material Symbols codepoints from `@maneki/foundation`.
 
 ## TYPE SAFETY
 Exported union types cover every attribute:
@@ -261,7 +261,7 @@ Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, u
 - **Import token constants from `@maneki/foundation`** — no local `const X = semanticVar(...)` definitions. Use pre-computed constants like `TEXT_PRIMARY`, `SP_1`, etc.
 - **Typography via `${TYPE_BODY_02}`** — emits font-family + font-size + line-height + font-weight in one interpolation via `typeBlock()` from foundation.
 - **Custom icons:** `registerIcon()` / `registerIcons()` re-exported from ui-components. Allows registering custom SVG icons alongside Material Symbols.
-- **Accessibility:** 14 components have ARIA improvements (PR #116) — proper roles, labels, keyboard navigation, and screen reader support.
+- **Accessibility:** components carry proper roles, accessible names, keyboard navigation and visible focus; the catalog a11y suite (axe) checks every page, with known exceptions listed in `apps/catalog/e2e/a11y.spec.ts`.
 
 ## ANTI-PATTERNS
 - **No hardcoded design values** — never use raw hex colors (`#186ade`), pixel spacing (`4px`, `16px`), or font sizes directly. Always use foundation token helpers (`colorVar()`, `spaceVar()`, `typeVar()`, etc.).
