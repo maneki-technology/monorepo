@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
 import {
   BORDER_MINIMAL,
@@ -275,7 +276,11 @@ export class UiWizard extends HTMLElement {
     if (!this.hasAttribute("current-step")) this.setAttribute("current-step", "1");
     this._syncAll();
 
-    this.#stepsSlot.addEventListener("slotchange", () => { this.#cachedStepCount = this._getStepCount(); this._syncSteps(); this._syncButtons(); });
+    this.#stepsSlot.addEventListener("slotchange", () => {
+      this.#cachedStepCount = this._getStepCount();
+      this._syncSteps();
+      this._syncButtons();
+    });
 
     this.#prevBtn.addEventListener("click", () => {
       const current = this.currentStep;
@@ -437,4 +442,4 @@ export class UiWizard extends HTMLElement {
   }
 }
 
-customElements.define("ui-wizard", UiWizard);
+defineCustomElement("ui-wizard", UiWizard);

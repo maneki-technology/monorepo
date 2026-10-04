@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { TREE_ITEM_STYLES } from "./ui-tree-item.styles.js";
 import { ICON_CHEVRON_RIGHT, ICON_EXPAND_MORE, ICON_CODEPOINTS } from "@maneki/foundation";
 
@@ -89,9 +90,8 @@ export class UiTreeItem extends HTMLElement {
     this.addEventListener("click", (e) => {
       // Don't toggle if click originated from checkbox slot
       const path = e.composedPath();
-      const fromCheckbox = path.some((el) =>
-        (el as Element).classList?.contains("checkbox-slot") ||
-        (el as Element).tagName === "UI-CHECKBOX-ITEM"
+      const fromCheckbox = path.some(
+        (el) => (el as Element).classList?.contains("checkbox-slot") || (el as Element).tagName === "UI-CHECKBOX-ITEM",
       );
       if (fromCheckbox) return;
 
@@ -209,4 +209,4 @@ export class UiTreeItem extends HTMLElement {
   }
 }
 
-customElements.define("ui-tree-item", UiTreeItem);
+defineCustomElement("ui-tree-item", UiTreeItem);

@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STEP_ITEM_STYLES } from "./ui-step-item.styles.js";
 import { ICON_CHECK, ICON_CLOSE, ICON_PRIORITY_HIGH } from "@maneki/foundation";
 
@@ -181,4 +182,4 @@ export class UiStepItem extends HTMLElement {
   }
 }
 
-customElements.define("ui-step-item", UiStepItem);
+defineCustomElement("ui-step-item", UiStepItem);

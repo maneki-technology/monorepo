@@ -16,6 +16,8 @@ npm install @maneki/ui-components
 
 ## Usage
 
+Component registration is idempotent: loading another copy of the package or a deep import keeps the first registered constructor. Create elements through their tag names when multiple package copies coexist.
+
 ```html
 <script type="module">
   import "@maneki/ui-components";
@@ -113,7 +115,7 @@ Interactive previews and visual regression coverage live in **`apps/catalog/`** 
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (3719 tests)
+moon run ui-components:test   # vitest --run (3720 tests)
 ```
 
 ---

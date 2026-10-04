@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   BORDER_BOLD,
   BORDER_CONTRAST,
@@ -172,4 +173,4 @@ export class UiSeparator extends HTMLElement {
   }
 }
 
-customElements.define("ui-separator", UiSeparator);
+defineCustomElement("ui-separator", UiSeparator);

@@ -1,19 +1,10 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { LitElement, html, css, unsafeCSS } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import {
-  BORDER_MINIMAL,
-  BW_SM,
-  SP_0_5,
-  SP_1,
-  SP_1_5,
-  SP_2,
-  TEXT_SECONDARY,
-  TYPE_HEADING_07,
-} from "@maneki/foundation";
+import { property } from "lit/decorators.js";
+import { BORDER_MINIMAL, BW_SM, SP_0_5, SP_1, SP_1_5, SP_2, TEXT_SECONDARY, TYPE_HEADING_07 } from "@maneki/foundation";
 
 // ─── Component ─────────────────────────────────────────────────────────────────
 
-@customElement("ui-side-panel-menu-section")
 export class UiSidePanelMenuSection extends LitElement {
   @property({ type: Boolean, reflect: true }) declare separator: boolean;
 
@@ -40,9 +31,7 @@ export class UiSidePanelMenuSection extends LitElement {
       color: var(--ui-spm-section-color, ${unsafeCSS(TEXT_SECONDARY)});
       padding: ${unsafeCSS(SP_1_5)} ${unsafeCSS(SP_2)} ${unsafeCSS(SP_0_5)} ${unsafeCSS(SP_2)};
       user-select: none;
-      -webkit-user-select: none;
     }
-
 
     /* Subsequent sections get a separator + spacing */
     :host([separator]) .section {
@@ -51,7 +40,6 @@ export class UiSidePanelMenuSection extends LitElement {
       border-top: ${unsafeCSS(BW_SM)} solid var(--ui-spm-section-border, ${unsafeCSS(BORDER_MINIMAL)});
     }
   `;
-
 
   connectedCallback(): void {
     super.connectedCallback();
@@ -62,3 +50,5 @@ export class UiSidePanelMenuSection extends LitElement {
     return html`<div class="section" part="section"><slot></slot></div>`;
   }
 }
+
+defineCustomElement("ui-side-panel-menu-section", UiSidePanelMenuSection);

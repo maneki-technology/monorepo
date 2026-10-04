@@ -1,10 +1,5 @@
-import {
-  DISABLED_MINIMAL,
-  ICON_ACTION,
-  ICON_CODEPOINTS,
-  ICON_REVERSED,
-  resolveIcon,
-} from "@maneki/foundation";
+import { defineCustomElement } from "../define-custom-element.js";
+import { DISABLED_MINIMAL, ICON_ACTION, ICON_CODEPOINTS, ICON_REVERSED, resolveIcon } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -201,13 +196,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiIcon extends HTMLElement {
-  static readonly observedAttributes = [
-    "name",
-    "size",
-    "state",
-    "filled",
-    "label",
-  ];
+  static readonly observedAttributes = ["name", "size", "state", "filled", "label"];
 
   #iconEl: HTMLSpanElement;
 
@@ -232,11 +221,7 @@ export class UiIcon extends HTMLElement {
     }
   }
 
-  attributeChangedCallback(
-    attrName: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(attrName: string, _oldValue: string | null, newValue: string | null): void {
     if (attrName === "name") {
       this.#updateIcon();
     } else if (attrName === "label") {
@@ -329,4 +314,4 @@ export class UiIcon extends HTMLElement {
   }
 }
 
-customElements.define("ui-icon", UiIcon);
+defineCustomElement("ui-icon", UiIcon);

@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-datetime-picker.styles.js";
 import "./ui-datetime-picker-input.js";
 import "./ui-calendar.js";
@@ -16,8 +17,18 @@ sheet.replaceSync(STYLES);
 
 export class UiDatetimePicker extends HTMLElement {
   static readonly observedAttributes = [
-    "size", "type", "value", "min", "max", "supportive",
-    "status", "disabled", "readonly", "open", "show-actions", "time-mode",
+    "size",
+    "type",
+    "value",
+    "min",
+    "max",
+    "supportive",
+    "status",
+    "disabled",
+    "readonly",
+    "open",
+    "show-actions",
+    "time-mode",
   ];
 
   #inputEl!: HTMLElement;
@@ -127,11 +138,7 @@ export class UiDatetimePicker extends HTMLElement {
     this.removeEventListener("keydown", this.#onKeydown);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (!this.isConnected) return;
     if (name === "size" || name === "supportive" || name === "status" || name === "disabled" || name === "readonly") {
       this.#syncInputProps();
@@ -195,8 +202,6 @@ export class UiDatetimePicker extends HTMLElement {
     }
   }
 
-
-
   get min(): string {
     return this.getAttribute("min") || "";
   }
@@ -241,7 +246,6 @@ export class UiDatetimePicker extends HTMLElement {
     const val = this.getAttribute("value");
     if (val) input.setAttribute("value", val);
     else input.removeAttribute("value");
-
 
     const supportive = this.getAttribute("supportive");
     if (supportive) input.setAttribute("supportive", supportive);
@@ -422,15 +426,11 @@ export class UiDatetimePicker extends HTMLElement {
       } else if (this.timeMode === "inline") {
         // In inline mode, don't close on date select — user still needs to set time
         this.value = combined;
-        this.dispatchEvent(
-          new CustomEvent("change", { detail: { value: combined }, bubbles: true }),
-        );
+        this.dispatchEvent(new CustomEvent("change", { detail: { value: combined }, bubbles: true }));
       } else {
         this.value = combined;
         this.#close();
-        this.dispatchEvent(
-          new CustomEvent("change", { detail: { value: combined }, bubbles: true }),
-        );
+        this.dispatchEvent(new CustomEvent("change", { detail: { value: combined }, bubbles: true }));
       }
       return;
     }
@@ -440,17 +440,13 @@ export class UiDatetimePicker extends HTMLElement {
     } else {
       this.value = detail.value;
       this.#close();
-      this.dispatchEvent(
-        new CustomEvent("change", { detail: { value: detail.value }, bubbles: true }),
-      );
+      this.dispatchEvent(new CustomEvent("change", { detail: { value: detail.value }, bubbles: true }));
     }
   };
 
   #onRangeChange = (e: Event): void => {
     const detail = (e as CustomEvent).detail;
-    const rangeVal = detail.end
-      ? `${detail.start}/${detail.end}`
-      : detail.start || "";
+    const rangeVal = detail.end ? `${detail.start}/${detail.end}` : detail.start || "";
 
     if (this.hasAttribute("show-actions")) {
       this.#pendingValue = rangeVal;
@@ -459,9 +455,7 @@ export class UiDatetimePicker extends HTMLElement {
       if (detail.end) {
         this.value = rangeVal;
         this.#close();
-        this.dispatchEvent(
-          new CustomEvent("change", { detail: { value: rangeVal }, bubbles: true }),
-        );
+        this.dispatchEvent(new CustomEvent("change", { detail: { value: rangeVal }, bubbles: true }));
       }
     }
   };
@@ -478,9 +472,7 @@ export class UiDatetimePicker extends HTMLElement {
       } else {
         this.value = combined;
         this.#close();
-        this.dispatchEvent(
-          new CustomEvent("change", { detail: { value: combined }, bubbles: true }),
-        );
+        this.dispatchEvent(new CustomEvent("change", { detail: { value: combined }, bubbles: true }));
       }
       return;
     }
@@ -490,9 +482,7 @@ export class UiDatetimePicker extends HTMLElement {
     } else {
       this.value = timeVal;
       this.#close();
-      this.dispatchEvent(
-        new CustomEvent("change", { detail: { value: timeVal }, bubbles: true }),
-      );
+      this.dispatchEvent(new CustomEvent("change", { detail: { value: timeVal }, bubbles: true }));
     }
   };
 
@@ -529,9 +519,7 @@ export class UiDatetimePicker extends HTMLElement {
       this.#pendingValue = combined;
     } else {
       this.value = combined;
-      this.dispatchEvent(
-        new CustomEvent("change", { detail: { value: combined }, bubbles: true }),
-      );
+      this.dispatchEvent(new CustomEvent("change", { detail: { value: combined }, bubbles: true }));
     }
   };
 
@@ -556,9 +544,7 @@ export class UiDatetimePicker extends HTMLElement {
 
     const newVal = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
     this.value = newVal;
-    this.dispatchEvent(
-      new CustomEvent("change", { detail: { value: newVal }, bubbles: true }),
-    );
+    this.dispatchEvent(new CustomEvent("change", { detail: { value: newVal }, bubbles: true }));
   };
 
   // ─── Actions ───────────────────────────────────────────────────────────
@@ -571,13 +557,11 @@ export class UiDatetimePicker extends HTMLElement {
   #onOk = (): void => {
     if (this.#pendingValue !== null) {
       this.value = this.#pendingValue;
-      this.dispatchEvent(
-        new CustomEvent("change", { detail: { value: this.#pendingValue }, bubbles: true }),
-      );
+      this.dispatchEvent(new CustomEvent("change", { detail: { value: this.#pendingValue }, bubbles: true }));
       this.#pendingValue = null;
     }
     this.#close();
   };
 }
 
-customElements.define("ui-datetime-picker", UiDatetimePicker);
+defineCustomElement("ui-datetime-picker", UiDatetimePicker);

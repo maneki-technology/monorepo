@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   BORDER_CONTRAST,
   BORDER_FOCUS,
@@ -422,4 +423,4 @@ export class UiRadioItem extends HTMLElement {
   }
 }
 
-customElements.define("ui-radio-item", UiRadioItem);
+defineCustomElement("ui-radio-item", UiRadioItem);

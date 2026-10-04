@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type ButtonAction = "primary" | "secondary" | "destructive" | "info" | "contrast";
@@ -713,4 +714,4 @@ export class UiButton extends HTMLElement {
   }
 }
 
-customElements.define("ui-button", UiButton);
+defineCustomElement("ui-button", UiButton);

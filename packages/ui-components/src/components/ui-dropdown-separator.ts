@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { BORDER_MINIMAL } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -44,4 +45,4 @@ export class UiDropdownSeparator extends HTMLElement {
   }
 }
 
-customElements.define("ui-dropdown-separator", UiDropdownSeparator);
+defineCustomElement("ui-dropdown-separator", UiDropdownSeparator);

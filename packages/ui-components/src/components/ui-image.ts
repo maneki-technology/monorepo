@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { SURFACE_SECONDARY } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -291,4 +292,4 @@ export class UiImage extends HTMLElement {
   }
 }
 
-customElements.define("ui-image", UiImage);
+defineCustomElement("ui-image", UiImage);

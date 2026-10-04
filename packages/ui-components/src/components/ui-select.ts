@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES, STATUS_ICON_MAP } from "./ui-select.styles.js";
 import "./ui-icon.js";
 import "./ui-label.js";
@@ -171,11 +172,7 @@ export class UiSelect extends HTMLElement {
     this.removeEventListener("select", this._handleItemSelect as EventListener);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     switch (name) {
       case "value":
         this._syncValueFromAttr();
@@ -216,10 +213,6 @@ export class UiSelect extends HTMLElement {
   set size(value: SelectSize) {
     this.setAttribute("size", value);
   }
-
-
-
-
 
   get placeholder(): string {
     return this.getAttribute("placeholder") ?? "Select an option";
@@ -321,7 +314,6 @@ export class UiSelect extends HTMLElement {
     // no-op: secondary label is now a slot
   }
 
-
   private _syncStatusIcon(): void {
     const effectiveStatus = this.error ? "error" : this.status;
     const iconName = STATUS_ICON_MAP[effectiveStatus];
@@ -395,7 +387,10 @@ export class UiSelect extends HTMLElement {
     const attrVal = this.getAttribute("value");
     if (attrVal === null) return;
     if (this.multiple) {
-      const vals = attrVal.split(",").map((s) => s.trim()).filter(Boolean);
+      const vals = attrVal
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
       this._selectedValues = new Set(vals);
     } else {
       this._selectedValues = attrVal ? new Set([attrVal]) : new Set();
@@ -447,9 +442,7 @@ export class UiSelect extends HTMLElement {
     if (this.multiple) {
       const items = this._getSlottedItems();
       for (const val of this._selectedValues) {
-        const matchItem = items.find(
-          (el) => (el.getAttribute("value") ?? el.textContent?.trim() ?? "") === val,
-        );
+        const matchItem = items.find((el) => (el.getAttribute("value") ?? el.textContent?.trim() ?? "") === val);
         const displayText = matchItem?.textContent?.trim() ?? val;
 
         const tag = document.createElement("span");
@@ -486,17 +479,13 @@ export class UiSelect extends HTMLElement {
     } else {
       const items = this._getSlottedItems();
       const val = Array.from(this._selectedValues)[0];
-      const matchItem = items.find(
-        (el) => (el.getAttribute("value") ?? el.textContent?.trim() ?? "") === val,
-      );
+      const matchItem = items.find((el) => (el.getAttribute("value") ?? el.textContent?.trim() ?? "") === val);
       this._displayValue.textContent = matchItem?.textContent?.trim() ?? val;
     }
   }
 
   private _getSlottedItems(): Element[] {
-    return this._slot
-      .assignedElements({ flatten: true })
-      .filter((el) => el.tagName === "UI-DROPDOWN-ITEM");
+    return this._slot.assignedElements({ flatten: true }).filter((el) => el.tagName === "UI-DROPDOWN-ITEM");
   }
 
   private _fireChange(): void {
@@ -543,14 +532,10 @@ export class UiSelect extends HTMLElement {
     }
 
     // Panel is open — navigate items
-    const items = this._getSlottedItems().filter(
-      (el) => !el.hasAttribute("disabled"),
-    ) as HTMLElement[];
+    const items = this._getSlottedItems().filter((el) => !el.hasAttribute("disabled")) as HTMLElement[];
     if (items.length === 0) return;
 
-    const active = items.findIndex(
-      (el) => el === document.activeElement || el.matches(":focus"),
-    );
+    const active = items.findIndex((el) => el === document.activeElement || el.matches(":focus"));
     let next: number;
 
     switch (ke.key) {
@@ -593,9 +578,7 @@ export class UiSelect extends HTMLElement {
     this._syncItemSelection();
     this._renderDisplayValue();
     this._syncClearVisibility();
-    this.dispatchEvent(
-      new CustomEvent("clear", { bubbles: true, composed: true }),
-    );
+    this.dispatchEvent(new CustomEvent("clear", { bubbles: true, composed: true }));
     this._fireChange();
     this._trigger.focus();
   };
@@ -634,9 +617,7 @@ export class UiSelect extends HTMLElement {
 
   private _focusItem(index: number): void {
     requestAnimationFrame(() => {
-      const items = this._getSlottedItems().filter(
-        (el) => !el.hasAttribute("disabled"),
-      ) as HTMLElement[];
+      const items = this._getSlottedItems().filter((el) => !el.hasAttribute("disabled")) as HTMLElement[];
       if (items.length === 0) return;
       const target = index < 0 ? items.length - 1 : Math.min(index, items.length - 1);
       items[target].focus();
@@ -644,4 +625,4 @@ export class UiSelect extends HTMLElement {
   }
 }
 
-customElements.define("ui-select", UiSelect);
+defineCustomElement("ui-select", UiSelect);

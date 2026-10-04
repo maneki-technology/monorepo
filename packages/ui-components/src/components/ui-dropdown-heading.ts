@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   SP_0_5,
   SP_1,
@@ -93,4 +94,4 @@ export class UiDropdownHeading extends HTMLElement {
   }
 }
 
-customElements.define("ui-dropdown-heading", UiDropdownHeading);
+defineCustomElement("ui-dropdown-heading", UiDropdownHeading);

@@ -1,10 +1,6 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
-import {
-  FONT_PRIMARY,
-  SP_1,
-  TEXT_PRIMARY,
-  TYPE_BODY_01,
-} from "@maneki/foundation";
+import { FONT_PRIMARY, SP_1, TEXT_PRIMARY, TYPE_BODY_01 } from "@maneki/foundation";
 import type { PersonItemSize } from "./ui-person-item.js";
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -70,18 +66,11 @@ export class UiPersonGroup extends HTMLElement {
   }
 
   connectedCallback(): void {
-    this.shadowRoot!.querySelector("slot")!.addEventListener(
-      "slotchange",
-      () => this._propagateSize(),
-    );
+    this.shadowRoot!.querySelector("slot")!.addEventListener("slotchange", () => this._propagateSize());
     this._propagateSize();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     switch (name) {
       case "title":
         this.#titleEl.textContent = newValue ?? "";
@@ -115,4 +104,4 @@ export class UiPersonGroup extends HTMLElement {
   }
 }
 
-customElements.define("ui-person-group", UiPersonGroup);
+defineCustomElement("ui-person-group", UiPersonGroup);

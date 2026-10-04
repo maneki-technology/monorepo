@@ -1,14 +1,6 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
-import {
-  ELEVATION_05,
-  RADIUS_SM,
-  SP_0_5,
-  SP_0_75,
-  SP_1,
-  SP_1_5,
-  SP_2,
-  SURFACE_PRIMARY,
-} from "@maneki/foundation";
+import { ELEVATION_05, RADIUS_SM, SP_0_5, SP_0_75, SP_1, SP_1_5, SP_2, SURFACE_PRIMARY } from "@maneki/foundation";
 import "./ui-button.js";
 import "./ui-icon.js";
 
@@ -210,11 +202,7 @@ export class UiDropdown extends HTMLElement {
     this.removeEventListener("select", this._handleItemSelect as EventListener);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     switch (name) {
       case "open":
         this._syncOpen();
@@ -357,9 +345,9 @@ export class UiDropdown extends HTMLElement {
 
   get value(): string | string[] {
     const items = this._getSlottedItems();
-    const selected = items.filter(el => el.hasAttribute("selected"));
+    const selected = items.filter((el) => el.hasAttribute("selected"));
     if (this.multiple) {
-      return selected.map(el => el.getAttribute("value") ?? el.textContent?.trim() ?? "");
+      return selected.map((el) => el.getAttribute("value") ?? el.textContent?.trim() ?? "");
     }
     const first = selected[0];
     return first ? (first.getAttribute("value") ?? first.textContent?.trim() ?? "") : "";
@@ -395,10 +383,7 @@ export class UiDropdown extends HTMLElement {
     if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
       firstChild.textContent = label;
     } else {
-      this._trigger.insertBefore(
-        document.createTextNode(label),
-        this._trigger.firstChild,
-      );
+      this._trigger.insertBefore(document.createTextNode(label), this._trigger.firstChild);
     }
   }
 
@@ -475,11 +460,13 @@ export class UiDropdown extends HTMLElement {
       this.open = false;
     }
 
-    this.dispatchEvent(new CustomEvent("change", {
-      bubbles: true,
-      composed: true,
-      detail: { value: this.value },
-    }));
+    this.dispatchEvent(
+      new CustomEvent("change", {
+        bubbles: true,
+        composed: true,
+        detail: { value: this.value },
+      }),
+    );
   };
 
   private _handleOutsideClick = (e: Event): void => {
@@ -536,7 +523,6 @@ export class UiDropdown extends HTMLElement {
       }
     });
   }
-
 }
 
-customElements.define("ui-dropdown", UiDropdown);
+defineCustomElement("ui-dropdown", UiDropdown);

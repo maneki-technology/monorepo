@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
 import {
   AQUA_60,
@@ -38,12 +39,7 @@ export type AvatarSize = "xs" | "s" | "m" | "l" | "xl";
 export type AvatarType = "text" | "icon" | "image";
 export type AvatarEmphasis = "bold" | "subtle";
 export type AvatarShape = "circle" | "square";
-export type AvatarStatus =
-  | "none"
-  | "error"
-  | "warning"
-  | "success"
-  | "information";
+export type AvatarStatus = "none" | "error" | "warning" | "success" | "information";
 export type AvatarColor =
   | "none"
   | "gray"
@@ -369,15 +365,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiAvatar extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "type",
-    "emphasis",
-    "shape",
-    "status",
-    "color",
-    "label",
-  ];
+  static readonly observedAttributes = ["size", "type", "emphasis", "shape", "status", "color", "label"];
 
   private _iconSlot: HTMLSlotElement;
   private _defaultIcon: HTMLSpanElement;
@@ -442,11 +430,7 @@ export class UiAvatar extends HTMLElement {
     this._syncIconSlot();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     if (name === "label") {
       this.setAttribute("aria-label", newValue || "Avatar");
     }
@@ -514,4 +498,4 @@ export class UiAvatar extends HTMLElement {
   }
 }
 
-customElements.define("ui-avatar", UiAvatar);
+defineCustomElement("ui-avatar", UiAvatar);

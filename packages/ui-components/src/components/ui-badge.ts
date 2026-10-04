@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   AQUA_60,
   BLUE_60,
@@ -48,12 +49,7 @@ export type BadgeColor =
   | "pink"
   | "purple"
   | "orange";
-export type BadgeStatus =
-  | "none"
-  | "error"
-  | "warning"
-  | "success"
-  | "information";
+export type BadgeStatus = "none" | "error" | "warning" | "success" | "information";
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 export const STYLES = /* css */ `
@@ -253,13 +249,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiBadge extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "emphasis",
-    "shape",
-    "color",
-    "status",
-  ];
+  static readonly observedAttributes = ["size", "emphasis", "shape", "color", "status"];
 
   constructor() {
     super();
@@ -278,11 +268,7 @@ export class UiBadge extends HTMLElement {
     shadow.appendChild(base);
   }
 
-  attributeChangedCallback(
-    _name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(_name: string, _oldValue: string | null, _newValue: string | null): void {
     // All styling is handled via :host([attr]) CSS selectors — no JS sync needed
   }
 
@@ -329,4 +315,4 @@ export class UiBadge extends HTMLElement {
   }
 }
 
-customElements.define("ui-badge", UiBadge);
+defineCustomElement("ui-badge", UiBadge);

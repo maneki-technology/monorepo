@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   BAR_STYLES,
   STATUS_FILL,
@@ -11,15 +12,7 @@ import {
 export type ProgressBarSize = "s" | "m" | "l";
 export type ProgressBarLabel = "none" | "top-label" | "inner-label";
 export type ProgressStatus =
-  | "none"
-  | "information"
-  | "success"
-  | "warning"
-  | "error"
-  | "open"
-  | "complete"
-  | "suspended"
-  | "cancelled";
+  "none" | "information" | "success" | "warning" | "error" | "open" | "complete" | "suspended" | "cancelled";
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -27,13 +20,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(BAR_STYLES);
 
 export class UiProgressBar extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "label",
-    "status",
-    "value",
-    "label-text",
-  ];
+  static readonly observedAttributes = ["size", "label", "status", "value", "label-text"];
 
   #topLabel!: HTMLElement;
   #topLabelText!: HTMLElement;
@@ -181,4 +168,4 @@ export class UiProgressBar extends HTMLElement {
   }
 }
 
-customElements.define("ui-progress-bar", UiProgressBar);
+defineCustomElement("ui-progress-bar", UiProgressBar);

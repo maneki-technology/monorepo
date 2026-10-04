@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   BORDER_MINIMAL,
   BW_SM,
@@ -198,11 +199,7 @@ export class UiCard extends HTMLElement {
     this._syncFooter();
   }
 
-  attributeChangedCallback(
-    _name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(_name: string, _oldValue: string | null, _newValue: string | null): void {
     // All styling is handled via :host([attr]) CSS selectors — no JS sync needed
   }
 
@@ -248,4 +245,4 @@ export class UiCard extends HTMLElement {
   }
 }
 
-customElements.define("ui-card", UiCard);
+defineCustomElement("ui-card", UiCard);

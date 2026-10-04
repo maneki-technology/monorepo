@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-list-item.styles.js";
 import "./ui-icon.js";
 
@@ -14,8 +15,15 @@ sheet.replaceSync(STYLES);
 
 export class UiListItem extends HTMLElement {
   static readonly observedAttributes = [
-    "size", "padding", "leading", "top-border", "trailing-icon",
-    "selected", "disabled", "description", "secondary-text",
+    "size",
+    "padding",
+    "leading",
+    "top-border",
+    "trailing-icon",
+    "selected",
+    "disabled",
+    "description",
+    "secondary-text",
   ];
 
   #topBorder!: HTMLElement;
@@ -125,11 +133,7 @@ export class UiListItem extends HTMLElement {
     this.removeEventListener("mouseleave", this.#onMouseUp);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (!this.isConnected) return;
     if (name === "description" || name === "secondary-text") {
       this.#syncDescription();
@@ -220,4 +224,4 @@ export class UiListItem extends HTMLElement {
   };
 }
 
-customElements.define("ui-list-item", UiListItem);
+defineCustomElement("ui-list-item", UiListItem);

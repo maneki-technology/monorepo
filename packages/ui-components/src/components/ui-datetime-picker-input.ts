@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-datetime-picker-input.styles.js";
 import "./ui-icon.js";
 import "./ui-label.js";
@@ -15,8 +16,15 @@ sheet.replaceSync(STYLES);
 
 export class UiDatetimePickerInput extends HTMLElement {
   static readonly observedAttributes = [
-    "size", "type", "supportive", "placeholder",
-    "value", "disabled", "readonly", "status", "focused",
+    "size",
+    "type",
+    "supportive",
+    "placeholder",
+    "value",
+    "disabled",
+    "readonly",
+    "status",
+    "focused",
   ];
 
   #container!: HTMLElement;
@@ -113,11 +121,7 @@ export class UiDatetimePickerInput extends HTMLElement {
     this.removeEventListener("blur", this.#onBlur);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (!this.isConnected) return;
     if (name === "type") {
       this.#setupIcon();
@@ -171,8 +175,6 @@ export class UiDatetimePickerInput extends HTMLElement {
   set status(v: DatetimePickerInputStatus) {
     this.setAttribute("status", v);
   }
-
-
 
   get supportive(): string {
     return this.getAttribute("supportive") || "";
@@ -463,4 +465,4 @@ export class UiDatetimePickerInput extends HTMLElement {
   };
 }
 
-customElements.define("ui-datetime-picker-input", UiDatetimePickerInput);
+defineCustomElement("ui-datetime-picker-input", UiDatetimePickerInput);

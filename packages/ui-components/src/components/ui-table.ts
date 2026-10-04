@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   BORDER_MINIMAL,
   BORDER_MODERATE,
@@ -98,12 +99,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiTable extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "separator",
-    "zebra",
-    "bordered",
-  ];
+  static readonly observedAttributes = ["size", "separator", "zebra", "bordered"];
 
   constructor() {
     super();
@@ -184,7 +180,6 @@ export class UiTable extends HTMLElement {
       this.removeAttribute("bordered");
     }
   }
-
 }
 
-customElements.define("ui-table", UiTable);
+defineCustomElement("ui-table", UiTable);

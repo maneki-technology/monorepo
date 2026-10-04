@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-list-group.styles.js";
 import "./ui-list-header.js";
 import "./ui-list-item.js";
@@ -48,11 +49,7 @@ export class UiListGroup extends HTMLElement {
     this.removeEventListener("collapse", this.#onCollapse);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (!this.isConnected) return;
     if (name === "size") {
       this.#propagateSize();
@@ -94,4 +91,4 @@ export class UiListGroup extends HTMLElement {
   }
 }
 
-customElements.define("ui-list-group", UiListGroup);
+defineCustomElement("ui-list-group", UiListGroup);

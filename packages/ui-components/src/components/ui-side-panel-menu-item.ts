@@ -1,6 +1,7 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
 import { LitElement, css, html, unsafeCSS } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
 import {
   BORDER_FOCUS,
   BW_MD,
@@ -276,7 +277,6 @@ const STYLES = /* css */ `
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-@customElement("ui-side-panel-menu-item")
 export class UiSidePanelMenuItem extends LitElement {
   @property({ type: String, reflect: true }) declare level: SidePanelMenuItemLevel;
   @property({ type: String, reflect: true }) declare type: SidePanelMenuItemType;
@@ -310,20 +310,17 @@ export class UiSidePanelMenuItem extends LitElement {
     this.performUpdate();
   }
 
-
   protected override render(): unknown {
-    const expandIconName = this.expandable
-      ? (this.expanded ? "expand_less" : "expand_more")
-      : null;
+    const expandIconName = this.expandable ? (this.expanded ? "expand_less" : "expand_more") : null;
 
     return html`
-      <div class="row" role="treeitem" tabindex="0"
-        @click=${this._handleRowClick}
-        @keydown=${this._handleRowKeydown}>
+      <div class="row" role="treeitem" tabindex="0" @click=${this._handleRowClick} @keydown=${this._handleRowKeydown}>
         <span class="leading-icon"><slot name="icon"></slot></span>
         <span class="label"><slot></slot></span>
         <span class="badge" @click=${this._stopPropagation}><slot name="badge"></slot></span>
-        <span class="actions" @click=${this._stopPropagation} @mousedown=${this._stopPropagation}><slot name="actions"></slot></span>
+        <span class="actions" @click=${this._stopPropagation} @mousedown=${this._stopPropagation}
+          ><slot name="actions"></slot
+        ></span>
         <span class="expand-icon" aria-hidden="true">
           ${expandIconName ? html`<ui-icon name=${expandIconName}></ui-icon>` : null}
         </span>
@@ -423,3 +420,5 @@ export class UiSidePanelMenuItem extends LitElement {
     }
   }
 }
+
+defineCustomElement("ui-side-panel-menu-item", UiSidePanelMenuItem);

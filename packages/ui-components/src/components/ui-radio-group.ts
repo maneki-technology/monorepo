@@ -1,10 +1,6 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
-import {
-  SP_1,
-  SP_1_5,
-  SP_2_5,
-  SP_3,
-} from "@maneki/foundation";
+import { SP_1, SP_1_5, SP_2_5, SP_3 } from "@maneki/foundation";
 import type { RadioSize } from "./ui-radio-item.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -109,11 +105,7 @@ export class UiRadioGroup extends HTMLElement {
     this.removeEventListener("keydown", this._handleKeydown);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     if (name === "aria-labelledby" && this._group) {
       if (newValue) {
         this._group.setAttribute("aria-labelledby", newValue);
@@ -146,9 +138,7 @@ export class UiRadioGroup extends HTMLElement {
 
   private _getChildItems(): Element[] {
     const slot = this.shadowRoot!.querySelector("slot")!;
-    return slot
-      .assignedElements({ flatten: true })
-      .filter((el) => el.tagName === "UI-RADIO-ITEM");
+    return slot.assignedElements({ flatten: true }).filter((el) => el.tagName === "UI-RADIO-ITEM");
   }
 
   private _propagateAttributes(): void {
@@ -227,4 +217,4 @@ export class UiRadioGroup extends HTMLElement {
   };
 }
 
-customElements.define("ui-radio-group", UiRadioGroup);
+defineCustomElement("ui-radio-group", UiRadioGroup);

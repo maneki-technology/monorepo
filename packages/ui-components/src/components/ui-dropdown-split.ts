@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import "./ui-icon.js";
 import { STYLES } from "./ui-dropdown-split.styles.js";
 
@@ -154,9 +155,7 @@ export class UiDropdownSplit extends HTMLElement {
     left.addEventListener("click", (e: Event) => {
       e.stopPropagation();
       if (!this.disabled) {
-        this.dispatchEvent(
-          new CustomEvent("action", { bubbles: true, composed: true }),
-        );
+        this.dispatchEvent(new CustomEvent("action", { bubbles: true, composed: true }));
       }
     });
 
@@ -187,11 +186,7 @@ export class UiDropdownSplit extends HTMLElement {
     this.removeEventListener("select", this._handleItemSelect as EventListener);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     switch (name) {
       case "open":
         this._syncOpen();
@@ -324,9 +319,9 @@ export class UiDropdownSplit extends HTMLElement {
 
   get value(): string | string[] {
     const items = this._getSlottedItems();
-    const selected = items.filter(el => el.hasAttribute("selected"));
+    const selected = items.filter((el) => el.hasAttribute("selected"));
     if (this.multiple) {
-      return selected.map(el => el.getAttribute("value") ?? el.textContent?.trim() ?? "");
+      return selected.map((el) => el.getAttribute("value") ?? el.textContent?.trim() ?? "");
     }
     const first = selected[0];
     return first ? (first.getAttribute("value") ?? first.textContent?.trim() ?? "") : "";
@@ -402,7 +397,8 @@ export class UiDropdownSplit extends HTMLElement {
     const slot = this._textSlot?.querySelector("slot");
     if (!slot) return;
     if (slot.textContent !== this.label) slot.textContent = this.label;
-    const slottedText = slot.assignedNodes({ flatten: true })
+    const slottedText = slot
+      .assignedNodes({ flatten: true })
       .map((node) => node.textContent?.trim() ?? "")
       .filter(Boolean)
       .join(" ");
@@ -459,11 +455,13 @@ export class UiDropdownSplit extends HTMLElement {
       this.open = false;
     }
 
-    this.dispatchEvent(new CustomEvent("change", {
-      bubbles: true,
-      composed: true,
-      detail: { value: this.value },
-    }));
+    this.dispatchEvent(
+      new CustomEvent("change", {
+        bubbles: true,
+        composed: true,
+        detail: { value: this.value },
+      }),
+    );
   };
 
   private _handleOutsideClick = (e: Event): void => {
@@ -520,4 +518,4 @@ export class UiDropdownSplit extends HTMLElement {
   }
 }
 
-customElements.define("ui-dropdown-split", UiDropdownSplit);
+defineCustomElement("ui-dropdown-split", UiDropdownSplit);

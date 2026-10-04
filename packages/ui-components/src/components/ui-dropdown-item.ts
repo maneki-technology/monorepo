@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
 import { BORDER_CONTRAST, FORM_INPUT_BORDER, SELECTED_BOLD } from "@maneki/foundation";
 import "./ui-icon.js";
@@ -14,8 +15,14 @@ sheet.replaceSync(STYLES);
 
 export class UiDropdownItem extends HTMLElement {
   static readonly observedAttributes = [
-    "size", "disabled", "selected", "value",
-    "leading", "secondary", "description", "submenu",
+    "size",
+    "disabled",
+    "selected",
+    "value",
+    "leading",
+    "secondary",
+    "description",
+    "submenu",
   ];
 
   private _button: HTMLButtonElement;
@@ -86,11 +93,7 @@ export class UiDropdownItem extends HTMLElement {
     });
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     if (name === "disabled") {
       this._syncDisabled();
     } else if (name === "leading") {
@@ -432,4 +435,4 @@ export class UiDropdownItem extends HTMLElement {
   };
 }
 
-customElements.define("ui-dropdown-item", UiDropdownItem);
+defineCustomElement("ui-dropdown-item", UiDropdownItem);

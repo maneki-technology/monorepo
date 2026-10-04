@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   BLUE_30,
   BLUE_60,
@@ -234,13 +235,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiSwitch extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "checked",
-    "disabled",
-    "label-position",
-    "status",
-  ];
+  static readonly observedAttributes = ["size", "checked", "disabled", "label-position", "status"];
 
   #switchEl!: HTMLElement;
   #track!: HTMLElement;
@@ -326,7 +321,6 @@ export class UiSwitch extends HTMLElement {
     else this.removeAttribute("disabled");
   }
 
-
   get labelPosition(): SwitchLabelPosition {
     return (this.getAttribute("label-position") as SwitchLabelPosition) ?? "none";
   }
@@ -373,5 +367,4 @@ export class UiSwitch extends HTMLElement {
   }
 }
 
-
-customElements.define("ui-switch", UiSwitch);
+defineCustomElement("ui-switch", UiSwitch);

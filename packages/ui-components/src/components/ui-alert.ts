@@ -1,15 +1,10 @@
-
+import { defineCustomElement } from "../define-custom-element.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
 export type AlertSize = "s" | "m" | "l";
 export type AlertEmphasis = "bold" | "subtle";
-export type AlertStatus =
-  | "none"
-  | "information"
-  | "success"
-  | "error"
-  | "warning";
+export type AlertStatus = "none" | "information" | "success" | "error" | "warning";
 
 import {
   FONT_PRIMARY,
@@ -380,13 +375,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiAlert extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "emphasis",
-    "status",
-    "dismissable",
-    "leading-icon",
-  ];
+  static readonly observedAttributes = ["size", "emphasis", "status", "dismissable", "leading-icon"];
 
   private _descriptionSlot: HTMLSlotElement;
   private _footerSlot: HTMLSlotElement;
@@ -470,21 +459,17 @@ export class UiAlert extends HTMLElement {
     this._footerSlot = footerSlot;
 
     // Listen for slotchange to toggle has-description attribute
-    descriptionSlot.addEventListener("slotchange", () =>
-      this._syncDescription(),
-    );
+    descriptionSlot.addEventListener("slotchange", () => this._syncDescription());
 
     // Listen for slotchange to toggle has-footer attribute
-    footerSlot.addEventListener("slotchange", () =>
-      this._syncFooter(),
-    );
+    footerSlot.addEventListener("slotchange", () => this._syncFooter());
   }
 
   connectedCallback(): void {
     if (!this.hasAttribute("role")) {
       // Use role="status" (polite) for info/success, role="alert" (assertive) for error/warning
       const status = this.getAttribute("status") ?? "none";
-      const role = (status === "error" || status === "warning") ? "alert" : "status";
+      const role = status === "error" || status === "warning" ? "alert" : "status";
       this.setAttribute("role", role);
     }
     this._syncDescription();
@@ -495,11 +480,7 @@ export class UiAlert extends HTMLElement {
     document.removeEventListener("keydown", this._handleKeydown);
   }
 
-  attributeChangedCallback(
-    _name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(_name: string, _oldValue: string | null, _newValue: string | null): void {
     // All styling is handled via :host([attr]) CSS selectors — no JS sync needed
   }
 
@@ -598,4 +579,4 @@ export class UiAlert extends HTMLElement {
   };
 }
 
-customElements.define("ui-alert", UiAlert);
+defineCustomElement("ui-alert", UiAlert);

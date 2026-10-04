@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { BORDER_MODERATE, GRID_ROW_DEFAULT, GRID_ROW_SELECTED } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -46,11 +47,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiTableRow extends HTMLElement {
-  static readonly observedAttributes = [
-    "header",
-    "selected",
-    "disabled",
-  ];
+  static readonly observedAttributes = ["header", "selected", "disabled"];
 
   constructor() {
     super();
@@ -106,4 +103,4 @@ export class UiTableRow extends HTMLElement {
   }
 }
 
-customElements.define("ui-table-row", UiTableRow);
+defineCustomElement("ui-table-row", UiTableRow);

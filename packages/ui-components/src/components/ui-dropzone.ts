@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   BORDER_FOCUS,
   BORDER_MINIMAL,
@@ -579,4 +580,4 @@ export class UiDropzone extends HTMLElement {
   };
 }
 
-customElements.define("ui-dropzone", UiDropzone);
+defineCustomElement("ui-dropzone", UiDropzone);

@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
 import {
   BW_MD,
@@ -277,11 +278,7 @@ export class UiCarousel extends HTMLElement {
     this.removeEventListener("focusout", this.#onResumeAutoPlay);
   }
 
-  attributeChangedCallback(
-    attrName: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(attrName: string, _oldValue: string | null, _newValue: string | null): void {
     switch (attrName) {
       case "gap":
         this.#applyGap();
@@ -321,9 +318,7 @@ export class UiCarousel extends HTMLElement {
   // ── Items helper ─────────────────────────────────────────────────────────
 
   #getItems(): Element[] {
-    return this.#defaultSlot
-      .assignedElements()
-      .filter((el) => el.tagName === "UI-CAROUSEL-ITEM");
+    return this.#defaultSlot.assignedElements().filter((el) => el.tagName === "UI-CAROUSEL-ITEM");
   }
 
   // ── Gap ──────────────────────────────────────────────────────────────────
@@ -399,10 +394,7 @@ export class UiCarousel extends HTMLElement {
       dot.className = "dot";
       dot.type = "button";
       dot.setAttribute("aria-label", `Go to slide ${i + 1}`);
-      dot.setAttribute(
-        "aria-current",
-        i === this.#activeIndex ? "true" : "false",
-      );
+      dot.setAttribute("aria-current", i === this.#activeIndex ? "true" : "false");
       dot.addEventListener("click", () => this.#goToSlide(i));
       this.#indicators.appendChild(dot);
     }
@@ -411,10 +403,7 @@ export class UiCarousel extends HTMLElement {
   #syncDots(): void {
     const dots = this.#indicators.children;
     for (let i = 0; i < dots.length; i++) {
-      dots[i].setAttribute(
-        "aria-current",
-        i === this.#activeIndex ? "true" : "false",
-      );
+      dots[i].setAttribute("aria-current", i === this.#activeIndex ? "true" : "false");
     }
   }
 
@@ -576,4 +565,4 @@ export class UiCarousel extends HTMLElement {
   }
 }
 
-customElements.define("ui-carousel", UiCarousel);
+defineCustomElement("ui-carousel", UiCarousel);

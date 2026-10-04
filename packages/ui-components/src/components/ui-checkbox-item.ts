@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
 import {
   BORDER_FOCUS,
@@ -294,14 +295,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiCheckboxItem extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "label-position",
-    "checked",
-    "indeterminate",
-    "disabled",
-    "error",
-  ];
+  static readonly observedAttributes = ["size", "label-position", "checked", "indeterminate", "disabled", "error"];
 
   constructor() {
     super();
@@ -361,19 +355,12 @@ export class UiCheckboxItem extends HTMLElement {
     this._syncAriaChecked();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (name === "checked" || name === "indeterminate") {
       this._syncAriaChecked();
     }
     if (name === "disabled") {
-      this.setAttribute(
-        "aria-disabled",
-        this.disabled ? "true" : "false",
-      );
+      this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
     }
   }
 
@@ -465,9 +452,7 @@ export class UiCheckboxItem extends HTMLElement {
     } else {
       this.checked = !this.checked;
     }
-    this.dispatchEvent(
-      new CustomEvent("change", { bubbles: true, composed: true }),
-    );
+    this.dispatchEvent(new CustomEvent("change", { bubbles: true, composed: true }));
   }
 
   private _syncAriaChecked(): void {
@@ -479,4 +464,4 @@ export class UiCheckboxItem extends HTMLElement {
   }
 }
 
-customElements.define("ui-checkbox-item", UiCheckboxItem);
+defineCustomElement("ui-checkbox-item", UiCheckboxItem);

@@ -1,10 +1,5 @@
-import {
-  ELEVATION_05,
-  RADIUS_SM,
-  SP_0_5,
-  SP_0_25,
-  SURFACE_PRIMARY,
-} from "@maneki/foundation";
+import { defineCustomElement } from "../define-custom-element.js";
+import { ELEVATION_05, RADIUS_SM, SP_0_5, SP_0_25, SURFACE_PRIMARY } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -60,12 +55,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiMenu extends HTMLElement {
-  static readonly observedAttributes = [
-    "open",
-    "size",
-    "selectable",
-    "multiple",
-  ];
+  static readonly observedAttributes = ["open", "size", "selectable", "multiple"];
 
   constructor() {
     super();
@@ -100,11 +90,7 @@ export class UiMenu extends HTMLElement {
     this.removeEventListener("select", this._handleItemSelect as EventListener);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     switch (name) {
       case "open":
         this._syncOpen();
@@ -163,9 +149,9 @@ export class UiMenu extends HTMLElement {
 
   get value(): string | string[] {
     const items = this._getSlottedItems();
-    const selected = items.filter(el => el.hasAttribute("selected"));
+    const selected = items.filter((el) => el.hasAttribute("selected"));
     if (this.multiple) {
-      return selected.map(el => el.getAttribute("value") ?? el.textContent?.trim() ?? "");
+      return selected.map((el) => el.getAttribute("value") ?? el.textContent?.trim() ?? "");
     }
     const first = selected[0];
     return first ? (first.getAttribute("value") ?? first.textContent?.trim() ?? "") : "";
@@ -234,11 +220,13 @@ export class UiMenu extends HTMLElement {
       this.open = false;
     }
 
-    this.dispatchEvent(new CustomEvent("change", {
-      bubbles: true,
-      composed: true,
-      detail: { value: this.value },
-    }));
+    this.dispatchEvent(
+      new CustomEvent("change", {
+        bubbles: true,
+        composed: true,
+        detail: { value: this.value },
+      }),
+    );
   };
 
   private _handleOutsideClick = (e: Event): void => {
@@ -279,4 +267,4 @@ export class UiMenu extends HTMLElement {
   };
 }
 
-customElements.define("ui-menu", UiMenu);
+defineCustomElement("ui-menu", UiMenu);

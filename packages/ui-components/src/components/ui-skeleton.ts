@@ -1,10 +1,5 @@
-import {
-  ICON_SECONDARY,
-  RADIUS_PILL,
-  RADIUS_SM,
-  SP_1_5,
-  SURFACE_TERTIARY,
-} from "@maneki/foundation";
+import { defineCustomElement } from "../define-custom-element.js";
+import { ICON_SECONDARY, RADIUS_PILL, RADIUS_SM, SP_1_5, SURFACE_TERTIARY } from "@maneki/foundation";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -135,4 +130,4 @@ export class UiSkeleton extends HTMLElement {
   }
 }
 
-customElements.define("ui-skeleton", UiSkeleton);
+defineCustomElement("ui-skeleton", UiSkeleton);

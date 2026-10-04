@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { BORDER_MINIMAL } from "@maneki/foundation";
 
 export type ToolbarOrientation = "horizontal" | "vertical";
@@ -103,4 +104,4 @@ export class UiToolbar extends HTMLElement {
   }
 }
 
-customElements.define("ui-toolbar", UiToolbar);
+defineCustomElement("ui-toolbar", UiToolbar);

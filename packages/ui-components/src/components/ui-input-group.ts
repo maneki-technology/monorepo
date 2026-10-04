@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   BORDER_FOCUS,
   BW_SM,
@@ -238,11 +239,7 @@ export class UiInputGroup extends HTMLElement {
     }
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     if (name === "aria-labelledby") {
       const wrapper = this.shadowRoot!.querySelector(".wrapper")!;
       if (newValue) {
@@ -290,4 +287,4 @@ export class UiInputGroup extends HTMLElement {
   }
 }
 
-customElements.define("ui-input-group", UiInputGroup);
+defineCustomElement("ui-input-group", UiInputGroup);

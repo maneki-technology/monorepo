@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
 import {
   BORDER_FOCUS,
@@ -502,11 +503,7 @@ export class UiTabItem extends HTMLElement {
     this._syncLabel();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (name === "selected" || name === "disabled") {
       this._syncAria();
     }
@@ -613,9 +610,7 @@ export class UiTabItem extends HTMLElement {
   }
 
   private _select(): void {
-    this.dispatchEvent(
-      new CustomEvent("tab-select", { bubbles: true, composed: true }),
-    );
+    this.dispatchEvent(new CustomEvent("tab-select", { bubbles: true, composed: true }));
   }
 
   private _syncAria(): void {
@@ -632,4 +627,4 @@ export class UiTabItem extends HTMLElement {
   }
 }
 
-customElements.define("ui-tab-item", UiTabItem);
+defineCustomElement("ui-tab-item", UiTabItem);

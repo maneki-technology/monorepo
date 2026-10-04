@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { BORDER_MINIMAL } from "@maneki/foundation";
 
 export type ToolbarSeparatorOrientation = "horizontal" | "vertical";
@@ -60,4 +61,4 @@ export class UiToolbarSeparator extends HTMLElement {
   }
 }
 
-customElements.define("ui-toolbar-separator", UiToolbarSeparator);
+defineCustomElement("ui-toolbar-separator", UiToolbarSeparator);

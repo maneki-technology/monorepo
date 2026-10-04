@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { SP_0_5, SP_1 } from "@maneki/foundation";
 import type { BreadcrumbSize } from "./ui-breadcrumb-item.js";
 
@@ -88,11 +89,7 @@ export class UiBreadcrumbGroup extends HTMLElement {
     this._propagateSize();
   }
 
-  attributeChangedCallback(
-    _name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(_name: string, _oldValue: string | null, _newValue: string | null): void {
     if (_name === "aria-label" && _newValue) {
       this._nav.setAttribute("aria-label", _newValue);
     }
@@ -113,9 +110,7 @@ export class UiBreadcrumbGroup extends HTMLElement {
 
   private _propagateSize(): void {
     const slot = this.shadowRoot!.querySelector("slot")!;
-    const items = slot
-      .assignedElements({ flatten: true })
-      .filter((el) => el.tagName === "UI-BREADCRUMB-ITEM");
+    const items = slot.assignedElements({ flatten: true }).filter((el) => el.tagName === "UI-BREADCRUMB-ITEM");
 
     const sizeValue = this.getAttribute("size");
     for (const item of items) {
@@ -129,4 +124,4 @@ export class UiBreadcrumbGroup extends HTMLElement {
   }
 }
 
-customElements.define("ui-breadcrumb-group", UiBreadcrumbGroup);
+defineCustomElement("ui-breadcrumb-group", UiBreadcrumbGroup);

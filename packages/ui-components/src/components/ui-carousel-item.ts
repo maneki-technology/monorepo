@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
 const STYLES = /* css */ `
@@ -39,4 +40,4 @@ export class UiCarouselItem extends HTMLElement {
   }
 }
 
-customElements.define("ui-carousel-item", UiCarouselItem);
+defineCustomElement("ui-carousel-item", UiCarouselItem);

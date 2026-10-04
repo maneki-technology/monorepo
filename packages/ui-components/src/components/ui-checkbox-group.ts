@@ -1,10 +1,6 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
-import {
-  SP_1,
-  SP_1_5,
-  SP_2_5,
-  SP_3,
-} from "@maneki/foundation";
+import { SP_1, SP_1_5, SP_2_5, SP_3 } from "@maneki/foundation";
 import type { CheckboxSize } from "./ui-checkbox-item.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
@@ -97,11 +93,7 @@ export class UiCheckboxGroup extends HTMLElement {
     this._propagateAttributes();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     if (name === "aria-labelledby" && this._group) {
       if (newValue) {
         this._group.setAttribute("aria-labelledby", newValue);
@@ -134,9 +126,7 @@ export class UiCheckboxGroup extends HTMLElement {
 
   private _getChildItems(): Element[] {
     const slot = this.shadowRoot!.querySelector("slot")!;
-    return slot
-      .assignedElements({ flatten: true })
-      .filter((el) => el.tagName === "UI-CHECKBOX-ITEM");
+    return slot.assignedElements({ flatten: true }).filter((el) => el.tagName === "UI-CHECKBOX-ITEM");
   }
 
   private _propagateAttributes(): void {
@@ -154,4 +144,4 @@ export class UiCheckboxGroup extends HTMLElement {
   }
 }
 
-customElements.define("ui-checkbox-group", UiCheckboxGroup);
+defineCustomElement("ui-checkbox-group", UiCheckboxGroup);

@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-popover.styles.js";
 import { ICON_CLOSE } from "@maneki/foundation";
 
@@ -24,14 +25,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiPopover extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "placement",
-    "dismissable",
-    "open",
-    "title-text",
-    "description",
-  ];
+  static readonly observedAttributes = ["size", "placement", "dismissable", "open", "title-text", "description"];
 
   #titleEl!: HTMLElement;
   #descriptionEl!: HTMLElement;
@@ -103,7 +97,10 @@ export class UiPopover extends HTMLElement {
       this.#panel.setAttribute("aria-labelledby", `${panelId}-title`);
     }
 
-    this.#closeBtn.addEventListener("click", (e) => { e.stopPropagation(); this._close(); });
+    this.#closeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._close();
+    });
 
     // Click on trigger toggles popover
     this.addEventListener("click", (e) => {
@@ -128,11 +125,7 @@ export class UiPopover extends HTMLElement {
     document.removeEventListener("keydown", this._onKeyDown);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     switch (name) {
       case "title-text":
         this.#titleEl.textContent = newValue ?? "";
@@ -202,11 +195,9 @@ export class UiPopover extends HTMLElement {
     requestAnimationFrame(() => {
       const firstFocusable = this.#panel.querySelector<HTMLElement>('button, [tabindex="0"]');
       if (firstFocusable) firstFocusable.focus();
-      else this.#panel.setAttribute("tabindex", "-1"), this.#panel.focus();
+      else (this.#panel.setAttribute("tabindex", "-1"), this.#panel.focus());
     });
-    this.dispatchEvent(
-      new CustomEvent("popover-open", { bubbles: true, composed: true }),
-    );
+    this.dispatchEvent(new CustomEvent("popover-open", { bubbles: true, composed: true }));
   }
 
   private _close(): void {
@@ -214,9 +205,7 @@ export class UiPopover extends HTMLElement {
     // Return focus to trigger
     const trigger = this.querySelector<HTMLElement>('[slot="trigger"]');
     if (trigger) trigger.focus();
-    this.dispatchEvent(
-      new CustomEvent("popover-close", { bubbles: true, composed: true }),
-    );
+    this.dispatchEvent(new CustomEvent("popover-close", { bubbles: true, composed: true }));
   }
 
   private _onDocumentClick(e: MouseEvent): void {
@@ -234,4 +223,4 @@ export class UiPopover extends HTMLElement {
   }
 }
 
-customElements.define("ui-popover", UiPopover);
+defineCustomElement("ui-popover", UiPopover);

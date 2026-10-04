@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   BORDER_MINIMAL,
   BORDER_MODERATE,
@@ -71,10 +72,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiTableCell extends HTMLElement {
-  static readonly observedAttributes = [
-    "header",
-    "align",
-  ];
+  static readonly observedAttributes = ["header", "align"];
 
   constructor() {
     super();
@@ -89,11 +87,7 @@ export class UiTableCell extends HTMLElement {
     this._syncRole();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (name === "header") {
       this._syncRole();
     }
@@ -128,4 +122,4 @@ export class UiTableCell extends HTMLElement {
   }
 }
 
-customElements.define("ui-table-cell", UiTableCell);
+defineCustomElement("ui-table-cell", UiTableCell);

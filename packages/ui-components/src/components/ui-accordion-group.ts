@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import type { AccordionSize, AccordionEmphasis } from "./ui-accordion-item.js";
 
 const STYLES = `
@@ -17,12 +18,7 @@ const STYLES = `
 const PROPAGATED_ATTRS = ["size", "emphasis", "variant"] as const;
 
 export class UiAccordionGroup extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "emphasis",
-    "exclusive",
-    "variant",
-  ];
+  static readonly observedAttributes = ["size", "emphasis", "exclusive", "variant"];
 
   constructor() {
     super();
@@ -31,10 +27,7 @@ export class UiAccordionGroup extends HTMLElement {
   }
 
   connectedCallback(): void {
-    this.shadowRoot!.querySelector("slot")!.addEventListener(
-      "slotchange",
-      () => this._propagateAttributes(),
-    );
+    this.shadowRoot!.querySelector("slot")!.addEventListener("slotchange", () => this._propagateAttributes());
     this._propagateAttributes();
     this.addEventListener("toggle", this._handleToggle as EventListener);
     this.addEventListener("keydown", this._handleKeydown);
@@ -45,11 +38,7 @@ export class UiAccordionGroup extends HTMLElement {
     this.removeEventListener("keydown", this._handleKeydown);
   }
 
-  attributeChangedCallback(
-    _name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(_name: string, _oldValue: string | null, _newValue: string | null): void {
     this._propagateAttributes();
   }
 
@@ -91,9 +80,7 @@ export class UiAccordionGroup extends HTMLElement {
 
   private _getChildItems(): Element[] {
     const slot = this.shadowRoot!.querySelector("slot")!;
-    return slot
-      .assignedElements({ flatten: true })
-      .filter((el) => el.tagName === "UI-ACCORDION-ITEM");
+    return slot.assignedElements({ flatten: true }).filter((el) => el.tagName === "UI-ACCORDION-ITEM");
   }
 
   private _propagateAttributes(): void {
@@ -157,4 +144,4 @@ export class UiAccordionGroup extends HTMLElement {
   };
 }
 
-customElements.define("ui-accordion-group", UiAccordionGroup);
+defineCustomElement("ui-accordion-group", UiAccordionGroup);

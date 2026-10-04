@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES, STATUS_ICON_MAP } from "./ui-input.styles.js";
 import "./ui-icon.js";
 import "./ui-label.js";
@@ -7,7 +8,6 @@ import "./ui-label.js";
 export type InputSize = "s" | "m" | "l";
 export type InputType = "text" | "numeric" | "clearable" | "password";
 export type InputStatus = "none" | "warning" | "error" | "success" | "loading";
-
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -181,11 +181,7 @@ export class UiInput extends HTMLElement {
     this._syncClearVisibility();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     switch (name) {
       case "value":
         this._syncValue();
@@ -233,8 +229,6 @@ export class UiInput extends HTMLElement {
   set type(value: InputType) {
     this.setAttribute("type", value);
   }
-
-
 
   get placeholder(): string {
     return this.getAttribute("placeholder") ?? "";
@@ -367,7 +361,6 @@ export class UiInput extends HTMLElement {
     const size = this.getAttribute("size") || "m";
   }
 
-
   private _syncClearVisibility(): void {
     if (this._inputEl.value) {
       this._clearBtnEl.classList.add("has-value");
@@ -398,7 +391,6 @@ export class UiInput extends HTMLElement {
     } else {
       this._inputEl.removeAttribute("aria-readonly");
     }
-
 
     // aria-label — set on both host (for axe) and inner input
     const hostAriaLabel = this.getAttribute("aria-label");
@@ -437,9 +429,7 @@ export class UiInput extends HTMLElement {
     this.setAttribute("value", "");
     this._syncClearVisibility();
     this._inputEl.focus();
-    this.dispatchEvent(
-      new CustomEvent("clear", { bubbles: true, composed: true }),
-    );
+    this.dispatchEvent(new CustomEvent("clear", { bubbles: true, composed: true }));
     this.dispatchEvent(
       new CustomEvent("input", {
         bubbles: true,
@@ -452,10 +442,7 @@ export class UiInput extends HTMLElement {
     this._passwordVisible = !this._passwordVisible;
     this._inputEl.type = this._passwordVisible ? "text" : "password";
     this._passwordIconEl.setAttribute("name", this._passwordVisible ? "visibility_off" : "visibility");
-    this._passwordToggleEl.setAttribute(
-      "aria-label",
-      this._passwordVisible ? "Hide password" : "Show password",
-    );
+    this._passwordToggleEl.setAttribute("aria-label", this._passwordVisible ? "Hide password" : "Show password");
     this._inputEl.focus();
   }
 
@@ -506,4 +493,4 @@ export class UiInput extends HTMLElement {
   }
 }
 
-customElements.define("ui-input", UiInput);
+defineCustomElement("ui-input", UiInput);
