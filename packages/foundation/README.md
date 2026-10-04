@@ -141,7 +141,7 @@ All tokens (except breakpoints) are injected as CSS custom properties on `:root`
 
 ```bash
 moon run foundation:build    # vite build + tsc --emitDeclarationOnly → dist/
-moon run foundation:test     # vitest --run (62 tests)
+moon run foundation:test     # vitest --run (64 tests)
 ```
 
 ## License

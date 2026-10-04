@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { darkSemanticTokens } from "./dark-theme.js";
-import { herouiDarkSemanticTokens, herouiSemanticTokens } from "./heroui-theme.js";
+import {
+  generateHerouiCss,
+  herouiComponentCssShared,
+  herouiDarkSemanticTokens,
+  herouiSemanticTokens,
+} from "./heroui-theme.js";
 import { resolveSemanticValue, semanticTokens, type SemanticValue } from "./semantic-tokens.js";
 
 function luminance(value: SemanticValue): number {
@@ -16,6 +21,22 @@ function expectContrast(foreground: SemanticValue, background: SemanticValue, mi
   const values = [luminance(foreground), luminance(background)].sort((a, b) => b - a);
   expect((values[0] + 0.05) / (values[1] + 0.05)).toBeGreaterThanOrEqual(minimum);
 }
+
+describe("HeroUI component overrides", () => {
+  it("keeps theme-specific colours out of shared HeroUI overrides", () => {
+    expect(herouiComponentCssShared).not.toMatch(/#[\da-f]{3,8}\b|rgba?\(|hsla?\(/i);
+  });
+
+  it("uses theme-aware accordion colours in both HeroUI modes", () => {
+    const [light, dark] = generateHerouiCss().split('[data-theme="heroui-dark"]');
+    for (const css of [light, dark]) {
+      expect(css).toContain("--ui-acc-separator-color: var(--fd-border-minimal);");
+      expect(css).toContain("--ui-acc-content-color: var(--fd-text-secondary);");
+    }
+    expect(light).toContain("--ui-modal-body-bg: #fafafa;");
+    expect(dark).not.toContain("#fafafa");
+  });
+});
 
 describe("semantic token contrast", () => {
   it("keeps Foundation text, icons, and input borders visible", () => {
