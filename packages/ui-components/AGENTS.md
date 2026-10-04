@@ -182,7 +182,7 @@ Follow `ui-side-panel-menu-section.ts` as reference:
 1. Class extends `LitElement`
 2. `defineCustomElement("ui-foo", UiFoo)` from `../define-custom-element.js` after the class for idempotent registration (also used by vanilla components)
 3. `@property()` decorators for observed attributes
-4. `static styles = css\`...\``with foundation tokens wrapped in`unsafeCSS()`
+4. ``static styles = css`...` `` with foundation tokens wrapped in `unsafeCSS()`
 5. `render()` returns `html\`...\`` template
 6. CSS uses nested var pattern: `var(--ui-btn-bg, ${unsafeCSS(BLUE_60)})` — consumer override → foundation token
 7. For large components (700+ lines): extract styles into `ui-foo.styles.ts`

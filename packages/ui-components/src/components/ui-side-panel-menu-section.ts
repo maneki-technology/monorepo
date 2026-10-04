@@ -30,6 +30,8 @@ export class UiSidePanelMenuSection extends LitElement {
       letter-spacing: 0.5px;
       color: var(--ui-spm-section-color, ${unsafeCSS(TEXT_SECONDARY)});
       padding: ${unsafeCSS(SP_1_5)} ${unsafeCSS(SP_2)} ${unsafeCSS(SP_0_5)} ${unsafeCSS(SP_2)};
+      /* stylelint-disable-next-line property-no-vendor-prefix -- Safari */
+      -webkit-user-select: none;
       user-select: none;
     }
 
