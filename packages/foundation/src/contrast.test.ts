@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { colors } from "./colors.js";
 import { darkSemanticTokens } from "./dark-theme.js";
 import {
   generateHerouiCss,
@@ -35,6 +36,14 @@ describe("HeroUI component overrides", () => {
     }
     expect(light).toContain("--ui-modal-body-bg: #fafafa;");
     expect(dark).not.toContain("#fafafa");
+  });
+
+  it("scopes HeroUI tag palette overrides to dark mode", () => {
+    const [light, dark] = generateHerouiCss().split('[data-theme="heroui-dark"]');
+    expect(light).not.toContain("--ui-tag-red-");
+    expect(dark).toContain("--ui-tag-red-subtle-bg: var(--fd-color-red-90);");
+    expect(dark).toContain("--ui-tag-red-text: var(--fd-color-red-30);");
+    expect(dark).not.toContain("--ui-tag-gray-");
   });
 });
 
@@ -78,5 +87,13 @@ describe("semantic token contrast", () => {
     expectContrast(theme.text.tertiary, theme.surface.primary, 4.5);
     expectContrast(theme.form.inputBorder, theme.form.inputBackground, 3);
     expectContrast(theme.form.inputBorder, theme.surface.primary, 3);
+  });
+
+  it("keeps HeroUI dark coloured subtle and minimal tags readable", () => {
+    for (const [family, steps] of Object.entries(colors)) {
+      if (family === "gray") continue;
+      expectContrast(steps[30], steps[90], 4.5);
+      expectContrast(steps[30], herouiDarkSemanticTokens.surface.primary, 4.5);
+    }
   });
 });

@@ -59,6 +59,10 @@ semanticVar("status", "surface-error-bold"); // "var(--fd-status-surface-error-b
 elevationVar("03"); // "var(--fd-elevation-03)"
 ```
 
+### HeroUI tag colours
+
+HeroUI dark provides `--ui-tag-{family}-subtle-bg` and `--ui-tag-{family}-text` for the twelve chromatic palette families. Subtle fills use palette step 90; subtle text and minimal text/borders use step 30. These defaults are scoped to `[data-theme="heroui-dark"]`; component-level colour overrides take precedence.
+
 ### Typography
 
 Groups: display (xl/lg/md), heading (01–07), body (01–03), ui (01–02), caption (01), badge (01), code (01–02). Font families: Inter (primary), Roboto Mono (code).
@@ -141,7 +145,7 @@ All tokens (except breakpoints) are injected as CSS custom properties on `:root`
 
 ```bash
 moon run foundation:build    # vite build + tsc --emitDeclarationOnly → dist/
-moon run foundation:test     # vitest --run (64 tests)
+moon run foundation:test     # vitest --run (66 tests)
 ```
 
 ## License

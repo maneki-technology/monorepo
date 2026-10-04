@@ -126,7 +126,7 @@ When a Figma design uses a token that doesn't exist in foundation:
 ## COMMANDS
 
 ```bash
-moon run foundation:test            # vitest --run (64 tests)
+moon run foundation:test            # vitest --run (66 tests)
 moon run foundation:build           # vite build + tsc --emitDeclarationOnly
 moon run catalog:dev                # foundation token pages live in apps/catalog
 ```

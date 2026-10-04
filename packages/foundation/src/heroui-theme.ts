@@ -11,6 +11,7 @@
  */
 
 import { resolveSemanticValue, type SemanticValue, type ElevationToken } from "./semantic-tokens.js";
+import { colors } from "./colors.js";
 
 // ─── Surface ────────────────────────────────────────────────────────────────
 
@@ -695,6 +696,12 @@ const herouiComponentCssLight = [
 
 // Dark-only component overrides
 const herouiComponentCssDark = [
+  ...Object.keys(colors)
+    .filter((family) => family !== "gray")
+    .flatMap((family) => [
+      `--ui-tag-${family}-subtle-bg: var(--fd-color-${family}-90);`,
+      `--ui-tag-${family}-text: var(--fd-color-${family}-30);`,
+    ]),
   "--ui-select-hover-border: #a1a1aa;",
   "--ui-select-hover-bg: rgba(39, 39, 42, 0.92);",
   "--ui-search-category-bg: #27272a;",

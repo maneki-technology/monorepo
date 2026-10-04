@@ -410,8 +410,8 @@ describe("ui-tag", () => {
 
   // ── Toggle type specifics ─────────────────────────────────────────────
 
-  it("CSS contains text-transform: uppercase for toggle", () => {
-    expect(STYLES).toContain("text-transform: uppercase");
+  it("preserves supplied label casing for toggle tags", () => {
+    expect(STYLES).not.toContain("text-transform: uppercase");
   });
 
   it("CSS contains font-weight: 500 for toggle", () => {

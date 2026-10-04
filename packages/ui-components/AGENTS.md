@@ -11,7 +11,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-alert>` — dismissable alert/toast: 3 sizes, 2 emphases, 5 statuses, footer slot
 - `<ui-label>` — form field label: 3 sizes (s/m/l), 2 emphases (bold/subtle), disabled state, required indicator
 - `<ui-link>` — anchor/span link: 3 sizes (s/m/l), 7 states (enabled/hover/focus/active/visited/disabled/current), standalone/inline modes, external icon, keyboard accessible span mode
-- `<ui-tag>` — tag pill/toggle: 4 sizes (xs/s/m/l), 3 types (basic/selectable/toggle), 3 emphases (bold/subtle/minimal), 3 states (enabled/selected/disabled), dismissible + check icon
+- `<ui-tag>` — tag pill/toggle: 4 sizes (xs/s/m/l), 3 types (basic/selectable/toggle), 3 emphases (bold/subtle/minimal), 3 states (enabled/selected/disabled), dismissible + check icon, preserves label casing; HeroUI dark coloured subtle/minimal variants use theme palette overrides
 
 **Form Controls:**
 - `<ui-checkbox-item>` — checkbox component: 3 sizes (s/m/l), 3 check states (unchecked/checked/indeterminate), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error)
