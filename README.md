@@ -52,12 +52,16 @@ maneki-monorepo/
 
 | App       | Description                                                                                                                                                                                                                                                                      |
 | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `catalog` | Visual catalog for all design system packages. 56 pages, 242 Playwright cases across desktop and mobile Chromium. Lazy-loaded pages, History API routing, PWA, theme switcher.                                                                                        |
+| `catalog` | Visual catalog for all design system packages. 56 pages, 242 Playwright cases across desktop and mobile Chromium. Lazy-loaded pages, History API routing, PWA, theme switcher.                                                                                                   |
 | `blog`    | Full-stack blog + portfolio. Hono API + Turso DB, CF Pages Functions, static prerendering, admin system (`/admin` hub, editor, gallery, pages editor), AI review/brainstorm panels (Claude via CF AI Gateway), photography management, deploy trigger, History API routing, PWA. |
 
 Blog signature transitions capture rendered typography and animate to the final page layout without delayed scale or width changes. The 25 Playwright signature tests cover both directions, photography sizing, stroke scaling, reduced motion, and interrupted navigation (`cd apps/blog && npx playwright test`).
 
 CI builds and tests packages without database credentials. The blog browser job uses a read-only Turso token to build and prerender the site, then runs Playwright against the production preview server.
+
+Tooling security updates are locked in `package-lock.json`; PWA 2 supports Vite 8. Keep the Playwright container in `.github/workflows/test.yml` aligned with the locked `@playwright/test` version.
+
+The remaining development-only audit exception is `braces@3.0.3` ([GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)), for which no patched release is published. It enters through Stylelint and lint-staged and produces six audit entries (`braces`, `micromatch`, `fast-glob`, `globby`, `stylelint`, `lint-staged`). These tools process repository-controlled glob patterns, rather than production requests. Updating Stylelint still retains the affected chain; the replacement in lint-staged 17 requires a newer Node version than the repository pins. Do not apply audit's suggested downgrade to Stylelint 7.
 
 `moon run blog:build` runs the same prerendered build as `npm run build` and never uses Moon's artifact cache, since published content is loaded from Turso during the build.
 
