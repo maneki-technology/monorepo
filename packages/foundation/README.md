@@ -31,6 +31,10 @@ injectAllTokens();
 
 ## Usage
 
+### HeroUI tag colours
+
+HeroUI dark provides `--ui-tag-{family}-subtle-bg` and `--ui-tag-{family}-text` for the twelve chromatic palette families. Subtle fills use palette step 90; subtle text and minimal text/borders use step 30. These defaults are scoped to `[data-theme="heroui-dark"]`; component-level colour overrides take precedence.
+
 ### Colors
 
 13 families: Red, Orange, Yellow, Lime, Green, Teal, Turquoise, Aqua, Blue, Ultramarine, Purple, Pink, Gray. Steps 10–100 (plus Gray 110).

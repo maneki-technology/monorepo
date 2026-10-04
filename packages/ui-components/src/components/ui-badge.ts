@@ -19,7 +19,7 @@ import {
   SP_1_25,
   SURFACE_TERTIARY,
   TEAL_60,
-  TEXT_PRIMARY,
+  STATUS_TEXT_WARNING_BOLD,
   TEXT_SECONDARY,
   TURQUOISE_60,
   TYPE_BODY_02,
@@ -142,7 +142,7 @@ export const STYLES = /* css */ `
   :host([color="yellow"]) .base,
   :host([color="yellow"][emphasis="bold"]) .base {
     background-color: var(--ui-badge-bg, ${YELLOW_30});
-    color: var(--ui-badge-color, ${TEXT_PRIMARY});
+    color: var(--ui-badge-color, ${STATUS_TEXT_WARNING_BOLD});
   }
 
   :host([color="green"]) .base,
@@ -216,7 +216,7 @@ export const STYLES = /* css */ `
   :host([status="warning"]) .base,
   :host([status="warning"][emphasis="bold"]) .base {
     background-color: var(--ui-badge-bg, ${YELLOW_30});
-    color: var(--ui-badge-color, ${TEXT_PRIMARY});
+    color: var(--ui-badge-color, ${STATUS_TEXT_WARNING_BOLD});
   }
 
   :host([status="success"]) .base,

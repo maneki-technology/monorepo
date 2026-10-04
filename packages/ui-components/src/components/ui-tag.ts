@@ -48,6 +48,7 @@ import {
   TEAL_60,
   TEAL_70,
   TEXT_PRIMARY,
+  STATUS_TEXT_WARNING_BOLD,
   TURQUOISE_20,
   TURQUOISE_60,
   TURQUOISE_70,
@@ -195,7 +196,7 @@ export const STYLES = /* css */ `
   :host([color="yellow"]) .base,
   :host([color="yellow"][emphasis="bold"]) .base {
     background-color: var(--ui-tag-bg, ${YELLOW_30});
-    color: var(--ui-tag-color, ${TEXT_PRIMARY});
+    color: var(--ui-tag-color, ${STATUS_TEXT_WARNING_BOLD});
   }
 
   :host([color="green"]) .base,
@@ -261,137 +262,137 @@ export const STYLES = /* css */ `
   /* ── Subtle color variants ───────────────────────────────────────────────── */
 
   :host([color="red"][emphasis="subtle"]) .base {
-    background-color: var(--ui-tag-bg, ${RED_20});
-    color: var(--ui-tag-color, ${RED_70});
+    background-color: var(--ui-tag-bg, var(--ui-tag-red-subtle-bg, ${RED_20}));
+    color: var(--ui-tag-color, var(--ui-tag-red-text, ${RED_70}));
   }
 
   :host([color="yellow"][emphasis="subtle"]) .base {
-    background-color: var(--ui-tag-bg, ${YELLOW_10});
-    color: var(--ui-tag-color, ${TEXT_PRIMARY});
+    background-color: var(--ui-tag-bg, var(--ui-tag-yellow-subtle-bg, ${YELLOW_10}));
+    color: var(--ui-tag-color, var(--ui-tag-yellow-text, ${TEXT_PRIMARY}));
   }
 
   :host([color="green"][emphasis="subtle"]) .base {
-    background-color: var(--ui-tag-bg, ${GREEN_20});
-    color: var(--ui-tag-color, ${GREEN_70});
+    background-color: var(--ui-tag-bg, var(--ui-tag-green-subtle-bg, ${GREEN_20}));
+    color: var(--ui-tag-color, var(--ui-tag-green-text, ${GREEN_70}));
   }
 
   :host([color="blue"][emphasis="subtle"]) .base {
-    background-color: var(--ui-tag-bg, ${BLUE_20});
-    color: var(--ui-tag-color, ${BLUE_70});
+    background-color: var(--ui-tag-bg, var(--ui-tag-blue-subtle-bg, ${BLUE_20}));
+    color: var(--ui-tag-color, var(--ui-tag-blue-text, ${BLUE_70}));
   }
 
   :host([color="lime"][emphasis="subtle"]) .base {
-    background-color: var(--ui-tag-bg, ${LIME_20});
-    color: var(--ui-tag-color, ${LIME_70});
+    background-color: var(--ui-tag-bg, var(--ui-tag-lime-subtle-bg, ${LIME_20}));
+    color: var(--ui-tag-color, var(--ui-tag-lime-text, ${LIME_70}));
   }
 
   :host([color="teal"][emphasis="subtle"]) .base {
-    background-color: var(--ui-tag-bg, ${TEAL_20});
-    color: var(--ui-tag-color, ${TEAL_70});
+    background-color: var(--ui-tag-bg, var(--ui-tag-teal-subtle-bg, ${TEAL_20}));
+    color: var(--ui-tag-color, var(--ui-tag-teal-text, ${TEAL_70}));
   }
 
   :host([color="turquoise"][emphasis="subtle"]) .base {
-    background-color: var(--ui-tag-bg, ${TURQUOISE_20});
-    color: var(--ui-tag-color, ${TURQUOISE_70});
+    background-color: var(--ui-tag-bg, var(--ui-tag-turquoise-subtle-bg, ${TURQUOISE_20}));
+    color: var(--ui-tag-color, var(--ui-tag-turquoise-text, ${TURQUOISE_70}));
   }
 
   :host([color="aqua"][emphasis="subtle"]) .base {
-    background-color: var(--ui-tag-bg, ${AQUA_20});
-    color: var(--ui-tag-color, ${AQUA_70});
+    background-color: var(--ui-tag-bg, var(--ui-tag-aqua-subtle-bg, ${AQUA_20}));
+    color: var(--ui-tag-color, var(--ui-tag-aqua-text, ${AQUA_70}));
   }
 
   :host([color="ultramarine"][emphasis="subtle"]) .base {
-    background-color: var(--ui-tag-bg, ${ULTRAMARINE_20});
-    color: var(--ui-tag-color, ${ULTRAMARINE_70});
+    background-color: var(--ui-tag-bg, var(--ui-tag-ultramarine-subtle-bg, ${ULTRAMARINE_20}));
+    color: var(--ui-tag-color, var(--ui-tag-ultramarine-text, ${ULTRAMARINE_70}));
   }
 
   :host([color="pink"][emphasis="subtle"]) .base {
-    background-color: var(--ui-tag-bg, ${PINK_20});
-    color: var(--ui-tag-color, ${PINK_70});
+    background-color: var(--ui-tag-bg, var(--ui-tag-pink-subtle-bg, ${PINK_20}));
+    color: var(--ui-tag-color, var(--ui-tag-pink-text, ${PINK_70}));
   }
 
   :host([color="purple"][emphasis="subtle"]) .base {
-    background-color: var(--ui-tag-bg, ${PURPLE_20});
-    color: var(--ui-tag-color, ${PURPLE_70});
+    background-color: var(--ui-tag-bg, var(--ui-tag-purple-subtle-bg, ${PURPLE_20}));
+    color: var(--ui-tag-color, var(--ui-tag-purple-text, ${PURPLE_70}));
   }
 
   :host([color="orange"][emphasis="subtle"]) .base {
-    background-color: var(--ui-tag-bg, ${ORANGE_20});
-    color: var(--ui-tag-color, ${ORANGE_70});
+    background-color: var(--ui-tag-bg, var(--ui-tag-orange-subtle-bg, ${ORANGE_20}));
+    color: var(--ui-tag-color, var(--ui-tag-orange-text, ${ORANGE_70}));
   }
 
   /* ── Minimal color variants ──────────────────────────────────────────────── */
 
   :host([color="red"][emphasis="minimal"]) .base {
     background-color: var(--ui-tag-bg, transparent);
-    border: 1px solid var(--ui-tag-border, ${RED_60});
-    color: var(--ui-tag-color, ${RED_60});
+    border: 1px solid var(--ui-tag-border, var(--ui-tag-red-text, ${RED_60}));
+    color: var(--ui-tag-color, var(--ui-tag-red-text, ${RED_60}));
   }
 
   :host([color="yellow"][emphasis="minimal"]) .base {
     background-color: var(--ui-tag-bg, transparent);
-    border: 1px solid var(--ui-tag-border, ${YELLOW_30});
-    color: var(--ui-tag-color, ${TEXT_PRIMARY});
+    border: 1px solid var(--ui-tag-border, var(--ui-tag-yellow-text, ${YELLOW_30}));
+    color: var(--ui-tag-color, var(--ui-tag-yellow-text, ${TEXT_PRIMARY}));
   }
 
   :host([color="green"][emphasis="minimal"]) .base {
     background-color: var(--ui-tag-bg, transparent);
-    border: 1px solid var(--ui-tag-border, ${GREEN_60});
-    color: var(--ui-tag-color, ${GREEN_60});
+    border: 1px solid var(--ui-tag-border, var(--ui-tag-green-text, ${GREEN_60}));
+    color: var(--ui-tag-color, var(--ui-tag-green-text, ${GREEN_60}));
   }
 
   :host([color="blue"][emphasis="minimal"]) .base {
     background-color: var(--ui-tag-bg, transparent);
-    border: 1px solid var(--ui-tag-border, ${BLUE_60});
-    color: var(--ui-tag-color, ${BLUE_60});
+    border: 1px solid var(--ui-tag-border, var(--ui-tag-blue-text, ${BLUE_60}));
+    color: var(--ui-tag-color, var(--ui-tag-blue-text, ${BLUE_60}));
   }
 
   :host([color="lime"][emphasis="minimal"]) .base {
     background-color: var(--ui-tag-bg, transparent);
-    border: 1px solid var(--ui-tag-border, ${LIME_60});
-    color: var(--ui-tag-color, ${LIME_60});
+    border: 1px solid var(--ui-tag-border, var(--ui-tag-lime-text, ${LIME_60}));
+    color: var(--ui-tag-color, var(--ui-tag-lime-text, ${LIME_60}));
   }
 
   :host([color="teal"][emphasis="minimal"]) .base {
     background-color: var(--ui-tag-bg, transparent);
-    border: 1px solid var(--ui-tag-border, ${TEAL_60});
-    color: var(--ui-tag-color, ${TEAL_60});
+    border: 1px solid var(--ui-tag-border, var(--ui-tag-teal-text, ${TEAL_60}));
+    color: var(--ui-tag-color, var(--ui-tag-teal-text, ${TEAL_60}));
   }
 
   :host([color="turquoise"][emphasis="minimal"]) .base {
     background-color: var(--ui-tag-bg, transparent);
-    border: 1px solid var(--ui-tag-border, ${TURQUOISE_60});
-    color: var(--ui-tag-color, ${TURQUOISE_60});
+    border: 1px solid var(--ui-tag-border, var(--ui-tag-turquoise-text, ${TURQUOISE_60}));
+    color: var(--ui-tag-color, var(--ui-tag-turquoise-text, ${TURQUOISE_60}));
   }
 
   :host([color="aqua"][emphasis="minimal"]) .base {
     background-color: var(--ui-tag-bg, transparent);
-    border: 1px solid var(--ui-tag-border, ${AQUA_60});
-    color: var(--ui-tag-color, ${AQUA_60});
+    border: 1px solid var(--ui-tag-border, var(--ui-tag-aqua-text, ${AQUA_60}));
+    color: var(--ui-tag-color, var(--ui-tag-aqua-text, ${AQUA_60}));
   }
 
   :host([color="ultramarine"][emphasis="minimal"]) .base {
     background-color: var(--ui-tag-bg, transparent);
-    border: 1px solid var(--ui-tag-border, ${ULTRAMARINE_60});
-    color: var(--ui-tag-color, ${ULTRAMARINE_60});
+    border: 1px solid var(--ui-tag-border, var(--ui-tag-ultramarine-text, ${ULTRAMARINE_60}));
+    color: var(--ui-tag-color, var(--ui-tag-ultramarine-text, ${ULTRAMARINE_60}));
   }
 
   :host([color="pink"][emphasis="minimal"]) .base {
     background-color: var(--ui-tag-bg, transparent);
-    border: 1px solid var(--ui-tag-border, ${PINK_60});
-    color: var(--ui-tag-color, ${PINK_60});
+    border: 1px solid var(--ui-tag-border, var(--ui-tag-pink-text, ${PINK_60}));
+    color: var(--ui-tag-color, var(--ui-tag-pink-text, ${PINK_60}));
   }
 
   :host([color="purple"][emphasis="minimal"]) .base {
     background-color: var(--ui-tag-bg, transparent);
-    border: 1px solid var(--ui-tag-border, ${PURPLE_60});
-    color: var(--ui-tag-color, ${PURPLE_60});
+    border: 1px solid var(--ui-tag-border, var(--ui-tag-purple-text, ${PURPLE_60}));
+    color: var(--ui-tag-color, var(--ui-tag-purple-text, ${PURPLE_60}));
   }
 
   :host([color="orange"][emphasis="minimal"]) .base {
     background-color: var(--ui-tag-bg, transparent);
-    border: 1px solid var(--ui-tag-border, ${ORANGE_60});
-    color: var(--ui-tag-color, ${ORANGE_60});
+    border: 1px solid var(--ui-tag-border, var(--ui-tag-orange-text, ${ORANGE_60}));
+    color: var(--ui-tag-color, var(--ui-tag-orange-text, ${ORANGE_60}));
   }
 
   /* ── Type: selectable — enabled ─────────────────────────────────────────── */
@@ -423,7 +424,6 @@ export const STYLES = /* css */ `
     background-color: var(--ui-tag-bg, ${BUTTON_SECONDARY});
     color: var(--ui-tag-color, ${TAG_TEXT_MINIMAL});
     border-radius: ${RADIUS_SM};
-    text-transform: uppercase;
     font-weight: 500;
     cursor: pointer;
   }

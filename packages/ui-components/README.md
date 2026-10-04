@@ -29,6 +29,8 @@ npm install @maneki/ui-components
 
 ## Components
 
+HeroUI dark uses dark palette fills and bright matching text for coloured subtle tags, and bright text/borders for minimal tags. Yellow bold tags and yellow/warning bold badges use the warning text token for contrast. `--ui-tag-bg`, `--ui-tag-color`, `--ui-tag-border`, `--ui-badge-bg`, and `--ui-badge-color` continue to override theme defaults.
+
 | Component | Description |
 |---|---|
 | | **Primitives** |
@@ -75,7 +77,7 @@ npm install @maneki/ui-components
 | `<ui-tab-item>` | Tab item: 2 sizes, 3 states, 2 orientations, leading/trailing icon slots |
 | `<ui-tab-group>` | Tab group wrapper: size/orientation propagation, roving tabindex, arrow key navigation |
 | `<ui-icon>` | Material Symbols icon: 5 sizes, 10 states, filled variant, codepoint lookup |
-| `<ui-tag>` | Tag pill/toggle: 4 sizes, 3 types (basic/selectable/toggle), 3 emphases, 3 states, dismissible, check |
+| `<ui-tag>` | Tag pill/toggle: 4 sizes, 3 types (basic/selectable/toggle), 3 emphases, 3 states, dismissible, check, preserves label casing |
 | | **Data Display** |
 | `<ui-table>` | Table container: 3 sizes, 2 separators (minimal/moderate), zebra striping, bordered |
 | `<ui-table-row>` | Table row: header, selected, disabled states |
