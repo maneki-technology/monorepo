@@ -59,6 +59,8 @@ Blog signature transitions capture rendered typography and animate to the final 
 
 CI builds and tests packages without database credentials. The blog browser job uses a read-only Turso token to build and prerender the site, then runs Playwright against the production preview server.
 
+`moon run blog:build` runs the same prerendered build as `npm run build` and never uses Moon's artifact cache, since published content is loaded from Turso during the build.
+
 ---
 
 ## Getting Started

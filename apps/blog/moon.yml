@@ -16,11 +16,18 @@ tasks:
 
   build:
     script: "npm run build"
+    options:
+      cache: false
     inputs:
       - "src/**/*"
       - "plugins/**/*"
       - "scripts/**/*"
+      - "admin/**/*"
+      - "functions/**/*"
+      - "public/**/*"
       - "index.html"
+      - "admin.html"
+      - "package.json"
       - "tsconfig.json"
       - "vite.config.ts"
     outputs:
