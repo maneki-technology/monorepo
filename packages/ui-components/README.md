@@ -18,7 +18,7 @@ npm install @maneki/ui-components
 
 ```html
 <script type="module">
-  import '@maneki/ui-components';
+  import "@maneki/ui-components";
 </script>
 
 <ui-button action="primary" emphasis="bold" size="m">Save</ui-button>
@@ -29,71 +29,73 @@ npm install @maneki/ui-components
 
 ## Components
 
-| Component | Description |
-|---|---|
-| | **Primitives** |
-| `<ui-badge>` | Label/tag: 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses |
-| `<ui-image>` | Image container: 5 aspect ratios, 4 object-fit modes, placeholder, fallback slot |
-| `<ui-button>` | 5 actions, 3 emphases, 4 sizes, 2 shapes, 4 icon modes, 3 statuses |
-| `<ui-avatar>` | 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 14 colors |
-| `<ui-alert>` | Dismissable alert: 3 sizes, 2 emphases, 5 statuses, footer slot |
-| `<ui-label>` | Form field label: 3 sizes, 2 emphases, disabled, required indicator |
-| `<ui-link>` | Anchor/span link: 3 sizes, 7 states, standalone/inline, external icon |
-| | **Form Controls** |
-| `<ui-checkbox-item>` | 3 sizes, 3 check states, 3 label positions, 5 states |
-| `<ui-checkbox-group>` | Group wrapper: 2 orientations, size propagation |
-| `<ui-radio-item>` | 3 sizes, 2 check states, 3 label positions, 5 states, value attribute |
-| `<ui-radio-group>` | Group wrapper: 2 orientations, size propagation, mutual exclusion |
-| `<ui-input>` | Text input: 3 sizes, 4 types (text/numeric/clearable/password), 7 states, 5 statuses, label/supportive |
-| `<ui-input-group>` | Input group wrapper: 3 sizes, prefix/suffix slots with separators |
-| `<ui-file-upload>` | File upload: 3 sizes, Browse button, accept/multiple, disabled |
-| `<ui-dropzone>` | Drag-and-drop file upload zone: 3 sizes, accept/multiple filtering, browse link, hint, label slot |
-| `<ui-select>` | Select dropdown: 3 sizes, 7 states, 5 statuses, single/multi-select, tag pills, combobox ARIA |
-| `<ui-textarea>` | Textarea: 3 sizes, 7 states, 5 statuses, label with char count, secondary label, resize |
-| | **Containers** |
-| `<ui-card>` | Slot-based container: 3 sizes, 4 elevations, bordered variant |
-| `<ui-button-group>` | Segmented bar wrapping `<ui-button>` elements |
-| `<ui-scrollbar>` | Scroll container with keyboard-focusable content |
-| | **Navigation** |
-| `<ui-breadcrumb-item>` | Breadcrumb link: 3 sizes, 7 states |
-| `<ui-breadcrumb-group>` | Nav wrapper with size propagation |
-| `<ui-side-panel-menu>` | Collapsible sidebar nav: expanded/collapsed, mobile responsive, flyout submenu, overlay |
-| `<ui-side-panel-menu-item>` | Sidebar menu item: 3 levels, expandable parent, leading icon, selected/disabled |
-| | **Disclosure** |
-| `<ui-accordion-item>` | Expandable panel: 3 sizes, 2 emphases, 4 statuses |
-| `<ui-accordion-group>` | Wrapper with size/emphasis propagation + exclusive mode |
-| | **Menus & Dropdowns** |
-| `<ui-dropdown>` | Labeled button + floating menu: 4 sizes, 5 actions, opt-in `selectable` |
-| `<ui-dropdown-item>` | Menu item with select event, checkmark, disabled support |
-| `<ui-dropdown-heading>` | Uppercase section heading |
-| `<ui-dropdown-separator>` | Horizontal divider line |
-| `<ui-dropdown-split>` | Labeled split button (action + chevron trigger): 4 sizes, 5 actions, opt-in `selectable` |
-| `<ui-menu>` | Standalone floating menu panel: 2 sizes, open/close animation, dismiss, single/multi-select |
-| | **Overlays** |
-| `<ui-modal>` | Native modal dialog with inert background, header, scrollable body, footer: 3 sizes, 2 layouts |
-| | **Tabs** |
-| `<ui-tab-item>` | Tab item: 2 sizes, 3 states, 2 orientations, leading/trailing icon slots |
-| `<ui-tab-group>` | Tab group wrapper: size/orientation propagation, roving tabindex, arrow key navigation |
-| `<ui-icon>` | Material Symbols icon: 5 sizes, 10 states, filled variant, codepoint lookup |
-| `<ui-tag>` | Tag pill/toggle: 4 sizes, 3 types (basic/selectable/toggle), 3 emphases, 3 states, dismissible, check, preserves label casing |
-| | **Data Display** |
-| `<ui-table>` | Table container: 3 sizes, 2 separators (minimal/moderate), zebra striping, bordered |
-| `<ui-table-row>` | Table row: header, selected, disabled states |
-| `<ui-table-cell>` | Table cell: header, 3 alignments (left/center/right) |
-| `<ui-carousel>` | Keyboard-scrollable carousel with labeled arrows and current-slide indicators |
-| | **Calendar** |
-| `<ui-calendar>` | Standalone calendar: 3 sizes, daily + monthly views, single/range select, events, min/max |
-| `<ui-calendar-quicklinks>` | Composable quicklinks panel: 3 sizes, 2 orientations (side/bottom), sections, selected state |
-| `<ui-calendar-time>` | Composable inline time: 3 sizes, hour/minute inputs, AM/PM toggle, separator |
-| | **Datetime Picker** |
-| `<ui-datetime-picker-input>` | Date/time input trigger: 3 types, 3 sizes, 7 states, 5 statuses |
-| `<ui-datetime-picker>` | Datetime picker: input + floating dropdown, 3 types (single-date/range-date/time), actions bar |
-| `<ui-clock>` | Standalone clock: analog face + 24-hour digital, 3 sizes |
-| `<ui-calendar-panel>` | Composable wrapper: elevation, slots (side/bottom), size propagation, actions bar |
-| | **List** |
-| `<ui-list-item>` | List item: 3 sizes, 5 leading elements, 3 paddings, 4 states, trailing icon, description |
-| `<ui-list-header>` | List section header: 3 sizes, collapse button |
-| `<ui-list-group>` | List group wrapper: size propagation, collapsible |
+Disabled radio colours follow theme tokens. Override the disabled checked fill and dot with `--ui-radio-disabled-checked-bg` and `--ui-radio-disabled-dot-color`.
+
+| Component                    | Description                                                                                                                   |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+|                              | **Primitives**                                                                                                                |
+| `<ui-badge>`                 | Label/tag: 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses                                                               |
+| `<ui-image>`                 | Image container: 5 aspect ratios, 4 object-fit modes, placeholder, fallback slot                                              |
+| `<ui-button>`                | 5 actions, 3 emphases, 4 sizes, 2 shapes, 4 icon modes, 3 statuses                                                            |
+| `<ui-avatar>`                | 5 sizes, 3 types (text/icon/image), 2 emphases, 2 shapes, 14 colors                                                           |
+| `<ui-alert>`                 | Dismissable alert: 3 sizes, 2 emphases, 5 statuses, footer slot                                                               |
+| `<ui-label>`                 | Form field label: 3 sizes, 2 emphases, disabled, required indicator                                                           |
+| `<ui-link>`                  | Anchor/span link: 3 sizes, 7 states, standalone/inline, external icon                                                         |
+|                              | **Form Controls**                                                                                                             |
+| `<ui-checkbox-item>`         | 3 sizes, 3 check states, 3 label positions, 5 states                                                                          |
+| `<ui-checkbox-group>`        | Group wrapper: 2 orientations, size propagation                                                                               |
+| `<ui-radio-item>`            | 3 sizes, 2 check states, 3 label positions, 5 states, value attribute                                                         |
+| `<ui-radio-group>`           | Group wrapper: 2 orientations, size propagation, mutual exclusion                                                             |
+| `<ui-input>`                 | Text input: 3 sizes, 4 types (text/numeric/clearable/password), 7 states, 5 statuses, label/supportive                        |
+| `<ui-input-group>`           | Input group wrapper: 3 sizes, prefix/suffix slots with separators                                                             |
+| `<ui-file-upload>`           | File upload: 3 sizes, Browse button, accept/multiple, disabled                                                                |
+| `<ui-dropzone>`              | Drag-and-drop file upload zone: 3 sizes, accept/multiple filtering, browse link, hint, label slot                             |
+| `<ui-select>`                | Select dropdown: 3 sizes, 7 states, 5 statuses, single/multi-select, tag pills, combobox ARIA                                 |
+| `<ui-textarea>`              | Textarea: 3 sizes, 7 states, 5 statuses, label with char count, secondary label, resize                                       |
+|                              | **Containers**                                                                                                                |
+| `<ui-card>`                  | Slot-based container: 3 sizes, 4 elevations, bordered variant                                                                 |
+| `<ui-button-group>`          | Segmented bar wrapping `<ui-button>` elements                                                                                 |
+| `<ui-scrollbar>`             | Scroll container with keyboard-focusable content                                                                              |
+|                              | **Navigation**                                                                                                                |
+| `<ui-breadcrumb-item>`       | Breadcrumb link: 3 sizes, 7 states                                                                                            |
+| `<ui-breadcrumb-group>`      | Nav wrapper with size propagation                                                                                             |
+| `<ui-side-panel-menu>`       | Collapsible sidebar nav: expanded/collapsed, mobile responsive, flyout submenu, overlay                                       |
+| `<ui-side-panel-menu-item>`  | Sidebar menu item: 3 levels, expandable parent, leading icon, selected/disabled                                               |
+|                              | **Disclosure**                                                                                                                |
+| `<ui-accordion-item>`        | Expandable panel: 3 sizes, 2 emphases, 4 statuses                                                                             |
+| `<ui-accordion-group>`       | Wrapper with size/emphasis propagation + exclusive mode                                                                       |
+|                              | **Menus & Dropdowns**                                                                                                         |
+| `<ui-dropdown>`              | Labeled button + floating menu: 4 sizes, 5 actions, opt-in `selectable`                                                       |
+| `<ui-dropdown-item>`         | Menu item with select event, checkmark, disabled support                                                                      |
+| `<ui-dropdown-heading>`      | Uppercase section heading                                                                                                     |
+| `<ui-dropdown-separator>`    | Horizontal divider line                                                                                                       |
+| `<ui-dropdown-split>`        | Labeled split button (action + chevron trigger): 4 sizes, 5 actions, opt-in `selectable`                                      |
+| `<ui-menu>`                  | Standalone floating menu panel: 2 sizes, open/close animation, dismiss, single/multi-select                                   |
+|                              | **Overlays**                                                                                                                  |
+| `<ui-modal>`                 | Native modal dialog with inert background, header, scrollable body, footer: 3 sizes, 2 layouts                                |
+|                              | **Tabs**                                                                                                                      |
+| `<ui-tab-item>`              | Tab item: 2 sizes, 3 states, 2 orientations, leading/trailing icon slots                                                      |
+| `<ui-tab-group>`             | Tab group wrapper: size/orientation propagation, roving tabindex, arrow key navigation                                        |
+| `<ui-icon>`                  | Material Symbols icon: 5 sizes, 10 states, filled variant, codepoint lookup                                                   |
+| `<ui-tag>`                   | Tag pill/toggle: 4 sizes, 3 types (basic/selectable/toggle), 3 emphases, 3 states, dismissible, check, preserves label casing |
+|                              | **Data Display**                                                                                                              |
+| `<ui-table>`                 | Table container: 3 sizes, 2 separators (minimal/moderate), zebra striping, bordered                                           |
+| `<ui-table-row>`             | Table row: header, selected, disabled states                                                                                  |
+| `<ui-table-cell>`            | Table cell: header, 3 alignments (left/center/right)                                                                          |
+| `<ui-carousel>`              | Keyboard-scrollable carousel with labeled arrows and current-slide indicators                                                 |
+|                              | **Calendar**                                                                                                                  |
+| `<ui-calendar>`              | Standalone calendar: 3 sizes, daily + monthly views, single/range select, events, min/max                                     |
+| `<ui-calendar-quicklinks>`   | Composable quicklinks panel: 3 sizes, 2 orientations (side/bottom), sections, selected state                                  |
+| `<ui-calendar-time>`         | Composable inline time: 3 sizes, hour/minute inputs, AM/PM toggle, separator                                                  |
+|                              | **Datetime Picker**                                                                                                           |
+| `<ui-datetime-picker-input>` | Date/time input trigger: 3 types, 3 sizes, 7 states, 5 statuses                                                               |
+| `<ui-datetime-picker>`       | Datetime picker: input + floating dropdown, 3 types (single-date/range-date/time), actions bar                                |
+| `<ui-clock>`                 | Standalone clock: analog face + 24-hour digital, 3 sizes                                                                      |
+| `<ui-calendar-panel>`        | Composable wrapper: elevation, slots (side/bottom), size propagation, actions bar                                             |
+|                              | **List**                                                                                                                      |
+| `<ui-list-item>`             | List item: 3 sizes, 5 leading elements, 3 paddings, 4 states, trailing icon, description                                      |
+| `<ui-list-header>`           | List section header: 3 sizes, collapse button                                                                                 |
+| `<ui-list-group>`            | List group wrapper: size propagation, collapsible                                                                             |
 
 ```html
 <ui-button action="primary" emphasis="bold" size="m">Save</ui-button>
