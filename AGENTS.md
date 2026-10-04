@@ -15,11 +15,11 @@ Toolchain: proto (version pinning) + Moon (task runner) + npm workspaces.
 
 ```
 maneki-monorepo/
-├── .prototools              # node 22.16.0, moon 2.0.4
+├── .prototools              # node 22.16.0, moon 2.2.1
 ├── .moon/
 │   ├── workspace.yml        # projects: apps/*, packages/*
 │   └── toolchains.yml       # npm package manager
-├── .husky/                   # Pre-commit hook (lint-staged → html-validate + stylelint)
+├── .husky/                   # Pre-commit hook (lint-staged → eslint, prettier, html-validate, stylelint)
 ├── .htmlvalidate.json       # HTML linting config
 ├── .npmrc                   # npm config
 ├── .stylelintrc.json        # CSS linting config
@@ -31,6 +31,7 @@ maneki-monorepo/
 │   └── vite-dev-aliases.ts  # Dev aliases for cross-package HMR
 ├── package.json             # npm workspaces root
 ├── packages/
+│   ├── charts/              # SVG chart Web Components (@maneki/charts)
 │   ├── grid-layout/         # <grid-layout> Web Component library (@maneki/grid-layout)
 │   ├── flex-layout/         # Panel-based flex layout Web Components (@maneki/flex-layout)
 │   ├── ui-components/       # UI components (@maneki/ui-components)
@@ -76,7 +77,6 @@ maneki-monorepo/
 │           ├── components/       # Shared vanilla Web Components
 │           │   ├── theme-toggle.ts # <theme-toggle> theme switch (vanilla WC, FAB mode via fab attribute)
 │           │   └── mute-toggle.ts  # <mute-toggle> contrast mute toggle (vanilla WC, ui-button based)
-│           │   └── theme-toggle.ts # <theme-toggle> theme switch (vanilla WC, FAB mode via fab attribute)
 │           ├── lib/              # Shared utilities
 │           │   └── api.ts        # Typed RPC client (hc<AppType>)
 │           ├── config.ts     # Site URL/title config
@@ -98,7 +98,7 @@ maneki-monorepo/
 | UI components                         | `packages/ui-components/`                               | Web Components                                                                                                                                                                            |
 | Grid layout library                   | `packages/grid-layout/`                                 | Has its own detailed AGENTS.md                                                                                                                                                            |
 | Flex layout library                   | `packages/flex-layout/`                                 | Panel-based flex layout, has its own AGENTS.md                                                                                                                                            |
-| Visual catalog + Playwright tests     | `apps/catalog/`                                         | 55 pages, 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout). History API routing, workbox caching.                                                                       |
+| Visual catalog + Playwright tests     | `apps/catalog/`                                         | Visual + a11y Playwright suites across desktop and mobile projects (counts in `apps/catalog/AGENTS.md`). History API routing, workbox caching.                                            |
 | Personal blog + portfolio             | `apps/blog/`                                            | Hono API + Turso DB, CF Pages Functions, static prerendering, admin system at /admin, editor with RPC client                                                                              |
 | Blog API routes                       | `apps/blog/src/api/`                                    | Hono: posts CRUD, ui-state, deploy trigger, image upload (R2), photos CRUD, albums CRUD, review (AI streaming), brainstorm (AI streaming), review-conversations, brainstorm-conversations |
 | Blog editor                           | `apps/blog/src/pages/editor/`                           | 20 modules: state, sidebar (Lit), tabbar (Lit), preview, toolbar, upload, api, types, review-panel, brainstorm-panel + more                                                               |
@@ -138,7 +138,7 @@ maneki-monorepo/
 - **Multi-entry build for ui-components.** Barrel import + per-component deep imports for tree-shaking.
 - **Dev aliases.** `@maneki/*` resolves to source in dev mode for instant HMR (via `shared/vite-dev-aliases.ts`).
 - **Geist font.** Lives in `@maneki/foundation/assets/`, registered via `registerGeistFont()`.
-- **Pre-commit hook.** husky + lint-staged runs html-validate + stylelint on staged files.
+- **Pre-commit hook.** husky + lint-staged runs eslint + prettier (ts/js), prettier (json/md/yml/css), html-validate (html) and stylelint (component/foundation styles) on whole staged files.
 - **Lit for admin components.** Admin pages use Lit (`lit@3.3.2`) for reactive rendering. Public blog pages do NOT import Lit.
 - **`<theme-toggle>` for theme switching.** Vanilla Web Component shared across all pages (public + admin). Uses `ui-button` internally, no Lit dependency. Supports `fab` attribute for fixed-position semi-transparent mode.
 - **Admin as static HTML files.** Each admin page (`/admin`, `/admin/editor`, `/admin/gallery`, `/admin/pages`) has its own HTML file and entry script. No SPA routing — CF Pages serves them as static files.
@@ -184,7 +184,7 @@ Every change — component, fix, refactor, docs — follows this workflow:
    - Icon constants list if new icons
    - Token mappings if new tokens
    - AGENTS.md structure trees if new files
-   - ALWAYS update docs BEFORE the first `jj git push`. Never push code without docs in the same commit.
+   - Docs ship in the same commit as the code, so they're done before the first `jj git push`.
 7. **Ask user to verify visually** — share catalog screenshots or point to the running catalog dev server. Wait for user confirmation before pushing. Never push without user sign-off on visual changes.
 8. **Wait for explicit push request** — NEVER push code unless the user explicitly asks. Present the completed work and wait for the user to say "push", "let's push", "push it", etc.
 9. **Push** — `jj bookmark set <name> -r @ --allow-backwards && jj git push --bookmark <name>`
@@ -230,10 +230,10 @@ npm run seed-posts # Seed markdown posts into Turso (one-time)
 - Git repo: `maneki-technology/monorepo` on GitHub
 - CI/CD: Playwright visual regression tests in `apps/catalog/`. Catalog deployed via Cloudflare Pages.
 - CI test pipeline runs on PRs (`.github/workflows/test.yml`). Deploy workflows for both blog (`deploy-blog.yml`) and catalog (`deploy-catalog.yml`).
-- `apps/catalog/` — Visual catalog app with 114 Playwright tests (55 visual + 55 a11y + sidebar + full layout). History API routing, workbox caches JS/CSS/fonts only (not HTML).
+- `apps/catalog/` — Visual catalog app with Playwright visual + a11y suites (see `apps/catalog/AGENTS.md`). History API routing, workbox caches JS/CSS/fonts only (not HTML).
 - Node pinned at 22 (see `.prototools`) for the toolchain (Vite 8, Vitest 4, etc.)
 - LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead
 - Dark theme: two systems — default (`[data-theme="dark"]`) and HeroUI (`[data-theme="heroui"]` / `[data-theme="heroui-dark"]`). Blog uses HeroUI. Catalog supports both.
 - ADRs in `docs/adr/` — 30 architectural decision records
-- `apps/blog/` — Personal blog + portfolio. Hono API + Turso DB, CF Pages Functions, CF Access auth, typed RPC client (hc<AppType>), static prerendering via `scripts/prerender.ts`, History API routing, workbox service worker (JS/CSS/fonts cached, HTML from network), Shiki syntax highlighting (build-time + editor preview), SEO meta tags, sitemap generation (Turso), RSS feed (Turso), FOUC prevention, reading progress bar, client-side search, editor at `/admin/editor` with modular architecture (18 files, Lit sidebar + tabbar), sidebar with multi-select + batch operations for posts and projects, tabs with Map-based DOM patching + prefix slot (📝/📦), reactive store (setState + selective rendering), image upload (R2 + client-side WebP optimization + gallery side panel), deploy trigger (GitHub Actions repository_dispatch + status polling), deploy FAB (ui-button based with rocket_launch icon), portfolio management (projects CRUD + reorder + pin), soft delete, unpublished changes tracking (published_snapshot JSON comparison), undo stack (setRangeText-based, avoids execCommand), scroll sync, circular context menu, UI state persistence, resume page, admin system at /admin (hub, editor, gallery, pages), generic editable pages (virtual:pages), published_snapshot change detection, admin pages editor at /admin/pages, theme toggle FAB, photography backend (albums + photos tables in Turso), FLIP signature animation (hero to header, 25 Playwright signature e2e tests), blur-to-sharp micro-interactions, terracotta accent color (`--blog-accent`), Homeland signature font (self-hosted subset woff2), AI review panel (Claude streaming via CF AI Gateway, audience selector, conversation persistence), AI brainstorm panel (focus areas, conversation persistence), mute toggle (`data-muted` attribute, localStorage persisted). Port 5175. ESLint + Prettier for linting/formatting.
+- `apps/blog/` — Personal blog + portfolio. Hono API + Turso DB, CF Pages Functions, CF Access auth, typed RPC client (hc<AppType>), static prerendering via `scripts/prerender.ts`, History API routing, workbox service worker (JS/CSS/fonts cached, HTML from network), Shiki syntax highlighting (build-time + editor preview), SEO meta tags, sitemap generation (Turso), RSS feed (Turso), FOUC prevention, reading progress bar, client-side search, editor at `/admin/editor` with modular architecture (20 files, Lit sidebar + tabbar), sidebar with multi-select + batch operations for posts and projects, tabs with Map-based DOM patching + prefix slot (📝/📦), reactive store (setState + selective rendering), image upload (R2 + client-side WebP optimization + gallery side panel), deploy trigger (GitHub Actions repository_dispatch + status polling), deploy FAB (ui-button based with rocket_launch icon), portfolio management (projects CRUD + reorder + pin), soft delete, unpublished changes tracking (published_snapshot JSON comparison), undo stack (setRangeText-based, avoids execCommand), scroll sync, circular context menu, UI state persistence, resume page, admin system at /admin (hub, editor, gallery, pages), generic editable pages (virtual:pages), published_snapshot change detection, admin pages editor at /admin/pages, theme toggle FAB, photography backend (albums + photos tables in Turso), FLIP signature animation (hero to header, 25 Playwright signature e2e tests), blur-to-sharp micro-interactions, terracotta accent color (`--blog-accent`), Homeland signature font (self-hosted subset woff2), AI review panel (Claude streaming via CF AI Gateway, audience selector, conversation persistence), AI brainstorm panel (focus areas, conversation persistence), mute toggle (`data-muted` attribute, localStorage persisted). Port 5175. ESLint + Prettier for linting/formatting.
 ```
