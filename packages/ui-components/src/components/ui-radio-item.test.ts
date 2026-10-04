@@ -268,4 +268,15 @@ describe("ui-radio-item", () => {
     component.value = "test";
     expect(component.value).toBe("test");
   });
+
+  // ── Disabled colours ──────────────────────────────────────────────────
+
+  it("uses theme tokens instead of white for disabled radios", () => {
+    const css = Array.from(el.shadowRoot!.adoptedStyleSheets[0].cssRules)
+      .filter((rule) => rule.cssText.startsWith(":host([disabled]"))
+      .map((rule) => rule.cssText)
+      .join("\n");
+    expect(css).toContain(":host([disabled][checked]) .dot");
+    expect(css).not.toMatch(/#fff\b|#ffffff|\bwhite\b/i);
+  });
 });

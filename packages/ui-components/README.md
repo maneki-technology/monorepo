@@ -29,8 +29,6 @@ npm install @maneki/ui-components
 
 ## Components
 
-Disabled radio colours follow theme tokens. Override the disabled checked fill and dot with `--ui-radio-disabled-checked-bg` and `--ui-radio-disabled-dot-color`.
-
 | Component                    | Description                                                                                                                   |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 |                              | **Primitives**                                                                                                                |
@@ -44,7 +42,7 @@ Disabled radio colours follow theme tokens. Override the disabled checked fill a
 |                              | **Form Controls**                                                                                                             |
 | `<ui-checkbox-item>`         | 3 sizes, 3 check states, 3 label positions, 5 states                                                                          |
 | `<ui-checkbox-group>`        | Group wrapper: 2 orientations, size propagation                                                                               |
-| `<ui-radio-item>`            | 3 sizes, 2 check states, 3 label positions, 5 states, value attribute                                                         |
+| `<ui-radio-item>`            | 3 sizes, 2 check states, 3 label positions, 5 states, value attribute, `--ui-radio-disabled-*` overrides                      |
 | `<ui-radio-group>`           | Group wrapper: 2 orientations, size propagation, mutual exclusion                                                             |
 | `<ui-input>`                 | Text input: 3 sizes, 4 types (text/numeric/clearable/password), 7 states, 5 statuses, label/supportive                        |
 | `<ui-input-group>`           | Input group wrapper: 3 sizes, prefix/suffix slots with separators                                                             |
@@ -115,7 +113,7 @@ Interactive previews and visual regression coverage live in **`apps/catalog/`** 
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (3718 tests)
+moon run ui-components:test   # vitest --run (3719 tests)
 ```
 
 ---
