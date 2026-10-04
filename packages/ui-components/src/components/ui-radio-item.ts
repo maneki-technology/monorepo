@@ -231,14 +231,13 @@ const STYLES = /* css */ `
 
   :host([disabled]) .radio {
     border-color: ${DISABLED_BORDER};
-    background-color: #ffffff;
   }
   :host([disabled][checked]) .radio {
     border-color: ${DISABLED_BORDER};
-    background-color: #ffffff;
+    background-color: var(--ui-radio-disabled-checked-bg, ${DISABLED_MINIMAL});
   }
   :host([disabled][checked]) .dot {
-    background-color: ${DISABLED_MINIMAL};
+    background-color: var(--ui-radio-disabled-dot-color, ${DISABLED_TEXT});
   }
   :host([disabled]) .label {
     color: ${DISABLED_TEXT};
@@ -273,13 +272,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiRadioItem extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "label-position",
-    "checked",
-    "disabled",
-    "error",
-  ];
+  static readonly observedAttributes = ["size", "label-position", "checked", "disabled", "error"];
 
   constructor() {
     super();
@@ -332,19 +325,12 @@ export class UiRadioItem extends HTMLElement {
     this._syncAriaChecked();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (name === "checked") {
       this._syncAriaChecked();
     }
     if (name === "disabled") {
-      this.setAttribute(
-        "aria-disabled",
-        this.disabled ? "true" : "false",
-      );
+      this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
     }
   }
 
@@ -428,9 +414,7 @@ export class UiRadioItem extends HTMLElement {
   private _select(): void {
     if (this.checked) return; // Radio cannot be unchecked by clicking again
     this.checked = true;
-    this.dispatchEvent(
-      new CustomEvent("change", { bubbles: true, composed: true }),
-    );
+    this.dispatchEvent(new CustomEvent("change", { bubbles: true, composed: true }));
   }
 
   private _syncAriaChecked(): void {
