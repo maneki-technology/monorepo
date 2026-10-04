@@ -17,7 +17,7 @@ Toolchain: proto (version pinning) + Moon (task runner) + npm workspaces.
 maneki-monorepo/
 ├── .prototools              # node 22.16.0, moon 2.2.1
 ├── .moon/
-│   ├── workspace.yml        # projects: apps/*, packages/*
+│   ├── workspace.yml        # projects: apps/*, packages/*; vcs default branch: main
 │   └── toolchains.yml       # npm package manager
 ├── .husky/                   # Pre-commit hook (lint-staged → eslint, prettier, html-validate, stylelint)
 ├── .htmlvalidate.json       # HTML linting config
