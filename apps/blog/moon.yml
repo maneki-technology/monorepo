@@ -36,9 +36,10 @@ tasks:
       - "^:build"
 
   test:
-    command: "vitest --run src"
+    command: "vitest --run src plugins"
     inputs:
       - "src/**/*"
+      - "plugins/**/*"
       - "vite.config.ts"
 
   typecheck:
