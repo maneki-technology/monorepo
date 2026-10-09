@@ -125,6 +125,14 @@ describe("ui-scrollbar", () => {
     expect(observed).toHaveLength(2);
   });
 
+  it("restores the container overflow and scroll position on pointer enter", () => {
+    const container = el.shadowRoot!.querySelector(".container") as HTMLElement;
+    container.scrollTop = 40;
+    el.dispatchEvent(new Event("pointerenter"));
+    expect(container.style.overflow).toBe("");
+    expect(container.scrollTop).toBe(40);
+  });
+
   // ── STYLES ─────────────────────────────────────────────────────────────────
 
   it("STYLES contains ::-webkit-scrollbar rule", () => {

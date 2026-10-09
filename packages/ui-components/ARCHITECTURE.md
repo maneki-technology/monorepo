@@ -4,7 +4,7 @@ _Verified against the package on 9 October 2026._
 
 ## Overview
 
-`@maneki/ui-components` ships 78 registered custom elements and 3,720 unit tests. All components use open Shadow DOM and CSS custom properties for theming. Runtime dependencies are `@maneki/foundation` and `lit`.
+`@maneki/ui-components` ships 78 registered custom elements and 3,721 unit tests. All components use open Shadow DOM and CSS custom properties for theming. Runtime dependencies are `@maneki/foundation` and `lit`.
 
 The [README](README.md) lists all elements. [AGENTS.md](AGENTS.md) describes component conventions and the source tree. Co-located component source and tests provide attribute, property and event details.
 
@@ -97,7 +97,7 @@ Components compose existing primitives rather than inheriting from other custom 
 
 ## Verification and Maintenance
 
-Run `moon run ui-components:test` for the 3,720 tests and `moon run ui-components:build` for JavaScript and declarations. The catalog supplies Playwright visual and accessibility coverage; see [its instructions](../../apps/catalog/AGENTS.md).
+Run `moon run ui-components:test` for the 3,721 tests and `moon run ui-components:build` for JavaScript and declarations. The catalog supplies Playwright visual and accessibility coverage; see [its instructions](../../apps/catalog/AGENTS.md).
 
 Before pushing, update component inventories, source trees and test counts from the package. Verify both barrel and deep-import declarations against built files. UI changes also need visual review.
 

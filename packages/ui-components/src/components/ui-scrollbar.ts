@@ -25,6 +25,18 @@ export class UiScrollbar extends HTMLElement {
     const slot = document.createElement("slot");
     container.appendChild(slot);
     shadow.appendChild(container);
+
+    // WebKit repaints a custom scrollbar only when it is rebuilt, so the hover thumb needs an overflow toggle
+    const rebuildScrollbar = (): void => {
+      const { scrollTop, scrollLeft } = container;
+      container.style.overflow = "hidden";
+      void container.offsetWidth;
+      container.style.overflow = "";
+      container.scrollTop = scrollTop;
+      container.scrollLeft = scrollLeft;
+    };
+    this.addEventListener("pointerenter", rebuildScrollbar);
+    this.addEventListener("pointerleave", rebuildScrollbar);
   }
 
   connectedCallback(): void {
