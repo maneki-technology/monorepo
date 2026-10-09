@@ -2,7 +2,7 @@
 
 ## OVERVIEW
 
-Web Component library for the Maneki design system. Shadow DOM, CSS custom properties, TypeScript. Currently ships:
+Web Component library for the Maneki design system. Shadow DOM, CSS custom properties, TypeScript. Runtime dependencies: `@maneki/foundation` and `lit`. Ships 78 registered elements: 74 vanilla components and four Lit side-panel components. Currently ships:
 
 **Primitives:**
 
@@ -89,13 +89,43 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-modal>` — native modal dialog with top-layer backdrop and inert background, header (title+subtitle+close), scrollable body, footer button slots, 3 sizes, 2 layouts (auto/fluid), dismiss behavior
 - `<ui-popover>` — focus-managed popover: trigger element, floating panel, outside-click + Escape dismiss, focus trap, arrow key navigation
 - `<ui-tooltip>` — tooltip with aria-describedby: hover/focus trigger, configurable placement, delay, accessible label
-  **Tabs:**
+
+**Tabs:**
+
 - `<ui-tab-item>` — tab item: 2 sizes (s/m), 3 states (enabled/selected/disabled), 2 orientations (horizontal/vertical), leading/trailing icon slots, sub-menu chevron, smooth transition
 - `<ui-tab-group>` — tab group wrapper: size/orientation propagation, single selection, roving tabindex, arrow key navigation
 
 **Icons:**
 
 - `<ui-icon>` — Material Symbols icon: 5 sizes (xxs/xs/s/m/l), 10 states (enabled/hover/active/focus/disabled + inverse variants), filled variant, ICON_CODEPOINTS lookup with ligature fallback, accessible label, custom icon registry via `registerIcon()`
+
+**Metrics, navigation and utilities:**
+
+- `<ui-metric>` — Metric value with label and delta
+- `<ui-metric-group>` — Metric grouping and layout
+- `<ui-pagination>` — Pagination: minimal, basic and data-grid variants
+- `<ui-person-item>` — Person display item
+- `<ui-person-group>` — Person grouping
+- `<ui-progress-bar>` — Linear progress indicator
+- `<ui-progress-circle>` — Circular progress indicator
+- `<ui-pull-to-refresh>` — Pull-to-refresh indicator
+- `<ui-queryfield>` — Query input with composable filters
+- `<ui-queryfield-tag>` — Query filter tag
+- `<ui-search>` — Search input with categorized results
+- `<ui-separator>` — Horizontal or vertical separator
+- `<ui-side-panel>` — Expandable side panel
+- `<ui-skeleton>` — Loading placeholder: text, circle and rectangle
+- `<ui-slider>` — Range slider
+- `<ui-step-item>` — Step indicator
+- `<ui-step-group>` — Step grouping and orientation
+- `<ui-switch>` — Toggle switch with label positioning
+- `<ui-toolbar>` — Horizontal or vertical toolbar
+- `<ui-toolbar-separator>` — Toolbar separator
+- `<ui-tree-item>` — Tree item with expandable children
+- `<ui-tree-group>` — Tree grouping
+- `<ui-calendar-panel>` — Calendar wrapper with side/bottom slots and actions
+- `<ui-scrollbar>` — Scrollable container with emphasis and orientation
+- `<ui-wizard>` — Multi-step wizard with navigation
 
 ## STRUCTURE
 
@@ -104,62 +134,88 @@ ui-components/
 ├── src/
 │   ├── index.ts             # Barrel export + custom element registration
 │   ├── define-custom-element.ts # Idempotent registration; first constructor wins
+│   ├── css-minify.ts        # Build-time CSS literal minification
 │   ├── registration.test.ts # Duplicate package-loading regression
 │   ├── test/setup.ts        # happy-dom ElementInternals shim
 │   ├── components/
-│   │   ├── ui-badge.ts
-│   │   ├── ui-image.ts
-│   │   ├── ui-button.ts
-│   │   ├── ui-button-group.ts
-│   │   ├── ui-avatar.ts
+│   │   ├── ui-accordion-group.ts
+│   │   ├── ui-accordion-item.ts
 │   │   ├── ui-alert.ts
+│   │   ├── ui-avatar.ts
+│   │   ├── ui-badge.ts
+│   │   ├── ui-breadcrumb-group.ts
+│   │   ├── ui-breadcrumb-item.ts
+│   │   ├── ui-button-group.ts
+│   │   ├── ui-button.ts
+│   │   ├── ui-calendar-panel.ts + ui-calendar-panel.styles.ts
+│   │   ├── ui-calendar-quicklinks.ts + ui-calendar-quicklinks.styles.ts
+│   │   ├── ui-calendar-time.ts + ui-calendar-time.styles.ts
+│   │   ├── ui-calendar.ts + ui-calendar.styles.ts
+│   │   ├── ui-card.ts
+│   │   ├── ui-carousel-item.ts
+│   │   ├── ui-carousel.ts
+│   │   ├── ui-checkbox-group.ts
+│   │   ├── ui-checkbox-item.ts
+│   │   ├── ui-clock.ts + ui-clock.styles.ts
+│   │   ├── ui-datetime-picker-input.ts + ui-datetime-picker-input.styles.ts
+│   │   ├── ui-datetime-picker.ts + ui-datetime-picker.styles.ts
+│   │   ├── ui-dropdown-heading.ts
+│   │   ├── ui-dropdown-item.ts + ui-dropdown-item.styles.ts
+│   │   ├── ui-dropdown-separator.ts
+│   │   ├── ui-dropdown-split.ts + ui-dropdown-split.styles.ts
+│   │   ├── ui-dropdown.ts
+│   │   ├── ui-dropzone.ts
+│   │   ├── ui-file-upload.ts
+│   │   ├── ui-icon.ts
+│   │   ├── ui-image.ts
+│   │   ├── ui-input-group.ts
+│   │   ├── ui-input.ts + ui-input.styles.ts
 │   │   ├── ui-label.ts
 │   │   ├── ui-link.ts
-│   │   ├── ui-checkbox-item.ts
-│   │   ├── ui-checkbox-group.ts
-│   │   ├── ui-radio-item.ts
+│   │   ├── ui-list-group.ts + ui-list-group.styles.ts
+│   │   ├── ui-list-header.ts + ui-list-header.styles.ts
+│   │   ├── ui-list-item.ts + ui-list-item.styles.ts
+│   │   ├── ui-menu.ts
+│   │   ├── ui-metric-group.ts
+│   │   ├── ui-metric.ts + ui-metric.styles.ts
+│   │   ├── ui-modal.ts
+│   │   ├── ui-pagination.ts + ui-pagination.styles.ts
+│   │   ├── ui-person-group.ts
+│   │   ├── ui-person-item.ts + ui-person-item.styles.ts
+│   │   ├── ui-popover.ts + ui-popover.styles.ts
+│   │   ├── ui-progress-bar.ts + ui-progress-bar.styles.ts
+│   │   ├── ui-progress-circle.ts
+│   │   ├── ui-pull-to-refresh.ts + ui-pull-to-refresh.styles.ts
+│   │   ├── ui-queryfield-tag.ts + ui-queryfield-tag.styles.ts
+│   │   ├── ui-queryfield.ts + ui-queryfield.styles.ts
 │   │   ├── ui-radio-group.ts
-│   │   ├── ui-input.ts          + ui-input.styles.ts
-│   │   ├── ui-input-group.ts
-│   │   ├── ui-file-upload.ts
-│   │   ├── ui-dropzone.ts
-│   │   ├── ui-select.ts         + ui-select.styles.ts
-│   │   ├── ui-textarea.ts        + ui-textarea.styles.ts
-│   │   ├── ui-card.ts
-│   │   ├── ui-breadcrumb-item.ts
-│   │   ├── ui-breadcrumb-group.ts
-│   │   ├── ui-side-panel-menu.ts + ui-side-panel-menu.styles.ts
+│   │   ├── ui-radio-item.ts
+│   │   ├── ui-scrollbar.ts + ui-scrollbar.styles.ts
+│   │   ├── ui-search.ts + ui-search.styles.ts
+│   │   ├── ui-select.ts + ui-select.styles.ts
+│   │   ├── ui-separator.ts
 │   │   ├── ui-side-panel-menu-item.ts
 │   │   ├── ui-side-panel-menu-section.ts
-│   │   ├── ui-accordion-item.ts
-│   │   ├── ui-accordion-group.ts
-│   │   ├── ui-dropdown.ts
-│   │   ├── ui-dropdown-item.ts   + ui-dropdown-item.styles.ts
-│   │   ├── ui-dropdown-heading.ts
-│   │   ├── ui-dropdown-separator.ts
-│   │   ├── ui-dropdown-split.ts  + ui-dropdown-split.styles.ts
-│   │   ├── ui-menu.ts
-│   │   ├── ui-modal.ts
-│   │   ├── ui-tab-item.ts
+│   │   ├── ui-side-panel-menu.ts
+│   │   ├── ui-side-panel.ts + ui-side-panel.styles.ts
+│   │   ├── ui-skeleton.ts
+│   │   ├── ui-slider.ts + ui-slider.styles.ts
+│   │   ├── ui-step-group.ts
+│   │   ├── ui-step-item.ts + ui-step-item.styles.ts
+│   │   ├── ui-switch.ts
 │   │   ├── ui-tab-group.ts
-│   │   ├── ui-icon.ts
-│   │   ├── ui-tag.ts
-│   │   ├── ui-table.ts
-│   │   ├── ui-table-row.ts
+│   │   ├── ui-tab-item.ts
 │   │   ├── ui-table-cell.ts
-│   │   ├── ui-carousel.ts
-│   │   ├── ui-carousel-item.ts
-│   │   ├── ui-calendar.ts        + ui-calendar.styles.ts
-│   │   ├── ui-calendar-quicklinks.ts  + ui-calendar-quicklinks.styles.ts
-│   │   ├── ui-calendar-time.ts    + ui-calendar-time.styles.ts
-│   │   ├── ui-calendar-panel.ts    + ui-calendar-panel.styles.ts
-│   │   ├── ui-datetime-picker-input.ts + ui-datetime-picker-input.styles.ts
-│   │   ├── ui-datetime-picker.ts      + ui-datetime-picker.styles.ts
-│   │   ├── ui-clock.ts            + ui-clock.styles.ts
-│   │   ├── ui-list-item.ts        + ui-list-item.styles.ts
-│   │   ├── ui-list-header.ts      + ui-list-header.styles.ts
-│   │   ├── ui-popover.ts           + ui-popover.styles.ts
+│   │   ├── ui-table-row.ts
+│   │   ├── ui-table.ts
+│   │   ├── ui-tag.ts
+│   │   ├── ui-textarea.ts + ui-textarea.styles.ts
+│   │   ├── ui-toolbar-separator.ts
+│   │   ├── ui-toolbar.ts
 │   │   ├── ui-tooltip.ts
+│   │   ├── ui-tree-group.ts
+│   │   ├── ui-tree-item.ts + ui-tree-item.styles.ts
+│   │   ├── ui-wizard.ts
 │   │   ├── constructor-attributes.test.ts # Registered-element construction
 │   │   └── *.test.ts            # Co-located tests
 ```
@@ -198,22 +254,18 @@ Follow `ui-button.ts` or `ui-alert.ts` as reference:
 4. Observed attributes → `attributeChangedCallback`
 5. CSS in `STYLES` template literal with token constants at module level
 6. CSS uses nested var pattern: `var(--ui-btn-bg, ${BLUE_60})` / `var(--ui-badge-bg, ${GRAY_60})` — consumer override → foundation token
-7. `customElements.define("ui-*", Class)` at module level
+7. `defineCustomElement("ui-*", Class)` from `../define-custom-element.js` after the class; registration retains the first constructor
 8. For large components (700+ lines): extract `STYLES` + token constants into `ui-foo.styles.ts`, keep component logic in `ui-foo.ts`
 
 ## FOUNDATION TOKEN WIRING
 
-Components import token helpers from `@maneki/foundation`:
+Components import token constants from `@maneki/foundation`:
 
 ```ts
-import { colorVar, semanticVar, spaceVar } from "@maneki/foundation";
-
-const BLUE_60 = colorVar("blue", 60);
-const TEXT_PRIMARY = semanticVar("text", "primary");
-const SP_2 = spaceVar(2);
+import { BLUE_60, TEXT_PRIMARY, SP_2, TYPE_BODY_02 } from "@maneki/foundation";
 ```
 
-Token constants are defined at module level and interpolated into the CSS template literal. Invalid token references are compile errors.
+Foundation exports token constants that components interpolate into CSS template literals. Typography constants include font family, size, line height and weight. Missing exports are compile errors.
 
 ## ICONS
 
@@ -242,7 +294,7 @@ Shadow DOM requires a local `@font-face` declaration to access the globally-load
 }
 ```
 
-Available icon constants: `ICON_WARNING`, `ICON_ERROR`, `ICON_CHECK_CIRCLE`, `ICON_PROGRESS_ACTIVITY`, `ICON_CLOSE`, `ICON_CANCEL`, `ICON_EXPAND_MORE`, `ICON_EXPAND_LESS`, `ICON_VISIBILITY`, `ICON_VISIBILITY_OFF`, `ICON_ARROW_DROP_UP`, `ICON_ARROW_DROP_DOWN`, `ICON_ARROW_BACK_IOS`, `ICON_ARROW_FORWARD_IOS`, `ICON_INFO`, `ICON_NOTIFICATIONS`, `ICON_SEARCH`, `ICON_ATTACH_MONEY`, `ICON_MAIL`, `ICON_ACCOUNT_CIRCLE`, `ICON_ADD_CIRCLE`, `ICON_SHARE`, `ICON_DOWNLOAD`, `ICON_UPLOAD`, `ICON_MORE_VERT`, `ICON_HOME`, `ICON_PERSON`, `ICON_BAR_CHART`, `ICON_SETTINGS`, `ICON_GROUP`, `ICON_CHEVRON_RIGHT`, `ICON_CHEVRON_LEFT`, `ICON_DESCRIPTION`, `ICON_ROCKET_LAUNCH`.
+The exported icon constants and `ICON_CODEPOINTS` keys are defined in [foundation's icons module](../foundation/src/icons.ts) and re-exported from its index. Use that module as the inventory instead of maintaining a second list here.
 Use the `ICON_CODEPOINTS` record for dynamic lookup: `ICON_CODEPOINTS["home"]`.
 Status icons use filled variant: `font-variation-settings: 'FILL' 1`.
 Chevron icon: `ICON_EXPAND_MORE` (not `ICON_ARROW_DROP_DOWN`). Clear button: `ICON_CANCEL` with filled variant.
@@ -254,7 +306,7 @@ Components render icons with `<ui-icon>` or Material Symbols codepoints from `@m
 
 ## TYPE SAFETY
 
-Exported union types cover every attribute:
+Components export union types for variant attributes:
 
 ```ts
 export type ButtonAction = "primary" | "secondary" | "destructive" | "info" | "contrast";
@@ -284,7 +336,7 @@ For components with 700+ lines, split into two files:
 - `ui-foo.ts` — component class, DOM construction, event handling
 - `ui-foo.styles.ts` — `STYLES` constant, token constants, shared maps (e.g., `STATUS_ICON_MAP`)
 
-Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, ui-side-panel-menu.
+Style modules are the co-located `ui-*.styles.ts` files shown in the structure tree. Lit components can keep their `static styles` inline.
 
 ## CONVENTIONS
 
@@ -293,7 +345,7 @@ Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, u
 - **Tests co-located:** `ui-button.ts` → `ui-button.test.ts` in same directory
 - **`@maneki/foundation` is a production dependency.** Tokens are consumed via CSS custom property references (`var(--fd-*)`) and type-safe JS helpers (`colorVar`, `spaceVar`). Foundation code is bundled into the built output.
 - **Multi-entry build.** Vite emits both a barrel (`dist/index.js`) and per-component files (`dist/components/ui-*.js`). Consumers can import everything or cherry-pick. Shared foundation code is deduped into `dist/shared/` chunks.
-- **Deep imports via exports map.** `import "@maneki/ui-components/components/ui-badge.js"` imports only that component + its dependencies. Use for apps that need a subset (e.g., the blog app uses 4 of 75 components).
+- **Deep imports via exports map.** `import "@maneki/ui-components/components/ui-badge.js"` imports only that component + its dependencies. Use for apps that need a subset (e.g., the blog app).
 - **All components MUST use type-safe foundation tokens.** No hardcoded color hex values, spacing pixel values, or typography values. Use `colorVar()`, `spaceVar()`, `typeVar()`, `semanticVar()`, `elevationVar()` from `@maneki/foundation`. The only exceptions are: `#ffffff` (white, not in palette), `rgba()` overlays for hover/active/focus states, and shape constants like `2px`/`999px` border-radius that have no token equivalent.
 - **Branch per component.** Every new component implementation MUST happen on a dedicated branch (e.g., `feat/ui-checkbox`). Do not implement directly on `main`.
 - **Visual Figma verification required.** Before a component is considered done, visually compare the catalog (or local dev) against the Figma source using the Playwright/browser tool. Verify sizes, colors, spacing, and states match. No component ships without this step.
@@ -385,9 +437,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
    - `README.md` (root) → Packages table ("N Web Components")
    - `packages/ui-components/README.md` → Components table
    - `packages/ui-components/AGENTS.md` → OVERVIEW component list
-3. **Icon constants** — if new icons were added to foundation:
-   - `packages/ui-components/AGENTS.md` → ICONS section → "Available icon constants" list
-   - `packages/foundation/AGENTS.md` — no icon list (covered by SOP)
+3. **Icon constants** — update foundation's icon module and subset font per its SOP; this document links to the authoritative inventory.
 4. **AGENTS.md structure trees** — if new files were added (components, styles)
 
 ### Quick Checklist
@@ -395,7 +445,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ```
 [ ] Test counts match `npx vitest --run` output
 [ ] Component count matches actual registered elements
-[ ] Icon constants list matches `ICON_CODEPOINTS` keys in foundation
+[ ] Icon inventory link points to foundation's `ICON_CODEPOINTS` module
 [ ] AGENTS.md file trees reflect actual directory structure
 [ ] No duplicate lines or stale references
 ```
