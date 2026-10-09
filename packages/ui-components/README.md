@@ -40,7 +40,7 @@ const size: ButtonSize = "m";
 
 ## Components
 
-Connection-time event handlers are removed on disconnect and restored on reconnect, so moving components between containers does not duplicate interactions. Constructor-owned handlers remain attached to their element for its lifetime.
+Components can be moved between containers without duplicating their interactions.
 
 78 registered custom elements; 74 use vanilla `HTMLElement`, and the four side-panel components use Lit.
 
@@ -156,7 +156,7 @@ Interactive previews and visual regression coverage live in **`apps/catalog/`** 
 
 ```bash
 moon run ui-components:build  # vite build + tsc --emitDeclarationOnly → dist/
-moon run ui-components:test   # vitest --run (3733 tests)
+moon run ui-components:test   # vitest --run (3735 tests)
 ```
 
 ---

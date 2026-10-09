@@ -73,6 +73,37 @@ describe("connection listeners", () => {
     expect(element.getAttribute("value")).toBe("31");
   });
 
+  it("toggles the popover once per trigger click after reparenting", () => {
+    const element = document.createElement("ui-popover");
+    const trigger = document.createElement("button");
+    trigger.slot = "trigger";
+    element.append(trigger);
+    document.body.append(element);
+    element.remove();
+    document.body.append(element);
+
+    trigger.click();
+
+    expect(element.hasAttribute("open")).toBe(true);
+  });
+
+  it("advances the wizard one step per Next click after reparenting", () => {
+    const element = document.createElement("ui-wizard");
+    const group = document.createElement("ui-step-group");
+    group.slot = "steps";
+    for (let i = 0; i < 5; i++) group.append(document.createElement("ui-step-item"));
+    element.append(group);
+    document.body.append(element);
+    element.remove();
+    document.body.append(element);
+    const next = [...(element.shadowRoot?.querySelectorAll("ui-button") ?? [])].find((b) => b.textContent === "Next");
+    expect(next).toBeTruthy();
+
+    next?.click();
+
+    expect(element.getAttribute("current-step")).toBe("2");
+  });
+
   it("stops connection click handlers while a switch is detached", () => {
     const element = document.createElement("ui-switch");
     document.body.append(element);

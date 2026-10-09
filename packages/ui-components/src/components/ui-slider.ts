@@ -256,6 +256,7 @@ export class UiSlider extends HTMLElement {
       this.#dragging = "low";
     }
 
+    // Activate first: slider-change from _updateFromPointer may detach the slider, and disconnect clears the drag
     this._setActive(this.#dragging, true);
     this._updateFromPointer(e);
 
