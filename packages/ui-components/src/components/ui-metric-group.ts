@@ -118,6 +118,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiMetricGroup extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = ["size", "title"];
 
   #titleEl!: HTMLElement;
@@ -158,8 +160,14 @@ export class UiMetricGroup extends HTMLElement {
   }
 
   connectedCallback(): void {
-    this.shadowRoot!.querySelector("slot")!.addEventListener("slotchange", () => this._propagateSize());
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
+    this.shadowRoot!.querySelector("slot")!.addEventListener("slotchange", () => this._propagateSize(), { signal });
     this._propagateSize();
+  }
+
+  disconnectedCallback(): void {
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {

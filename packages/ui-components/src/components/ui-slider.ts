@@ -11,6 +11,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiSlider extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = [
     "size",
     "min",
@@ -93,6 +95,8 @@ export class UiSlider extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     if (!this.hasAttribute("size")) this.setAttribute("size", "m");
     if (!this.hasAttribute("min")) this.setAttribute("min", "0");
     if (!this.hasAttribute("max")) this.setAttribute("max", "100");
@@ -102,11 +106,19 @@ export class UiSlider extends HTMLElement {
     this._syncAll();
 
     // Pointer events on track area
-    this.#trackArea.addEventListener("pointerdown", (e) => this._onPointerDown(e));
+    this.#trackArea.addEventListener("pointerdown", (e) => this._onPointerDown(e, signal), { signal });
 
     // Keyboard on handles
-    this.#handleLow.addEventListener("keydown", (e) => this._onKeyDown(e, "low"));
-    this.#handleHigh.addEventListener("keydown", (e) => this._onKeyDown(e, "high"));
+    this.#handleLow.addEventListener("keydown", (e) => this._onKeyDown(e, "low"), { signal });
+    this.#handleHigh.addEventListener("keydown", (e) => this._onKeyDown(e, "high"), { signal });
+  }
+
+  disconnectedCallback(): void {
+    this.#connectionController?.abort();
+    if (this.#dragging) {
+      this._setActive(this.#dragging, false);
+      this.#dragging = null;
+    }
   }
 
   attributeChangedCallback(): void {
@@ -227,7 +239,7 @@ export class UiSlider extends HTMLElement {
 
   // ── Pointer interaction ─────────────────────────────────────────────────
 
-  private _onPointerDown(e: PointerEvent): void {
+  private _onPointerDown(e: PointerEvent, signal: AbortSignal): void {
     if (this.disabled) return;
     e.preventDefault();
 
@@ -244,8 +256,8 @@ export class UiSlider extends HTMLElement {
       this.#dragging = "low";
     }
 
-    this._updateFromPointer(e);
     this._setActive(this.#dragging, true);
+    this._updateFromPointer(e);
 
     const onMove = (ev: PointerEvent) => this._updateFromPointer(ev);
     const onUp = () => {
@@ -255,8 +267,8 @@ export class UiSlider extends HTMLElement {
       document.removeEventListener("pointerup", onUp);
     };
 
-    document.addEventListener("pointermove", onMove);
-    document.addEventListener("pointerup", onUp);
+    document.addEventListener("pointermove", onMove, { signal });
+    document.addEventListener("pointerup", onUp, { signal });
   }
 
   private _updateFromPointer(e: PointerEvent): void {

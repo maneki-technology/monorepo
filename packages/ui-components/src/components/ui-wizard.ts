@@ -192,6 +192,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiWizard extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = ["layout", "title", "current-step", "loading", "headless"];
 
   #headerTitle!: HTMLElement;
@@ -270,58 +272,76 @@ export class UiWizard extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     if (!this.hasAttribute("role")) this.setAttribute("role", "group");
     if (!this.hasAttribute("aria-label")) this.setAttribute("aria-label", "Wizard");
     if (!this.hasAttribute("layout")) this.setAttribute("layout", "horizontal");
     if (!this.hasAttribute("current-step")) this.setAttribute("current-step", "1");
     this._syncAll();
 
-    this.#stepsSlot.addEventListener("slotchange", () => {
-      this.#cachedStepCount = this._getStepCount();
-      this._syncSteps();
-      this._syncButtons();
-    });
+    this.#stepsSlot.addEventListener(
+      "slotchange",
+      () => {
+        this.#cachedStepCount = this._getStepCount();
+        this._syncSteps();
+        this._syncButtons();
+      },
+      { signal },
+    );
 
-    this.#prevBtn.addEventListener("click", () => {
-      const current = this.currentStep;
-      if (current <= 1) return;
-      const event = new CustomEvent("wizard-previous", {
-        detail: { step: current },
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-      });
-      const allowed = this.dispatchEvent(event);
-      if (allowed) {
-        this.currentStep = current - 1;
-      }
-    });
-
-    this.#nextBtn.addEventListener("click", () => {
-      const current = this.currentStep;
-      const total = this._getStepCount();
-      if (current >= total) {
-        // Last step — fire wizard-finish
-        const event = new CustomEvent("wizard-finish", {
+    this.#prevBtn.addEventListener(
+      "click",
+      () => {
+        const current = this.currentStep;
+        if (current <= 1) return;
+        const event = new CustomEvent("wizard-previous", {
           detail: { step: current },
           bubbles: true,
           composed: true,
           cancelable: true,
         });
-        this.dispatchEvent(event);
-        return;
-      }
-      const event = new CustomEvent("wizard-next", {
-        detail: { step: current },
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-      });
-      const allowed = this.dispatchEvent(event);
-      if (allowed) {
-        this.currentStep = current + 1;
-      }
-    });
+        const allowed = this.dispatchEvent(event);
+        if (allowed) {
+          this.currentStep = current - 1;
+        }
+      },
+      { signal },
+    );
+
+    this.#nextBtn.addEventListener(
+      "click",
+      () => {
+        const current = this.currentStep;
+        const total = this._getStepCount();
+        if (current >= total) {
+          // Last step — fire wizard-finish
+          const event = new CustomEvent("wizard-finish", {
+            detail: { step: current },
+            bubbles: true,
+            composed: true,
+            cancelable: true,
+          });
+          this.dispatchEvent(event);
+          return;
+        }
+        const event = new CustomEvent("wizard-next", {
+          detail: { step: current },
+          bubbles: true,
+          composed: true,
+          cancelable: true,
+        });
+        const allowed = this.dispatchEvent(event);
+        if (allowed) {
+          this.currentStep = current + 1;
+        }
+      },
+      { signal },
+    );
+  }
+
+  disconnectedCallback(): void {
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(): void {

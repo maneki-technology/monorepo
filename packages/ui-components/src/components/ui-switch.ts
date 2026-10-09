@@ -235,6 +235,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiSwitch extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = ["size", "checked", "disabled", "label-position", "status"];
 
   #switchEl!: HTMLElement;
@@ -273,23 +275,37 @@ export class UiSwitch extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     if (!this.hasAttribute("size")) this.setAttribute("size", "m");
     if (!this.hasAttribute("label-position")) this.setAttribute("label-position", "none");
     if (!this.hasAttribute("status")) this.setAttribute("status", "none");
     this._syncAll();
 
-    this.addEventListener("click", () => {
-      if (this.disabled) return;
-      this.toggle();
-    });
-
-    this.#switchEl.addEventListener("keydown", (e) => {
-      if (this.disabled) return;
-      if (e.key === " " || e.key === "Enter") {
-        e.preventDefault();
+    this.addEventListener(
+      "click",
+      () => {
+        if (this.disabled) return;
         this.toggle();
-      }
-    });
+      },
+      { signal },
+    );
+
+    this.#switchEl.addEventListener(
+      "keydown",
+      (e) => {
+        if (this.disabled) return;
+        if (e.key === " " || e.key === "Enter") {
+          e.preventDefault();
+          this.toggle();
+        }
+      },
+      { signal },
+    );
+  }
+
+  disconnectedCallback(): void {
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(): void {

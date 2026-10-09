@@ -11,6 +11,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STEP_ITEM_STYLES);
 
 export class UiStepItem extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = [
     "size",
     "status",
@@ -77,27 +79,41 @@ export class UiStepItem extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     if (!this.hasAttribute("size")) this.setAttribute("size", "m");
     if (!this.hasAttribute("status")) this.setAttribute("status", "incomplete");
     if (!this.hasAttribute("orientation")) this.setAttribute("orientation", "horizontal");
     this._syncAll();
 
-    this.addEventListener("click", () => {
-      if (!this.hasAttribute("clickable") || this.status === "disabled") return;
-      this.dispatchEvent(
-        new CustomEvent("step-click", {
-          detail: { label: this.label, status: this.status },
-          bubbles: true,
-          composed: true,
-        }),
-      );
-    });
-    this.addEventListener("keydown", (e: KeyboardEvent) => {
-      if ((e.key === "Enter" || e.key === " ") && this.hasAttribute("clickable") && this.status !== "disabled") {
-        e.preventDefault();
-        this.click();
-      }
-    });
+    this.addEventListener(
+      "click",
+      () => {
+        if (!this.hasAttribute("clickable") || this.status === "disabled") return;
+        this.dispatchEvent(
+          new CustomEvent("step-click", {
+            detail: { label: this.label, status: this.status },
+            bubbles: true,
+            composed: true,
+          }),
+        );
+      },
+      { signal },
+    );
+    this.addEventListener(
+      "keydown",
+      (e: KeyboardEvent) => {
+        if ((e.key === "Enter" || e.key === " ") && this.hasAttribute("clickable") && this.status !== "disabled") {
+          e.preventDefault();
+          this.click();
+        }
+      },
+      { signal },
+    );
+  }
+
+  disconnectedCallback(): void {
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(): void {
