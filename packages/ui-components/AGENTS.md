@@ -166,12 +166,12 @@ ui-components/
 
 ## WHERE TO LOOK
 
-| Task                        | Location           | Notes                                                    |
-| --------------------------- | ------------------ | -------------------------------------------------------- |
-| Add new component           | `src/components/`  | Create `ui-foo.ts` + `ui-foo.test.ts`                    |
-| Visual preview / regression | `apps/catalog/`    | Static pages + Playwright (see `apps/catalog/AGENTS.md`) |
-| Register element            | `src/index.ts`     | `customElements.define()` + re-export                    |
-| Add new icon                | See foundation SOP | Add to foundation, use `<ui-icon>` in components         |
+| Task                        | Location                   | Notes                                                                  |
+| --------------------------- | -------------------------- | ---------------------------------------------------------------------- |
+| Add new component           | `src/components/`          | Create `ui-foo.ts` + `ui-foo.test.ts`                                  |
+| Visual preview / regression | `apps/catalog/`            | Static pages + Playwright (see `apps/catalog/AGENTS.md`)               |
+| Register element            | `src/components/ui-foo.ts` | `defineCustomElement()` after the class; re-export from `src/index.ts` |
+| Add new icon                | See foundation SOP         | Add to foundation, use `<ui-icon>` in components                       |
 
 ## COMPONENT PATTERN
 
