@@ -453,7 +453,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ## COMMANDS
 
 ```bash
-moon run ui-components:test            # vitest --run (3720 tests)
+moon run ui-components:test            # vitest --run (3721 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run catalog:dev                   # visual catalog (apps/catalog)
 ```
