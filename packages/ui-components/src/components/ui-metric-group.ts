@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
 import {
   BORDER_MODERATE,
@@ -157,18 +158,11 @@ export class UiMetricGroup extends HTMLElement {
   }
 
   connectedCallback(): void {
-    this.shadowRoot!.querySelector("slot")!.addEventListener(
-      "slotchange",
-      () => this._propagateSize(),
-    );
+    this.shadowRoot!.querySelector("slot")!.addEventListener("slotchange", () => this._propagateSize());
     this._propagateSize();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     switch (name) {
       case "title":
         this.#titleEl.textContent = newValue ?? "";
@@ -202,4 +196,4 @@ export class UiMetricGroup extends HTMLElement {
   }
 }
 
-customElements.define("ui-metric-group", UiMetricGroup);
+defineCustomElement("ui-metric-group", UiMetricGroup);

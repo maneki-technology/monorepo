@@ -1,8 +1,15 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
 import {
-  RADIUS_LG, RADIUS_MD, RADIUS_PILL, BORDER_MINIMAL,
-  SURFACE_ACTION, SURFACE_ACTION_CONTRAST, SURFACE_DESTRUCTIVE,
-  SURFACE_PRIMARY, DEFAULT_DEFAULT,
+  RADIUS_LG,
+  RADIUS_MD,
+  RADIUS_PILL,
+  BORDER_MINIMAL,
+  SURFACE_ACTION,
+  SURFACE_ACTION_CONTRAST,
+  SURFACE_DESTRUCTIVE,
+  SURFACE_PRIMARY,
+  DEFAULT_DEFAULT,
 } from "@maneki/foundation";
 import type { ButtonAction, ButtonEmphasis, ButtonSize, ButtonShape } from "./ui-button.js";
 const STYLES = `
@@ -145,14 +152,7 @@ const STYLES = `
 const PROPAGATED_ATTRS = ["size", "action", "emphasis", "orientation"] as const;
 
 export class UiButtonGroup extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "action",
-    "emphasis",
-    "shape",
-    "orientation",
-    "aria-label",
-  ];
+  static readonly observedAttributes = ["size", "action", "emphasis", "shape", "orientation", "aria-label"];
 
   private _container: HTMLElement;
 
@@ -178,11 +178,7 @@ export class UiButtonGroup extends HTMLElement {
 
   private _observer: MutationObserver | null = null;
 
-  attributeChangedCallback(
-    _name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(_name: string, _oldValue: string | null, _newValue: string | null): void {
     this._rebuild();
   }
 
@@ -235,9 +231,7 @@ export class UiButtonGroup extends HTMLElement {
   }
 
   private _rebuild(): void {
-    const buttons = Array.from(this.children).filter(
-      (el) => el.tagName === "UI-BUTTON",
-    );
+    const buttons = Array.from(this.children).filter((el) => el.tagName === "UI-BUTTON");
 
     // Propagate group attributes to child buttons
     for (const attr of PROPAGATED_ATTRS) {
@@ -270,4 +264,4 @@ export class UiButtonGroup extends HTMLElement {
   }
 }
 
-customElements.define("ui-button-group", UiButtonGroup);
+defineCustomElement("ui-button-group", UiButtonGroup);

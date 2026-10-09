@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
 import {
   AQUA_20,
@@ -630,11 +631,7 @@ export class UiTag extends HTMLElement {
     this._syncA11y();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (name === "type" || name === "state") this._syncA11y();
   }
 
@@ -802,4 +799,4 @@ export class UiTag extends HTMLElement {
   }
 }
 
-customElements.define("ui-tag", UiTag);
+defineCustomElement("ui-tag", UiTag);

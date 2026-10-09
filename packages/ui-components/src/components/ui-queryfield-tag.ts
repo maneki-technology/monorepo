@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { TAG_STYLES } from "./ui-queryfield-tag.styles.js";
 import { ICON_CANCEL } from "@maneki/foundation";
 
@@ -49,15 +50,14 @@ export class UiQueryfieldTag extends HTMLElement {
 
   connectedCallback(): void {
     if (!this.hasAttribute("size")) this.setAttribute("size", "m");
-    this.#dismissBtn.addEventListener("click", (e) => { e.stopPropagation(); this._dismiss(); });
+    this.#dismissBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this._dismiss();
+    });
     this.addEventListener("click", () => this._edit());
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     switch (name) {
       case "category":
         this.#categoryEl.textContent = newValue ?? "";
@@ -108,7 +108,10 @@ export class UiQueryfieldTag extends HTMLElement {
   get values(): string[] {
     const raw = this.getAttribute("values");
     if (!raw) return [];
-    return raw.split(",").map((s) => s.trim()).filter(Boolean);
+    return raw
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
   set values(v: string[]) {
     this.setAttribute("values", v.join(","));
@@ -128,7 +131,10 @@ export class UiQueryfieldTag extends HTMLElement {
 
     while (i < words.length) {
       // Check for multi-word operators
-      const twoWord = words.slice(i, i + 2).join(" ").toLowerCase();
+      const twoWord = words
+        .slice(i, i + 2)
+        .join(" ")
+        .toLowerCase();
       const oneWord = words[i].toLowerCase();
 
       if (operators.includes(twoWord)) {
@@ -160,9 +166,7 @@ export class UiQueryfieldTag extends HTMLElement {
   }
 
   private _dismiss(): void {
-    this.dispatchEvent(
-      new CustomEvent("dismiss", { bubbles: true, composed: true }),
-    );
+    this.dispatchEvent(new CustomEvent("dismiss", { bubbles: true, composed: true }));
   }
 
   private _edit(): void {
@@ -181,5 +185,4 @@ export class UiQueryfieldTag extends HTMLElement {
   }
 }
 
-
-customElements.define("ui-queryfield-tag", UiQueryfieldTag);
+defineCustomElement("ui-queryfield-tag", UiQueryfieldTag);

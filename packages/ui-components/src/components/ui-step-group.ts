@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { FONT_PRIMARY } from "@maneki/foundation";
 import "./ui-step-item.js";
 import type { StepSize, StepOrientation } from "./ui-step-item.styles.js";
@@ -142,4 +143,4 @@ export class UiStepGroup extends HTMLElement {
   }
 }
 
-customElements.define("ui-step-group", UiStepGroup);
+defineCustomElement("ui-step-group", UiStepGroup);

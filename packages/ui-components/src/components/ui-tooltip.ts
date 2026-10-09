@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   FONT_PRIMARY,
   GRAY_110,
@@ -19,14 +20,7 @@ import {
 
 export type TooltipSize = "xs" | "s" | "m" | "l";
 export type TooltipPlacement =
-  | "top"
-  | "bottom"
-  | "left"
-  | "right"
-  | "top-left"
-  | "top-right"
-  | "bottom-left"
-  | "bottom-right";
+  "top" | "bottom" | "left" | "right" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
 // ─── Styles ──────────────────────────────────────────────────────────────
 
@@ -519,4 +513,4 @@ export class UiTooltip extends HTMLElement {
   }
 }
 
-customElements.define("ui-tooltip", UiTooltip);
+defineCustomElement("ui-tooltip", UiTooltip);

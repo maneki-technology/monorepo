@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   BORDER_FOCUS,
   BORDER_MODERATE,
@@ -354,4 +355,4 @@ export class UiTreeGroup extends HTMLElement {
   }
 }
 
-customElements.define("ui-tree-group", UiTreeGroup);
+defineCustomElement("ui-tree-group", UiTreeGroup);

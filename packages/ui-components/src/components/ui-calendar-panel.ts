@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-calendar-panel.styles.js";
 import "./ui-calendar.js";
 import "./ui-calendar-quicklinks.js";
@@ -124,4 +125,4 @@ export class UiCalendarPanel extends HTMLElement {
   }
 }
 
-customElements.define("ui-calendar-panel", UiCalendarPanel);
+defineCustomElement("ui-calendar-panel", UiCalendarPanel);

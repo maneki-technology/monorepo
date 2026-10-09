@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   FONT_PRIMARY,
   SP_0_25,
@@ -163,14 +164,7 @@ const STYLES = /* css */ `
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-const OBSERVED = [
-  "size",
-  "emphasis",
-  "href",
-  "target",
-  "rel",
-  "disabled",
-] as const;
+const OBSERVED = ["size", "emphasis", "href", "target", "rel", "disabled"] as const;
 
 const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
@@ -303,11 +297,7 @@ class UiLink extends HTMLElement {
     this.removeEventListener("keydown", this._handleKeydown);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     switch (name) {
       case "href":
       case "target":
@@ -392,6 +382,6 @@ class UiLink extends HTMLElement {
   }
 }
 
-customElements.define("ui-link", UiLink);
+defineCustomElement("ui-link", UiLink);
 
 export { UiLink };

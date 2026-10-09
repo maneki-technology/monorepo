@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-pull-to-refresh.styles.js";
 import { ICON_PROGRESS_ACTIVITY } from "@maneki/foundation";
 
@@ -47,11 +48,7 @@ export class UiPullToRefresh extends HTMLElement {
     this.setAttribute("aria-live", "polite");
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     switch (name) {
       case "text":
         this.#textEl.textContent = newValue ?? "Refreshing content";
@@ -91,4 +88,4 @@ export class UiPullToRefresh extends HTMLElement {
   }
 }
 
-customElements.define("ui-pull-to-refresh", UiPullToRefresh);
+defineCustomElement("ui-pull-to-refresh", UiPullToRefresh);

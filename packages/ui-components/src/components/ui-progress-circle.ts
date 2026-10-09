@@ -1,12 +1,5 @@
-import {
-  FONT_PRIMARY,
-  SP_0_5,
-  SP_1,
-  SP_3,
-  TEXT_PRIMARY,
-  TYPE_BODY_02,
-  TYPE_BODY_03,
-} from "@maneki/foundation";
+import { defineCustomElement } from "../define-custom-element.js";
+import { FONT_PRIMARY, SP_0_5, SP_1, SP_3, TEXT_PRIMARY, TYPE_BODY_02, TYPE_BODY_03 } from "@maneki/foundation";
 import { STATUS_FILL, STATUS_TRACK } from "./ui-progress-bar.styles.js";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
@@ -142,13 +135,7 @@ const SIZE_CONFIG: Record<string, { diameter: number; strokeWidth: number }> = {
 };
 
 export class UiProgressCircle extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "label-position",
-    "status",
-    "value",
-    "label-text",
-  ];
+  static readonly observedAttributes = ["size", "label-position", "status", "value", "label-text"];
 
   #container!: HTMLElement;
   #svg!: SVGSVGElement;
@@ -288,4 +275,4 @@ export class UiProgressCircle extends HTMLElement {
   }
 }
 
-customElements.define("ui-progress-circle", UiProgressCircle);
+defineCustomElement("ui-progress-circle", UiProgressCircle);

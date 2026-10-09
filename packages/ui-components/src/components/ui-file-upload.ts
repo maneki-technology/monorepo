@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import {
   BORDER_FOCUS,
   DISABLED_BORDER,
@@ -210,15 +211,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiFileUpload extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "placeholder",
-    "button-text",
-    "accept",
-    "multiple",
-    "disabled",
-    "name",
-  ];
+  static readonly observedAttributes = ["size", "placeholder", "button-text", "accept", "multiple", "disabled", "name"];
 
   private _hiddenInput: HTMLInputElement;
   private _displayTextEl: HTMLSpanElement;
@@ -295,11 +288,7 @@ export class UiFileUpload extends HTMLElement {
     this.removeEventListener("keydown", this._handleKeydown);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     switch (name) {
       case "placeholder":
         this._placeholder = this.getAttribute("placeholder") ?? "Choose files to upload";
@@ -480,4 +469,4 @@ export class UiFileUpload extends HTMLElement {
   };
 }
 
-customElements.define("ui-file-upload", UiFileUpload);
+defineCustomElement("ui-file-upload", UiFileUpload);

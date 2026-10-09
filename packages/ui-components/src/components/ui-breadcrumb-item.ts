@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
 import {
   FONT_PRIMARY,
@@ -200,11 +201,7 @@ export class UiBreadcrumbItem extends HTMLElement {
     this._syncLink();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (name === "href") {
       this._syncLink();
     }
@@ -255,9 +252,7 @@ export class UiBreadcrumbItem extends HTMLElement {
     const isCurrentlyAnchor = this._linkEl.tagName === "A";
 
     if (needsAnchor !== isCurrentlyAnchor) {
-      const newEl = needsAnchor
-        ? document.createElement("a")
-        : document.createElement("span");
+      const newEl = needsAnchor ? document.createElement("a") : document.createElement("span");
 
       newEl.className = needsAnchor ? "link" : "link current";
       if (needsAnchor) {
@@ -294,4 +289,4 @@ export class UiBreadcrumbItem extends HTMLElement {
   }
 }
 
-customElements.define("ui-breadcrumb-item", UiBreadcrumbItem);
+defineCustomElement("ui-breadcrumb-item", UiBreadcrumbItem);

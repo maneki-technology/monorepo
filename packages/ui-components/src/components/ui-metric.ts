@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-metric.styles.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -104,11 +105,7 @@ export class UiMetric extends HTMLElement {
     });
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     switch (name) {
       case "label":
         this.#label.textContent = newValue ?? "";
@@ -218,4 +215,4 @@ export class UiMetric extends HTMLElement {
   }
 }
 
-customElements.define("ui-metric", UiMetric);
+defineCustomElement("ui-metric", UiMetric);

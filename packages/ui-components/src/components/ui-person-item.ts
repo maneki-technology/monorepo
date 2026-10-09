@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-person-item.styles.js";
 import { ICON_MAIL, ICON_PHONE, ICON_MESSAGE } from "@maneki/foundation";
 
@@ -11,14 +12,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiPersonItem extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "name",
-    "title",
-    "location",
-    "name-only",
-    "avatar-text",
-  ];
+  static readonly observedAttributes = ["size", "name", "title", "location", "name-only", "avatar-text"];
 
   #nameEl!: HTMLElement;
   #titleEl!: HTMLElement;
@@ -84,11 +78,7 @@ export class UiPersonItem extends HTMLElement {
     this._syncDefaultActions();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     switch (name) {
       case "name":
         this.#nameEl.textContent = newValue ?? "";
@@ -219,4 +209,4 @@ export class UiPersonItem extends HTMLElement {
   }
 }
 
-customElements.define("ui-person-item", UiPersonItem);
+defineCustomElement("ui-person-item", UiPersonItem);

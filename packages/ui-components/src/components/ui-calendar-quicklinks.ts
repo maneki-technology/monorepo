@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-calendar-quicklinks.styles.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -20,8 +21,8 @@ sheet.replaceSync(STYLES);
 export class UiCalendarQuicklinks extends HTMLElement {
   static readonly observedAttributes = ["size", "orientation"];
 
-#items: QuicklinkItem[] = [];
-#selectedValue: string | null = null;
+  #items: QuicklinkItem[] = [];
+  #selectedValue: string | null = null;
   #menu!: HTMLElement;
   #fadeLeft!: HTMLElement;
   #fadeRight!: HTMLElement;
@@ -192,4 +193,4 @@ export class UiCalendarQuicklinks extends HTMLElement {
   }
 }
 
-customElements.define("ui-calendar-quicklinks", UiCalendarQuicklinks);
+defineCustomElement("ui-calendar-quicklinks", UiCalendarQuicklinks);

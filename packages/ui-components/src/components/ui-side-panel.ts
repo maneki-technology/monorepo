@@ -1,5 +1,6 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { LitElement, css, html, unsafeCSS } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
 import {
   BORDER_FOCUS,
   BORDER_MINIMAL,
@@ -309,7 +310,6 @@ export const STYLES = /* css */ `
 
 const MOBILE_QUERY = "(max-width: 767px)";
 
-@customElement("ui-side-panel")
 export class UiSidePanel extends LitElement {
   @property({ type: String, reflect: true }) declare state: SidePanelState;
   @property({ type: Boolean, reflect: true }) declare overlay: boolean;
@@ -327,7 +327,6 @@ export class UiSidePanel extends LitElement {
   private _mql: MediaQueryList | null = null;
   private _mqlHandler: ((e: MediaQueryListEvent) => void) | null = null;
   private _outsideClickHandler: ((e: MouseEvent) => void) | null = null;
-
 
   constructor() {
     super();
@@ -402,7 +401,6 @@ export class UiSidePanel extends LitElement {
       }
     }
   }
-
 
   // ── Public API ──────────────────────────────────────────────────────────
 
@@ -504,3 +502,5 @@ export class UiSidePanel extends LitElement {
     );
   }
 }
+
+defineCustomElement("ui-side-panel", UiSidePanel);

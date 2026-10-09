@@ -1,10 +1,5 @@
-import {
-  DISABLED_TEXT,
-  FONT_PRIMARY,
-  SP_0_25,
-  STATUS_GENERAL_ERROR,
-  TEXT_SECONDARY,
-} from "@maneki/foundation";
+import { defineCustomElement } from "../define-custom-element.js";
+import { DISABLED_TEXT, FONT_PRIMARY, SP_0_25, STATUS_GENERAL_ERROR, TEXT_SECONDARY } from "@maneki/foundation";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -150,6 +145,6 @@ class UiLabel extends HTMLElement {
   }
 }
 
-customElements.define("ui-label", UiLabel);
+defineCustomElement("ui-label", UiLabel);
 
 export { UiLabel };

@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { FIELD_STYLES } from "./ui-queryfield.styles.js";
 import { ICON_SEARCH } from "@maneki/foundation";
 
@@ -180,11 +181,7 @@ export class UiQueryfield extends HTMLElement {
     document.removeEventListener("click", this._onDocumentClick);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     switch (name) {
       case "placeholder":
         this.#input.placeholder = newValue ?? "Search...";
@@ -504,4 +501,4 @@ export class UiQueryfield extends HTMLElement {
   }
 }
 
-customElements.define("ui-queryfield", UiQueryfield);
+defineCustomElement("ui-queryfield", UiQueryfield);

@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-calendar-time.styles.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -130,11 +131,7 @@ export class UiCalendarTime extends HTMLElement {
     this.#pmLabel.removeEventListener("click", this.#onPMClick);
   }
 
-  attributeChangedCallback(
-    name: string,
-    oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
     if (!this.isConnected) return;
     if (oldValue === newValue) return;
     if (name === "value") {
@@ -313,4 +310,4 @@ export class UiCalendarTime extends HTMLElement {
   }
 }
 
-customElements.define("ui-calendar-time", UiCalendarTime);
+defineCustomElement("ui-calendar-time", UiCalendarTime);

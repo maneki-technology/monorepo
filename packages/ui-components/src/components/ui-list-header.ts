@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-list-header.styles.js";
 import "./ui-icon.js";
 
@@ -84,10 +85,8 @@ export class UiListHeader extends HTMLElement {
   // ─── Events ────────────────────────────────────────────────────────────
 
   #onCollapse = (): void => {
-    this.dispatchEvent(
-      new CustomEvent("collapse", { bubbles: true }),
-    );
+    this.dispatchEvent(new CustomEvent("collapse", { bubbles: true }));
   };
 }
 
-customElements.define("ui-list-header", UiListHeader);
+defineCustomElement("ui-list-header", UiListHeader);

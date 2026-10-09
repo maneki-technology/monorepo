@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-pagination.styles.js";
 import { ICON_CODEPOINTS } from "@maneki/foundation";
 
@@ -89,7 +90,10 @@ export class UiPagination extends HTMLElement {
   get pageSizeOptions(): number[] {
     const raw = this.getAttribute("page-size-options");
     if (!raw) return [10, 25, 50, 100];
-    return raw.split(",").map((s) => parseInt(s.trim(), 10)).filter((n) => !isNaN(n));
+    return raw
+      .split(",")
+      .map((s) => parseInt(s.trim(), 10))
+      .filter((n) => !isNaN(n));
   }
   set pageSizeOptions(v: number[]) {
     this.setAttribute("page-size-options", v.join(","));
@@ -101,9 +105,7 @@ export class UiPagination extends HTMLElement {
     const clamped = Math.max(1, Math.min(page, this.totalPages));
     if (clamped === this.currentPage) return;
     this.setAttribute("current-page", String(clamped));
-    this.dispatchEvent(
-      new CustomEvent("page-change", { detail: { page: clamped }, bubbles: true, composed: true }),
-    );
+    this.dispatchEvent(new CustomEvent("page-change", { detail: { page: clamped }, bubbles: true, composed: true }));
   }
 
   private _changePageSize(size: number): void {
@@ -114,9 +116,7 @@ export class UiPagination extends HTMLElement {
     this.dispatchEvent(
       new CustomEvent("page-size-change", { detail: { pageSize: size }, bubbles: true, composed: true }),
     );
-    this.dispatchEvent(
-      new CustomEvent("page-change", { detail: { page: 1 }, bubbles: true, composed: true }),
-    );
+    this.dispatchEvent(new CustomEvent("page-change", { detail: { page: 1 }, bubbles: true, composed: true }));
   }
 
   // ── Rendering ───────────────────────────────────────────────────────────
@@ -216,7 +216,9 @@ export class UiPagination extends HTMLElement {
     const nextBtn = this._createNavBtn("chevron_right", "Next", "nav-next", () => this._goToPage(this.currentPage + 1));
     if (this.currentPage >= this.totalPages) nextBtn.disabled = true;
 
-    const lastBtn = this._createNavBtn("keyboard_double_arrow_right", "Last", "nav-last", () => this._goToPage(this.totalPages));
+    const lastBtn = this._createNavBtn("keyboard_double_arrow_right", "Last", "nav-last", () =>
+      this._goToPage(this.totalPages),
+    );
     if (this.currentPage >= this.totalPages) lastBtn.disabled = true;
 
     nav.append(nextBtn, lastBtn);
@@ -235,7 +237,12 @@ export class UiPagination extends HTMLElement {
 
   // ── Helpers ─────────────────────────────────────────────────────────────
 
-  private _createNavBtn(icon: string | null, label: string, extraClass: string, onClick: () => void): HTMLButtonElement {
+  private _createNavBtn(
+    icon: string | null,
+    label: string,
+    extraClass: string,
+    onClick: () => void,
+  ): HTMLButtonElement {
     const btn = document.createElement("button");
     btn.className = `item nav-btn ${extraClass}`;
     btn.type = "button";
@@ -349,4 +356,4 @@ export class UiPagination extends HTMLElement {
   }
 }
 
-customElements.define("ui-pagination", UiPagination);
+defineCustomElement("ui-pagination", UiPagination);

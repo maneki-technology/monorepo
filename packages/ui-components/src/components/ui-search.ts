@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-search.styles.js";
 import { ICON_SEARCH, ICON_CANCEL, ICON_CODEPOINTS } from "@maneki/foundation";
 
@@ -141,9 +142,7 @@ export class UiSearch extends HTMLElement {
       this._syncHasValue();
       this._close();
       this.#input.focus();
-      this.dispatchEvent(
-        new CustomEvent("search-clear", { bubbles: true, composed: true }),
-      );
+      this.dispatchEvent(new CustomEvent("search-clear", { bubbles: true, composed: true }));
     });
 
     // Close on outside click
@@ -155,11 +154,7 @@ export class UiSearch extends HTMLElement {
     document.removeEventListener("click", this._onDocumentClick);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
     switch (name) {
       case "placeholder":
         this.#input.placeholder = newValue ?? "Type to search...";
@@ -224,9 +219,7 @@ export class UiSearch extends HTMLElement {
 
     for (const cat of this.#categories) {
       // Filter results by query
-      const filtered = query
-        ? cat.results.filter((r) => r.title.toLowerCase().includes(query))
-        : cat.results;
+      const filtered = query ? cat.results.filter((r) => r.title.toLowerCase().includes(query)) : cat.results;
 
       if (filtered.length === 0) continue;
 
@@ -394,4 +387,4 @@ export class UiSearch extends HTMLElement {
   }
 }
 
-customElements.define("ui-search", UiSearch);
+defineCustomElement("ui-search", UiSearch);

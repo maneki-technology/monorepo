@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-calendar.styles.js";
 import "./ui-icon.js";
 
@@ -16,16 +17,23 @@ export interface CalendarEvent {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 const DOW_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-const MONTH_SHORT_NAMES = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-];
+const MONTH_SHORT_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -36,11 +44,7 @@ function mondayBasedDay(date: Date): number {
 
 /** Check if two dates are the same calendar day. */
 function isSameDay(a: Date, b: Date): boolean {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
 /** Generate the 42-cell grid (6 weeks) for a given month. */
@@ -208,11 +212,7 @@ export class UiCalendar extends HTMLElement {
     this.#headerLabel.removeEventListener("click", this.#onHeaderClick);
   }
 
-  attributeChangedCallback(
-    name: string,
-    oldValue: string | null,
-    newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
     if (!this.isConnected) return;
     if (this.#internalUpdate) return;
     if (oldValue === newValue) return;
@@ -419,9 +419,7 @@ export class UiCalendar extends HTMLElement {
   // ─── Day click ─────────────────────────────────────────────────────────
 
   #onDayClick = (e: Event): void => {
-    const target = (e.target as HTMLElement).closest(
-      ".day-cell",
-    ) as HTMLElement | null;
+    const target = (e.target as HTMLElement).closest(".day-cell") as HTMLElement | null;
     if (!target || target.hasAttribute("data-disabled")) return;
 
     const dateStr = target.dataset.date;
@@ -606,12 +604,15 @@ export class UiCalendar extends HTMLElement {
       // Update content and basic attrs
       cell.textContent = String(date.getDate());
       cell.dataset.date = iso;
-      cell.setAttribute("aria-label", date.toLocaleDateString("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }));
+      cell.setAttribute(
+        "aria-label",
+        date.toLocaleDateString("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        }),
+      );
 
       // Outside current month
       if (date.getMonth() !== this.#displayMonth) {
@@ -631,8 +632,7 @@ export class UiCalendar extends HTMLElement {
       }
 
       // Disabled (min/max)
-      const isDisabled =
-        (minDate && date < minDate) || (maxDate && date > maxDate);
+      const isDisabled = (minDate && date < minDate) || (maxDate && date > maxDate);
       if (isDisabled) {
         cell.setAttribute("data-disabled", "");
         cell.setAttribute("aria-disabled", "true");
@@ -759,4 +759,4 @@ export class UiCalendar extends HTMLElement {
   }
 }
 
-customElements.define("ui-calendar", UiCalendar);
+defineCustomElement("ui-calendar", UiCalendar);

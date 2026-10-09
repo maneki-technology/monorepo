@@ -1,9 +1,11 @@
 # packages/ui-components — Design System Components
 
 ## OVERVIEW
+
 Web Component library for the Maneki design system. Shadow DOM, CSS custom properties, TypeScript. Currently ships:
 
 **Primitives:**
+
 - `<ui-badge>` — label/tag with 4 sizes, 3 emphases, 2 shapes, 13 colors, 5 statuses, uppercase text
 - `<ui-image>` — image container: 5 aspect ratios (16:9/3:2/1:1/3:1/21:9), 4 object-fit modes (cover/contain/fill/none), placeholder blur-up (data URL), fallback slot
 - `<ui-button>` — full Figma spec: 5 actions, 3 emphases, 4 sizes, 2 shapes, 4 icon modes, 3 statuses
@@ -14,6 +16,7 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-tag>` — tag pill/toggle: 4 sizes (xs/s/m/l), 3 types (basic/selectable/toggle), 3 emphases (bold/subtle/minimal), 3 states (enabled/selected/disabled), dismissible + check icon, preserves label casing; HeroUI dark coloured subtle/minimal variants use theme palette overrides
 
 **Form Controls:**
+
 - `<ui-checkbox-item>` — checkbox component: 3 sizes (s/m/l), 3 check states (unchecked/checked/indeterminate), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error)
 - `<ui-checkbox-group>` — checkbox group wrapper: 3 sizes (s/m/l), 2 orientations (vertical/horizontal), size propagation to children
 - `<ui-radio-item>` — radio button component: 3 sizes (s/m/l), 2 check states (unchecked/checked), 3 label positions (none/right/left), 5 states (enabled/hover/focus/disabled/error), value attribute
@@ -26,34 +29,41 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-textarea>` — textarea: 3 sizes (s/m/l), 7 states (enabled/hover/focus/active/filled/disabled/readonly), 5 statuses (none/warning/error/success/loading), label with char count, secondary label, resize handle
 
 **Data Display:**
+
 - `<ui-table>` — table container: 3 sizes (s/m/l), 2 separators (minimal/moderate), zebra striping, bordered, size propagation to children
 - `<ui-table-row>` — table row: header, selected, disabled states, hover highlight
 - `<ui-table-cell>` — table cell: header (columnheader ARIA), 3 alignments (left/center/right), size-dependent typography
 
 **Carousel:**
+
 - `<ui-carousel>` — horizontal scroll carousel: snap scrolling, prev/next arrows, dot indicators, auto-play, loop, gap control
 - `<ui-carousel-item>` — carousel slide wrapper
 
 **Calendar:**
+
 - `<ui-calendar>` — standalone calendar: 3 sizes (s/m/l), daily + monthly views, single/range selection, today highlight, outside-month, min/max, event dots + legend, hover/focus states
 - `<ui-calendar-quicklinks>` — composable quicklinks panel: 3 sizes (s/m/l), 2 orientations (side/bottom), section headings, selected state, click events
 - `<ui-calendar-time>` — composable inline time panel: 3 sizes (s/m/l), hour/minute inputs, AM/PM toggle switch, separator line, 12h/24h conversion
 
 **Datetime Picker:**
+
 - `<ui-datetime-picker-input>` — date/time input trigger: 4 types (single-date/range-date/time/datetime), 3 sizes, 7 states, 5 statuses, label, supportive text, spin controls for time
 - `<ui-datetime-picker>` — datetime picker orchestrator: input + floating dropdown, 4 types (single-date/range-date/time/datetime), calendar or clock panel, min/max, actions bar (Cancel/OK)
 - `<ui-clock>` — standalone clock: analog face + 24-hour digital mode, 3 sizes, hour/minute toggle selection
 
 **List:**
+
 - `<ui-list-item>` — list item: 3 sizes (s/m/l), 5 leading elements (none/icon/avatar/radio/checkbox), 3 paddings, 4 states, top border, trailing icon, description, selected tick
 - `<ui-list-header>` — list section header: 3 sizes (s/m/l), collapse button, top border toggle
 - `<ui-list-group>` — list group wrapper: size propagation, collapsible, header + items slots
 
 **Containers:**
+
 - `<ui-card>` — slot-based card container: 3 sizes (s/m/l), 4 elevations (00/01/02/04), bordered variant, image/default/footer slots
 - `<ui-button-group>` — segmented bar that wraps `<ui-button>` elements
 
 **Navigation:**
+
 - `<ui-breadcrumb-item>` — breadcrumb link item: 3 sizes, 7 states (enabled/hover/focus/active/visited/disabled/current), chevron separator
 - `<ui-breadcrumb-group>` — breadcrumb nav wrapper with size propagation
 - `<ui-side-panel-menu>` — collapsible sidebar navigation: expanded/collapsed states, mobile responsive (auto-collapse), flyout submenu in collapsed mode, overlay mode, selection management with parent highlighting
@@ -61,10 +71,12 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-side-panel-menu-section>` — sidebar section grouping: heading label, collapsible, divider line
 
 **Disclosure:**
+
 - `<ui-accordion-item>` — expandable panel: 3 sizes, 2 emphases, 4 statuses, smooth CSS transition
 - `<ui-accordion-group>` — wrapper with size/emphasis propagation + exclusive mode
 
 **Menus & Dropdowns:**
+
 - `<ui-dropdown>` — dropdown button with floating menu: 4 sizes (s/m/l/xl), 5 actions, 3 emphases, 2 shapes, opt-in `selectable` attribute for single/multi-select, composes `<ui-button>` as trigger
 - `<ui-dropdown-item>` — menu item: 3 sizes (s/m/l), 4 leading elements (icon/checkbox/radio/avatar), secondary label, description, submenu arrow, 6 states (enabled/hover/active/focus/selected/disabled), select event, checkmark, value attribute
 - `<ui-dropdown-heading>` — section heading: 3 sizes (s/m/l), uppercase, non-interactive
@@ -73,21 +85,26 @@ Web Component library for the Maneki design system. Shadow DOM, CSS custom prope
 - `<ui-menu>` — standalone floating menu panel: 3 sizes (s/m/l), open/close animation, outside-click + Escape dismiss, opt-in `selectable` for single/multi-select, size propagation to children, composes `<ui-dropdown-item>` / `<ui-dropdown-heading>` / `<ui-dropdown-separator>`
 
 **Overlays:**
+
 - `<ui-modal>` — native modal dialog with top-layer backdrop and inert background, header (title+subtitle+close), scrollable body, footer button slots, 3 sizes, 2 layouts (auto/fluid), dismiss behavior
 - `<ui-popover>` — focus-managed popover: trigger element, floating panel, outside-click + Escape dismiss, focus trap, arrow key navigation
 - `<ui-tooltip>` — tooltip with aria-describedby: hover/focus trigger, configurable placement, delay, accessible label
-**Tabs:**
+  **Tabs:**
 - `<ui-tab-item>` — tab item: 2 sizes (s/m), 3 states (enabled/selected/disabled), 2 orientations (horizontal/vertical), leading/trailing icon slots, sub-menu chevron, smooth transition
 - `<ui-tab-group>` — tab group wrapper: size/orientation propagation, single selection, roving tabindex, arrow key navigation
 
 **Icons:**
+
 - `<ui-icon>` — Material Symbols icon: 5 sizes (xxs/xs/s/m/l), 10 states (enabled/hover/active/focus/disabled + inverse variants), filled variant, ICON_CODEPOINTS lookup with ligature fallback, accessible label, custom icon registry via `registerIcon()`
 
 ## STRUCTURE
+
 ```
 ui-components/
 ├── src/
 │   ├── index.ts             # Barrel export + custom element registration
+│   ├── define-custom-element.ts # Idempotent registration; first constructor wins
+│   ├── registration.test.ts # Duplicate package-loading regression
 │   ├── test/setup.ts        # happy-dom ElementInternals shim
 │   ├── components/
 │   │   ├── ui-badge.ts
@@ -148,28 +165,33 @@ ui-components/
 ```
 
 ## WHERE TO LOOK
-| Task | Location | Notes |
-|------|----------|-------|
-| Add new component | `src/components/` | Create `ui-foo.ts` + `ui-foo.test.ts` |
-| Visual preview / regression | `apps/catalog/` | Static pages + Playwright (see `apps/catalog/AGENTS.md`) |
-| Register element | `src/index.ts` | `customElements.define()` + re-export |
-| Add new icon | See foundation SOP | Add to foundation, use `<ui-icon>` in components |
+
+| Task                        | Location                   | Notes                                                                  |
+| --------------------------- | -------------------------- | ---------------------------------------------------------------------- |
+| Add new component           | `src/components/`          | Create `ui-foo.ts` + `ui-foo.test.ts`                                  |
+| Visual preview / regression | `apps/catalog/`            | Static pages + Playwright (see `apps/catalog/AGENTS.md`)               |
+| Register element            | `src/components/ui-foo.ts` | `defineCustomElement()` after the class; re-export from `src/index.ts` |
+| Add new icon                | See foundation SOP         | Add to foundation, use `<ui-icon>` in components                       |
 
 ## COMPONENT PATTERN
 
 ### New Components (Lit — required for all new components)
+
 Follow `ui-side-panel-menu-section.ts` as reference:
+
 1. Class extends `LitElement`
-2. `@customElement("ui-foo")` decorator for registration
+2. `defineCustomElement("ui-foo", UiFoo)` from `../define-custom-element.js` after the class for idempotent registration (also used by vanilla components)
 3. `@property()` decorators for observed attributes
-4. `static styles = css\`...\`` with foundation tokens wrapped in `unsafeCSS()`
+4. ``static styles = css`...` `` with foundation tokens wrapped in `unsafeCSS()`
 5. `render()` returns `html\`...\`` template
 6. CSS uses nested var pattern: `var(--ui-btn-bg, ${unsafeCSS(BLUE_60)})` — consumer override → foundation token
 7. For large components (700+ lines): extract styles into `ui-foo.styles.ts`
 8. See [ADR-028](../../docs/adr/028-lit-in-ui-components.md) for rationale
 
 ### Existing Components (vanilla HTMLElement — no obligation to migrate)
+
 Follow `ui-button.ts` or `ui-alert.ts` as reference:
+
 1. Class extends `HTMLElement`
 2. `attachShadow({ mode: "open" })` in constructor
 3. DOM built imperatively with `document.createElement()` (not innerHTML)
@@ -180,33 +202,44 @@ Follow `ui-button.ts` or `ui-alert.ts` as reference:
 8. For large components (700+ lines): extract `STYLES` + token constants into `ui-foo.styles.ts`, keep component logic in `ui-foo.ts`
 
 ## FOUNDATION TOKEN WIRING
+
 Components import token helpers from `@maneki/foundation`:
 
 ```ts
-import { colorVar, semanticVar, spaceVar } from '@maneki/foundation';
+import { colorVar, semanticVar, spaceVar } from "@maneki/foundation";
 
-const BLUE_60 = colorVar('blue', 60);
-const TEXT_PRIMARY = semanticVar('text', 'primary');
+const BLUE_60 = colorVar("blue", 60);
+const TEXT_PRIMARY = semanticVar("text", "primary");
 const SP_2 = spaceVar(2);
 ```
 
 Token constants are defined at module level and interpolated into the CSS template literal. Invalid token references are compile errors.
 
 ## ICONS
+
 Components use a **subsetted Material Symbols Outlined font** (~45 KB) shipped in `@maneki/foundation/assets/`. Apps call `registerIconFont()` once at startup; components access the font through `@font-face { src: local("Material Symbols Outlined") }` in Shadow DOM.
 
 Icons are referenced by **Unicode codepoint constants** (not ligature text) imported from `@maneki/foundation`:
+
 ```ts
 import { ICON_CLOSE, ICON_EXPAND_MORE, ICON_CHECK_CIRCLE } from "@maneki/foundation";
 
-clearIcon.textContent = ICON_CLOSE;       // "\uE5CD"
+clearIcon.textContent = ICON_CLOSE; // "\uE5CD"
 chevronIcon.textContent = ICON_EXPAND_MORE; // "\uE5CF"
 ```
 
 Shadow DOM requires a local `@font-face` declaration to access the globally-loaded font:
+
 ```css
-@font-face { font-family: "Material Symbols Outlined"; font-style: normal; src: local("Material Symbols Outlined"); }
-.material-symbols-outlined { font-family: "Material Symbols Outlined"; font-variation-settings: "FILL" 0; }
+@font-face {
+  font-family: "Material Symbols Outlined";
+  font-style: normal;
+  src: local("Material Symbols Outlined");
+}
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-variation-settings: "FILL" 0;
+}
 ```
 
 Available icon constants: `ICON_WARNING`, `ICON_ERROR`, `ICON_CHECK_CIRCLE`, `ICON_PROGRESS_ACTIVITY`, `ICON_CLOSE`, `ICON_CANCEL`, `ICON_EXPAND_MORE`, `ICON_EXPAND_LESS`, `ICON_VISIBILITY`, `ICON_VISIBILITY_OFF`, `ICON_ARROW_DROP_UP`, `ICON_ARROW_DROP_DOWN`, `ICON_ARROW_BACK_IOS`, `ICON_ARROW_FORWARD_IOS`, `ICON_INFO`, `ICON_NOTIFICATIONS`, `ICON_SEARCH`, `ICON_ATTACH_MONEY`, `ICON_MAIL`, `ICON_ACCOUNT_CIRCLE`, `ICON_ADD_CIRCLE`, `ICON_SHARE`, `ICON_DOWNLOAD`, `ICON_UPLOAD`, `ICON_MORE_VERT`, `ICON_HOME`, `ICON_PERSON`, `ICON_BAR_CHART`, `ICON_SETTINGS`, `ICON_GROUP`, `ICON_CHEVRON_RIGHT`, `ICON_CHEVRON_LEFT`, `ICON_DESCRIPTION`, `ICON_ROCKET_LAUNCH`.
@@ -220,33 +253,41 @@ To add a new icon, see the SOP in `packages/foundation/AGENTS.md`.
 Components render icons with `<ui-icon>` or Material Symbols codepoints from `@maneki/foundation`.
 
 ## TYPE SAFETY
+
 Exported union types cover every attribute:
 
 ```ts
-export type ButtonAction   = 'primary' | 'secondary' | 'destructive' | 'info' | 'contrast';
-export type ButtonEmphasis = 'bold' | 'subtle' | 'minimal';
-export type AlertStatus    = 'none' | 'information' | 'success' | 'error' | 'warning';
+export type ButtonAction = "primary" | "secondary" | "destructive" | "info" | "contrast";
+export type ButtonEmphasis = "bold" | "subtle" | "minimal";
+export type AlertStatus = "none" | "information" | "success" | "error" | "warning";
 ```
 
 Property accessors use these types. Invalid values are compile errors.
 
 ## VISUAL PREVIEW
+
 Component demos and Playwright regression coverage live in **`apps/catalog/`**. When adding a component, wire a catalog page and tests per `apps/catalog/AGENTS.md`.
 
 ## PANEL TRANSITIONS
+
 Dropdown, menu, and select panels use smooth open/close animation:
+
 - Default: `opacity: 0; visibility: hidden; transform: translateY(-4px); pointer-events: none;`
 - Open: `opacity: 1; visibility: visible; transform: translateY(0); pointer-events: auto;`
 - Transition: `opacity 0.15s ease, visibility 0.15s ease, transform 0.15s ease`
 - Include `@media (prefers-reduced-motion: reduce)` fallback (instant transition)
 
 ## STYLES EXTRACTION
+
 For components with 700+ lines, split into two files:
+
 - `ui-foo.ts` — component class, DOM construction, event handling
 - `ui-foo.styles.ts` — `STYLES` constant, token constants, shared maps (e.g., `STATUS_ICON_MAP`)
 
 Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, ui-side-panel-menu.
+
 ## CONVENTIONS
+
 - **Component prefix:** `ui-*` for element names
 - **Shadow DOM:** Always. No light DOM components.
 - **Tests co-located:** `ui-button.ts` → `ui-button.test.ts` in same directory
@@ -264,6 +305,7 @@ Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, u
 - **Accessibility:** components carry proper roles, accessible names, keyboard navigation and visible focus; the catalog a11y suite (axe) checks every page, with known exceptions listed in `apps/catalog/e2e/a11y.spec.ts`.
 
 ## ANTI-PATTERNS
+
 - **No hardcoded design values** — never use raw hex colors (`#186ade`), pixel spacing (`4px`, `16px`), or font sizes directly. Always use foundation token helpers (`colorVar()`, `spaceVar()`, `typeVar()`, etc.).
 - **No `as any`, `@ts-ignore`, `@ts-expect-error`** — never suppress types
 - **No light DOM components** — always Shadow DOM with `attachShadow({ mode: "open" })`
@@ -288,6 +330,7 @@ Currently extracted: ui-input, ui-select, ui-dropdown-item, ui-dropdown-split, u
   - `Tag/Text/tag-text-subtle` → `semanticVar("tag", "textSubtle")` (`#0D4EA6`) — tag subtle text
   - `Tag/Text/tag-text-minimal` → `semanticVar("tag", "textMinimal")` (`#3E5463`) — tag minimal text
   - `Button/button-secondary` → `semanticVar("button", "secondary")` (`#DCE3E8`) — selectable/toggle tag background
+
 ## SOP: Using `<ui-icon>` in Components
 
 When a component needs to render a Material Symbols icon internally:
@@ -308,15 +351,22 @@ When a component needs to render a Material Symbols icon internally:
 3. **Do NOT set a color on `<ui-icon>`** unless you need to override the parent's text color. `<ui-icon>` defaults to `currentColor`, which inherits semantic colors from wrapper elements (status icons, links, etc.).
 4. **Set `--ui-icon-size` in CSS** for every size variant. Since `<ui-icon>` uses Shadow DOM, parent `font-size` does NOT control icon size. You must set the custom property explicitly:
    ```css
-   :host([size="s"]) .icon-wrapper { --ui-icon-size: 16px; }
-   :host([size="m"]) .icon-wrapper { --ui-icon-size: 20px; }
-   :host([size="l"]) .icon-wrapper { --ui-icon-size: 24px; }
+   :host([size="s"]) .icon-wrapper {
+     --ui-icon-size: 16px;
+   }
+   :host([size="m"]) .icon-wrapper {
+     --ui-icon-size: 20px;
+   }
+   :host([size="l"]) .icon-wrapper {
+     --ui-icon-size: 24px;
+   }
    ```
 5. **Use `name` attribute** (not codepoint text) when creating `<ui-icon>` — it handles `ICON_CODEPOINTS` lookup and ligature fallback automatically.
 6. **For rotation/animation** (e.g., accordion chevron), apply `transform` on the `<ui-icon>` element itself, not a wrapper. Ensure `transform-origin: center` for centered rotation.
 7. **Verify visually** that icons inherit correct semantic colors in all states (enabled, hover, disabled, error, etc.).
 
 ### Common Pitfalls
+
 - **Missing `}`** — when adding `--ui-icon-size` lines to size-variant CSS blocks, double-check that every block's closing brace is intact. A missing `}` silently breaks the entire stylesheet.
 - **Missing icon in subset font** — if the icon shows literal text (e.g., "chevron_right"), the icon is not in the subset. Follow the "Adding a New Icon" SOP in `packages/foundation/AGENTS.md`.
 - **Constructor `setAttribute`** — will crash at runtime when the element is created inside another component's Shadow DOM. Always defer to `connectedCallback()`.
@@ -341,6 +391,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 4. **AGENTS.md structure trees** — if new files were added (components, styles)
 
 ### Quick Checklist
+
 ```
 [ ] Test counts match `npx vitest --run` output
 [ ] Component count matches actual registered elements
@@ -350,8 +401,9 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ```
 
 ## COMMANDS
+
 ```bash
-moon run ui-components:test            # vitest --run (3719 tests)
+moon run ui-components:test            # vitest --run (3720 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run catalog:dev                   # visual catalog (apps/catalog)
 ```

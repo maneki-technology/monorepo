@@ -1,4 +1,4 @@
-
+import { defineCustomElement } from "../define-custom-element.js";
 
 // ─── Type-safe property unions ───────────────────────────────────────────────
 
@@ -339,14 +339,7 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiAccordionItem extends HTMLElement {
-  static readonly observedAttributes = [
-    "size",
-    "emphasis",
-    "expanded",
-    "leading-icon",
-    "status",
-    "disabled",
-  ];
+  static readonly observedAttributes = ["size", "emphasis", "expanded", "leading-icon", "status", "disabled"];
 
   private static _counter = 0;
 
@@ -365,7 +358,6 @@ export class UiAccordionItem extends HTMLElement {
     this._contentId = `${uid}_content`;
 
     shadow.adoptedStyleSheets = [sheet];
-
 
     // Header
     const header = document.createElement("div");
@@ -460,11 +452,7 @@ export class UiAccordionItem extends HTMLElement {
     this._syncStatus();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (name === "expanded") {
       this._syncExpanded();
     }
@@ -588,4 +576,4 @@ export class UiAccordionItem extends HTMLElement {
   }
 }
 
-customElements.define("ui-accordion-item", UiAccordionItem);
+defineCustomElement("ui-accordion-item", UiAccordionItem);

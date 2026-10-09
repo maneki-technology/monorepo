@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-scrollbar.styles.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -48,4 +49,4 @@ export class UiScrollbar extends HTMLElement {
   }
 }
 
-customElements.define("ui-scrollbar", UiScrollbar);
+defineCustomElement("ui-scrollbar", UiScrollbar);

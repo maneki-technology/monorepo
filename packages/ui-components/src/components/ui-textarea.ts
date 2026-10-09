@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES, STATUS_ICON_MAP } from "./ui-textarea.styles.js";
 import "./ui-icon.js";
 import "./ui-label.js";
@@ -98,11 +99,7 @@ export class UiTextarea extends HTMLElement {
     this._syncAria();
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     switch (name) {
       case "value":
         this._syncValue();
@@ -148,9 +145,6 @@ export class UiTextarea extends HTMLElement {
   set size(value: TextareaSize) {
     this.setAttribute("size", value);
   }
-
-
-
 
   get placeholder(): string {
     return this.getAttribute("placeholder") ?? "";
@@ -306,7 +300,6 @@ export class UiTextarea extends HTMLElement {
     }
   }
 
-
   private _syncCharCount(): void {
     const ml = this.maxlength;
     if (ml !== null) {
@@ -372,4 +365,4 @@ export class UiTextarea extends HTMLElement {
   }
 }
 
-customElements.define("ui-textarea", UiTextarea);
+defineCustomElement("ui-textarea", UiTextarea);

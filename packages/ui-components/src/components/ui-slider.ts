@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-slider.styles.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -344,4 +345,4 @@ export class UiSlider extends HTMLElement {
   }
 }
 
-customElements.define("ui-slider", UiSlider);
+defineCustomElement("ui-slider", UiSlider);

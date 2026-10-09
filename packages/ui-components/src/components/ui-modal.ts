@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import "./ui-button.js";
 import "./ui-icon.js";
 import {
@@ -569,4 +570,4 @@ export class UiModal extends HTMLElement {
   }
 }
 
-customElements.define("ui-modal", UiModal);
+defineCustomElement("ui-modal", UiModal);

@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { STYLES } from "./ui-clock.styles.js";
 import "./ui-icon.js";
 
@@ -118,11 +119,7 @@ export class UiClock extends HTMLElement {
     this.#clockFace.removeEventListener("click", this.#onClockClick);
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     if (!this.isConnected) return;
     if (name === "value") {
       this.#parseValue(_newValue);
@@ -214,9 +211,7 @@ export class UiClock extends HTMLElement {
       num.className = "clock-number";
       num.style.left = `${x}px`;
       num.style.top = `${y}px`;
-      num.textContent = isHourMode
-        ? String(numbers[i])
-        : String(numbers[i]).padStart(2, "0");
+      num.textContent = isHourMode ? String(numbers[i]) : String(numbers[i]).padStart(2, "0");
       num.dataset.value = String(numbers[i]);
 
       const currentVal = isHourMode ? this.#hour % 12 || 12 : this.#minute;
@@ -228,10 +223,8 @@ export class UiClock extends HTMLElement {
     }
 
     // Track line
-    const selectedVal = isHourMode ? (this.#hour % 12 || 12) : this.#minute;
-    const trackAngle = isHourMode
-      ? (selectedVal * 30 - 90)
-      : (selectedVal * 6 - 90);
+    const selectedVal = isHourMode ? this.#hour % 12 || 12 : this.#minute;
+    const trackAngle = isHourMode ? selectedVal * 30 - 90 : selectedVal * 6 - 90;
     const trackLen = numR;
 
     this.#clockTrack.style.width = `${trackLen}px`;
@@ -405,7 +398,6 @@ export class UiClock extends HTMLElement {
       }),
     );
   }
-
 }
 
-customElements.define("ui-clock", UiClock);
+defineCustomElement("ui-clock", UiClock);

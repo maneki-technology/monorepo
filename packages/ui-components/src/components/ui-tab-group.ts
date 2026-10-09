@@ -1,3 +1,4 @@
+import { defineCustomElement } from "../define-custom-element.js";
 
 import {
   BORDER_FOCUS,
@@ -370,7 +371,6 @@ export class UiTabGroup extends HTMLElement {
       this._propagateAttributes();
       this._syncTabindex();
       this._updateOverflow();
-
     });
 
     // Listen for tab-select events for mutual exclusion
@@ -404,7 +404,6 @@ export class UiTabGroup extends HTMLElement {
       this._propagateAttributes();
       this._syncTabindex();
       this._updateOverflow();
-
     });
 
     if (this.overflow === "menu") {
@@ -422,16 +421,11 @@ export class UiTabGroup extends HTMLElement {
     }
   }
 
-  attributeChangedCallback(
-    name: string,
-    _oldValue: string | null,
-    _newValue: string | null,
-  ): void {
+  attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {
     this._propagateAttributes();
     if (name === "orientation") {
       this._syncAriaOrientation();
       this._updateOverflow();
-
     }
     if (name === "overflow") {
       if (this.overflow === "menu") {
@@ -502,9 +496,7 @@ export class UiTabGroup extends HTMLElement {
     if (directItems.length > 0) return directItems;
     // Fallback to slot assignment for non-nested usage
     const slot = this.shadowRoot!.querySelector("slot")!;
-    return slot
-      .assignedElements({ flatten: true })
-      .filter((el) => el.tagName === "UI-TAB-ITEM");
+    return slot.assignedElements({ flatten: true }).filter((el) => el.tagName === "UI-TAB-ITEM");
   }
 
   private _propagateAttributes(): void {
@@ -545,7 +537,6 @@ export class UiTabGroup extends HTMLElement {
 
     this._closeOverflowMenu();
     this._updateOverflow();
-
   }
 
   /** Handle tab-close: remove the tab and select a neighbor if it was selected. */
@@ -589,7 +580,6 @@ export class UiTabGroup extends HTMLElement {
     }
   }
 
-
   // ── Overflow menu logic ────────────────────────────────────────────────
 
   private _startObserving(): void {
@@ -618,9 +608,7 @@ export class UiTabGroup extends HTMLElement {
 
     const isHorizontal = this.orientation !== "vertical";
     const tablistRect = this._tablist.getBoundingClientRect();
-    const containerEnd = isHorizontal
-      ? tablistRect.right
-      : tablistRect.bottom;
+    const containerEnd = isHorizontal ? tablistRect.right : tablistRect.bottom;
 
     // Reserve space for the more button (approximate)
     const moreBtnSize = isHorizontal ? 36 : 36;
@@ -739,15 +727,13 @@ export class UiTabGroup extends HTMLElement {
         if (isHorizontal) nextIndex = (currentIndex + 1) % items.length;
         break;
       case "ArrowLeft":
-        if (isHorizontal)
-          nextIndex = (currentIndex - 1 + items.length) % items.length;
+        if (isHorizontal) nextIndex = (currentIndex - 1 + items.length) % items.length;
         break;
       case "ArrowDown":
         if (!isHorizontal) nextIndex = (currentIndex + 1) % items.length;
         break;
       case "ArrowUp":
-        if (!isHorizontal)
-          nextIndex = (currentIndex - 1 + items.length) % items.length;
+        if (!isHorizontal) nextIndex = (currentIndex - 1 + items.length) % items.length;
         break;
       case "Home":
         nextIndex = 0;
@@ -767,4 +753,4 @@ export class UiTabGroup extends HTMLElement {
   };
 }
 
-customElements.define("ui-tab-group", UiTabGroup);
+defineCustomElement("ui-tab-group", UiTabGroup);

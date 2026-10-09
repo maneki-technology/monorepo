@@ -1,5 +1,6 @@
+import { defineCustomElement } from "../define-custom-element.js";
 import { LitElement, css, html, unsafeCSS } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { property } from "lit/decorators.js";
 import {
   BORDER_MINIMAL,
   BW_SM,
@@ -86,7 +87,6 @@ const STYLES = /* css */ `
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-@customElement("ui-side-panel-menu")
 export class UiSidePanelMenu extends LitElement {
   @property({ type: String, reflect: true }) declare state: SidePanelMenuState;
   @property({ type: Boolean, reflect: true }) declare overlay: boolean;
@@ -452,8 +452,7 @@ export class UiSidePanelMenu extends LitElement {
 
   private _handleItemSelect(e: CustomEvent): void {
     const target = e.composedPath().find((el) => (el as Element).tagName === "UI-SIDE-PANEL-MENU-ITEM") as
-      | Element
-      | undefined;
+      Element | undefined;
     if (!target) return;
 
     if (target.hasAttribute("expandable")) return;
@@ -512,8 +511,7 @@ export class UiSidePanelMenu extends LitElement {
   private _handleItemToggle(e: CustomEvent): void {
     if (this.state !== "collapsed") return;
     const target = e.composedPath().find((el) => (el as Element).tagName === "UI-SIDE-PANEL-MENU-ITEM") as
-      | HTMLElement
-      | undefined;
+      HTMLElement | undefined;
     if (!target || !target.hasAttribute("expandable")) return;
 
     if (target.hasAttribute("expanded")) {
@@ -630,3 +628,5 @@ export class UiSidePanelMenu extends LitElement {
     }
   }
 }
+
+defineCustomElement("ui-side-panel-menu", UiSidePanelMenu);
