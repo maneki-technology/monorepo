@@ -119,7 +119,7 @@ maneki-monorepo/
 
 ## CONVENTIONS
 
-- **Zero runtime deps** (except `ui-components`, `grid-layout`, and `flex-layout` → `@maneki/foundation`). Foundation has zero production dependencies.
+- **Zero runtime deps** (except `ui-components`, `grid-layout`, and `flex-layout` → `@maneki/foundation`; `ui-components` also → `lit`). Foundation has zero production dependencies.
 - **Web Components + Shadow DOM.** All UI is custom elements with `attachShadow({ mode: "open" })`.
 - **CSS custom properties.** Each package has its own prefix: `--grid-*` (grid-layout), `--flex-*` (flex-layout), `--fd-*` (foundation), `--ui-*` (ui-components).
 - **Package naming.** npm: `@maneki/*` scope (e.g., `@maneki/foundation`, `@maneki/ui-components`, `@maneki/grid-layout`, `@maneki/flex-layout`).

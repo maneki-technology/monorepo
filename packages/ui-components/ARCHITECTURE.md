@@ -34,7 +34,7 @@ The [README](README.md) lists all elements. [AGENTS.md](AGENTS.md) describes com
 
 ## Component Implementations
 
-74 components extend `HTMLElement`. The four Lit components are `ui-side-panel`, `ui-side-panel-menu`, `ui-side-panel-menu-item` and `ui-side-panel-menu-section`. Switch and skeleton remain vanilla.
+74 components extend `HTMLElement`. The four Lit components are `ui-side-panel`, `ui-side-panel-menu`, `ui-side-panel-menu-item` and `ui-side-panel-menu-section`.
 
 Vanilla components create their shadow tree in the constructor and update it through attribute callbacks. Lit components use `@property()`, `render()` and `static styles`. Both register through the shared `defineCustomElement()` helper:
 
@@ -85,7 +85,7 @@ import "@maneki/ui-components/components/ui-button.js";
 import type { ButtonSize } from "@maneki/ui-components/components/ui-button.js";
 ```
 
-The exports map provides a `types` condition for `.js` component imports, while preserving existing deep paths. `sideEffects: true` keeps registration imports. The blog uses deep imports and its auto-component Vite plugin; the catalog loads components through page modules.
+The `./components/*` export maps deep imports to `dist/components/`, and TypeScript resolves each `.js` target to its sibling `.d.ts`. `sideEffects: true` keeps registration imports. The blog uses deep imports and its auto-component Vite plugin; the catalog loads components through page modules.
 
 The build deduplicates shared code into chunks. The `minifyCssLiterals` plugin minifies `/* css */` template literals only during builds. Declaration-only style modules need not have standalone JavaScript entries.
 
