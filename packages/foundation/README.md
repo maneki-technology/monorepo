@@ -149,7 +149,7 @@ HeroUI supplies `--ui-field-inactive-bg`, `--ui-field-inactive-border`, `--ui-fi
 
 ```bash
 moon run foundation:build    # vite build + tsc --emitDeclarationOnly → dist/
-moon run foundation:test     # vitest --run (66 tests)
+moon run foundation:test     # vitest --run (67 tests)
 ```
 
 ## License

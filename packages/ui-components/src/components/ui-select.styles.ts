@@ -85,7 +85,7 @@ export const STYLES = /* css */ `
     cursor: pointer;
     outline: none;
   }
-  :host(:not([disabled]):not([readonly])) .trigger:focus-visible {
+  :host(:not([disabled])) .trigger:focus-visible {
     border-color: var(--ui-select-focus-border, ${BORDER_FOCUS});
     outline: 1px solid var(--ui-select-focus-border, ${BORDER_FOCUS});
   }
@@ -353,9 +353,9 @@ export const STYLES = /* css */ `
   :host([error]) .trigger {
     border-color: ${STATUS_GENERAL_ERROR};
   }
-  :host([status="error"]:not([disabled]):not([readonly])) .trigger:focus-visible,
+  :host([status="error"]:not([disabled])) .trigger:focus-visible,
   :host([status="error"][open]:not([disabled]):not([readonly])) .trigger,
-  :host([error]:not([disabled]):not([readonly])) .trigger:focus-visible,
+  :host([error]:not([disabled])) .trigger:focus-visible,
   :host([error][open]:not([disabled]):not([readonly])) .trigger {
     border-color: ${STATUS_GENERAL_ERROR};
     outline: 1px solid ${STATUS_GENERAL_ERROR};
@@ -365,7 +365,7 @@ export const STYLES = /* css */ `
   :host([status="warning"]) .trigger {
     border-color: ${STATUS_GENERAL_WARNING};
   }
-  :host([status="warning"]:not([disabled]):not([readonly])) .trigger:focus-visible,
+  :host([status="warning"]:not([disabled])) .trigger:focus-visible,
   :host([status="warning"][open]:not([disabled]):not([readonly])) .trigger {
     border-color: ${STATUS_GENERAL_WARNING};
     outline: 1px solid ${STATUS_GENERAL_WARNING};
@@ -375,7 +375,7 @@ export const STYLES = /* css */ `
   :host([status="success"]) .trigger {
     border-color: ${STATUS_GENERAL_SUCCESS};
   }
-  :host([status="success"]:not([disabled]):not([readonly])) .trigger:focus-visible,
+  :host([status="success"]:not([disabled])) .trigger:focus-visible,
   :host([status="success"][open]:not([disabled]):not([readonly])) .trigger {
     border-color: ${STATUS_GENERAL_SUCCESS};
     outline: 1px solid ${STATUS_GENERAL_SUCCESS};

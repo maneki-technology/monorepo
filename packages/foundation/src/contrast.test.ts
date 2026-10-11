@@ -38,6 +38,15 @@ describe("HeroUI component overrides", () => {
     expect(dark).not.toContain("#fafafa");
   });
 
+  it("styles inactive HeroUI fields like enabled ones", () => {
+    const [light, dark] = generateHerouiCss().split('[data-theme="heroui-dark"]');
+    for (const css of [light, dark]) {
+      expect(css).toContain("--ui-field-inactive-bg: var(--fd-form-input-background);");
+      expect(css).toContain("--ui-field-inactive-border: var(--fd-form-input-border);");
+      expect(css).toContain("--ui-disabled-opacity: 0.5;");
+    }
+  });
+
   it("scopes HeroUI tag palette overrides to dark mode", () => {
     const [light, dark] = generateHerouiCss().split('[data-theme="heroui-dark"]');
     expect(light).not.toContain("--ui-tag-red-");
