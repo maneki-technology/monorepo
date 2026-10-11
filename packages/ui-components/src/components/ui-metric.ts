@@ -13,6 +13,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiMetric extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = [
     "size",
     "orientation",
@@ -93,16 +95,26 @@ export class UiMetric extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     this._syncLegendColor();
     if (this.hasAttribute("clickable")) {
       this._setupClickable();
     }
-    this.addEventListener("keydown", (e: KeyboardEvent) => {
-      if ((e.key === "Enter" || e.key === " ") && this.hasAttribute("clickable")) {
-        e.preventDefault();
-        this.click();
-      }
-    });
+    this.addEventListener(
+      "keydown",
+      (e: KeyboardEvent) => {
+        if ((e.key === "Enter" || e.key === " ") && this.hasAttribute("clickable")) {
+          e.preventDefault();
+          this.click();
+        }
+      },
+      { signal },
+    );
+  }
+
+  disconnectedCallback(): void {
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {

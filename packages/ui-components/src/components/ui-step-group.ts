@@ -42,6 +42,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiStepGroup extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = ["size", "orientation", "current-step", "labels"];
 
   constructor() {
@@ -57,11 +59,17 @@ export class UiStepGroup extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     if (!this.hasAttribute("size")) this.setAttribute("size", "m");
     if (!this.hasAttribute("orientation")) this.setAttribute("orientation", "horizontal");
 
-    this.shadowRoot!.querySelector("slot")!.addEventListener("slotchange", () => this._syncSteps());
+    this.shadowRoot!.querySelector("slot")!.addEventListener("slotchange", () => this._syncSteps(), { signal });
     this._syncSteps();
+  }
+
+  disconnectedCallback(): void {
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(): void {

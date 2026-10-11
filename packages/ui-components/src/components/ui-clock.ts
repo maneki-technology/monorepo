@@ -22,6 +22,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiClock extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = ["size", "mode", "value"];
 
   #hour = 12;
@@ -93,6 +95,8 @@ export class UiClock extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     if (!this.hasAttribute("size")) {
       this.setAttribute("size", "m");
     }
@@ -104,19 +108,27 @@ export class UiClock extends HTMLElement {
     this.#buildDigital();
     this.#render();
 
-    this.#clockFace.addEventListener("click", this.#onClockClick);
-    this.#hourLabel.addEventListener("click", () => {
-      this.#selecting = "hour";
-      this.#render();
-    });
-    this.#minuteLabel.addEventListener("click", () => {
-      this.#selecting = "minute";
-      this.#render();
-    });
+    this.#clockFace.addEventListener("click", this.#onClockClick, { signal });
+    this.#hourLabel.addEventListener(
+      "click",
+      () => {
+        this.#selecting = "hour";
+        this.#render();
+      },
+      { signal },
+    );
+    this.#minuteLabel.addEventListener(
+      "click",
+      () => {
+        this.#selecting = "minute";
+        this.#render();
+      },
+      { signal },
+    );
   }
 
   disconnectedCallback(): void {
-    this.#clockFace.removeEventListener("click", this.#onClockClick);
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {

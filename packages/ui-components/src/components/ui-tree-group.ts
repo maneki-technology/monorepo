@@ -200,6 +200,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiTreeGroup extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = ["size", "searchable"];
 
   #searchWrapper!: HTMLElement;
@@ -247,24 +249,42 @@ export class UiTreeGroup extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     if (!this.hasAttribute("size")) this.setAttribute("size", "m");
 
     const slot = this.shadowRoot!.querySelector("slot:not([name])") as HTMLSlotElement;
-    slot.addEventListener("slotchange", () => {
-      this._propagateSize();
-      this._syncVisibility();
-    });
+    slot.addEventListener(
+      "slotchange",
+      () => {
+        this._propagateSize();
+        this._syncVisibility();
+      },
+      { signal },
+    );
     this._propagateSize();
 
     // Listen for tree-toggle events to manage child visibility
-    this.addEventListener("tree-toggle", () => {
-      this._syncVisibility();
-    });
+    this.addEventListener(
+      "tree-toggle",
+      () => {
+        this._syncVisibility();
+      },
+      { signal },
+    );
 
     // Search filtering
-    this.#searchInput.addEventListener("input", () => {
-      this._filterBySearch();
-    });
+    this.#searchInput.addEventListener(
+      "input",
+      () => {
+        this._filterBySearch();
+      },
+      { signal },
+    );
+  }
+
+  disconnectedCallback(): void {
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(name: string): void {

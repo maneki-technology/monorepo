@@ -46,6 +46,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(FIELD_STYLES);
 
 export class UiQueryfield extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = ["size", "placeholder", "disabled", "value"];
 
   #input!: HTMLInputElement;
@@ -63,6 +65,7 @@ export class UiQueryfield extends HTMLElement {
 
   constructor() {
     super();
+    this._onDocumentClick = this._onDocumentClick.bind(this);
     const shadow = this.attachShadow({ mode: "open" });
     shadow.adoptedStyleSheets = [sheet];
 
@@ -102,83 +105,100 @@ export class UiQueryfield extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     if (!this.hasAttribute("size")) this.setAttribute("size", "m");
 
-    this.#input.addEventListener("input", () => {
-      this.dispatchEvent(
-        new CustomEvent("queryfield-input", {
-          detail: { value: this.#input.value },
-          bubbles: true,
-          composed: true,
-        }),
-      );
-      // If we have filters and user is typing, show filter suggestions
-      if (this.#filters.length > 0 && this.#state === "idle") {
-        this._transitionTo("selecting-filter");
-      }
-      this._filterMenuItems();
-    });
+    this.#input.addEventListener(
+      "input",
+      () => {
+        this.dispatchEvent(
+          new CustomEvent("queryfield-input", {
+            detail: { value: this.#input.value },
+            bubbles: true,
+            composed: true,
+          }),
+        );
+        // If we have filters and user is typing, show filter suggestions
+        if (this.#filters.length > 0 && this.#state === "idle") {
+          this._transitionTo("selecting-filter");
+        }
+        this._filterMenuItems();
+      },
+      { signal },
+    );
 
-    this.#input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        if (this.#state === "selecting-value") {
-          // Add free-text value if input has text
-          const freeText = this.#input.value.trim();
-          if (freeText) {
-            if (!this.#selectedValues.includes(freeText)) {
-              this.#selectedValues.push(freeText);
+    this.#input.addEventListener(
+      "keydown",
+      (e) => {
+        if (e.key === "Enter") {
+          if (this.#state === "selecting-value") {
+            // Add free-text value if input has text
+            const freeText = this.#input.value.trim();
+            if (freeText) {
+              if (!this.#selectedValues.includes(freeText)) {
+                this.#selectedValues.push(freeText);
+              }
+              this.#input.value = "";
+              this._renderValueMenu();
+              this._openMenu();
             }
-            this.#input.value = "";
-            this._renderValueMenu();
-            this._openMenu();
+            // Commit if we have values
+            if (this.#selectedValues.length > 0) {
+              this._commitFilter();
+            }
+          } else if (this.#state === "idle") {
+            this.dispatchEvent(
+              new CustomEvent("queryfield-submit", {
+                detail: { value: this.#input.value },
+                bubbles: true,
+                composed: true,
+              }),
+            );
           }
-          // Commit if we have values
-          if (this.#selectedValues.length > 0) {
+        } else if (e.key === "Escape") {
+          if (this.#state === "selecting-value" && this.#selectedValues.length > 0) {
             this._commitFilter();
+          } else {
+            this._closeMenu();
           }
-        } else if (this.#state === "idle") {
-          this.dispatchEvent(
-            new CustomEvent("queryfield-submit", {
-              detail: { value: this.#input.value },
-              bubbles: true,
-              composed: true,
-            }),
-          );
         }
-      } else if (e.key === "Escape") {
-        if (this.#state === "selecting-value" && this.#selectedValues.length > 0) {
-          this._commitFilter();
-        } else {
-          this._closeMenu();
-        }
-      }
-    });
+      },
+      { signal },
+    );
 
-    this.#input.addEventListener("focus", () => {
-      if (this.#filters.length > 0 && this.#state === "idle") {
-        this._transitionTo("selecting-filter");
-      }
-    });
+    this.#input.addEventListener(
+      "focus",
+      () => {
+        if (this.#filters.length > 0 && this.#state === "idle") {
+          this._transitionTo("selecting-filter");
+        }
+      },
+      { signal },
+    );
 
     // Listen for tag edit events
-    this.addEventListener("tag-edit", ((e: CustomEvent) => {
-      e.stopPropagation();
-      const { tag, filterName, operator, values } = e.detail;
-      this._editTag(tag, filterName, operator, values);
-    }) as EventListener);
+    this.addEventListener(
+      "tag-edit",
+      ((e: CustomEvent) => {
+        e.stopPropagation();
+        const { tag, filterName, operator, values } = e.detail;
+        this._editTag(tag, filterName, operator, values);
+      }) as EventListener,
+      { signal },
+    );
 
     // Close on outside click
-    this._onDocumentClick = this._onDocumentClick.bind(this);
-    document.addEventListener("click", this._onDocumentClick);
+    document.addEventListener("click", this._onDocumentClick, { signal });
 
     // Propagate size to slotted tags
     const slot = this.#tags.querySelector("slot") as HTMLSlotElement;
-    slot.addEventListener("slotchange", () => this._propagateSize());
+    slot.addEventListener("slotchange", () => this._propagateSize(), { signal });
     this._propagateSize();
   }
 
   disconnectedCallback(): void {
-    document.removeEventListener("click", this._onDocumentClick);
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {

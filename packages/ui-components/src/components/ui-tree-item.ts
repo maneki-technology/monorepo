@@ -12,6 +12,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(TREE_ITEM_STYLES);
 
 export class UiTreeItem extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = [
     "size",
     "level",
@@ -80,6 +82,8 @@ export class UiTreeItem extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     if (!this.hasAttribute("size")) this.setAttribute("size", "m");
     if (!this.hasAttribute("level")) this.setAttribute("level", "parent");
     if (!this.hasAttribute("arrow")) this.setAttribute("arrow", "none");
@@ -87,41 +91,54 @@ export class UiTreeItem extends HTMLElement {
     this.setAttribute("tabindex", "0");
     this._syncAll();
 
-    this.addEventListener("click", (e) => {
-      // Don't toggle if click originated from checkbox slot
-      const path = e.composedPath();
-      const fromCheckbox = path.some(
-        (el) => (el as Element).classList?.contains("checkbox-slot") || (el as Element).tagName === "UI-CHECKBOX-ITEM",
-      );
-      if (fromCheckbox) return;
+    this.addEventListener(
+      "click",
+      (e) => {
+        // Don't toggle if click originated from checkbox slot
+        const path = e.composedPath();
+        const fromCheckbox = path.some(
+          (el) =>
+            (el as Element).classList?.contains("checkbox-slot") || (el as Element).tagName === "UI-CHECKBOX-ITEM",
+        );
+        if (fromCheckbox) return;
 
-      const arrow = this.getAttribute("arrow");
-      if (arrow === "open" || arrow === "closed") {
-        const next = arrow === "open" ? "closed" : "open";
-        this.setAttribute("arrow", next);
+        const arrow = this.getAttribute("arrow");
+        if (arrow === "open" || arrow === "closed") {
+          const next = arrow === "open" ? "closed" : "open";
+          this.setAttribute("arrow", next);
+          this.dispatchEvent(
+            new CustomEvent("tree-toggle", {
+              detail: { expanded: next === "open" },
+              bubbles: true,
+              composed: true,
+            }),
+          );
+        }
         this.dispatchEvent(
-          new CustomEvent("tree-toggle", {
-            detail: { expanded: next === "open" },
+          new CustomEvent("tree-select", {
+            detail: { label: this.label },
             bubbles: true,
             composed: true,
           }),
         );
-      }
-      this.dispatchEvent(
-        new CustomEvent("tree-select", {
-          detail: { label: this.label },
-          bubbles: true,
-          composed: true,
-        }),
-      );
-    });
+      },
+      { signal },
+    );
 
-    this.addEventListener("keydown", (e) => {
-      if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        this.click();
-      }
-    });
+    this.addEventListener(
+      "keydown",
+      (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          this.click();
+        }
+      },
+      { signal },
+    );
+  }
+
+  disconnectedCallback(): void {
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(): void {

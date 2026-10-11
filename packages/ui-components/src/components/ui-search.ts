@@ -39,6 +39,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiSearch extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = ["size", "placeholder", "disabled", "value"];
 
   #input!: HTMLInputElement;
@@ -49,6 +51,7 @@ export class UiSearch extends HTMLElement {
 
   constructor() {
     super();
+    this._onDocumentClick = this._onDocumentClick.bind(this);
     const shadow = this.attachShadow({ mode: "open" });
     shadow.adoptedStyleSheets = [sheet];
 
@@ -93,65 +96,82 @@ export class UiSearch extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     if (!this.hasAttribute("size")) this.setAttribute("size", "m");
 
-    this.#input.addEventListener("input", () => {
-      this.#query = this.#input.value;
-      this._syncHasValue();
-      this._renderResults();
+    this.#input.addEventListener(
+      "input",
+      () => {
+        this.#query = this.#input.value;
+        this._syncHasValue();
+        this._renderResults();
 
-      if (this.#query.length > 0) {
-        this._open();
-      } else {
-        this._close();
-      }
+        if (this.#query.length > 0) {
+          this._open();
+        } else {
+          this._close();
+        }
 
-      this.dispatchEvent(
-        new CustomEvent("search-input", {
-          detail: { value: this.#query },
-          bubbles: true,
-          composed: true,
-        }),
-      );
-    });
-
-    this.#input.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") {
-        this._close();
-      } else if (e.key === "Enter") {
         this.dispatchEvent(
-          new CustomEvent("search-submit", {
+          new CustomEvent("search-input", {
             detail: { value: this.#query },
             bubbles: true,
             composed: true,
           }),
         );
-      }
-    });
+      },
+      { signal },
+    );
 
-    this.#input.addEventListener("focus", () => {
-      if (this.#query.length > 0 && this.#categories.length > 0) {
-        this._open();
-      }
-    });
+    this.#input.addEventListener(
+      "keydown",
+      (e) => {
+        if (e.key === "Escape") {
+          this._close();
+        } else if (e.key === "Enter") {
+          this.dispatchEvent(
+            new CustomEvent("search-submit", {
+              detail: { value: this.#query },
+              bubbles: true,
+              composed: true,
+            }),
+          );
+        }
+      },
+      { signal },
+    );
 
-    this.#clearBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this.#input.value = "";
-      this.#query = "";
-      this._syncHasValue();
-      this._close();
-      this.#input.focus();
-      this.dispatchEvent(new CustomEvent("search-clear", { bubbles: true, composed: true }));
-    });
+    this.#input.addEventListener(
+      "focus",
+      () => {
+        if (this.#query.length > 0 && this.#categories.length > 0) {
+          this._open();
+        }
+      },
+      { signal },
+    );
+
+    this.#clearBtn.addEventListener(
+      "click",
+      (e) => {
+        e.stopPropagation();
+        this.#input.value = "";
+        this.#query = "";
+        this._syncHasValue();
+        this._close();
+        this.#input.focus();
+        this.dispatchEvent(new CustomEvent("search-clear", { bubbles: true, composed: true }));
+      },
+      { signal },
+    );
 
     // Close on outside click
-    this._onDocumentClick = this._onDocumentClick.bind(this);
-    document.addEventListener("click", this._onDocumentClick);
+    document.addEventListener("click", this._onDocumentClick, { signal });
   }
 
   disconnectedCallback(): void {
-    document.removeEventListener("click", this._onDocumentClick);
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {

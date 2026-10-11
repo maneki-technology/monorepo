@@ -199,7 +199,6 @@ export class UiDropdown extends HTMLElement {
   disconnectedCallback(): void {
     document.removeEventListener("click", this._handleOutsideClick);
     this.removeEventListener("keydown", this._handleKeydown);
-    this.removeEventListener("select", this._handleItemSelect as EventListener);
   }
 
   attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {

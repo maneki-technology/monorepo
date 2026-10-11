@@ -169,7 +169,6 @@ export class UiSelect extends HTMLElement {
 
   disconnectedCallback(): void {
     document.removeEventListener("click", this._handleOutsideClick);
-    this.removeEventListener("select", this._handleItemSelect as EventListener);
   }
 
   attributeChangedCallback(name: string, _oldValue: string | null, _newValue: string | null): void {

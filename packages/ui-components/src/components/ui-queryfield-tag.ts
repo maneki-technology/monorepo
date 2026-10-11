@@ -12,6 +12,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(TAG_STYLES);
 
 export class UiQueryfieldTag extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = ["size", "category", "expression", "filter-name", "operator", "values"];
 
   #categoryEl!: HTMLElement;
@@ -49,12 +51,22 @@ export class UiQueryfieldTag extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     if (!this.hasAttribute("size")) this.setAttribute("size", "m");
-    this.#dismissBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this._dismiss();
-    });
-    this.addEventListener("click", () => this._edit());
+    this.#dismissBtn.addEventListener(
+      "click",
+      (e) => {
+        e.stopPropagation();
+        this._dismiss();
+      },
+      { signal },
+    );
+    this.addEventListener("click", () => this._edit(), { signal });
+  }
+
+  disconnectedCallback(): void {
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {

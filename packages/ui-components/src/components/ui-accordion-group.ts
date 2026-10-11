@@ -18,6 +18,8 @@ const STYLES = `
 const PROPAGATED_ATTRS = ["size", "emphasis", "variant"] as const;
 
 export class UiAccordionGroup extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = ["size", "emphasis", "exclusive", "variant"];
 
   constructor() {
@@ -27,15 +29,18 @@ export class UiAccordionGroup extends HTMLElement {
   }
 
   connectedCallback(): void {
-    this.shadowRoot!.querySelector("slot")!.addEventListener("slotchange", () => this._propagateAttributes());
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
+    this.shadowRoot!.querySelector("slot")!.addEventListener("slotchange", () => this._propagateAttributes(), {
+      signal,
+    });
     this._propagateAttributes();
-    this.addEventListener("toggle", this._handleToggle as EventListener);
-    this.addEventListener("keydown", this._handleKeydown);
+    this.addEventListener("toggle", this._handleToggle as EventListener, { signal });
+    this.addEventListener("keydown", this._handleKeydown, { signal });
   }
 
   disconnectedCallback(): void {
-    this.removeEventListener("toggle", this._handleToggle as EventListener);
-    this.removeEventListener("keydown", this._handleKeydown);
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(_name: string, _oldValue: string | null, _newValue: string | null): void {

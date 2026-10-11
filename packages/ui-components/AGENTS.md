@@ -216,6 +216,7 @@ ui-components/
 │   │   ├── ui-tree-group.ts
 │   │   ├── ui-tree-item.ts + ui-tree-item.styles.ts
 │   │   ├── ui-wizard.ts
+│   │   ├── connection-lifecycle.test.ts # Reparenting and detach regressions
 │   │   ├── constructor-attributes.test.ts # Registered-element construction
 │   │   └── *.test.ts            # Co-located tests
 ```
@@ -343,6 +344,7 @@ Style modules are the co-located `ui-*.styles.ts` files shown in the structure t
 - **Component prefix:** `ui-*` for element names
 - **Shadow DOM:** Always. No light DOM components.
 - **Tests co-located:** `ui-button.ts` → `ui-button.test.ts` in same directory
+- **Connection listeners:** Recreated handlers use a fresh AbortController in connectedCallback and abort in disconnectedCallback. Keep constructor-owned handlers for the element lifetime; do not remove them on disconnect without restoring them on reconnect.
 - **`@maneki/foundation` is a production dependency.** Tokens are consumed via CSS custom property references (`var(--fd-*)`) and type-safe JS helpers (`colorVar`, `spaceVar`). Foundation code is bundled into the built output.
 - **Multi-entry build.** Vite emits both a barrel (`dist/index.js`) and per-component files (`dist/components/ui-*.js`). Consumers can import everything or cherry-pick. Shared foundation code is deduped into `dist/shared/` chunks.
 - **Deep imports via exports map.** `import "@maneki/ui-components/components/ui-badge.js"` imports only that component + its dependencies. Use for apps that need a subset (e.g., the blog app).
@@ -453,7 +455,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ## COMMANDS
 
 ```bash
-moon run ui-components:test            # vitest --run (3721 tests)
+moon run ui-components:test            # vitest --run (3736 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run catalog:dev                   # visual catalog (apps/catalog)
 ```

@@ -25,6 +25,8 @@ const sheet = new CSSStyleSheet();
 sheet.replaceSync(STYLES);
 
 export class UiPopover extends HTMLElement {
+  #connectionController?: AbortController;
+
   static readonly observedAttributes = ["size", "placement", "dismissable", "open", "title-text", "description"];
 
   #titleEl!: HTMLElement;
@@ -34,6 +36,8 @@ export class UiPopover extends HTMLElement {
 
   constructor() {
     super();
+    this._onDocumentClick = this._onDocumentClick.bind(this);
+    this._onKeyDown = this._onKeyDown.bind(this);
     const shadow = this.attachShadow({ mode: "open" });
     shadow.adoptedStyleSheets = [sheet];
 
@@ -86,6 +90,8 @@ export class UiPopover extends HTMLElement {
   }
 
   connectedCallback(): void {
+    this.#connectionController = new AbortController();
+    const { signal } = this.#connectionController;
     if (!this.hasAttribute("placement")) {
       this.setAttribute("placement", "top-center");
     }
@@ -97,32 +103,37 @@ export class UiPopover extends HTMLElement {
       this.#panel.setAttribute("aria-labelledby", `${panelId}-title`);
     }
 
-    this.#closeBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      this._close();
-    });
+    this.#closeBtn.addEventListener(
+      "click",
+      (e) => {
+        e.stopPropagation();
+        this._close();
+      },
+      { signal },
+    );
 
     // Click on trigger toggles popover
-    this.addEventListener("click", (e) => {
-      const trigger = (e.target as HTMLElement).closest("[slot='trigger']");
-      if (trigger) {
-        e.stopPropagation();
-        this._toggle();
-      }
-    });
+    this.addEventListener(
+      "click",
+      (e) => {
+        const trigger = (e.target as HTMLElement).closest("[slot='trigger']");
+        if (trigger) {
+          e.stopPropagation();
+          this._toggle();
+        }
+      },
+      { signal },
+    );
 
     // Close on outside click
-    this._onDocumentClick = this._onDocumentClick.bind(this);
-    document.addEventListener("click", this._onDocumentClick);
+    document.addEventListener("click", this._onDocumentClick, { signal });
 
     // Close on Escape
-    this._onKeyDown = this._onKeyDown.bind(this);
-    document.addEventListener("keydown", this._onKeyDown);
+    document.addEventListener("keydown", this._onKeyDown, { signal });
   }
 
   disconnectedCallback(): void {
-    document.removeEventListener("click", this._onDocumentClick);
-    document.removeEventListener("keydown", this._onKeyDown);
+    this.#connectionController?.abort();
   }
 
   attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
