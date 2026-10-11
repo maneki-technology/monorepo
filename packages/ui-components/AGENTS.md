@@ -260,6 +260,8 @@ Follow `ui-button.ts` or `ui-alert.ts` as reference:
 
 ## FOUNDATION TOKEN WIRING
 
+HeroUI input/select/textarea inactive fields use `--ui-field-inactive-*` theme overrides with existing state-token fallbacks for the default theme. Disabled components apply `--ui-disabled-opacity` once; readonly components retain normal fill/text without hover decoration; readonly selects stay focusable and keep their keyboard focus ring. Keep component-specific colour overrides ahead of theme defaults.
+
 Components import token constants from `@maneki/foundation`:
 
 ```ts
@@ -455,7 +457,7 @@ After merging a PR that adds/modifies components, icons, or tests, update these 
 ## COMMANDS
 
 ```bash
-moon run ui-components:test            # vitest --run (3736 tests)
+moon run ui-components:test            # vitest --run (3739 tests)
 moon run ui-components:build           # vite build + tsc --emitDeclarationOnly
 moon run catalog:dev                   # visual catalog (apps/catalog)
 ```

@@ -85,7 +85,7 @@ export const STYLES = /* css */ `
     cursor: pointer;
     outline: none;
   }
-  .trigger:focus-visible {
+  :host(:not([disabled])) .trigger:focus-visible {
     border-color: var(--ui-select-focus-border, ${BORDER_FOCUS});
     outline: 1px solid var(--ui-select-focus-border, ${BORDER_FOCUS});
   }
@@ -343,7 +343,7 @@ export const STYLES = /* css */ `
   }
 
   /* ── Open / Focus ──────────────────────────────────────────────────────── */
-  :host([open]) .trigger {
+  :host([open]:not([disabled]):not([readonly])) .trigger {
     border-color: var(--ui-select-focus-border, ${BORDER_FOCUS});
     outline: 1px solid var(--ui-select-focus-border, ${BORDER_FOCUS});
   }
@@ -353,10 +353,10 @@ export const STYLES = /* css */ `
   :host([error]) .trigger {
     border-color: ${STATUS_GENERAL_ERROR};
   }
-  :host([status="error"]) .trigger:focus-visible,
-  :host([status="error"][open]) .trigger,
-  :host([error]) .trigger:focus-visible,
-  :host([error][open]) .trigger {
+  :host([status="error"]:not([disabled])) .trigger:focus-visible,
+  :host([status="error"][open]:not([disabled]):not([readonly])) .trigger,
+  :host([error]:not([disabled])) .trigger:focus-visible,
+  :host([error][open]:not([disabled]):not([readonly])) .trigger {
     border-color: ${STATUS_GENERAL_ERROR};
     outline: 1px solid ${STATUS_GENERAL_ERROR};
   }
@@ -365,8 +365,8 @@ export const STYLES = /* css */ `
   :host([status="warning"]) .trigger {
     border-color: ${STATUS_GENERAL_WARNING};
   }
-  :host([status="warning"]) .trigger:focus-visible,
-  :host([status="warning"][open]) .trigger {
+  :host([status="warning"]:not([disabled])) .trigger:focus-visible,
+  :host([status="warning"][open]:not([disabled]):not([readonly])) .trigger {
     border-color: ${STATUS_GENERAL_WARNING};
     outline: 1px solid ${STATUS_GENERAL_WARNING};
   }
@@ -375,8 +375,8 @@ export const STYLES = /* css */ `
   :host([status="success"]) .trigger {
     border-color: ${STATUS_GENERAL_SUCCESS};
   }
-  :host([status="success"]) .trigger:focus-visible,
-  :host([status="success"][open]) .trigger {
+  :host([status="success"]:not([disabled])) .trigger:focus-visible,
+  :host([status="success"][open]:not([disabled]):not([readonly])) .trigger {
     border-color: ${STATUS_GENERAL_SUCCESS};
     outline: 1px solid ${STATUS_GENERAL_SUCCESS};
   }
@@ -384,40 +384,47 @@ export const STYLES = /* css */ `
   /* ── Disabled ──────────────────────────────────────────────────────────── */
   :host([disabled]) {
     pointer-events: none;
+    opacity: var(--ui-disabled-opacity, 1);
   }
   :host([disabled]) .trigger {
-    border-color: ${DISABLED_BORDER};
-    background-color: ${SURFACE_SECONDARY};
+    border-color: var(--ui-select-border, var(--ui-field-inactive-border, ${DISABLED_BORDER}));
+    background-color: var(--ui-select-bg, var(--ui-field-inactive-bg, ${SURFACE_SECONDARY}));
     cursor: not-allowed;
   }
-  :host([disabled]) .display-value,
+  :host([disabled]) .display-value {
+    color: var(--ui-select-color, var(--ui-field-inactive-text, ${DISABLED_TEXT}));
+  }
   :host([disabled]) .display-value.placeholder {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-select-placeholder-color, var(--ui-field-inactive-placeholder, ${DISABLED_TEXT}));
   }
   :host([disabled]) .chevron {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-field-inactive-icon, ${DISABLED_TEXT});
   }
   :host([disabled]) .supportive-text {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-field-inactive-secondary, ${DISABLED_TEXT});
   }
   :host([disabled]) .leading-slot {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-field-inactive-icon, ${DISABLED_TEXT});
   }
   :host([disabled]) span.status-icon {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-field-inactive-secondary, ${DISABLED_TEXT});
   }
 
   /* ── Readonly ──────────────────────────────────────────────────────────── */
   :host([readonly]) .trigger {
-    border-color: ${BORDER_MINIMAL};
-    background-color: ${SURFACE_SECONDARY};
+    border-color: var(--ui-select-border, var(--ui-field-inactive-border, ${BORDER_MINIMAL}));
+    background-color: var(--ui-select-bg, var(--ui-field-inactive-bg, ${SURFACE_SECONDARY}));
     cursor: default;
   }
   :host([readonly]) .display-value {
-    color: ${TEXT_SECONDARY};
+    color: var(--ui-select-color, var(--ui-field-inactive-text, ${TEXT_SECONDARY}));
   }
   :host([readonly]) .chevron {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-field-inactive-icon, ${DISABLED_TEXT});
+  }
+
+  :host([readonly]) .display-value.placeholder {
+    color: var(--ui-select-placeholder-color, var(--ui-field-inactive-placeholder, ${TEXT_SECONDARY}));
   }
 
   /* ── Multi-select trigger height auto ──────────────────────────────────── */

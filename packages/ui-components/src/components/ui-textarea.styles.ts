@@ -222,8 +222,8 @@ export const STYLES = /* css */ `
     border-color: ${STATUS_GENERAL_ERROR};
   }
 
-  :host([status="error"]:focus-within) .textarea-container,
-  :host([error]:focus-within) .textarea-container {
+  :host([status="error"]:focus-within:not([disabled]):not([readonly])) .textarea-container,
+  :host([error]:focus-within:not([disabled]):not([readonly])) .textarea-container {
     border-color: ${STATUS_GENERAL_ERROR};
     outline: 1px solid ${STATUS_GENERAL_ERROR};
   }
@@ -234,7 +234,7 @@ export const STYLES = /* css */ `
     border-color: ${STATUS_GENERAL_WARNING};
   }
 
-  :host([status="warning"]:focus-within) .textarea-container {
+  :host([status="warning"]:focus-within:not([disabled]):not([readonly])) .textarea-container {
     border-color: ${STATUS_GENERAL_WARNING};
     outline: 1px solid ${STATUS_GENERAL_WARNING};
   }
@@ -245,7 +245,7 @@ export const STYLES = /* css */ `
     border-color: ${STATUS_GENERAL_SUCCESS};
   }
 
-  :host([status="success"]:focus-within) .textarea-container {
+  :host([status="success"]:focus-within:not([disabled]):not([readonly])) .textarea-container {
     border-color: ${STATUS_GENERAL_SUCCESS};
     outline: 1px solid ${STATUS_GENERAL_SUCCESS};
   }
@@ -254,43 +254,44 @@ export const STYLES = /* css */ `
 
   :host([disabled]) {
     pointer-events: none;
+    opacity: var(--ui-disabled-opacity, 1);
   }
 
   :host([disabled]) .textarea-container {
-    border-color: ${DISABLED_BORDER};
-    background-color: ${SURFACE_SECONDARY};
+    border-color: var(--ui-textarea-border, var(--ui-field-inactive-border, ${DISABLED_BORDER}));
+    background-color: var(--ui-textarea-bg, var(--ui-field-inactive-bg, ${SURFACE_SECONDARY}));
   }
 
   :host([disabled]) .native-textarea {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-textarea-color, var(--ui-field-inactive-text, ${DISABLED_TEXT}));
   }
 
   :host([disabled]) .native-textarea::placeholder {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-textarea-placeholder-color, var(--ui-field-inactive-placeholder, ${DISABLED_TEXT}));
   }
 
   :host([disabled]) .secondary-label {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-field-inactive-secondary, ${DISABLED_TEXT});
   }
 
   :host([disabled]) .char-count {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-field-inactive-secondary, ${DISABLED_TEXT});
   }
 
   :host([disabled]) span.status-icon {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-field-inactive-secondary, ${DISABLED_TEXT});
   }
 
   /* ── Readonly ──────────────────────────────────────────────────────────── */
 
   :host([readonly]) .textarea-container {
-    border-color: ${BORDER_MINIMAL};
-    background-color: ${SURFACE_SECONDARY};
+    border-color: var(--ui-textarea-border, var(--ui-field-inactive-border, ${BORDER_MINIMAL}));
+    background-color: var(--ui-textarea-bg, var(--ui-field-inactive-bg, ${SURFACE_SECONDARY}));
   }
 
   :host([readonly]) .native-textarea {
     cursor: default;
-    color: ${TEXT_PRIMARY};
+    color: var(--ui-textarea-color, var(--ui-field-inactive-text, ${TEXT_PRIMARY}));
     resize: none;
   }
 
