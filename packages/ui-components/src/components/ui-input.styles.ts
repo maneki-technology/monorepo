@@ -198,7 +198,7 @@ export const STYLES = /* css */ `
     color: ${TEXT_PRIMARY};
   }
 
-  :host([type="clearable"]) .clear-btn.has-value {
+  :host([type="clearable"]:not([readonly])) .clear-btn.has-value {
     display: flex;
   }
 
@@ -378,8 +378,8 @@ export const STYLES = /* css */ `
     border-color: ${STATUS_GENERAL_ERROR};
   }
 
-  :host([status="error"]:focus-within) .input-container,
-  :host([error]:focus-within) .input-container {
+  :host([status="error"]:focus-within:not([disabled]):not([readonly])) .input-container,
+  :host([error]:focus-within:not([disabled]):not([readonly])) .input-container {
     border-color: ${STATUS_GENERAL_ERROR};
     outline: 1px solid ${STATUS_GENERAL_ERROR};
   }
@@ -390,7 +390,7 @@ export const STYLES = /* css */ `
     border-color: ${STATUS_GENERAL_WARNING};
   }
 
-  :host([status="warning"]:focus-within) .input-container {
+  :host([status="warning"]:focus-within:not([disabled]):not([readonly])) .input-container {
     border-color: ${STATUS_GENERAL_WARNING};
     outline: 1px solid ${STATUS_GENERAL_WARNING};
   }
@@ -401,7 +401,7 @@ export const STYLES = /* css */ `
     border-color: ${STATUS_GENERAL_SUCCESS};
   }
 
-  :host([status="success"]:focus-within) .input-container {
+  :host([status="success"]:focus-within:not([disabled]):not([readonly])) .input-container {
     border-color: ${STATUS_GENERAL_SUCCESS};
     outline: 1px solid ${STATUS_GENERAL_SUCCESS};
   }
@@ -410,52 +410,53 @@ export const STYLES = /* css */ `
 
   :host([disabled]) {
     pointer-events: none;
+    opacity: var(--ui-disabled-opacity, 1);
   }
 
   :host([disabled]) .input-container {
-    border-color: ${DISABLED_BORDER};
-    background-color: ${SURFACE_SECONDARY};
+    border-color: var(--ui-input-border, var(--ui-field-inactive-border, ${DISABLED_BORDER}));
+    background-color: var(--ui-input-bg, var(--ui-field-inactive-bg, ${SURFACE_SECONDARY}));
   }
 
   :host([disabled]) .native-input {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-input-color, var(--ui-field-inactive-text, ${DISABLED_TEXT}));
   }
 
   :host([disabled]) .native-input::placeholder {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-input-placeholder-color, var(--ui-field-inactive-placeholder, ${DISABLED_TEXT}));
   }
 
   :host([disabled]) .supportive-text {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-field-inactive-secondary, ${DISABLED_TEXT});
   }
 
   :host([disabled]) .leading-slot,
   :host([disabled]) .trailing-slot {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-field-inactive-secondary, ${DISABLED_TEXT});
   }
 
   :host([disabled]) span.status-icon {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-field-inactive-secondary, ${DISABLED_TEXT});
   }
 
   :host([disabled]) .numeric-controls {
-    border-left-color: ${DISABLED_BORDER};
+    border-left-color: var(--ui-field-inactive-separator, ${DISABLED_BORDER});
   }
 
   :host([disabled]) .spinner-btn {
-    color: ${DISABLED_TEXT};
+    color: var(--ui-field-inactive-secondary, ${DISABLED_TEXT});
   }
 
   /* ── Readonly ──────────────────────────────────────────────────────────── */
 
   :host([readonly]) .input-container {
-    border-color: ${BORDER_MINIMAL};
-    background-color: ${SURFACE_SECONDARY};
+    border-color: var(--ui-input-border, var(--ui-field-inactive-border, ${BORDER_MINIMAL}));
+    background-color: var(--ui-input-bg, var(--ui-field-inactive-bg, ${SURFACE_SECONDARY}));
   }
 
   :host([readonly]) .native-input {
     cursor: default;
-    color: ${TEXT_SECONDARY};
+    color: var(--ui-input-color, var(--ui-field-inactive-text, ${TEXT_SECONDARY}));
   }
 
   /* ── Reduced motion ────────────────────────────────────────────────────── */

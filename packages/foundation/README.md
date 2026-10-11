@@ -141,6 +141,10 @@ All tokens (except breakpoints) are injected as CSS custom properties on `:root`
 | Typography | `--fd-type-{group}-{key}-{prop}` | `--fd-type-heading-01-font-size` |
 | Spacing    | `--fd-space-{step}`              | `--fd-space-2-5`                 |
 
+## HeroUI field states
+
+HeroUI supplies `--ui-field-inactive-bg`, `--ui-field-inactive-border`, `--ui-field-inactive-text`, `--ui-field-inactive-secondary`, `--ui-field-inactive-placeholder`, `--ui-field-inactive-icon`, and `--ui-field-inactive-separator` from the normal form, text, icon, and border tokens. Input, select, and textarea use these for disabled/readonly states; disabled components use the existing `--ui-disabled-opacity`. These overrides are scoped to the HeroUI themes.
+
 ## Development
 
 ```bash

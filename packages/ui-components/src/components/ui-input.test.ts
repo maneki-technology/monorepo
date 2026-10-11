@@ -39,8 +39,6 @@ describe("ui-input", () => {
     expect((el as unknown as { value: string }).value).toBe("");
   });
 
-
-
   it("defaults disabled to false", () => {
     expect((el as unknown as { disabled: boolean }).disabled).toBe(false);
   });
@@ -60,7 +58,6 @@ describe("ui-input", () => {
   it("defaults placeholder to empty string", () => {
     expect((el as unknown as { placeholder: string }).placeholder).toBe("");
   });
-
 
   // ── Size attribute ───────────────────────────────────────────────────────
 
@@ -286,7 +283,6 @@ describe("ui-input", () => {
     expect(input.getAttribute("aria-readonly")).toBe("true");
   });
 
-
   it("sets aria-label from host aria-label attribute", () => {
     el.setAttribute("aria-label", "Username");
     // re-trigger _syncAria by toggling disabled
@@ -444,6 +440,16 @@ describe("ui-input", () => {
     (el as unknown as { type: string }).type = "clearable";
     const clearBtn = el.shadowRoot!.querySelector(".clear-btn") as HTMLButtonElement;
     expect(clearBtn.classList.contains("has-value")).toBe(false);
+  });
+
+  it.each(["disabled", "readonly"])("does not clear a %s input", (state) => {
+    el.setAttribute("type", "clearable");
+    el.setAttribute("value", "Keep this");
+    el.setAttribute(state, "");
+    const button = el.shadowRoot?.querySelector(".clear-btn");
+    expect(button).toBeInstanceOf(HTMLButtonElement);
+    if (button instanceof HTMLButtonElement) button.click();
+    expect(el.getAttribute("value")).toBe("Keep this");
   });
 
   // ── Numeric controls ─────────────────────────────────────────────────────
@@ -621,9 +627,15 @@ describe("ui-input", () => {
   });
 
   it("password toggle is hidden by default via CSS", () => {
-    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    const styles = el
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
+        Array.from(s.cssRules)
+          .map((r: CSSRule) => r.cssText)
+          .join(""),
+      )
+      .join("");
     expect(styles).toContain(".password-toggle");
-    expect(styles).toContain(":host([type=\"password\"]) .password-toggle");
+    expect(styles).toContain(':host([type="password"]) .password-toggle');
   });
 
   it("password toggle has aria-label", () => {

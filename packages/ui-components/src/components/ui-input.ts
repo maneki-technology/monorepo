@@ -425,6 +425,7 @@ export class UiInput extends HTMLElement {
   }
 
   private _handleClear(): void {
+    if (this.disabled || this.readonly) return;
     this._inputEl.value = "";
     this.setAttribute("value", "");
     this._syncClearVisibility();
