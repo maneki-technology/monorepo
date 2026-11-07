@@ -39,8 +39,6 @@ describe("ui-input", () => {
     expect((el as unknown as { value: string }).value).toBe("");
   });
 
-
-
   it("defaults disabled to false", () => {
     expect((el as unknown as { disabled: boolean }).disabled).toBe(false);
   });
@@ -60,7 +58,6 @@ describe("ui-input", () => {
   it("defaults placeholder to empty string", () => {
     expect((el as unknown as { placeholder: string }).placeholder).toBe("");
   });
-
 
   // ── Size attribute ───────────────────────────────────────────────────────
 
@@ -285,7 +282,6 @@ describe("ui-input", () => {
     const input = el.shadowRoot!.querySelector(".native-input") as HTMLInputElement;
     expect(input.getAttribute("aria-readonly")).toBe("true");
   });
-
 
   it("sets aria-label from host aria-label attribute", () => {
     el.setAttribute("aria-label", "Username");
@@ -621,9 +617,15 @@ describe("ui-input", () => {
   });
 
   it("password toggle is hidden by default via CSS", () => {
-    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    const styles = el
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
+        Array.from(s.cssRules)
+          .map((r: CSSRule) => r.cssText)
+          .join(""),
+      )
+      .join("");
     expect(styles).toContain(".password-toggle");
-    expect(styles).toContain(":host([type=\"password\"]) .password-toggle");
+    expect(styles).toContain(':host([type="password"]) .password-toggle');
   });
 
   it("password toggle has aria-label", () => {

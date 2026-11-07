@@ -151,9 +151,7 @@ describe("ui-queryfield-tag", () => {
 
   it("expression getter returns current attribute", () => {
     el.setAttribute("expression", "contains foo");
-    expect((el as unknown as { expression: string }).expression).toBe(
-      "contains foo",
-    );
+    expect((el as unknown as { expression: string }).expression).toBe("contains foo");
   });
 
   it("expression setter updates attribute", () => {

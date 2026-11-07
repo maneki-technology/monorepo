@@ -64,7 +64,13 @@ describe("UiDropdownHeading", () => {
   });
 
   it("should have uppercase text-transform in styles", () => {
-    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    const styles = el
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
+        Array.from(s.cssRules)
+          .map((r: CSSRule) => r.cssText)
+          .join(""),
+      )
+      .join("");
     expect(styles).toContain("text-transform: uppercase");
   });
 
@@ -188,7 +194,13 @@ describe("UiDropdownItem", () => {
   });
 
   it("should have hover background style", () => {
-    const styles = el.shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    const styles = el
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
+        Array.from(s.cssRules)
+          .map((r: CSSRule) => r.cssText)
+          .join(""),
+      )
+      .join("");
     expect(styles).toContain(".item:hover");
   });
   it("should default selected to false", () => {
@@ -271,7 +283,6 @@ describe("UiDropdownItem", () => {
     const leading = el.shadowRoot!.querySelector(".leading");
     expect(leading).toBe(null);
   });
-
 
   it("should default secondary to null", () => {
     expect((el as UiDropdownItem).secondary).toBe(null);

@@ -18,19 +18,9 @@
  *   ></chart-pie>
  */
 
-import {
-  TEXT_PRIMARY,
-  SURFACE_PRIMARY,
-  FONT_PRIMARY,
-  TYPE_HEADING_06,
-  TYPE_BODY_03,
-} from "@maneki/foundation";
+import { TEXT_PRIMARY, SURFACE_PRIMARY, FONT_PRIMARY, TYPE_HEADING_06, TYPE_BODY_03 } from "@maneki/foundation";
 
-import type {
-  PieSlice,
-  PieChartOptions,
-  LegendItem,
-} from "../core/types.js";
+import type { PieSlice, PieChartOptions, LegendItem } from "../core/types.js";
 import { CIRCULAR_LEGEND } from "../core/legend.js";
 import { getDatasetColor, GRID_LINE_COLOR } from "../core/colors.js";
 import { renderChartHeader } from "../core/header.js";
@@ -153,14 +143,7 @@ function numAttr(el: Element, name: string): number | undefined {
 }
 
 /** Describe an SVG arc path from angle a0 to a1 at given radii. */
-function arcPath(
-  cx: number,
-  cy: number,
-  outerR: number,
-  innerR: number,
-  a0: number,
-  a1: number,
-): string {
+function arcPath(cx: number, cy: number, outerR: number, innerR: number, a0: number, a1: number): string {
   const largeArc = a1 - a0 > Math.PI ? 1 : 0;
 
   const ox0 = cx + outerR * Math.sin(a0);
@@ -170,12 +153,7 @@ function arcPath(
 
   if (innerR <= 0) {
     // Pie slice: arc + line to center
-    return [
-      `M${cx},${cy}`,
-      `L${ox0},${oy0}`,
-      `A${outerR},${outerR} 0 ${largeArc} 1 ${ox1},${oy1}`,
-      "Z",
-    ].join(" ");
+    return [`M${cx},${cy}`, `L${ox0},${oy0}`, `A${outerR},${outerR} 0 ${largeArc} 1 ${ox1},${oy1}`, "Z"].join(" ");
   }
 
   // Doughnut: outer arc + inner arc (reversed)

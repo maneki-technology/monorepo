@@ -15,7 +15,10 @@
   },
   "lint-staged": {
     "*.html": "html-validate",
-    "*.{ts,tsx,js}": ["eslint --fix", "prettier --write"],
+    "*.{ts,tsx,js}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
     "*.{json,md,yml,yaml,css}": "prettier --write",
     "packages/ui-components/src/components/!(*.test).ts": "stylelint",
     "packages/ui-components/src/components/*.styles.ts": "stylelint",

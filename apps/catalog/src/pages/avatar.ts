@@ -38,9 +38,23 @@ registerPage("avatar", {
 
     <h3>Colors</h3>
     <div style="display:grid;grid-template-columns:repeat(7,auto);gap:8px;align-items:center;">
-      ${["gray","red","orange","yellow","lime","green","teal","turquoise","aqua","blue","ultramarine","purple","pink"].map(c =>
-        `<ui-avatar type="text" size="m" color="${c}">${c.substring(0,2).toUpperCase()}</ui-avatar>`
-      ).join("")}
+      ${[
+        "gray",
+        "red",
+        "orange",
+        "yellow",
+        "lime",
+        "green",
+        "teal",
+        "turquoise",
+        "aqua",
+        "blue",
+        "ultramarine",
+        "purple",
+        "pink",
+      ]
+        .map((c) => `<ui-avatar type="text" size="m" color="${c}">${c.substring(0, 2).toUpperCase()}</ui-avatar>`)
+        .join("")}
     </div>
 
     <h3>Emphasis × Shape</h3>

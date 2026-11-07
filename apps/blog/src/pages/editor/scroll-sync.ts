@@ -19,7 +19,9 @@ function syncScroll(source: HTMLElement, target: HTMLElement): void {
   if (syncing) return;
   syncing = true;
   setScrollPercent(target, getScrollPercent(source));
-  requestAnimationFrame(() => { syncing = false; });
+  requestAnimationFrame(() => {
+    syncing = false;
+  });
 }
 
 /**
@@ -35,20 +37,25 @@ function getScrollable(wrapper: HTMLElement): HTMLElement | null {
   return wrapper;
 }
 
-export function setupScrollSync(
-  textareaWrap: HTMLElement,
-  previewWrap: HTMLElement,
-): void {
+export function setupScrollSync(textareaWrap: HTMLElement, previewWrap: HTMLElement): void {
   const textareaScrollable = getScrollable(textareaWrap);
   const previewScrollable = getScrollable(previewWrap);
 
   if (!textareaScrollable || !previewScrollable) return;
 
-  textareaScrollable.addEventListener("scroll", () => {
-    syncScroll(textareaScrollable, previewScrollable);
-  }, { passive: true });
+  textareaScrollable.addEventListener(
+    "scroll",
+    () => {
+      syncScroll(textareaScrollable, previewScrollable);
+    },
+    { passive: true },
+  );
 
-  previewScrollable.addEventListener("scroll", () => {
-    syncScroll(previewScrollable, textareaScrollable);
-  }, { passive: true });
+  previewScrollable.addEventListener(
+    "scroll",
+    () => {
+      syncScroll(previewScrollable, textareaScrollable);
+    },
+    { passive: true },
+  );
 }

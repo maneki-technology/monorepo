@@ -11,12 +11,16 @@ registerPage("list", {
   render: () => `
     <h3>Sizes</h3>
     <div class="variant-row row-start-wrap">
-      ${["s", "m", "l"].map(size => `
+      ${["s", "m", "l"]
+        .map(
+          (size) => `
         <div class="variant-col" style="min-width:240px">
           <span class="variant-label">Size ${size}</span>
           <ui-list-item size="${size}">Basic item</ui-list-item>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
 
     <h3>With Description</h3>
@@ -58,12 +62,16 @@ registerPage("list", {
 
     <h3>Padding Variants</h3>
     <div class="variant-row row-start-wrap">
-      ${["none", "s", "m"].map(p => `
+      ${["none", "s", "m"]
+        .map(
+          (p) => `
         <div class="variant-col">
           <span class="variant-label">Padding ${p}</span>
           <ui-list-item size="m" padding="${p}">Padding ${p}</ui-list-item>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
 
     <h3>List Header</h3>
@@ -112,7 +120,9 @@ registerPage("list", {
 
     <h3>Group Sizes</h3>
     <div class="variant-row row-start-wrap">
-      ${["s", "m", "l"].map(size => `
+      ${["s", "m", "l"]
+        .map(
+          (size) => `
         <div class="variant-col">
           <span class="variant-label">Size ${size}</span>
           <ui-list-group size="${size}">
@@ -122,7 +132,9 @@ registerPage("list", {
             <ui-list-item top-border>Item 3</ui-list-item>
           </ui-list-group>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
 
     <h3>Collapsed Group</h3>

@@ -58,7 +58,9 @@ describe("ui-tab-item", () => {
 
   it("includes Geist font-family in styles", () => {
     const sheet = el.shadowRoot!.adoptedStyleSheets[0];
-    const css = Array.from(sheet.cssRules).map((r) => r.cssText).join("");
+    const css = Array.from(sheet.cssRules)
+      .map((r) => r.cssText)
+      .join("");
     expect(css).toContain("Geist");
   });
 
@@ -278,8 +280,8 @@ describe("ui-tab-item", () => {
   // ── CSS styles ─────────────────────────────────────────────────────────
 
   it("includes Geist font-family in styles", () => {
-    const styles = el.shadowRoot!.adoptedStyleSheets
-      .map((s: CSSStyleSheet) =>
+    const styles = el
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
         Array.from(s.cssRules)
           .map((r: CSSRule) => r.cssText)
           .join(""),
@@ -287,7 +289,6 @@ describe("ui-tab-item", () => {
       .join("");
     expect(styles).toContain("Geist");
   });
-
 
   // ── Property accessors ────────────────────────────────────────────────
 
@@ -344,11 +345,11 @@ describe("ui-tab-item", () => {
   });
 
   it("has CSS rule to show close button when closable", () => {
-    const styles = el.shadowRoot!.adoptedStyleSheets
-      .map((s: CSSStyleSheet) =>
+    const styles = el
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
         Array.from(s.cssRules)
           .map((r: CSSRule) => r.cssText)
-          .join("")
+          .join(""),
       )
       .join("");
     expect(styles).toContain("closable");
@@ -371,7 +372,9 @@ describe("ui-tab-item", () => {
     el.setAttribute("closable", "");
     el.setAttribute("disabled", "");
     let fired = false;
-    el.addEventListener("tab-close", () => { fired = true; });
+    el.addEventListener("tab-close", () => {
+      fired = true;
+    });
     const closeBtn = el.shadowRoot!.querySelector(".close-btn") as HTMLElement;
     closeBtn.click();
     expect(fired).toBe(false);
@@ -380,7 +383,9 @@ describe("ui-tab-item", () => {
   it("close button click does not trigger tab-select", () => {
     el.setAttribute("closable", "");
     let selectFired = false;
-    el.addEventListener("tab-select", () => { selectFired = true; });
+    el.addEventListener("tab-select", () => {
+      selectFired = true;
+    });
     const closeBtn = el.shadowRoot!.querySelector(".close-btn") as HTMLElement;
     closeBtn.click();
     expect(selectFired).toBe(false);

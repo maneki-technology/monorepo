@@ -4,12 +4,7 @@
  * Pure functions — no DOM, no side effects.
  */
 
-import type {
-  LinearScaleResult,
-  CategoryScaleResult,
-  Tick,
-  AxisConfig,
-} from "./types.js";
+import type { LinearScaleResult, CategoryScaleResult, Tick, AxisConfig } from "./types.js";
 
 // ---------------------------------------------------------------------------
 // Nice numbers — for human-friendly tick intervals
@@ -116,11 +111,7 @@ export function linearScale(
  * @param axisLength - Pixel length of the axis
  * @param padding - Fraction of band width used as outer padding. Default: 0.1
  */
-export function categoryScale(
-  labels: string[],
-  axisLength: number,
-  padding = 0.1,
-): CategoryScaleResult {
+export function categoryScale(labels: string[], axisLength: number, padding = 0.1): CategoryScaleResult {
   const n = labels.length;
   if (n === 0) {
     return {

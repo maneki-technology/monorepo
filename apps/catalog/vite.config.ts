@@ -77,10 +77,7 @@ export default defineConfig(({ command }) => ({
       output: {
         manualChunks(id) {
           // Vendor chunk: all @maneki packages
-          if (
-            id.includes("packages/foundation/") ||
-            id.includes("@maneki/foundation")
-          ) {
+          if (id.includes("packages/foundation/") || id.includes("@maneki/foundation")) {
             return "vendor-foundation";
           }
           if (
@@ -91,10 +88,7 @@ export default defineConfig(({ command }) => ({
           ) {
             return "vendor-layout";
           }
-          if (
-            id.includes("packages/charts/") ||
-            id.includes("@maneki/charts")
-          ) {
+          if (id.includes("packages/charts/") || id.includes("@maneki/charts")) {
             return "vendor-charts";
           }
         },

@@ -1,6 +1,6 @@
 # Catalog Architecture
 
-*Snapshot: April 2026*
+_Snapshot: April 2026_
 
 ## Overview
 
@@ -58,6 +58,7 @@ No SPA framework, no hash routing. Clean URLs like `/button`, `/colors`.
 Playwright screenshots target the `#content` element (excludes sidebar for focused component comparison). One test per page, plus sidebar and full-layout tests.
 
 Configuration:
+
 - Browser: Chromium only
 - Viewport: 1280×900
 - Pixel diff threshold: 1% (`maxDiffPixelRatio: 0.01`)
@@ -73,6 +74,7 @@ Per-page a11y tests using `@axe-core/playwright`. Each page is loaded and scanne
 ## Theme Support
 
 Two theme systems supported via a toggle in the app shell:
+
 - Default: `[data-theme="dark"]` on `:root`
 - HeroUI: `[data-theme="heroui"]` / `[data-theme="heroui-dark"]`
 
@@ -98,4 +100,4 @@ All semantic tokens switch to dark values when the theme attribute changes.
 
 ---
 
-*This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records.*
+_This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records._

@@ -21,7 +21,9 @@ export async function fetchPosts(): Promise<Post[]> {
       updatedAt: p.updated_at as string,
       publishedAt: (p.published_at as string) ?? null,
       persisted: true,
-      publishedSnapshot: p.published_snapshot ? JSON.stringify({ type: "post", ...JSON.parse(p.published_snapshot as string) }) : null,
+      publishedSnapshot: p.published_snapshot
+        ? JSON.stringify({ type: "post", ...JSON.parse(p.published_snapshot as string) })
+        : null,
       deployedAt: (p.deployed_at as string) ?? null,
     }));
   } catch {
@@ -33,7 +35,10 @@ export async function savePost(post: Post): Promise<{ slug: string; saved: Post 
   try {
     const newSlug = toSlug(post.date, post.title || `untitled-${post.slug.split("-").pop()}`);
     const slug = post.persisted ? post.slug : newSlug;
-    const tags = post.tags.split(",").map((t) => t.trim()).filter(Boolean);
+    const tags = post.tags
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     const mapPost = (p: Record<string, unknown>): Post => ({
       slug: p.slug as string,
@@ -46,7 +51,9 @@ export async function savePost(post: Post): Promise<{ slug: string; saved: Post 
       updatedAt: (p.updated_at as string) || new Date().toISOString(),
       publishedAt: (p.published_at as string) || null,
       persisted: true,
-      publishedSnapshot: p.published_snapshot ? JSON.stringify({ type: "post", ...JSON.parse(p.published_snapshot as string) }) : null,
+      publishedSnapshot: p.published_snapshot
+        ? JSON.stringify({ type: "post", ...JSON.parse(p.published_snapshot as string) })
+        : null,
       deployedAt: (p.deployed_at as string) ?? null,
     });
 
@@ -64,15 +71,23 @@ export async function savePost(post: Post): Promise<{ slug: string; saved: Post 
           ...(newSlug !== slug ? { new_slug: newSlug } : {}),
         },
       });
-      const data = await res.json() as { post: Record<string, unknown>; slug?: string };
+      const data = (await res.json()) as { post: Record<string, unknown>; slug?: string };
       const savedSlug = (data.slug as string) || slug;
       return { slug: savedSlug, saved: mapPost(data.post) };
     }
 
     const res = await api.api.posts.$post({
-      json: { title: post.title || "Untitled", slug: newSlug, body_md: post.content, excerpt: post.excerpt, tags, status: post.status as "draft" | "published", date: post.date },
+      json: {
+        title: post.title || "Untitled",
+        slug: newSlug,
+        body_md: post.content,
+        excerpt: post.excerpt,
+        tags,
+        status: post.status as "draft" | "published",
+        date: post.date,
+      },
     });
-    const data = await res.json() as { post: Record<string, unknown> };
+    const data = (await res.json()) as { post: Record<string, unknown> };
     return { slug: newSlug, saved: mapPost(data.post) };
   } catch {
     return null;
@@ -107,7 +122,9 @@ export async function fetchProjects(): Promise<Project[]> {
       updatedAt: p.updated_at as string,
       publishedAt: (p.published_at as string) ?? null,
       persisted: true,
-      publishedSnapshot: p.published_snapshot ? JSON.stringify({ type: "project", ...JSON.parse(p.published_snapshot as string) }) : null,
+      publishedSnapshot: p.published_snapshot
+        ? JSON.stringify({ type: "project", ...JSON.parse(p.published_snapshot as string) })
+        : null,
       deployedAt: (p.deployed_at as string) ?? null,
     }));
   } catch {
@@ -118,7 +135,10 @@ export async function fetchProjects(): Promise<Project[]> {
 export async function saveProject(project: Project): Promise<{ slug: string; saved: Project } | null> {
   try {
     const slug = project.persisted ? project.slug : project.slug || `project-${Date.now().toString(36)}`;
-    const tech = project.tech.split(",").map((t) => t.trim()).filter(Boolean);
+    const tech = project.tech
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
 
     const mapProject = (p: Record<string, unknown>): Project => ({
       slug: p.slug as string,
@@ -135,23 +155,48 @@ export async function saveProject(project: Project): Promise<{ slug: string; sav
       updatedAt: (p.updated_at as string) || new Date().toISOString(),
       publishedAt: (p.published_at as string) || null,
       persisted: true,
-      publishedSnapshot: p.published_snapshot ? JSON.stringify({ type: "project", ...JSON.parse(p.published_snapshot as string) }) : null,
+      publishedSnapshot: p.published_snapshot
+        ? JSON.stringify({ type: "project", ...JSON.parse(p.published_snapshot as string) })
+        : null,
       deployedAt: (p.deployed_at as string) ?? null,
     });
 
     if (project.persisted) {
       const res = await api.api.projects[":slug"].$put({
         param: { slug },
-        json: { title: project.title || "Untitled", description: project.description, body_md: project.content, tech, url: project.url || null, repo: project.repo || null, image: project.image || null, pinned: project.pinned, sort_order: project.sortOrder, status: project.status as "draft" | "published" },
+        json: {
+          title: project.title || "Untitled",
+          description: project.description,
+          body_md: project.content,
+          tech,
+          url: project.url || null,
+          repo: project.repo || null,
+          image: project.image || null,
+          pinned: project.pinned,
+          sort_order: project.sortOrder,
+          status: project.status as "draft" | "published",
+        },
       });
-      const data = await res.json() as { project: Record<string, unknown> };
+      const data = (await res.json()) as { project: Record<string, unknown> };
       return { slug, saved: mapProject(data.project) };
     }
 
     const res = await api.api.projects.$post({
-      json: { title: project.title || "Untitled", slug, description: project.description, body_md: project.content, tech, url: project.url || null, repo: project.repo || null, image: project.image || null, pinned: project.pinned, sort_order: project.sortOrder, status: project.status as "draft" | "published" },
+      json: {
+        title: project.title || "Untitled",
+        slug,
+        description: project.description,
+        body_md: project.content,
+        tech,
+        url: project.url || null,
+        repo: project.repo || null,
+        image: project.image || null,
+        pinned: project.pinned,
+        sort_order: project.sortOrder,
+        status: project.status as "draft" | "published",
+      },
     });
-    const data = await res.json() as { project: Record<string, unknown> };
+    const data = (await res.json()) as { project: Record<string, unknown> };
     return { slug, saved: mapProject(data.project) };
   } catch {
     return null;

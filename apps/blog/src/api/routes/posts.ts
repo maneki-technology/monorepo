@@ -13,7 +13,10 @@ import { safeJsonParse } from "../db/utils.js";
 
 const createPostSchema = z.object({
   title: z.string().min(1),
-  slug: z.string().min(1).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase kebab-case"),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase kebab-case"),
   body_md: z.string(),
   excerpt: z.string().default(""),
   tags: z.array(z.string()).default([]),
@@ -30,7 +33,11 @@ const updatePostSchema = z.object({
   tag_ids: z.array(z.number()).optional(),
   status: z.enum(["draft", "published"]).optional(),
   date: z.string().optional(),
-  new_slug: z.string().min(1).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase kebab-case").optional(),
+  new_slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase kebab-case")
+    .optional(),
 });
 
 /** Attach tags from post_tags junction table to an array of post rows. */
@@ -191,8 +198,14 @@ export const posts = new Hono<Env>()
 
     // Cascade slug rename to conversation tables
     if (newSlug !== slug) {
-      await db.execute({ sql: "UPDATE review_conversations SET slug = ? WHERE slug = ? AND type = 'post'", args: [newSlug, slug] });
-      await db.execute({ sql: "UPDATE brainstorm_conversations SET slug = ? WHERE slug = ? AND type = 'post'", args: [newSlug, slug] });
+      await db.execute({
+        sql: "UPDATE review_conversations SET slug = ? WHERE slug = ? AND type = 'post'",
+        args: [newSlug, slug],
+      });
+      await db.execute({
+        sql: "UPDATE brainstorm_conversations SET slug = ? WHERE slug = ? AND type = 'post'",
+        args: [newSlug, slug],
+      });
     }
 
     // Replace post_tags associations if tag_ids provided
@@ -237,12 +250,20 @@ export const posts = new Hono<Env>()
       tags: { column: "tags", transform: toJson },
       date: { column: "created_at" },
     });
-    const setClauses: string[] = ["status = 'published'", "updated_at = datetime('now')", "published_at = datetime('now')", ...extraClauses];
+    const setClauses: string[] = [
+      "status = 'published'",
+      "updated_at = datetime('now')",
+      "published_at = datetime('now')",
+      ...extraClauses,
+    ];
 
     // Regenerate slug if it's a temp slug
     let newSlug = slug;
     if (slug.startsWith("draft-") && updates.title) {
-      const base = updates.title.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, "");
+      const base = updates.title
+        .toLowerCase()
+        .replace(/[^\w]+/g, "-")
+        .replace(/(^-|-$)/g, "");
       newSlug = updates.date ? `${updates.date}-${base}` : base;
       setClauses.push("slug = ?");
       args.push(newSlug);
@@ -263,10 +284,19 @@ export const posts = new Hono<Env>()
     }
 
     // Save published snapshot for change detection
-    const snapResult = await db.execute({ sql: "SELECT title, body_md, excerpt, tags, created_at FROM posts WHERE slug = ?", args: [newSlug] });
+    const snapResult = await db.execute({
+      sql: "SELECT title, body_md, excerpt, tags, created_at FROM posts WHERE slug = ?",
+      args: [newSlug],
+    });
     if (snapResult.rows.length) {
       const r = snapResult.rows[0];
-      const snapshot = JSON.stringify({ title: r.title, body_md: r.body_md, excerpt: r.excerpt, tags: r.tags, date: r.created_at });
+      const snapshot = JSON.stringify({
+        title: r.title,
+        body_md: r.body_md,
+        excerpt: r.excerpt,
+        tags: r.tags,
+        date: r.created_at,
+      });
       await db.execute({ sql: "UPDATE posts SET published_snapshot = ? WHERE slug = ?", args: [snapshot, newSlug] });
     }
 

@@ -31,9 +31,7 @@ describe("ui-checkbox-item", () => {
   });
 
   it("defaults indeterminate to false", () => {
-    expect((el as unknown as { indeterminate: boolean }).indeterminate).toBe(
-      false,
-    );
+    expect((el as unknown as { indeterminate: boolean }).indeterminate).toBe(false);
   });
 
   it("defaults disabled to false", () => {
@@ -205,9 +203,7 @@ describe("ui-checkbox-item", () => {
   it("clears indeterminate and sets checked on click", () => {
     (el as unknown as { indeterminate: boolean }).indeterminate = true;
     el.click();
-    expect((el as unknown as { indeterminate: boolean }).indeterminate).toBe(
-      false,
-    );
+    expect((el as unknown as { indeterminate: boolean }).indeterminate).toBe(false);
     expect((el as unknown as { checked: boolean }).checked).toBe(true);
   });
 

@@ -2,8 +2,13 @@ import { registerPage } from "../registry.js";
 import { typography } from "@maneki/foundation";
 
 const groupLabels: Record<string, string> = {
-  display: "Display", heading: "Heading", body: "Body", ui: "UI",
-  caption: "Caption", badge: "Badge", code: "Code",
+  display: "Display",
+  heading: "Heading",
+  body: "Body",
+  ui: "UI",
+  caption: "Caption",
+  badge: "Badge",
+  code: "Code",
 };
 
 registerPage("typography", {

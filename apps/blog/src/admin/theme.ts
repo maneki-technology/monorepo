@@ -81,7 +81,12 @@ export async function saveState(): Promise<void> {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       credentials: "same-origin",
-      body: JSON.stringify({ ...existing, theme: state.theme, galleryTab: state.galleryTab, pagesSelectedSlug: state.pagesSelectedSlug }),
+      body: JSON.stringify({
+        ...existing,
+        theme: state.theme,
+        galleryTab: state.galleryTab,
+        pagesSelectedSlug: state.pagesSelectedSlug,
+      }),
     });
   } catch {
     /* ignore */
@@ -101,7 +106,8 @@ export async function loadAdminState(): Promise<AdminState> {
       if (saved) {
         if (saved.theme === "dark" || saved.theme === "light") state.theme = saved.theme;
         if (saved.galleryTab === "photos" || saved.galleryTab === "albums") state.galleryTab = saved.galleryTab;
-        if (typeof saved.pagesSelectedSlug === "string" || saved.pagesSelectedSlug === null) state.pagesSelectedSlug = saved.pagesSelectedSlug ?? null;
+        if (typeof saved.pagesSelectedSlug === "string" || saved.pagesSelectedSlug === null)
+          state.pagesSelectedSlug = saved.pagesSelectedSlug ?? null;
       }
     }
   } catch {

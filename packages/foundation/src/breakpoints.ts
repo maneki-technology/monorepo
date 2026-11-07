@@ -42,12 +42,12 @@ export interface ResponsiveLayout {
 // ---------------------------------------------------------------------------
 
 export const compactBreakpoints: BreakpointMap = {
-  xs:   { minWidth: 360,  maxWidth: 599,      columns: 6,  margin: 8,  gutter: 8 },
-  s:    { minWidth: 600,  maxWidth: 767,      columns: 12, margin: 8,  gutter: 8 },
-  m:    { minWidth: 768,  maxWidth: 1023,     columns: 12, margin: 16, gutter: 8 },
-  l:    { minWidth: 1024, maxWidth: 1279,     columns: 12, margin: 16, gutter: 8 },
-  xl:   { minWidth: 1280, maxWidth: 1439,     columns: 12, margin: 16, gutter: 8 },
-  xxl:  { minWidth: 1440, maxWidth: 1599,     columns: 12, margin: 16, gutter: 8 },
+  xs: { minWidth: 360, maxWidth: 599, columns: 6, margin: 8, gutter: 8 },
+  s: { minWidth: 600, maxWidth: 767, columns: 12, margin: 8, gutter: 8 },
+  m: { minWidth: 768, maxWidth: 1023, columns: 12, margin: 16, gutter: 8 },
+  l: { minWidth: 1024, maxWidth: 1279, columns: 12, margin: 16, gutter: 8 },
+  xl: { minWidth: 1280, maxWidth: 1439, columns: 12, margin: 16, gutter: 8 },
+  xxl: { minWidth: 1440, maxWidth: 1599, columns: 12, margin: 16, gutter: 8 },
   xxxl: { minWidth: 1600, maxWidth: Infinity, columns: 12, margin: 16, gutter: 8 },
 };
 
@@ -56,12 +56,12 @@ export const compactBreakpoints: BreakpointMap = {
 // ---------------------------------------------------------------------------
 
 export const standardBreakpoints: BreakpointMap = {
-  xs:   { minWidth: 360,  maxWidth: 599,      columns: 6,  margin: 16, gutter: 8 },
-  s:    { minWidth: 600,  maxWidth: 767,      columns: 12, margin: 16, gutter: 16 },
-  m:    { minWidth: 768,  maxWidth: 1023,     columns: 12, margin: 24, gutter: 16 },
-  l:    { minWidth: 1024, maxWidth: 1279,     columns: 12, margin: 32, gutter: 24 },
-  xl:   { minWidth: 1280, maxWidth: 1439,     columns: 12, margin: 32, gutter: 24 },
-  xxl:  { minWidth: 1440, maxWidth: 1599,     columns: 12, margin: 32, gutter: 24 },
+  xs: { minWidth: 360, maxWidth: 599, columns: 6, margin: 16, gutter: 8 },
+  s: { minWidth: 600, maxWidth: 767, columns: 12, margin: 16, gutter: 16 },
+  m: { minWidth: 768, maxWidth: 1023, columns: 12, margin: 24, gutter: 16 },
+  l: { minWidth: 1024, maxWidth: 1279, columns: 12, margin: 32, gutter: 24 },
+  xl: { minWidth: 1280, maxWidth: 1439, columns: 12, margin: 32, gutter: 24 },
+  xxl: { minWidth: 1440, maxWidth: 1599, columns: 12, margin: 32, gutter: 24 },
   xxxl: { minWidth: 1600, maxWidth: Infinity, columns: 12, margin: 32, gutter: 24 },
 };
 
@@ -70,12 +70,12 @@ export const standardBreakpoints: BreakpointMap = {
 // ---------------------------------------------------------------------------
 
 export const spaciousBreakpoints: BreakpointMap = {
-  xs:   { minWidth: 360,  maxWidth: 599,      columns: 6,  margin: 16, gutter: 12 },
-  s:    { minWidth: 600,  maxWidth: 767,      columns: 12, margin: 24, gutter: 16 },
-  m:    { minWidth: 768,  maxWidth: 1023,     columns: 12, margin: 32, gutter: 24 },
-  l:    { minWidth: 1024, maxWidth: 1279,     columns: 12, margin: 40, gutter: 32 },
-  xl:   { minWidth: 1280, maxWidth: 1439,     columns: 12, margin: 40, gutter: 32 },
-  xxl:  { minWidth: 1440, maxWidth: 1599,     columns: 12, margin: 40, gutter: 32 },
+  xs: { minWidth: 360, maxWidth: 599, columns: 6, margin: 16, gutter: 12 },
+  s: { minWidth: 600, maxWidth: 767, columns: 12, margin: 24, gutter: 16 },
+  m: { minWidth: 768, maxWidth: 1023, columns: 12, margin: 32, gutter: 24 },
+  l: { minWidth: 1024, maxWidth: 1279, columns: 12, margin: 40, gutter: 32 },
+  xl: { minWidth: 1280, maxWidth: 1439, columns: 12, margin: 40, gutter: 32 },
+  xxl: { minWidth: 1440, maxWidth: 1599, columns: 12, margin: 40, gutter: 32 },
   xxxl: { minWidth: 1600, maxWidth: Infinity, columns: 12, margin: 40, gutter: 32 },
 };
 
@@ -94,17 +94,12 @@ export const responsiveLayouts: Record<LayoutDensity, BreakpointMap> = {
 // ---------------------------------------------------------------------------
 
 /** Ordered breakpoint names from smallest to largest. */
-export const breakpointOrder: BreakpointName[] = [
-  "xs", "s", "m", "l", "xl", "xxl", "xxxl",
-];
+export const breakpointOrder: BreakpointName[] = ["xs", "s", "m", "l", "xl", "xxl", "xxxl"];
 
 /**
  * Returns the active breakpoint name for a given viewport width and density.
  */
-export function getBreakpoint(
-  width: number,
-  density: LayoutDensity = "standard",
-): BreakpointName {
+export function getBreakpoint(width: number, density: LayoutDensity = "standard"): BreakpointName {
   const bps = responsiveLayouts[density];
   for (const name of breakpointOrder) {
     const bp = bps[name];
@@ -118,20 +113,14 @@ export function getBreakpoint(
 /**
  * Returns the full breakpoint config for a given viewport width and density.
  */
-export function getBreakpointConfig(
-  width: number,
-  density: LayoutDensity = "standard",
-): BreakpointConfig {
+export function getBreakpointConfig(width: number, density: LayoutDensity = "standard"): BreakpointConfig {
   return responsiveLayouts[density][getBreakpoint(width, density)];
 }
 
 /**
  * Generates a CSS media query string for a given breakpoint.
  */
-export function breakpointMediaQuery(
-  name: BreakpointName,
-  density: LayoutDensity = "standard",
-): string {
+export function breakpointMediaQuery(name: BreakpointName, density: LayoutDensity = "standard"): string {
   const bp = responsiveLayouts[density][name];
   if (bp.maxWidth === Infinity) {
     return `(min-width: ${bp.minWidth}px)`;

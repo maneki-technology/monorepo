@@ -4,20 +4,42 @@ export const landscapeSvg = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns
 // Raster PNG generated from canvas — object-fit works correctly on raster images
 export function createLandscapePng(): string {
   const c = document.createElement("canvas");
-  c.width = 400; c.height = 200;
+  c.width = 400;
+  c.height = 200;
   const ctx = c.getContext("2d")!;
   // Sky
-  ctx.fillStyle = "#87CEEB"; ctx.fillRect(0, 0, 400, 200);
+  ctx.fillStyle = "#87CEEB";
+  ctx.fillRect(0, 0, 400, 200);
   // Sun
-  ctx.fillStyle = "#FFD700"; ctx.beginPath(); ctx.arc(320, 40, 25, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#FFD700";
+  ctx.beginPath();
+  ctx.arc(320, 40, 25, 0, Math.PI * 2);
+  ctx.fill();
   // Mountains
-  ctx.fillStyle = "#228B22"; ctx.beginPath(); ctx.moveTo(50, 200); ctx.lineTo(125, 75); ctx.lineTo(200, 200); ctx.fill();
-  ctx.fillStyle = "#006400"; ctx.beginPath(); ctx.moveTo(150, 200); ctx.lineTo(250, 50); ctx.lineTo(350, 200); ctx.fill();
+  ctx.fillStyle = "#228B22";
+  ctx.beginPath();
+  ctx.moveTo(50, 200);
+  ctx.lineTo(125, 75);
+  ctx.lineTo(200, 200);
+  ctx.fill();
+  ctx.fillStyle = "#006400";
+  ctx.beginPath();
+  ctx.moveTo(150, 200);
+  ctx.lineTo(250, 50);
+  ctx.lineTo(350, 200);
+  ctx.fill();
   // Ground
-  ctx.fillStyle = "#654321"; ctx.fillRect(0, 175, 400, 25);
+  ctx.fillStyle = "#654321";
+  ctx.fillRect(0, 175, 400, 25);
   // House
-  ctx.fillStyle = "#8B4513"; ctx.fillRect(175, 140, 30, 35);
-  ctx.fillStyle = "#A0522D"; ctx.beginPath(); ctx.moveTo(175, 140); ctx.lineTo(190, 120); ctx.lineTo(205, 140); ctx.fill();
+  ctx.fillStyle = "#8B4513";
+  ctx.fillRect(175, 140, 30, 35);
+  ctx.fillStyle = "#A0522D";
+  ctx.beginPath();
+  ctx.moveTo(175, 140);
+  ctx.lineTo(190, 120);
+  ctx.lineTo(205, 140);
+  ctx.fill();
   return c.toDataURL("image/png");
 }
 

@@ -192,7 +192,10 @@ describe("ui-calendar-quicklinks", () => {
       await tick();
       el.setItems([{ label: "A", value: "a" }]);
       expect(el.shadowRoot!.querySelectorAll(".link").length).toBe(1);
-      el.setItems([{ label: "B", value: "b" }, { label: "C", value: "c" }]);
+      el.setItems([
+        { label: "B", value: "b" },
+        { label: "C", value: "c" },
+      ]);
       expect(el.shadowRoot!.querySelectorAll(".link").length).toBe(2);
     });
 
@@ -292,7 +295,10 @@ describe("ui-calendar-quicklinks", () => {
     it("sets data-selected on matching link", async () => {
       const el = create();
       await tick();
-      el.setItems([{ label: "Today", value: "today" }, { label: "Yesterday", value: "yesterday" }]);
+      el.setItems([
+        { label: "Today", value: "today" },
+        { label: "Yesterday", value: "yesterday" },
+      ]);
       el.selectedValue = "today";
       const link = el.shadowRoot!.querySelector('.link[data-value="today"]') as HTMLElement;
       expect(link.hasAttribute("data-selected")).toBe(true);
@@ -310,7 +316,10 @@ describe("ui-calendar-quicklinks", () => {
     it("does not set data-selected on non-matching links", async () => {
       const el = create();
       await tick();
-      el.setItems([{ label: "Today", value: "today" }, { label: "Yesterday", value: "yesterday" }]);
+      el.setItems([
+        { label: "Today", value: "today" },
+        { label: "Yesterday", value: "yesterday" },
+      ]);
       el.selectedValue = "today";
       const other = el.shadowRoot!.querySelector('.link[data-value="yesterday"]') as HTMLElement;
       expect(other.hasAttribute("data-selected")).toBe(false);
@@ -375,7 +384,10 @@ describe("ui-calendar-quicklinks", () => {
     it("sets data-selected on clicked link after click", async () => {
       const el = create();
       await tick();
-      el.setItems([{ label: "Today", value: "today" }, { label: "Yesterday", value: "yesterday" }]);
+      el.setItems([
+        { label: "Today", value: "today" },
+        { label: "Yesterday", value: "yesterday" },
+      ]);
       const link = el.shadowRoot!.querySelector('.link[data-value="yesterday"]') as HTMLElement;
       link.click();
       // Re-query after click since #render() rebuilds DOM
@@ -492,7 +504,7 @@ describe("ui-calendar-quicklinks", () => {
       await tick();
       el.setItems(SAMPLE_ITEMS);
       el.selectedValue = "this-month";
-      const selected = el.shadowRoot!.querySelector('[data-selected]') as HTMLElement;
+      const selected = el.shadowRoot!.querySelector("[data-selected]") as HTMLElement;
       expect(selected).toBeTruthy();
       expect(selected.dataset.value).toBe("this-month");
     });

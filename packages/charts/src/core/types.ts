@@ -273,6 +273,5 @@ export interface ChartEventDetail {
   categoryLabel?: string;
 }
 
-
 // Re-export LegendConfig from legend module for header.ts
 export type { LegendConfig } from "./legend.js";

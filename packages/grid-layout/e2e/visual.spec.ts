@@ -188,9 +188,12 @@ test.describe("dynamic layout changes", () => {
       const a = layout.find((l: any) => l.i === "a");
       const f = layout.find((l: any) => l.i === "f");
       if (a && f) {
-        const tmpX = a.x, tmpY = a.y;
-        a.x = f.x; a.y = f.y;
-        f.x = tmpX; f.y = tmpY;
+        const tmpX = a.x,
+          tmpY = a.y;
+        a.x = f.x;
+        a.y = f.y;
+        f.x = tmpX;
+        f.y = tmpY;
       }
       grid.layout = layout;
     });

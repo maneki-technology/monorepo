@@ -1,35 +1,35 @@
-$schema: 'https://moonrepo.dev/schemas/project.json'
+$schema: "https://moonrepo.dev/schemas/project.json"
 
-language: 'typescript'
+language: "typescript"
 
 dependsOn:
-  - 'foundation'
+  - "foundation"
 
 tasks:
   build:
-    script: 'vite build && tsc --emitDeclarationOnly'
+    script: "vite build && tsc --emitDeclarationOnly"
     inputs:
-      - 'src/**/*'
-      - 'tsconfig.json'
-      - 'vite.config.ts'
+      - "src/**/*"
+      - "tsconfig.json"
+      - "vite.config.ts"
     outputs:
-      - 'dist'
+      - "dist"
     deps:
-      - '^:build'
+      - "^:build"
 
   test:
-    command: 'vitest --run'
+    command: "vitest --run"
     inputs:
-      - 'src/**/*'
-      - 'tsconfig.json'
-      - 'vite.config.ts'
+      - "src/**/*"
+      - "tsconfig.json"
+      - "vite.config.ts"
 
   test-watch:
-    command: 'vitest'
+    command: "vitest"
     inputs:
-      - 'src/**/*'
-    preset: 'server'
+      - "src/**/*"
+    preset: "server"
 
   dev:
-    command: 'vite'
-    preset: 'server'
+    command: "vite"
+    preset: "server"

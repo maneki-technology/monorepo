@@ -1,9 +1,4 @@
-import {
-  BORDER_MINIMAL,
-  ELEVATION_05,
-  RADIUS_SM,
-  SURFACE_PRIMARY,
-} from "@maneki/foundation";
+import { BORDER_MINIMAL, ELEVATION_05, RADIUS_SM, SURFACE_PRIMARY } from "@maneki/foundation";
 
 export const STYLES = /* css */ `
   *,

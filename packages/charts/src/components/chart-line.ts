@@ -19,20 +19,9 @@
  *   chart.options = { title: 'Monthly Revenue', labels: ['Jan', 'Feb', 'Mar'], fill: true };
  */
 
-import {
-  TEXT_PRIMARY,
-  SURFACE_PRIMARY,
-  FONT_PRIMARY,
-  TYPE_HEADING_06,
-  TYPE_BODY_03,
-} from "@maneki/foundation";
+import { TEXT_PRIMARY, SURFACE_PRIMARY, FONT_PRIMARY, TYPE_HEADING_06, TYPE_BODY_03 } from "@maneki/foundation";
 
-import type {
-  Dataset,
-  LineChartOptions,
-  LegendItem,
-  ChartEventDetail,
-} from "../core/types.js";
+import type { Dataset, LineChartOptions, LegendItem, ChartEventDetail } from "../core/types.js";
 import { linearScale, categoryScale, dataExtent } from "../core/scales.js";
 import { renderYGridLines, renderYLabels, renderXGridLines, renderXLabels } from "../core/axis.js";
 import { computeCartesianLayout } from "../core/math.js";
@@ -174,10 +163,7 @@ function numAttr(el: Element, name: string): number | undefined {
  * Build a cubic Bézier path through data points with given tension.
  * tension=0 → straight lines, tension=0.4 → smooth, tension=1 → very curved.
  */
-function smoothPath(
-  points: { x: number; y: number }[],
-  tension: number,
-): string {
+function smoothPath(points: { x: number; y: number }[], tension: number): string {
   if (points.length < 2) return "";
   if (tension === 0 || points.length === 2) {
     return points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
@@ -436,10 +422,7 @@ class ChartLineElement extends HTMLElement {
 
       // Area fill
       if (showFill) {
-        const areaD =
-          pathD +
-          ` L${points[points.length - 1].x},${plotBottom}` +
-          ` L${points[0].x},${plotBottom} Z`;
+        const areaD = pathD + ` L${points[points.length - 1].x},${plotBottom}` + ` L${points[0].x},${plotBottom} Z`;
         const area = document.createElementNS(NS, "path");
         area.setAttribute("d", areaD);
 

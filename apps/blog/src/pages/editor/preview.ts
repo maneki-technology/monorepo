@@ -96,13 +96,20 @@ export function triggerPreview(): void {
 
 export function renderPreview(root: ParentNode, previewEl?: HTMLElement | null): void {
   _previewRoot = root;
-  const ep = (root as ShadowRoot).host as { postTitle?: string; postDate?: string; postTags?: string[]; postContent?: string; projectTitle?: string; projectTech?: string[] };
+  const ep = (root as ShadowRoot).host as {
+    postTitle?: string;
+    postDate?: string;
+    postTags?: string[];
+    postContent?: string;
+    projectTitle?: string;
+    projectTech?: string[];
+  };
   const isProject = state.activeTabType === "project";
   const title = isProject ? (ep?.projectTitle ?? "") : (ep?.postTitle ?? "");
   const date = isProject ? "" : (ep?.postDate ?? "");
   const tags: string = isProject ? (ep?.projectTech?.join(", ") ?? "") : (ep?.postTags?.join(", ") ?? "");
   const content: string = ep?.postContent ?? "";
-  const preview = previewEl ?? root.querySelector("#admin-preview") as HTMLElement | null;
+  const preview = previewEl ?? (root.querySelector("#admin-preview") as HTMLElement | null);
   if (!preview) return;
 
   const tagBadges = tags

@@ -14,16 +14,36 @@ export class EditorReviewPanel extends StreamingChatPanel {
 
   // ── Abstract implementations ──────────────────────────────────────────────
 
-  get panelId(): string { return "review-panel"; }
-  get panelTitle(): string { return "AI Review"; }
-  get toggleEventName(): string { return "review-panel-toggle"; }
-  get apiEndpoint(): string { return "/api/review"; }
-  get conversationEndpoint(): string { return "/api/review-conversations"; }
-  get emptyStateIcon(): string { return "rate_review"; }
-  get emptyStateText(): string { return "Get AI-powered editorial feedback on your draft. Select your target audience and click \"Review\" to start."; }
-  get startButtonText(): string { return "Review Draft"; }
-  get inputPlaceholder(): string { return "Or ask a specific question about your draft..."; }
-  get errorFallback(): string { return "Review failed"; }
+  get panelId(): string {
+    return "review-panel";
+  }
+  get panelTitle(): string {
+    return "AI Review";
+  }
+  get toggleEventName(): string {
+    return "review-panel-toggle";
+  }
+  get apiEndpoint(): string {
+    return "/api/review";
+  }
+  get conversationEndpoint(): string {
+    return "/api/review-conversations";
+  }
+  get emptyStateIcon(): string {
+    return "rate_review";
+  }
+  get emptyStateText(): string {
+    return 'Get AI-powered editorial feedback on your draft. Select your target audience and click "Review" to start.';
+  }
+  get startButtonText(): string {
+    return "Review Draft";
+  }
+  get inputPlaceholder(): string {
+    return "Or ask a specific question about your draft...";
+  }
+  get errorFallback(): string {
+    return "Review failed";
+  }
 
   protected override _validateBeforeStream(postData: PostData | undefined): string {
     if (!postData) return "No post data available. Open a post first.";

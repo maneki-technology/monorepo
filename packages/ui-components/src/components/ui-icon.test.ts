@@ -370,7 +370,13 @@ describe("ui-icon", () => {
 
   it("is an inline-flex element via :host", () => {
     const shadow = el.shadowRoot!;
-    const styles = shadow.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    const styles = shadow.adoptedStyleSheets
+      .map((s: CSSStyleSheet) =>
+        Array.from(s.cssRules)
+          .map((r: CSSRule) => r.cssText)
+          .join(""),
+      )
+      .join("");
     expect(styles).toContain("display: inline-flex");
   });
 

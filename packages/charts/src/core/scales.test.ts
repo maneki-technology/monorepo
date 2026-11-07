@@ -130,10 +130,7 @@ describe("categoryScale", () => {
 
 describe("dataExtent", () => {
   it("finds min and max across datasets", () => {
-    const result = dataExtent([
-      { data: [10, 20, 30] },
-      { data: [5, 25, 15] },
-    ]);
+    const result = dataExtent([{ data: [10, 20, 30] }, { data: [5, 25, 15] }]);
     expect(result.min).toBe(5);
     expect(result.max).toBe(30);
   });

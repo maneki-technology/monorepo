@@ -67,21 +67,15 @@ export function legendRowWidth(items: LegendItem[], config?: Partial<LegendConfi
 /**
  * Split legend items into rows that fit within maxWidth.
  */
-export function splitLegendRows(
-  items: LegendItem[],
-  maxWidth: number,
-  config?: Partial<LegendConfig>,
-): LegendItem[][] {
+export function splitLegendRows(items: LegendItem[], maxWidth: number, config?: Partial<LegendConfig>): LegendItem[][] {
   const c = cfg(config);
   const rows: LegendItem[][] = [];
   let currentRow: LegendItem[] = [];
   let currentWidth = 0;
 
   for (const item of items) {
-    const itemWidth =
-      c.swatchWidth + c.swatchLabelGap + item.label.length * c.charWidth;
-    const widthWithGap =
-      currentRow.length > 0 ? currentWidth + c.itemGap + itemWidth : itemWidth;
+    const itemWidth = c.swatchWidth + c.swatchLabelGap + item.label.length * c.charWidth;
+    const widthWithGap = currentRow.length > 0 ? currentWidth + c.itemGap + itemWidth : itemWidth;
 
     if (currentRow.length > 0 && widthWithGap > maxWidth) {
       rows.push(currentRow);
@@ -148,11 +142,7 @@ export function renderLegend(
       text.textContent = item.label;
       container.appendChild(text);
 
-      x +=
-        c.swatchWidth +
-        c.swatchLabelGap +
-        item.label.length * c.charWidth +
-        c.itemGap;
+      x += c.swatchWidth + c.swatchLabelGap + item.label.length * c.charWidth + c.itemGap;
     }
   }
 }
@@ -160,11 +150,7 @@ export function renderLegend(
 /**
  * Compute the height needed for the legend.
  */
-export function legendHeight(
-  items: LegendItem[],
-  maxWidth: number,
-  config?: Partial<LegendConfig>,
-): number {
+export function legendHeight(items: LegendItem[], maxWidth: number, config?: Partial<LegendConfig>): number {
   const c = cfg(config);
   const rows = splitLegendRows(items, maxWidth, c);
   const rowHeight = c.swatchHeight + 16;

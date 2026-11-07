@@ -84,7 +84,9 @@ export abstract class StreamingChatPanel extends LitElement {
   // ── Styles ────────────────────────────────────────────────────────────────
 
   static styles = css`
-    :host { display: contents; }
+    :host {
+      display: contents;
+    }
 
     .panel-host {
       position: absolute;
@@ -120,7 +122,9 @@ export abstract class StreamingChatPanel extends LitElement {
       flex-shrink: 0;
     }
 
-    .selector-bar ui-label { white-space: nowrap; }
+    .selector-bar ui-label {
+      white-space: nowrap;
+    }
 
     .messages {
       flex: 1;
@@ -154,18 +158,42 @@ export abstract class StreamingChatPanel extends LitElement {
       max-width: 85%;
     }
 
-    .message-assistant :first-child { margin-top: 0; }
-    .message-assistant :last-child { margin-bottom: 0; }
+    .message-assistant :first-child {
+      margin-top: 0;
+    }
+    .message-assistant :last-child {
+      margin-bottom: 0;
+    }
 
     /* Markdown rendering in assistant messages */
     .message-assistant h1,
-    .message-assistant h2 { font-size: 15px; font-weight: 600; margin: 12px 0 6px; }
-    .message-assistant h3 { font-size: 14px; font-weight: 600; margin: 10px 0 4px; }
-    .message-assistant p { margin: 0 0 8px; }
-    .message-assistant ul, .message-assistant ol { margin: 0 0 8px; padding-left: 20px; }
-    .message-assistant li { margin-bottom: 2px; }
-    .message-assistant strong { font-weight: 600; }
-    .message-assistant em { font-style: italic; }
+    .message-assistant h2 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 12px 0 6px;
+    }
+    .message-assistant h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 10px 0 4px;
+    }
+    .message-assistant p {
+      margin: 0 0 8px;
+    }
+    .message-assistant ul,
+    .message-assistant ol {
+      margin: 0 0 8px;
+      padding-left: 20px;
+    }
+    .message-assistant li {
+      margin-bottom: 2px;
+    }
+    .message-assistant strong {
+      font-weight: 600;
+    }
+    .message-assistant em {
+      font-style: italic;
+    }
     .message-assistant code {
       font-family: "Roboto Mono", monospace;
       font-size: 12px;
@@ -181,7 +209,10 @@ export abstract class StreamingChatPanel extends LitElement {
       overflow-x: auto;
       margin: 4px 0 8px;
     }
-    .message-assistant pre code { background: none; padding: 0; }
+    .message-assistant pre code {
+      background: none;
+      padding: 0;
+    }
     .message-assistant blockquote {
       border-left: 3px solid var(--fd-border-moderate, #a1a1aa);
       padding-left: 10px;
@@ -196,7 +227,9 @@ export abstract class StreamingChatPanel extends LitElement {
       opacity: 0;
       transition: opacity 0.15s;
     }
-    .message-assistant:hover .copy-btn { opacity: 1; }
+    .message-assistant:hover .copy-btn {
+      opacity: 1;
+    }
 
     .streaming-indicator {
       display: inline-block;
@@ -213,8 +246,14 @@ export abstract class StreamingChatPanel extends LitElement {
     }
 
     @keyframes blink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
+      0%,
+      50% {
+        opacity: 1;
+      }
+      51%,
+      100% {
+        opacity: 0;
+      }
     }
 
     .input-bar {
@@ -281,7 +320,9 @@ export abstract class StreamingChatPanel extends LitElement {
       align-items: center;
       gap: 8px;
     }
-    .error-msg span { flex: 1; }
+    .error-msg span {
+      flex: 1;
+    }
 
     .header-actions {
       display: flex;
@@ -295,7 +336,9 @@ export abstract class StreamingChatPanel extends LitElement {
   protected override firstUpdated(): void {
     const panel = this.renderRoot.querySelector("ui-side-panel");
     panel?.addEventListener("close", () => {
-      this.dispatchEvent(new CustomEvent(this.toggleEventName, { detail: { open: false }, bubbles: true, composed: true }));
+      this.dispatchEvent(
+        new CustomEvent(this.toggleEventName, { detail: { open: false }, bubbles: true, composed: true }),
+      );
     });
   }
 
@@ -321,9 +364,15 @@ export abstract class StreamingChatPanel extends LitElement {
   // ── Public API ────────────────────────────────────────────────────────────
 
   show(): void {
-    const panel = this.renderRoot.querySelector("ui-side-panel") as HTMLElement & { show(): void } | null;
+    const panel = this.renderRoot.querySelector("ui-side-panel") as (HTMLElement & { show(): void }) | null;
     panel?.show();
-    this.dispatchEvent(new CustomEvent(this.toggleEventName, { detail: { open: true, fullscreen: this._fullscreen }, bubbles: true, composed: true }));
+    this.dispatchEvent(
+      new CustomEvent(this.toggleEventName, {
+        detail: { open: true, fullscreen: this._fullscreen },
+        bubbles: true,
+        composed: true,
+      }),
+    );
     if (!this._loaded && this.slug) {
       this.loadConversation();
     } else {
@@ -333,9 +382,15 @@ export abstract class StreamingChatPanel extends LitElement {
   }
 
   hide(): void {
-    const panel = this.renderRoot.querySelector("ui-side-panel") as HTMLElement & { hide(): void } | null;
+    const panel = this.renderRoot.querySelector("ui-side-panel") as (HTMLElement & { hide(): void }) | null;
     panel?.hide();
-    this.dispatchEvent(new CustomEvent(this.toggleEventName, { detail: { open: false, fullscreen: false }, bubbles: true, composed: true }));
+    this.dispatchEvent(
+      new CustomEvent(this.toggleEventName, {
+        detail: { open: false, fullscreen: false },
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   toggle(): void {
@@ -355,15 +410,44 @@ export abstract class StreamingChatPanel extends LitElement {
         <div slot="header" style="display:flex;align-items:center;justify-content:space-between;width:100%;">
           <span>${this.panelTitle}</span>
           <div class="header-actions">
-            <ui-button action="secondary" emphasis="minimal" size="s" icon="icon-only" aria-label="Toggle fullscreen" @click=${this._toggleFullscreen}>
-              <ui-icon name=${this._fullscreen ? "close_fullscreen" : "open_in_full"} size="s" slot="icon-start"></ui-icon>
+            <ui-button
+              action="secondary"
+              emphasis="minimal"
+              size="s"
+              icon="icon-only"
+              aria-label="Toggle fullscreen"
+              @click=${this._toggleFullscreen}
+            >
+              <ui-icon
+                name=${this._fullscreen ? "close_fullscreen" : "open_in_full"}
+                size="s"
+                slot="icon-start"
+              ></ui-icon>
             </ui-button>
-            ${this._messages.length > 0 ? html`
-              <ui-button action="secondary" emphasis="minimal" size="s" icon="icon-only" aria-label="Clear conversation" @click=${this._clearConversation}>
-                <ui-icon name="delete_sweep" size="s" slot="icon-start"></ui-icon>
-              </ui-button>
-            ` : nothing}
-            <ui-button action="secondary" emphasis="minimal" size="s" icon="icon-only" aria-label="Close panel" @click=${this._closePanel}>
+            ${
+              this._messages.length > 0
+                ? html`
+                    <ui-button
+                      action="secondary"
+                      emphasis="minimal"
+                      size="s"
+                      icon="icon-only"
+                      aria-label="Clear conversation"
+                      @click=${this._clearConversation}
+                    >
+                      <ui-icon name="delete_sweep" size="s" slot="icon-start"></ui-icon>
+                    </ui-button>
+                  `
+                : nothing
+            }
+            <ui-button
+              action="secondary"
+              emphasis="minimal"
+              size="s"
+              icon="icon-only"
+              aria-label="Close panel"
+              @click=${this._closePanel}
+            >
               <ui-icon name="close" size="s" slot="icon-start"></ui-icon>
             </ui-button>
           </div>
@@ -406,21 +490,39 @@ export abstract class StreamingChatPanel extends LitElement {
   protected _renderMessages(): unknown {
     return html`
       <div class="messages">
-        ${this._messages.map((m) => html`
-          <div class="message message-${m.role}">
-            ${m.role === "assistant" ? html`
-              <span class="copy-btn">
-                <ui-button action="secondary" emphasis="minimal" size="s" @click=${(e: Event) => this._copyMessage(m.content, e)}>Copy</ui-button>
-              </span>
-              ${this._renderMarkdown(m.content)}
-            ` : m.content}
-          </div>
-        `)}
-        ${this._streaming ? html`
-          <div class="message message-assistant ${!this._streamBuffer ? 'message-pending' : ''}">
-            ${this._streamBuffer ? this._renderMarkdown(this._streamBuffer) : nothing}<span class="streaming-indicator"></span>
-          </div>
-        ` : nothing}
+        ${this._messages.map(
+          (m) => html`
+            <div class="message message-${m.role}">
+              ${
+                m.role === "assistant"
+                  ? html`
+                      <span class="copy-btn">
+                        <ui-button
+                          action="secondary"
+                          emphasis="minimal"
+                          size="s"
+                          @click=${(e: Event) => this._copyMessage(m.content, e)}
+                          >Copy</ui-button
+                        >
+                      </span>
+                      ${this._renderMarkdown(m.content)}
+                    `
+                  : m.content
+              }
+            </div>
+          `,
+        )}
+        ${
+          this._streaming
+            ? html`
+                <div class="message message-assistant ${!this._streamBuffer ? "message-pending" : ""}">
+                  ${this._streamBuffer ? this._renderMarkdown(this._streamBuffer) : nothing}<span
+                    class="streaming-indicator"
+                  ></span>
+                </div>
+              `
+            : nothing
+        }
       </div>
     `;
   }
@@ -432,18 +534,31 @@ export abstract class StreamingChatPanel extends LitElement {
           placeholder=${this._messages.length === 0 ? this.inputPlaceholder : "Continue the conversation..."}
           .value=${this._followUpText}
           ?disabled=${this._streaming}
-          @input=${(e: Event) => { this._followUpText = (e.target as HTMLTextAreaElement).value; }}
+          @input=${(e: Event) => {
+            this._followUpText = (e.target as HTMLTextAreaElement).value;
+          }}
           @keydown=${this._onInputKeydown}
         ></textarea>
-        ${this._streaming ? html`
-          <ui-button action="secondary" size="s" icon="icon-only" aria-label="Stop" @click=${this._stopStreaming}>
-            <ui-icon name="stop" size="s" slot="icon-start"></ui-icon>
-          </ui-button>
-        ` : html`
-          <ui-button action="primary" size="s" icon="icon-only" aria-label="Send" ?disabled=${!this._followUpText.trim() && this._messages.length === 0} @click=${this._onSend}>
-            <ui-icon name="send" size="s" slot="icon-start"></ui-icon>
-          </ui-button>
-        `}
+        ${
+          this._streaming
+            ? html`
+                <ui-button action="secondary" size="s" icon="icon-only" aria-label="Stop" @click=${this._stopStreaming}>
+                  <ui-icon name="stop" size="s" slot="icon-start"></ui-icon>
+                </ui-button>
+              `
+            : html`
+                <ui-button
+                  action="primary"
+                  size="s"
+                  icon="icon-only"
+                  aria-label="Send"
+                  ?disabled=${!this._followUpText.trim() && this._messages.length === 0}
+                  @click=${this._onSend}
+                >
+                  <ui-icon name="send" size="s" slot="icon-start"></ui-icon>
+                </ui-button>
+              `
+        }
       </div>
     `;
   }
@@ -512,7 +627,13 @@ export abstract class StreamingChatPanel extends LitElement {
       this.removeAttribute("fullscreen");
     }
     // Notify FABs about fullscreen state change
-    this.dispatchEvent(new CustomEvent(this.toggleEventName, { detail: { open: true, fullscreen: this._fullscreen }, bubbles: true, composed: true }));
+    this.dispatchEvent(
+      new CustomEvent(this.toggleEventName, {
+        detail: { open: true, fullscreen: this._fullscreen },
+        bubbles: true,
+        composed: true,
+      }),
+    );
   }
 
   private _closePanel(): void {
@@ -574,9 +695,7 @@ export abstract class StreamingChatPanel extends LitElement {
     // Truncate history sent to API if too long to avoid context window limits.
     // Full history remains in UI (_messages), only the API payload is trimmed.
     const allHistory = this._messages.map((m) => ({ role: m.role, content: m.content }));
-    const history = allHistory.length > MAX_HISTORY_MESSAGES
-      ? allHistory.slice(-TRUNCATED_HISTORY_KEEP)
-      : allHistory;
+    const history = allHistory.length > MAX_HISTORY_MESSAGES ? allHistory.slice(-TRUNCATED_HISTORY_KEEP) : allHistory;
 
     this._abortController = new AbortController();
 
@@ -704,7 +823,7 @@ export abstract class StreamingChatPanel extends LitElement {
         credentials: "same-origin",
       });
       if (!res.ok) return;
-      const data = await res.json() as Record<string, unknown>;
+      const data = (await res.json()) as Record<string, unknown>;
       this._messages = (data.messages as ChatMessage[]) ?? [];
       this._loadConversationData(data);
       this._loaded = true;
@@ -730,7 +849,9 @@ export abstract class StreamingChatPanel extends LitElement {
           ...this._getPersistedData(),
           messages: this._messages,
         }),
-      }).catch(() => { /* silent */ });
+      }).catch(() => {
+        /* silent */
+      });
     }, 500);
   }
 
@@ -739,6 +860,8 @@ export abstract class StreamingChatPanel extends LitElement {
     fetch(`${this.conversationEndpoint}/${this.contentType}/${this.slug}`, {
       method: "DELETE",
       credentials: "same-origin",
-    }).catch(() => { /* silent */ });
+    }).catch(() => {
+      /* silent */
+    });
   }
 }

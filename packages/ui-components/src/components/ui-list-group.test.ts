@@ -63,13 +63,13 @@ describe("ui-list-group", () => {
   });
 
   it("propagates size to ui-list-item children", () => {
-    const el = create('size="s"', '<ui-list-item>Item</ui-list-item>');
+    const el = create('size="s"', "<ui-list-item>Item</ui-list-item>");
     const item = el.querySelector("ui-list-item")!;
     expect(item.getAttribute("size")).toBe("s");
   });
 
   it("updates children size when size attribute changes", () => {
-    const el = create('size="m"', '<ui-list-item>Item</ui-list-item>');
+    const el = create('size="m"', "<ui-list-item>Item</ui-list-item>");
     el.setAttribute("size", "l");
     const item = el.querySelector("ui-list-item")!;
     expect(item.getAttribute("size")).toBe("l");

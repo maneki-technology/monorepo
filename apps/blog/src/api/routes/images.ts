@@ -10,13 +10,7 @@
 import { Hono } from "hono";
 import type { Env } from "../index.js";
 
-const ALLOWED_TYPES = new Set([
-  "image/png",
-  "image/jpeg",
-  "image/gif",
-  "image/webp",
-  "image/svg+xml",
-]);
+const ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"]);
 
 const VALID_PREFIXES = new Set(["editor", "photos", "thumb"]);
 

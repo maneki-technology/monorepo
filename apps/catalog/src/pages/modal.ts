@@ -8,8 +8,10 @@ registerPage("modal", {
   render: () => `
     <h3>Sizes (click to open)</h3>
     <div class="variant-row">
-      ${["s", "m", "l"].map(size =>
-        `<ui-button size="m" onclick="document.getElementById('modal-${size}').show()">Size ${size.toUpperCase()}</ui-button>
+      ${["s", "m", "l"]
+        .map(
+          (size) =>
+            `<ui-button size="m" onclick="document.getElementById('modal-${size}').show()">Size ${size.toUpperCase()}</ui-button>
          <ui-modal id="modal-${size}" size="${size}" dismissible>
            ${size.toUpperCase()} Modal
            <div slot="body">${size.toUpperCase()} size body content.</div>
@@ -17,8 +19,9 @@ registerPage("modal", {
              <ui-button action="secondary" size="m">Cancel</ui-button>
              <ui-button action="primary" size="m">OK</ui-button>
            </div>
-         </ui-modal>`
-      ).join("")}
+         </ui-modal>`,
+        )
+        .join("")}
     </div>
 
     <h3>With Subtitle</h3>

@@ -12,20 +12,9 @@
  *   ></chart-radar>
  */
 
-import {
-  TEXT_PRIMARY,
-  SURFACE_PRIMARY,
-  FONT_PRIMARY,
-  TYPE_HEADING_06,
-  TYPE_BODY_03,
-} from "@maneki/foundation";
+import { TEXT_PRIMARY, SURFACE_PRIMARY, FONT_PRIMARY, TYPE_HEADING_06, TYPE_BODY_03 } from "@maneki/foundation";
 
-import type {
-  Dataset,
-  RadarChartOptions,
-  RadarAxis,
-  LegendItem,
-} from "../core/types.js";
+import type { Dataset, RadarChartOptions, RadarAxis, LegendItem } from "../core/types.js";
 import { CIRCULAR_LEGEND } from "../core/legend.js";
 import { getDatasetColor, GRID_LINE_COLOR } from "../core/colors.js";
 import { renderChartHeader } from "../core/header.js";
@@ -35,9 +24,18 @@ const VIEWBOX = 960;
 const TAU = Math.PI * 2;
 
 const OBSERVED_ATTRS = [
-  "title", "axes", "datasets", "show-legend", "show-tooltips",
-  "show-points", "point-radius", "line-width", "levels",
-  "fill", "fill-opacity", "description",
+  "title",
+  "axes",
+  "datasets",
+  "show-legend",
+  "show-tooltips",
+  "show-points",
+  "point-radius",
+  "line-width",
+  "levels",
+  "fill",
+  "fill-opacity",
+  "description",
 ] as const;
 
 const STYLES = /* css */ `
@@ -66,7 +64,11 @@ svg { width: 100%; height: auto; display: block; font-family: var(--chart-font, 
 
 function tryParseJSON<T>(v: string | null): T | null {
   if (!v) return null;
-  try { return JSON.parse(v) as T; } catch { return null; }
+  try {
+    return JSON.parse(v) as T;
+  } catch {
+    return null;
+  }
 }
 function boolAttr(el: Element, n: string, d: boolean): boolean {
   if (!el.hasAttribute(n)) return d;
@@ -86,7 +88,9 @@ class ChartRadarElement extends HTMLElement {
   private _tooltip: HTMLDivElement;
   private _renderScheduled = false;
 
-  static get observedAttributes(): readonly string[] { return OBSERVED_ATTRS; }
+  static get observedAttributes(): readonly string[] {
+    return OBSERVED_ATTRS;
+  }
 
   constructor() {
     super();
@@ -103,10 +107,20 @@ class ChartRadarElement extends HTMLElement {
     shadow.appendChild(this._tooltip);
   }
 
-  get datasets(): Dataset[] { return this._datasets; }
-  set datasets(v: Dataset[]) { this._datasets = v; this._scheduleRender(); }
-  get options(): RadarChartOptions { return this._options; }
-  set options(v: RadarChartOptions) { this._options = v; this._scheduleRender(); }
+  get datasets(): Dataset[] {
+    return this._datasets;
+  }
+  set datasets(v: Dataset[]) {
+    this._datasets = v;
+    this._scheduleRender();
+  }
+  get options(): RadarChartOptions {
+    return this._options;
+  }
+  set options(v: RadarChartOptions) {
+    this._options = v;
+    this._scheduleRender();
+  }
 
   attributeChangedCallback(_: string, o: string | null, n: string | null): void {
     if (o === n) return;
@@ -144,7 +158,10 @@ class ChartRadarElement extends HTMLElement {
   private _scheduleRender(): void {
     if (this._renderScheduled) return;
     this._renderScheduled = true;
-    requestAnimationFrame(() => { this._renderScheduled = false; this._render(); });
+    requestAnimationFrame(() => {
+      this._renderScheduled = false;
+      this._render();
+    });
   }
 
   private _render(): void {
@@ -170,7 +187,8 @@ class ChartRadarElement extends HTMLElement {
 
     const colors = datasets.map((ds, i) => getDatasetColor(i, ds.color));
     const legendItems: LegendItem[] = datasets.map((ds, i) => ({
-      label: ds.label, color: colors[i],
+      label: ds.label,
+      color: colors[i],
     }));
 
     const textColor = `var(--chart-text-color, ${TEXT_PRIMARY})`;
@@ -292,7 +310,7 @@ class ChartRadarElement extends HTMLElement {
 
       if (pts.length < 3) continue;
 
-      const polyPoints = pts.map(p => `${p.x},${p.y}`).join(" ");
+      const polyPoints = pts.map((p) => `${p.x},${p.y}`).join(" ");
 
       // Fill
       if (showFill) {

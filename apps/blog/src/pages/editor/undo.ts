@@ -40,7 +40,10 @@ function restore(entry: UndoEntry): void {
 /** Push current state onto undo stack before a programmatic edit. */
 export function pushUndo(): void {
   // Cancel pending typing checkpoint to avoid stale mid-typing entry
-  if (typingTimer) { clearTimeout(typingTimer); typingTimer = null; }
+  if (typingTimer) {
+    clearTimeout(typingTimer);
+    typingTimer = null;
+  }
   const entry = capture();
   if (!entry) return;
   const last = undoStack[undoStack.length - 1];

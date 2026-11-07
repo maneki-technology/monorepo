@@ -70,17 +70,13 @@ describe("findOrGenerateResponsiveLayout", () => {
 
   it("returns existing layout for breakpoint", () => {
     const layouts = { lg: baseLayout };
-    const result = findOrGenerateResponsiveLayout(
-      layouts, DEFAULT_BREAKPOINTS, "lg", 12, "vertical"
-    );
+    const result = findOrGenerateResponsiveLayout(layouts, DEFAULT_BREAKPOINTS, "lg", 12, "vertical");
     expect(result).toEqual(baseLayout);
   });
 
   it("generates layout from larger breakpoint when current is missing", () => {
     const layouts: Record<string, LayoutItem[]> = { lg: baseLayout };
-    const result = findOrGenerateResponsiveLayout(
-      layouts, DEFAULT_BREAKPOINTS, "sm", 6, "vertical"
-    );
+    const result = findOrGenerateResponsiveLayout(layouts, DEFAULT_BREAKPOINTS, "sm", 6, "vertical");
     expect(result.length).toBe(3);
     // Items should be corrected for 6 cols
     for (const item of result) {
@@ -94,24 +90,18 @@ describe("findOrGenerateResponsiveLayout", () => {
       { i: "b", x: 3, y: 0, w: 3, h: 2 },
     ];
     const layouts: Record<string, LayoutItem[]> = { sm: smLayout };
-    const result = findOrGenerateResponsiveLayout(
-      layouts, DEFAULT_BREAKPOINTS, "lg", 12, "vertical"
-    );
+    const result = findOrGenerateResponsiveLayout(layouts, DEFAULT_BREAKPOINTS, "lg", 12, "vertical");
     expect(result.length).toBe(2);
   });
 
   it("returns empty array when no layouts exist", () => {
-    const result = findOrGenerateResponsiveLayout(
-      {}, DEFAULT_BREAKPOINTS, "lg", 12, "vertical"
-    );
+    const result = findOrGenerateResponsiveLayout({}, DEFAULT_BREAKPOINTS, "lg", 12, "vertical");
     expect(result).toEqual([]);
   });
 
   it("clones the returned layout (no mutation)", () => {
     const layouts = { lg: baseLayout };
-    const result = findOrGenerateResponsiveLayout(
-      layouts, DEFAULT_BREAKPOINTS, "lg", 12, "vertical"
-    );
+    const result = findOrGenerateResponsiveLayout(layouts, DEFAULT_BREAKPOINTS, "lg", 12, "vertical");
     result[0].x = 999;
     expect(baseLayout[0].x).toBe(0);
   });

@@ -1,7 +1,7 @@
-$schema: 'https://moonrepo.dev/schemas/toolchain.json'
+$schema: "https://moonrepo.dev/schemas/toolchain.json"
 
 javascript:
-  packageManager: 'npm'
+  packageManager: "npm"
 
 node: {}
 

@@ -32,13 +32,11 @@ const LNG_EAST_SCALE = (692 - 661.18) / (115.27 - 106);
 // Y calibration: VN (lat=16, y=485.20) and ID (lat=-1.8, y=537.92)
 const MILLER_VN = latToMillerY(16);
 const MILLER_ID = latToMillerY(-1.8);
-const Y_SCALE = (537.92 - 485.20) / (MILLER_ID - MILLER_VN);
-const Y_OFFSET = 485.20 - Y_SCALE * MILLER_VN;
+const Y_SCALE = (537.92 - 485.2) / (MILLER_ID - MILLER_VN);
+const Y_OFFSET = 485.2 - Y_SCALE * MILLER_VN;
 
 function latLngToSvg(lat: number, lng: number): { x: number; y: number } {
-  const x = lng <= 106
-    ? 661.18 + LNG_WEST_SCALE * (lng - 106)
-    : 661.18 + LNG_EAST_SCALE * (lng - 106);
+  const x = lng <= 106 ? 661.18 + LNG_WEST_SCALE * (lng - 106) : 661.18 + LNG_EAST_SCALE * (lng - 106);
   const y = Y_SCALE * latToMillerY(lat) + Y_OFFSET;
   return { x, y };
 }
@@ -258,12 +256,30 @@ class PhotoWorldMap extends HTMLElement {
 
   /** Common country names → SVG path IDs */
   private static COUNTRY_IDS: Record<string, string> = {
-    "vietnam": "vn", "indonesia": "idn", "japan": "jp", "thailand": "th",
-    "singapore": "sg", "malaysia": "my", "cambodia": "kh", "laos": "la",
-    "myanmar": "mm", "philippines": "ph", "south korea": "kr", "taiwan": "tw",
-    "australia": "au", "india": "in", "china": "cn", "united states": "us",
-    "united kingdom": "gb", "france": "fr", "germany": "de", "italy": "it",
-    "spain": "es", "brazil": "br", "mexico": "mx", "canada": "ca",
+    vietnam: "vn",
+    indonesia: "idn",
+    japan: "jp",
+    thailand: "th",
+    singapore: "sg",
+    malaysia: "my",
+    cambodia: "kh",
+    laos: "la",
+    myanmar: "mm",
+    philippines: "ph",
+    "south korea": "kr",
+    taiwan: "tw",
+    australia: "au",
+    india: "in",
+    china: "cn",
+    "united states": "us",
+    "united kingdom": "gb",
+    france: "fr",
+    germany: "de",
+    italy: "it",
+    spain: "es",
+    brazil: "br",
+    mexico: "mx",
+    canada: "ca",
   };
 
   private _markExploredCountries(): void {
@@ -315,7 +331,10 @@ class PhotoWorldMap extends HTMLElement {
     if (groups.length === 0) return;
 
     // Calculate bounds for viewBox zoom
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    let minX = Infinity,
+      minY = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity;
     for (const g of groups) {
       const { x, y } = latLngToSvg(g.lat, g.lng);
       if (x < minX) minX = x;
@@ -326,7 +345,10 @@ class PhotoWorldMap extends HTMLElement {
 
     // Pad the bounds
     const pad = 15;
-    minX -= pad; minY -= pad; maxX += pad; maxY += pad;
+    minX -= pad;
+    minY -= pad;
+    maxX += pad;
+    maxY += pad;
 
     // Set viewBox to zoom into photo region
     this._svg.setAttribute("viewBox", `${minX} ${minY} ${maxX - minX} ${maxY - minY}`);
@@ -345,9 +367,10 @@ class PhotoWorldMap extends HTMLElement {
       xMark.classList.add("x-mark");
       const w1 = 0.2 + Math.random() * 0.2;
       const w2 = -0.15 - Math.random() * 0.2;
-      xMark.setAttribute("d",
+      xMark.setAttribute(
+        "d",
         `M${x - s},${y - s} Q${x + w1},${y + w2} ${x + s},${y + s}` +
-        ` M${x + s},${y - s} Q${x + w2},${y + w1} ${x - s},${y + s}`
+          ` M${x + s},${y - s} Q${x + w2},${y + w1} ${x - s},${y + s}`,
       );
       g.appendChild(xMark);
 
@@ -365,10 +388,12 @@ class PhotoWorldMap extends HTMLElement {
 
       // Click handler
       g.addEventListener("click", () => {
-        this.dispatchEvent(new CustomEvent("photo-select", {
-          detail: { index: 0, photos: group.photos },
-          bubbles: true,
-        }));
+        this.dispatchEvent(
+          new CustomEvent("photo-select", {
+            detail: { index: 0, photos: group.photos },
+            bubbles: true,
+          }),
+        );
       });
 
       this._svg!.appendChild(g);

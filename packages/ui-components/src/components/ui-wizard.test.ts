@@ -352,12 +352,14 @@ describe("ui-wizard", () => {
 
   function getPrevButton(): HTMLElement | undefined {
     const buttons = el.shadowRoot!.querySelectorAll("ui-button");
-    return Array.from(buttons).find((b) => b.textContent === "Previous" || b.textContent === "previous") as HTMLElement | undefined;
+    return Array.from(buttons).find((b) => b.textContent === "Previous" || b.textContent === "previous") as
+      HTMLElement | undefined;
   }
 
   function getNextButton(): HTMLElement | undefined {
     const buttons = el.shadowRoot!.querySelectorAll("ui-button");
-    return Array.from(buttons).find((b) => b.textContent === "Next" || b.textContent === "Finish") as HTMLElement | undefined;
+    return Array.from(buttons).find((b) => b.textContent === "Next" || b.textContent === "Finish") as
+      HTMLElement | undefined;
   }
 
   function addSteps(wizard: HTMLElement, count: number): void {

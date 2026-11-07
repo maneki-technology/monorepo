@@ -6,11 +6,7 @@ import { cloneLayout } from "./utils";
 /**
  * Compact a single item vertically (move up as far as possible).
  */
-function compactItemVertical(
-  compareWith: LayoutItem[],
-  item: LayoutItem,
-  cols: number
-): LayoutItem {
+function compactItemVertical(compareWith: LayoutItem[], item: LayoutItem, cols: number): LayoutItem {
   if (item.static) return item;
 
   // Move up while no collision
@@ -30,11 +26,7 @@ function compactItemVertical(
 /**
  * Compact a single item horizontally (move left as far as possible).
  */
-function compactItemHorizontal(
-  compareWith: LayoutItem[],
-  item: LayoutItem,
-  cols: number
-): LayoutItem {
+function compactItemHorizontal(compareWith: LayoutItem[], item: LayoutItem, cols: number): LayoutItem {
   if (item.static) return item;
 
   while (item.x > 0) {
@@ -62,7 +54,7 @@ function resolveCompactionCollision(
   layout: LayoutItem[],
   item: LayoutItem,
   moveToCoord: number,
-  axis: "x" | "y"
+  axis: "x" | "y",
 ): void {
   const sizeProp = axis === "x" ? "w" : "h";
 
@@ -85,7 +77,7 @@ export function compact(
   layout: LayoutItem[],
   compactType: CompactType,
   cols: number,
-  statics?: LayoutItem[]
+  statics?: LayoutItem[],
 ): LayoutItem[] {
   if (!compactType) return cloneLayout(layout);
   const sorted = sortLayoutItems(layout, compactType);
@@ -121,10 +113,7 @@ export function compact(
  * Correct item bounds: ensure items don't exceed column count.
  * Clamps x + w to cols, and ensures w >= 1.
  */
-export function correctBounds(
-  layout: LayoutItem[],
-  cols: number
-): LayoutItem[] {
+export function correctBounds(layout: LayoutItem[], cols: number): LayoutItem[] {
   return layout.map((item) => {
     const l = { ...item };
 

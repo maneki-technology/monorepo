@@ -1,387 +1,613 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Maneki Design System Catalog</title>
-  <meta name="description" content="Visual catalog for the Maneki design system — foundation tokens, 50 Web Components, and layout primitives." />
-  <link rel="icon" type="image/png" href="/favicon.png" />
-  <meta name="theme-color" content="#F2F5F7" />
-  <style>
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; }
-
-    /* Skip link — visible only on focus for keyboard users */
-    .skip-link {
-      position: absolute;
-      top: -100%;
-      left: 16px;
-      z-index: 9999;
-      padding: 8px 16px;
-      background: #186ade;
-      color: #fff;
-      border-radius: 4px;
-      font-size: 14px;
-      text-decoration: none;
-    }
-    .skip-link:focus {
-      top: 8px;
-    }
-
-    /* Fallback font metrics to minimize CLS during Geist swap */
-    @font-face {
-      font-family: 'Geist Fallback';
-      src: local('Arial');
-      size-adjust: 100.5%;
-      ascent-override: 99%;
-      descent-override: 22%;
-      line-gap-override: 0%;
-    }
-
-    html, body {
-      height: 100%;
-      font-family: Geist, 'Geist Fallback', sans-serif;
-      color: var(--fd-text-primary, #1c2b36);
-      background: var(--fd-surface-secondary, #f8f9fa);
-    }
-
-    #app {
-      display: flex;
-      height: 100vh;
-    }
-
-    /* Sidebar — let component manage width via --ui-sp-width */
-    #sidebar {
-      --ui-sp-width: 250px;
-      height: 100vh;
-      overflow-y: auto;
-      scrollbar-width: thin;
-    }
-    #theme-controls {
-      position: fixed;
-      top: 16px;
-      right: 24px;
-      z-index: 50;
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      opacity: 0.4;
-      transition: opacity 0.2s ease;
-    }
-
-    #theme-controls:hover,
-    #theme-controls:focus-within {
-      opacity: 1;
-    }
-
-    #theme-select {
-      appearance: none;
-      background: var(--fd-surface-primary, #fff);
-      color: var(--fd-text-primary, #1c2b36);
-      border: 1px solid var(--fd-border-minimal, #dce3e8);
-      border-radius: 6px;
-      padding: 4px 24px 4px 8px;
-      font-size: 12px;
-      font-family: Geist, 'Geist Fallback', sans-serif;
-      cursor: pointer;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='%235b7282' stroke-width='1.5'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 6px center;
-    }
-
-    #theme-toggle {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 28px;
-      padding: 8px;
-      border-radius: 8px;
-      color: var(--fd-text-secondary, #3e5463);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 44px;
-      height: 44px;
-    }
-
-    /* Content */
-    #content-scroll {
-      flex: 1;
-      min-height: 0;
-    }
-
-    #content {
-      min-height: 100%;
-      padding: 32px 40px;
-      background: var(--fd-surface-primary, #fff);
-      transition: opacity 0.15s ease, background-color 0.2s ease;
-    }
-
-    [data-theme="heroui"] #content,
-    [data-theme="heroui-dark"] #content {
-      background: var(--fd-surface-secondary, #f5f5f5);
-    }
-
-    #content.loading {
-      opacity: 0.4;
-    }
-
-    #content h2 {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 24px;
-      color: var(--fd-text-primary, #1c2b36);
-    }
-
-    #content h3 {
-      font-size: 16px;
-      font-weight: 600;
-      margin: 24px 0 12px;
-      color: var(--fd-text-secondary, #3e5463);
-    }
-
-    .variant-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      align-items: flex-start;
-      margin-bottom: 24px;
-    }
-
-    .variant-col {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: flex-start;
-    }
-
-    .variant-label {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--fd-text-secondary, #3e5463);
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-
-    .variant-group {
-      border: 1px solid var(--fd-border-minimal, #dce3e8);
-      border-radius: 4px;
-      padding: 16px;
-      background: var(--fd-surface-primary, #fff);
-      margin-bottom: 16px;
-    }
-
-
-
-    /* Page-specific: spacing */
-    .spacing-bar {
-      height: 24px;
-      background: var(--fd-surface-action, #186ade);
-      border-radius: 2px;
-      opacity: 0.6;
-    }
-
-    /* Page-specific: typography */
-    .type-sample {
-      margin-bottom: 8px;
-    }
-
-    /* Elevation samples */
-    .elevation-card {
-      width: 120px;
-      height: 80px;
-      background: var(--fd-surface-primary, #fff);
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      color: var(--fd-text-secondary, #3e5463);
-    }
-
-
-    /* ─── Reusable layout utilities ─── */
-
-    .stack-s { display: flex; flex-direction: column; gap: 12px; }
-    .stack-m { display: flex; flex-direction: column; gap: 16px; }
-    .stack-l { display: flex; flex-direction: column; gap: 24px; }
-
-    .w-320 { max-width: 320px; }
-    .w-360 { max-width: 360px; }
-    .w-400 { max-width: 400px; }
-    .w-600 { max-width: 600px; }
-    .w-720 { max-width: 720px; }
-
-    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-
-    .matrix { display: grid; gap: 8px 12px; align-items: center; }
-    .matrix-3 { grid-template-columns: 80px repeat(3, 1fr); }
-    .matrix-4 { grid-template-columns: 80px repeat(4, 1fr); }
-    .matrix-5 { grid-template-columns: 80px repeat(5, 1fr); }
-
-    .row-wrap { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-    .row-start { align-items: flex-start; }
-
-    .pos-relative { position: relative; }
-
-    .card-content { display: flex; flex-direction: column; gap: 4px; }
-    .card-title { margin: 0; font-size: 16px; font-weight: 500; }
-    .card-text { margin: 0; font-size: 14px; }
-    .flex-1 { flex: 1; }
-    .full { width: 100%; height: 100%; }
-    .row-gap-8 { display: flex; gap: 8px; }
-    .row-start-wrap { display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap; }
-    .text-secondary { font-size: 12px; color: var(--fd-text-secondary, #3e5463); }
-
-    .gap-24 { gap: 24px; }
-    .gap-32 { gap: 32px; }
-    .gap-48 { gap: 48px; }
-    .items-center { align-items: center; }
-
-    .section-label { margin: 0 0 12px; font-size: 14px; color: var(--fd-text-secondary, #5b7282); }
-    .mono-label { margin: 0 0 8px; font-size: 13px; font-family: monospace; }
-    .hint { margin: 0 0 4px; font-size: 12px; color: var(--fd-text-secondary, #5b7282); }
-    .main-content { flex: 1; padding: 24px; background: var(--fd-surface-primary, #fff); }
-    .main-content p { margin: 0; color: var(--fd-text-primary, #1c2b36); font-size: 14px; }
-
-    .layout-frame { display: flex; border: 1px solid var(--fd-border-minimal, #dce3e8); border-radius: 8px; overflow: hidden; }
-    .layout-frame-400 { height: 400px; }
-    .layout-frame-500 { height: 500px; }
-    .w-200 { max-width: 200px; }
-    .w-300 { max-width: 300px; }
-    .h-100 { height: 100px; }
-    .h-120 { height: 120px; }
-    .h-180 { max-height: 180px; }
-
-    /* Layout demo utilities */
-    .demo-frame { width: 100%; }
-    .demo-frame-400 { height: 400px; }
-    .demo-frame-500 { height: 500px; }
-    .flex-fill { flex: 1; padding: 0; }
-    .panel-content { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--fd-text-secondary, #5b7282); font-family: Geist, sans-serif; font-size: 16px; font-weight: 500; }
-    .grid-item-cell { border-radius: 6px; display: flex; align-items: center; justify-content: center; font-family: Geist, sans-serif; font-size: 14px; font-weight: 600; height: 100%; user-select: none; }
-    .grid-item-static { background: var(--fd-surface-strong, #5B7282); border: 1px solid var(--fd-border-minimal, #DCE3E8); color: var(--fd-surface-primary, #fff); }
-
-    /* Update notification banner */
-    #update-banner {
-      display: none;
-      position: fixed;
-      bottom: 16px;
-      right: 16px;
-      background: var(--fd-surface-action, #186ade);
-      color: #fff;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-family: Geist, sans-serif;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 9999;
-      align-items: center;
-      gap: 12px;
-    }
-
-    #update-banner.visible {
-      display: flex;
-    }
-
-    #update-banner button {
-      background: rgba(255,255,255,0.2);
-      color: #fff;
-      border: none;
-      padding: 4px 12px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-family: Geist, sans-serif;
-      cursor: pointer;
-    }
-
-    #update-banner button:hover {
-      background: rgba(255,255,255,0.3);
-    }
-    .gap-8 { gap: 8px; }
-    .gap-12 { gap: 12px; }
-    .gap-16 { gap: 16px; }
-    .gap-40 { gap: 40px; }
-    .gap-60 { gap: 60px; }
-    .w-fixed-280 { width: 280px; }
-    .w-fixed-300 { width: 300px; }
-    .w-480 { max-width: 480px; }
-    .w-500 { max-width: 500px; }
-    .min-h-200 { min-height: 200px; }
-    .min-h-220 { min-height: 220px; }
-    .min-h-240 { min-height: 240px; }
-    .min-h-260 { min-height: 260px; }
-    .min-h-320 { min-height: 320px; }
-
-    /* ─── Responsive: Mobile-first breakpoints (aligned with @maneki/foundation) ─── */
-
-    /* Mobile: below 768px (xs + s breakpoints) — component auto-collapses via built-in matchMedia */
-    @media (max-width: 767px) {
-      #content {
-        padding: 16px;
-        padding-top: 60px; /* clear floating hamburger trigger */
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Maneki Design System Catalog</title>
+    <meta
+      name="description"
+      content="Visual catalog for the Maneki design system — foundation tokens, 50 Web Components, and layout primitives."
+    />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <meta name="theme-color" content="#F2F5F7" />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
       }
 
-      #content h2 { font-size: 20px; margin-bottom: 16px; }
-
-      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
-      .matrix-3 { grid-template-columns: 60px repeat(3, 1fr); }
-      .matrix-4 { grid-template-columns: 60px repeat(4, 1fr); font-size: 12px; }
-      .matrix-5 { grid-template-columns: 60px repeat(5, 1fr); font-size: 11px; }
-
-      .variant-row { gap: 12px; }
-      .row-start-wrap { gap: 16px; }
-
-      .w-320, .w-360, .w-400, .w-600, .w-720 { max-width: 100%; }
-
-      .layout-frame { flex-direction: column; }
-      .layout-frame-400, .layout-frame-500 { height: auto; min-height: 300px; }
-    }
-
-    /* Tablet: 768–1023px (m breakpoint) */
-    @media (min-width: 768px) and (max-width: 1023px) {
-      #content {
-        padding: 24px 32px;
+      /* Skip link — visible only on focus for keyboard users */
+      .skip-link {
+        position: absolute;
+        top: -100%;
+        left: 16px;
+        z-index: 9999;
+        padding: 8px 16px;
+        background: #186ade;
+        color: #fff;
+        border-radius: 4px;
+        font-size: 14px;
+        text-decoration: none;
+      }
+      .skip-link:focus {
+        top: 8px;
       }
 
-      .grid-4 { grid-template-columns: repeat(2, 1fr); }
-    }
+      /* Fallback font metrics to minimize CLS during Geist swap */
+      @font-face {
+        font-family: "Geist Fallback";
+        src: local("Arial");
+        size-adjust: 100.5%;
+        ascent-override: 99%;
+        descent-override: 22%;
+        line-gap-override: 0%;
+      }
 
-    /* Touch-friendly: ensure minimum 44px touch targets on touch devices */
-    @media (pointer: coarse) {
-      #sidebar ui-side-panel-menu-item {
-        min-height: 44px;
+      html,
+      body {
+        height: 100%;
+        font-family: Geist, "Geist Fallback", sans-serif;
+        color: var(--fd-text-primary, #1c2b36);
+        background: var(--fd-surface-secondary, #f8f9fa);
+      }
+
+      #app {
+        display: flex;
+        height: 100vh;
+      }
+
+      /* Sidebar — let component manage width via --ui-sp-width */
+      #sidebar {
+        --ui-sp-width: 250px;
+        height: 100vh;
+        overflow-y: auto;
+        scrollbar-width: thin;
       }
       #theme-controls {
-        min-height: 44px;
+        position: fixed;
+        top: 16px;
+        right: 24px;
+        z-index: 50;
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        opacity: 0.4;
+        transition: opacity 0.2s ease;
       }
-    }
 
-  </style>
-</head>
-<body>
-  <a href="#content" class="skip-link">Skip to content</a>
-  <div id="app">
-    <ui-side-panel-menu id="sidebar" state="expanded" no-collapse style="height:100vh">
-      <span slot="header" style="font-weight:500;">Maneki</span>
-    </ui-side-panel-menu>
-    <div id="theme-controls">
-      <select id="theme-select" aria-label="Theme">
-        <option value="default">Default</option>
-        <option value="heroui">HeroUI</option>
-      </select>
-      <button id="theme-toggle" aria-label="Toggle dark mode">☀️</button>
+      #theme-controls:hover,
+      #theme-controls:focus-within {
+        opacity: 1;
+      }
+
+      #theme-select {
+        appearance: none;
+        background: var(--fd-surface-primary, #fff);
+        color: var(--fd-text-primary, #1c2b36);
+        border: 1px solid var(--fd-border-minimal, #dce3e8);
+        border-radius: 6px;
+        padding: 4px 24px 4px 8px;
+        font-size: 12px;
+        font-family: Geist, "Geist Fallback", sans-serif;
+        cursor: pointer;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' fill='none' stroke='%235b7282' stroke-width='1.5'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 6px center;
+      }
+
+      #theme-toggle {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 28px;
+        padding: 8px;
+        border-radius: 8px;
+        color: var(--fd-text-secondary, #3e5463);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+      }
+
+      /* Content */
+      #content-scroll {
+        flex: 1;
+        min-height: 0;
+      }
+
+      #content {
+        min-height: 100%;
+        padding: 32px 40px;
+        background: var(--fd-surface-primary, #fff);
+        transition:
+          opacity 0.15s ease,
+          background-color 0.2s ease;
+      }
+
+      [data-theme="heroui"] #content,
+      [data-theme="heroui-dark"] #content {
+        background: var(--fd-surface-secondary, #f5f5f5);
+      }
+
+      #content.loading {
+        opacity: 0.4;
+      }
+
+      #content h2 {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        color: var(--fd-text-primary, #1c2b36);
+      }
+
+      #content h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 24px 0 12px;
+        color: var(--fd-text-secondary, #3e5463);
+      }
+
+      .variant-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        align-items: flex-start;
+        margin-bottom: 24px;
+      }
+
+      .variant-col {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+      }
+
+      .variant-label {
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--fd-text-secondary, #3e5463);
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+
+      .variant-group {
+        border: 1px solid var(--fd-border-minimal, #dce3e8);
+        border-radius: 4px;
+        padding: 16px;
+        background: var(--fd-surface-primary, #fff);
+        margin-bottom: 16px;
+      }
+
+      /* Page-specific: spacing */
+      .spacing-bar {
+        height: 24px;
+        background: var(--fd-surface-action, #186ade);
+        border-radius: 2px;
+        opacity: 0.6;
+      }
+
+      /* Page-specific: typography */
+      .type-sample {
+        margin-bottom: 8px;
+      }
+
+      /* Elevation samples */
+      .elevation-card {
+        width: 120px;
+        height: 80px;
+        background: var(--fd-surface-primary, #fff);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: var(--fd-text-secondary, #3e5463);
+      }
+
+      /* ─── Reusable layout utilities ─── */
+
+      .stack-s {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .stack-m {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .stack-l {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .w-320 {
+        max-width: 320px;
+      }
+      .w-360 {
+        max-width: 360px;
+      }
+      .w-400 {
+        max-width: 400px;
+      }
+      .w-600 {
+        max-width: 600px;
+      }
+      .w-720 {
+        max-width: 720px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
+
+      .matrix {
+        display: grid;
+        gap: 8px 12px;
+        align-items: center;
+      }
+      .matrix-3 {
+        grid-template-columns: 80px repeat(3, 1fr);
+      }
+      .matrix-4 {
+        grid-template-columns: 80px repeat(4, 1fr);
+      }
+      .matrix-5 {
+        grid-template-columns: 80px repeat(5, 1fr);
+      }
+
+      .row-wrap {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+      }
+      .row-start {
+        align-items: flex-start;
+      }
+
+      .pos-relative {
+        position: relative;
+      }
+
+      .card-content {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .card-title {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 500;
+      }
+      .card-text {
+        margin: 0;
+        font-size: 14px;
+      }
+      .flex-1 {
+        flex: 1;
+      }
+      .full {
+        width: 100%;
+        height: 100%;
+      }
+      .row-gap-8 {
+        display: flex;
+        gap: 8px;
+      }
+      .row-start-wrap {
+        display: flex;
+        align-items: flex-start;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+      .text-secondary {
+        font-size: 12px;
+        color: var(--fd-text-secondary, #3e5463);
+      }
+
+      .gap-24 {
+        gap: 24px;
+      }
+      .gap-32 {
+        gap: 32px;
+      }
+      .gap-48 {
+        gap: 48px;
+      }
+      .items-center {
+        align-items: center;
+      }
+
+      .section-label {
+        margin: 0 0 12px;
+        font-size: 14px;
+        color: var(--fd-text-secondary, #5b7282);
+      }
+      .mono-label {
+        margin: 0 0 8px;
+        font-size: 13px;
+        font-family: monospace;
+      }
+      .hint {
+        margin: 0 0 4px;
+        font-size: 12px;
+        color: var(--fd-text-secondary, #5b7282);
+      }
+      .main-content {
+        flex: 1;
+        padding: 24px;
+        background: var(--fd-surface-primary, #fff);
+      }
+      .main-content p {
+        margin: 0;
+        color: var(--fd-text-primary, #1c2b36);
+        font-size: 14px;
+      }
+
+      .layout-frame {
+        display: flex;
+        border: 1px solid var(--fd-border-minimal, #dce3e8);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .layout-frame-400 {
+        height: 400px;
+      }
+      .layout-frame-500 {
+        height: 500px;
+      }
+      .w-200 {
+        max-width: 200px;
+      }
+      .w-300 {
+        max-width: 300px;
+      }
+      .h-100 {
+        height: 100px;
+      }
+      .h-120 {
+        height: 120px;
+      }
+      .h-180 {
+        max-height: 180px;
+      }
+
+      /* Layout demo utilities */
+      .demo-frame {
+        width: 100%;
+      }
+      .demo-frame-400 {
+        height: 400px;
+      }
+      .demo-frame-500 {
+        height: 500px;
+      }
+      .flex-fill {
+        flex: 1;
+        padding: 0;
+      }
+      .panel-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--fd-text-secondary, #5b7282);
+        font-family: Geist, sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+      }
+      .grid-item-cell {
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: Geist, sans-serif;
+        font-size: 14px;
+        font-weight: 600;
+        height: 100%;
+        user-select: none;
+      }
+      .grid-item-static {
+        background: var(--fd-surface-strong, #5b7282);
+        border: 1px solid var(--fd-border-minimal, #dce3e8);
+        color: var(--fd-surface-primary, #fff);
+      }
+
+      /* Update notification banner */
+      #update-banner {
+        display: none;
+        position: fixed;
+        bottom: 16px;
+        right: 16px;
+        background: var(--fd-surface-action, #186ade);
+        color: #fff;
+        padding: 12px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-family: Geist, sans-serif;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        align-items: center;
+        gap: 12px;
+      }
+
+      #update-banner.visible {
+        display: flex;
+      }
+
+      #update-banner button {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        border: none;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-family: Geist, sans-serif;
+        cursor: pointer;
+      }
+
+      #update-banner button:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+      .gap-8 {
+        gap: 8px;
+      }
+      .gap-12 {
+        gap: 12px;
+      }
+      .gap-16 {
+        gap: 16px;
+      }
+      .gap-40 {
+        gap: 40px;
+      }
+      .gap-60 {
+        gap: 60px;
+      }
+      .w-fixed-280 {
+        width: 280px;
+      }
+      .w-fixed-300 {
+        width: 300px;
+      }
+      .w-480 {
+        max-width: 480px;
+      }
+      .w-500 {
+        max-width: 500px;
+      }
+      .min-h-200 {
+        min-height: 200px;
+      }
+      .min-h-220 {
+        min-height: 220px;
+      }
+      .min-h-240 {
+        min-height: 240px;
+      }
+      .min-h-260 {
+        min-height: 260px;
+      }
+      .min-h-320 {
+        min-height: 320px;
+      }
+
+      /* ─── Responsive: Mobile-first breakpoints (aligned with @maneki/foundation) ─── */
+
+      /* Mobile: below 768px (xs + s breakpoints) — component auto-collapses via built-in matchMedia */
+      @media (max-width: 767px) {
+        #content {
+          padding: 16px;
+          padding-top: 60px; /* clear floating hamburger trigger */
+        }
+
+        #content h2 {
+          font-size: 20px;
+          margin-bottom: 16px;
+        }
+
+        .grid-2,
+        .grid-3,
+        .grid-4 {
+          grid-template-columns: 1fr;
+        }
+        .matrix-3 {
+          grid-template-columns: 60px repeat(3, 1fr);
+        }
+        .matrix-4 {
+          grid-template-columns: 60px repeat(4, 1fr);
+          font-size: 12px;
+        }
+        .matrix-5 {
+          grid-template-columns: 60px repeat(5, 1fr);
+          font-size: 11px;
+        }
+
+        .variant-row {
+          gap: 12px;
+        }
+        .row-start-wrap {
+          gap: 16px;
+        }
+
+        .w-320,
+        .w-360,
+        .w-400,
+        .w-600,
+        .w-720 {
+          max-width: 100%;
+        }
+
+        .layout-frame {
+          flex-direction: column;
+        }
+        .layout-frame-400,
+        .layout-frame-500 {
+          height: auto;
+          min-height: 300px;
+        }
+      }
+
+      /* Tablet: 768–1023px (m breakpoint) */
+      @media (min-width: 768px) and (max-width: 1023px) {
+        #content {
+          padding: 24px 32px;
+        }
+
+        .grid-4 {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      /* Touch-friendly: ensure minimum 44px touch targets on touch devices */
+      @media (pointer: coarse) {
+        #sidebar ui-side-panel-menu-item {
+          min-height: 44px;
+        }
+        #theme-controls {
+          min-height: 44px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="#content" class="skip-link">Skip to content</a>
+    <div id="app">
+      <ui-side-panel-menu id="sidebar" state="expanded" no-collapse style="height: 100vh">
+        <span slot="header" style="font-weight: 500">Maneki</span>
+      </ui-side-panel-menu>
+      <div id="theme-controls">
+        <select id="theme-select" aria-label="Theme">
+          <option value="default">Default</option>
+          <option value="heroui">HeroUI</option>
+        </select>
+        <button id="theme-toggle" aria-label="Toggle dark mode">☀️</button>
+      </div>
+      <ui-scrollbar id="content-scroll" emphasis="minimal">
+        <main id="content" tabindex="0"></main>
+      </ui-scrollbar>
     </div>
-    <ui-scrollbar id="content-scroll" emphasis="minimal">
-      <main id="content" tabindex="0"></main>
-    </ui-scrollbar>
-  </div>
-  <div id="update-banner">
-    <span>A new version is available.</span>
-    <button id="update-btn">Refresh</button>
-  </div>
-  <script type="module" src="/src/main.ts"></script>
-</body>
+    <div id="update-banner">
+      <span>A new version is available.</span>
+      <button id="update-btn">Refresh</button>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

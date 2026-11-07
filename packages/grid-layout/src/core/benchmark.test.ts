@@ -66,7 +66,9 @@ describe("benchmark: compact", () => {
     it(`compact vertical — ${size} items < 16ms avg`, () => {
       const layout = generateLayout(size, cols);
       const result = measure(() => compact(layout, "vertical", cols), iterations);
-      console.log(`  compact(vertical, ${size}): avg=${result.avg.toFixed(3)}ms min=${result.min.toFixed(3)}ms max=${result.max.toFixed(3)}ms`);
+      console.log(
+        `  compact(vertical, ${size}): avg=${result.avg.toFixed(3)}ms min=${result.min.toFixed(3)}ms max=${result.max.toFixed(3)}ms`,
+      );
       // Under 16ms budget (one frame) for up to 500 items
       if (size <= 500) {
         expect(result.avg).toBeLessThan(16);
@@ -76,7 +78,9 @@ describe("benchmark: compact", () => {
     it(`compact horizontal — ${size} items < 16ms avg`, () => {
       const layout = generateLayout(size, cols);
       const result = measure(() => compact(layout, "horizontal", cols), iterations);
-      console.log(`  compact(horizontal, ${size}): avg=${result.avg.toFixed(3)}ms min=${result.min.toFixed(3)}ms max=${result.max.toFixed(3)}ms`);
+      console.log(
+        `  compact(horizontal, ${size}): avg=${result.avg.toFixed(3)}ms min=${result.min.toFixed(3)}ms max=${result.max.toFixed(3)}ms`,
+      );
       if (size <= 500) {
         expect(result.avg).toBeLessThan(16);
       }
@@ -92,7 +96,7 @@ describe("benchmark: compact", () => {
 
   it("compact with pre-cached statics — 500 items", () => {
     const layout = generateLayoutWithStatics(500, cols, 0.1);
-    const statics = layout.filter(l => l.static);
+    const statics = layout.filter((l) => l.static);
     const result = measure(() => compact(layout, "vertical", cols, statics), iterations);
     console.log(`  compact(vertical, 500, cached statics): avg=${result.avg.toFixed(3)}ms`);
     expect(result.avg).toBeLessThan(16);
@@ -111,7 +115,7 @@ describe("benchmark: moveElement", () => {
 
       const result = measure(() => {
         // Clone so each iteration starts fresh
-        const layout = compacted.map(l => ({ ...l }));
+        const layout = compacted.map((l) => ({ ...l }));
         const item = layout[0];
         const newX = Math.min(cols - item.w, item.x + 2);
         const newY = item.y + 2;
@@ -119,7 +123,9 @@ describe("benchmark: moveElement", () => {
         compact(moved, "vertical", cols);
       }, iterations);
 
-      console.log(`  moveElement+compact(${size}): avg=${result.avg.toFixed(3)}ms min=${result.min.toFixed(3)}ms max=${result.max.toFixed(3)}ms`);
+      console.log(
+        `  moveElement+compact(${size}): avg=${result.avg.toFixed(3)}ms min=${result.min.toFixed(3)}ms max=${result.max.toFixed(3)}ms`,
+      );
       if (size <= 250) {
         expect(result.avg).toBeLessThan(16);
       }
@@ -146,7 +152,7 @@ describe("benchmark: rapid drag simulation", () => {
   it("60 consecutive moveElement+compact calls on 200 items < 960ms (16ms each)", () => {
     const cols = 12;
     const baseLayout = compact(generateLayout(200, cols), "vertical", cols);
-    let layout = baseLayout.map(l => ({ ...l }));
+    let layout = baseLayout.map((l) => ({ ...l }));
     const item = layout[0];
 
     const t0 = performance.now();
@@ -165,7 +171,7 @@ describe("benchmark: rapid drag simulation", () => {
   it("60 consecutive moveElement+compact calls on 500 items", () => {
     const cols = 12;
     const baseLayout = compact(generateLayout(500, cols), "vertical", cols);
-    let layout = baseLayout.map(l => ({ ...l }));
+    let layout = baseLayout.map((l) => ({ ...l }));
     const item = layout[0];
 
     const t0 = performance.now();

@@ -67,7 +67,6 @@ const styles = `
 .text-secondary { color: var(--fd-text-secondary, #52525b); }
 `;
 
-
 console.log("Seeding about page...");
 
 await db.execute({

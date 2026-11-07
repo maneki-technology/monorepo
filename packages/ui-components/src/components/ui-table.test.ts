@@ -300,20 +300,22 @@ describe("ui-table-row", () => {
   // ── Observed attributes ───────────────────────────────────────────────────
 
   it("observes header attribute", () => {
-    const observed = (customElements.get("ui-table-row") as unknown as { observedAttributes: string[] }).observedAttributes;
+    const observed = (customElements.get("ui-table-row") as unknown as { observedAttributes: string[] })
+      .observedAttributes;
     expect(observed).toContain("header");
   });
 
   it("observes selected attribute", () => {
-    const observed = (customElements.get("ui-table-row") as unknown as { observedAttributes: string[] }).observedAttributes;
+    const observed = (customElements.get("ui-table-row") as unknown as { observedAttributes: string[] })
+      .observedAttributes;
     expect(observed).toContain("selected");
   });
 
   it("observes disabled attribute", () => {
-    const observed = (customElements.get("ui-table-row") as unknown as { observedAttributes: string[] }).observedAttributes;
+    const observed = (customElements.get("ui-table-row") as unknown as { observedAttributes: string[] })
+      .observedAttributes;
     expect(observed).toContain("disabled");
   });
-
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -452,15 +454,16 @@ describe("ui-table-cell", () => {
   // ── Observed attributes ───────────────────────────────────────────────────
 
   it("observes header attribute", () => {
-    const observed = (customElements.get("ui-table-cell") as unknown as { observedAttributes: string[] }).observedAttributes;
+    const observed = (customElements.get("ui-table-cell") as unknown as { observedAttributes: string[] })
+      .observedAttributes;
     expect(observed).toContain("header");
   });
 
   it("observes align attribute", () => {
-    const observed = (customElements.get("ui-table-cell") as unknown as { observedAttributes: string[] }).observedAttributes;
+    const observed = (customElements.get("ui-table-cell") as unknown as { observedAttributes: string[] })
+      .observedAttributes;
     expect(observed).toContain("align");
   });
-
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════

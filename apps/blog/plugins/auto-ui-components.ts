@@ -54,9 +54,10 @@ export function autoUiComponentsPlugin(): Plugin {
     // Scan directories
     for (const dir of SCAN_DIRS) {
       const absDir = path.resolve(root, dir);
-      const files = dir === "."
-        ? SCAN_ROOT_FILES.map((f) => path.resolve(root, f)).filter((f) => fs.existsSync(f))
-        : scanDir(absDir, SCAN_EXTENSIONS);
+      const files =
+        dir === "."
+          ? SCAN_ROOT_FILES.map((f) => path.resolve(root, f)).filter((f) => fs.existsSync(f))
+          : scanDir(absDir, SCAN_EXTENSIONS);
 
       for (const file of files) {
         const content = fs.readFileSync(file, "utf-8");
@@ -76,13 +77,9 @@ export function autoUiComponentsPlugin(): Plugin {
     const sorted = Array.from(tags).sort();
     const lines = sorted.map((tag) => `import "@maneki/ui-components/components/${tag}.js";`);
 
-    return [
-      `// Auto-detected ${sorted.length} <ui-*> components:`,
-      `// ${sorted.join(", ")}`,
-      "",
-      ...lines,
-      "",
-    ].join("\n");
+    return [`// Auto-detected ${sorted.length} <ui-*> components:`, `// ${sorted.join(", ")}`, "", ...lines, ""].join(
+      "\n",
+    );
   }
 
   return {

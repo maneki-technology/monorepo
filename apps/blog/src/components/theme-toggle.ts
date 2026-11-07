@@ -45,15 +45,21 @@ class ThemeToggle extends HTMLElement {
     this.style.zIndex = "1000";
     this.style.opacity = "0.3";
     this.style.transition = "opacity 0.2s ease, right 0.2s ease";
-    this.addEventListener("mouseleave", () => { this.style.opacity = "0.3"; });
+    this.addEventListener("mouseleave", () => {
+      this.style.opacity = "0.3";
+    });
   }
 
   private _toggle() {
     this._dark = !this._dark;
     document.documentElement.setAttribute("data-theme", this._dark ? "heroui-dark" : "heroui");
-    try { localStorage.setItem("blog-theme", this._dark ? "dark" : "light"); } catch {}
+    try {
+      localStorage.setItem("blog-theme", this._dark ? "dark" : "light");
+    } catch {}
     this._render();
-    this.dispatchEvent(new CustomEvent("theme-change", { detail: { dark: this._dark }, bubbles: true, composed: true }));
+    this.dispatchEvent(
+      new CustomEvent("theme-change", { detail: { dark: this._dark }, bubbles: true, composed: true }),
+    );
   }
 
   private _render() {

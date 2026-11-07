@@ -61,9 +61,7 @@ describe("ui-metric-group", () => {
 
   it("sets title text from attribute", () => {
     el.setAttribute("title", "Revenue Metrics");
-    expect(el.shadowRoot!.querySelector(".title")!.textContent).toBe(
-      "Revenue Metrics",
-    );
+    expect(el.shadowRoot!.querySelector(".title")!.textContent).toBe("Revenue Metrics");
   });
 
   it("clears title text when attribute removed", () => {
@@ -146,9 +144,7 @@ describe("ui-metric-group", () => {
     const Ctor = customElements.get("ui-metric-group") as unknown as {
       observedAttributes: string[];
     };
-    expect(Ctor.observedAttributes).toEqual(
-      expect.arrayContaining(["size", "title"]),
-    );
+    expect(Ctor.observedAttributes).toEqual(expect.arrayContaining(["size", "title"]));
   });
 
   // ── DOM structure ─────────────────────────────────────────────────────────

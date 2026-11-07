@@ -35,16 +35,22 @@ async function getMd(): Promise<MarkdownIt> {
     typographer: true,
   });
 
-  md.use(fromHighlighter(highlighter, {
-    themes: {
-      light: "github-light",
-      dark: "github-dark",
-    },
-    defaultColor: false,
-  }));
+  md.use(
+    fromHighlighter(highlighter, {
+      themes: {
+        light: "github-light",
+        dark: "github-dark",
+      },
+      defaultColor: false,
+    }),
+  );
 
   md.use(anchor, {
-    slugify: (s: string) => s.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, ""),
+    slugify: (s: string) =>
+      s
+        .toLowerCase()
+        .replace(/[^\w]+/g, "-")
+        .replace(/(^-|-$)/g, ""),
     permalink: false,
   });
 

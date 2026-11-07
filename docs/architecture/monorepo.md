@@ -1,6 +1,6 @@
 # Monorepo Architecture
 
-*Snapshot: April 2026*
+_Snapshot: April 2026_
 
 ## Overview
 
@@ -8,17 +8,17 @@ Design system monorepo shipping Web Components, design tokens, and layout primit
 
 ## Toolchain
 
-| Tool | Role | Version |
-|---|---|---|
-| proto | Version pinning (Node, Moon) | `.prototools` |
-| Moon | Task runner, build orchestration | 2.0.4+ |
-| npm workspaces | Package linking | — |
-| Vite | Build (libraries + apps) | 8.x |
-| Vitest | Unit tests (happy-dom) | 4.x |
-| Playwright | Visual regression + a11y tests | — |
-| TypeScript | Strict mode, ES2022, bundler moduleResolution | 5.x |
-| ESLint + Prettier | Linting + formatting | — |
-| husky + lint-staged | Pre-commit: html-validate + stylelint + eslint + prettier | — |
+| Tool                | Role                                                      | Version       |
+| ------------------- | --------------------------------------------------------- | ------------- |
+| proto               | Version pinning (Node, Moon)                              | `.prototools` |
+| Moon                | Task runner, build orchestration                          | 2.0.4+        |
+| npm workspaces      | Package linking                                           | —             |
+| Vite                | Build (libraries + apps)                                  | 8.x           |
+| Vitest              | Unit tests (happy-dom)                                    | 4.x           |
+| Playwright          | Visual regression + a11y tests                            | —             |
+| TypeScript          | Strict mode, ES2022, bundler moduleResolution             | 5.x           |
+| ESLint + Prettier   | Linting + formatting                                      | —             |
+| husky + lint-staged | Pre-commit: html-validate + stylelint + eslint + prettier | —             |
 
 No Webpack, no Lerna, no Turborepo. The stack is intentionally minimal.
 
@@ -43,15 +43,15 @@ Foundation is the root — zero runtime dependencies, pure token generation. The
 
 ### Dependency Details
 
-| Package | Production deps | Notes |
-|---|---|---|
-| foundation | none | Pure TypeScript, zero deps |
-| ui-components | foundation, lit | Lit for new components only |
-| grid-layout | foundation | Zero-dep layout engine |
-| flex-layout | foundation | ui-components is devDep only |
-| charts | foundation | SVG chart components |
-| catalog (app) | all 5 packages | Visual catalog + Playwright tests |
-| blog (app) | foundation, ui-components, grid-layout, hono, @libsql/client, lit, zod, leaflet | Full-stack app |
+| Package       | Production deps                                                                 | Notes                             |
+| ------------- | ------------------------------------------------------------------------------- | --------------------------------- |
+| foundation    | none                                                                            | Pure TypeScript, zero deps        |
+| ui-components | foundation, lit                                                                 | Lit for new components only       |
+| grid-layout   | foundation                                                                      | Zero-dep layout engine            |
+| flex-layout   | foundation                                                                      | ui-components is devDep only      |
+| charts        | foundation                                                                      | SVG chart components              |
+| catalog (app) | all 5 packages                                                                  | Visual catalog + Playwright tests |
+| blog (app)    | foundation, ui-components, grid-layout, hono, @libsql/client, lit, zod, leaflet | Full-stack app                    |
 
 ## Build Orchestration
 
@@ -60,6 +60,7 @@ Moon auto-discovers projects via `apps/*` and `packages/*` globs. Build tasks de
 ### Build Pipeline
 
 Libraries: `vite build && tsc --emitDeclarationOnly` → `dist/`
+
 - Vite builds JS first, then tsc generates `.d.ts` files
 - Order matters: tsc first would have its output wiped by Vite's `emptyOutDir`
 
@@ -67,15 +68,15 @@ Apps: `vite build` → `dist/`
 
 ### Moon Task Dependencies
 
-| Package | Build deps | Effect |
-|---|---|---|
-| foundation | none | Builds first, standalone |
-| ui-components | `^:build` | Waits for foundation |
-| charts | `foundation:build` | Waits for foundation (explicit) |
-| grid-layout | none declared | Builds independently |
-| flex-layout | none declared | Builds independently |
-| catalog | `^:build` | Waits for all npm deps to build |
-| blog | `^:build` | Waits for all npm deps to build |
+| Package       | Build deps         | Effect                          |
+| ------------- | ------------------ | ------------------------------- |
+| foundation    | none               | Builds first, standalone        |
+| ui-components | `^:build`          | Waits for foundation            |
+| charts        | `foundation:build` | Waits for foundation (explicit) |
+| grid-layout   | none declared      | Builds independently            |
+| flex-layout   | none declared      | Builds independently            |
+| catalog       | `^:build`          | Waits for all npm deps to build |
+| blog          | `^:build`          | Waits for all npm deps to build |
 
 ### Dev-Time Resolution
 
@@ -104,6 +105,7 @@ Figma "Foundation UI Kit (Community)" is the source of truth. Tokens are extract
 ### Dark Theme via Data Attribute
 
 Two theme systems coexist:
+
 - Default: `[data-theme="dark"]` on `:root`
 - HeroUI: `[data-theme="heroui"]` / `[data-theme="heroui-dark"]`
 
@@ -115,22 +117,22 @@ Every change gets its own branch (`feat/ui-*`, `fix/*`, `refactor/*`). No direct
 
 ## Testing Strategy
 
-| Layer | Tool | Scope |
-|---|---|---|
-| Unit tests | Vitest + happy-dom | All packages, co-located (`foo.ts` → `foo.test.ts`) |
-| Visual regression | Playwright screenshots | Catalog (55 pages), grid-layout (fixtures) |
-| Accessibility | axe-core via Playwright | Catalog (55 pages) |
-| Type checking | `tsc --noEmit` | Per-package |
-| Linting | ESLint, stylelint, html-validate | Pre-commit hook |
+| Layer             | Tool                             | Scope                                               |
+| ----------------- | -------------------------------- | --------------------------------------------------- |
+| Unit tests        | Vitest + happy-dom               | All packages, co-located (`foo.ts` → `foo.test.ts`) |
+| Visual regression | Playwright screenshots           | Catalog (55 pages), grid-layout (fixtures)          |
+| Accessibility     | axe-core via Playwright          | Catalog (55 pages)                                  |
+| Type checking     | `tsc --noEmit`                   | Per-package                                         |
+| Linting           | ESLint, stylelint, html-validate | Pre-commit hook                                     |
 
 CI runs on PRs (`.github/workflows/test.yml`; browser tests in `catalog-test.yml` and `blog-test.yml`, each only when its app or shared packages change). Deploy workflows for blog and catalog.
 
 ## Deployment
 
-| App | Platform | Strategy |
-|---|---|---|
-| Catalog | Cloudflare Pages | Static site, deploy on PR merge |
-| Blog | Cloudflare Pages + Functions | Static + serverless API, deploy via GitHub Actions `repository_dispatch` |
+| App     | Platform                     | Strategy                                                                 |
+| ------- | ---------------------------- | ------------------------------------------------------------------------ |
+| Catalog | Cloudflare Pages             | Static site, deploy on PR merge                                          |
+| Blog    | Cloudflare Pages + Functions | Static + serverless API, deploy via GitHub Actions `repository_dispatch` |
 
 ## Known Issues
 
@@ -144,4 +146,4 @@ CI runs on PRs (`.github/workflows/test.yml`; browser tests in `catalog-test.yml
 
 ---
 
-*This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records.*
+_This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records._

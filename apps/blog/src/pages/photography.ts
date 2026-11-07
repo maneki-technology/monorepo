@@ -67,8 +67,7 @@ export const photographyRoute: Route = {
   setup: () => {
     const grid = document.getElementById("photo-grid") as (HTMLElement & { setPhotos(p: Photo[]): void }) | null;
     const lightbox = document.getElementById("photo-lightbox") as
-      | (HTMLElement & { open(i: number, p: Photo[]): void })
-      | null;
+      (HTMLElement & { open(i: number, p: Photo[]): void }) | null;
     const filters = document.getElementById("photo-filters");
 
     if (!grid) return;

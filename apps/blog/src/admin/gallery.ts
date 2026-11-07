@@ -156,7 +156,9 @@ export class AdminGallery extends LitElement {
       border-radius: 8px;
       overflow: hidden;
       cursor: pointer;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
       background: var(--fd-surface-primary, #fff);
       position: relative;
     }
@@ -244,7 +246,14 @@ export class AdminGallery extends LitElement {
       min-width: 120px;
     }
 
-    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); z-index: 9999; transition: opacity 0.3s ease; }
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      transition: opacity 0.3s ease;
+    }
   `;
 
   connectedCallback() {
@@ -252,14 +261,18 @@ export class AdminGallery extends LitElement {
     window.addEventListener("theme-change", () => saveThemeToBackend());
     loadAdminState().then((s) => {
       this._activeTab = s.galleryTab;
-      this._fetchAll().then(() => { this._initializing = false; });
+      this._fetchAll().then(() => {
+        this._initializing = false;
+      });
     });
   }
 
   private _showToast(message: string, status: "error" | "warning" | "success" = "error") {
     this._toastMessage = message;
     this._toastStatus = status;
-    setTimeout(() => { this._toastMessage = ""; }, 5000);
+    setTimeout(() => {
+      this._toastMessage = "";
+    }, 5000);
   }
 
   private async _fetchAll() {
@@ -274,7 +287,9 @@ export class AdminGallery extends LitElement {
       if (!res.ok) return;
       const data = await res.json();
       this._photos = data.photos as unknown as Photo[];
-    } catch { this._showToast("Failed to load photos"); }
+    } catch {
+      this._showToast("Failed to load photos");
+    }
   }
 
   private async _fetchAlbums() {
@@ -283,7 +298,9 @@ export class AdminGallery extends LitElement {
       if (!res.ok) return;
       const data = await res.json();
       this._albums = data.albums as unknown as Album[];
-    } catch { this._showToast("Failed to load albums"); }
+    } catch {
+      this._showToast("Failed to load albums");
+    }
   }
 
   private async _fetchTags() {
@@ -292,7 +309,9 @@ export class AdminGallery extends LitElement {
       if (!res.ok) return;
       const data = await res.json();
       this._tags = data.tags as unknown as Tag[];
-    } catch { this._showToast("Failed to load tags"); }
+    } catch {
+      this._showToast("Failed to load tags");
+    }
   }
 
   private async _regenerateThumbnails() {
@@ -307,7 +326,11 @@ export class AdminGallery extends LitElement {
           const thumb = await generateThumbnail(file);
           const thumbForm = new FormData();
           thumbForm.append("file", thumb);
-          const uploadRes = await fetch("/api/images?prefix=thumb", { method: "POST", body: thumbForm, credentials: "same-origin" });
+          const uploadRes = await fetch("/api/images?prefix=thumb", {
+            method: "POST",
+            body: thumbForm,
+            credentials: "same-origin",
+          });
           if (!uploadRes.ok) continue;
           const uploadData = (await uploadRes.json()) as { url: string };
           await fetch(`/api/photos/${photo.id}`, {
@@ -316,10 +339,14 @@ export class AdminGallery extends LitElement {
             credentials: "same-origin",
             body: JSON.stringify({ thumbnail_url: uploadData.url }),
           });
-        } catch { this._showToast(`Failed to regenerate thumbnail for photo #${photo.id}`, "warning"); }
+        } catch {
+          this._showToast(`Failed to regenerate thumbnail for photo #${photo.id}`, "warning");
+        }
       }
       this._saved = true;
-      setTimeout(() => { this._saved = false; }, 2000);
+      setTimeout(() => {
+        this._saved = false;
+      }, 2000);
       await this._fetchPhotos();
     } finally {
       this._regeneratingThumbs = false;
@@ -348,7 +375,9 @@ export class AdminGallery extends LitElement {
         const updated = this._albums.find((a) => a.slug === this._viewingAlbum!.slug);
         if (updated) this._viewingAlbum = updated;
       }
-    } catch { this._showToast("Failed to set album cover"); }
+    } catch {
+      this._showToast("Failed to set album cover");
+    }
     this._loading = false;
   }
 
@@ -360,7 +389,9 @@ export class AdminGallery extends LitElement {
         const data = await res.json();
         this._albumPhotos = data.photos as unknown as Photo[];
       }
-    } catch { this._showToast("Failed to load album photos"); }
+    } catch {
+      this._showToast("Failed to load album photos");
+    }
   }
 
   private async _deleteAlbum(slug: string) {
@@ -371,7 +402,9 @@ export class AdminGallery extends LitElement {
         this._albumPhotos = [];
       }
       await this._fetchAlbums();
-    } catch { this._showToast("Failed to delete album"); }
+    } catch {
+      this._showToast("Failed to delete album");
+    }
   }
 
   private get _filteredPhotos(): Photo[] {
@@ -379,9 +412,7 @@ export class AdminGallery extends LitElement {
     const q = this._searchQuery.toLowerCase();
     return this._photos.filter(
       (p) =>
-        p.title.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q) ||
-        p.url.toLowerCase().includes(q),
+        p.title.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || p.url.toLowerCase().includes(q),
     );
   }
 
@@ -390,43 +421,75 @@ export class AdminGallery extends LitElement {
   render() {
     return html`
       ${this._renderHeader()}
-      ${this._initializing ? html`<loading-bounce></loading-bounce>` : html`
-      <ui-tab-group @tab-change=${this._onTabChange}>
-        <ui-tab-item label="Photos" ?selected=${this._activeTab === "photos"} value="photos"></ui-tab-item>
-        <ui-tab-item label="Albums" ?selected=${this._activeTab === "albums"} value="albums"></ui-tab-item>
-      </ui-tab-group>
-      ${this._renderContent()}
-      `}
+      ${
+        this._initializing
+          ? html`<loading-bounce></loading-bounce>`
+          : html`
+              <ui-tab-group @tab-change=${this._onTabChange}>
+                <ui-tab-item label="Photos" ?selected=${this._activeTab === "photos"} value="photos"></ui-tab-item>
+                <ui-tab-item label="Albums" ?selected=${this._activeTab === "albums"} value="albums"></ui-tab-item>
+              </ui-tab-group>
+              ${this._renderContent()}
+            `
+      }
       <gallery-upload-wizard
         ?open=${this._showUpload}
         .albums=${this._albums}
         .tags=${this._tags}
-        @close=${() => { this._showUpload = false; }}
-        @upload-complete=${() => { this._showUpload = false; this._fetchAll(); }}
+        @close=${() => {
+          this._showUpload = false;
+        }}
+        @upload-complete=${() => {
+          this._showUpload = false;
+          this._fetchAll();
+        }}
         @tags-changed=${() => this._fetchTags()}
-        @show-warning=${(e: CustomEvent) => { this._showToast(e.detail.message, "warning"); }}
+        @show-warning=${(e: CustomEvent) => {
+          this._showToast(e.detail.message, "warning");
+        }}
       ></gallery-upload-wizard>
       <gallery-photo-modal
         .photo=${this._editingPhoto}
         .viewPhoto=${this._viewingPhoto}
         .albums=${this._albums}
         .tags=${this._tags}
-        @close=${() => { this._editingPhoto = null; }}
-        @close-detail=${() => { this._viewingPhoto = null; }}
+        @close=${() => {
+          this._editingPhoto = null;
+        }}
+        @close-detail=${() => {
+          this._viewingPhoto = null;
+        }}
         @edit-from-detail=${(e: CustomEvent) => {
           const p = (e.detail as { photo: Photo }).photo;
           this._viewingPhoto = null;
           this._editingPhoto = { ...p };
         }}
-        @photo-saved=${() => { this._saved = true; setTimeout(() => { this._saved = false; }, 2000); this._fetchPhotos(); }}
-        @photo-deleted=${() => { this._fetchAll(); }}
+        @photo-saved=${() => {
+          this._saved = true;
+          setTimeout(() => {
+            this._saved = false;
+          }, 2000);
+          this._fetchPhotos();
+        }}
+        @photo-deleted=${() => {
+          this._fetchAll();
+        }}
         @tags-changed=${() => this._fetchTags()}
       ></gallery-photo-modal>
       <gallery-album-modal
         .album=${this._editingAlbum}
         .albums=${this._albums}
-        @close=${() => { this._editingAlbum = null; }}
-        @album-saved=${() => { this._editingAlbum = null; this._saved = true; setTimeout(() => { this._saved = false; }, 2000); this._fetchAlbums(); }}
+        @close=${() => {
+          this._editingAlbum = null;
+        }}
+        @album-saved=${() => {
+          this._editingAlbum = null;
+          this._saved = true;
+          setTimeout(() => {
+            this._saved = false;
+          }, 2000);
+          this._fetchAlbums();
+        }}
         @album-deleted=${(e: CustomEvent) => {
           const slug = (e.detail as { slug: string }).slug;
           this._editingAlbum = null;
@@ -437,12 +500,28 @@ export class AdminGallery extends LitElement {
           this._fetchAlbums();
         }}
       ></gallery-album-modal>
-      ${this._toastMessage ? html`<ui-alert class="toast" status=${this._toastStatus} size="s" emphasis="bold" dismissible @dismiss=${() => { this._toastMessage = ""; }}>${this._toastMessage}</ui-alert>` : nothing}
+      ${
+        this._toastMessage
+          ? html`<ui-alert
+              class="toast"
+              status=${this._toastStatus}
+              size="s"
+              emphasis="bold"
+              dismissible
+              @dismiss=${() => {
+                this._toastMessage = "";
+              }}
+              >${this._toastMessage}</ui-alert
+            >`
+          : nothing
+      }
     `;
   }
 
   private _onTabChange(e: Event) {
-    const tab = (e as CustomEvent).detail?.value ?? (e.target as HTMLElement).querySelector("ui-tab-item[selected]")?.getAttribute("value");
+    const tab =
+      (e as CustomEvent).detail?.value ??
+      (e.target as HTMLElement).querySelector("ui-tab-item[selected]")?.getAttribute("value");
     if (tab === "photos" || tab === "albums") {
       this._activeTab = tab;
       setGalleryTab(tab);
@@ -472,11 +551,25 @@ export class AdminGallery extends LitElement {
     const photos = this._filteredPhotos;
     return html`
       <div class="toolbar">
-        <ui-button action="primary" size="s" ?disabled=${this._loading} @click=${() => { this._showUpload = true; }}>
+        <ui-button
+          action="primary"
+          size="s"
+          ?disabled=${this._loading}
+          @click=${() => {
+            this._showUpload = true;
+          }}
+        >
           <ui-icon name="upload" size="s" slot="icon-start"></ui-icon>
           Upload
         </ui-button>
-        <ui-button action="secondary" emphasis="subtle" size="s" ?disabled=${this._loading || this._regeneratingThumbs} status=${this._regeneratingThumbs ? "loading" : "none"} @click=${this._regenerateThumbnails}>
+        <ui-button
+          action="secondary"
+          emphasis="subtle"
+          size="s"
+          ?disabled=${this._loading || this._regeneratingThumbs}
+          status=${this._regeneratingThumbs ? "loading" : "none"}
+          @click=${this._regenerateThumbnails}
+        >
           <ui-icon name="refresh" size="s" slot="icon-start"></ui-icon>
           Regenerate Thumbnails
         </ui-button>
@@ -485,19 +578,19 @@ export class AdminGallery extends LitElement {
           size="s"
           style="max-width:300px;flex:1;"
           .value=${this._searchQuery}
-          @input=${(e: Event) => { this._searchQuery = (e.target as HTMLInputElement).value; }}
+          @input=${(e: Event) => {
+            this._searchQuery = (e.target as HTMLInputElement).value;
+          }}
         ></ui-input>
         <span class="spacer"></span>
         <span class="photo-meta">${this._photos.length} photos</span>
       </div>
       <div class="content">
-        ${photos.length === 0
-          ? html`<div class="empty">No photos yet. Upload some!</div>`
-          : html`
-              <div class="photo-grid">
-                ${photos.map((p) => this._renderPhotoCard(p))}
-              </div>
-            `}
+        ${
+          photos.length === 0
+            ? html`<div class="empty">No photos yet. Upload some!</div>`
+            : html` <div class="photo-grid">${photos.map((p) => this._renderPhotoCard(p))}</div> `
+        }
       </div>
     `;
   }
@@ -510,7 +603,9 @@ export class AdminGallery extends LitElement {
         <div slot="image" class="photo-card-img">
           <ui-image src=${p.thumbnail_url || p.url} alt=${p.title || "Photo"} ${placeholder ? `placeholder="${placeholder}"` : ""} loading="lazy" style="width:100%;--ui-image-height:150px;--ui-image-fit:cover;"></ui-image>
           <div class="photo-card-overlay">
-            <ui-button action="contrast" emphasis="bold" size="s" @click=${() => { this._viewingPhoto = { ...p }; }}>
+            <ui-button action="contrast" emphasis="bold" size="s" @click=${() => {
+              this._viewingPhoto = { ...p };
+            }}>
               <ui-icon name="visibility" size="s" slot="icon-start"></ui-icon>
               Preview
             </ui-button>
@@ -520,17 +615,37 @@ export class AdminGallery extends LitElement {
               <ui-icon name="settings" size="s" slot="icon-start"></ui-icon>
               Edit
             </ui-button>
-            <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._deletePhoto(p.id); }}>
+            <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => {
+              e.stopPropagation();
+              this._deletePhoto(p.id);
+            }}>
               <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
               Delete
             </ui-button>
-            ${this._viewingAlbum ? html`
-              <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._setAlbumCover(p.id); }}>
-                <ui-icon name="image" size="s" slot="icon-start"></ui-icon>
-                Cover
-              </ui-button>
-            ` : nothing}
-            <ui-button action="contrast" emphasis="bold" size="s" ?disabled=${this._reuploadingPhotoId === p.id} status=${this._reuploadingPhotoId === p.id ? "loading" : this._reuploadedPhotoId === p.id ? "success" : "none"} @click=${(e: Event) => { e.stopPropagation(); this._reuploadPhoto(p); }}>
+            ${
+              this._viewingAlbum
+                ? html`
+                    <ui-button
+                      action="contrast"
+                      emphasis="bold"
+                      size="s"
+                      @click=${(e: Event) => {
+                        e.stopPropagation();
+                        this._setAlbumCover(p.id);
+                      }}
+                    >
+                      <ui-icon name="image" size="s" slot="icon-start"></ui-icon>
+                      Cover
+                    </ui-button>
+                  `
+                : nothing
+            }
+            <ui-button action="contrast" emphasis="bold" size="s" ?disabled=${this._reuploadingPhotoId === p.id} status=${this._reuploadingPhotoId === p.id ? "loading" : this._reuploadedPhotoId === p.id ? "success" : "none"} @click=${(
+              e: Event,
+            ) => {
+              e.stopPropagation();
+              this._reuploadPhoto(p);
+            }}>
               <ui-icon name="upload" size="s" slot="icon-start"></ui-icon>
               ${this._reuploadingPhotoId === p.id ? "Uploading..." : this._reuploadedPhotoId === p.id ? "Done" : "Reupload"}
             </ui-button>
@@ -578,7 +693,9 @@ export class AdminGallery extends LitElement {
         });
         if (res.ok) {
           this._reuploadedPhotoId = photo.id;
-          setTimeout(() => { this._reuploadedPhotoId = null; }, 2000);
+          setTimeout(() => {
+            this._reuploadedPhotoId = null;
+          }, 2000);
           await this._fetchPhotos();
         }
       } finally {
@@ -600,9 +717,11 @@ export class AdminGallery extends LitElement {
         <span class="photo-meta">${this._albums.length} albums</span>
       </div>
       <div class="content">
-        ${this._albums.length === 0
-          ? html`<div class="empty">No albums yet. Create one!</div>`
-          : html`<div class="album-list">${this._albums.map((a) => this._renderAlbumCard(a))}</div>`}
+        ${
+          this._albums.length === 0
+            ? html`<div class="empty">No albums yet. Create one!</div>`
+            : html`<div class="album-list">${this._albums.map((a) => this._renderAlbumCard(a))}</div>`
+        }
       </div>
     `;
   }
@@ -615,15 +734,39 @@ export class AdminGallery extends LitElement {
           ${coverPhoto ? html`<ui-image src=${coverPhoto.thumbnail_url || coverPhoto.url} alt=${a.title} ${coverPhoto.thumbhash ? `placeholder="${thumbHashBase64ToDataURL(coverPhoto.thumbhash)}"` : ""} style="width:100%;height:100%;--ui-image-fit:cover;"></ui-image>` : html`<ui-icon name="photo_album" size="l"></ui-icon>`}
         </div>
         <div class="album-card-overlay">
-          <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._viewAlbum(a); }}>
+          <ui-button
+            action="contrast"
+            emphasis="bold"
+            size="s"
+            @click=${(e: Event) => {
+              e.stopPropagation();
+              this._viewAlbum(a);
+            }}
+          >
             <ui-icon name="visibility" size="s" slot="icon-start"></ui-icon>
             View
           </ui-button>
-          <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._editingAlbum = { ...a }; }}>
+          <ui-button
+            action="contrast"
+            emphasis="bold"
+            size="s"
+            @click=${(e: Event) => {
+              e.stopPropagation();
+              this._editingAlbum = { ...a };
+            }}
+          >
             <ui-icon name="settings" size="s" slot="icon-start"></ui-icon>
             Edit
           </ui-button>
-          <ui-button action="contrast" emphasis="bold" size="s" @click=${(e: Event) => { e.stopPropagation(); this._deleteAlbum(a.slug); }}>
+          <ui-button
+            action="contrast"
+            emphasis="bold"
+            size="s"
+            @click=${(e: Event) => {
+              e.stopPropagation();
+              this._deleteAlbum(a.slug);
+            }}
+          >
             <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
             Delete
           </ui-button>
@@ -643,23 +786,39 @@ export class AdminGallery extends LitElement {
     const a = this._viewingAlbum!;
     return html`
       <div class="toolbar">
-        <ui-button action="secondary" emphasis="subtle" size="s" @click=${() => { this._viewingAlbum = null; this._albumPhotos = []; }}>
+        <ui-button
+          action="secondary"
+          emphasis="subtle"
+          size="s"
+          @click=${() => {
+            this._viewingAlbum = null;
+            this._albumPhotos = [];
+          }}
+        >
           <ui-icon name="arrow_back_ios" size="s" slot="icon-start"></ui-icon>
           Back
         </ui-button>
         <span class="album-detail-title">${a.title}</span>
         <span class="spacer"></span>
-        <ui-button action="secondary" emphasis="subtle" size="s" @click=${() => { this._editingAlbum = { ...a }; }}>Edit</ui-button>
-        <ui-button action="destructive" emphasis="minimal" size="s" @click=${() => this._deleteAlbum(a.slug)}>Delete</ui-button>
+        <ui-button
+          action="secondary"
+          emphasis="subtle"
+          size="s"
+          @click=${() => {
+            this._editingAlbum = { ...a };
+          }}
+          >Edit</ui-button
+        >
+        <ui-button action="destructive" emphasis="minimal" size="s" @click=${() => this._deleteAlbum(a.slug)}
+          >Delete</ui-button
+        >
       </div>
       <div class="content">
-        ${this._albumPhotos.length === 0
-          ? html`<div class="empty">No photos in this album yet.</div>`
-          : html`
-            <div class="photo-grid">
-              ${this._albumPhotos.map((p) => this._renderPhotoCard(p))}
-            </div>
-          `}
+        ${
+          this._albumPhotos.length === 0
+            ? html`<div class="empty">No photos in this album yet.</div>`
+            : html` <div class="photo-grid">${this._albumPhotos.map((p) => this._renderPhotoCard(p))}</div> `
+        }
       </div>
     `;
   }

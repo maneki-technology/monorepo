@@ -29,37 +29,37 @@ interface SizePreset {
 
 const SIZE_PRESETS: Record<FlexPanelHeaderSize, SizePreset> = {
   large: {
-    height: spaceVar("4"),        // 32px
+    height: spaceVar("4"), // 32px
     fontSize: "12px",
     fontWeight: "500",
     lineHeight: "16px",
-    paddingLeft: spaceVar("2"),    // 16px
-    paddingRight: spaceVar("1"),   // 8px
-    paddingTop: spaceVar("1"),     // 8px
-    paddingBottom: spaceVar("1"),  // 8px
-    iconSize: spaceVar("2"),       // 16px
+    paddingLeft: spaceVar("2"), // 16px
+    paddingRight: spaceVar("1"), // 8px
+    paddingTop: spaceVar("1"), // 8px
+    paddingBottom: spaceVar("1"), // 8px
+    iconSize: spaceVar("2"), // 16px
   },
   medium: {
-    height: spaceVar("3"),        // 24px
+    height: spaceVar("3"), // 24px
     fontSize: "12px",
     fontWeight: "500",
     lineHeight: "16px",
-    paddingLeft: spaceVar("2"),    // 16px
-    paddingRight: spaceVar("1"),   // 8px
-    paddingTop: spaceVar("0.5"),   // 4px
-    paddingBottom: "3px",          // no exact token
-    iconSize: spaceVar("1.5"),    // 12px
+    paddingLeft: spaceVar("2"), // 16px
+    paddingRight: spaceVar("1"), // 8px
+    paddingTop: spaceVar("0.5"), // 4px
+    paddingBottom: "3px", // no exact token
+    iconSize: spaceVar("1.5"), // 12px
   },
   small: {
-    height: spaceVar("2.5"),      // 20px
+    height: spaceVar("2.5"), // 20px
     fontSize: "11px",
     fontWeight: "500",
     lineHeight: "16px",
-    paddingLeft: spaceVar("2"),    // 16px
-    paddingRight: spaceVar("1"),   // 8px
-    paddingTop: spaceVar("0.25"),  // 2px
+    paddingLeft: spaceVar("2"), // 16px
+    paddingRight: spaceVar("1"), // 8px
+    paddingTop: spaceVar("0.25"), // 2px
     paddingBottom: spaceVar("0.25"), // 2px
-    iconSize: spaceVar("1.5"),    // 12px
+    iconSize: spaceVar("1.5"), // 12px
   },
 };
 

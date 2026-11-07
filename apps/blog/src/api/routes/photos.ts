@@ -269,15 +269,23 @@ export const photos = new Hono<Env>()
     if (!(file instanceof File)) return c.json({ error: "no file provided" }, 400);
 
     // Delete old R2 objects
-    try { await bucket.delete(oldR2Key); } catch { /* ignore */ }
+    try {
+      await bucket.delete(oldR2Key);
+    } catch {
+      /* ignore */
+    }
     if (oldThumbUrl) {
       // Extract R2 key from thumbnail URL
       const thumbKey = oldThumbUrl.split("/").slice(-2).join("/");
-      try { await bucket.delete(thumbKey); } catch { /* ignore */ }
+      try {
+        await bucket.delete(thumbKey);
+      } catch {
+        /* ignore */
+      }
     }
 
     // Upload new main image
-    const filename = `${Date.now().toString(36)}-${(file.name || 'photo').replace(/[^\w.-]/g, "_")}`;
+    const filename = `${Date.now().toString(36)}-${(file.name || "photo").replace(/[^\w.-]/g, "_")}`;
     const newKey = `photos/${filename}`;
     await bucket.put(newKey, await file.arrayBuffer(), {
       httpMetadata: { contentType: file.type, cacheControl: "public, max-age=31536000, immutable" },
@@ -288,7 +296,7 @@ export const photos = new Hono<Env>()
     // Upload thumbnail if provided
     let newThumbUrl = "";
     if (thumbnail instanceof File) {
-      const thumbFilename = `${Date.now().toString(36)}-thumb-${(file.name || 'photo').replace(/[^\w.-]/g, "_")}`;
+      const thumbFilename = `${Date.now().toString(36)}-thumb-${(file.name || "photo").replace(/[^\w.-]/g, "_")}`;
       const thumbKey = `thumb/${thumbFilename}`;
       await bucket.put(thumbKey, await thumbnail.arrayBuffer(), {
         httpMetadata: { contentType: thumbnail.type, cacheControl: "public, max-age=31536000, immutable" },

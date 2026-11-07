@@ -16,15 +16,12 @@ function minifyCssLiterals(): Plugin {
       if (!id.endsWith(".ts") && !id.endsWith(".js")) return null;
       if (!code.includes("/* css */")) return null;
 
-      const result = code.replace(
-        /(\/\* css \*\/\s*`)[\s\S]*?(`)/g,
-        (_match, prefix, suffix) => {
-          const cssStart = _match.indexOf("`") + 1;
-          const cssEnd = _match.lastIndexOf("`");
-          const css = _match.slice(cssStart, cssEnd);
-          return prefix + minifyCss(css) + suffix;
-        },
-      );
+      const result = code.replace(/(\/\* css \*\/\s*`)[\s\S]*?(`)/g, (_match, prefix, suffix) => {
+        const cssStart = _match.indexOf("`") + 1;
+        const cssEnd = _match.lastIndexOf("`");
+        const css = _match.slice(cssStart, cssEnd);
+        return prefix + minifyCss(css) + suffix;
+      });
 
       if (result === code) return null;
       return { code: result, map: null };
@@ -41,7 +38,7 @@ export default defineConfig({
         ...Object.fromEntries(
           readdirSync(resolve(__dirname, "src/components"))
             .filter((f) => f.startsWith("ui-") && f.endsWith(".ts") && !f.includes(".test.") && !f.includes(".styles."))
-            .map((f) => [`components/${f.replace(".ts", "")}`, resolve(__dirname, `src/components/${f}`)])
+            .map((f) => [`components/${f.replace(".ts", "")}`, resolve(__dirname, `src/components/${f}`)]),
         ),
       },
       formats: ["es"],

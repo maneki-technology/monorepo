@@ -126,7 +126,9 @@ describe("ui-calendar-panel", () => {
   it("should dispatch cancel event from cancel button", () => {
     const el = create("show-actions");
     let fired = false;
-    el.addEventListener("cancel", () => { fired = true; });
+    el.addEventListener("cancel", () => {
+      fired = true;
+    });
     const buttons = el.shadowRoot!.querySelectorAll("ui-button");
     const cancelBtn = buttons[0] as HTMLElement;
     cancelBtn.click();
@@ -136,7 +138,9 @@ describe("ui-calendar-panel", () => {
   it("should dispatch confirm event from OK button", () => {
     const el = create("show-actions");
     let fired = false;
-    el.addEventListener("confirm", () => { fired = true; });
+    el.addEventListener("confirm", () => {
+      fired = true;
+    });
     const buttons = el.shadowRoot!.querySelectorAll("ui-button");
     const okBtn = buttons[1] as HTMLElement;
     okBtn.click();
@@ -146,19 +150,25 @@ describe("ui-calendar-panel", () => {
   // ── Composed usage ─────────────────────────────────────────────────────
 
   it("should work with calendar + quicklinks side", () => {
-    const el = create('size="m"', `
+    const el = create(
+      'size="m"',
+      `
       <ui-calendar-quicklinks slot="side" orientation="side"></ui-calendar-quicklinks>
       <ui-calendar value="2024-06-15"></ui-calendar>
-    `);
+    `,
+    );
     expect(el.querySelector("ui-calendar")).toBeTruthy();
     expect(el.querySelector("ui-calendar-quicklinks")).toBeTruthy();
   });
 
   it("should work with calendar + time bottom", () => {
-    const el = create('size="m"', `
+    const el = create(
+      'size="m"',
+      `
       <ui-calendar value="2024-06-15"></ui-calendar>
       <ui-calendar-time slot="bottom" value="14:30"></ui-calendar-time>
-    `);
+    `,
+    );
     expect(el.querySelector("ui-calendar")).toBeTruthy();
     expect(el.querySelector("ui-calendar-time")).toBeTruthy();
   });

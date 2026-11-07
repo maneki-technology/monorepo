@@ -1,9 +1,11 @@
 # PROJECT KNOWLEDGE BASE
 
 ## OVERVIEW
+
 Zero-dependency Web Component grid layout library (`<grid-layout>`, `<grid-item>`, `<responsive-grid-layout>`) inspired by react-grid-layout. TypeScript, Vite, ~3700 lines. Features: drag/resize, responsive breakpoints, keyboard accessibility (ARIA + keyboard nav), external drag-and-drop, CSS custom properties, lifecycle hooks.
 
 ## STRUCTURE
+
 ```
 @maneki/grid-layout/
 ├── src/
@@ -22,20 +24,22 @@ Zero-dependency Web Component grid layout library (`<grid-layout>`, `<grid-item>
 ```
 
 ## WHERE TO LOOK
-| Task | Location | Notes |
-|------|----------|-------|
-| Add new layout algorithm | `src/core/compact.ts` | Vertical + horizontal compaction live here |
-| Add new event type | `src/core/types.ts` → `GridLayoutEventMap` | Then emit in `grid-layout.ts` |
-| Add CSS customization | Component's `STYLES` const | Use `var(--grid-*, fallback)` pattern |
-| Add lifecycle hook | `src/core/types.ts` (type) → `grid-layout.ts` (field + usage) → `responsive-grid-layout.ts` (forward) |
-| Debug drag/resize | `grid-layout.ts` → `startDrag`/`onDrag`/`endDrag` or `startResize`/`onResize`/`endResize` |
-| Debug keyboard nav | `grid-layout.ts` → `handleKeyDown` (~line 657) | Enter/Space=drag, R=resize, arrows=move |
-| Debug external drop | `grid-layout.ts` → `handleDragEnter`/`handleDragOver`/`handleDragLeave`/`handleDrop` |
-| Responsive breakpoints | `src/core/responsive.ts` | Pure functions, no DOM |
-| Collision detection | `src/core/collision.ts` | AABB overlap check |
-| Accessibility / ARIA | `grid-item.ts` (role, tabindex, aria-grabbed) + `grid-layout.ts` (role, live region, keyboard handlers) |
+
+| Task                     | Location                                                                                                | Notes                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| Add new layout algorithm | `src/core/compact.ts`                                                                                   | Vertical + horizontal compaction live here |
+| Add new event type       | `src/core/types.ts` → `GridLayoutEventMap`                                                              | Then emit in `grid-layout.ts`              |
+| Add CSS customization    | Component's `STYLES` const                                                                              | Use `var(--grid-*, fallback)` pattern      |
+| Add lifecycle hook       | `src/core/types.ts` (type) → `grid-layout.ts` (field + usage) → `responsive-grid-layout.ts` (forward)   |
+| Debug drag/resize        | `grid-layout.ts` → `startDrag`/`onDrag`/`endDrag` or `startResize`/`onResize`/`endResize`               |
+| Debug keyboard nav       | `grid-layout.ts` → `handleKeyDown` (~line 657)                                                          | Enter/Space=drag, R=resize, arrows=move    |
+| Debug external drop      | `grid-layout.ts` → `handleDragEnter`/`handleDragOver`/`handleDragLeave`/`handleDrop`                    |
+| Responsive breakpoints   | `src/core/responsive.ts`                                                                                | Pure functions, no DOM                     |
+| Collision detection      | `src/core/collision.ts`                                                                                 | AABB overlap check                         |
+| Accessibility / ARIA     | `grid-item.ts` (role, tabindex, aria-grabbed) + `grid-layout.ts` (role, live region, keyboard handlers) |
 
 ## CONVENTIONS
+
 - **`@maneki/foundation` is a production dependency.** Components import `colorVar`, `semanticVar` from foundation and use them as CSS custom property fallbacks in the nested `var(--grid-*, ${token})` pattern.
 - **Custom element spec compliance.** Never set attributes in constructors — use `connectedCallback` instead. `GridLayoutElement` sets `role="grid"` and `aria-roledescription` in `connectedCallback` with a guard (`if (!this.hasAttribute("role"))`). Violating this causes `NotSupportedError` when elements are created via `document.createElement` during Lit template cloning.
 - **Shadow DOM everywhere.** All three components use `attachShadow({ mode: "open" })`.
@@ -51,12 +55,14 @@ Zero-dependency Web Component grid layout library (`<grid-layout>`, `<grid-item>
 - **Animation polish.** `prefers-reduced-motion` respected, container height transition suppressed during drag/resize (`[interacting]` attr), placeholder fades via opacity/visibility, `will-change: transform` on placeholder, `no-animation` attribute disables all transitions globally.
 
 ## ANTI-PATTERNS
+
 - **Never suppress types**: no `as any`, `@ts-ignore`, `@ts-expect-error`
 - **Never mutate layout externally**: always go through `grid.layout = ...` setter
 - **Collision resolution uses bounded loop** (max 100 attempts) in `layout-engine.ts` — was previously recursive and caused infinite recursion
 - **Don't inherit components**: `responsive-grid-layout` uses composition (wraps `grid-layout`), not inheritance
 
 ## COMMANDS
+
 ```bash
 npm run dev              # Vite dev server, opens demo.html
 npm run build            # tsc + vite build → dist/index.js (ES module)
@@ -67,6 +73,7 @@ npm run test:visual:update  # regenerate baseline snapshots
 ```
 
 ## NOTES
+
 - Build output: ~44 kB / ~9.9 kB gzip
 - `src/styles/` directory exists but is empty — CSS lives inside component files as template literals
 - `demo.html` uses Vite's HTML entry with `<script type="module">` importing `./src/index.ts` directly

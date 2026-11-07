@@ -15,9 +15,7 @@ describe("moveElement", () => {
   });
 
   it("does not move static items", () => {
-    const layout: LayoutItem[] = [
-      { i: "a", x: 0, y: 0, w: 2, h: 2, static: true },
-    ];
+    const layout: LayoutItem[] = [{ i: "a", x: 0, y: 0, w: 2, h: 2, static: true }];
     const item = layout[0];
     moveElement(layout, item, 5, 5, true, false, "vertical", 12);
     expect(item.x).toBe(0);
@@ -48,9 +46,7 @@ describe("moveElement", () => {
   });
 
   it("short-circuits when position unchanged", () => {
-    const layout: LayoutItem[] = [
-      { i: "a", x: 3, y: 3, w: 1, h: 1 },
-    ];
+    const layout: LayoutItem[] = [{ i: "a", x: 3, y: 3, w: 1, h: 1 }];
     const item = layout[0];
     const result = moveElement(layout, item, 3, 3, true, false, "vertical", 12);
     expect(result).toBe(layout);

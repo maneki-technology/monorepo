@@ -4,23 +4,23 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/catalog/**'
-      - 'packages/ui-components/**'
-      - 'packages/foundation/**'
-      - 'packages/grid-layout/**'
-      - 'packages/flex-layout/**'
-      - 'packages/charts/**'
-      - '.github/workflows/deploy-catalog.yml'
+      - "apps/catalog/**"
+      - "packages/ui-components/**"
+      - "packages/foundation/**"
+      - "packages/grid-layout/**"
+      - "packages/flex-layout/**"
+      - "packages/charts/**"
+      - ".github/workflows/deploy-catalog.yml"
   pull_request:
     branches: [main]
     paths:
-      - 'apps/catalog/**'
-      - 'packages/ui-components/**'
-      - 'packages/foundation/**'
-      - 'packages/grid-layout/**'
-      - 'packages/flex-layout/**'
-      - 'packages/charts/**'
-      - '.github/workflows/deploy-catalog.yml'
+      - "apps/catalog/**"
+      - "packages/ui-components/**"
+      - "packages/foundation/**"
+      - "packages/grid-layout/**"
+      - "packages/flex-layout/**"
+      - "packages/charts/**"
+      - ".github/workflows/deploy-catalog.yml"
 
 # A newer deploy supersedes a running one: each run builds the full site from its
 # commit, and Cloudflare only promotes a finished upload. PR previews group per branch.
@@ -40,8 +40,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22.16.0'
-          cache: 'npm'
+          node-version: "22.16.0"
+          cache: "npm"
 
       - run: npm ci
 

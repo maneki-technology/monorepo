@@ -18,6 +18,7 @@ The blog admin pages use Lit for their page-level components (`<editor-page>`, `
 Specifically: `<editor-page>` (Lit) → `<ui-side-panel-menu>` (vanilla, Shadow DOM) → `<ui-side-panel-menu-section>` (vanilla, Shadow DOM) → `<ui-button @click=...>`. The `@click` binding on the button never fires. Single-level slot projection works fine (e.g., `slot="header"` in the same menu), but double-nested slots break Lit's binding mechanism.
 
 Investigation confirmed:
+
 - Native `addEventListener` on the same button works
 - `getEventListeners()` shows Lit attached zero listeners
 - The vanilla components don't intercept or `stopPropagation` on click events

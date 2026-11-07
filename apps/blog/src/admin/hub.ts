@@ -89,50 +89,52 @@ export class AdminHub extends LitElement {
       <div class="header">
         <span class="title">Admin</span>
       </div>
-      ${this._ready
-        ? html`
-            <div class="content">
-              <div class="grid">
-                <a href="/admin/editor" style="text-decoration:none;color:inherit;">
-                  <ui-card bordered elevation="00" size="s">
-                    <div class="card-body">
-                      <ui-icon name="title" size="m"></ui-icon>
-                      <h2>Editor</h2>
-                      <p>Write and manage blog posts and projects</p>
-                    </div>
-                  </ui-card>
-                </a>
-                <a href="/admin/gallery" style="text-decoration:none;color:inherit;">
-                  <ui-card bordered elevation="00" size="s">
-                    <div class="card-body">
-                      <ui-icon name="image" size="m"></ui-icon>
-                      <h2>Gallery</h2>
-                      <p>Manage photos, albums, and metadata</p>
-                    </div>
-                  </ui-card>
-                </a>
-                <a href="/admin/pages" style="text-decoration:none;color:inherit;">
-                  <ui-card bordered elevation="00" size="s">
-                    <div class="card-body">
-                      <ui-icon name="description" size="m"></ui-icon>
-                      <h2>Pages</h2>
-                      <p>Edit about, resume, and other pages</p>
-                    </div>
-                  </ui-card>
-                </a>
-                <a href="/" target="_blank" style="text-decoration:none;color:inherit;">
-                  <ui-card bordered elevation="00" size="s">
-                    <div class="card-body">
-                      <ui-icon name="share" size="m"></ui-icon>
-                      <h2>View Site</h2>
-                      <p>Open the live blog in a new tab</p>
-                    </div>
-                  </ui-card>
-                </a>
+      ${
+        this._ready
+          ? html`
+              <div class="content">
+                <div class="grid">
+                  <a href="/admin/editor" style="text-decoration:none;color:inherit;">
+                    <ui-card bordered elevation="00" size="s">
+                      <div class="card-body">
+                        <ui-icon name="title" size="m"></ui-icon>
+                        <h2>Editor</h2>
+                        <p>Write and manage blog posts and projects</p>
+                      </div>
+                    </ui-card>
+                  </a>
+                  <a href="/admin/gallery" style="text-decoration:none;color:inherit;">
+                    <ui-card bordered elevation="00" size="s">
+                      <div class="card-body">
+                        <ui-icon name="image" size="m"></ui-icon>
+                        <h2>Gallery</h2>
+                        <p>Manage photos, albums, and metadata</p>
+                      </div>
+                    </ui-card>
+                  </a>
+                  <a href="/admin/pages" style="text-decoration:none;color:inherit;">
+                    <ui-card bordered elevation="00" size="s">
+                      <div class="card-body">
+                        <ui-icon name="description" size="m"></ui-icon>
+                        <h2>Pages</h2>
+                        <p>Edit about, resume, and other pages</p>
+                      </div>
+                    </ui-card>
+                  </a>
+                  <a href="/" target="_blank" style="text-decoration:none;color:inherit;">
+                    <ui-card bordered elevation="00" size="s">
+                      <div class="card-body">
+                        <ui-icon name="share" size="m"></ui-icon>
+                        <h2>View Site</h2>
+                        <p>Open the live blog in a new tab</p>
+                      </div>
+                    </ui-card>
+                  </a>
+                </div>
               </div>
-            </div>
-          `
-        : html`<loading-bounce></loading-bounce>`}
+            `
+          : html`<loading-bounce></loading-bounce>`
+      }
     `;
   }
 }

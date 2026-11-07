@@ -131,7 +131,6 @@ describe("ui-datetime-picker-input", () => {
       expect(el.status).toBe("error");
     });
 
-
     it("get/set supportive", () => {
       el.supportive = "Helper text";
       expect(el.supportive).toBe("Helper text");

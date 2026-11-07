@@ -113,10 +113,10 @@ export interface GridResizeEvent {
 export type GridLayoutEventMap = {
   "layout-change": CustomEvent<{ layout: Layout }>;
   "drag-start": CustomEvent<GridDragEvent>;
-  "drag": CustomEvent<GridDragEvent>;
+  drag: CustomEvent<GridDragEvent>;
   "drag-stop": CustomEvent<GridDragEvent>;
   "resize-start": CustomEvent<GridResizeEvent>;
-  "resize": CustomEvent<GridResizeEvent>;
+  resize: CustomEvent<GridResizeEvent>;
   "resize-stop": CustomEvent<GridResizeEvent>;
   "external-drop": CustomEvent<ExternalDropEvent>;
 };
@@ -139,19 +139,12 @@ export interface ExternalDropEvent {
 /**
  * Called before drag starts. Return false to cancel.
  */
-export type BeforeDragStartHook = (
-  item: LayoutItem,
-  event: PointerEvent
-) => boolean | void;
+export type BeforeDragStartHook = (item: LayoutItem, event: PointerEvent) => boolean | void;
 
 /**
  * Called before resize starts. Return false to cancel.
  */
-export type BeforeResizeStartHook = (
-  item: LayoutItem,
-  axis: ResizeHandleAxis,
-  event: PointerEvent
-) => boolean | void;
+export type BeforeResizeStartHook = (item: LayoutItem, axis: ResizeHandleAxis, event: PointerEvent) => boolean | void;
 
 /**
  * Called before a layout change is applied. Return a modified layout
@@ -160,7 +153,7 @@ export type BeforeResizeStartHook = (
 export type LayoutChangeFilter = (
   newLayout: Layout,
   oldLayout: Layout,
-  changeSource: "drag" | "resize" | "compact" | "set"
+  changeSource: "drag" | "resize" | "compact" | "set",
 ) => Layout | false;
 
 /**
@@ -171,5 +164,5 @@ export type AfterDropHook = (
   item: LayoutItem,
   layout: Layout,
   oldLayout: Layout,
-  event: PointerEvent
+  event: PointerEvent,
 ) => boolean | void;

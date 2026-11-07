@@ -58,16 +58,16 @@ export class EditorSidebar extends LitElement {
             size="s"
             icon="icon-only"
             aria-label="New Post"
-            @click=${() => this.dispatchEvent(new CustomEvent('new-post', { bubbles: true, composed: true }))}
+            @click=${() => this.dispatchEvent(new CustomEvent("new-post", { bubbles: true, composed: true }))}
             ><ui-icon name="add" size="s" slot="icon-start"></ui-icon
           ></ui-button>
         </span>
       </ui-side-panel-menu-section>
-        ${repeat(
-          s.allPosts,
-          (p) => p.slug,
-          (post) => this.renderPostItem(post),
-        )}
+      ${repeat(
+        s.allPosts,
+        (p) => p.slug,
+        (post) => this.renderPostItem(post),
+      )}
       <ui-side-panel-menu-section separator>
         <span style="display:flex;align-items:center;justify-content:space-between;width:100%;">
           Projects
@@ -78,16 +78,16 @@ export class EditorSidebar extends LitElement {
             size="s"
             icon="icon-only"
             aria-label="New Project"
-            @click=${() => this.dispatchEvent(new CustomEvent('new-project', { bubbles: true, composed: true }))}
+            @click=${() => this.dispatchEvent(new CustomEvent("new-project", { bubbles: true, composed: true }))}
             ><ui-icon name="add" size="s" slot="icon-start"></ui-icon
           ></ui-button>
         </span>
       </ui-side-panel-menu-section>
-        ${repeat(
-          s.allProjects,
-          (p) => p.slug,
-          (project) => this.renderProjectItem(project),
-        )}
+      ${repeat(
+        s.allProjects,
+        (p) => p.slug,
+        (project) => this.renderProjectItem(project),
+      )}
       ${this.renderBulkBar()}
     `;
   }
@@ -129,18 +129,14 @@ export class EditorSidebar extends LitElement {
           @change=${(e: Event) => this.handleCheckboxChange(e, post.slug)}
         ></ui-checkbox-item>
         <span style="display:flex;flex-direction:column;gap:2px;overflow:hidden;">
-          <span class="sidebar-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
-            >${title}</span
-          >
+          <span class="sidebar-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${title}</span>
           <span
             class="sidebar-meta"
             style="font-size:11px;color:var(--fd-text-secondary, #52525b);display:flex;align-items:center;gap:6px;"
           >
             ${post.date}
             <ui-badge size="xs" status=${badgeStatus}>${badgeLabel}</ui-badge>
-            ${deploying
-              ? html`<ui-icon name="progress_activity" size="xs" class="deploy-spinner"></ui-icon>`
-              : nothing}
+            ${deploying ? html`<ui-icon name="progress_activity" size="xs" class="deploy-spinner"></ui-icon>` : nothing}
           </span>
         </span>
         <ui-button
@@ -197,9 +193,7 @@ export class EditorSidebar extends LitElement {
           @change=${(e: Event) => this.handleCheckboxChange(e, project.slug)}
         ></ui-checkbox-item>
         <span style="display:flex;flex-direction:column;gap:2px;overflow:hidden;">
-          <span class="sidebar-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"
-            >${title}</span
-          >
+          <span class="sidebar-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${title}</span>
           <span
             class="sidebar-meta"
             style="font-size:11px;color:var(--fd-text-secondary, #52525b);display:flex;align-items:center;gap:6px;"
@@ -270,12 +264,7 @@ export class EditorSidebar extends LitElement {
               status=${this._bulkPublishStatus}
               @click=${() => this.handleBulkPublish(isProject)}
             >
-              <ui-icon
-                name="send"
-                size="s"
-                slot="icon-start"
-                style="--ui-icon-color: var(--fd-icon-action)"
-              ></ui-icon>
+              <ui-icon name="send" size="s" slot="icon-start" style="--ui-icon-color: var(--fd-icon-action)"></ui-icon>
             </ui-button>
             <ui-button
               action="secondary"
@@ -293,7 +282,6 @@ export class EditorSidebar extends LitElement {
       </div>
     `;
   }
-
 
   // ─── Event handlers ──────────────────────────────────────────────────────────
 
@@ -369,7 +357,9 @@ export class EditorSidebar extends LitElement {
       }
     } catch {
       this._bulkDeleteStatus = "error";
-      setTimeout(() => { this._bulkDeleteStatus = "none"; }, 2000);
+      setTimeout(() => {
+        this._bulkDeleteStatus = "none";
+      }, 2000);
     }
   }
 
@@ -398,7 +388,9 @@ export class EditorSidebar extends LitElement {
       this.pollDeployStatus();
     } catch {
       this._bulkPublishStatus = "error";
-      setTimeout(() => { this._bulkPublishStatus = "none"; }, 2000);
+      setTimeout(() => {
+        this._bulkPublishStatus = "none";
+      }, 2000);
     }
   }
 
@@ -421,7 +413,9 @@ export class EditorSidebar extends LitElement {
       this.pollDeployStatus();
     } catch {
       this._bulkUnpublishStatus = "error";
-      setTimeout(() => { this._bulkUnpublishStatus = "none"; }, 2000);
+      setTimeout(() => {
+        this._bulkUnpublishStatus = "none";
+      }, 2000);
     }
   }
 

@@ -11,19 +11,9 @@
  *   ></chart-scatter>
  */
 
-import {
-  TEXT_PRIMARY,
-  SURFACE_PRIMARY,
-  FONT_PRIMARY,
-  TYPE_HEADING_06,
-  TYPE_BODY_03,
-} from "@maneki/foundation";
+import { TEXT_PRIMARY, SURFACE_PRIMARY, FONT_PRIMARY, TYPE_HEADING_06, TYPE_BODY_03 } from "@maneki/foundation";
 
-import type {
-  ScatterDataset,
-  ScatterChartOptions,
-  LegendItem,
-} from "../core/types.js";
+import type { ScatterDataset, ScatterChartOptions, LegendItem } from "../core/types.js";
 import { linearScale } from "../core/scales.js";
 import { renderYGridLines, renderYLabels, renderXGridLines, renderXLabels } from "../core/axis.js";
 import { computeCartesianLayout } from "../core/math.js";
@@ -35,8 +25,15 @@ const VIEWBOX_W = 960;
 const VIEWBOX_H = 960;
 
 const OBSERVED_ATTRS = [
-  "title", "datasets", "show-grid", "show-legend", "show-tooltips",
-  "point-radius", "min-bubble-radius", "max-bubble-radius", "description",
+  "title",
+  "datasets",
+  "show-grid",
+  "show-legend",
+  "show-tooltips",
+  "point-radius",
+  "min-bubble-radius",
+  "max-bubble-radius",
+  "description",
 ] as const;
 
 const STYLES = /* css */ `
@@ -65,7 +62,11 @@ svg { width: 100%; height: auto; display: block; font-family: var(--chart-font, 
 
 function tryParseJSON<T>(v: string | null): T | null {
   if (!v) return null;
-  try { return JSON.parse(v) as T; } catch { return null; }
+  try {
+    return JSON.parse(v) as T;
+  } catch {
+    return null;
+  }
 }
 function boolAttr(el: Element, n: string, d: boolean): boolean {
   if (!el.hasAttribute(n)) return d;
@@ -85,7 +86,9 @@ class ChartScatterElement extends HTMLElement {
   private _tooltip: HTMLDivElement;
   private _renderScheduled = false;
 
-  static get observedAttributes(): readonly string[] { return OBSERVED_ATTRS; }
+  static get observedAttributes(): readonly string[] {
+    return OBSERVED_ATTRS;
+  }
 
   constructor() {
     super();
@@ -102,10 +105,20 @@ class ChartScatterElement extends HTMLElement {
     shadow.appendChild(this._tooltip);
   }
 
-  get datasets(): ScatterDataset[] { return this._datasets; }
-  set datasets(v: ScatterDataset[]) { this._datasets = v; this._scheduleRender(); }
-  get options(): ScatterChartOptions { return this._options; }
-  set options(v: ScatterChartOptions) { this._options = v; this._scheduleRender(); }
+  get datasets(): ScatterDataset[] {
+    return this._datasets;
+  }
+  set datasets(v: ScatterDataset[]) {
+    this._datasets = v;
+    this._scheduleRender();
+  }
+  get options(): ScatterChartOptions {
+    return this._options;
+  }
+  set options(v: ScatterChartOptions) {
+    this._options = v;
+    this._scheduleRender();
+  }
 
   attributeChangedCallback(_: string, o: string | null, n: string | null): void {
     if (o === n) return;
@@ -139,7 +152,10 @@ class ChartScatterElement extends HTMLElement {
   private _scheduleRender(): void {
     if (this._renderScheduled) return;
     this._renderScheduled = true;
-    requestAnimationFrame(() => { this._renderScheduled = false; this._render(); });
+    requestAnimationFrame(() => {
+      this._renderScheduled = false;
+      this._render();
+    });
   }
 
   private _render(): void {
@@ -164,15 +180,20 @@ class ChartScatterElement extends HTMLElement {
 
     const colors = datasets.map((ds, i) => getDatasetColor(i, ds.color));
     const legendItems: LegendItem[] = datasets.map((ds, i) => ({
-      label: ds.label, color: colors[i],
+      label: ds.label,
+      color: colors[i],
     }));
 
     // Detect bubble mode
-    const isBubble = datasets.some(ds => ds.data.some(p => p.r !== undefined && p.r > 0));
+    const isBubble = datasets.some((ds) => ds.data.some((p) => p.r !== undefined && p.r > 0));
 
     // Compute data extents
-    let xMin = Infinity, xMax = -Infinity, yMin = Infinity, yMax = -Infinity;
-    let rMin = Infinity, rMax = -Infinity;
+    let xMin = Infinity,
+      xMax = -Infinity,
+      yMin = Infinity,
+      yMax = -Infinity;
+    let rMin = Infinity,
+      rMax = -Infinity;
     for (const ds of datasets) {
       for (const p of ds.data) {
         if (p.x < xMin) xMin = p.x;
@@ -204,8 +225,14 @@ class ChartScatterElement extends HTMLElement {
       padding: { top: header.height },
     });
 
-    const xScale = linearScale(xMin, xMax, layout.plot.width, { ...opts.xAxis, beginAtZero: opts.xAxis?.beginAtZero ?? false });
-    const yScale = linearScale(yMin, yMax, layout.plot.height, { ...opts.yAxis, beginAtZero: opts.yAxis?.beginAtZero ?? false });
+    const xScale = linearScale(xMin, xMax, layout.plot.width, {
+      ...opts.xAxis,
+      beginAtZero: opts.xAxis?.beginAtZero ?? false,
+    });
+    const yScale = linearScale(yMin, yMax, layout.plot.height, {
+      ...opts.yAxis,
+      beginAtZero: opts.yAxis?.beginAtZero ?? false,
+    });
 
     // Groups
     const gridGroup = document.createElementNS(NS, "g");
@@ -218,14 +245,14 @@ class ChartScatterElement extends HTMLElement {
     // Grid
     if (opts.showGrid !== false) {
       renderYGridLines(gridGroup, yScale.ticks, layout.plot, gridColor);
-      const xPositions = xScale.ticks.map(t => t.position);
+      const xPositions = xScale.ticks.map((t) => t.position);
       renderXGridLines(gridGroup, xPositions, layout.plot, gridColor);
     }
 
     // Axis labels
     renderYLabels(axisGroup, yScale.ticks, layout.plot, textColor);
-    const xPositions = xScale.ticks.map(t => t.position);
-    const xLabels = xScale.ticks.map(t => t.label);
+    const xPositions = xScale.ticks.map((t) => t.position);
+    const xLabels = xScale.ticks.map((t) => t.label);
     renderXLabels(axisGroup, xLabels, xPositions, layout.plot, textColor);
 
     // Points
@@ -245,9 +272,7 @@ class ChartScatterElement extends HTMLElement {
         let r = defaultRadius;
         if (isBubble && pt.r !== undefined) {
           // Scale r linearly between minBR and maxBR
-          r = rMax === rMin
-            ? (minBR + maxBR) / 2
-            : minBR + ((pt.r - rMin) / (rMax - rMin)) * (maxBR - minBR);
+          r = rMax === rMin ? (minBR + maxBR) / 2 : minBR + ((pt.r - rMin) / (rMax - rMin)) * (maxBR - minBR);
         }
 
         const circle = document.createElementNS(NS, "circle");

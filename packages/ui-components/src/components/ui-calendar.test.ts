@@ -152,12 +152,20 @@ describe("ui-calendar", () => {
     it("shows current month and year", () => {
       const now = new Date();
       const months = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December",
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
       ];
-      expect(headerLabel().textContent).toBe(
-        `${months[now.getMonth()]} ${now.getFullYear()}`,
-      );
+      expect(headerLabel().textContent).toBe(`${months[now.getMonth()]} ${now.getFullYear()}`);
     });
 
     it("updates when value changes", async () => {
@@ -215,9 +223,7 @@ describe("ui-calendar", () => {
 
     it("updates the grid cells", () => {
       el.navigateTo(2024, 1); // February 2024
-      const firstInMonth = Array.from(cells()).find(
-        (c) => !c.hasAttribute("data-outside") && c.textContent === "1",
-      );
+      const firstInMonth = Array.from(cells()).find((c) => !c.hasAttribute("data-outside") && c.textContent === "1");
       expect(firstInMonth).toBeTruthy();
     });
   });
@@ -235,18 +241,14 @@ describe("ui-calendar", () => {
       await tick();
       // June 2024 starts on Saturday (index 5 in Mon-based)
       // So cells 0-4 are May days (outside)
-      const outsideCells = Array.from(cells()).filter((c) =>
-        c.hasAttribute("data-outside"),
-      );
+      const outsideCells = Array.from(cells()).filter((c) => c.hasAttribute("data-outside"));
       expect(outsideCells.length).toBeGreaterThan(0);
     });
 
     it("in-month cells do not have data-outside", async () => {
       el.value = "2024-06-15";
       await tick();
-      const inMonthCells = Array.from(cells()).filter(
-        (c) => !c.hasAttribute("data-outside"),
-      );
+      const inMonthCells = Array.from(cells()).filter((c) => !c.hasAttribute("data-outside"));
       // June has 30 days
       expect(inMonthCells.length).toBe(30);
     });
@@ -273,24 +275,18 @@ describe("ui-calendar", () => {
 
   describe("today highlight", () => {
     it("marks today's cell with data-today", () => {
-      const todayCell = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-today"),
-      );
+      const todayCell = Array.from(cells()).find((c) => c.hasAttribute("data-today"));
       expect(todayCell).toBeTruthy();
     });
 
     it("today cell has aria-current='date'", () => {
-      const todayCell = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-today"),
-      );
+      const todayCell = Array.from(cells()).find((c) => c.hasAttribute("data-today"));
       expect(todayCell!.getAttribute("aria-current")).toBe("date");
     });
 
     it("today cell shows correct day number", () => {
       const today = new Date();
-      const todayCell = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-today"),
-      );
+      const todayCell = Array.from(cells()).find((c) => c.hasAttribute("data-today"));
       expect(todayCell!.textContent).toBe(String(today.getDate()));
     });
   });
@@ -301,15 +297,12 @@ describe("ui-calendar", () => {
     it("clicking a day cell sets data-selected", async () => {
       el.navigateTo(2024, 5); // June 2024
       const cell15 = Array.from(cells()).find(
-        (c) =>
-          !c.hasAttribute("data-outside") && c.textContent === "15",
+        (c) => !c.hasAttribute("data-outside") && c.textContent === "15",
       ) as HTMLElement;
       cell15.click();
       await tick();
       // Re-query since grid re-renders
-      const selected = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-selected"),
-      );
+      const selected = Array.from(cells()).find((c) => c.hasAttribute("data-selected"));
       expect(selected).toBeTruthy();
       expect(selected!.textContent).toBe("15");
     });
@@ -317,23 +310,19 @@ describe("ui-calendar", () => {
     it("clicking a day cell sets aria-selected='true'", async () => {
       el.navigateTo(2024, 5);
       const cell10 = Array.from(cells()).find(
-        (c) =>
-          !c.hasAttribute("data-outside") && c.textContent === "10",
+        (c) => !c.hasAttribute("data-outside") && c.textContent === "10",
       ) as HTMLElement;
       cell10.click();
       await tick();
       // Re-query since grid re-renders
-      const selected = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-selected"),
-      );
+      const selected = Array.from(cells()).find((c) => c.hasAttribute("data-selected"));
       expect(selected!.getAttribute("aria-selected")).toBe("true");
     });
 
     it("clicking a day cell updates value attribute", async () => {
       el.navigateTo(2024, 5);
       const cell15 = Array.from(cells()).find(
-        (c) =>
-          !c.hasAttribute("data-outside") && c.textContent === "15",
+        (c) => !c.hasAttribute("data-outside") && c.textContent === "15",
       ) as HTMLElement;
       cell15.click();
       await tick();
@@ -345,8 +334,7 @@ describe("ui-calendar", () => {
       const handler = vi.fn();
       el.addEventListener("change", handler);
       const cell15 = Array.from(cells()).find(
-        (c) =>
-          !c.hasAttribute("data-outside") && c.textContent === "15",
+        (c) => !c.hasAttribute("data-outside") && c.textContent === "15",
       ) as HTMLElement;
       cell15.click();
       expect(handler).toHaveBeenCalledTimes(1);
@@ -367,9 +355,7 @@ describe("ui-calendar", () => {
       ) as HTMLElement;
       cell20.click();
       await tick();
-      const selectedCells = Array.from(cells()).filter((c) =>
-        c.hasAttribute("data-selected"),
-      );
+      const selectedCells = Array.from(cells()).filter((c) => c.hasAttribute("data-selected"));
       expect(selectedCells.length).toBe(1);
       expect(selectedCells[0].textContent).toBe("20");
     });
@@ -381,9 +367,7 @@ describe("ui-calendar", () => {
     it("setting value selects that date", async () => {
       el.value = "2024-03-15";
       await tick();
-      const selected = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-selected"),
-      );
+      const selected = Array.from(cells()).find((c) => c.hasAttribute("data-selected"));
       expect(selected).toBeTruthy();
       expect(selected!.textContent).toBe("15");
     });
@@ -399,9 +383,7 @@ describe("ui-calendar", () => {
       await tick();
       el.removeAttribute("value");
       await tick();
-      const selected = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-selected"),
-      );
+      const selected = Array.from(cells()).find((c) => c.hasAttribute("data-selected"));
       expect(selected).toBeUndefined();
     });
   });
@@ -413,10 +395,7 @@ describe("ui-calendar", () => {
       el.value = "2024-06-15";
       el.min = "2024-06-10";
       await tick();
-      const cell5 = Array.from(cells()).find(
-        (c) =>
-          !c.hasAttribute("data-outside") && c.textContent === "5",
-      );
+      const cell5 = Array.from(cells()).find((c) => !c.hasAttribute("data-outside") && c.textContent === "5");
       expect(cell5!.hasAttribute("data-disabled")).toBe(true);
     });
 
@@ -424,10 +403,7 @@ describe("ui-calendar", () => {
       el.value = "2024-06-15";
       el.max = "2024-06-20";
       await tick();
-      const cell25 = Array.from(cells()).find(
-        (c) =>
-          !c.hasAttribute("data-outside") && c.textContent === "25",
-      );
+      const cell25 = Array.from(cells()).find((c) => !c.hasAttribute("data-outside") && c.textContent === "25");
       expect(cell25!.hasAttribute("data-disabled")).toBe(true);
     });
 
@@ -435,10 +411,7 @@ describe("ui-calendar", () => {
       el.value = "2024-06-15";
       el.min = "2024-06-10";
       await tick();
-      const cell5 = Array.from(cells()).find(
-        (c) =>
-          !c.hasAttribute("data-outside") && c.textContent === "5",
-      );
+      const cell5 = Array.from(cells()).find((c) => !c.hasAttribute("data-outside") && c.textContent === "5");
       expect(cell5!.getAttribute("aria-disabled")).toBe("true");
     });
 
@@ -449,8 +422,7 @@ describe("ui-calendar", () => {
       const handler = vi.fn();
       el.addEventListener("change", handler);
       const cell5 = Array.from(cells()).find(
-        (c) =>
-          !c.hasAttribute("data-outside") && c.textContent === "5",
+        (c) => !c.hasAttribute("data-outside") && c.textContent === "5",
       ) as HTMLElement;
       cell5.click();
       expect(handler).not.toHaveBeenCalled();
@@ -462,10 +434,7 @@ describe("ui-calendar", () => {
       el.min = "2024-06-10";
       el.max = "2024-06-20";
       await tick();
-      const cell15 = Array.from(cells()).find(
-        (c) =>
-          !c.hasAttribute("data-outside") && c.textContent === "15",
-      );
+      const cell15 = Array.from(cells()).find((c) => !c.hasAttribute("data-outside") && c.textContent === "15");
       expect(cell15!.hasAttribute("data-disabled")).toBe(false);
     });
   });
@@ -476,9 +445,7 @@ describe("ui-calendar", () => {
     it("clicking outside-month cell selects it and navigates", async () => {
       el.navigateTo(2024, 5); // June 2024
       // First cell should be a May day (outside)
-      const outsideCell = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-outside"),
-      ) as HTMLElement;
+      const outsideCell = Array.from(cells()).find((c) => c.hasAttribute("data-outside")) as HTMLElement;
       expect(outsideCell).toBeTruthy();
       outsideCell.click();
       await tick();
@@ -517,16 +484,12 @@ describe("ui-calendar", () => {
 
   describe("tabindex", () => {
     it("today gets tabindex='0' when no selection", () => {
-      const todayCell = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-today"),
-      );
+      const todayCell = Array.from(cells()).find((c) => c.hasAttribute("data-today"));
       expect(todayCell!.getAttribute("tabindex")).toBe("0");
     });
 
     it("non-today cells get tabindex='-1' when no selection", () => {
-      const nonTodayCells = Array.from(cells()).filter(
-        (c) => !c.hasAttribute("data-today"),
-      );
+      const nonTodayCells = Array.from(cells()).filter((c) => !c.hasAttribute("data-today"));
       for (const cell of nonTodayCells) {
         expect(cell.getAttribute("tabindex")).toBe("-1");
       }
@@ -535,9 +498,7 @@ describe("ui-calendar", () => {
     it("selected cell gets tabindex='0'", async () => {
       el.value = "2024-06-15";
       await tick();
-      const selected = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-selected"),
-      );
+      const selected = Array.from(cells()).find((c) => c.hasAttribute("data-selected"));
       expect(selected!.getAttribute("tabindex")).toBe("0");
     });
   });
@@ -548,9 +509,7 @@ describe("ui-calendar", () => {
     it("February 2024 leap year has 29 days", async () => {
       el.value = "2024-02-15";
       await tick();
-      const inMonthCells = Array.from(cells()).filter(
-        (c) => !c.hasAttribute("data-outside"),
-      );
+      const inMonthCells = Array.from(cells()).filter((c) => !c.hasAttribute("data-outside"));
       expect(inMonthCells.length).toBe(29);
       const cell29 = inMonthCells.find((c) => c.textContent === "29");
       expect(cell29).toBeTruthy();
@@ -559,9 +518,7 @@ describe("ui-calendar", () => {
     it("February 2023 non-leap year has 28 days", async () => {
       el.value = "2023-02-15";
       await tick();
-      const inMonthCells = Array.from(cells()).filter(
-        (c) => !c.hasAttribute("data-outside"),
-      );
+      const inMonthCells = Array.from(cells()).filter((c) => !c.hasAttribute("data-outside"));
       expect(inMonthCells.length).toBe(28);
     });
 
@@ -689,9 +646,7 @@ describe("ui-calendar", () => {
       el.setAttribute("range-start", "2024-06-10");
       el.setAttribute("range-end", "2024-06-20");
       await tick();
-      const startCell = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-range-start"),
-      );
+      const startCell = Array.from(cells()).find((c) => c.hasAttribute("data-range-start"));
       expect(startCell).toBeTruthy();
       expect(startCell!.textContent).toBe("10");
     });
@@ -700,9 +655,7 @@ describe("ui-calendar", () => {
       el.setAttribute("range-start", "2024-06-10");
       el.setAttribute("range-end", "2024-06-20");
       await tick();
-      const endCell = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-range-end"),
-      );
+      const endCell = Array.from(cells()).find((c) => c.hasAttribute("data-range-end"));
       expect(endCell).toBeTruthy();
       expect(endCell!.textContent).toBe("20");
     });
@@ -711,9 +664,7 @@ describe("ui-calendar", () => {
       el.setAttribute("range-start", "2024-06-10");
       el.setAttribute("range-end", "2024-06-20");
       await tick();
-      const inRange = Array.from(cells()).filter((c) =>
-        c.hasAttribute("data-in-range"),
-      );
+      const inRange = Array.from(cells()).filter((c) => c.hasAttribute("data-in-range"));
       // Days 11-19 = 9 cells
       expect(inRange.length).toBe(9);
     });
@@ -722,12 +673,8 @@ describe("ui-calendar", () => {
       el.setAttribute("range-start", "2024-06-10");
       el.setAttribute("range-end", "2024-06-20");
       await tick();
-      const startCell = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-range-start"),
-      );
-      const endCell = Array.from(cells()).find((c) =>
-        c.hasAttribute("data-range-end"),
-      );
+      const startCell = Array.from(cells()).find((c) => c.hasAttribute("data-range-start"));
+      const endCell = Array.from(cells()).find((c) => c.hasAttribute("data-range-end"));
       expect(startCell!.getAttribute("aria-selected")).toBe("true");
       expect(endCell!.getAttribute("aria-selected")).toBe("true");
     });
@@ -810,7 +757,7 @@ describe("ui-calendar", () => {
       const todayMonth = shadow().querySelector(".month-cell[data-today]");
       expect(todayMonth).toBeTruthy();
       expect(todayMonth!.textContent).toBe(
-        ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][new Date().getMonth()]
+        ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][new Date().getMonth()],
       );
     });
 

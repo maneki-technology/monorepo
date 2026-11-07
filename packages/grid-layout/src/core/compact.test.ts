@@ -34,9 +34,7 @@ describe("compact", () => {
   });
 
   it("returns cloned layout when compactType is null", () => {
-    const layout: LayoutItem[] = [
-      { i: "a", x: 0, y: 5, w: 1, h: 1 },
-    ];
+    const layout: LayoutItem[] = [{ i: "a", x: 0, y: 5, w: 1, h: 1 }];
     const result = compact(layout, null, 12);
     expect(result[0].y).toBe(5); // unchanged
     expect(result).not.toBe(layout);
@@ -59,34 +57,26 @@ describe("compact", () => {
 
 describe("correctBounds", () => {
   it("clamps items that overflow columns", () => {
-    const layout: LayoutItem[] = [
-      { i: "a", x: 10, y: 0, w: 4, h: 1 },
-    ];
+    const layout: LayoutItem[] = [{ i: "a", x: 10, y: 0, w: 4, h: 1 }];
     const result = correctBounds(layout, 12);
     expect(result[0].x + result[0].w).toBeLessThanOrEqual(12);
   });
 
   it("clamps width to cols when item is wider than grid", () => {
-    const layout: LayoutItem[] = [
-      { i: "a", x: 0, y: 0, w: 20, h: 1 },
-    ];
+    const layout: LayoutItem[] = [{ i: "a", x: 0, y: 0, w: 20, h: 1 }];
     const result = correctBounds(layout, 6);
     expect(result[0].w).toBe(6);
     expect(result[0].x).toBe(0);
   });
 
   it("fixes negative x", () => {
-    const layout: LayoutItem[] = [
-      { i: "a", x: -3, y: 0, w: 2, h: 1 },
-    ];
+    const layout: LayoutItem[] = [{ i: "a", x: -3, y: 0, w: 2, h: 1 }];
     const result = correctBounds(layout, 12);
     expect(result[0].x).toBe(0);
   });
 
   it("does not mutate original layout", () => {
-    const layout: LayoutItem[] = [
-      { i: "a", x: 15, y: 0, w: 2, h: 1 },
-    ];
+    const layout: LayoutItem[] = [{ i: "a", x: 15, y: 0, w: 2, h: 1 }];
     const original = { ...layout[0] };
     correctBounds(layout, 12);
     expect(layout[0]).toEqual(original);

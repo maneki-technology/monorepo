@@ -355,7 +355,13 @@ describe("ui-badge", () => {
 
   it("is an inline-flex element via :host", () => {
     const shadow = el.shadowRoot!;
-    const styles = shadow.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    const styles = shadow.adoptedStyleSheets
+      .map((s: CSSStyleSheet) =>
+        Array.from(s.cssRules)
+          .map((r: CSSRule) => r.cssText)
+          .join(""),
+      )
+      .join("");
     expect(styles).toContain("display: inline-flex");
   });
 
@@ -375,19 +381,37 @@ describe("ui-badge", () => {
 
   it("CSS contains text-transform: uppercase", () => {
     const shadow = el.shadowRoot!;
-    const styles = shadow.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    const styles = shadow.adoptedStyleSheets
+      .map((s: CSSStyleSheet) =>
+        Array.from(s.cssRules)
+          .map((r: CSSRule) => r.cssText)
+          .join(""),
+      )
+      .join("");
     expect(styles).toContain("text-transform: uppercase");
   });
 
   it("CSS contains font-weight: 500", () => {
     const shadow = el.shadowRoot!;
-    const styles = shadow.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    const styles = shadow.adoptedStyleSheets
+      .map((s: CSSStyleSheet) =>
+        Array.from(s.cssRules)
+          .map((r: CSSRule) => r.cssText)
+          .join(""),
+      )
+      .join("");
     expect(styles).toContain("font-weight: 500");
   });
 
   it("CSS contains white-space: nowrap", () => {
     const shadow = el.shadowRoot!;
-    const styles = shadow.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    const styles = shadow.adoptedStyleSheets
+      .map((s: CSSStyleSheet) =>
+        Array.from(s.cssRules)
+          .map((r: CSSRule) => r.cssText)
+          .join(""),
+      )
+      .join("");
     expect(styles).toContain("white-space: nowrap");
   });
 

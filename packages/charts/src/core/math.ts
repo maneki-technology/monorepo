@@ -13,10 +13,10 @@ import { legendHeight } from "./legend.js";
 
 /** Default padding for cartesian charts. */
 const DEFAULT_PADDING: Padding = {
-  top: 60,    // space for title
+  top: 60, // space for title
   right: 40,
   bottom: 60, // space for x-axis labels
-  left: 80,   // space for y-axis labels
+  left: 80, // space for y-axis labels
 };
 
 /**
@@ -64,9 +64,7 @@ export function computeCartesianLayout(
   const plotTop = legendRegion.y + legendH + (legendH > 0 ? 16 : 0);
 
   // Extra bottom space for rotated labels
-  const rotationExtra = options.labelRotation
-    ? Math.sin((options.labelRotation * Math.PI) / 180) * 50
-    : 0;
+  const rotationExtra = options.labelRotation ? Math.sin((options.labelRotation * Math.PI) / 180) * 50 : 0;
   const bottomSpace = pad.bottom + rotationExtra;
 
   // Plot area

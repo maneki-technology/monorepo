@@ -29,12 +29,7 @@ import {
   TYPE_BODY_03,
 } from "@maneki/foundation";
 
-import type {
-  Dataset,
-  BarChartOptions,
-  LegendItem,
-  ChartEventDetail,
-} from "../core/types.js";
+import type { Dataset, BarChartOptions, LegendItem, ChartEventDetail } from "../core/types.js";
 import { linearScale, categoryScale, dataExtent } from "../core/scales.js";
 import { renderYGridLines, renderYLabels, renderXGridLines, renderXLabels } from "../core/axis.js";
 import { computeCartesianLayout } from "../core/math.js";
@@ -361,14 +356,7 @@ class ChartBarElement extends HTMLElement {
     // Render axis labels ON TOP of bars
     const xPositions = opts.labels.map((_, i) => xScale.scale(i));
     renderYLabels(axisGroup, yScale.ticks, layout.plot, textColor);
-    renderXLabels(
-      axisGroup,
-      opts.labels,
-      xPositions,
-      layout.plot,
-      textColor,
-      opts.labelRotation ?? 0,
-    );
+    renderXLabels(axisGroup, opts.labels, xPositions, layout.plot, textColor, opts.labelRotation ?? 0);
 
     // Render bars
     this._renderBars(barsGroup, datasets, colors, xScale, yScale, layout, opts);

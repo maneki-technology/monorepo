@@ -17,16 +17,36 @@ export class EditorBrainstormPanel extends StreamingChatPanel {
 
   // ── Abstract implementations ──────────────────────────────────────────────
 
-  get panelId(): string { return "brainstorm-panel"; }
-  get panelTitle(): string { return "Brainstorm"; }
-  get toggleEventName(): string { return "brainstorm-panel-toggle"; }
-  get apiEndpoint(): string { return "/api/brainstorm"; }
-  get conversationEndpoint(): string { return "/api/brainstorm-conversations"; }
-  get emptyStateIcon(): string { return "psychology"; }
-  get emptyStateText(): string { return "Brainstorm ideas for your post. Pick a focus area and start a conversation with AI."; }
-  get startButtonText(): string { return "Start Brainstorm"; }
-  get inputPlaceholder(): string { return "Or type a specific question to brainstorm..."; }
-  get errorFallback(): string { return "Brainstorm failed"; }
+  get panelId(): string {
+    return "brainstorm-panel";
+  }
+  get panelTitle(): string {
+    return "Brainstorm";
+  }
+  get toggleEventName(): string {
+    return "brainstorm-panel-toggle";
+  }
+  get apiEndpoint(): string {
+    return "/api/brainstorm";
+  }
+  get conversationEndpoint(): string {
+    return "/api/brainstorm-conversations";
+  }
+  get emptyStateIcon(): string {
+    return "psychology";
+  }
+  get emptyStateText(): string {
+    return "Brainstorm ideas for your post. Pick a focus area and start a conversation with AI.";
+  }
+  get startButtonText(): string {
+    return "Start Brainstorm";
+  }
+  get inputPlaceholder(): string {
+    return "Or type a specific question to brainstorm...";
+  }
+  get errorFallback(): string {
+    return "Brainstorm failed";
+  }
 
   protected _buildRequestBody(history: Array<{ role: string; content: string }>): Record<string, unknown> {
     const postData = this.getPostData?.();

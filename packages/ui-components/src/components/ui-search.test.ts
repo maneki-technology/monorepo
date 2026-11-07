@@ -17,9 +17,7 @@ function makeCategories(query = "fin"): SearchCategory[] {
     },
     {
       label: "COMPANIES",
-      results: [
-        { type: "basic", title: "Generic Finance Inc." },
-      ],
+      results: [{ type: "basic", title: "Generic Finance Inc." }],
     },
     {
       label: "ARTICLES",
@@ -34,15 +32,11 @@ function makeCategories(query = "fin"): SearchCategory[] {
     },
     {
       label: "RECENT",
-      results: [
-        { type: "with-icon", title: "Recent Search Finance Inc.", icon: "search" },
-      ],
+      results: [{ type: "with-icon", title: "Recent Search Finance Inc.", icon: "search" }],
     },
     {
       label: "PEOPLE",
-      results: [
-        { type: "with-avatar", title: "Lorem Financial Corp.", avatarText: "LF" },
-      ],
+      results: [{ type: "with-avatar", title: "Lorem Financial Corp.", avatarText: "LF" }],
     },
   ];
 }
@@ -315,9 +309,7 @@ describe("ui-search", () => {
   // ── Result types ──────────────────────────────────────────────────────────
 
   it("renders basic result with title only", () => {
-    (el as unknown as UiSearch).categories = [
-      { label: "TEST", results: [{ type: "basic", title: "finance" }] },
-    ];
+    (el as unknown as UiSearch).categories = [{ label: "TEST", results: [{ type: "basic", title: "finance" }] }];
     typeInto(el, "fin");
     const item = el.shadowRoot!.querySelector(".result-item")!;
     expect(item.querySelector(".result-title")).not.toBeNull();
@@ -330,9 +322,7 @@ describe("ui-search", () => {
     (el as unknown as UiSearch).categories = [
       {
         label: "TEST",
-        results: [
-          { type: "article", title: "Financial Report", info: "01 Sep 2020", description: "Desc" },
-        ],
+        results: [{ type: "article", title: "Financial Report", info: "01 Sep 2020", description: "Desc" }],
       },
     ];
     typeInto(el, "fin");
@@ -400,9 +390,7 @@ describe("ui-search", () => {
   // ── Text highlight ────────────────────────────────────────────────────────
 
   it("wraps matching text in strong tags", () => {
-    (el as unknown as UiSearch).categories = [
-      { label: "TEST", results: [{ type: "basic", title: "finance" }] },
-    ];
+    (el as unknown as UiSearch).categories = [{ label: "TEST", results: [{ type: "basic", title: "finance" }] }];
     typeInto(el, "fin");
     const title = el.shadowRoot!.querySelector(".result-title")!;
     const strong = title.querySelector("strong");
@@ -411,9 +399,7 @@ describe("ui-search", () => {
   });
 
   it("does not highlight when query does not match", () => {
-    (el as unknown as UiSearch).categories = [
-      { label: "TEST", results: [{ type: "basic", title: "finance" }] },
-    ];
+    (el as unknown as UiSearch).categories = [{ label: "TEST", results: [{ type: "basic", title: "finance" }] }];
     // Set categories and type something that matches for rendering, then check a non-matching item
     typeInto(el, "finance");
     const title = el.shadowRoot!.querySelector(".result-title")!;
@@ -467,9 +453,7 @@ describe("ui-search", () => {
   it("dispatches search-select on result click", () => {
     const handler = vi.fn();
     el.addEventListener("search-select", handler);
-    (el as unknown as UiSearch).categories = [
-      { label: "CAT", results: [{ type: "basic", title: "finance" }] },
-    ];
+    (el as unknown as UiSearch).categories = [{ label: "CAT", results: [{ type: "basic", title: "finance" }] }];
     typeInto(el, "fin");
     const item = el.shadowRoot!.querySelector<HTMLButtonElement>(".result-item")!;
     item.click();
@@ -482,9 +466,7 @@ describe("ui-search", () => {
   it("dispatches search-show-all on SHOW ALL click", () => {
     const handler = vi.fn();
     el.addEventListener("search-show-all", handler);
-    (el as unknown as UiSearch).categories = [
-      { label: "CAT", results: [{ type: "basic", title: "finance" }] },
-    ];
+    (el as unknown as UiSearch).categories = [{ label: "CAT", results: [{ type: "basic", title: "finance" }] }];
     typeInto(el, "fin");
     const showAll = el.shadowRoot!.querySelector<HTMLButtonElement>(".show-all")!;
     showAll.click();
@@ -493,9 +475,7 @@ describe("ui-search", () => {
   });
 
   it("closes dropdown on result select", () => {
-    (el as unknown as UiSearch).categories = [
-      { label: "CAT", results: [{ type: "basic", title: "finance" }] },
-    ];
+    (el as unknown as UiSearch).categories = [{ label: "CAT", results: [{ type: "basic", title: "finance" }] }];
     typeInto(el, "fin");
     expect(el.hasAttribute("open")).toBe(true);
     el.shadowRoot!.querySelector<HTMLButtonElement>(".result-item")!.click();

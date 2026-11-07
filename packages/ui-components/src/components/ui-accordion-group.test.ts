@@ -146,7 +146,7 @@ describe("ui-accordion-group", () => {
         detail: { expanded: true },
         bubbles: true,
         composed: true,
-      })
+      }),
     );
 
     expect(items[0].hasAttribute("expanded")).toBe(true);
@@ -158,7 +158,7 @@ describe("ui-accordion-group", () => {
         detail: { expanded: true },
         bubbles: true,
         composed: true,
-      })
+      }),
     );
 
     // First should be collapsed, second expanded
@@ -180,7 +180,7 @@ describe("ui-accordion-group", () => {
         detail: { expanded: true },
         bubbles: true,
         composed: true,
-      })
+      }),
     );
 
     // Expand second item
@@ -190,7 +190,7 @@ describe("ui-accordion-group", () => {
         detail: { expanded: true },
         bubbles: true,
         composed: true,
-      })
+      }),
     );
 
     // Both should remain expanded

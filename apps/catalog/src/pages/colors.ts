@@ -1,7 +1,21 @@
 import { registerPage } from "../registry.js";
 import { colors } from "@maneki/foundation";
 
-const families = ["red", "orange", "yellow", "lime", "green", "teal", "turquoise", "aqua", "blue", "ultramarine", "purple", "pink", "gray"] as const;
+const families = [
+  "red",
+  "orange",
+  "yellow",
+  "lime",
+  "green",
+  "teal",
+  "turquoise",
+  "aqua",
+  "blue",
+  "ultramarine",
+  "purple",
+  "pink",
+  "gray",
+] as const;
 const steps = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] as const;
 
 registerPage("colors", {

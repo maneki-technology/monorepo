@@ -116,14 +116,12 @@ export class EditorProjectPreview extends LitElement {
       height: 100%;
     }
 
-
     .card-body {
       padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-
 
     .card-title {
       font-size: 16px;
@@ -191,7 +189,6 @@ export class EditorProjectPreview extends LitElement {
     }));
   }
 
-
   private async _onLayoutChange(e: CustomEvent<{ layout: Layout }>): Promise<void> {
     const layout = e.detail.layout;
     // Sort by row (y) then column (x) to derive visual order
@@ -202,10 +199,12 @@ export class EditorProjectPreview extends LitElement {
     // Grid-layout already shows the correct positions
     const orderMap = new Map(slugs.map((s, i) => [s, i]));
     this._projects.sort((a, b) => (orderMap.get(a.slug) ?? 0) - (orderMap.get(b.slug) ?? 0));
-    this._projects.forEach((p, i) => { p.sortOrder = i; });
+    this._projects.forEach((p, i) => {
+      p.sortOrder = i;
+    });
 
     // Sync cached layout so future re-renders don't reset
-    this._layout = layout.map(item => ({ ...item }));
+    this._layout = layout.map((item) => ({ ...item }));
 
     // Update global state
     const updated = [...this._projects];
@@ -261,7 +260,10 @@ export class EditorProjectPreview extends LitElement {
               .compactType=${"horizontal" as const}
               @layout-change=${this._onLayoutChange}
             >
-              ${repeat(this._projects, (p) => p.slug, (project) => html`
+              ${repeat(
+                this._projects,
+                (p) => p.slug,
+                (project) => html`
                   <grid-item item-id=${project.slug} w="1" h="1">
                     <div class="card-wrap">
                       <button
@@ -277,14 +279,16 @@ export class EditorProjectPreview extends LitElement {
                         📌
                       </button>
                       <ui-card size="m" bordered>
-                        ${project.image
-                          ? html`<ui-image
-                              src=${project.image}
-                              alt=${project.title}
-                              slot="image"
-                              style="width:100%;height:180px;--ui-image-fit:cover;"
-                            ></ui-image>`
-                          : nothing}
+                        ${
+                          project.image
+                            ? html`<ui-image
+                                src=${project.image}
+                                alt=${project.title}
+                                slot="image"
+                                style="width:100%;height:180px;--ui-image-fit:cover;"
+                              ></ui-image>`
+                            : nothing
+                        }
                         <div class="card-body">
                           <span class="card-title">${project.title || "Untitled"}</span>
                           <p class="description">${project.description}</p>
@@ -296,7 +300,9 @@ export class EditorProjectPreview extends LitElement {
                               .map((t: string) => html`<ui-badge size="s" emphasis="subtle">${t}</ui-badge>`)}
                           </div>
                           <div class="status">
-                            <ui-badge size="s" status=${project.status === "published" ? "success" : "warning"}>${project.status}</ui-badge>
+                            <ui-badge size="s" status=${project.status === "published" ? "success" : "warning"}
+                              >${project.status}</ui-badge
+                            >
                           </div>
                         </div>
                       </ui-card>

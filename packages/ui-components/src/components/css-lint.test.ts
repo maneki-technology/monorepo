@@ -58,15 +58,18 @@ function findDuplicateCssProperties(css: string): { line: number; property: stri
 }
 
 describe("CSS duplicate property lint", () => {
-  const files = readdirSync(COMPONENTS_DIR)
-    .filter((f: string) => f.endsWith(".ts") && !f.endsWith(".test.ts") && !f.endsWith(".stories.ts"));
+  const files = readdirSync(COMPONENTS_DIR).filter(
+    (f: string) => f.endsWith(".ts") && !f.endsWith(".test.ts") && !f.endsWith(".stories.ts"),
+  );
 
   for (const file of files) {
     it(`${file} has no duplicate consecutive CSS properties`, () => {
       const content = readFileSync(join(COMPONENTS_DIR, file), "utf-8");
 
       // Extract template literal content from STYLES / *_STYLES constants
-      const styleMatches = content.matchAll(/(?:const\s+\w*STYLES?\w*\s*=\s*\/\*\s*css\s*\*\/\s*`|const\s+STYLES\s*=\s*`)([\s\S]*?)`/g);
+      const styleMatches = content.matchAll(
+        /(?:const\s+\w*STYLES?\w*\s*=\s*\/\*\s*css\s*\*\/\s*`|const\s+STYLES\s*=\s*`)([\s\S]*?)`/g,
+      );
 
       for (const match of styleMatches) {
         const css = match[1];
@@ -76,9 +79,7 @@ describe("CSS duplicate property lint", () => {
           const messages = duplicates.map(
             (d) => `  Line ~${d.line}: "${d.property}" declared twice:\n    ${d.first}\n    ${d.second}`,
           );
-          expect.fail(
-            `${file} has ${duplicates.length} duplicate CSS property(ies):\n${messages.join("\n")}`,
-          );
+          expect.fail(`${file} has ${duplicates.length} duplicate CSS property(ies):\n${messages.join("\n")}`);
         }
       }
     });

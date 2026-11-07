@@ -28,19 +28,14 @@ export const DEFAULT_COLS: Record<string, number> = {
  * Sort breakpoint names by their pixel value, ascending.
  */
 export function sortBreakpoints<B extends string>(breakpoints: Breakpoints<B>): B[] {
-  return (Object.keys(breakpoints) as B[]).sort(
-    (a, b) => breakpoints[a] - breakpoints[b]
-  );
+  return (Object.keys(breakpoints) as B[]).sort((a, b) => breakpoints[a] - breakpoints[b]);
 }
 
 /**
  * Get the current breakpoint based on container width.
  * Returns the highest breakpoint where width >= breakpoint value.
  */
-export function getBreakpointFromWidth<B extends string>(
-  breakpoints: Breakpoints<B>,
-  width: number
-): B {
+export function getBreakpointFromWidth<B extends string>(breakpoints: Breakpoints<B>, width: number): B {
   const sorted = sortBreakpoints(breakpoints);
   let result = sorted[0];
   for (const bp of sorted) {
@@ -61,7 +56,7 @@ export function findOrGenerateResponsiveLayout<B extends string>(
   breakpoints: Breakpoints<B>,
   breakpoint: B,
   cols: number,
-  compactType: CompactType
+  compactType: CompactType,
 ): Layout {
   // If layout exists for this breakpoint, use it
   if (layouts[breakpoint]) {
@@ -100,9 +95,6 @@ export function findOrGenerateResponsiveLayout<B extends string>(
 /**
  * Get the column count for a given breakpoint.
  */
-export function getColsFromBreakpoint<B extends string>(
-  breakpoint: B,
-  cols: Record<B, number>
-): number {
+export function getColsFromBreakpoint<B extends string>(breakpoint: B, cols: Record<B, number>): number {
   return cols[breakpoint];
 }

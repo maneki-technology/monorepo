@@ -159,7 +159,11 @@ class PhotoGrid extends HTMLElement {
 
       let placeholder = "";
       if (photo.thumbhash) {
-        try { placeholder = thumbHashBase64ToDataURL(photo.thumbhash); } catch { /* ignore */ }
+        try {
+          placeholder = thumbHashBase64ToDataURL(photo.thumbhash);
+        } catch {
+          /* ignore */
+        }
       }
 
       const uiImage = document.createElement("ui-image");
@@ -173,8 +177,9 @@ class PhotoGrid extends HTMLElement {
       // EXIF caption
       const exif = photo.exif || {};
       const parts: string[] = [];
-      if (exif.Make || exif.Model) parts.push(String(exif.Make && exif.Model ? `${exif.Make} ${exif.Model}` : exif.Make || exif.Model));
-      if (exif.FocalLength) parts.push(`${String(exif.FocalLength).replace(/\s*mm$/i, '')} mm`);
+      if (exif.Make || exif.Model)
+        parts.push(String(exif.Make && exif.Model ? `${exif.Make} ${exif.Model}` : exif.Make || exif.Model));
+      if (exif.FocalLength) parts.push(`${String(exif.FocalLength).replace(/\s*mm$/i, "")} mm`);
       if (exif.FNumber != null) parts.push(`ƒ/${String(exif.FNumber).replace(/^f\//, "")}`);
       if (exif.ExposureTime) parts.push(`${exif.ExposureTime}s`);
       if (exif.ISO) parts.push(`ISO ${exif.ISO}`);
@@ -205,26 +210,28 @@ class PhotoGrid extends HTMLElement {
 
   private _observeForPreload(): void {
     this._preloadObserver?.disconnect();
-    this._preloadObserver = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        const idx = Number((entry.target as HTMLElement).dataset.index);
-        const photo = this._photos[idx];
-        if (!photo || !photo.thumbnailUrl || photo.thumbnailUrl === photo.url) continue;
-        // Preload full-size in background
-        const img = new Image();
-        img.src = photo.url;
-        // Stop observing once triggered
-        this._preloadObserver!.unobserve(entry.target);
-      }
-    }, { rootMargin: "200px" });
+    this._preloadObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const idx = Number((entry.target as HTMLElement).dataset.index);
+          const photo = this._photos[idx];
+          if (!photo || !photo.thumbnailUrl || photo.thumbnailUrl === photo.url) continue;
+          // Preload full-size in background
+          const img = new Image();
+          img.src = photo.url;
+          // Stop observing once triggered
+          this._preloadObserver!.unobserve(entry.target);
+        }
+      },
+      { rootMargin: "200px" },
+    );
 
     this._container.querySelectorAll(".grid-item").forEach((item) => {
       this._preloadObserver!.observe(item);
     });
   }
 }
-
 
 customElements.define("photo-grid", PhotoGrid);
 

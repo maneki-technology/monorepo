@@ -167,9 +167,7 @@ describe("GridLayoutElement", () => {
       const spy = vi.fn();
       grid.addEventListener("layout-change", spy);
 
-      grid.layout = [
-        { i: "a", x: 0, y: 0, w: 2, h: 2 },
-      ];
+      grid.layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2 }];
 
       // layout-change is emitted on drag/resize stop, not on programmatic set
       // So we just verify the listener can be attached
@@ -229,7 +227,7 @@ describe("GridLayoutElement", () => {
     });
     it("layoutChangeFilter can modify layout on set", () => {
       grid.layoutChangeFilter = (newLayout) => {
-        return newLayout.map(item => ({ ...item, w: 1 }));
+        return newLayout.map((item) => ({ ...item, w: 1 }));
       };
       grid.layout = [{ i: "a", x: 0, y: 0, w: 4, h: 2 }];
       expect(grid.layout[0].w).toBe(1);
@@ -322,14 +320,14 @@ describe("GridLayoutElement — keyboard drag", () => {
   it("ArrowRight moves item right by 1", () => {
     sendKey(itemA, "Enter");
     sendKey(itemA, "ArrowRight");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.x).toBe(3);
   });
 
   it("ArrowLeft moves item left by 1", () => {
     sendKey(itemA, "Enter");
     sendKey(itemA, "ArrowLeft");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.x).toBe(1);
   });
 
@@ -338,14 +336,14 @@ describe("GridLayoutElement — keyboard drag", () => {
     grid.layout = [{ i: "a", x: 2, y: 0, w: 2, h: 1 }];
     sendKey(itemA, "Enter");
     sendKey(itemA, "ArrowDown");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.y).toBe(1);
   });
 
   it("ArrowUp moves item up (clamped to 0)", () => {
     sendKey(itemA, "Enter");
     sendKey(itemA, "ArrowUp");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.y).toBe(0);
   });
 
@@ -353,7 +351,7 @@ describe("GridLayoutElement — keyboard drag", () => {
     grid.layout = [{ i: "a", x: 0, y: 0, w: 2, h: 1 }];
     sendKey(itemA, "Enter");
     sendKey(itemA, "ArrowLeft");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.x).toBe(0);
   });
 
@@ -361,7 +359,7 @@ describe("GridLayoutElement — keyboard drag", () => {
     grid.layout = [{ i: "a", x: 10, y: 0, w: 2, h: 1 }];
     sendKey(itemA, "Enter");
     sendKey(itemA, "ArrowRight");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.x).toBeLessThanOrEqual(10);
   });
 
@@ -370,7 +368,7 @@ describe("GridLayoutElement — keyboard drag", () => {
     sendKey(itemA, "ArrowRight");
     sendKey(itemA, "Enter"); // confirm
     expect(itemA.getAttribute("aria-grabbed")).toBe("false");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.x).toBe(3);
   });
 
@@ -390,7 +388,7 @@ describe("GridLayoutElement — keyboard drag", () => {
     sendKey(itemA, "ArrowRight");
     sendKey(itemA, "Escape");
     expect(itemA.getAttribute("aria-grabbed")).toBe("false");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.x).toBe(2); // reverted
   });
 
@@ -453,28 +451,28 @@ describe("GridLayoutElement — keyboard resize", () => {
   it("ArrowRight increases width by 1", () => {
     sendKey(itemA, "r");
     sendKey(itemA, "ArrowRight");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.w).toBe(5);
   });
 
   it("ArrowLeft decreases width by 1 (min 1)", () => {
     sendKey(itemA, "r");
     sendKey(itemA, "ArrowLeft");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.w).toBe(3);
   });
 
   it("ArrowDown increases height by 1", () => {
     sendKey(itemA, "r");
     sendKey(itemA, "ArrowDown");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.h).toBe(3);
   });
 
   it("ArrowUp decreases height by 1 (min 1)", () => {
     sendKey(itemA, "r");
     sendKey(itemA, "ArrowUp");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.h).toBe(1);
   });
 
@@ -483,7 +481,7 @@ describe("GridLayoutElement — keyboard resize", () => {
     sendKey(itemA, "r");
     sendKey(itemA, "ArrowLeft");
     sendKey(itemA, "ArrowLeft");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.w).toBeGreaterThanOrEqual(3);
   });
 
@@ -494,7 +492,7 @@ describe("GridLayoutElement — keyboard resize", () => {
     sendKey(itemA, "ArrowRight");
     sendKey(itemA, "Enter");
     expect(spy).toHaveBeenCalledTimes(1);
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.w).toBe(5);
     grid.removeEventListener("layout-change", spy);
   });
@@ -504,7 +502,7 @@ describe("GridLayoutElement — keyboard resize", () => {
     sendKey(itemA, "ArrowRight");
     sendKey(itemA, "ArrowRight");
     sendKey(itemA, "Escape");
-    const item = grid.layout.find(l => l.i === "a")!;
+    const item = grid.layout.find((l) => l.i === "a")!;
     expect(item.w).toBe(4); // reverted
     expect(item.h).toBe(2);
   });
@@ -608,7 +606,7 @@ describe("GridLayoutElement — external drag-and-drop", () => {
     const spy = vi.fn();
     grid.addEventListener("external-drop", spy);
     grid.dispatchEvent(makeDragEvent("drop", 50, 10));
-    expect(grid.layout.some(item => item.i === "new")).toBe(true);
+    expect(grid.layout.some((item) => item.i === "new")).toBe(true);
     expect(spy).toHaveBeenCalledTimes(1);
     const detail = spy.mock.calls[0][0].detail;
     expect(detail.item.i).toBe("new");
@@ -652,7 +650,7 @@ describe("GridLayoutElement — external drag-and-drop", () => {
     grid.droppingItem = { i: "new", w: 3, h: 4 };
     grid.dispatchEvent(makeDragEvent("dragover", 50, 10));
     grid.dispatchEvent(makeDragEvent("drop", 50, 10));
-    const item = grid.layout.find(l => l.i === "new")!;
+    const item = grid.layout.find((l) => l.i === "new")!;
     expect(item.w).toBe(3);
     expect(item.h).toBe(4);
   });

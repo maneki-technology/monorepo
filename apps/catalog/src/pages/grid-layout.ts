@@ -31,9 +31,12 @@ registerPage("grid-layout", {
 
     <h3>Basic Grid</h3>
     <grid-layout id="gl-basic" class="grid-container">
-      ${["a","b","c","d","e","f"].map((id, i) =>
-        `<grid-item item-id="${id}"><div class="grid-item-cell" style="${itemColor(i)}">${id.toUpperCase()}</div></grid-item>`
-      ).join("")}
+      ${["a", "b", "c", "d", "e", "f"]
+        .map(
+          (id, i) =>
+            `<grid-item item-id="${id}"><div class="grid-item-cell" style="${itemColor(i)}">${id.toUpperCase()}</div></grid-item>`,
+        )
+        .join("")}
     </grid-layout>
 
     <h3>Static Items</h3>
@@ -54,23 +57,32 @@ registerPage("grid-layout", {
         { id: "c3", label: "C3 w:3\u20135 h:1\u20133", i: 2 },
         { id: "c4", label: "C4 min-w:4", i: 3 },
         { id: "c5", label: "C5 max-w:8", i: 4 },
-      ].map(c =>
-        `<grid-item item-id="${c.id}"><div class="grid-item-cell" style="${itemColor(c.i)}">${c.label}</div></grid-item>`
-      ).join("")}
+      ]
+        .map(
+          (c) =>
+            `<grid-item item-id="${c.id}"><div class="grid-item-cell" style="${itemColor(c.i)}">${c.label}</div></grid-item>`,
+        )
+        .join("")}
     </grid-layout>
 
     <h3>Compaction: Vertical</h3>
     <grid-layout id="gl-compact-v" class="grid-container">
-      ${["v1","v2","v3","v4","v5"].map((id, i) =>
-        `<grid-item item-id="${id}"><div class="grid-item-cell" style="${itemColor(i)}">${id.toUpperCase()}</div></grid-item>`
-      ).join("")}
+      ${["v1", "v2", "v3", "v4", "v5"]
+        .map(
+          (id, i) =>
+            `<grid-item item-id="${id}"><div class="grid-item-cell" style="${itemColor(i)}">${id.toUpperCase()}</div></grid-item>`,
+        )
+        .join("")}
     </grid-layout>
 
     <h3>Compaction: Horizontal</h3>
     <grid-layout id="gl-compact-h" class="grid-container">
-      ${["h1","h2","h3","h4","h5"].map((id, i) =>
-        `<grid-item item-id="${id}"><div class="grid-item-cell" style="${itemColor(i)}">${id.toUpperCase()}</div></grid-item>`
-      ).join("")}
+      ${["h1", "h2", "h3", "h4", "h5"]
+        .map(
+          (id, i) =>
+            `<grid-item item-id="${id}"><div class="grid-item-cell" style="${itemColor(i)}">${id.toUpperCase()}</div></grid-item>`,
+        )
+        .join("")}
     </grid-layout>
 
     <h3>Resize Handles (All Directions)</h3>
@@ -81,28 +93,42 @@ registerPage("grid-layout", {
     <h3>Responsive Breakpoints</h3>
     <p class="hint">Resize the browser to see layout change at lg/md/sm breakpoints</p>
     <responsive-grid-layout id="gl-responsive" class="grid-container">
-      ${["r1","r2","r3","r4","r5"].map((id, i) =>
-        `<grid-item item-id="${id}"><div class="grid-item-cell" style="${itemColor(i)}">${id.toUpperCase()}</div></grid-item>`
-      ).join("")}
+      ${["r1", "r2", "r3", "r4", "r5"]
+        .map(
+          (id, i) =>
+            `<grid-item item-id="${id}"><div class="grid-item-cell" style="${itemColor(i)}">${id.toUpperCase()}</div></grid-item>`,
+        )
+        .join("")}
     </responsive-grid-layout>
 
     <h3>Dark Theme</h3>
     <grid-layout id="gl-dark" class="grid-container" style="background:#0D1826;border:1px solid #3E5463;--grid-placeholder-bg:rgba(255,255,255,0.06);--grid-placeholder-border:2px dashed #5B7282;--grid-placeholder-radius:6px;--grid-handle-color:#7A909E;--grid-focus-ring-color:#4D9EFF">
-      ${["t1","t2","t3","t4","t5","t6"].map(id =>
-        `<grid-item item-id="${id}"><div class="grid-item-cell" style="background:#1C2B36;border:1px solid #3E5463;color:#DCE3E8">${id.toUpperCase()}</div></grid-item>`
-      ).join("")}
+      ${["t1", "t2", "t3", "t4", "t5", "t6"]
+        .map(
+          (id) =>
+            `<grid-item item-id="${id}"><div class="grid-item-cell" style="background:#1C2B36;border:1px solid #3E5463;color:#DCE3E8">${id.toUpperCase()}</div></grid-item>`,
+        )
+        .join("")}
     </grid-layout>
 
     <h3>Keyboard Accessible</h3>
     <p class="hint">Tab to focus items, Enter/Space to grab, Arrow keys to move, R for resize mode, Escape to cancel</p>
     <grid-layout id="gl-a11y" class="grid-container" style="--grid-focus-ring-color:#186ADE">
-      ${["k1","k2","k3","k4"].map((id, i) =>
-        `<grid-item item-id="${id}"><div class="grid-item-cell" style="${itemColor(i)}">${id.toUpperCase()}</div></grid-item>`
-      ).join("")}
+      ${["k1", "k2", "k3", "k4"]
+        .map(
+          (id, i) =>
+            `<grid-item item-id="${id}"><div class="grid-item-cell" style="${itemColor(i)}">${id.toUpperCase()}</div></grid-item>`,
+        )
+        .join("")}
     </grid-layout>
   `,
   setup: () => {
-    const cfg = { cols: 12, rowHeight: 80, margin: [10, 10] as [number, number], containerPadding: [10, 10] as [number, number] };
+    const cfg = {
+      cols: 12,
+      rowHeight: 80,
+      margin: [10, 10] as [number, number],
+      containerPadding: [10, 10] as [number, number],
+    };
 
     // Basic
     const basic = document.getElementById("gl-basic") as GridLayoutElement | null;
@@ -176,7 +202,12 @@ registerPage("grid-layout", {
     // Resize handles
     const resize = document.getElementById("gl-resize") as GridLayoutElement | null;
     if (resize) {
-      resize.gridConfig = { cols: 12, rowHeight: 60, margin: [10, 10] as [number, number], containerPadding: [10, 10] as [number, number] };
+      resize.gridConfig = {
+        cols: 12,
+        rowHeight: 60,
+        margin: [10, 10] as [number, number],
+        containerPadding: [10, 10] as [number, number],
+      };
       resize.resizeConfig = { enabled: true, handles: ["s", "w", "e", "n", "sw", "nw", "se", "ne"] };
       resize.layout = [{ i: "all-handles", x: 3, y: 1, w: 6, h: 4 }];
     }
@@ -184,7 +215,11 @@ registerPage("grid-layout", {
     // Responsive
     const responsive = document.getElementById("gl-responsive") as ResponsiveGridLayoutElement | null;
     if (responsive) {
-      responsive.gridConfig = { rowHeight: 80, margin: [10, 10] as [number, number], containerPadding: [10, 10] as [number, number] };
+      responsive.gridConfig = {
+        rowHeight: 80,
+        margin: [10, 10] as [number, number],
+        containerPadding: [10, 10] as [number, number],
+      };
       responsive.layouts = {
         lg: [
           { i: "r1", x: 0, y: 0, w: 4, h: 2 },
@@ -213,7 +248,12 @@ registerPage("grid-layout", {
     // Dark theme
     const dark = document.getElementById("gl-dark") as GridLayoutElement | null;
     if (dark) {
-      dark.gridConfig = { cols: 12, rowHeight: 70, margin: [10, 10] as [number, number], containerPadding: [10, 10] as [number, number] };
+      dark.gridConfig = {
+        cols: 12,
+        rowHeight: 70,
+        margin: [10, 10] as [number, number],
+        containerPadding: [10, 10] as [number, number],
+      };
       dark.layout = [
         { i: "t1", x: 0, y: 0, w: 4, h: 2 },
         { i: "t2", x: 4, y: 0, w: 4, h: 2 },
@@ -227,7 +267,12 @@ registerPage("grid-layout", {
     // Keyboard accessible
     const a11y = document.getElementById("gl-a11y") as GridLayoutElement | null;
     if (a11y) {
-      a11y.gridConfig = { cols: 12, rowHeight: 70, margin: [10, 10] as [number, number], containerPadding: [10, 10] as [number, number] };
+      a11y.gridConfig = {
+        cols: 12,
+        rowHeight: 70,
+        margin: [10, 10] as [number, number],
+        containerPadding: [10, 10] as [number, number],
+      };
       a11y.layout = [
         { i: "k1", x: 0, y: 0, w: 4, h: 2 },
         { i: "k2", x: 4, y: 0, w: 4, h: 2 },

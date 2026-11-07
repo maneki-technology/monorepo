@@ -38,15 +38,7 @@ export function renderChartHeader(
     legendPadX?: number;
   },
 ): ChartHeaderResult {
-  const {
-    title,
-    legendItems,
-    showLegend = true,
-    viewBoxWidth,
-    textColor,
-    legendConfig,
-    legendPadX = 40,
-  } = options;
+  const { title, legendItems, showLegend = true, viewBoxWidth, textColor, legendConfig, legendPadX = 40 } = options;
 
   let y = 16; // top padding
 

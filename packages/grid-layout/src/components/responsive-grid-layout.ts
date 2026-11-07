@@ -11,11 +11,7 @@ import type {
   LayoutChangeFilter,
   AfterDropHook,
 } from "../core/types";
-import {
-  DEFAULT_GRID_CONFIG,
-  DEFAULT_DRAG_CONFIG,
-  DEFAULT_RESIZE_CONFIG,
-} from "../core/types";
+import { DEFAULT_GRID_CONFIG, DEFAULT_DRAG_CONFIG, DEFAULT_RESIZE_CONFIG } from "../core/types";
 import {
   DEFAULT_BREAKPOINTS,
   DEFAULT_COLS,
@@ -88,7 +84,7 @@ export class ResponsiveGridLayoutElement extends HTMLElement {
         this._breakpoints,
         this._currentBreakpoint,
         cols,
-        this._compactType
+        this._compactType,
       );
       this._layouts[this._currentBreakpoint] = cloneLayout(newLayout);
       this.syncInnerGridConfig(cols);
@@ -174,14 +170,30 @@ export class ResponsiveGridLayoutElement extends HTMLElement {
   }
 
   /** Forward lifecycle hooks to inner grid */
-  get beforeDragStart(): BeforeDragStartHook | null { return this._innerGrid.beforeDragStart; }
-  set beforeDragStart(fn: BeforeDragStartHook | null) { this._innerGrid.beforeDragStart = fn; }
-  get beforeResizeStart(): BeforeResizeStartHook | null { return this._innerGrid.beforeResizeStart; }
-  set beforeResizeStart(fn: BeforeResizeStartHook | null) { this._innerGrid.beforeResizeStart = fn; }
-  get layoutChangeFilter(): LayoutChangeFilter | null { return this._innerGrid.layoutChangeFilter; }
-  set layoutChangeFilter(fn: LayoutChangeFilter | null) { this._innerGrid.layoutChangeFilter = fn; }
-  get afterDrop(): AfterDropHook | null { return this._innerGrid.afterDrop; }
-  set afterDrop(fn: AfterDropHook | null) { this._innerGrid.afterDrop = fn; }
+  get beforeDragStart(): BeforeDragStartHook | null {
+    return this._innerGrid.beforeDragStart;
+  }
+  set beforeDragStart(fn: BeforeDragStartHook | null) {
+    this._innerGrid.beforeDragStart = fn;
+  }
+  get beforeResizeStart(): BeforeResizeStartHook | null {
+    return this._innerGrid.beforeResizeStart;
+  }
+  set beforeResizeStart(fn: BeforeResizeStartHook | null) {
+    this._innerGrid.beforeResizeStart = fn;
+  }
+  get layoutChangeFilter(): LayoutChangeFilter | null {
+    return this._innerGrid.layoutChangeFilter;
+  }
+  set layoutChangeFilter(fn: LayoutChangeFilter | null) {
+    this._innerGrid.layoutChangeFilter = fn;
+  }
+  get afterDrop(): AfterDropHook | null {
+    return this._innerGrid.afterDrop;
+  }
+  set afterDrop(fn: AfterDropHook | null) {
+    this._innerGrid.afterDrop = fn;
+  }
 
   // --- Lifecycle ---
 
@@ -192,7 +204,15 @@ export class ResponsiveGridLayoutElement extends HTMLElement {
     this._innerGrid.addEventListener("layout-change", this._onInnerLayoutChange);
 
     // Forward all drag/resize events
-    for (const evt of ["drag-start", "drag", "drag-stop", "resize-start", "resize", "resize-stop", "external-drop"] as const) {
+    for (const evt of [
+      "drag-start",
+      "drag",
+      "drag-stop",
+      "resize-start",
+      "resize",
+      "resize-stop",
+      "external-drop",
+    ] as const) {
       this._innerGrid.addEventListener(evt, this._forwardEvent);
     }
 
@@ -215,7 +235,15 @@ export class ResponsiveGridLayoutElement extends HTMLElement {
     this._resizeObserver = null;
 
     this._innerGrid.removeEventListener("layout-change", this._onInnerLayoutChange);
-    for (const evt of ["drag-start", "drag", "drag-stop", "resize-start", "resize", "resize-stop", "external-drop"] as const) {
+    for (const evt of [
+      "drag-start",
+      "drag",
+      "drag-stop",
+      "resize-start",
+      "resize",
+      "resize-stop",
+      "external-drop",
+    ] as const) {
       this._innerGrid.removeEventListener(evt, this._forwardEvent);
     }
   }
@@ -240,7 +268,7 @@ export class ResponsiveGridLayoutElement extends HTMLElement {
       this._breakpoints,
       newBreakpoint,
       newCols,
-      this._compactType
+      this._compactType,
     );
 
     // Store generated layout
@@ -263,7 +291,7 @@ export class ResponsiveGridLayoutElement extends HTMLElement {
           },
           bubbles: true,
           composed: true,
-        })
+        }),
       );
     }
 
@@ -277,14 +305,14 @@ export class ResponsiveGridLayoutElement extends HTMLElement {
         },
         bubbles: true,
         composed: true,
-      })
+      }),
     );
   }
 
   private syncInnerGridConfig(colsOverride?: number): void {
-    const cols = colsOverride ?? (this._currentBreakpoint
-      ? getColsFromBreakpoint(this._currentBreakpoint, this._cols)
-      : DEFAULT_GRID_CONFIG.cols);
+    const cols =
+      colsOverride ??
+      (this._currentBreakpoint ? getColsFromBreakpoint(this._currentBreakpoint, this._cols) : DEFAULT_GRID_CONFIG.cols);
 
     this._innerGrid.gridConfig = {
       ...DEFAULT_GRID_CONFIG,
@@ -316,7 +344,7 @@ export class ResponsiveGridLayoutElement extends HTMLElement {
         },
         bubbles: true,
         composed: true,
-      })
+      }),
     );
   };
 
@@ -328,7 +356,7 @@ export class ResponsiveGridLayoutElement extends HTMLElement {
         detail: ce.detail,
         bubbles: true,
         composed: true,
-      })
+      }),
     );
   };
 }

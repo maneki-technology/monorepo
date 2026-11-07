@@ -1,6 +1,6 @@
 # Flex Layout Architecture
 
-*Snapshot: April 2026*
+_Snapshot: April 2026_
 
 ## Overview
 
@@ -31,18 +31,18 @@ packages/flex-layout/
 
 Flex container with size-based gap and padding presets. The `size` attribute selects a preset derived from Figma measurements. `direction` controls flex axis.
 
-| Attribute | Type | Default |
-|---|---|---|
-| `size` | `"large" \| "medium" \| "small"` | `"medium"` |
-| `direction` | `"row" \| "column"` | `"row"` |
+| Attribute   | Type                             | Default    |
+| ----------- | -------------------------------- | ---------- |
+| `size`      | `"large" \| "medium" \| "small"` | `"medium"` |
+| `direction` | `"row" \| "column"`              | `"row"`    |
 
 Size presets:
 
-| Size | Gap | Padding |
-|---|---|---|
-| large | 8px | 8px |
-| medium | 8px | 8px |
-| small | 4px | 4px |
+| Size   | Gap | Padding |
+| ------ | --- | ------- |
+| large  | 8px | 8px     |
+| medium | 8px | 8px     |
+| small  | 4px | 4px     |
 
 CSS custom properties: `--flex-bg`, `--flex-gap`, `--flex-padding`, `--flex-direction`, `--flex-align`.
 
@@ -52,10 +52,10 @@ No ARIA role is set on the container. Consumers add `role="region"` and `aria-la
 
 Content panel with an optional named `header` slot. Grows to fill available space by default. A `width` attribute pins the panel to a fixed pixel width, overriding flex growth. `no-padding` removes the default content padding for panels that need edge-to-edge content.
 
-| Attribute | Type | Default |
-|---|---|---|
-| `width` | `number \| null` | `null` |
-| `no-padding` | boolean | `false` |
+| Attribute    | Type             | Default |
+| ------------ | ---------------- | ------- |
+| `width`      | `number \| null` | `null`  |
+| `no-padding` | boolean          | `false` |
 
 Carries `role="group"`. CSS custom properties: `--flex-panel-flex`, `--flex-panel-bg`, `--flex-panel-padding`, `--flex-panel-divider`.
 
@@ -63,21 +63,21 @@ Carries `role="group"`. CSS custom properties: `--flex-panel-flex`, `--flex-pane
 
 Header bar with title text and/or tab content. Three variants cover the common Figma patterns: title-only, tabs-only, and title-with-tabs. Size presets control height and font size.
 
-| Attribute | Type | Default |
-|---|---|---|
-| `variant` | `"title" \| "tabs" \| "title-tabs"` | `"title"` |
-| `size` | `"large" \| "medium" \| "small"` | `"medium"` |
-| `heading` | `string` | `""` |
+| Attribute | Type                                | Default    |
+| --------- | ----------------------------------- | ---------- |
+| `variant` | `"title" \| "tabs" \| "title-tabs"` | `"title"`  |
+| `size`    | `"large" \| "medium" \| "small"`    | `"medium"` |
+| `heading` | `string`                            | `""`       |
 
 Slots: `action` (named, for an icon button), `tabs` (named, for tab content).
 
 Size presets:
 
-| Size | Height | Font Size |
-|---|---|---|
-| large | 32px | 12px |
-| medium | 24px | 12px |
-| small | 20px | 11px |
+| Size   | Height | Font Size |
+| ------ | ------ | --------- |
+| large  | 32px   | 12px      |
+| medium | 24px   | 12px      |
+| small  | 20px   | 11px      |
 
 Carries `role="toolbar"`. CSS custom properties: `--flex-header-bg`, `--flex-header-height`, `--flex-header-color`, `--flex-header-divider`, `--flex-header-font-size`, `--flex-header-font-weight`, `--flex-header-line-height`, `--flex-header-icon-size`, `--flex-header-icon-color`, `--flex-header-padding-*`.
 
@@ -113,4 +113,4 @@ All three components use Constructable Stylesheets rather than injecting `<style
 
 ---
 
-*This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records.*
+_This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records._

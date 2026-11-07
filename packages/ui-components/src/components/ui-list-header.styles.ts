@@ -1,11 +1,4 @@
-import {
-  BORDER_MINIMAL,
-  BW_SM,
-  ICON_PRIMARY,
-  TEXT_PRIMARY,
-  TYPE_BODY_01,
-  TYPE_BODY_02,
-} from "@maneki/foundation";
+import { BORDER_MINIMAL, BW_SM, ICON_PRIMARY, TEXT_PRIMARY, TYPE_BODY_01, TYPE_BODY_02 } from "@maneki/foundation";
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
