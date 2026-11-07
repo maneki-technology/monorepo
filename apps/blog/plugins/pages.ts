@@ -30,7 +30,7 @@ export function pagesPlugin(): Plugin {
     const db = getDb();
     try {
       const result = await db.execute(
-        "SELECT slug, title, content, description, updated_at FROM pages WHERE status = 'published' ORDER BY updated_at DESC",
+        "SELECT slug, title, content, description, styles, updated_at FROM pages WHERE status = 'published' ORDER BY updated_at DESC",
       );
 
       const md = createMd();
