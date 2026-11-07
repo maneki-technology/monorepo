@@ -17,9 +17,9 @@ const db = createClient({ url, authToken: authToken || undefined });
 
 const title = "About";
 const description =
-  "Senior Software Engineer with 14+ years of experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization.";
+  "Lead Software Engineer with 14+ years of experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization.";
 
-const content = `Senior Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization. Comfortable owning systems end-to-end — from API design and data modeling to CI/CD pipelines and observability.
+const content = `Lead Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization. Comfortable owning systems end-to-end — from API design and data modeling to CI/CD pipelines and observability.
 
 Currently at Xendit, building mission-critical authorization services and leading frontend development for cross-border financial products across Southeast Asia.
 

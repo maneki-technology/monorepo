@@ -26,7 +26,7 @@ export const resumeRoute: Route = {
   meta: {
     title: "Resume",
     description:
-      "Senior Software Engineer with 14+ years of experience. Go, TypeScript, Java, Python. Distributed systems, micro-frontends, fine-grained authorization.",
+      "Lead Software Engineer with 14+ years of experience. Go, TypeScript, Java, Python. Distributed systems, micro-frontends, fine-grained authorization.",
   },
   showProgress: true,
   render: renderResumePage,

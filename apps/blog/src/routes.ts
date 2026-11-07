@@ -14,7 +14,7 @@ export const routes: Route[] = [
     id: "home",
     meta: {
       title: "Home",
-      description: "Senior Software Engineer. Distributed systems, micro-frontend architecture, and design systems.",
+      description: "Lead Software Engineer. Distributed systems, micro-frontend architecture, and design systems.",
     },
     load: () => import("./pages/home.js").then((m) => m.homeRoute),
   },
@@ -46,7 +46,7 @@ export const routes: Route[] = [
     meta: {
       title: "Resume",
       description:
-        "Senior Software Engineer with 14+ years of experience. Go, TypeScript, Java, Python. Distributed systems, micro-frontends, fine-grained authorization.",
+        "Lead Software Engineer with 14+ years of experience. Go, TypeScript, Java, Python. Distributed systems, micro-frontends, fine-grained authorization.",
     },
     showProgress: true,
     load: () => import("./pages/resume.js").then((m) => m.resumeRoute),
@@ -56,7 +56,7 @@ export const routes: Route[] = [
     meta: {
       title: "About",
       description:
-        "Senior Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization.",
+        "Lead Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization.",
     },
     load: () => import("./pages/about.js").then((m) => m.aboutRoute),
   },

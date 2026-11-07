@@ -16,7 +16,7 @@ if (!url) {
 const db = createClient({ url, authToken: authToken || undefined });
 
 const title = "Kien Nguyen Trung";
-const description = "Senior Software Engineer with 14+ years of experience. Go, TypeScript, Java, Python. Distributed systems, micro-frontends, fine-grained authorization.";
+const description = "Lead Software Engineer with 14+ years of experience. Go, TypeScript, Java, Python. Distributed systems, micro-frontends, fine-grained authorization.";
 
 const styles = `
 .heading-05 { font-size: var(--fd-type-heading-05-font-size); line-height: var(--fd-type-heading-05-line-height); font-weight: var(--fd-type-heading-05-font-weight); }
@@ -34,7 +34,7 @@ const styles = `
 .reveal { opacity: 1; }
 `;
 
-const content = `<p class="body-01 text-secondary">Senior Software Engineer</p>
+const content = `<p class="body-01 text-secondary">Lead Software Engineer</p>
 
 <div class="row gap-2 mt-1" style="flex-wrap:wrap;">
 <ui-link href="mailto:kien@maneki.tech" size="s">kien@maneki.tech</ui-link>
@@ -42,7 +42,7 @@ const content = `<p class="body-01 text-secondary">Senior Software Engineer</p>
 <ui-link href="https://linkedin.com/in/kiennt23" size="s" external>LinkedIn</ui-link>
 </div>
 
-Senior Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer (Go, TypeScript, Java, Python) specializing in distributed systems, micro-frontend architecture, and fine-grained authorization.
+Lead Software Engineer with 14+ years of hands-on experience across the full stack. Polyglot engineer (Go, TypeScript, Java, Python) specializing in distributed systems, micro-frontend architecture, and fine-grained authorization.
 
 ## Skills
 

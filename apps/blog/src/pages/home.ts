@@ -16,12 +16,12 @@ export const homeRoute: Route = {
   id: "home",
   meta: {
     title: "Home",
-    description: "Senior Software Engineer. Distributed systems, micro-frontend architecture, and design systems.",
+    description: "Lead Software Engineer. Distributed systems, micro-frontend architecture, and design systems.",
   },
   render: () => `
     <section class="mb-5 reveal">
       <h1 class="display-03" style="margin-bottom:var(--fd-space-3);">Hey, I'm <strong class="hero-accent">Kien Nguyen<svg class="sig-underline" viewBox="0 0 200 18" preserveAspectRatio="none"><path d="M0 16 C25 14, 45 15, 70 12 S110 8, 140 9 S175 4, 200 3 L200 1.5 C175 2.5, 140 6, 110 5 S70 8, 45 11 S25 9, 0 11 Z"/></svg></strong></h1>
-      <p class="body-01 text-secondary mt-2">Senior Software Engineer. Distributed systems, micro-frontends, and design systems. Amateur photographer.</p>
+      <p class="body-01 text-secondary mt-2">Lead Software Engineer. 14+ years in fintech: payments, FX and authorization. Writing about distributed systems, micro-frontends and design systems. Amateur photographer.</p>
       <div class="row gap-2 mt-3">
         <a href="/portfolio" class="inline-link body-02 arrow-link"><span class="link-text">View my portfolio</span> <span class="arrow-right">→</span></a>
         <a href="/resume" class="inline-link body-02 arrow-link"><span class="link-text">Read my resume</span> <span class="arrow-right">→</span></a>
