@@ -22,18 +22,32 @@ function shiftFabs(open: boolean, fullscreen?: boolean) {
   if (fab) fab.style.transition = "right 0.2s ease";
   if (themeToggle) themeToggle.style.transition = "right 0.2s ease";
   if (!open) {
-    if (fab) { fab.style.right = "24px"; fab.style.display = ""; }
-    if (themeToggle) { themeToggle.style.right = "8px"; themeToggle.style.display = ""; }
+    if (fab) {
+      fab.style.right = "24px";
+      fab.style.display = "";
+    }
+    if (themeToggle) {
+      themeToggle.style.right = "8px";
+      themeToggle.style.display = "";
+    }
   } else if (fullscreen) {
     if (fab) fab.style.display = "none";
     if (themeToggle) themeToggle.style.display = "none";
   } else {
-    if (fab) { fab.style.right = "444px"; fab.style.display = ""; }
-    if (themeToggle) { themeToggle.style.right = "444px"; themeToggle.style.display = ""; }
+    if (fab) {
+      fab.style.right = "444px";
+      fab.style.display = "";
+    }
+    if (themeToggle) {
+      themeToggle.style.right = "444px";
+      themeToggle.style.display = "";
+    }
   }
 }
-document.addEventListener("review-panel-toggle", ((e: CustomEvent) => shiftFabs(e.detail.open, e.detail.fullscreen)) as EventListener);
-document.addEventListener("brainstorm-panel-toggle", ((e: CustomEvent) => shiftFabs(e.detail.open, e.detail.fullscreen)) as EventListener);
+document.addEventListener("review-panel-toggle", ((e: CustomEvent) =>
+  shiftFabs(e.detail.open, e.detail.fullscreen)) as EventListener);
+document.addEventListener("brainstorm-panel-toggle", ((e: CustomEvent) =>
+  shiftFabs(e.detail.open, e.detail.fullscreen)) as EventListener);
 
 window.addEventListener("theme-change", () => saveThemeToBackend());
 loadTheme();

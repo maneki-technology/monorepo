@@ -203,9 +203,7 @@ describe("ui-skeleton", () => {
   it("STYLES contains prefers-reduced-motion", () => {
     const sheet = el.shadowRoot!.adoptedStyleSheets[0];
     const rules = Array.from(sheet.cssRules).map((r) => r.cssText);
-    const hasReducedMotion = rules.some((r) =>
-      r.includes("prefers-reduced-motion"),
-    );
+    const hasReducedMotion = rules.some((r) => r.includes("prefers-reduced-motion"));
     expect(hasReducedMotion).toBe(true);
   });
 

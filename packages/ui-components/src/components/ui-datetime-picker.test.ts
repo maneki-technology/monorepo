@@ -86,7 +86,6 @@ describe("ui-datetime-picker", () => {
       expect(el.hasAttribute("open")).toBe(true);
     });
 
-
     it("get/set min", () => {
       el.min = "2024-01-01";
       expect(el.min).toBe("2024-01-01");
@@ -189,18 +188,14 @@ describe("ui-datetime-picker", () => {
     it("updates value on calendar change (no actions)", () => {
       const handler = vi.fn();
       el.addEventListener("change", handler);
-      calendar().dispatchEvent(
-        new CustomEvent("change", { detail: { value: "2024-06-15" }, bubbles: true }),
-      );
+      calendar().dispatchEvent(new CustomEvent("change", { detail: { value: "2024-06-15" }, bubbles: true }));
       expect(el.value).toBe("2024-06-15");
       expect(handler).toHaveBeenCalledTimes(1);
     });
 
     it("closes after selection (no actions)", () => {
       el.open = true;
-      calendar().dispatchEvent(
-        new CustomEvent("change", { detail: { value: "2024-06-15" }, bubbles: true }),
-      );
+      calendar().dispatchEvent(new CustomEvent("change", { detail: { value: "2024-06-15" }, bubbles: true }));
       expect(el.open).toBe(false);
     });
   });
@@ -213,9 +208,7 @@ describe("ui-datetime-picker", () => {
     });
 
     it("defers value on calendar change when show-actions", () => {
-      calendar().dispatchEvent(
-        new CustomEvent("change", { detail: { value: "2024-06-15" }, bubbles: true }),
-      );
+      calendar().dispatchEvent(new CustomEvent("change", { detail: { value: "2024-06-15" }, bubbles: true }));
       // Value not yet committed
       expect(el.value).toBe("");
     });
@@ -223,9 +216,7 @@ describe("ui-datetime-picker", () => {
     it("commits value on OK click", () => {
       const handler = vi.fn();
       el.addEventListener("change", handler);
-      calendar().dispatchEvent(
-        new CustomEvent("change", { detail: { value: "2024-06-15" }, bubbles: true }),
-      );
+      calendar().dispatchEvent(new CustomEvent("change", { detail: { value: "2024-06-15" }, bubbles: true }));
       okBtn().click();
       expect(el.value).toBe("2024-06-15");
       expect(handler).toHaveBeenCalledTimes(1);
@@ -233,9 +224,7 @@ describe("ui-datetime-picker", () => {
 
     it("discards value on Cancel click", () => {
       el.open = true;
-      calendar().dispatchEvent(
-        new CustomEvent("change", { detail: { value: "2024-06-15" }, bubbles: true }),
-      );
+      calendar().dispatchEvent(new CustomEvent("change", { detail: { value: "2024-06-15" }, bubbles: true }));
       cancelBtn().click();
       expect(el.value).toBe("");
       expect(el.open).toBe(false);

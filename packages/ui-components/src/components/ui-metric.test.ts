@@ -156,9 +156,7 @@ describe("ui-metric", () => {
 
   it("sets secondary-label text from attribute", () => {
     el.setAttribute("secondary-label", "vs last month");
-    expect(el.shadowRoot!.querySelector(".secondary-label")!.textContent).toBe(
-      "vs last month",
-    );
+    expect(el.shadowRoot!.querySelector(".secondary-label")!.textContent).toBe("vs last month");
   });
 
   it("clears secondary-label when attribute removed", () => {
@@ -279,9 +277,7 @@ describe("ui-metric", () => {
   // ── Orientation attribute ─────────────────────────────────────────────────
 
   it("defaults orientation to 'vertical'", () => {
-    expect((el as unknown as { orientation: MetricOrientation }).orientation).toBe(
-      "vertical",
-    );
+    expect((el as unknown as { orientation: MetricOrientation }).orientation).toBe("vertical");
   });
 
   it("reflects orientation='horizontal' to attribute", () => {
@@ -409,8 +405,6 @@ describe("ui-metric", () => {
   });
 
   it("CSS hides delta-content when no delta and no secondary-label", () => {
-    expect(STYLES).toContain(
-      ":host(:not([delta=\"up\"]):not([delta=\"down\"]):not([secondary-label])) .delta-content",
-    );
+    expect(STYLES).toContain(':host(:not([delta="up"]):not([delta="down"]):not([secondary-label])) .delta-content');
   });
 });

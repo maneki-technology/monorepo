@@ -44,9 +44,7 @@ describe("getStatics", () => {
   });
 
   it("returns empty array when no statics", () => {
-    const layout: LayoutItem[] = [
-      { i: "a", x: 0, y: 0, w: 1, h: 1 },
-    ];
+    const layout: LayoutItem[] = [{ i: "a", x: 0, y: 0, w: 1, h: 1 }];
     expect(getStatics(layout)).toEqual([]);
   });
 });

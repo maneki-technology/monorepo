@@ -23,8 +23,15 @@ export class GalleryAlbumModal extends LitElement {
   @state() private _saveError = "";
 
   static styles = css`
-    .modal-form { display: flex; flex-direction: column; gap: 12px; }
-    .modal-actions-right { display: flex; gap: 8px; }
+    .modal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .modal-actions-right {
+      display: flex;
+      gap: 8px;
+    }
   `;
 
   willUpdate(changed: Map<string, unknown>) {
@@ -43,10 +50,31 @@ export class GalleryAlbumModal extends LitElement {
     const a = this._editingAlbum;
     const isNew = a.id === 0;
     return html`
-      <ui-modal class="album-edit-modal" size="m" open dismissible @close=${() => { this.dispatchEvent(new CustomEvent("close")); this._saveError = ""; }}>
+      <ui-modal
+        class="album-edit-modal"
+        size="m"
+        open
+        dismissible
+        @close=${() => {
+          this.dispatchEvent(new CustomEvent("close"));
+          this._saveError = "";
+        }}
+      >
         <span>${isNew ? "New Album" : "Edit Album"}</span>
         <div slot="body" class="modal-form">
-          ${this._saveError ? html`<ui-alert status="error" size="s" dismissible @dismiss=${() => { this._saveError = ""; }}>${this._saveError}</ui-alert>` : nothing}
+          ${
+            this._saveError
+              ? html`<ui-alert
+                  status="error"
+                  size="s"
+                  dismissible
+                  @dismiss=${() => {
+                    this._saveError = "";
+                  }}
+                  >${this._saveError}</ui-alert
+                >`
+              : nothing
+          }
           <ui-input
             size="m"
             .value=${a.title}
@@ -56,18 +84,25 @@ export class GalleryAlbumModal extends LitElement {
               if (isNew) updates.slug = slugify(title);
               this._editingAlbum = { ...a, ...updates };
             }}
-          ><ui-label slot="label" size="m">Title</ui-label></ui-input>
+            ><ui-label slot="label" size="m">Title</ui-label></ui-input
+          >
           <ui-input
             size="m"
             .value=${a.slug}
-            @input=${(e: Event) => { this._editingAlbum = { ...a, slug: (e.target as HTMLInputElement).value }; }}
-          ><ui-label slot="label" size="m">Slug</ui-label></ui-input>
+            @input=${(e: Event) => {
+              this._editingAlbum = { ...a, slug: (e.target as HTMLInputElement).value };
+            }}
+            ><ui-label slot="label" size="m">Slug</ui-label></ui-input
+          >
           <ui-textarea
             size="m"
             rows="2"
             .value=${a.description}
-            @input=${(e: Event) => { this._editingAlbum = { ...a, description: (e.target as HTMLTextAreaElement).value }; }}
-          ><ui-label slot="label" size="m">Description</ui-label></ui-textarea>
+            @input=${(e: Event) => {
+              this._editingAlbum = { ...a, description: (e.target as HTMLTextAreaElement).value };
+            }}
+            ><ui-label slot="label" size="m">Description</ui-label></ui-textarea
+          >
           <div>
             <ui-label size="m">Location</ui-label>
             <map-picker
@@ -83,7 +118,9 @@ export class GalleryAlbumModal extends LitElement {
           <ui-select
             size="m"
             .value=${a.status}
-            @change=${(e: Event) => { this._editingAlbum = { ...a, status: (e.target as HTMLElement & { value: string }).value }; }}
+            @change=${(e: Event) => {
+              this._editingAlbum = { ...a, status: (e.target as HTMLElement & { value: string }).value };
+            }}
           >
             <ui-label slot="label" size="m">Status</ui-label>
             <ui-dropdown-item value="draft">Draft</ui-dropdown-item>
@@ -92,15 +129,31 @@ export class GalleryAlbumModal extends LitElement {
         </div>
         ${isNew ? html`<div slot="footer-start"></div>` : html`<ui-button slot="footer-start" action="destructive" emphasis="minimal" size="s" status=${this._savingAction === "deleting" ? "loading" : "none"} ?disabled=${this._savingAction === "saving"} @click=${() => this._deleteAlbum(a.slug)}>Delete</ui-button>`}
         <div slot="footer-end" class="modal-actions-right">
-          <ui-button action="secondary" emphasis="subtle" size="s" ?disabled=${this._savingAction !== "none"} @click=${() => { this._closeModal(); }}>Cancel</ui-button>
-          <ui-button action="primary" size="s" status=${this._savingAction === "saving" ? "loading" : "none"} ?disabled=${this._savingAction === "deleting"} @click=${this._saveAlbum}>${isNew ? "Create" : "Save"}</ui-button>
+          <ui-button
+            action="secondary"
+            emphasis="subtle"
+            size="s"
+            ?disabled=${this._savingAction !== "none"}
+            @click=${() => {
+              this._closeModal();
+            }}
+            >Cancel</ui-button
+          >
+          <ui-button
+            action="primary"
+            size="s"
+            status=${this._savingAction === "saving" ? "loading" : "none"}
+            ?disabled=${this._savingAction === "deleting"}
+            @click=${this._saveAlbum}
+            >${isNew ? "Create" : "Save"}</ui-button
+          >
         </div>
       </ui-modal>
     `;
   }
 
   private _closeModal() {
-    (this.shadowRoot!.querySelector('.album-edit-modal') as HTMLElement & { close(): void })?.close();
+    (this.shadowRoot!.querySelector(".album-edit-modal") as HTMLElement & { close(): void })?.close();
   }
 
   private async _saveAlbum() {
@@ -113,8 +166,13 @@ export class GalleryAlbumModal extends LitElement {
         let slug = a.slug || slugify(a.title);
         let res = await api.api.albums.$post({
           json: {
-            title: a.title, slug, description: a.description, status: a.status as "draft" | "published",
-            location: a.location, latitude: a.latitude ?? null, longitude: a.longitude ?? null,
+            title: a.title,
+            slug,
+            description: a.description,
+            status: a.status as "draft" | "published",
+            location: a.location,
+            latitude: a.latitude ?? null,
+            longitude: a.longitude ?? null,
           },
         });
         // Auto-resolve slug conflict by appending suffix
@@ -123,8 +181,13 @@ export class GalleryAlbumModal extends LitElement {
             slug = `${slugify(a.title)}-${i}`;
             res = await api.api.albums.$post({
               json: {
-                title: a.title, slug, description: a.description, status: a.status as "draft" | "published",
-                location: a.location, latitude: a.latitude ?? null, longitude: a.longitude ?? null,
+                title: a.title,
+                slug,
+                description: a.description,
+                status: a.status as "draft" | "published",
+                location: a.location,
+                latitude: a.latitude ?? null,
+                longitude: a.longitude ?? null,
               },
             });
             if (res.ok || res.status !== 409) break;

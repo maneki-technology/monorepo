@@ -161,7 +161,7 @@ describe("ui-list-item", () => {
   });
 
   it("sets top-border attribute", () => {
-    const el = create('top-border');
+    const el = create("top-border");
     expect(el.hasAttribute("top-border")).toBe(true);
   });
 
@@ -173,18 +173,18 @@ describe("ui-list-item", () => {
   });
 
   it("sets selected attribute", () => {
-    const el = create('selected');
+    const el = create("selected");
     expect((el as unknown as { selected: boolean }).selected).toBe(true);
   });
 
   it("renders .tick element when selected", () => {
-    const el = create('selected');
+    const el = create("selected");
     const tick = el.shadowRoot!.querySelector(".tick");
     expect(tick).not.toBeNull();
   });
 
   it("removes selected attribute via property", () => {
-    const el = create('selected');
+    const el = create("selected");
     (el as unknown as { selected: boolean }).selected = false;
     expect(el.hasAttribute("selected")).toBe(false);
   });
@@ -197,12 +197,12 @@ describe("ui-list-item", () => {
   });
 
   it("sets trailing-icon attribute", () => {
-    const el = create('trailing-icon');
+    const el = create("trailing-icon");
     expect(el.hasAttribute("trailing-icon")).toBe(true);
   });
 
   it("renders trailing slot", () => {
-    const el = create('trailing-icon');
+    const el = create("trailing-icon");
     const slot = el.shadowRoot!.querySelector('.trailing-icon slot[name="trailing"]');
     expect(slot).not.toBeNull();
   });
@@ -257,12 +257,12 @@ describe("ui-list-item", () => {
   });
 
   it("sets disabled attribute", () => {
-    const el = create('disabled');
+    const el = create("disabled");
     expect((el as unknown as { disabled: boolean }).disabled).toBe(true);
   });
 
   it("removes disabled attribute via property", () => {
-    const el = create('disabled');
+    const el = create("disabled");
     (el as unknown as { disabled: boolean }).disabled = false;
     expect(el.hasAttribute("disabled")).toBe(false);
   });
@@ -270,7 +270,9 @@ describe("ui-list-item", () => {
   it("does not dispatch item-select when disabled and clicked", () => {
     const el = create('disabled value="test"');
     let fired = false;
-    el.addEventListener("item-select", () => { fired = true; });
+    el.addEventListener("item-select", () => {
+      fired = true;
+    });
     el.click();
     expect(fired).toBe(false);
   });
@@ -340,7 +342,9 @@ describe("ui-list-item", () => {
   it("does not dispatch item-select on other keys", () => {
     const el = create('value="nope"');
     let fired = false;
-    el.addEventListener("item-select", () => { fired = true; });
+    el.addEventListener("item-select", () => {
+      fired = true;
+    });
     el.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
     expect(fired).toBe(false);
   });
@@ -348,7 +352,9 @@ describe("ui-list-item", () => {
   it("does not dispatch item-select on Enter when disabled", () => {
     const el = create('disabled value="no"');
     let fired = false;
-    el.addEventListener("item-select", () => { fired = true; });
+    el.addEventListener("item-select", () => {
+      fired = true;
+    });
     el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     expect(fired).toBe(false);
   });
@@ -389,7 +395,7 @@ describe("ui-list-item", () => {
   });
 
   it("selected getter returns boolean", () => {
-    const el = create('selected');
+    const el = create("selected");
     expect((el as unknown as { selected: boolean }).selected).toBe(true);
   });
 
@@ -400,7 +406,7 @@ describe("ui-list-item", () => {
   });
 
   it("disabled getter returns boolean", () => {
-    const el = create('disabled');
+    const el = create("disabled");
     expect((el as unknown as { disabled: boolean }).disabled).toBe(true);
   });
 
@@ -447,7 +453,9 @@ describe("ui-list-item", () => {
     const el = create('value="disc"');
     el.remove();
     let fired = false;
-    el.addEventListener("item-select", () => { fired = true; });
+    el.addEventListener("item-select", () => {
+      fired = true;
+    });
     el.click();
     expect(fired).toBe(false);
   });

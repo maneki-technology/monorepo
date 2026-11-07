@@ -24,18 +24,22 @@ const ACTIONS: MenuAction[] = [
   { label: "Code", icon: "</>", action: (ta) => wrapSelection(ta, "`", "`") },
   { label: "Code block", icon: "▤", action: (ta) => wrapSelection(ta, "\n```ts\n", "\n```\n") },
   { label: "Quote", icon: '"', action: (ta) => wrapSelection(ta, "\n> ", "\n") },
-  { label: "Image", icon: "🖼", action: (ta) => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "image/*";
-    input.onchange = async () => {
-      if (!input.files) return;
-      for (const file of input.files) {
-        uploadFile(file, ta);
-      }
-    };
-    input.click();
-  }},
+  {
+    label: "Image",
+    icon: "🖼",
+    action: (ta) => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.onchange = async () => {
+        if (!input.files) return;
+        for (const file of input.files) {
+          uploadFile(file, ta);
+        }
+      };
+      input.click();
+    },
+  },
 ];
 
 const RADIUS = 48;
@@ -46,7 +50,8 @@ let outsideHandler: ((e: MouseEvent) => void) | null = null;
 
 function createMenu(): HTMLElement {
   const menu = document.createElement("div");
-  menu.style.cssText = "position:fixed;z-index:10000;width:0;height:0;pointer-events:none;opacity:0;transform:scale(0.3);transition:opacity 0.15s ease,transform 0.15s ease;";
+  menu.style.cssText =
+    "position:fixed;z-index:10000;width:0;height:0;pointer-events:none;opacity:0;transform:scale(0.3);transition:opacity 0.15s ease,transform 0.15s ease;";
 
   const angleStep = (2 * Math.PI) / ACTIONS.length;
 

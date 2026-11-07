@@ -49,9 +49,7 @@ describe("ui-queryfield", () => {
   });
 
   it("renders a material-symbols-outlined icon inside search-icon", () => {
-    const icon = el.shadowRoot!.querySelector(
-      ".search-icon .material-symbols-outlined",
-    );
+    const icon = el.shadowRoot!.querySelector(".search-icon .material-symbols-outlined");
     expect(icon).not.toBeNull();
   });
 
@@ -90,12 +88,7 @@ describe("ui-queryfield", () => {
     const Ctor = customElements.get("ui-queryfield") as unknown as {
       observedAttributes: string[];
     };
-    expect(Ctor.observedAttributes).toEqual([
-      "size",
-      "placeholder",
-      "disabled",
-      "value",
-    ]);
+    expect(Ctor.observedAttributes).toEqual(["size", "placeholder", "disabled", "value"]);
   });
 
   // ── Attributes: size ──────────────────────────────────────────────────────
@@ -183,9 +176,7 @@ describe("ui-queryfield", () => {
   });
 
   it("placeholder getter defaults to Search...", () => {
-    expect((el as unknown as { placeholder: string }).placeholder).toBe(
-      "Search...",
-    );
+    expect((el as unknown as { placeholder: string }).placeholder).toBe("Search...");
   });
 
   it("disabled getter returns false by default", () => {

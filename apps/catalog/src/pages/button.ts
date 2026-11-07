@@ -12,12 +12,15 @@ registerPage("button", {
       <span class="variant-label">Bold</span>
       <span class="variant-label">Subtle</span>
       <span class="variant-label">Minimal</span>
-      ${["primary", "secondary", "destructive", "info", "contrast"].map(action =>
-        `<span class="variant-label">${action}</span>
+      ${["primary", "secondary", "destructive", "info", "contrast"]
+        .map(
+          (action) =>
+            `<span class="variant-label">${action}</span>
           <ui-button action="${action}" emphasis="bold" size="m">${action}</ui-button>
           <ui-button action="${action}" emphasis="subtle" size="m">${action}</ui-button>
-          <ui-button action="${action}" emphasis="minimal" size="m">${action}</ui-button>`
-      ).join("")}
+          <ui-button action="${action}" emphasis="minimal" size="m">${action}</ui-button>`,
+        )
+        .join("")}
     </div>
     <h3>Sizes</h3>
     <div class="variant-group matrix matrix-4">

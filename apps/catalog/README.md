@@ -20,47 +20,49 @@ moon run catalog:test-visual  # Run 244 Playwright tests across both browser pro
 ## Pages
 
 ### Foundation
-| Page | Description |
-|------|-------------|
-| Colors | 13 color families × 10 steps |
-| Spacing | 17-step spacing scale |
-| Typography | 7 groups (display, heading, body, ui, caption, badge, code) |
-| Elevation | 6 elevation levels |
-| Semantic Tokens | Surface, border, text, icon token swatches |
-| Shape | Border-radius + border-width tokens |
+
+| Page            | Description                                                 |
+| --------------- | ----------------------------------------------------------- |
+| Colors          | 13 color families × 10 steps                                |
+| Spacing         | 17-step spacing scale                                       |
+| Typography      | 7 groups (display, heading, body, ui, caption, badge, code) |
+| Elevation       | 6 elevation levels                                          |
+| Semantic Tokens | Surface, border, text, icon token swatches                  |
+| Shape           | Border-radius + border-width tokens                         |
 
 ### Components
-| Page | Variants |
-|------|----------|
-| Badge | Sizes, emphases, colors, shapes, statuses |
-| Button | Actions × emphases, sizes, shapes, states, icon modes |
-| Avatar | Types, sizes, colors, emphases, shapes, statuses |
-| Alert | Statuses, sizes, emphases |
-| Icon | All 34 icons, sizes, filled |
-| Image | Aspect ratios, object fit |
-| Label | Sizes, emphases, states |
-| Link | Sizes, states, external |
-| Tag | Sizes, types, emphases, dismissible |
-| Checkbox | Sizes, states, label positions, groups |
-| Radio | Sizes, states, label positions, groups |
-| Input | Sizes, types, states, statuses |
-| Textarea | Sizes, states, statuses |
-| File Upload | Sizes, disabled |
-| Select | Sizes, statuses |
-| Card | Sizes, elevations, bordered |
-| Breadcrumb | Sizes |
-| Accordion | Sizes, emphases |
-| Dropdown | Sizes, split variant |
-| Menu | Items, headings, separators |
-| Modal | Trigger button |
-| Side Panel Menu | Expanded with primary/secondary items |
-| Tabs | Sizes, orientations |
-| Table | Sizes, zebra, bordered |
-| Carousel | Basic with colored slides |
-| Calendar | Sizes, range, monthly, quicklinks, time |
-| Datetime Picker | Single-date, range-date, time, datetime |
-| Clock | Sizes |
-| List | Sizes, description, leading/trailing, groups |
+
+| Page            | Variants                                              |
+| --------------- | ----------------------------------------------------- |
+| Badge           | Sizes, emphases, colors, shapes, statuses             |
+| Button          | Actions × emphases, sizes, shapes, states, icon modes |
+| Avatar          | Types, sizes, colors, emphases, shapes, statuses      |
+| Alert           | Statuses, sizes, emphases                             |
+| Icon            | All 34 icons, sizes, filled                           |
+| Image           | Aspect ratios, object fit                             |
+| Label           | Sizes, emphases, states                               |
+| Link            | Sizes, states, external                               |
+| Tag             | Sizes, types, emphases, dismissible                   |
+| Checkbox        | Sizes, states, label positions, groups                |
+| Radio           | Sizes, states, label positions, groups                |
+| Input           | Sizes, types, states, statuses                        |
+| Textarea        | Sizes, states, statuses                               |
+| File Upload     | Sizes, disabled                                       |
+| Select          | Sizes, statuses                                       |
+| Card            | Sizes, elevations, bordered                           |
+| Breadcrumb      | Sizes                                                 |
+| Accordion       | Sizes, emphases                                       |
+| Dropdown        | Sizes, split variant                                  |
+| Menu            | Items, headings, separators                           |
+| Modal           | Trigger button                                        |
+| Side Panel Menu | Expanded with primary/secondary items                 |
+| Tabs            | Sizes, orientations                                   |
+| Table           | Sizes, zebra, bordered                                |
+| Carousel        | Basic with colored slides                             |
+| Calendar        | Sizes, range, monthly, quicklinks, time               |
+| Datetime Picker | Single-date, range-date, time, datetime               |
+| Clock           | Sizes                                                 |
+| List            | Sizes, description, leading/trailing, groups          |
 
 ## Visual & Accessibility Tests
 

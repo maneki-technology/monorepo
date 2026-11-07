@@ -19,13 +19,11 @@ describe("ui-calendar-time", () => {
   const shadow = (el: UiCalendarTime) => el.shadowRoot!;
   const container = (el: UiCalendarTime) => shadow(el).querySelector(".container")!;
   const separator = (el: UiCalendarTime) => shadow(el).querySelector(".separator")!;
-  const hourInput = (el: UiCalendarTime) =>
-    shadow(el).querySelector('input[aria-label="Hour"]') as HTMLInputElement;
+  const hourInput = (el: UiCalendarTime) => shadow(el).querySelector('input[aria-label="Hour"]') as HTMLInputElement;
   const minuteInput = (el: UiCalendarTime) =>
     shadow(el).querySelector('input[aria-label="Minute"]') as HTMLInputElement;
   const colon = (el: UiCalendarTime) => shadow(el).querySelector(".colon")!;
-  const switchEl = (el: UiCalendarTime) =>
-    shadow(el).querySelector('[role="switch"]') as HTMLElement;
+  const switchEl = (el: UiCalendarTime) => shadow(el).querySelector('[role="switch"]') as HTMLElement;
   const amLabel = (el: UiCalendarTime) => {
     const labels = shadow(el).querySelectorAll(".toggle-label");
     return labels[0] as HTMLElement;
@@ -490,26 +488,20 @@ describe("ui-calendar-time", () => {
     it("Enter toggles AM/PM", () => {
       const el = create();
       expect(switchEl(el).hasAttribute("data-pm")).toBe(false);
-      switchEl(el).dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
-      );
+      switchEl(el).dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
       expect(switchEl(el).hasAttribute("data-pm")).toBe(true);
     });
 
     it("Space toggles AM/PM", () => {
       const el = create();
       expect(switchEl(el).hasAttribute("data-pm")).toBe(false);
-      switchEl(el).dispatchEvent(
-        new KeyboardEvent("keydown", { key: " ", bubbles: true }),
-      );
+      switchEl(el).dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
       expect(switchEl(el).hasAttribute("data-pm")).toBe(true);
     });
 
     it("other keys do not toggle", () => {
       const el = create();
-      switchEl(el).dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Tab", bubbles: true }),
-      );
+      switchEl(el).dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
       expect(switchEl(el).hasAttribute("data-pm")).toBe(false);
     });
   });
@@ -583,9 +575,7 @@ describe("ui-calendar-time", () => {
       const el = create('value="09:00"');
       const spy = vi.fn();
       el.addEventListener("change", spy);
-      hourInput(el).dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }),
-      );
+      hourInput(el).dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
       expect(spy).toHaveBeenCalledTimes(1);
     });
   });
@@ -690,34 +680,26 @@ describe("ui-calendar-time", () => {
 
     it("arrow up on hour 12 wraps to 1 (not 13)", () => {
       const el = create('value="12:00"');
-      hourInput(el).dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }),
-      );
+      hourInput(el).dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
       expect(hourInput(el).value).toBe("01");
     });
 
     it("arrow down on hour 1 wraps to 12 (not 0)", () => {
       const el = create('value="01:00"');
-      hourInput(el).dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
-      );
+      hourInput(el).dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
       expect(hourInput(el).value).toBe("12");
     });
 
     it("minute 59 + ArrowUp wraps to 00", () => {
       const el = create('value="09:59"');
-      minuteInput(el).dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }),
-      );
+      minuteInput(el).dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
       expect(minuteInput(el).value).toBe("00");
       expect(el.minute).toBe(0);
     });
 
     it("minute 0 + ArrowDown wraps to 59", () => {
       const el = create('value="09:00"');
-      minuteInput(el).dispatchEvent(
-        new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
-      );
+      minuteInput(el).dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
       expect(minuteInput(el).value).toBe("59");
       expect(el.minute).toBe(59);
     });

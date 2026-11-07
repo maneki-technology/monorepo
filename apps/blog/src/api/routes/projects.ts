@@ -10,10 +10,12 @@ import type { Env } from "../index.js";
 import { buildSetClauses, toJson, toBool } from "../db/helpers.js";
 import { safeJsonParse } from "../db/utils.js";
 
-
 const createProjectSchema = z.object({
   title: z.string().min(1),
-  slug: z.string().min(1).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase kebab-case"),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug must be lowercase kebab-case"),
   description: z.string().default(""),
   body_md: z.string().default(""),
   tech: z.array(z.string()).default([]),
@@ -79,13 +81,26 @@ export const projects = new Hono<Env>()
 
   // Create project
   .post("/", zValidator("json", createProjectSchema), async (c) => {
-    const { title, slug, description, body_md, tech, url, repo, image, pinned, sort_order, status } = c.req.valid("json");
+    const { title, slug, description, body_md, tech, url, repo, image, pinned, sort_order, status } =
+      c.req.valid("json");
     const db = c.get("db");
 
     await db.execute({
       sql: `INSERT INTO projects (title, slug, description, body_md, tech, url, repo, image, pinned, sort_order, status, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
-      args: [title, slug, description, body_md, JSON.stringify(tech), url, repo, image, pinned ? 1 : 0, sort_order, status],
+      args: [
+        title,
+        slug,
+        description,
+        body_md,
+        JSON.stringify(tech),
+        url,
+        repo,
+        image,
+        pinned ? 1 : 0,
+        sort_order,
+        status,
+      ],
     });
     const result = await db.execute({
       sql: "SELECT * FROM projects WHERE slug = ?",
@@ -98,7 +113,6 @@ export const projects = new Hono<Env>()
     };
     return c.json({ ok: true, slug, project }, 201);
   })
-
 
   // Reorder projects (must be before /:slug to avoid wildcard match)
   .put("/reorder", zValidator("json", z.object({ slugs: z.array(z.string()) })), async (c) => {
@@ -153,8 +167,14 @@ export const projects = new Hono<Env>()
 
     // Cascade slug rename to conversation tables
     if (newSlug !== slug) {
-      await db.execute({ sql: "UPDATE review_conversations SET slug = ? WHERE slug = ? AND type = 'project'", args: [newSlug, slug] });
-      await db.execute({ sql: "UPDATE brainstorm_conversations SET slug = ? WHERE slug = ? AND type = 'project'", args: [newSlug, slug] });
+      await db.execute({
+        sql: "UPDATE review_conversations SET slug = ? WHERE slug = ? AND type = 'project'",
+        args: [newSlug, slug],
+      });
+      await db.execute({
+        sql: "UPDATE brainstorm_conversations SET slug = ? WHERE slug = ? AND type = 'project'",
+        args: [newSlug, slug],
+      });
     }
     const result = await db.execute({
       sql: "SELECT * FROM projects WHERE slug = ?",
@@ -195,12 +215,20 @@ export const projects = new Hono<Env>()
       pinned: { column: "pinned", transform: toBool },
       sort_order: "sort_order",
     });
-    const setClauses: string[] = ["status = 'published'", "updated_at = datetime('now')", "published_at = datetime('now')", ...extraClauses];
+    const setClauses: string[] = [
+      "status = 'published'",
+      "updated_at = datetime('now')",
+      "published_at = datetime('now')",
+      ...extraClauses,
+    ];
 
     // Regenerate slug if it's a temp slug
     let newSlug = slug;
     if (slug.startsWith("project-") && updates.title) {
-      const base = updates.title.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, "");
+      const base = updates.title
+        .toLowerCase()
+        .replace(/[^\w]+/g, "-")
+        .replace(/(^-|-$)/g, "");
       newSlug = base;
       setClauses.push("slug = ?");
       args.push(newSlug);
@@ -213,7 +241,10 @@ export const projects = new Hono<Env>()
     });
 
     // Save published snapshot for change detection
-    const snapResult = await db.execute({ sql: "SELECT title, body_md, description, tech FROM projects WHERE slug = ?", args: [newSlug] });
+    const snapResult = await db.execute({
+      sql: "SELECT title, body_md, description, tech FROM projects WHERE slug = ?",
+      args: [newSlug],
+    });
     if (snapResult.rows.length) {
       const r = snapResult.rows[0];
       const snapshot = JSON.stringify({ title: r.title, body_md: r.body_md, description: r.description, tech: r.tech });

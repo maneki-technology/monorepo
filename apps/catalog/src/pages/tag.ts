@@ -57,23 +57,62 @@ registerPage("tag", {
 
     <h3>Colors (Bold)</h3>
     <div class="variant-row row-wrap">
-      ${["red","yellow","green","blue","lime","teal","turquoise","aqua","ultramarine","pink","purple","orange"].map(c =>
-        `<ui-tag color="${c}">${c}</ui-tag>`
-      ).join("")}
+      ${[
+        "red",
+        "yellow",
+        "green",
+        "blue",
+        "lime",
+        "teal",
+        "turquoise",
+        "aqua",
+        "ultramarine",
+        "pink",
+        "purple",
+        "orange",
+      ]
+        .map((c) => `<ui-tag color="${c}">${c}</ui-tag>`)
+        .join("")}
       <ui-tag>None (default)</ui-tag>
     </div>
     <h3>Colors (Subtle)</h3>
     <div class="variant-row row-wrap">
-      ${["red","yellow","green","blue","lime","teal","turquoise","aqua","ultramarine","pink","purple","orange"].map(c =>
-        `<ui-tag color="${c}" emphasis="subtle">${c}</ui-tag>`
-      ).join("")}
+      ${[
+        "red",
+        "yellow",
+        "green",
+        "blue",
+        "lime",
+        "teal",
+        "turquoise",
+        "aqua",
+        "ultramarine",
+        "pink",
+        "purple",
+        "orange",
+      ]
+        .map((c) => `<ui-tag color="${c}" emphasis="subtle">${c}</ui-tag>`)
+        .join("")}
       <ui-tag emphasis="subtle">None (default)</ui-tag>
     </div>
     <h3>Colors (Minimal)</h3>
     <div class="variant-row row-wrap">
-      ${["red","yellow","green","blue","lime","teal","turquoise","aqua","ultramarine","pink","purple","orange"].map(c =>
-        `<ui-tag color="${c}" emphasis="minimal">${c}</ui-tag>`
-      ).join("")}
+      ${[
+        "red",
+        "yellow",
+        "green",
+        "blue",
+        "lime",
+        "teal",
+        "turquoise",
+        "aqua",
+        "ultramarine",
+        "pink",
+        "purple",
+        "orange",
+      ]
+        .map((c) => `<ui-tag color="${c}" emphasis="minimal">${c}</ui-tag>`)
+        .join("")}
       <ui-tag emphasis="minimal">None (default)</ui-tag>
     </div>
 

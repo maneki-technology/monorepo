@@ -12,20 +12,9 @@
  *   ></chart-multi-line>
  */
 
-import {
-  TEXT_PRIMARY,
-  SURFACE_PRIMARY,
-  FONT_PRIMARY,
-  TYPE_HEADING_06,
-  TYPE_BODY_03,
-} from "@maneki/foundation";
+import { TEXT_PRIMARY, SURFACE_PRIMARY, FONT_PRIMARY, TYPE_HEADING_06, TYPE_BODY_03 } from "@maneki/foundation";
 
-import type {
-  AxisConfig,
-  LegendItem,
-  ChartEventDetail,
-  DataValue,
-} from "../core/types.js";
+import type { AxisConfig, LegendItem, ChartEventDetail, DataValue } from "../core/types.js";
 import { linearScale, categoryScale } from "../core/scales.js";
 import { renderYGridLines, renderYLabels, renderXLabels } from "../core/axis.js";
 import { renderChartHeader } from "../core/header.js";
@@ -67,9 +56,18 @@ export interface MultiLineChartOptions {
 // ---------------------------------------------------------------------------
 
 const OBSERVED_ATTRS = [
-  "title", "labels", "datasets", "show-grid", "show-legend",
-  "show-tooltips", "show-points", "point-radius", "line-width",
-  "tension", "label-rotation", "description",
+  "title",
+  "labels",
+  "datasets",
+  "show-grid",
+  "show-legend",
+  "show-tooltips",
+  "show-points",
+  "point-radius",
+  "line-width",
+  "tension",
+  "label-rotation",
+  "description",
 ] as const;
 
 const STYLES = /* css */ `
@@ -98,7 +96,11 @@ svg { width: 100%; height: auto; display: block; font-family: var(--chart-font, 
 
 function tryParseJSON<T>(v: string | null): T | null {
   if (!v) return null;
-  try { return JSON.parse(v) as T; } catch { return null; }
+  try {
+    return JSON.parse(v) as T;
+  } catch {
+    return null;
+  }
 }
 function boolAttr(el: Element, n: string, d: boolean): boolean {
   if (!el.hasAttribute(n)) return d;
@@ -139,7 +141,9 @@ class ChartMultiLineElement extends HTMLElement {
   private _tooltip: HTMLDivElement;
   private _renderScheduled = false;
 
-  static get observedAttributes(): readonly string[] { return OBSERVED_ATTRS; }
+  static get observedAttributes(): readonly string[] {
+    return OBSERVED_ATTRS;
+  }
 
   constructor() {
     super();
@@ -156,10 +160,20 @@ class ChartMultiLineElement extends HTMLElement {
     shadow.appendChild(this._tooltip);
   }
 
-  get datasets(): MultiLineDataset[] { return this._datasets; }
-  set datasets(v: MultiLineDataset[]) { this._datasets = v; this._scheduleRender(); }
-  get options(): MultiLineChartOptions { return this._options; }
-  set options(v: MultiLineChartOptions) { this._options = v; this._scheduleRender(); }
+  get datasets(): MultiLineDataset[] {
+    return this._datasets;
+  }
+  set datasets(v: MultiLineDataset[]) {
+    this._datasets = v;
+    this._scheduleRender();
+  }
+  get options(): MultiLineChartOptions {
+    return this._options;
+  }
+  set options(v: MultiLineChartOptions) {
+    this._options = v;
+    this._scheduleRender();
+  }
 
   attributeChangedCallback(_: string, o: string | null, n: string | null): void {
     if (o === n) return;
@@ -197,7 +211,10 @@ class ChartMultiLineElement extends HTMLElement {
   private _scheduleRender(): void {
     if (this._renderScheduled) return;
     this._renderScheduled = true;
-    requestAnimationFrame(() => { this._renderScheduled = false; this._render(); });
+    requestAnimationFrame(() => {
+      this._renderScheduled = false;
+      this._render();
+    });
   }
 
   private _render(): void {
@@ -222,7 +239,8 @@ class ChartMultiLineElement extends HTMLElement {
 
     const colors = datasets.map((ds, i) => getDatasetColor(i, ds.color));
     const legendItems: LegendItem[] = datasets.map((ds, i) => ({
-      label: ds.label, color: colors[i],
+      label: ds.label,
+      color: colors[i],
     }));
 
     const textColor = `var(--chart-text-color, ${TEXT_PRIMARY})`;
@@ -237,7 +255,7 @@ class ChartMultiLineElement extends HTMLElement {
       textColor,
     });
 
-    const hasRight = datasets.some(ds => ds.yAxisID === "right");
+    const hasRight = datasets.some((ds) => ds.yAxisID === "right");
     const leftPad = 80;
     const rightPad = hasRight ? 80 : 40;
     const bottomPad = 60 + (opts.labelRotation ? Math.sin((opts.labelRotation * Math.PI) / 180) * 50 : 0);
@@ -249,12 +267,13 @@ class ChartMultiLineElement extends HTMLElement {
     const plot = { x: plotX, y: plotY, width: plotW, height: plotH };
 
     // Split datasets by axis
-    const leftDS = datasets.filter(ds => ds.yAxisID !== "right");
-    const rightDS = datasets.filter(ds => ds.yAxisID === "right");
+    const leftDS = datasets.filter((ds) => ds.yAxisID !== "right");
+    const rightDS = datasets.filter((ds) => ds.yAxisID === "right");
 
     // Compute extents per axis
     function extent(dsList: MultiLineDataset[]): { min: number; max: number } {
-      let min = Infinity, max = -Infinity;
+      let min = Infinity,
+        max = -Infinity;
       for (const ds of dsList) {
         for (const v of ds.data) {
           if (v === null) continue;

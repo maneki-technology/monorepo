@@ -335,5 +335,4 @@ describe("UiMenu", () => {
     expect(MENU_STYLES).toContain("--ui-menu-radius");
     expect(MENU_STYLES).toContain("--ui-menu-min-width");
   });
-
 });

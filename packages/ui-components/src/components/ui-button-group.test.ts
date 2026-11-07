@@ -24,14 +24,7 @@ describe("ui-button-group", () => {
     const Ctor = customElements.get("ui-button-group") as unknown as {
       observedAttributes: string[];
     };
-    expect(Ctor.observedAttributes).toEqual([
-      "size",
-      "action",
-      "emphasis",
-      "shape",
-      "orientation",
-      "aria-label",
-    ]);
+    expect(Ctor.observedAttributes).toEqual(["size", "action", "emphasis", "shape", "orientation", "aria-label"]);
   });
 
   // ── Size property ────────────────────────────────────────────────────
@@ -47,9 +40,7 @@ describe("ui-button-group", () => {
   it("exposes action property", () => {
     (el as unknown as { action: string | null }).action = "destructive";
     expect(el.getAttribute("action")).toBe("destructive");
-    expect((el as unknown as { action: string | null }).action).toBe(
-      "destructive"
-    );
+    expect((el as unknown as { action: string | null }).action).toBe("destructive");
   });
 
   // ── Emphasis property ────────────────────────────────────────────────
@@ -57,9 +48,7 @@ describe("ui-button-group", () => {
   it("exposes emphasis property", () => {
     (el as unknown as { emphasis: string | null }).emphasis = "subtle";
     expect(el.getAttribute("emphasis")).toBe("subtle");
-    expect((el as unknown as { emphasis: string | null }).emphasis).toBe(
-      "subtle"
-    );
+    expect((el as unknown as { emphasis: string | null }).emphasis).toBe("subtle");
   });
 
   // ── Shape property ──────────────────────────────────────────────────

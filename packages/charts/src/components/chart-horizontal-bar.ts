@@ -11,20 +11,9 @@
  *   ></chart-horizontal-bar>
  */
 
-import {
-  TEXT_PRIMARY,
-  SURFACE_PRIMARY,
-  FONT_PRIMARY,
-  TYPE_HEADING_06,
-  TYPE_BODY_03,
-} from "@maneki/foundation";
+import { TEXT_PRIMARY, SURFACE_PRIMARY, FONT_PRIMARY, TYPE_HEADING_06, TYPE_BODY_03 } from "@maneki/foundation";
 
-import type {
-  Dataset,
-  BarChartOptions,
-  LegendItem,
-  ChartEventDetail,
-} from "../core/types.js";
+import type { Dataset, BarChartOptions, LegendItem, ChartEventDetail } from "../core/types.js";
 import { linearScale, categoryScale, dataExtent } from "../core/scales.js";
 import { renderChartHeader } from "../core/header.js";
 import { getDatasetColor, GRID_LINE_COLOR } from "../core/colors.js";
@@ -34,8 +23,15 @@ const VIEWBOX_W = 960;
 const VIEWBOX_H = 960;
 
 const OBSERVED_ATTRS = [
-  "title", "labels", "datasets", "show-grid", "show-legend",
-  "show-tooltips", "bar-gap", "group-gap", "description",
+  "title",
+  "labels",
+  "datasets",
+  "show-grid",
+  "show-legend",
+  "show-tooltips",
+  "bar-gap",
+  "group-gap",
+  "description",
 ] as const;
 
 const STYLES = /* css */ `
@@ -64,7 +60,11 @@ svg { width: 100%; height: auto; display: block; font-family: var(--chart-font, 
 
 function tryParseJSON<T>(v: string | null): T | null {
   if (!v) return null;
-  try { return JSON.parse(v) as T; } catch { return null; }
+  try {
+    return JSON.parse(v) as T;
+  } catch {
+    return null;
+  }
 }
 function boolAttr(el: Element, n: string, d: boolean): boolean {
   if (!el.hasAttribute(n)) return d;
@@ -84,7 +84,9 @@ class ChartHorizontalBarElement extends HTMLElement {
   private _tooltip: HTMLDivElement;
   private _renderScheduled = false;
 
-  static get observedAttributes(): readonly string[] { return OBSERVED_ATTRS; }
+  static get observedAttributes(): readonly string[] {
+    return OBSERVED_ATTRS;
+  }
 
   constructor() {
     super();
@@ -101,10 +103,20 @@ class ChartHorizontalBarElement extends HTMLElement {
     shadow.appendChild(this._tooltip);
   }
 
-  get datasets(): Dataset[] { return this._datasets; }
-  set datasets(v: Dataset[]) { this._datasets = v; this._scheduleRender(); }
-  get options(): BarChartOptions { return this._options; }
-  set options(v: BarChartOptions) { this._options = v; this._scheduleRender(); }
+  get datasets(): Dataset[] {
+    return this._datasets;
+  }
+  set datasets(v: Dataset[]) {
+    this._datasets = v;
+    this._scheduleRender();
+  }
+  get options(): BarChartOptions {
+    return this._options;
+  }
+  set options(v: BarChartOptions) {
+    this._options = v;
+    this._scheduleRender();
+  }
 
   attributeChangedCallback(_: string, o: string | null, n: string | null): void {
     if (o === n) return;
@@ -139,7 +151,10 @@ class ChartHorizontalBarElement extends HTMLElement {
   private _scheduleRender(): void {
     if (this._renderScheduled) return;
     this._renderScheduled = true;
-    requestAnimationFrame(() => { this._renderScheduled = false; this._render(); });
+    requestAnimationFrame(() => {
+      this._renderScheduled = false;
+      this._render();
+    });
   }
 
   private _render(): void {
@@ -164,7 +179,8 @@ class ChartHorizontalBarElement extends HTMLElement {
 
     const colors = datasets.map((ds, i) => getDatasetColor(i, ds.color));
     const legendItems: LegendItem[] = datasets.map((ds, i) => ({
-      label: ds.label, color: colors[i],
+      label: ds.label,
+      color: colors[i],
     }));
 
     const textColor = `var(--chart-text-color, ${TEXT_PRIMARY})`;
@@ -305,15 +321,19 @@ class ChartHorizontalBarElement extends HTMLElement {
     const rect = e.target as SVGRectElement;
     const di = Number(rect.dataset.datasetIndex);
     const ci = Number(rect.dataset.dataIndex);
-    this.dispatchEvent(new CustomEvent<ChartEventDetail>("chart-click", {
-      detail: {
-        datasetIndex: di, dataIndex: ci,
-        value: this._datasets[di].data[ci],
-        datasetLabel: this._datasets[di].label,
-        categoryLabel: this._options.labels[ci],
-      },
-      bubbles: true, composed: true,
-    }));
+    this.dispatchEvent(
+      new CustomEvent<ChartEventDetail>("chart-click", {
+        detail: {
+          datasetIndex: di,
+          dataIndex: ci,
+          value: this._datasets[di].data[ci],
+          datasetLabel: this._datasets[di].label,
+          categoryLabel: this._options.labels[ci],
+        },
+        bubbles: true,
+        composed: true,
+      }),
+    );
   };
 }
 

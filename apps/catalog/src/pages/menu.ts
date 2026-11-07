@@ -10,16 +10,19 @@ registerPage("menu", {
   render: () => `
     <h3>Sizes</h3>
     <div class="variant-row pos-relative min-h-200 gap-48">
-      ${["s", "m", "l"].map(size =>
-        `<div class="variant-col">
+      ${["s", "m", "l"]
+        .map(
+          (size) =>
+            `<div class="variant-col">
           <span class="variant-label">${size.toUpperCase()}</span>
           <ui-menu size="${size}" open class="pos-relative">
             <ui-dropdown-item value="a">Option A</ui-dropdown-item>
             <ui-dropdown-item value="b">Option B</ui-dropdown-item>
             <ui-dropdown-item value="c">Option C</ui-dropdown-item>
           </ui-menu>
-        </div>`
-      ).join("")}
+        </div>`,
+        )
+        .join("")}
     </div>
 
     <h3>With Headings &amp; Separators</h3>

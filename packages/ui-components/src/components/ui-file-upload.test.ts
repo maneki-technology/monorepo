@@ -27,9 +27,7 @@ describe("ui-file-upload", () => {
   });
 
   it("defaults placeholder to 'Choose files to upload'", () => {
-    expect((el as unknown as { placeholder: string }).placeholder).toBe(
-      "Choose files to upload",
-    );
+    expect((el as unknown as { placeholder: string }).placeholder).toBe("Choose files to upload");
   });
 
   it("defaults buttonText to 'Browse'", () => {
@@ -127,17 +125,13 @@ describe("ui-file-upload", () => {
 
   it("passes accept to hidden input", () => {
     (el as unknown as { accept: string }).accept = "image/*";
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     expect(hiddenInput.accept).toBe("image/*");
   });
 
   it("sets accept via attribute", () => {
     el.setAttribute("accept", ".pdf,.doc");
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     expect(hiddenInput.accept).toBe(".pdf,.doc");
   });
 
@@ -145,9 +139,7 @@ describe("ui-file-upload", () => {
 
   it("passes multiple to hidden input", () => {
     (el as unknown as { multiple: boolean }).multiple = true;
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     expect(hiddenInput.multiple).toBe(true);
   });
 
@@ -177,25 +169,19 @@ describe("ui-file-upload", () => {
 
   it("disables hidden input when disabled", () => {
     (el as unknown as { disabled: boolean }).disabled = true;
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     expect(hiddenInput.disabled).toBe(true);
   });
 
   it("disables browse button when disabled", () => {
     (el as unknown as { disabled: boolean }).disabled = true;
-    const btn = el.shadowRoot!.querySelector(
-      ".browse-btn",
-    ) as HTMLButtonElement;
+    const btn = el.shadowRoot!.querySelector(".browse-btn") as HTMLButtonElement;
     expect(btn.disabled).toBe(true);
   });
 
   it("does not open file picker when disabled", () => {
     (el as unknown as { disabled: boolean }).disabled = true;
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     const spy = vi.spyOn(hiddenInput, "click");
     // Manually call _openPicker to test the guard
     (el as unknown as { _openPicker: () => void })._openPicker();
@@ -206,9 +192,7 @@ describe("ui-file-upload", () => {
 
   it("passes name to hidden input", () => {
     (el as unknown as { name: string }).name = "avatar";
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     expect(hiddenInput.name).toBe("avatar");
   });
 
@@ -219,9 +203,7 @@ describe("ui-file-upload", () => {
     el.addEventListener("change", ((e: CustomEvent) => {
       detail = e.detail;
     }) as EventListener);
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
     expect(detail).toBeTruthy();
     expect(detail!.files).toBeDefined();
@@ -232,9 +214,7 @@ describe("ui-file-upload", () => {
     el.addEventListener("change", ((e: CustomEvent) => {
       event = e;
     }) as EventListener);
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
     expect(event).toBeTruthy();
     expect(event!.bubbles).toBe(true);
@@ -244,9 +224,7 @@ describe("ui-file-upload", () => {
   // ── Reset method ─────────────────────────────────────────────────────────
 
   it("reset clears the hidden input value", () => {
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     // We can't programmatically set files, but we can verify reset clears value
     (el as unknown as { reset: () => void }).reset();
     expect(hiddenInput.value).toBe("");
@@ -282,9 +260,7 @@ describe("ui-file-upload", () => {
   });
 
   it("hidden input is type file", () => {
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     expect(hiddenInput.type).toBe("file");
   });
 
@@ -310,34 +286,24 @@ describe("ui-file-upload", () => {
   });
 
   it("hidden input has aria-hidden='true'", () => {
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     expect(hiddenInput.getAttribute("aria-hidden")).toBe("true");
   });
 
   // ── Click behavior ───────────────────────────────────────────────────────
 
   it("opens file picker when browse button is clicked", () => {
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     const spy = vi.spyOn(hiddenInput, "click");
-    const btn = el.shadowRoot!.querySelector(
-      ".browse-btn",
-    ) as HTMLButtonElement;
+    const btn = el.shadowRoot!.querySelector(".browse-btn") as HTMLButtonElement;
     btn.click();
     expect(spy).toHaveBeenCalled();
   });
 
   it("opens file picker when display area is clicked", () => {
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     const spy = vi.spyOn(hiddenInput, "click");
-    const displayArea = el.shadowRoot!.querySelector(
-      ".display-area",
-    ) as HTMLDivElement;
+    const displayArea = el.shadowRoot!.querySelector(".display-area") as HTMLDivElement;
     displayArea.click();
     expect(spy).toHaveBeenCalled();
   });
@@ -345,18 +311,14 @@ describe("ui-file-upload", () => {
   // ── Keyboard behavior ────────────────────────────────────────────────────
 
   it("opens file picker on Enter key", () => {
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     const spy = vi.spyOn(hiddenInput, "click");
     el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
     expect(spy).toHaveBeenCalled();
   });
 
   it("opens file picker on Space key", () => {
-    const hiddenInput = el.shadowRoot!.querySelector(
-      ".hidden-input",
-    ) as HTMLInputElement;
+    const hiddenInput = el.shadowRoot!.querySelector(".hidden-input") as HTMLInputElement;
     const spy = vi.spyOn(hiddenInput, "click");
     el.dispatchEvent(new KeyboardEvent("keydown", { key: " " }));
     expect(spy).toHaveBeenCalled();

@@ -20,10 +20,7 @@ describe("ui-side-panel-menu", () => {
     return panel.shadowRoot!;
   }
 
-  function createMenu(
-    attrs: Record<string, string> = {},
-    itemCount = 3,
-  ): HTMLElement {
+  function createMenu(attrs: Record<string, string> = {}, itemCount = 3): HTMLElement {
     const menu = document.createElement("ui-side-panel-menu");
     for (let i = 0; i < itemCount; i++) {
       const item = document.createElement("ui-side-panel-menu-item");
@@ -256,9 +253,7 @@ describe("ui-side-panel-menu", () => {
     const menuEl = menu.shadowRoot!.querySelector(".menu") as HTMLElement;
 
     // Simulate ArrowDown
-    menuEl.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }),
-    );
+    menuEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
 
     // Verify the event was handled (no error thrown)
     expect(true).toBe(true);
@@ -268,9 +263,7 @@ describe("ui-side-panel-menu", () => {
     const menu = createMenu();
     const menuEl = menu.shadowRoot!.querySelector(".menu") as HTMLElement;
 
-    menuEl.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }),
-    );
+    menuEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowUp", bubbles: true }));
 
     expect(true).toBe(true);
   });
@@ -279,9 +272,7 @@ describe("ui-side-panel-menu", () => {
     const menu = createMenu();
     const menuEl = menu.shadowRoot!.querySelector(".menu") as HTMLElement;
 
-    menuEl.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Home", bubbles: true }),
-    );
+    menuEl.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true }));
 
     expect(true).toBe(true);
   });
@@ -290,9 +281,7 @@ describe("ui-side-panel-menu", () => {
     const menu = createMenu();
     const menuEl = menu.shadowRoot!.querySelector(".menu") as HTMLElement;
 
-    menuEl.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "End", bubbles: true }),
-    );
+    menuEl.dispatchEvent(new KeyboardEvent("keydown", { key: "End", bubbles: true }));
 
     expect(true).toBe(true);
   });
@@ -308,9 +297,7 @@ describe("ui-side-panel-menu", () => {
     // ArrowRight on an expandable, collapsed item should expand it
     // This tests the handler doesn't throw
     const menuEl = menu.shadowRoot!.querySelector(".menu") as HTMLElement;
-    menuEl.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
-    );
+    menuEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
 
     expect(true).toBe(true);
   });
@@ -325,9 +312,7 @@ describe("ui-side-panel-menu", () => {
     document.body.appendChild(menu);
 
     const menuEl = menu.shadowRoot!.querySelector(".menu") as HTMLElement;
-    menuEl.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }),
-    );
+    menuEl.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
 
     expect(true).toBe(true);
   });

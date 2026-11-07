@@ -142,7 +142,11 @@ describe("ui-step-group", () => {
   // ── First / Last auto-set ─────────────────────────────────────────────────
 
   it("sets first on the first child item", async () => {
-    const items = [document.createElement("ui-step-item"), document.createElement("ui-step-item"), document.createElement("ui-step-item")];
+    const items = [
+      document.createElement("ui-step-item"),
+      document.createElement("ui-step-item"),
+      document.createElement("ui-step-item"),
+    ];
     items.forEach((i) => el.appendChild(i));
     await new Promise((r) => setTimeout(r, 0));
     expect(items[0].hasAttribute("first")).toBe(true);
@@ -151,7 +155,11 @@ describe("ui-step-group", () => {
   });
 
   it("sets last on the last child item", async () => {
-    const items = [document.createElement("ui-step-item"), document.createElement("ui-step-item"), document.createElement("ui-step-item")];
+    const items = [
+      document.createElement("ui-step-item"),
+      document.createElement("ui-step-item"),
+      document.createElement("ui-step-item"),
+    ];
     items.forEach((i) => el.appendChild(i));
     await new Promise((r) => setTimeout(r, 0));
     expect(items[0].hasAttribute("last")).toBe(false);

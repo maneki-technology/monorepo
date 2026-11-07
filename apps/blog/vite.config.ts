@@ -76,10 +76,7 @@ export default defineConfig(({ command }) => ({
       },
       output: {
         manualChunks(id) {
-          if (
-            id.includes("packages/foundation/") ||
-            id.includes("@maneki/foundation")
-          ) {
+          if (id.includes("packages/foundation/") || id.includes("@maneki/foundation")) {
             return "vendor-foundation";
           }
         },

@@ -1,6 +1,6 @@
 # Blog Architecture
 
-*Snapshot: April 2026*
+_Snapshot: April 2026_
 
 ## Overview
 
@@ -34,17 +34,17 @@ Full-stack blog and portfolio app deployed on Cloudflare Pages. Two distinct fro
 
 9 custom plugins run during build, in this order:
 
-| Plugin | Phase | Responsibility |
-|---|---|---|
-| `admin-html-routes` | dev server | Rewrites `/admin/*` URLs to HTML files before SPA fallback |
-| `inject-tokens` | transformIndexHtml | Injects foundation + HeroUI CSS tokens into `<head>` (eliminates FOUC) |
-| `markdown-posts` | virtual module | `virtual:posts`, `virtual:drafts` — Turso → markdown-it + Shiki → HTML |
-| `portfolio-projects` | virtual module | `virtual:projects` — Turso → HTML |
-| `photography` | virtual module | `virtual:photos`, `virtual:albums` — Turso → JSON |
-| `auto-ui-components` | transform | Auto-registers `@maneki/ui-components` |
-| `sitemap` | closeBundle | Generates `sitemap.xml` from Turso slugs |
-| `rss-feed` | closeBundle | Generates `rss.xml` from Turso posts |
-| `pages` | virtual module | `virtual:pages` — generic CMS pages from Turso → HTML |
+| Plugin               | Phase              | Responsibility                                                         |
+| -------------------- | ------------------ | ---------------------------------------------------------------------- |
+| `admin-html-routes`  | dev server         | Rewrites `/admin/*` URLs to HTML files before SPA fallback             |
+| `inject-tokens`      | transformIndexHtml | Injects foundation + HeroUI CSS tokens into `<head>` (eliminates FOUC) |
+| `markdown-posts`     | virtual module     | `virtual:posts`, `virtual:drafts` — Turso → markdown-it + Shiki → HTML |
+| `portfolio-projects` | virtual module     | `virtual:projects` — Turso → HTML                                      |
+| `photography`        | virtual module     | `virtual:photos`, `virtual:albums` — Turso → JSON                      |
+| `auto-ui-components` | transform          | Auto-registers `@maneki/ui-components`                                 |
+| `sitemap`            | closeBundle        | Generates `sitemap.xml` from Turso slugs                               |
+| `rss-feed`           | closeBundle        | Generates `rss.xml` from Turso posts                                   |
+| `pages`              | virtual module     | `virtual:pages` — generic CMS pages from Turso → HTML                  |
 
 ### Virtual Modules
 
@@ -57,6 +57,7 @@ Turso DB ──(build time)──→ Vite plugin ──→ virtual module ──
 ```
 
 6 virtual modules:
+
 - `virtual:posts` — published blog posts (markdown → HTML with Shiki highlighting)
 - `virtual:drafts` — draft posts (same pipeline)
 - `virtual:projects` — portfolio projects
@@ -101,21 +102,21 @@ The CF Pages Functions adapter is a single file: `functions/api/[[route]].ts` ca
 
 ### Route Surface
 
-| Route | Purpose |
-|---|---|
-| `/api/posts` | Blog post CRUD |
-| `/api/projects` | Portfolio project CRUD |
-| `/api/tags` | Tag management (shared across posts + photos) |
-| `/api/pages` | Generic CMS page CRUD |
-| `/api/photos` | Photo CRUD (R2 storage) |
-| `/api/albums` | Album CRUD |
-| `/api/images` | Image upload to R2 |
-| `/api/ui-state` | Per-user UI state persistence |
-| `/api/deploy` | GitHub Actions `repository_dispatch` trigger |
-| `/api/review` | AI review (Claude streaming via CF AI Gateway) |
-| `/api/review-conversations` | Review conversation persistence |
-| `/api/brainstorm` | AI brainstorm (Claude streaming) |
-| `/api/brainstorm-conversations` | Brainstorm conversation persistence |
+| Route                           | Purpose                                        |
+| ------------------------------- | ---------------------------------------------- |
+| `/api/posts`                    | Blog post CRUD                                 |
+| `/api/projects`                 | Portfolio project CRUD                         |
+| `/api/tags`                     | Tag management (shared across posts + photos)  |
+| `/api/pages`                    | Generic CMS page CRUD                          |
+| `/api/photos`                   | Photo CRUD (R2 storage)                        |
+| `/api/albums`                   | Album CRUD                                     |
+| `/api/images`                   | Image upload to R2                             |
+| `/api/ui-state`                 | Per-user UI state persistence                  |
+| `/api/deploy`                   | GitHub Actions `repository_dispatch` trigger   |
+| `/api/review`                   | AI review (Claude streaming via CF AI Gateway) |
+| `/api/review-conversations`     | Review conversation persistence                |
+| `/api/brainstorm`               | AI brainstorm (Claude streaming)               |
+| `/api/brainstorm-conversations` | Brainstorm conversation persistence            |
 
 ### RPC Typing
 
@@ -136,6 +137,7 @@ Route paths, request bodies, and response shapes are all inferred from the Hono 
 ### Authentication
 
 CF Access sits in front of admin pages and API routes. The auth middleware:
+
 1. Reads `Cf-Access-Jwt-Assertion` header
 2. Fetches CF's public RSA certs (cached after first call)
 3. Validates JWT signature, expiration, issuer, audience
@@ -146,20 +148,20 @@ CF Access sits in front of admin pages and API routes. The auth middleware:
 
 10 tables in Turso (libSQL):
 
-| Table | Purpose | Key patterns |
-|---|---|---|
-| `posts` | Blog posts | Soft delete (draft/published/deleted), `published_snapshot` JSON for change detection |
-| `projects` | Portfolio items | Same soft delete + snapshot pattern, `pinned` + `sort_order` for ordering |
-| `pages` | Generic CMS pages | Markdown content + custom CSS (`styles` column) |
-| `albums` | Photo albums | Location + lat/lng, `cover_photo_id` FK |
-| `photos` | Individual photos | R2 key, thumbhash, EXIF JSON, `featured` flag |
-| `tags` | Shared tag registry | Name + slug |
-| `post_tags` | Post↔tag junction | Cascade delete |
-| `photo_tags` | Photo↔tag junction | Cascade delete |
-| `ui_state` | Per-user UI state | Composite PK (user_email, page), JSON state |
-| `deployments` | Deploy tracking | Status (building/deploying/success/failure) |
-| `review_conversations` | AI review chat | Composite PK (slug, type), messages JSON |
-| `brainstorm_conversations` | AI brainstorm chat | Composite PK (slug, type), messages JSON |
+| Table                      | Purpose             | Key patterns                                                                          |
+| -------------------------- | ------------------- | ------------------------------------------------------------------------------------- |
+| `posts`                    | Blog posts          | Soft delete (draft/published/deleted), `published_snapshot` JSON for change detection |
+| `projects`                 | Portfolio items     | Same soft delete + snapshot pattern, `pinned` + `sort_order` for ordering             |
+| `pages`                    | Generic CMS pages   | Markdown content + custom CSS (`styles` column)                                       |
+| `albums`                   | Photo albums        | Location + lat/lng, `cover_photo_id` FK                                               |
+| `photos`                   | Individual photos   | R2 key, thumbhash, EXIF JSON, `featured` flag                                         |
+| `tags`                     | Shared tag registry | Name + slug                                                                           |
+| `post_tags`                | Post↔tag junction   | Cascade delete                                                                        |
+| `photo_tags`               | Photo↔tag junction  | Cascade delete                                                                        |
+| `ui_state`                 | Per-user UI state   | Composite PK (user_email, page), JSON state                                           |
+| `deployments`              | Deploy tracking     | Status (building/deploying/success/failure)                                           |
+| `review_conversations`     | AI review chat      | Composite PK (slug, type), messages JSON                                              |
+| `brainstorm_conversations` | AI brainstorm chat  | Composite PK (slug, type), messages JSON                                              |
 
 ### Data Patterns
 
@@ -197,12 +199,12 @@ Workbox service worker caches JS/CSS/woff2 only. HTML always comes from network 
 
 4 separate HTML pages, each with its own entry script. No SPA routing — CF Pages serves them as static files.
 
-| Page | Entry | Component | Purpose |
-|---|---|---|---|
-| `/admin` | `hub-entry.ts` | `<admin-hub>` | Dashboard with cards linking to editor, gallery, pages |
-| `/admin/editor` | `editor-entry.ts` | `editor-page.ts` | Post/project editor |
-| `/admin/gallery` | `gallery-entry.ts` | `<admin-gallery>` | Photo/album CRUD with upload wizard |
-| `/admin/pages` | `pages-entry.ts` | `<admin-pages>` | Generic page editor (about, resume) |
+| Page             | Entry              | Component         | Purpose                                                |
+| ---------------- | ------------------ | ----------------- | ------------------------------------------------------ |
+| `/admin`         | `hub-entry.ts`     | `<admin-hub>`     | Dashboard with cards linking to editor, gallery, pages |
+| `/admin/editor`  | `editor-entry.ts`  | `editor-page.ts`  | Post/project editor                                    |
+| `/admin/gallery` | `gallery-entry.ts` | `<admin-gallery>` | Photo/album CRUD with upload wizard                    |
+| `/admin/pages`   | `pages-entry.ts`   | `<admin-pages>`   | Generic page editor (about, resume)                    |
 
 All admin pages share: `<theme-toggle fab>` (top-right), `<deploy-fab>` (floating deploy button), HeroUI theme.
 
@@ -255,6 +257,7 @@ Review and brainstorm panels stream Claude responses via CF AI Gateway (avoids A
 ### Gallery Module
 
 7 files for photo/album management:
+
 - `gallery.ts` — main Lit component
 - `gallery-album-modal.ts` — album create/edit modal
 - `gallery-photo-modal.ts` — photo detail/edit modal
@@ -297,4 +300,4 @@ Content changes require a full rebuild because all data is baked at build time. 
 
 ---
 
-*This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records.*
+_This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records._

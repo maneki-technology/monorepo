@@ -103,7 +103,7 @@ describe("minifyCss", () => {
   });
 
   it("preserves space after } before :host selector", () => {
-    const input = ':host([a]) button { color: red; } :host([b]) button { color: blue; }';
+    const input = ":host([a]) button { color: red; } :host([b]) button { color: blue; }";
     const result = minifyCss(input);
     expect(result).toContain("} :host");
     expect(result).not.toContain("}:host");

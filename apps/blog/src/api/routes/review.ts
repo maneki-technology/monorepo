@@ -53,128 +53,135 @@ function buildAudienceContext(audience: string): string {
   }
 }
 
-export const review = new Hono<Env>().post(
-  "/",
-  zValidator("json", reviewSchema),
-  async (c) => {
-    const apiKey = c.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      return c.json({ error: "ANTHROPIC_API_KEY not configured" }, 500);
-    }
+export const review = new Hono<Env>().post("/", zValidator("json", reviewSchema), async (c) => {
+  const apiKey = c.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return c.json({ error: "ANTHROPIC_API_KEY not configured" }, 500);
+  }
 
-    const { title, content, excerpt, tags, audience, slug, type, history } = c.req.valid("json");
+  const { title, content, excerpt, tags, audience, slug, type, history } = c.req.valid("json");
 
-    // Fetch brainstorm conversation for context (if any)
-    let brainstormContext = "";
-    if (slug) {
-      try {
-        const db = c.get("db");
-        const result = await db.execute({
-          sql: "SELECT messages FROM brainstorm_conversations WHERE slug = ? AND type = ?",
-          args: [slug, type],
-        });
-        if (result.rows.length > 0) {
-          const msgs = JSON.parse(result.rows[0].messages as string) as Array<{ role: string; content: string }>;
-          if (msgs.length > 0) {
-            const summary = msgs.map((m) => `${m.role === "user" ? "Writer" : "AI"}: ${m.content.slice(0, 500)}`).join("\n\n");
-            brainstormContext = `\n\n## Prior brainstorm discussion\nThe writer had this brainstorm session before requesting review:\n\n${summary.slice(0, 3000)}`;
-          }
-        }
-      } catch {
-        // Silently skip if brainstorm fetch fails
-      }
-    }
-
-    const postContext = [
-      `# Post to Review`,
-      `**Title:** ${title || "(untitled)"}`,
-      excerpt ? `**Excerpt:** ${excerpt}` : "",
-      tags ? `**Tags:** ${tags}` : "",
-      `**Target audience:** ${audience}`,
-      "",
-      `## Content`,
-      content,
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    const audienceContext = buildAudienceContext(audience);
-
-    // Build messages: first message includes post context, then conversation history
-    const messages: Array<{ role: "user" | "assistant"; content: string }> = [];
-
-    if (history.length === 0) {
-      // Initial review request
-      messages.push({
-        role: "user",
-        content: `${audienceContext}\n\nPlease review this blog post draft:\n\n${postContext}${brainstormContext}`,
+  // Fetch brainstorm conversation for context (if any)
+  let brainstormContext = "";
+  if (slug) {
+    try {
+      const db = c.get("db");
+      const result = await db.execute({
+        sql: "SELECT messages FROM brainstorm_conversations WHERE slug = ? AND type = ?",
+        args: [slug, type],
       });
-    } else {
-      // Conversation continuation — first message has post context, rest is history
-      messages.push({
-        role: "user",
-        content: `${audienceContext}\n\nHere is the blog post draft for context:\n\n${postContext}${brainstormContext}`,
-      });
-      messages.push(...history.map((m) => ({ role: m.role, content: m.content })));
-    }
-
-    c.header("content-type", "text/event-stream");
-    c.header("cache-control", "no-cache");
-
-    return streamText(c, async (stream) => {
-      try {
-        const res = await fetch(`${c.env.AI_GATEWAY_URL}/anthropic/v1/messages`, {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            "x-api-key": apiKey,
-            "anthropic-version": "2023-06-01",
-          },
-          body: JSON.stringify({
-            model: "claude-sonnet-4-6",
-            max_tokens: 4096,
-            stream: true,
-            system: SYSTEM_PROMPT,
-            messages,
-          }),
-        });
-
-        if (!res.ok) {
-          const errText = await res.text();
-          await stream.writeln(JSON.stringify({ type: "error", message: `${res.status} ${errText}` }));
-          return;
+      if (result.rows.length > 0) {
+        const msgs = JSON.parse(result.rows[0].messages as string) as Array<{ role: string; content: string }>;
+        if (msgs.length > 0) {
+          const summary = msgs
+            .map((m) => `${m.role === "user" ? "Writer" : "AI"}: ${m.content.slice(0, 500)}`)
+            .join("\n\n");
+          brainstormContext = `\n\n## Prior brainstorm discussion\nThe writer had this brainstorm session before requesting review:\n\n${summary.slice(0, 3000)}`;
         }
-
-        const reader = res.body?.getReader();
-        if (!reader) { await stream.writeln(JSON.stringify({ type: "error", message: "No stream" })); return; }
-        const decoder = new TextDecoder();
-        let buf = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buf += decoder.decode(value, { stream: true });
-          const lines = buf.split("\n");
-          buf = lines.pop() || "";
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const data = line.slice(6);
-            if (data === "[DONE]") continue;
-            try {
-              const event = JSON.parse(data);
-              if (event.type === "content_block_delta" && event.delta?.text) {
-                await stream.writeln(JSON.stringify({ type: "content", data: event.delta.text }));
-              }
-            } catch { /* skip */ }
-          }
-        }
-
-        await stream.writeln(JSON.stringify({ type: "done" }));
-      } catch (error) {
-        try {
-          await stream.writeln(JSON.stringify({ type: "error", message: error instanceof Error ? error.message : "Review failed" }));
-        } catch { /* stream disconnected */ }
       }
+    } catch {
+      // Silently skip if brainstorm fetch fails
+    }
+  }
+
+  const postContext = [
+    `# Post to Review`,
+    `**Title:** ${title || "(untitled)"}`,
+    excerpt ? `**Excerpt:** ${excerpt}` : "",
+    tags ? `**Tags:** ${tags}` : "",
+    `**Target audience:** ${audience}`,
+    "",
+    `## Content`,
+    content,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const audienceContext = buildAudienceContext(audience);
+
+  // Build messages: first message includes post context, then conversation history
+  const messages: Array<{ role: "user" | "assistant"; content: string }> = [];
+
+  if (history.length === 0) {
+    // Initial review request
+    messages.push({
+      role: "user",
+      content: `${audienceContext}\n\nPlease review this blog post draft:\n\n${postContext}${brainstormContext}`,
     });
-  },
-);
+  } else {
+    // Conversation continuation — first message has post context, rest is history
+    messages.push({
+      role: "user",
+      content: `${audienceContext}\n\nHere is the blog post draft for context:\n\n${postContext}${brainstormContext}`,
+    });
+    messages.push(...history.map((m) => ({ role: m.role, content: m.content })));
+  }
+
+  c.header("content-type", "text/event-stream");
+  c.header("cache-control", "no-cache");
+
+  return streamText(c, async (stream) => {
+    try {
+      const res = await fetch(`${c.env.AI_GATEWAY_URL}/anthropic/v1/messages`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 4096,
+          stream: true,
+          system: SYSTEM_PROMPT,
+          messages,
+        }),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        await stream.writeln(JSON.stringify({ type: "error", message: `${res.status} ${errText}` }));
+        return;
+      }
+
+      const reader = res.body?.getReader();
+      if (!reader) {
+        await stream.writeln(JSON.stringify({ type: "error", message: "No stream" }));
+        return;
+      }
+      const decoder = new TextDecoder();
+      let buf = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() || "";
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6);
+          if (data === "[DONE]") continue;
+          try {
+            const event = JSON.parse(data);
+            if (event.type === "content_block_delta" && event.delta?.text) {
+              await stream.writeln(JSON.stringify({ type: "content", data: event.delta.text }));
+            }
+          } catch {
+            /* skip */
+          }
+        }
+      }
+
+      await stream.writeln(JSON.stringify({ type: "done" }));
+    } catch (error) {
+      try {
+        await stream.writeln(
+          JSON.stringify({ type: "error", message: error instanceof Error ? error.message : "Review failed" }),
+        );
+      } catch {
+        /* stream disconnected */
+      }
+    }
+  });
+});

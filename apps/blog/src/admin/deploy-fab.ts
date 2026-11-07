@@ -147,7 +147,9 @@ export class DeployFab extends LitElement {
       border-radius: 50%;
       overflow: hidden;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
     }
 
     .fab-btn:hover {
@@ -164,8 +166,12 @@ export class DeployFab extends LitElement {
     }
 
     @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
     }
 
     .label {
@@ -179,7 +185,9 @@ export class DeployFab extends LitElement {
       white-space: nowrap;
       opacity: 0;
       transform: translateX(8px);
-      transition: opacity 0.2s ease, transform 0.2s ease;
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
       pointer-events: none;
     }
 
@@ -189,7 +197,9 @@ export class DeployFab extends LitElement {
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .fab-btn, .spinning ui-icon, .label {
+      .fab-btn,
+      .spinning ui-icon,
+      .label {
         transition: none;
         animation: none;
       }

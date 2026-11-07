@@ -10,13 +10,7 @@
  *   ></chart-polar>
  */
 
-import {
-  TEXT_PRIMARY,
-  SURFACE_PRIMARY,
-  FONT_PRIMARY,
-  TYPE_HEADING_06,
-  TYPE_BODY_03,
-} from "@maneki/foundation";
+import { TEXT_PRIMARY, SURFACE_PRIMARY, FONT_PRIMARY, TYPE_HEADING_06, TYPE_BODY_03 } from "@maneki/foundation";
 
 import type { PieSlice, PieChartOptions, LegendItem } from "../core/types.js";
 import { CIRCULAR_LEGEND } from "../core/legend.js";
@@ -27,9 +21,7 @@ const NS = "http://www.w3.org/2000/svg";
 const VIEWBOX = 960;
 const TAU = Math.PI * 2;
 
-const OBSERVED_ATTRS = [
-  "title", "slices", "show-legend", "show-tooltips", "levels", "description",
-] as const;
+const OBSERVED_ATTRS = ["title", "slices", "show-legend", "show-tooltips", "levels", "description"] as const;
 
 const STYLES = /* css */ `
 :host { display: block; width: 100%; contain: layout style; }
@@ -56,7 +48,11 @@ svg { width: 100%; height: auto; display: block; font-family: var(--chart-font, 
 
 function tryParseJSON<T>(v: string | null): T | null {
   if (!v) return null;
-  try { return JSON.parse(v) as T; } catch { return null; }
+  try {
+    return JSON.parse(v) as T;
+  } catch {
+    return null;
+  }
 }
 function boolAttr(el: Element, n: string, d: boolean): boolean {
   if (!el.hasAttribute(n)) return d;
@@ -85,7 +81,9 @@ class ChartPolarElement extends HTMLElement {
   private _tooltip: HTMLDivElement;
   private _renderScheduled = false;
 
-  static get observedAttributes(): readonly string[] { return OBSERVED_ATTRS; }
+  static get observedAttributes(): readonly string[] {
+    return OBSERVED_ATTRS;
+  }
 
   constructor() {
     super();
@@ -102,10 +100,20 @@ class ChartPolarElement extends HTMLElement {
     shadow.appendChild(this._tooltip);
   }
 
-  get slices(): PieSlice[] { return this._slices; }
-  set slices(v: PieSlice[]) { this._slices = v; this._scheduleRender(); }
-  get options(): PieChartOptions { return this._options; }
-  set options(v: PieChartOptions & { levels?: number }) { this._options = v; this._scheduleRender(); }
+  get slices(): PieSlice[] {
+    return this._slices;
+  }
+  set slices(v: PieSlice[]) {
+    this._slices = v;
+    this._scheduleRender();
+  }
+  get options(): PieChartOptions {
+    return this._options;
+  }
+  set options(v: PieChartOptions & { levels?: number }) {
+    this._options = v;
+    this._scheduleRender();
+  }
 
   attributeChangedCallback(_: string, o: string | null, n: string | null): void {
     if (o === n) return;
@@ -136,7 +144,10 @@ class ChartPolarElement extends HTMLElement {
   private _scheduleRender(): void {
     if (this._renderScheduled) return;
     this._renderScheduled = true;
-    requestAnimationFrame(() => { this._renderScheduled = false; this._render(); });
+    requestAnimationFrame(() => {
+      this._renderScheduled = false;
+      this._render();
+    });
   }
 
   private _render(): void {
@@ -161,7 +172,8 @@ class ChartPolarElement extends HTMLElement {
 
     const colors = slices.map((s, i) => getDatasetColor(i, s.color));
     const legendItems: LegendItem[] = slices.map((s, i) => ({
-      label: s.label, color: colors[i],
+      label: s.label,
+      color: colors[i],
     }));
 
     const textColor = `var(--chart-text-color, ${TEXT_PRIMARY})`;
@@ -187,7 +199,7 @@ class ChartPolarElement extends HTMLElement {
 
     // Concentric grid circles
     const levels = opts.levels ?? 5;
-    const maxValue = Math.max(...slices.map(s => s.value));
+    const maxValue = Math.max(...slices.map((s) => s.value));
     if (maxValue <= 0) return;
 
     const gridGroup = document.createElementNS(NS, "g");

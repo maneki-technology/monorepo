@@ -112,15 +112,19 @@ export class MapPicker extends LitElement {
   render() {
     return html`
       <div class="trigger" @click=${this._openPicker}>
-        <ui-input
-          size="m"
-          .value=${this.location || ""}
-          placeholder="Pick a location..."
-        >
+        <ui-input size="m" .value=${this.location || ""} placeholder="Pick a location...">
           <ui-icon name="location_on" size="s" slot="trailing"></ui-icon>
         </ui-input>
       </div>
-      <ui-modal size="l" ?open=${this._open} dismissible @close=${(e: Event) => { e.stopPropagation(); this._onModalClose(); }}>
+      <ui-modal
+        size="l"
+        ?open=${this._open}
+        dismissible
+        @close=${(e: Event) => {
+          e.stopPropagation();
+          this._onModalClose();
+        }}
+      >
         <span>Pick Location</span>
         <div slot="body">
           <div class="search-bar">
@@ -128,26 +132,46 @@ export class MapPicker extends LitElement {
               size="s"
               placeholder="Search for a place..."
               .value=${this._searchQuery}
-              @search-input=${(e: CustomEvent) => { this._searchQuery = (e as CustomEvent<{ value: string }>).detail.value; }}
+              @search-input=${(e: CustomEvent) => {
+                this._searchQuery = (e as CustomEvent<{ value: string }>).detail.value;
+              }}
               @search-submit=${() => this._search()}
             ></ui-search>
           </div>
-          ${this._searchResults.length > 0 ? html`
-            <div class="search-results">
-              ${this._searchResults.map((r) => html`
-                <div class="search-result" @click=${() => this._selectResult(r)}>${r.display_name}</div>
-              `)}
-            </div>
-          ` : nothing}
+          ${
+            this._searchResults.length > 0
+              ? html`
+                  <div class="search-results">
+                    ${this._searchResults.map(
+                      (r) => html`
+                        <div class="search-result" @click=${() => this._selectResult(r)}>${r.display_name}</div>
+                      `,
+                    )}
+                  </div>
+                `
+              : nothing
+          }
           ${this._loading ? html`<div class="loading-map">Loading map...</div>` : html`<div class="map-container"></div>`}
         </div>
         <div slot="footer-start">
-          <span class="coords">${this._selectedLat !== null ? `${this._selectedLat.toFixed(5)}, ${this._selectedLng!.toFixed(5)}` : "Click map or search"}</span>
+          <span class="coords"
+            >${this._selectedLat !== null ? `${this._selectedLat.toFixed(5)}, ${this._selectedLng!.toFixed(5)}` : "Click map or search"}</span
+          >
         </div>
         <div slot="footer-end" class="footer-right">
           ${this.latitude !== null ? html`<ui-button action="destructive" emphasis="minimal" size="s" @click=${this._clearLocation}>Clear</ui-button>` : nothing}
-          <ui-button action="secondary" emphasis="subtle" size="s" @click=${() => { (this.shadowRoot!.querySelector("ui-modal") as HTMLElement & { close(): void })?.close(); }}>Cancel</ui-button>
-          <ui-button action="primary" size="s" ?disabled=${this._selectedLat === null} @click=${this._confirm}>Confirm</ui-button>
+          <ui-button
+            action="secondary"
+            emphasis="subtle"
+            size="s"
+            @click=${() => {
+              (this.shadowRoot!.querySelector("ui-modal") as HTMLElement & { close(): void })?.close();
+            }}
+            >Cancel</ui-button
+          >
+          <ui-button action="primary" size="s" ?disabled=${this._selectedLat === null} @click=${this._confirm}
+            >Confirm</ui-button
+          >
         </div>
       </ui-modal>
     `;
@@ -304,7 +328,7 @@ export class MapPicker extends LitElement {
   }
 
   private _dismissModal() {
-    const modal = this.shadowRoot!.querySelector("ui-modal") as HTMLElement & { close(): void } | null;
+    const modal = this.shadowRoot!.querySelector("ui-modal") as (HTMLElement & { close(): void }) | null;
     if (modal) modal.close();
   }
 

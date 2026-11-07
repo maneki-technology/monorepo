@@ -48,9 +48,7 @@ describe("getFirstCollision", () => {
   });
 
   it("returns undefined when no collision", () => {
-    const layout: LayoutItem[] = [
-      { i: "a", x: 0, y: 0, w: 1, h: 1 },
-    ];
+    const layout: LayoutItem[] = [{ i: "a", x: 0, y: 0, w: 1, h: 1 }];
     const item: LayoutItem = { i: "test", x: 5, y: 5, w: 1, h: 1 };
     expect(getFirstCollision(layout, item)).toBeUndefined();
   });
@@ -69,9 +67,7 @@ describe("getAllCollisions", () => {
   });
 
   it("returns empty array when no collisions", () => {
-    const layout: LayoutItem[] = [
-      { i: "a", x: 0, y: 0, w: 1, h: 1 },
-    ];
+    const layout: LayoutItem[] = [{ i: "a", x: 0, y: 0, w: 1, h: 1 }];
     const item: LayoutItem = { i: "test", x: 10, y: 10, w: 1, h: 1 };
     expect(getAllCollisions(layout, item)).toEqual([]);
   });

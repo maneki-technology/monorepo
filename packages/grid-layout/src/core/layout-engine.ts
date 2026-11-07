@@ -14,7 +14,7 @@ export function moveElement(
   isUserAction: boolean,
   preventCollision: boolean,
   compactType: CompactType,
-  cols: number
+  cols: number,
 ): LayoutItem[] {
   if (item.static) return layout;
 
@@ -47,14 +47,10 @@ export function moveElement(
   for (const collision of collisions) {
     if (collision.static) {
       // Can't move static items — move the dragged item away from the static
-      moveElementAwayFromCollision(
-        layout, collision, item, isUserAction, compactType, cols
-      );
+      moveElementAwayFromCollision(layout, collision, item, isUserAction, compactType, cols);
     } else {
       // Move the colliding item away from the dragged item
-      moveElementAwayFromCollision(
-        layout, item, collision, isUserAction, compactType, cols
-      );
+      moveElementAwayFromCollision(layout, item, collision, isUserAction, compactType, cols);
     }
   }
 
@@ -74,7 +70,7 @@ export function moveElementAwayFromCollision(
   itemToMove: LayoutItem,
   isUserAction: boolean,
   compactType: CompactType,
-  cols: number
+  cols: number,
 ): void {
   const isVertical = compactType !== "horizontal";
 
@@ -90,12 +86,7 @@ export function moveElementAwayFromCollision(
     };
 
     // Only swap if the proposed position is valid and free
-    if (
-      proposedX >= 0 &&
-      proposedX + testItem.w <= cols &&
-      proposedY >= 0 &&
-      !getFirstCollision(layout, testItem)
-    ) {
+    if (proposedX >= 0 && proposedX + testItem.w <= cols && proposedY >= 0 && !getFirstCollision(layout, testItem)) {
       itemToMove.x = proposedX;
       itemToMove.y = proposedY;
       itemToMove.moved = true;

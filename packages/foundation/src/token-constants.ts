@@ -273,22 +273,22 @@ export const GRAY_110 = colorVar("gray", 110);
 
 // ─── Spacing ────────────────────────────────────────────────────────────────
 
-export const SP_1PX = spaceVar("1px");     // 1px
-export const SP_0_25 = spaceVar("0.25");   // 2px
-export const SP_0_5 = spaceVar("0.5");     // 4px
-export const SP_0_75 = spaceVar("0.75");   // 6px
-export const SP_1 = spaceVar("1");          // 8px
-export const SP_1_25 = spaceVar("1.25");   // 10px
-export const SP_1_5 = spaceVar("1.5");     // 12px
-export const SP_2 = spaceVar("2");          // 16px
-export const SP_2_5 = spaceVar("2.5");     // 20px
-export const SP_3 = spaceVar("3");          // 24px
-export const SP_4 = spaceVar("4");          // 32px
-export const SP_5 = spaceVar("5");          // 40px
-export const SP_6 = spaceVar("6");          // 48px
-export const SP_7 = spaceVar("7");          // 56px
-export const SP_8 = spaceVar("8");          // 64px
-export const SP_10 = spaceVar("10");        // 80px
+export const SP_1PX = spaceVar("1px"); // 1px
+export const SP_0_25 = spaceVar("0.25"); // 2px
+export const SP_0_5 = spaceVar("0.5"); // 4px
+export const SP_0_75 = spaceVar("0.75"); // 6px
+export const SP_1 = spaceVar("1"); // 8px
+export const SP_1_25 = spaceVar("1.25"); // 10px
+export const SP_1_5 = spaceVar("1.5"); // 12px
+export const SP_2 = spaceVar("2"); // 16px
+export const SP_2_5 = spaceVar("2.5"); // 20px
+export const SP_3 = spaceVar("3"); // 24px
+export const SP_4 = spaceVar("4"); // 32px
+export const SP_5 = spaceVar("5"); // 40px
+export const SP_6 = spaceVar("6"); // 48px
+export const SP_7 = spaceVar("7"); // 56px
+export const SP_8 = spaceVar("8"); // 64px
+export const SP_10 = spaceVar("10"); // 80px
 
 // ─── Radius ─────────────────────────────────────────────────────────────────
 
@@ -334,34 +334,34 @@ export const FONT_CODE = "'Roboto Mono', monospace";
 // Each constant is a CSS block: font-size + line-height + font-weight as var() refs.
 
 // Display: light weight, large sizes
-export const TYPE_DISPLAY_01 = typeBlock("display", "01");  // 78px/104px/300
-export const TYPE_DISPLAY_02 = typeBlock("display", "02");  // 60px/80px/300
-export const TYPE_DISPLAY_03 = typeBlock("display", "03");  // 48px/64px/300
+export const TYPE_DISPLAY_01 = typeBlock("display", "01"); // 78px/104px/300
+export const TYPE_DISPLAY_02 = typeBlock("display", "02"); // 60px/80px/300
+export const TYPE_DISPLAY_03 = typeBlock("display", "03"); // 48px/64px/300
 
 // Heading: medium weight
-export const TYPE_HEADING_01 = typeBlock("heading", "01");  // 40px/52px/500
-export const TYPE_HEADING_02 = typeBlock("heading", "02");  // 32px/40px/500
-export const TYPE_HEADING_03 = typeBlock("heading", "03");  // 24px/32px/500
-export const TYPE_HEADING_04 = typeBlock("heading", "04");  // 20px/28px/500
-export const TYPE_HEADING_05 = typeBlock("heading", "05");  // 16px/24px/500
-export const TYPE_HEADING_06 = typeBlock("heading", "06");  // 14px/20px/500
-export const TYPE_HEADING_07 = typeBlock("heading", "07");  // 12px/16px/500
+export const TYPE_HEADING_01 = typeBlock("heading", "01"); // 40px/52px/500
+export const TYPE_HEADING_02 = typeBlock("heading", "02"); // 32px/40px/500
+export const TYPE_HEADING_03 = typeBlock("heading", "03"); // 24px/32px/500
+export const TYPE_HEADING_04 = typeBlock("heading", "04"); // 20px/28px/500
+export const TYPE_HEADING_05 = typeBlock("heading", "05"); // 16px/24px/500
+export const TYPE_HEADING_06 = typeBlock("heading", "06"); // 14px/20px/500
+export const TYPE_HEADING_07 = typeBlock("heading", "07"); // 12px/16px/500
 
 // Body: regular weight
-export const TYPE_BODY_01 = typeBlock("body", "01");        // 16px/24px/400
-export const TYPE_BODY_02 = typeBlock("body", "02");        // 14px/20px/400
-export const TYPE_BODY_03 = typeBlock("body", "03");        // 12px/16px/400
+export const TYPE_BODY_01 = typeBlock("body", "01"); // 16px/24px/400
+export const TYPE_BODY_02 = typeBlock("body", "02"); // 14px/20px/400
+export const TYPE_BODY_03 = typeBlock("body", "03"); // 12px/16px/400
 
 // UI
-export const TYPE_UI_01 = typeBlock("ui", "01");            // 24px/32px/400
-export const TYPE_UI_02 = typeBlock("ui", "02");            // 11px/16px/500
+export const TYPE_UI_01 = typeBlock("ui", "01"); // 24px/32px/400
+export const TYPE_UI_02 = typeBlock("ui", "02"); // 11px/16px/500
 
 // Caption
-export const TYPE_CAPTION_01 = typeBlock("caption", "01");  // 11px/16px/400
+export const TYPE_CAPTION_01 = typeBlock("caption", "01"); // 11px/16px/400
 
 // Badge
-export const TYPE_BADGE_01 = typeBlock("badge", "01");      // 14px/20px/400
+export const TYPE_BADGE_01 = typeBlock("badge", "01"); // 14px/20px/400
 
 // Code
-export const TYPE_CODE_01 = typeBlock("code", "01");        // 14px/20px/400
-export const TYPE_CODE_02 = typeBlock("code", "02");        // 12px/16px/400
+export const TYPE_CODE_01 = typeBlock("code", "01"); // 14px/20px/400
+export const TYPE_CODE_02 = typeBlock("code", "02"); // 12px/16px/400

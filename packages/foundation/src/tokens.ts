@@ -43,10 +43,7 @@ export function injectColorTokens(): void {
 /**
  * Returns a CSS `var()` reference for a given color token.
  */
-export function colorVar<F extends ColorFamily>(
-  family: F,
-  step: keyof (typeof colors)[F],
-): string {
+export function colorVar<F extends ColorFamily>(family: F, step: keyof (typeof colors)[F]): string {
   return `var(--fd-color-${family}-${String(step)})`;
 }
 
@@ -66,9 +63,7 @@ export function semanticToCssProperties(): string {
   for (const [group, tokens] of Object.entries(semanticTokens)) {
     const prefix = `--fd-${toKebab(group)}`;
     for (const [name, value] of Object.entries(tokens)) {
-      lines.push(
-        `${prefix}-${toKebab(name)}: ${resolveSemanticValue(value as SemanticValue)};`,
-      );
+      lines.push(`${prefix}-${toKebab(name)}: ${resolveSemanticValue(value as SemanticValue)};`);
     }
   }
 
@@ -96,9 +91,7 @@ export function darkSemanticToCssProperties(): string {
   for (const [group, tokens] of Object.entries(darkSemanticTokens)) {
     const prefix = `--fd-${toKebab(group)}`;
     for (const [name, value] of Object.entries(tokens)) {
-      lines.push(
-        `${prefix}-${toKebab(name)}: ${resolveSemanticValue(value as SemanticValue)};`,
-      );
+      lines.push(`${prefix}-${toKebab(name)}: ${resolveSemanticValue(value as SemanticValue)};`);
     }
   }
   return lines.join("\n");
@@ -156,11 +149,9 @@ export function injectAllTokens(): void {
     borderWidthToCssProperties(),
     shadowToCssProperties(),
   ].join("\n");
-  const darkCss = [
-    darkSemanticToCssProperties(),
-    darkElevationToCssProperties(),
-    darkShadowToCssProperties(),
-  ].join("\n");
+  const darkCss = [darkSemanticToCssProperties(), darkElevationToCssProperties(), darkShadowToCssProperties()].join(
+    "\n",
+  );
 
   const id = "maneki-foundation-all";
   const existing = document.getElementById(id);
@@ -183,14 +174,7 @@ export function injectAllTokens(): void {
 // HMR: re-inject tokens when any token source file changes
 if (import.meta.hot) {
   import.meta.hot.accept(
-    [
-      "./colors.js",
-      "./semantic-tokens.js",
-      "./dark-theme.js",
-      "./typography.js",
-      "./spacing.js",
-      "./shape.js",
-    ],
+    ["./colors.js", "./semantic-tokens.js", "./dark-theme.js", "./typography.js", "./spacing.js", "./shape.js"],
     () => {
       // Force re-injection with updated values
       const el = document.getElementById("maneki-foundation-all");
@@ -203,16 +187,12 @@ if (import.meta.hot) {
 /**
  * Valid token names for a given semantic group.
  */
-type SemanticTokenName<G extends SemanticTokenGroup> =
-  string & keyof (typeof semanticTokens)[G];
+type SemanticTokenName<G extends SemanticTokenGroup> = string & keyof (typeof semanticTokens)[G];
 
 /**
  * Returns a CSS `var()` reference for a semantic token.
  */
-export function semanticVar<G extends SemanticTokenGroup>(
-  group: G,
-  name: SemanticTokenName<G>,
-): string {
+export function semanticVar<G extends SemanticTokenGroup>(group: G, name: SemanticTokenName<G>): string {
   return `var(--fd-${toKebab(group)}-${toKebab(name)})`;
 }
 
@@ -234,11 +214,7 @@ export function shadowVar(name: keyof typeof shadow): string {
 // Typography → CSS custom properties
 // ---------------------------------------------------------------------------
 
-import {
-  typography,
-  type TypographyGroup,
-  type TypeToken,
-} from "./typography.js";
+import { typography, type TypographyGroup, type TypeToken } from "./typography.js";
 
 /**
  * Generates CSS custom properties for all typography tokens.
@@ -267,8 +243,7 @@ export function typographyToCssProperties(): string {
 /**
  * Valid token keys for a given typography group.
  */
-type TypographyKey<G extends TypographyGroup> =
-  string & keyof (typeof typography)[G];
+type TypographyKey<G extends TypographyGroup> = string & keyof (typeof typography)[G];
 
 /**
  * Returns a CSS `var()` reference for a typography token property.
@@ -294,10 +269,7 @@ export function typeVar<G extends TypographyGroup>(
  * //   font-weight: var(--fd-type-body-02-font-weight);
  * ```
  */
-export function typeBlock<G extends TypographyGroup>(
-  group: G,
-  key: TypographyKey<G>,
-): string {
+export function typeBlock<G extends TypographyGroup>(group: G, key: TypographyKey<G>): string {
   return [
     `font-family: ${typeVar(group, key, "font-family")};`,
     `font-size: ${typeVar(group, key, "font-size")};`,

@@ -3,7 +3,10 @@ import "./ui-select.js";
 import { UiSelect } from "./ui-select.js";
 import "./ui-dropdown-item.js";
 
-function createSelect(attrs: Record<string, string> = {}, items: { value: string; text: string; disabled?: boolean }[] = []): HTMLElement {
+function createSelect(
+  attrs: Record<string, string> = {},
+  items: { value: string; text: string; disabled?: boolean }[] = [],
+): HTMLElement {
   const el = document.createElement("ui-select");
   for (const [k, v] of Object.entries(attrs)) {
     el.setAttribute(k, v);
@@ -89,8 +92,6 @@ describe("ui-select", () => {
     el = createSelect();
     expect((el as UiSelect).value).toBe("");
   });
-
-
 
   it("defaults name to empty string", () => {
     el = createSelect();
@@ -305,7 +306,6 @@ describe("ui-select", () => {
     const panel = el.shadowRoot!.querySelector(".panel");
     expect(trigger?.getAttribute("aria-controls")).toBe(panel?.id);
   });
-
 
   it("sets aria-label from host aria-label attribute", () => {
     el = createSelect();
@@ -584,5 +584,4 @@ describe("ui-select", () => {
     // Clicking the host itself — the trigger click handler toggles
     // but the outside click handler should not close it
   });
-
 });

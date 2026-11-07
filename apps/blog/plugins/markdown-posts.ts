@@ -38,17 +38,23 @@ async function getMd(): Promise<MarkdownIt> {
     typographer: true,
   });
 
-  md.use(fromHighlighter(highlighter, {
-    themes: {
-      light: "github-light",
-      dark: "github-dark",
-    },
-    defaultColor: false,
-  }));
+  md.use(
+    fromHighlighter(highlighter, {
+      themes: {
+        light: "github-light",
+        dark: "github-dark",
+      },
+      defaultColor: false,
+    }),
+  );
 
   // Add anchor IDs to headings
   md.use(anchor, {
-    slugify: (s: string) => s.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, ""),
+    slugify: (s: string) =>
+      s
+        .toLowerCase()
+        .replace(/[^\w]+/g, "-")
+        .replace(/(^-|-$)/g, ""),
     permalink: false,
   });
 
@@ -85,7 +91,10 @@ export function markdownPostsPlugin(): Plugin {
             const inline = tokens[i + 1];
             if (inline?.type === "inline" && inline.content) {
               const text = inline.content;
-              const id = text.toLowerCase().replace(/[^\w]+/g, "-").replace(/(^-|-$)/g, "");
+              const id = text
+                .toLowerCase()
+                .replace(/[^\w]+/g, "-")
+                .replace(/(^-|-$)/g, "");
               headings.push({ level, text, id });
             }
           }

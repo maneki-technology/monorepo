@@ -1,10 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import "./ui-separator.js";
-import type {
-  SeparatorOrientation,
-  SeparatorEmphasis,
-  SeparatorLength,
-} from "./ui-separator.js";
+import type { SeparatorOrientation, SeparatorEmphasis, SeparatorLength } from "./ui-separator.js";
 import { UiSeparator } from "./ui-separator.js";
 
 describe("ui-separator", () => {
@@ -78,13 +74,7 @@ describe("ui-separator", () => {
 
   // ── Emphasis attribute ────────────────────────────────────────────────────
 
-  const emphases: SeparatorEmphasis[] = [
-    "minimal",
-    "subtle",
-    "moderate",
-    "bold",
-    "contrast",
-  ];
+  const emphases: SeparatorEmphasis[] = ["minimal", "subtle", "moderate", "bold", "contrast"];
 
   for (const emphasis of emphases) {
     it(`accepts emphasis=${emphasis}`, () => {
@@ -95,13 +85,7 @@ describe("ui-separator", () => {
 
   // ── Length attribute ──────────────────────────────────────────────────────
 
-  const lengths: SeparatorLength[] = [
-    "full",
-    "inset-04",
-    "inset-08",
-    "inset-16",
-    "inset-24",
-  ];
+  const lengths: SeparatorLength[] = ["full", "inset-04", "inset-08", "inset-16", "inset-24"];
 
   for (const length of lengths) {
     it(`accepts length=${length}`, () => {
@@ -158,11 +142,7 @@ describe("ui-separator", () => {
   // ── observedAttributes ────────────────────────────────────────────────────
 
   it("observes orientation, emphasis, and length", () => {
-    expect(UiSeparator.observedAttributes).toEqual([
-      "orientation",
-      "emphasis",
-      "length",
-    ]);
+    expect(UiSeparator.observedAttributes).toEqual(["orientation", "emphasis", "length"]);
   });
 
   it("observedAttributes has exactly 3 entries", () => {

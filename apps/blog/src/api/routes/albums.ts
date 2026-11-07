@@ -67,7 +67,8 @@ export const albums = new Hono<Env>()
 
   // Create album
   .post("/", zValidator("json", createAlbumSchema), async (c) => {
-    const { title, slug, description, location, latitude, longitude, cover_photo_id, sort_order, status } = c.req.valid("json");
+    const { title, slug, description, location, latitude, longitude, cover_photo_id, sort_order, status } =
+      c.req.valid("json");
     const db = c.get("db");
 
     // Check for existing non-deleted album with same slug
@@ -161,7 +162,10 @@ export const albums = new Hono<Env>()
     // Unlink photos from this album (preserve them)
     const album = await db.execute({ sql: "SELECT id FROM albums WHERE slug = ?", args: [slug] });
     if (album.rows.length > 0) {
-      await db.execute({ sql: "UPDATE photos SET album_id = NULL WHERE album_id = ?", args: [album.rows[0].id as number] });
+      await db.execute({
+        sql: "UPDATE photos SET album_id = NULL WHERE album_id = ?",
+        args: [album.rows[0].id as number],
+      });
     }
     // Rename slug to free it for reuse, then soft-delete
     const deletedSlug = `${slug}__deleted_${Date.now()}`;

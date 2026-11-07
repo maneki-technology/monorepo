@@ -1,12 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import "./ui-progress-bar.js";
 import type { ProgressBarSize, ProgressBarLabel, ProgressStatus } from "./ui-progress-bar.js";
-import {
-  STATUS_FILL,
-  STATUS_TRACK,
-  STATUS_INNER_FILL,
-  STATUS_INNER_TRACK,
-} from "./ui-progress-bar.styles.js";
+import { STATUS_FILL, STATUS_TRACK, STATUS_INNER_FILL, STATUS_INNER_TRACK } from "./ui-progress-bar.styles.js";
 
 describe("ui-progress-bar", () => {
   let el: HTMLElement;

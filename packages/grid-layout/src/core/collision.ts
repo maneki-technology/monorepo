@@ -15,10 +15,7 @@ export function collides(l1: LayoutItem, l2: LayoutItem): boolean {
 /**
  * Return the first item that collides with `item`, or undefined.
  */
-export function getFirstCollision(
-  layout: LayoutItem[],
-  item: LayoutItem
-): LayoutItem | undefined {
+export function getFirstCollision(layout: LayoutItem[], item: LayoutItem): LayoutItem | undefined {
   for (const other of layout) {
     if (collides(item, other)) return other;
   }
@@ -28,9 +25,6 @@ export function getFirstCollision(
 /**
  * Return all items that collide with `item`.
  */
-export function getAllCollisions(
-  layout: LayoutItem[],
-  item: LayoutItem
-): LayoutItem[] {
+export function getAllCollisions(layout: LayoutItem[], item: LayoutItem): LayoutItem[] {
   return layout.filter((other) => collides(item, other));
 }

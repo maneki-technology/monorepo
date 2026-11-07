@@ -22,12 +22,7 @@ const NS = "http://www.w3.org/2000/svg";
  * Render horizontal grid lines for the y-axis.
  * These go BEHIND the bars/data elements.
  */
-export function renderYGridLines(
-  container: SVGGElement,
-  ticks: Tick[],
-  plot: Rect,
-  gridColor: string,
-): void {
+export function renderYGridLines(container: SVGGElement, ticks: Tick[], plot: Rect, gridColor: string): void {
   for (const tick of ticks) {
     const y = plot.y + plot.height - tick.position;
     const line = document.createElementNS(NS, "line");
@@ -45,12 +40,7 @@ export function renderYGridLines(
  * Render y-axis labels (left side).
  * These go ON TOP of the bars/data elements.
  */
-export function renderYLabels(
-  container: SVGGElement,
-  ticks: Tick[],
-  plot: Rect,
-  textColor: string,
-): void {
+export function renderYLabels(container: SVGGElement, ticks: Tick[], plot: Rect, textColor: string): void {
   for (const tick of ticks) {
     const y = plot.y + plot.height - tick.position;
     const text = document.createElementNS(NS, "text");
@@ -73,12 +63,7 @@ export function renderYLabels(
  * Render vertical grid lines for the x-axis.
  * These go BEHIND the bars/data elements.
  */
-export function renderXGridLines(
-  container: SVGGElement,
-  positions: number[],
-  plot: Rect,
-  gridColor: string,
-): void {
+export function renderXGridLines(container: SVGGElement, positions: number[], plot: Rect, gridColor: string): void {
   for (const pos of positions) {
     const x = plot.x + pos;
     const line = document.createElementNS(NS, "line");
@@ -117,10 +102,7 @@ export function renderXLabels(
       text.setAttribute("y", "0");
       text.setAttribute("text-anchor", "end");
       text.setAttribute("dominant-baseline", "middle");
-      text.setAttribute(
-        "transform",
-        `translate(${x}, ${labelY}) rotate(${-rotation})`,
-      );
+      text.setAttribute("transform", `translate(${x}, ${labelY}) rotate(${-rotation})`);
     } else {
       text.setAttribute("x", String(x));
       text.setAttribute("y", String(labelY));

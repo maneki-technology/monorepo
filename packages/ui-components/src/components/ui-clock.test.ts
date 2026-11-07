@@ -50,7 +50,6 @@ describe("ui-clock", () => {
       expect(digitalContainer()).toBeTruthy();
       expect(digitalContainer().style.display).toBe("none");
     });
-
   });
 
   // ─── Default attributes ──────────────────────────────────────────────
@@ -122,9 +121,7 @@ describe("ui-clock", () => {
     it("clicking a number dispatches time-input", () => {
       const handler = vi.fn();
       el.addEventListener("time-input", handler);
-      const num3 = Array.from(clockNumbers()).find(
-        (n) => n.textContent === "3",
-      ) as HTMLElement;
+      const num3 = Array.from(clockNumbers()).find((n) => n.textContent === "3") as HTMLElement;
       num3.click();
       expect(handler).toHaveBeenCalledTimes(1);
     });
@@ -132,9 +129,7 @@ describe("ui-clock", () => {
     it("selected number has data-selected", async () => {
       el.value = "03:00";
       await tick();
-      const selected = Array.from(clockNumbers()).filter((n) =>
-        n.hasAttribute("data-selected"),
-      );
+      const selected = Array.from(clockNumbers()).filter((n) => n.hasAttribute("data-selected"));
       expect(selected.length).toBeGreaterThan(0);
     });
   });
@@ -229,14 +224,11 @@ describe("ui-clock", () => {
   // ─── Events ──────────────────────────────────────────────────────────
 
   describe("events", () => {
-
     it("time-input event has correct detail", () => {
       const handler = vi.fn();
       el.addEventListener("time-input", handler);
       // Click a number on the clock
-      const num3 = Array.from(clockNumbers()).find(
-        (n) => n.textContent === "3",
-      ) as HTMLElement;
+      const num3 = Array.from(clockNumbers()).find((n) => n.textContent === "3") as HTMLElement;
       num3.click();
       const detail = handler.mock.calls[0][0].detail;
       expect(detail).toHaveProperty("hour");

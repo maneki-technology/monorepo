@@ -94,4 +94,4 @@ registerPage("flex-layout", {
       </flex-layout>
     </div>
   `,
-  });
+});

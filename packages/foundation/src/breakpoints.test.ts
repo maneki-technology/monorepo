@@ -36,23 +36,15 @@ describe("breakpoint definitions", () => {
 
   it("compact has tighter margins/gutters than standard", () => {
     for (const name of breakpointOrder) {
-      expect(compactBreakpoints[name].margin).toBeLessThanOrEqual(
-        standardBreakpoints[name].margin,
-      );
-      expect(compactBreakpoints[name].gutter).toBeLessThanOrEqual(
-        standardBreakpoints[name].gutter,
-      );
+      expect(compactBreakpoints[name].margin).toBeLessThanOrEqual(standardBreakpoints[name].margin);
+      expect(compactBreakpoints[name].gutter).toBeLessThanOrEqual(standardBreakpoints[name].gutter);
     }
   });
 
   it("spacious has wider margins/gutters than standard", () => {
     for (const name of breakpointOrder) {
-      expect(spaciousBreakpoints[name].margin).toBeGreaterThanOrEqual(
-        standardBreakpoints[name].margin,
-      );
-      expect(spaciousBreakpoints[name].gutter).toBeGreaterThanOrEqual(
-        standardBreakpoints[name].gutter,
-      );
+      expect(spaciousBreakpoints[name].margin).toBeGreaterThanOrEqual(standardBreakpoints[name].margin);
+      expect(spaciousBreakpoints[name].gutter).toBeGreaterThanOrEqual(standardBreakpoints[name].gutter);
     }
   });
 });
@@ -60,7 +52,11 @@ describe("breakpoint definitions", () => {
 describe("compact breakpoints", () => {
   it("xs: 6 cols, 8px margin, 8px gutter", () => {
     expect(compactBreakpoints.xs).toEqual({
-      minWidth: 360, maxWidth: 599, columns: 6, margin: 8, gutter: 8,
+      minWidth: 360,
+      maxWidth: 599,
+      columns: 6,
+      margin: 8,
+      gutter: 8,
     });
   });
   it("s: 12 cols, 8px margin, 8px gutter", () => {
@@ -81,7 +77,11 @@ describe("compact breakpoints", () => {
 describe("standard breakpoints", () => {
   it("xs: 6 cols, 16px margin, 8px gutter", () => {
     expect(standardBreakpoints.xs).toEqual({
-      minWidth: 360, maxWidth: 599, columns: 6, margin: 16, gutter: 8,
+      minWidth: 360,
+      maxWidth: 599,
+      columns: 6,
+      margin: 16,
+      gutter: 8,
     });
   });
   it("m: 12 cols, 24px margin, 16px gutter", () => {
@@ -97,7 +97,11 @@ describe("standard breakpoints", () => {
 describe("spacious breakpoints", () => {
   it("xs: 6 cols, 16px margin, 12px gutter", () => {
     expect(spaciousBreakpoints.xs).toEqual({
-      minWidth: 360, maxWidth: 599, columns: 6, margin: 16, gutter: 12,
+      minWidth: 360,
+      maxWidth: 599,
+      columns: 6,
+      margin: 16,
+      gutter: 12,
     });
   });
   it("m: 12 cols, 32px margin, 24px gutter", () => {
@@ -154,19 +158,13 @@ describe("getBreakpointConfig", () => {
 
 describe("breakpointMediaQuery", () => {
   it("generates min/max media query for bounded breakpoints", () => {
-    expect(breakpointMediaQuery("xs")).toBe(
-      "(min-width: 360px) and (max-width: 599px)",
-    );
-    expect(breakpointMediaQuery("m")).toBe(
-      "(min-width: 768px) and (max-width: 1023px)",
-    );
+    expect(breakpointMediaQuery("xs")).toBe("(min-width: 360px) and (max-width: 599px)");
+    expect(breakpointMediaQuery("m")).toBe("(min-width: 768px) and (max-width: 1023px)");
   });
   it("generates min-width only for xxxl", () => {
     expect(breakpointMediaQuery("xxxl")).toBe("(min-width: 1600px)");
   });
   it("respects density parameter", () => {
-    expect(breakpointMediaQuery("xs", "compact")).toBe(
-      "(min-width: 360px) and (max-width: 599px)",
-    );
+    expect(breakpointMediaQuery("xs", "compact")).toBe("(min-width: 360px) and (max-width: 599px)");
   });
 });

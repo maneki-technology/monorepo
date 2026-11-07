@@ -126,11 +126,13 @@ describe("ResponsiveGridLayoutElement", () => {
       el.addEventListener("external-drop", spy);
       // Access inner grid and dispatch a synthetic external-drop
       const innerGrid = el.shadowRoot!.querySelector("grid-layout")!;
-      innerGrid.dispatchEvent(new CustomEvent("external-drop", {
-        detail: { layout: [], item: { i: "x", x: 0, y: 0, w: 1, h: 1 }, event: null },
-        bubbles: true,
-        composed: true,
-      }));
+      innerGrid.dispatchEvent(
+        new CustomEvent("external-drop", {
+          detail: { layout: [], item: { i: "x", x: 0, y: 0, w: 1, h: 1 }, event: null },
+          bubbles: true,
+          composed: true,
+        }),
+      );
       expect(spy).toHaveBeenCalledTimes(1);
       expect(spy.mock.calls[0][0].detail.item.i).toBe("x");
       el.removeEventListener("external-drop", spy);

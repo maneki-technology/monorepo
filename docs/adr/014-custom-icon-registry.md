@@ -24,14 +24,14 @@ registerIcon("brand-logo", () => {
 
 ### API
 
-| Function | Description |
-|----------|-------------|
-| `registerIcon(name, factory)` | Register a single custom icon |
-| `registerIcons({ name: factory })` | Register multiple icons at once |
-| `resolveIcon(name)` | Get the element for a custom icon (null if not registered) |
-| `hasIcon(name)` | Check if a custom icon is registered |
-| `unregisterIcon(name)` | Remove a registered icon |
-| `clearIcons()` | Remove all registered icons |
+| Function                           | Description                                                |
+| ---------------------------------- | ---------------------------------------------------------- |
+| `registerIcon(name, factory)`      | Register a single custom icon                              |
+| `registerIcons({ name: factory })` | Register multiple icons at once                            |
+| `resolveIcon(name)`                | Get the element for a custom icon (null if not registered) |
+| `hasIcon(name)`                    | Check if a custom icon is registered                       |
+| `unregisterIcon(name)`             | Remove a registered icon                                   |
+| `clearIcons()`                     | Remove all registered icons                                |
 
 ### Resolution order in `<ui-icon>`
 

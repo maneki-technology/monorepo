@@ -107,7 +107,9 @@ describe("ui-list-header", () => {
   it("dispatches collapse event on button click", () => {
     const el = create();
     let fired = false;
-    el.addEventListener("collapse", () => { fired = true; });
+    el.addEventListener("collapse", () => {
+      fired = true;
+    });
     const btn = el.shadowRoot!.querySelector(".collapse-btn") as HTMLButtonElement;
     btn.click();
     expect(fired).toBe(true);
@@ -116,7 +118,9 @@ describe("ui-list-header", () => {
   it("collapse event bubbles", () => {
     const el = create();
     let bubbled = false;
-    document.body.addEventListener("collapse", () => { bubbled = true; });
+    document.body.addEventListener("collapse", () => {
+      bubbled = true;
+    });
     const btn = el.shadowRoot!.querySelector(".collapse-btn") as HTMLButtonElement;
     btn.click();
     expect(bubbled).toBe(true);
@@ -155,7 +159,9 @@ describe("ui-list-header", () => {
     const btn = el.shadowRoot!.querySelector(".collapse-btn") as HTMLButtonElement;
     el.remove();
     let fired = false;
-    el.addEventListener("collapse", () => { fired = true; });
+    el.addEventListener("collapse", () => {
+      fired = true;
+    });
     btn.click();
     expect(fired).toBe(false);
   });

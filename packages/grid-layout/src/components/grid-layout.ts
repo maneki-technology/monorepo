@@ -1,10 +1,4 @@
-
-import {
-  BORDER_MINIMAL,
-  BW_MD,
-  RADIUS_MD,
-  SURFACE_SECONDARY,
-} from "@maneki/foundation";
+import { BORDER_MINIMAL, BW_MD, RADIUS_MD, SURFACE_SECONDARY } from "@maneki/foundation";
 import type {
   LayoutItem,
   Layout,
@@ -22,11 +16,7 @@ import type {
   DroppingItem,
   ExternalDropEvent,
 } from "../core/types";
-import {
-  DEFAULT_GRID_CONFIG,
-  DEFAULT_DRAG_CONFIG,
-  DEFAULT_RESIZE_CONFIG,
-} from "../core/types";
+import { DEFAULT_GRID_CONFIG, DEFAULT_DRAG_CONFIG, DEFAULT_RESIZE_CONFIG } from "../core/types";
 import {
   calcColWidth,
   calcPosition,
@@ -193,7 +183,8 @@ export class GridLayoutElement extends HTMLElement {
     this._liveRegion.setAttribute("role", "status");
     this._liveRegion.setAttribute("aria-live", "polite");
     this._liveRegion.setAttribute("aria-atomic", "true");
-    this._liveRegion.style.cssText = "position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;";
+    this._liveRegion.style.cssText =
+      "position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;";
     this._shadow.appendChild(this._liveRegion);
   }
 
@@ -270,25 +261,49 @@ export class GridLayoutElement extends HTMLElement {
 
   // --- Lifecycle hook setters ---
 
-  get beforeDragStart(): BeforeDragStartHook | null { return this._beforeDragStart; }
-  set beforeDragStart(fn: BeforeDragStartHook | null) { this._beforeDragStart = fn; }
+  get beforeDragStart(): BeforeDragStartHook | null {
+    return this._beforeDragStart;
+  }
+  set beforeDragStart(fn: BeforeDragStartHook | null) {
+    this._beforeDragStart = fn;
+  }
 
-  get beforeResizeStart(): BeforeResizeStartHook | null { return this._beforeResizeStart; }
-  set beforeResizeStart(fn: BeforeResizeStartHook | null) { this._beforeResizeStart = fn; }
+  get beforeResizeStart(): BeforeResizeStartHook | null {
+    return this._beforeResizeStart;
+  }
+  set beforeResizeStart(fn: BeforeResizeStartHook | null) {
+    this._beforeResizeStart = fn;
+  }
 
-  get layoutChangeFilter(): LayoutChangeFilter | null { return this._layoutChangeFilter; }
-  set layoutChangeFilter(fn: LayoutChangeFilter | null) { this._layoutChangeFilter = fn; }
+  get layoutChangeFilter(): LayoutChangeFilter | null {
+    return this._layoutChangeFilter;
+  }
+  set layoutChangeFilter(fn: LayoutChangeFilter | null) {
+    this._layoutChangeFilter = fn;
+  }
 
-  get afterDrop(): AfterDropHook | null { return this._afterDrop; }
-  set afterDrop(fn: AfterDropHook | null) { this._afterDrop = fn; }
+  get afterDrop(): AfterDropHook | null {
+    return this._afterDrop;
+  }
+  set afterDrop(fn: AfterDropHook | null) {
+    this._afterDrop = fn;
+  }
 
   // --- External drop API ---
 
-  get isDroppable(): boolean { return this._isDroppable; }
-  set isDroppable(value: boolean) { this._isDroppable = value; }
+  get isDroppable(): boolean {
+    return this._isDroppable;
+  }
+  set isDroppable(value: boolean) {
+    this._isDroppable = value;
+  }
 
-  get droppingItem(): DroppingItem | null { return this._droppingItem; }
-  set droppingItem(value: DroppingItem | null) { this._droppingItem = value; }
+  get droppingItem(): DroppingItem | null {
+    return this._droppingItem;
+  }
+  set droppingItem(value: DroppingItem | null) {
+    this._droppingItem = value;
+  }
 
   // --- Lifecycle ---
 
@@ -335,7 +350,10 @@ export class GridLayoutElement extends HTMLElement {
     this.removeEventListener("drop", this._onDrop);
     this._resizeObserver?.disconnect();
     this._resizeObserver = null;
-    if (this._rafId !== null) { cancelAnimationFrame(this._rafId); this._rafId = null; }
+    if (this._rafId !== null) {
+      cancelAnimationFrame(this._rafId);
+      this._rafId = null;
+    }
     this._pendingPointerEvent = null;
   }
 
@@ -345,7 +363,8 @@ export class GridLayoutElement extends HTMLElement {
    * Get grid-item children — works for both direct children and slotted elements.
    */
   private getGridItems(): GridItemElement[] {
-    const slotted = this._slot.assignedElements({ flatten: true })
+    const slotted = this._slot
+      .assignedElements({ flatten: true })
       .filter((el): el is GridItemElement => el instanceof GridItemElement);
     if (slotted.length > 0) return slotted;
     return Array.from(this.querySelectorAll<GridItemElement>("grid-item"));
@@ -508,7 +527,7 @@ export class GridLayoutElement extends HTMLElement {
     this._cachedActiveItem = gridItem;
     this._cachedRect = this.getBoundingClientRect();
     this._cachedColWidth = calcColWidth(this._containerWidth, this._gridConfig);
-    this._cachedStatics = this._layout.filter(l => l.static);
+    this._cachedStatics = this._layout.filter((l) => l.static);
     const pos = calcPosition(item, this._containerWidth, this._gridConfig);
     this._dragState = {
       itemId: item.i,
@@ -550,8 +569,14 @@ export class GridLayoutElement extends HTMLElement {
     if (item.x === constrained.x && item.y === constrained.y) return;
     const oldItem = { ...item };
     this._layout = moveElement(
-      this._layout, item, constrained.x, constrained.y,
-      true, this._preventCollision, this._compactType, this._gridConfig.cols
+      this._layout,
+      item,
+      constrained.x,
+      constrained.y,
+      true,
+      this._preventCollision,
+      this._compactType,
+      this._gridConfig.cols,
     );
     this._layout = compact(this._layout, this._compactType, this._gridConfig.cols, this._cachedStatics ?? undefined);
     const newItem = getLayoutItem(this._layout, this._dragState.itemId);
@@ -571,7 +596,10 @@ export class GridLayoutElement extends HTMLElement {
 
   private endDrag(e: PointerEvent): void {
     if (!this._dragState) return;
-    if (this._rafId !== null) { cancelAnimationFrame(this._rafId); this._rafId = null; }
+    if (this._rafId !== null) {
+      cancelAnimationFrame(this._rafId);
+      this._rafId = null;
+    }
     this._pendingPointerEvent = null;
     const gridItem = this._cachedActiveItem;
     gridItem?.toggleAttribute("dragging", false);
@@ -579,7 +607,11 @@ export class GridLayoutElement extends HTMLElement {
     this.hidePlaceholder();
     const newItem = getLayoutItem(this._layout, this._dragState.itemId);
     if (this._dragThresholdMet) {
-      if (this._afterDrop && newItem && this._afterDrop(newItem, this._layout, this._dragState.oldLayout, e) === false) {
+      if (
+        this._afterDrop &&
+        newItem &&
+        this._afterDrop(newItem, this._layout, this._dragState.oldLayout, e) === false
+      ) {
         this._layout = cloneLayout(this._dragState.oldLayout);
         this.emitDragEvent("drag-stop", this._dragState.oldItem, this._dragState.oldItem, e, gridItem);
       } else {
@@ -606,13 +638,17 @@ export class GridLayoutElement extends HTMLElement {
     this._cachedActiveItem = gridItem;
     this._cachedRect = this.getBoundingClientRect();
     this._cachedColWidth = calcColWidth(this._containerWidth, this._gridConfig);
-    this._cachedStatics = this._layout.filter(l => l.static);
+    this._cachedStatics = this._layout.filter((l) => l.static);
     const pos = calcPosition(item, this._containerWidth, this._gridConfig);
     this._resizeState = {
-      itemId: item.i, axis,
-      startClientX: e.clientX, startClientY: e.clientY,
-      startWidth: pos.width, startHeight: pos.height,
-      startLeft: pos.left, startTop: pos.top,
+      itemId: item.i,
+      axis,
+      startClientX: e.clientX,
+      startClientY: e.clientY,
+      startWidth: pos.width,
+      startHeight: pos.height,
+      startLeft: pos.left,
+      startTop: pos.top,
       oldLayout: cloneLayout(this._layout),
       oldItem: { ...item },
     };
@@ -678,7 +714,10 @@ export class GridLayoutElement extends HTMLElement {
 
   private endResize(e: PointerEvent): void {
     if (!this._resizeState) return;
-    if (this._rafId !== null) { cancelAnimationFrame(this._rafId); this._rafId = null; }
+    if (this._rafId !== null) {
+      cancelAnimationFrame(this._rafId);
+      this._rafId = null;
+    }
     this._pendingPointerEvent = null;
     const gridItem = this._cachedActiveItem;
     gridItem?.toggleAttribute("resizing", false);
@@ -727,7 +766,8 @@ export class GridLayoutElement extends HTMLElement {
       this._externalPlaceholderItem &&
       this._externalPlaceholderItem.x === clampedX &&
       this._externalPlaceholderItem.y === clampedY
-    ) return;
+    )
+      return;
     this._externalPlaceholderItem = {
       i: di.i,
       x: clampedX,
@@ -795,10 +835,18 @@ export class GridLayoutElement extends HTMLElement {
       let newY = item.y;
 
       switch (e.key) {
-        case "ArrowLeft":  newX = Math.max(0, item.x - 1); break;
-        case "ArrowRight": newX = Math.min(cols - item.w, item.x + 1); break;
-        case "ArrowUp":    newY = Math.max(0, item.y - 1); break;
-        case "ArrowDown":  newY = item.y + 1; break;
+        case "ArrowLeft":
+          newX = Math.max(0, item.x - 1);
+          break;
+        case "ArrowRight":
+          newX = Math.min(cols - item.w, item.x + 1);
+          break;
+        case "ArrowUp":
+          newY = Math.max(0, item.y - 1);
+          break;
+        case "ArrowDown":
+          newY = item.y + 1;
+          break;
         case "Escape":
           // Cancel: revert to old layout
           if (this._kbOldLayout) {
@@ -821,13 +869,20 @@ export class GridLayoutElement extends HTMLElement {
           this.emitLayoutChange();
           this.announce(`Dropped item ${itemId} at column ${item.x}, row ${item.y}`);
           return;
-        default: return;
+        default:
+          return;
       }
 
       if (newX !== item.x || newY !== item.y) {
         this._layout = moveElement(
-          this._layout, item, newX, newY,
-          true, this._preventCollision, this._compactType, this._gridConfig.cols
+          this._layout,
+          item,
+          newX,
+          newY,
+          true,
+          this._preventCollision,
+          this._compactType,
+          this._gridConfig.cols,
         );
         this._layout = compact(this._layout, this._compactType, this._gridConfig.cols);
         const moved = getLayoutItem(this._layout, itemId);
@@ -845,10 +900,18 @@ export class GridLayoutElement extends HTMLElement {
       let newH = item.h;
 
       switch (e.key) {
-        case "ArrowLeft":  newW = Math.max(item.minW ?? 1, item.w - 1); break;
-        case "ArrowRight": newW = Math.min(item.maxW ?? this._gridConfig.cols, item.w + 1); break;
-        case "ArrowUp":    newH = Math.max(item.minH ?? 1, item.h - 1); break;
-        case "ArrowDown":  newH = item.h + 1; break;
+        case "ArrowLeft":
+          newW = Math.max(item.minW ?? 1, item.w - 1);
+          break;
+        case "ArrowRight":
+          newW = Math.min(item.maxW ?? this._gridConfig.cols, item.w + 1);
+          break;
+        case "ArrowUp":
+          newH = Math.max(item.minH ?? 1, item.h - 1);
+          break;
+        case "ArrowDown":
+          newH = item.h + 1;
+          break;
         case "Escape":
           if (this._kbOldLayout) {
             this._layout = cloneLayout(this._kbOldLayout);
@@ -867,7 +930,8 @@ export class GridLayoutElement extends HTMLElement {
           this.emitLayoutChange();
           this.announce(`Resized item ${itemId} to ${item.w} columns by ${item.h} rows`);
           return;
-        default: return;
+        default:
+          return;
       }
 
       if (newW !== item.w || newH !== item.h) {
@@ -930,7 +994,7 @@ export class GridLayoutElement extends HTMLElement {
     oldItem: LayoutItem | null,
     newItem: LayoutItem | null,
     event: PointerEvent,
-    element: HTMLElement | null
+    element: HTMLElement | null,
   ): void {
     // Skip expensive clone for continuous "drag" events — only clone for start/stop
     const layout = type === "drag" ? this._layout : cloneLayout(this._layout);
@@ -950,7 +1014,7 @@ export class GridLayoutElement extends HTMLElement {
     oldItem: LayoutItem | null,
     newItem: LayoutItem | null,
     event: PointerEvent,
-    element: HTMLElement | null
+    element: HTMLElement | null,
   ): void {
     const layout = type === "resize" ? this._layout : cloneLayout(this._layout);
     const detail: GridResizeEvent = {
@@ -970,7 +1034,7 @@ export class GridLayoutElement extends HTMLElement {
         detail: { layout: cloneLayout(this._layout) },
         bubbles: true,
         composed: true,
-      })
+      }),
     );
   }
 }

@@ -111,13 +111,10 @@ describe("ui-switch", () => {
 
   // ── Label position attribute ──────────────────────────────────────────────
 
-  it.each(["none", "left", "right"] as SwitchLabelPosition[])(
-    "accepts label-position=%s",
-    (pos) => {
-      el.setAttribute("label-position", pos);
-      expect(el.getAttribute("label-position")).toBe(pos);
-    },
-  );
+  it.each(["none", "left", "right"] as SwitchLabelPosition[])("accepts label-position=%s", (pos) => {
+    el.setAttribute("label-position", pos);
+    expect(el.getAttribute("label-position")).toBe(pos);
+  });
 
   it("places label before track when label-position=left", () => {
     document.body.innerHTML = "";
@@ -129,12 +126,8 @@ describe("ui-switch", () => {
     sw.appendChild(label);
     document.body.appendChild(sw);
     const children = Array.from(sw.shadowRoot!.children);
-    const labelIdx = children.indexOf(
-      sw.shadowRoot!.querySelector(".label") as Element,
-    );
-    const trackIdx = children.indexOf(
-      sw.shadowRoot!.querySelector(".switch") as Element,
-    );
+    const labelIdx = children.indexOf(sw.shadowRoot!.querySelector(".label") as Element);
+    const trackIdx = children.indexOf(sw.shadowRoot!.querySelector(".switch") as Element);
     expect(labelIdx).toBeLessThan(trackIdx);
   });
 
@@ -148,12 +141,8 @@ describe("ui-switch", () => {
     sw.appendChild(label);
     document.body.appendChild(sw);
     const children = Array.from(sw.shadowRoot!.children);
-    const labelIdx = children.indexOf(
-      sw.shadowRoot!.querySelector(".label") as Element,
-    );
-    const trackIdx = children.indexOf(
-      sw.shadowRoot!.querySelector(".switch") as Element,
-    );
+    const labelIdx = children.indexOf(sw.shadowRoot!.querySelector(".label") as Element);
+    const trackIdx = children.indexOf(sw.shadowRoot!.querySelector(".switch") as Element);
     expect(labelIdx).toBeGreaterThan(trackIdx);
   });
 
@@ -259,9 +248,7 @@ describe("ui-switch", () => {
 
   it("Enter key toggles checked", () => {
     const track = el.shadowRoot!.querySelector(".switch") as HTMLElement;
-    track.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Enter", bubbles: true }),
-    );
+    track.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     expect(el.hasAttribute("checked")).toBe(true);
   });
 

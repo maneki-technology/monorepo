@@ -48,9 +48,7 @@ describe("ui-person-group", () => {
 
   it("sets title text from attribute", () => {
     el.setAttribute("title", "Team Members");
-    expect(el.shadowRoot!.querySelector(".title")!.textContent).toBe(
-      "Team Members",
-    );
+    expect(el.shadowRoot!.querySelector(".title")!.textContent).toBe("Team Members");
   });
 
   it("clears title text when attribute removed", () => {
@@ -76,9 +74,7 @@ describe("ui-person-group", () => {
     const Ctor = customElements.get("ui-person-group") as unknown as {
       observedAttributes: string[];
     };
-    expect(Ctor.observedAttributes).toEqual(
-      expect.arrayContaining(["size", "title"]),
-    );
+    expect(Ctor.observedAttributes).toEqual(expect.arrayContaining(["size", "title"]));
   });
 
   it("observedAttributes has exactly 2 entries", () => {

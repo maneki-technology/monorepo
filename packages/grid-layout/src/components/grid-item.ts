@@ -1,10 +1,4 @@
-import {
-  BORDER_BOLD,
-  BORDER_FOCUS,
-  BW_MD,
-  SP_2,
-  SP_2_5,
-} from "@maneki/foundation";
+import { BORDER_BOLD, BORDER_FOCUS, BW_MD, SP_2, SP_2_5 } from "@maneki/foundation";
 import type { ResizeHandleAxis } from "../core/types";
 
 const GRID_ITEM_STYLES = `
@@ -187,9 +181,18 @@ const GRID_ITEM_STYLES = `
 
 export class GridItemElement extends HTMLElement {
   static observedAttributes = [
-    "item-id", "x", "y", "w", "h",
-    "min-w", "max-w", "min-h", "max-h",
-    "static", "is-draggable", "is-resizable",
+    "item-id",
+    "x",
+    "y",
+    "w",
+    "h",
+    "min-w",
+    "max-w",
+    "min-h",
+    "max-h",
+    "static",
+    "is-draggable",
+    "is-resizable",
   ];
 
   private _shadow: ShadowRoot;
@@ -235,17 +238,33 @@ export class GridItemElement extends HTMLElement {
     this.setAttribute("item-id", v);
   }
 
-  get x(): number { return Number(this.getAttribute("x") ?? 0); }
-  set x(v: number) { this.setAttribute("x", String(v)); }
+  get x(): number {
+    return Number(this.getAttribute("x") ?? 0);
+  }
+  set x(v: number) {
+    this.setAttribute("x", String(v));
+  }
 
-  get y(): number { return Number(this.getAttribute("y") ?? 0); }
-  set y(v: number) { this.setAttribute("y", String(v)); }
+  get y(): number {
+    return Number(this.getAttribute("y") ?? 0);
+  }
+  set y(v: number) {
+    this.setAttribute("y", String(v));
+  }
 
-  get w(): number { return Number(this.getAttribute("w") ?? 1); }
-  set w(v: number) { this.setAttribute("w", String(v)); }
+  get w(): number {
+    return Number(this.getAttribute("w") ?? 1);
+  }
+  set w(v: number) {
+    this.setAttribute("w", String(v));
+  }
 
-  get h(): number { return Number(this.getAttribute("h") ?? 1); }
-  set h(v: number) { this.setAttribute("h", String(v)); }
+  get h(): number {
+    return Number(this.getAttribute("h") ?? 1);
+  }
+  set h(v: number) {
+    this.setAttribute("h", String(v));
+  }
 
   get minW(): number | undefined {
     const v = this.getAttribute("min-w");

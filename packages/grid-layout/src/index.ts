@@ -22,11 +22,7 @@ export type {
   ExternalDropEvent,
 } from "./core/types";
 
-export {
-  DEFAULT_GRID_CONFIG,
-  DEFAULT_DRAG_CONFIG,
-  DEFAULT_RESIZE_CONFIG,
-} from "./core/types";
+export { DEFAULT_GRID_CONFIG, DEFAULT_DRAG_CONFIG, DEFAULT_RESIZE_CONFIG } from "./core/types";
 
 // Utils
 export {

@@ -5,20 +5,13 @@ import type { LayoutItem, Position, GridConfig } from "./types";
  */
 export function calcColWidth(containerWidth: number, config: GridConfig): number {
   const padding = config.containerPadding ?? config.margin;
-  return (
-    (containerWidth - config.margin[0] * (config.cols - 1) - padding[0] * 2) /
-    config.cols
-  );
+  return (containerWidth - config.margin[0] * (config.cols - 1) - padding[0] * 2) / config.cols;
 }
 
 /**
  * Convert grid units (x, y, w, h) to pixel position.
  */
-export function calcPosition(
-  item: LayoutItem,
-  containerWidth: number,
-  config: GridConfig
-): Position {
+export function calcPosition(item: LayoutItem, containerWidth: number, config: GridConfig): Position {
   const colWidth = calcColWidth(containerWidth, config);
   const padding = config.containerPadding ?? config.margin;
 
@@ -37,7 +30,7 @@ export function calcXY(
   top: number,
   left: number,
   containerWidth: number,
-  config: GridConfig
+  config: GridConfig,
 ): { x: number; y: number } {
   const colWidth = calcColWidth(containerWidth, config);
   const padding = config.containerPadding ?? config.margin;
@@ -58,7 +51,7 @@ export function calcWH(
   width: number,
   height: number,
   containerWidth: number,
-  config: GridConfig
+  config: GridConfig,
 ): { w: number; h: number } {
   const colWidth = calcColWidth(containerWidth, config);
 
@@ -74,12 +67,7 @@ export function calcWH(
 /**
  * Clamp item size to min/max constraints and column bounds.
  */
-export function constrainSize(
-  item: LayoutItem,
-  w: number,
-  h: number,
-  cols: number
-): { w: number; h: number } {
+export function constrainSize(item: LayoutItem, w: number, h: number, cols: number): { w: number; h: number } {
   const minW = item.minW ?? 1;
   const maxW = item.maxW ?? Infinity;
   const minH = item.minH ?? 1;
@@ -94,12 +82,7 @@ export function constrainSize(
 /**
  * Clamp item position within grid bounds.
  */
-export function constrainPosition(
-  item: LayoutItem,
-  x: number,
-  y: number,
-  cols: number
-): { x: number; y: number } {
+export function constrainPosition(item: LayoutItem, x: number, y: number, cols: number): { x: number; y: number } {
   x = Math.max(0, Math.min(x, cols - item.w));
   y = Math.max(0, y);
   return { x, y };

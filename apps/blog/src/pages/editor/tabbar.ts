@@ -153,5 +153,4 @@ export class EditorTabbar extends LitElement {
     loadPostIntoEditor(post);
     saveUIState();
   }
-
 }

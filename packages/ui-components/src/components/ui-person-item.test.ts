@@ -68,16 +68,12 @@ describe("ui-person-item", () => {
   });
 
   it("renders an avatar slot element", () => {
-    const slot = el.shadowRoot!.querySelector(
-      '.avatar-slot slot[name="avatar"]',
-    );
+    const slot = el.shadowRoot!.querySelector('.avatar-slot slot[name="avatar"]');
     expect(slot).not.toBeNull();
   });
 
   it("renders an actions slot element", () => {
-    const slot = el.shadowRoot!.querySelector(
-      '.actions slot[name="actions"]',
-    );
+    const slot = el.shadowRoot!.querySelector('.actions slot[name="actions"]');
     expect(slot).not.toBeNull();
   });
 
@@ -90,16 +86,12 @@ describe("ui-person-item", () => {
 
   it("reflects title attribute to .title text", () => {
     el.setAttribute("title", "Engineer");
-    expect(el.shadowRoot!.querySelector(".title")!.textContent).toBe(
-      "Engineer",
-    );
+    expect(el.shadowRoot!.querySelector(".title")!.textContent).toBe("Engineer");
   });
 
   it("reflects location attribute to .location text", () => {
     el.setAttribute("location", "Tokyo");
-    expect(el.shadowRoot!.querySelector(".location")!.textContent).toBe(
-      "Tokyo",
-    );
+    expect(el.shadowRoot!.querySelector(".location")!.textContent).toBe("Tokyo");
   });
 
   it("clears name text when attribute removed", () => {
@@ -161,62 +153,40 @@ describe("ui-person-item", () => {
 
   it("styles define xs avatar-slot as 24×24", () => {
     expect(STYLES).toContain(':host([size="xs"]) .avatar-slot');
-    expect(STYLES).toMatch(
-      /:host\(\[size="xs"\]\) \.avatar-slot\s*\{[^}]*width:\s*24px/,
-    );
-    expect(STYLES).toMatch(
-      /:host\(\[size="xs"\]\) \.avatar-slot\s*\{[^}]*height:\s*24px/,
-    );
+    expect(STYLES).toMatch(/:host\(\[size="xs"\]\) \.avatar-slot\s*\{[^}]*width:\s*24px/);
+    expect(STYLES).toMatch(/:host\(\[size="xs"\]\) \.avatar-slot\s*\{[^}]*height:\s*24px/);
   });
 
   it("styles define s avatar-slot as 24×24", () => {
     expect(STYLES).toContain(':host([size="s"]) .avatar-slot');
-    expect(STYLES).toMatch(
-      /:host\(\[size="s"\]\) \.avatar-slot\s*\{[^}]*width:\s*24px/,
-    );
-    expect(STYLES).toMatch(
-      /:host\(\[size="s"\]\) \.avatar-slot\s*\{[^}]*height:\s*24px/,
-    );
+    expect(STYLES).toMatch(/:host\(\[size="s"\]\) \.avatar-slot\s*\{[^}]*width:\s*24px/);
+    expect(STYLES).toMatch(/:host\(\[size="s"\]\) \.avatar-slot\s*\{[^}]*height:\s*24px/);
   });
 
   it("styles define m avatar-slot as 32×32", () => {
     expect(STYLES).toContain(':host([size="m"]) .avatar-slot');
-    expect(STYLES).toMatch(
-      /:host\(\[size="m"\]\) \.avatar-slot\s*\{[^}]*width:\s*32px/,
-    );
-    expect(STYLES).toMatch(
-      /:host\(\[size="m"\]\) \.avatar-slot\s*\{[^}]*height:\s*32px/,
-    );
+    expect(STYLES).toMatch(/:host\(\[size="m"\]\) \.avatar-slot\s*\{[^}]*width:\s*32px/);
+    expect(STYLES).toMatch(/:host\(\[size="m"\]\) \.avatar-slot\s*\{[^}]*height:\s*32px/);
   });
 
   it("styles define l avatar-slot as 40×40", () => {
     expect(STYLES).toContain(':host([size="l"]) .avatar-slot');
-    expect(STYLES).toMatch(
-      /:host\(\[size="l"\]\) \.avatar-slot\s*\{[^}]*width:\s*40px/,
-    );
-    expect(STYLES).toMatch(
-      /:host\(\[size="l"\]\) \.avatar-slot\s*\{[^}]*height:\s*40px/,
-    );
+    expect(STYLES).toMatch(/:host\(\[size="l"\]\) \.avatar-slot\s*\{[^}]*width:\s*40px/);
+    expect(STYLES).toMatch(/:host\(\[size="l"\]\) \.avatar-slot\s*\{[^}]*height:\s*40px/);
   });
 
   // ── Name-only mode ────────────────────────────────────────────────────────
 
   it("styles hide .title in name-only mode", () => {
-    expect(STYLES).toMatch(
-      /:host\(\[name-only\]\)\s+\.title[\s,][^{]*\{[^}]*display:\s*none/,
-    );
+    expect(STYLES).toMatch(/:host\(\[name-only\]\)\s+\.title[\s,][^{]*\{[^}]*display:\s*none/);
   });
 
   it("styles hide .location in name-only mode", () => {
-    expect(STYLES).toMatch(
-      /:host\(\[name-only\]\)\s+\.location[\s,][^{]*\{[^}]*display:\s*none/,
-    );
+    expect(STYLES).toMatch(/:host\(\[name-only\]\)\s+\.location[\s,][^{]*\{[^}]*display:\s*none/);
   });
 
   it("styles hide .actions in name-only mode", () => {
-    expect(STYLES).toMatch(
-      /:host\(\[name-only\]\)\s+\.actions\s*\{[^}]*display:\s*none/,
-    );
+    expect(STYLES).toMatch(/:host\(\[name-only\]\)\s+\.actions\s*\{[^}]*display:\s*none/);
   });
 
   // ── Property accessors ────────────────────────────────────────────────────
@@ -244,17 +214,13 @@ describe("ui-person-item", () => {
 
   it("personTitle getter returns title attribute", () => {
     el.setAttribute("title", "Manager");
-    expect((el as unknown as { personTitle: string }).personTitle).toBe(
-      "Manager",
-    );
+    expect((el as unknown as { personTitle: string }).personTitle).toBe("Manager");
   });
 
   it("personTitle setter updates attribute and text", () => {
     (el as unknown as { personTitle: string }).personTitle = "Director";
     expect(el.getAttribute("title")).toBe("Director");
-    expect(el.shadowRoot!.querySelector(".title")!.textContent).toBe(
-      "Director",
-    );
+    expect(el.shadowRoot!.querySelector(".title")!.textContent).toBe("Director");
   });
 
   it("location getter returns location attribute", () => {
@@ -265,9 +231,7 @@ describe("ui-person-item", () => {
   it("location setter updates attribute and text", () => {
     (el as unknown as { location: string }).location = "London";
     expect(el.getAttribute("location")).toBe("London");
-    expect(el.shadowRoot!.querySelector(".location")!.textContent).toBe(
-      "London",
-    );
+    expect(el.shadowRoot!.querySelector(".location")!.textContent).toBe("London");
   });
 
   it("nameOnly getter returns false by default", () => {
@@ -358,14 +322,7 @@ describe("ui-person-item", () => {
       observedAttributes: string[];
     };
     expect(Ctor.observedAttributes).toEqual(
-      expect.arrayContaining([
-        "size",
-        "name",
-        "title",
-        "location",
-        "name-only",
-        "avatar-text",
-      ]),
+      expect.arrayContaining(["size", "name", "title", "location", "name-only", "avatar-text"]),
     );
   });
 

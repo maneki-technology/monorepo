@@ -26,7 +26,10 @@ const updatePageSchema = z.object({
   description: z.string().optional(),
   styles: z.string().optional(),
   status: z.enum(["draft", "published"]).optional(),
-  new_slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).optional(),
+  new_slug: z
+    .string()
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+    .optional(),
 });
 
 export const pages = new Hono<Env>()

@@ -258,11 +258,11 @@ export const ICON_CODEPOINTS: Record<string, string> = {
  *   `?url` suffix; exact shape depends on the bundler / asset pipeline.
  */
 export function registerIconFont(fontUrl: string): Promise<FontFace> {
-  const face = new FontFace(
-    "Material Symbols Outlined",
-    `url(${fontUrl}) format('woff2')`,
-    { style: "normal", weight: "100 700", display: "swap" },
-  );
+  const face = new FontFace("Material Symbols Outlined", `url(${fontUrl}) format('woff2')`, {
+    style: "normal",
+    weight: "100 700",
+    display: "swap",
+  });
   document.fonts.add(face);
   return face.load();
 }
@@ -276,11 +276,11 @@ export function registerIconFont(fontUrl: string): Promise<FontFace> {
  * @param fontUrl – URL to the Geist-Variable.woff2 file.
  */
 export function registerGeistFont(fontUrl: string): Promise<FontFace> {
-  const face = new FontFace(
-    "Geist",
-    `url(${fontUrl}) format('woff2')`,
-    { weight: "100 900", style: "normal", display: "swap" },
-  );
+  const face = new FontFace("Geist", `url(${fontUrl}) format('woff2')`, {
+    weight: "100 900",
+    style: "normal",
+    display: "swap",
+  });
   document.fonts.add(face);
   return face.load();
 }

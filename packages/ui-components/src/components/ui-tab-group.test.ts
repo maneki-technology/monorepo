@@ -233,8 +233,8 @@ describe("ui-tab-group", () => {
   // ── CSS layout ────────────────────────────────────────────────────────
 
   it("has display: flex on host", () => {
-    const styles = group.shadowRoot!.adoptedStyleSheets
-      .map((s: CSSStyleSheet) =>
+    const styles = group
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
         Array.from(s.cssRules)
           .map((r: CSSRule) => r.cssText)
           .join(""),
@@ -244,8 +244,8 @@ describe("ui-tab-group", () => {
   });
 
   it("has flex-direction: row for horizontal orientation", () => {
-    const styles = group.shadowRoot!.adoptedStyleSheets
-      .map((s: CSSStyleSheet) =>
+    const styles = group
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
         Array.from(s.cssRules)
           .map((r: CSSRule) => r.cssText)
           .join(""),
@@ -255,8 +255,8 @@ describe("ui-tab-group", () => {
   });
 
   it("has flex-direction: column for vertical orientation", () => {
-    const styles = group.shadowRoot!.adoptedStyleSheets
-      .map((s: CSSStyleSheet) =>
+    const styles = group
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
         Array.from(s.cssRules)
           .map((r: CSSRule) => r.cssText)
           .join(""),
@@ -266,8 +266,8 @@ describe("ui-tab-group", () => {
   });
 
   it("has border-bottom style for horizontal orientation", () => {
-    const styles = group.shadowRoot!.adoptedStyleSheets
-      .map((s: CSSStyleSheet) =>
+    const styles = group
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
         Array.from(s.cssRules)
           .map((r: CSSRule) => r.cssText)
           .join(""),
@@ -308,8 +308,8 @@ describe("ui-tab-group", () => {
   // ── Gap values ────────────────────────────────────────────────────────
 
   it("has gap style for size='m'", () => {
-    const styles = group.shadowRoot!.adoptedStyleSheets
-      .map((s: CSSStyleSheet) =>
+    const styles = group
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
         Array.from(s.cssRules)
           .map((r: CSSRule) => r.cssText)
           .join(""),
@@ -319,8 +319,8 @@ describe("ui-tab-group", () => {
   });
 
   it("has gap style for size='s'", () => {
-    const styles = group.shadowRoot!.adoptedStyleSheets
-      .map((s: CSSStyleSheet) =>
+    const styles = group
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
         Array.from(s.cssRules)
           .map((r: CSSRule) => r.cssText)
           .join(""),
@@ -365,22 +365,22 @@ describe("ui-tab-group", () => {
   // ── Width/height stretch ────────────────────────────────────────────────
 
   it("has width: 100% for horizontal orientation in styles", () => {
-    const raw = group.shadowRoot!.adoptedStyleSheets
-      .map((s: CSSStyleSheet) =>
+    const raw = group
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
         Array.from(s.cssRules)
           .map((r: CSSRule) => r.cssText)
-          .join("")
+          .join(""),
       )
       .join("");
     expect(raw).toContain("width: 100%");
   });
 
   it("has height: 100% for vertical orientation in styles", () => {
-    const raw = group.shadowRoot!.adoptedStyleSheets
-      .map((s: CSSStyleSheet) =>
+    const raw = group
+      .shadowRoot!.adoptedStyleSheets.map((s: CSSStyleSheet) =>
         Array.from(s.cssRules)
           .map((r: CSSRule) => r.cssText)
-          .join("")
+          .join(""),
       )
       .join("");
     expect(raw).toContain("height: 100%");

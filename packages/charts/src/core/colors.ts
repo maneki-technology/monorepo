@@ -24,16 +24,16 @@ import {
  * Index 0 = blue, cycling through distinct hues for maximum contrast.
  */
 export const CHART_PALETTE: readonly string[] = [
-  BLUE_40,         // #75B1FF
-  RED_40,          // #FC9086
-  GREEN_40,        // #43C478
-  ORANGE_40,       // #FC9162
-  PURPLE_40,       // #C89AFC
-  TEAL_40,         // #4EBFB9
-  PINK_40,         // #FA87D4
-  AQUA_40,         // #48B8F0
-  LIME_40,         // #78BF39
-  ULTRAMARINE_40,  // #A0A7FA
+  BLUE_40, // #75B1FF
+  RED_40, // #FC9086
+  GREEN_40, // #43C478
+  ORANGE_40, // #FC9162
+  PURPLE_40, // #C89AFC
+  TEAL_40, // #4EBFB9
+  PINK_40, // #FA87D4
+  AQUA_40, // #48B8F0
+  LIME_40, // #78BF39
+  ULTRAMARINE_40, // #A0A7FA
 ];
 
 /**
@@ -43,10 +43,7 @@ export const CHART_PALETTE: readonly string[] = [
  * @param index - Dataset index (0-based)
  * @param override - Optional color override (CSS string or 1-based palette index)
  */
-export function getDatasetColor(
-  index: number,
-  override?: string | number,
-): string {
+export function getDatasetColor(index: number, override?: string | number): string {
   if (typeof override === "string") return override;
   if (typeof override === "number" && override >= 1 && override <= 10) {
     return CHART_PALETTE[override - 1];

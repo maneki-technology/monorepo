@@ -154,7 +154,10 @@ export class AdminPages extends LitElement {
         credentials: "same-origin",
       });
       this._pages = this._pages.filter((p) => p.slug !== page.slug);
-      if (this._selectedSlug === page.slug) { this._selectedSlug = null; setPagesSelectedSlug(null); }
+      if (this._selectedSlug === page.slug) {
+        this._selectedSlug = null;
+        setPagesSelectedSlug(null);
+      }
     } catch {
       /* ignore */
     }
@@ -172,7 +175,9 @@ export class AdminPages extends LitElement {
       if (res.ok) {
         const data = (await res.json()) as { page: Page };
         this._pages = [...this._pages, data.page];
-        this._selectedSlug = data.page.slug; this._originalSlug = data.page.slug; setPagesSelectedSlug(data.page.slug);
+        this._selectedSlug = data.page.slug;
+        this._originalSlug = data.page.slug;
+        setPagesSelectedSlug(data.page.slug);
       }
     } catch {
       /* ignore */
@@ -369,34 +374,77 @@ export class AdminPages extends LitElement {
       margin: 0;
     }
 
-    .mt-4 { margin-top: var(--fd-space-4, 32px); }
+    .mt-4 {
+      margin-top: var(--fd-space-4, 32px);
+    }
 
-    .post-content h2 { font-size: var(--fd-type-heading-03-font-size); line-height: var(--fd-type-heading-03-line-height); font-weight: var(--fd-type-heading-03-font-weight); margin: var(--fd-space-6) 0 var(--fd-space-2); }
-    .post-content h3 { font-size: var(--fd-type-heading-04-font-size); line-height: var(--fd-type-heading-04-line-height); font-weight: var(--fd-type-heading-04-font-weight); margin: var(--fd-space-4) 0 var(--fd-space-1-5); }
-    .post-content h4 { font-size: var(--fd-type-heading-05-font-size); line-height: var(--fd-type-heading-05-line-height); font-weight: var(--fd-type-heading-05-font-weight); margin: var(--fd-space-3) 0 var(--fd-space-1); }
-    .post-content p { font-size: var(--fd-type-body-01-font-size); line-height: var(--fd-type-body-01-line-height); margin: 0 0 var(--fd-space-2); }
-    .post-content ul, .post-content ol { font-size: var(--fd-type-body-01-font-size); line-height: var(--fd-type-body-01-line-height); margin: 0 0 var(--fd-space-2); padding-left: var(--fd-space-3); }
-    .post-content li { margin-bottom: var(--fd-space-0-5); }
+    .post-content h2 {
+      font-size: var(--fd-type-heading-03-font-size);
+      line-height: var(--fd-type-heading-03-line-height);
+      font-weight: var(--fd-type-heading-03-font-weight);
+      margin: var(--fd-space-6) 0 var(--fd-space-2);
+    }
+    .post-content h3 {
+      font-size: var(--fd-type-heading-04-font-size);
+      line-height: var(--fd-type-heading-04-line-height);
+      font-weight: var(--fd-type-heading-04-font-weight);
+      margin: var(--fd-space-4) 0 var(--fd-space-1-5);
+    }
+    .post-content h4 {
+      font-size: var(--fd-type-heading-05-font-size);
+      line-height: var(--fd-type-heading-05-line-height);
+      font-weight: var(--fd-type-heading-05-font-weight);
+      margin: var(--fd-space-3) 0 var(--fd-space-1);
+    }
+    .post-content p {
+      font-size: var(--fd-type-body-01-font-size);
+      line-height: var(--fd-type-body-01-line-height);
+      margin: 0 0 var(--fd-space-2);
+    }
+    .post-content ul,
+    .post-content ol {
+      font-size: var(--fd-type-body-01-font-size);
+      line-height: var(--fd-type-body-01-line-height);
+      margin: 0 0 var(--fd-space-2);
+      padding-left: var(--fd-space-3);
+    }
+    .post-content li {
+      margin-bottom: var(--fd-space-0-5);
+    }
     .post-content pre {
       border: 1px solid var(--fd-border-minimal, #e4e4e7);
       border-radius: var(--fd-radius-sm);
       padding: var(--fd-space-2);
       overflow-x: auto;
       margin: 0 0 var(--fd-space-2);
-      font-family: 'Roboto Mono', monospace;
+      font-family: "Roboto Mono", monospace;
       font-size: var(--fd-type-code-01-font-size);
       line-height: var(--fd-type-code-01-line-height);
     }
     .post-content code {
-      font-family: 'Roboto Mono', monospace;
+      font-family: "Roboto Mono", monospace;
       font-size: var(--fd-type-code-02-font-size);
       background: var(--fd-surface-secondary, #f4f4f5);
       padding: 2px 6px;
       border-radius: var(--fd-radius-sm);
     }
-    .post-content pre code { background: none; padding: 0; border-radius: 0; }
-    .post-content ui-image { --ui-image-bg: transparent; --ui-image-fit: contain; display: block; max-width: 100%; margin: var(--fd-space-2) 0; }
-    .post-content img { max-width: 100%; border-radius: var(--fd-radius-sm); margin: 0 0 var(--fd-space-2); }
+    .post-content pre code {
+      background: none;
+      padding: 0;
+      border-radius: 0;
+    }
+    .post-content ui-image {
+      --ui-image-bg: transparent;
+      --ui-image-fit: contain;
+      display: block;
+      max-width: 100%;
+      margin: var(--fd-space-2) 0;
+    }
+    .post-content img {
+      max-width: 100%;
+      border-radius: var(--fd-radius-sm);
+      margin: 0 0 var(--fd-space-2);
+    }
     .post-content blockquote {
       border-left: 3px solid var(--fd-border-moderate, #a1a1aa);
       padding-left: var(--fd-space-2);
@@ -404,42 +452,128 @@ export class AdminPages extends LitElement {
       color: var(--fd-text-secondary, #52525b);
       font-style: italic;
     }
-    .post-content a { color: var(--fd-global-brand, #186ade); text-decoration: none; }
-    .post-content a:hover { text-decoration: underline; }
-    .post-content hr { border: none; border-top: 1px solid var(--fd-border-minimal, #e4e4e7); margin: var(--fd-space-3) 0; }
+    .post-content a {
+      color: var(--fd-global-brand, #186ade);
+      text-decoration: none;
+    }
+    .post-content a:hover {
+      text-decoration: underline;
+    }
+    .post-content hr {
+      border: none;
+      border-top: 1px solid var(--fd-border-minimal, #e4e4e7);
+      margin: var(--fd-space-3) 0;
+    }
 
     /* Shiki dual-theme */
-    .post-content pre.shiki, .post-content pre.shiki span { color: var(--shiki-light); background-color: var(--shiki-light-bg); }
+    .post-content pre.shiki,
+    .post-content pre.shiki span {
+      color: var(--shiki-light);
+      background-color: var(--shiki-light-bg);
+    }
     :host-context([data-theme="heroui-dark"]) .post-content pre.shiki,
-    :host-context([data-theme="heroui-dark"]) .post-content pre.shiki span { color: var(--shiki-dark); background-color: var(--shiki-dark-bg); }
+    :host-context([data-theme="heroui-dark"]) .post-content pre.shiki span {
+      color: var(--shiki-dark);
+      background-color: var(--shiki-dark-bg);
+    }
 
     /* Utility classes (same as public page index.html) */
-    .heading-02 { font-size: var(--fd-type-heading-02-font-size, 32px); line-height: var(--fd-type-heading-02-line-height, 40px); font-weight: var(--fd-type-heading-02-font-weight, 500); margin: 0; }
-    .heading-03 { font-size: var(--fd-type-heading-03-font-size); line-height: var(--fd-type-heading-03-line-height); font-weight: var(--fd-type-heading-03-font-weight); }
-    .heading-04 { font-size: var(--fd-type-heading-04-font-size); line-height: var(--fd-type-heading-04-line-height); font-weight: var(--fd-type-heading-04-font-weight); }
-    .heading-05 { font-size: var(--fd-type-heading-05-font-size); line-height: var(--fd-type-heading-05-line-height); font-weight: var(--fd-type-heading-05-font-weight); }
-    .body-01 { font-size: var(--fd-type-body-01-font-size); line-height: var(--fd-type-body-01-line-height); font-weight: var(--fd-type-body-01-font-weight); }
-    .body-02 { font-size: var(--fd-type-body-02-font-size); line-height: var(--fd-type-body-02-line-height); font-weight: var(--fd-type-body-02-font-weight); }
-    .body-03 { font-size: var(--fd-type-body-03-font-size); line-height: var(--fd-type-body-03-line-height); font-weight: var(--fd-type-body-03-font-weight); }
-    .text-secondary { color: var(--fd-text-secondary, #52525b); }
-    .mt-1 { margin-top: var(--fd-space-1); }
-    .mt-2 { margin-top: var(--fd-space-2); }
-    .mt-3 { margin-top: var(--fd-space-3); }
-    .mt-4 { margin-top: var(--fd-space-4); }
-    .mb-1 { margin-bottom: var(--fd-space-1); }
-    .mb-2 { margin-bottom: var(--fd-space-2); }
-    .mb-3 { margin-bottom: var(--fd-space-3); }
-    .mb-4 { margin-bottom: var(--fd-space-4); }
-    .gap-1 { gap: var(--fd-space-1); }
-    .gap-2 { gap: var(--fd-space-2); }
-    .gap-3 { gap: var(--fd-space-3); }
-    .gap-4 { gap: var(--fd-space-4); }
-    .stack { display: flex; flex-direction: column; }
-    .row { display: flex; flex-wrap: wrap; }
-    .reveal { opacity: 1; }
-    .post-content pre.shiki, .post-content pre.shiki span { color: var(--shiki-light); background-color: var(--shiki-light-bg); }
+    .heading-02 {
+      font-size: var(--fd-type-heading-02-font-size, 32px);
+      line-height: var(--fd-type-heading-02-line-height, 40px);
+      font-weight: var(--fd-type-heading-02-font-weight, 500);
+      margin: 0;
+    }
+    .heading-03 {
+      font-size: var(--fd-type-heading-03-font-size);
+      line-height: var(--fd-type-heading-03-line-height);
+      font-weight: var(--fd-type-heading-03-font-weight);
+    }
+    .heading-04 {
+      font-size: var(--fd-type-heading-04-font-size);
+      line-height: var(--fd-type-heading-04-line-height);
+      font-weight: var(--fd-type-heading-04-font-weight);
+    }
+    .heading-05 {
+      font-size: var(--fd-type-heading-05-font-size);
+      line-height: var(--fd-type-heading-05-line-height);
+      font-weight: var(--fd-type-heading-05-font-weight);
+    }
+    .body-01 {
+      font-size: var(--fd-type-body-01-font-size);
+      line-height: var(--fd-type-body-01-line-height);
+      font-weight: var(--fd-type-body-01-font-weight);
+    }
+    .body-02 {
+      font-size: var(--fd-type-body-02-font-size);
+      line-height: var(--fd-type-body-02-line-height);
+      font-weight: var(--fd-type-body-02-font-weight);
+    }
+    .body-03 {
+      font-size: var(--fd-type-body-03-font-size);
+      line-height: var(--fd-type-body-03-line-height);
+      font-weight: var(--fd-type-body-03-font-weight);
+    }
+    .text-secondary {
+      color: var(--fd-text-secondary, #52525b);
+    }
+    .mt-1 {
+      margin-top: var(--fd-space-1);
+    }
+    .mt-2 {
+      margin-top: var(--fd-space-2);
+    }
+    .mt-3 {
+      margin-top: var(--fd-space-3);
+    }
+    .mt-4 {
+      margin-top: var(--fd-space-4);
+    }
+    .mb-1 {
+      margin-bottom: var(--fd-space-1);
+    }
+    .mb-2 {
+      margin-bottom: var(--fd-space-2);
+    }
+    .mb-3 {
+      margin-bottom: var(--fd-space-3);
+    }
+    .mb-4 {
+      margin-bottom: var(--fd-space-4);
+    }
+    .gap-1 {
+      gap: var(--fd-space-1);
+    }
+    .gap-2 {
+      gap: var(--fd-space-2);
+    }
+    .gap-3 {
+      gap: var(--fd-space-3);
+    }
+    .gap-4 {
+      gap: var(--fd-space-4);
+    }
+    .stack {
+      display: flex;
+      flex-direction: column;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .reveal {
+      opacity: 1;
+    }
+    .post-content pre.shiki,
+    .post-content pre.shiki span {
+      color: var(--shiki-light);
+      background-color: var(--shiki-light-bg);
+    }
     :host-context([data-theme="heroui-dark"]) .post-content pre.shiki,
-    :host-context([data-theme="heroui-dark"]) .post-content pre.shiki span { color: var(--shiki-dark); background-color: var(--shiki-dark-bg); }
+    :host-context([data-theme="heroui-dark"]) .post-content pre.shiki span {
+      color: var(--shiki-dark);
+      background-color: var(--shiki-dark-bg);
+    }
 
     /* ── Sidebar footer ── */
 
@@ -508,7 +642,8 @@ export class AdminPages extends LitElement {
               icon="icon-only"
               aria-label="New Page"
               @click=${() => this._createPage()}
-            ><ui-icon name="add" size="s" slot="icon-start"></ui-icon></ui-button>
+              ><ui-icon name="add" size="s" slot="icon-start"></ui-icon
+            ></ui-button>
           </span>
         </ui-side-panel-menu-section>
         ${this._pages.map(
@@ -516,11 +651,21 @@ export class AdminPages extends LitElement {
             <ui-side-panel-menu-item
               value=${p.slug}
               ?selected=${p.slug === this._selectedSlug}
-              @click=${() => { if (this._autoSaveTimer) { clearTimeout(this._autoSaveTimer); this._autoSaveTimer = null; } this._selectedSlug = p.slug; this._originalSlug = p.slug; setPagesSelectedSlug(p.slug); }}
+              @click=${() => {
+                if (this._autoSaveTimer) {
+                  clearTimeout(this._autoSaveTimer);
+                  this._autoSaveTimer = null;
+                }
+                this._selectedSlug = p.slug;
+                this._originalSlug = p.slug;
+                setPagesSelectedSlug(p.slug);
+              }}
             >
               <span style="display:flex;flex-direction:column;gap:2px;overflow:hidden;">
                 <span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.title || "Untitled"}</span>
-                <span style="font-size:11px;color:var(--fd-text-secondary,#71717a);display:flex;align-items:center;gap:6px;">
+                <span
+                  style="font-size:11px;color:var(--fd-text-secondary,#71717a);display:flex;align-items:center;gap:6px;"
+                >
                   /${p.slug}
                   <ui-badge size="xs" status=${p.status === "published" ? "success" : "warning"}>${p.status}</ui-badge>
                 </span>
@@ -532,7 +677,10 @@ export class AdminPages extends LitElement {
                 size="s"
                 icon="icon-only"
                 style="flex-shrink:0;opacity:0;transition:opacity 0.15s;"
-                @click=${(e: Event) => { e.stopPropagation(); this._deletePage(p); }}
+                @click=${(e: Event) => {
+                  e.stopPropagation();
+                  this._deletePage(p);
+                }}
               >
                 <ui-icon name="delete" size="s" slot="icon-start"></ui-icon>
               </ui-button>
@@ -551,18 +699,45 @@ export class AdminPages extends LitElement {
       <div class="admin-form">
         <div class="admin-form-row" style="flex-direction:row;gap:8px;">
           <div class="admin-form-row" style="flex:0 0 200px;">
-            <ui-input id="page-slug" placeholder="slug" size="m" .value=${page.slug} @input=${(e: Event) => { page.slug = (e.target as HTMLInputElement).value; this._onInput(); }}>
+            <ui-input
+              id="page-slug"
+              placeholder="slug"
+              size="m"
+              .value=${page.slug}
+              @input=${(e: Event) => {
+                page.slug = (e.target as HTMLInputElement).value;
+                this._onInput();
+              }}
+            >
               <ui-label slot="label" size="m">Slug (URL path)</ui-label>
             </ui-input>
           </div>
           <div class="admin-form-row" style="flex:1;min-width:0;">
-            <ui-input id="page-title" placeholder="Page title" size="m" .value=${page.title} @input=${(e: Event) => { page.title = (e.target as HTMLInputElement).value; this._onInput(); }}>
+            <ui-input
+              id="page-title"
+              placeholder="Page title"
+              size="m"
+              .value=${page.title}
+              @input=${(e: Event) => {
+                page.title = (e.target as HTMLInputElement).value;
+                this._onInput();
+              }}
+            >
               <ui-label slot="label" size="m">Title</ui-label>
             </ui-input>
           </div>
         </div>
         <div class="admin-form-row">
-          <ui-input id="page-description" placeholder="Short description for SEO" size="m" .value=${page.description} @input=${(e: Event) => { page.description = (e.target as HTMLInputElement).value; this._onInput(); }}>
+          <ui-input
+            id="page-description"
+            placeholder="Short description for SEO"
+            size="m"
+            .value=${page.description}
+            @input=${(e: Event) => {
+              page.description = (e.target as HTMLInputElement).value;
+              this._onInput();
+            }}
+          >
             <ui-label slot="label" size="m">Description</ui-label>
           </ui-input>
         </div>
@@ -595,18 +770,34 @@ export class AdminPages extends LitElement {
         <ui-scrollbar ${ref(this._textareaWrapRef)} emphasis="minimal" class="admin-textarea-wrap">
           <ui-accordion-item size="s" emphasis="subtle" style="--ui-acc-content-padding:0;padding:0 16px;">
             <span slot="label">Page Styles (CSS)</span>
-            <textarea id="page-styles" class="styles-textarea" .value=${page.styles} @input=${(e: Event) => { page.styles = (e.target as HTMLTextAreaElement).value; this._onInput(); }}></textarea>
+            <textarea
+              id="page-styles"
+              class="styles-textarea"
+              .value=${page.styles}
+              @input=${(e: Event) => {
+                page.styles = (e.target as HTMLTextAreaElement).value;
+                this._onInput();
+              }}
+            ></textarea>
           </ui-accordion-item>
-          <textarea id="page-content" .value=${page.content} @input=${(e: Event) => { page.content = (e.target as HTMLTextAreaElement).value; this._onInput(); }}></textarea>
+          <textarea
+            id="page-content"
+            .value=${page.content}
+            @input=${(e: Event) => {
+              page.content = (e.target as HTMLTextAreaElement).value;
+              this._onInput();
+            }}
+          ></textarea>
           <div class="admin-textarea-spacer"></div>
         </ui-scrollbar>
-        ${this._showPreview
-          ? html`<ui-scrollbar ${ref(this._previewWrapRef)} emphasis="minimal"
-              ><div id="page-preview" class="admin-preview"></div
-            ></ui-scrollbar>`
-          : nothing}
+        ${
+          this._showPreview
+            ? html`<ui-scrollbar ${ref(this._previewWrapRef)} emphasis="minimal"
+                ><div id="page-preview" class="admin-preview"></div
+              ></ui-scrollbar>`
+            : nothing
+        }
       </div>
     `;
   }
-
-  }
+}

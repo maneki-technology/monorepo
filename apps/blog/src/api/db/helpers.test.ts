@@ -9,46 +9,31 @@ describe("buildSetClauses", () => {
   });
 
   it("skips undefined values", () => {
-    const result = buildSetClauses(
-      { title: "hello", body: undefined },
-      { title: "title", body: "body_md" },
-    );
+    const result = buildSetClauses({ title: "hello", body: undefined }, { title: "title", body: "body_md" });
     expect(result.clauses).toEqual(["title = ?"]);
     expect(result.args).toEqual(["hello"]);
   });
 
   it("includes null values (not undefined)", () => {
-    const result = buildSetClauses(
-      { album_id: null },
-      { album_id: "album_id" },
-    );
+    const result = buildSetClauses({ album_id: null }, { album_id: "album_id" });
     expect(result.clauses).toEqual(["album_id = ?"]);
     expect(result.args).toEqual([null]);
   });
 
   it("uses string spec as column name directly", () => {
-    const result = buildSetClauses(
-      { title: "Test", status: "published" },
-      { title: "title", status: "status" },
-    );
+    const result = buildSetClauses({ title: "Test", status: "published" }, { title: "title", status: "status" });
     expect(result.clauses).toEqual(["title = ?", "status = ?"]);
     expect(result.args).toEqual(["Test", "published"]);
   });
 
   it("uses FieldMapping.column when provided", () => {
-    const result = buildSetClauses(
-      { date: "2025-01-01" },
-      { date: { column: "created_at" } },
-    );
+    const result = buildSetClauses({ date: "2025-01-01" }, { date: { column: "created_at" } });
     expect(result.clauses).toEqual(["created_at = ?"]);
     expect(result.args).toEqual(["2025-01-01"]);
   });
 
   it("defaults column to key name when FieldMapping.column is omitted", () => {
-    const result = buildSetClauses(
-      { title: "hi" },
-      { title: { transform: undefined } },
-    );
+    const result = buildSetClauses({ title: "hi" }, { title: { transform: undefined } });
     expect(result.clauses).toEqual(["title = ?"]);
     expect(result.args).toEqual(["hi"]);
   });
@@ -66,10 +51,7 @@ describe("buildSetClauses", () => {
   });
 
   it("applies toJson transform", () => {
-    const result = buildSetClauses(
-      { tags: ["rust", "wasm"] },
-      { tags: { column: "tags", transform: toJson } },
-    );
+    const result = buildSetClauses({ tags: ["rust", "wasm"] }, { tags: { column: "tags", transform: toJson } });
     expect(result.clauses).toEqual(["tags = ?"]);
     expect(result.args).toEqual(['["rust","wasm"]']);
   });
@@ -84,20 +66,12 @@ describe("buildSetClauses", () => {
         status: "status",
       },
     );
-    expect(result.clauses).toEqual([
-      "title = ?",
-      "tags = ?",
-      "featured = ?",
-      "status = ?",
-    ]);
+    expect(result.clauses).toEqual(["title = ?", "tags = ?", "featured = ?", "status = ?"]);
     expect(result.args).toEqual(["Post", '["a","b"]', 1, "draft"]);
   });
 
   it("preserves field order from spec", () => {
-    const result = buildSetClauses(
-      { z: "last", a: "first", m: "middle" },
-      { a: "a", m: "m", z: "z" },
-    );
+    const result = buildSetClauses({ z: "last", a: "first", m: "middle" }, { a: "a", m: "m", z: "z" });
     expect(result.clauses).toEqual(["a = ?", "m = ?", "z = ?"]);
     expect(result.args).toEqual(["first", "middle", "last"]);
   });

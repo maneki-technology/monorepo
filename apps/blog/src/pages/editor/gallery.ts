@@ -37,12 +37,49 @@ export class EditorGallery extends LitElement {
   private _defaultOnSelect: ((url: string, name: string) => void) | null = null;
 
   static styles = css`
-    :host { display: contents; }
-    #admin-gallery { position: absolute; top: 0; right: 0; height: 100%; z-index: 10; --ui-sp-width: 320px; --ui-sp-bg: var(--fd-surface-primary); }
-    .admin-gallery-grid { flex: 1; overflow-y: auto; padding: var(--fd-space-1); display: grid; grid-template-columns: 1fr 1fr; gap: var(--fd-space-1); align-content: start; }
-    .gallery-item-name { font-family: var(--fd-type-body-03-font-family); font-size: var(--fd-type-body-03-font-size); color: var(--fd-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .gallery-item-size { font-family: var(--fd-type-body-03-font-family); font-size: 10px; color: var(--fd-text-secondary); }
-    .gallery-loading, .gallery-empty { grid-column: 1 / -1; text-align: center; padding: var(--fd-space-3); font-family: var(--fd-type-body-02-font-family); font-size: var(--fd-type-body-02-font-size); color: var(--fd-text-secondary); }
+    :host {
+      display: contents;
+    }
+    #admin-gallery {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: 100%;
+      z-index: 10;
+      --ui-sp-width: 320px;
+      --ui-sp-bg: var(--fd-surface-primary);
+    }
+    .admin-gallery-grid {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--fd-space-1);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--fd-space-1);
+      align-content: start;
+    }
+    .gallery-item-name {
+      font-family: var(--fd-type-body-03-font-family);
+      font-size: var(--fd-type-body-03-font-size);
+      color: var(--fd-text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .gallery-item-size {
+      font-family: var(--fd-type-body-03-font-family);
+      font-size: 10px;
+      color: var(--fd-text-secondary);
+    }
+    .gallery-loading,
+    .gallery-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: var(--fd-space-3);
+      font-family: var(--fd-type-body-02-font-family);
+      font-size: var(--fd-type-body-02-font-size);
+      color: var(--fd-text-secondary);
+    }
   `;
 
   protected firstUpdated(): void {
@@ -89,15 +126,17 @@ export class EditorGallery extends LitElement {
           ></ui-button>
         </div>
         <div class="admin-gallery-grid">
-          ${this._loading
-            ? html`<div class="gallery-loading">Loading...</div>`
-            : this._images.length === 0
-              ? html`<div class="gallery-empty">No images uploaded yet</div>`
-              : repeat(
-                  this._images,
-                  (img) => img.name,
-                  (img) => this._renderCard(img),
-                )}
+          ${
+            this._loading
+              ? html`<div class="gallery-loading">Loading...</div>`
+              : this._images.length === 0
+                ? html`<div class="gallery-empty">No images uploaded yet</div>`
+                : repeat(
+                    this._images,
+                    (img) => img.name,
+                    (img) => this._renderCard(img),
+                  )
+          }
         </div>
       </ui-side-panel>
     `;

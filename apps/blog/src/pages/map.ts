@@ -36,8 +36,9 @@ export const mapRoute: Route = {
     <photo-lightbox id="photo-lightbox"></photo-lightbox>
   `,
   setup: () => {
-    const mapEl = document.getElementById("photo-world-map") as HTMLElement & { setPhotos(p: Photo[]): void } | null;
-    const lightbox = document.getElementById("photo-lightbox") as HTMLElement & { open(i: number, p: Photo[]): void } | null;
+    const mapEl = document.getElementById("photo-world-map") as (HTMLElement & { setPhotos(p: Photo[]): void }) | null;
+    const lightbox = document.getElementById("photo-lightbox") as
+      (HTMLElement & { open(i: number, p: Photo[]): void }) | null;
 
     if (mapEl) {
       import("../components/photo-world-map.js").then(() => {

@@ -380,7 +380,13 @@ describe("ui-tag", () => {
 
   it("is an inline-flex element via :host", () => {
     const shadow = el.shadowRoot!;
-    const styles = shadow.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    const styles = shadow.adoptedStyleSheets
+      .map((s: CSSStyleSheet) =>
+        Array.from(s.cssRules)
+          .map((r: CSSRule) => r.cssText)
+          .join(""),
+      )
+      .join("");
     expect(styles).toContain("display: inline-flex");
   });
 
@@ -400,7 +406,13 @@ describe("ui-tag", () => {
 
   it("CSS contains white-space: nowrap", () => {
     const shadow = el.shadowRoot!;
-    const styles = shadow.adoptedStyleSheets.map((s: CSSStyleSheet) => Array.from(s.cssRules).map((r: CSSRule) => r.cssText).join("")).join("");
+    const styles = shadow.adoptedStyleSheets
+      .map((s: CSSStyleSheet) =>
+        Array.from(s.cssRules)
+          .map((r: CSSRule) => r.cssText)
+          .join(""),
+      )
+      .join("");
     expect(styles).toContain("white-space: nowrap");
   });
 
@@ -1006,10 +1018,10 @@ describe("ui-tag", () => {
   });
 
   it("CSS contains editable selector", () => {
-    expect(STYLES).toContain('[editable]');
+    expect(STYLES).toContain("[editable]");
   });
 
   it("CSS contains editing class selector", () => {
-    expect(STYLES).toContain('.base.editing');
+    expect(STYLES).toContain(".base.editing");
   });
 });

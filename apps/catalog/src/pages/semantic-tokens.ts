@@ -1,9 +1,22 @@
 import { registerPage } from "../registry.js";
 import {
-  surface, border, text, icon, global,
-  statusSurface, statusText, statusIcon, statusGeneral,
-  stateDisabled, stateHover, stateActive, stateSelected,
-  form, tag, button, gridRow,
+  surface,
+  border,
+  text,
+  icon,
+  global,
+  statusSurface,
+  statusText,
+  statusIcon,
+  statusGeneral,
+  stateDisabled,
+  stateHover,
+  stateActive,
+  stateSelected,
+  form,
+  tag,
+  button,
+  gridRow,
   resolveSemanticValue,
 } from "@maneki/foundation";
 
@@ -50,7 +63,8 @@ registerPage("semantic-tokens", {
   title: "Semantic Tokens",
   section: "Foundation",
   render: () => {
-    return renderGroup("Surface", surface, "surface", "surface") +
+    return (
+      renderGroup("Surface", surface, "surface", "surface") +
       renderGroup("Border", border, "border", "border") +
       renderGroup("Text", text, "text", "text") +
       renderGroup("Icon", icon, "icon", "icon") +
@@ -66,6 +80,7 @@ registerPage("semantic-tokens", {
       renderGroup("Status — General", statusGeneral, "status-general", "surface") +
       renderGroup("Status — Surface", statusSurface, "status-surface", "surface") +
       renderGroup("Status — Text", statusText, "status-text", "text") +
-      renderGroup("Status — Icon", statusIcon, "status-icon", "icon");
+      renderGroup("Status — Icon", statusIcon, "status-icon", "icon")
+    );
   },
 });

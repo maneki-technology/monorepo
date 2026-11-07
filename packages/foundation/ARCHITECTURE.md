@@ -1,6 +1,6 @@
 # Foundation Architecture
 
-*Snapshot: April 2026*
+_Snapshot: April 2026_
 
 ## Overview
 
@@ -88,25 +88,25 @@ Each token category has a typed helper that returns a `var(--fd-...)` string. Th
 
 All foundation properties use the `--fd-` prefix. The naming pattern after the prefix follows the token category and key.
 
-| Category | Pattern | Example |
-|---|---|---|
-| Palette colors | `--fd-color-{family}-{step}` | `--fd-color-blue-60` |
-| Semantic surface | `--fd-surface-{name}` | `--fd-surface-primary` |
-| Semantic border | `--fd-border-{name}` | `--fd-border-minimal` |
-| Semantic text | `--fd-text-{name}` | `--fd-text-primary` |
-| Semantic icon | `--fd-icon-{name}` | `--fd-icon-action` |
-| Global | `--fd-global-{name}` | `--fd-global-brand` |
-| Status | `--fd-status-{group}-{name}` | `--fd-status-surface-error-bold` |
-| Elevation | `--fd-elevation-{level}` | `--fd-elevation-03` |
-| Shadow | `--fd-shadow-{name}` | `--fd-shadow-card` |
-| Typography | `--fd-type-{group}-{key}-{prop}` | `--fd-type-heading-01-font-size` |
-| Spacing | `--fd-space-{step}` | `--fd-space-2-5` |
-| Shape radius | `--fd-radius-{name}` | `--fd-radius-s` |
-| Shape border-width | `--fd-border-width-{name}` | `--fd-border-width-s` |
-| Tag | `--fd-tag-{name}` | `--fd-tag-bold` |
-| Button | `--fd-button-{name}` | `--fd-button-secondary` |
-| State | `--fd-state-{group}-{name}` | `--fd-state-hover-border-moderate` |
-| Form | `--fd-form-{name}` | `--fd-form-input-border` |
+| Category           | Pattern                          | Example                            |
+| ------------------ | -------------------------------- | ---------------------------------- |
+| Palette colors     | `--fd-color-{family}-{step}`     | `--fd-color-blue-60`               |
+| Semantic surface   | `--fd-surface-{name}`            | `--fd-surface-primary`             |
+| Semantic border    | `--fd-border-{name}`             | `--fd-border-minimal`              |
+| Semantic text      | `--fd-text-{name}`               | `--fd-text-primary`                |
+| Semantic icon      | `--fd-icon-{name}`               | `--fd-icon-action`                 |
+| Global             | `--fd-global-{name}`             | `--fd-global-brand`                |
+| Status             | `--fd-status-{group}-{name}`     | `--fd-status-surface-error-bold`   |
+| Elevation          | `--fd-elevation-{level}`         | `--fd-elevation-03`                |
+| Shadow             | `--fd-shadow-{name}`             | `--fd-shadow-card`                 |
+| Typography         | `--fd-type-{group}-{key}-{prop}` | `--fd-type-heading-01-font-size`   |
+| Spacing            | `--fd-space-{step}`              | `--fd-space-2-5`                   |
+| Shape radius       | `--fd-radius-{name}`             | `--fd-radius-s`                    |
+| Shape border-width | `--fd-border-width-{name}`       | `--fd-border-width-s`              |
+| Tag                | `--fd-tag-{name}`                | `--fd-tag-bold`                    |
+| Button             | `--fd-button-{name}`             | `--fd-button-secondary`            |
+| State              | `--fd-state-{group}-{name}`      | `--fd-state-hover-border-moderate` |
+| Form               | `--fd-form-{name}`               | `--fd-form-input-border`           |
 
 Dots in spacing steps become hyphens in property names (`--fd-space-0-75`, not `--fd-space-0.75`). camelCase semantic keys are converted to kebab-case by `toKebab()` at generation time.
 
@@ -198,4 +198,4 @@ All tokens are written into one `<style>` element rather than one per category. 
 
 ---
 
-*This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records.*
+_This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records._

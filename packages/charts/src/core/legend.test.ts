@@ -1,9 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  legendRowWidth,
-  splitLegendRows,
-  legendHeight,
-} from "./legend.js";
+import { legendRowWidth, splitLegendRows, legendHeight } from "./legend.js";
 import type { LegendItem } from "./types.js";
 
 const items: LegendItem[] = [

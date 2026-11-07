@@ -16,7 +16,8 @@ if (!url) {
 const db = createClient({ url, authToken: authToken || undefined });
 
 const title = "Kien Nguyen Trung";
-const description = "Lead Software Engineer with 14+ years of experience. Go, TypeScript, Java, Python. Distributed systems, micro-frontends, fine-grained authorization.";
+const description =
+  "Lead Software Engineer with 14+ years of experience. Go, TypeScript, Java, Python. Distributed systems, micro-frontends, fine-grained authorization.";
 
 const styles = `
 .heading-05 { font-size: var(--fd-type-heading-05-font-size); line-height: var(--fd-type-heading-05-line-height); font-weight: var(--fd-type-heading-05-font-weight); }

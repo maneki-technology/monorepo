@@ -395,9 +395,7 @@ class PhotoLightbox extends HTMLElement {
 
   private _trapFocus(e: KeyboardEvent): void {
     if (e.key !== "Tab") return;
-    const focusable = this.shadowRoot!.querySelectorAll<HTMLElement>(
-      'button, [tabindex]:not([tabindex="-1"])'
-    );
+    const focusable = this.shadowRoot!.querySelectorAll<HTMLElement>('button, [tabindex]:not([tabindex="-1"])');
     if (focusable.length === 0) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];

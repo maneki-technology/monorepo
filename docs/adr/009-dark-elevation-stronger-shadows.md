@@ -13,11 +13,13 @@ Dark mode uses stronger box-shadows (higher opacity: 0.3–0.5 vs light mode's 0
 Two approaches were evaluated:
 
 ### Option 1: Stronger shadows (chosen)
+
 - Same visual language as light mode — shadows indicate depth
 - Works through existing `--fd-elevation-*` CSS custom properties
 - No component changes needed
 
 ### Option 2: Surface tint (rejected)
+
 - Material Design 3 approach: higher elevation = lighter surface color via white overlay
 - Attempted using `inset 0 0 0 9999px rgba(255,255,255, 0.05–0.16)` as box-shadow
 - **Failed** because `box-shadow` doesn't tint the background — it renders on top, creating a visible overlay edge on rounded corners and clipping with `overflow: hidden`

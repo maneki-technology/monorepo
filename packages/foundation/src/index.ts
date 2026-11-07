@@ -51,7 +51,7 @@ export {
   type ElevationToken,
   type SemanticTokenGroup,
 } from "./semantic-tokens.js";
-  export {
+export {
   injectHerouiTheme,
   generateHerouiCss,
   herouiSemanticTokens,
@@ -77,17 +77,8 @@ export {
   type TypeToken,
   type TypographyGroup,
 } from "./typography.js";
-export {
-  spacingBase,
-  spacing,
-  type SpacingStep,
-} from "./spacing.js";
-export {
-  radius,
-  borderWidth,
-  type RadiusStep,
-  type BorderWidthStep,
-} from "./shape.js";
+export { spacingBase, spacing, type SpacingStep } from "./spacing.js";
+export { radius, borderWidth, type RadiusStep, type BorderWidthStep } from "./shape.js";
 export * from "./token-constants.js";
 export {
   compactBreakpoints,

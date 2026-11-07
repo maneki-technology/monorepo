@@ -7,22 +7,30 @@ registerPage("clock", {
   render: () => `
     <h3>Analog — Sizes</h3>
     <div class="variant-row row-start-wrap">
-      ${["s", "m", "l"].map(size => `
+      ${["s", "m", "l"]
+        .map(
+          (size) => `
         <div class="variant-col">
           <span class="variant-label">Size ${size}</span>
           <ui-clock size="${size}" value="03:00"></ui-clock>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
 
     <h3>24-Hour Digital — Sizes</h3>
     <div class="variant-row row-start-wrap">
-      ${["s", "m", "l"].map(size => `
+      ${["s", "m", "l"]
+        .map(
+          (size) => `
         <div class="variant-col">
           <span class="variant-label">Size ${size}</span>
           <ui-clock size="${size}" mode="24-hour" value="14:30"></ui-clock>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
 
     <h3>With Different Values</h3>

@@ -85,14 +85,7 @@ describe("ui-popover", () => {
     const Ctor = customElements.get("ui-popover") as unknown as {
       observedAttributes: string[];
     };
-    expect(Ctor.observedAttributes).toEqual([
-      "size",
-      "placement",
-      "dismissable",
-      "open",
-      "title-text",
-      "description",
-    ]);
+    expect(Ctor.observedAttributes).toEqual(["size", "placement", "dismissable", "open", "title-text", "description"]);
   });
 
   // ── Attributes ────────────────────────────────────────────────────────────
@@ -155,21 +148,16 @@ describe("ui-popover", () => {
   });
 
   it("placement getter returns default top-center", () => {
-    expect(
-      (el as unknown as { placement: PopoverPlacement }).placement,
-    ).toBe("top-center");
+    expect((el as unknown as { placement: PopoverPlacement }).placement).toBe("top-center");
   });
 
   it("placement setter sets attribute", () => {
-    (el as unknown as { placement: PopoverPlacement }).placement =
-      "bottom-right";
+    (el as unknown as { placement: PopoverPlacement }).placement = "bottom-right";
     expect(el.getAttribute("placement")).toBe("bottom-right");
   });
 
   it("dismissable getter returns false by default", () => {
-    expect((el as unknown as { dismissable: boolean }).dismissable).toBe(
-      false,
-    );
+    expect((el as unknown as { dismissable: boolean }).dismissable).toBe(false);
   });
 
   it("dismissable setter adds attribute when true", () => {

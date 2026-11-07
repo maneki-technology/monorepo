@@ -13,8 +13,8 @@ const SURFACE_MODERATE = semanticVar("surface", "moderate");
 export type FlexLayoutSize = "large" | "medium" | "small";
 
 const SIZE_CONFIG: Record<FlexLayoutSize, { gap: string; padding: string }> = {
-  large: { gap: spaceVar("1"), padding: spaceVar("1") },   // 8px
-  medium: { gap: spaceVar("1"), padding: spaceVar("1") },  // 8px
+  large: { gap: spaceVar("1"), padding: spaceVar("1") }, // 8px
+  medium: { gap: spaceVar("1"), padding: spaceVar("1") }, // 8px
   small: { gap: spaceVar("0.5"), padding: spaceVar("0.5") }, // 4px
 };
 

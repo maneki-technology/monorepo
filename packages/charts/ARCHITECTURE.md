@@ -1,6 +1,6 @@
 # Charts Architecture
 
-*Snapshot: April 2026*
+_Snapshot: April 2026_
 
 ## Overview
 
@@ -39,19 +39,19 @@ packages/charts/
 
 ## Components
 
-| Element | Description |
-|---|---|
-| `<chart-bar>` | Grouped vertical bar chart, multiple datasets |
-| `<chart-line>` | Line chart, optional fill, tension, gradient |
-| `<chart-pie>` | Pie or doughnut (configurable inner radius) |
-| `<chart-radar>` | Radar / spider chart with configurable axes |
-| `<chart-scatter>` | Scatter or bubble chart |
-| `<chart-stacked-bar>` | Stacked vertical bars |
-| `<chart-horizontal-bar>` | Horizontal bar chart |
-| `<chart-stacked-horizontal-bar>` | Stacked horizontal bars |
-| `<chart-polar>` | Polar area chart |
-| `<chart-multi-line>` | Multiple line series with shared axes |
-| `<chart-multitype>` | Mixed bar and line series on shared axes |
+| Element                          | Description                                   |
+| -------------------------------- | --------------------------------------------- |
+| `<chart-bar>`                    | Grouped vertical bar chart, multiple datasets |
+| `<chart-line>`                   | Line chart, optional fill, tension, gradient  |
+| `<chart-pie>`                    | Pie or doughnut (configurable inner radius)   |
+| `<chart-radar>`                  | Radar / spider chart with configurable axes   |
+| `<chart-scatter>`                | Scatter or bubble chart                       |
+| `<chart-stacked-bar>`            | Stacked vertical bars                         |
+| `<chart-horizontal-bar>`         | Horizontal bar chart                          |
+| `<chart-stacked-horizontal-bar>` | Stacked horizontal bars                       |
+| `<chart-polar>`                  | Polar area chart                              |
+| `<chart-multi-line>`             | Multiple line series with shared axes         |
+| `<chart-multitype>`              | Mixed bar and line series on shared axes      |
 
 All components support both a declarative attribute API (JSON-encoded `labels` and `datasets` attributes) and a programmatic property API (`chart.datasets = [...]`, `chart.options = {...}`). Attribute changes are batched via `requestAnimationFrame` to avoid redundant renders when multiple attributes change together.
 
@@ -111,4 +111,4 @@ All components use the `--chart-*` prefix. Key properties: `--chart-font`, `--ch
 
 ---
 
-*This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records.*
+_This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records._

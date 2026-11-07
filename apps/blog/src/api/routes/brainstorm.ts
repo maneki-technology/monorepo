@@ -74,101 +74,105 @@ function buildAudienceContext(audience: string): string {
   }
 }
 
-export const brainstorm = new Hono<Env>().post(
-  "/",
-  zValidator("json", brainstormSchema),
-  async (c) => {
-    const apiKey = c.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      return c.json({ error: "ANTHROPIC_API_KEY not configured" }, 500);
-    }
+export const brainstorm = new Hono<Env>().post("/", zValidator("json", brainstormSchema), async (c) => {
+  const apiKey = c.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    return c.json({ error: "ANTHROPIC_API_KEY not configured" }, 500);
+  }
 
-    const { title, content, excerpt, tags, focus, audience, history } = c.req.valid("json");
+  const { title, content, excerpt, tags, focus, audience, history } = c.req.valid("json");
 
+  const postContext = [
+    title ? `**Title:** ${title}` : "",
+    excerpt ? `**Excerpt:** ${excerpt}` : "",
+    tags ? `**Tags:** ${tags}` : "",
+    content ? `\n## Draft content (if any)\n${content.slice(0, 5000)}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 
-    const postContext = [
-      title ? `**Title:** ${title}` : "",
-      excerpt ? `**Excerpt:** ${excerpt}` : "",
-      tags ? `**Tags:** ${tags}` : "",
-      content ? `\n## Draft content (if any)\n${content.slice(0, 5000)}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
+  const focusContext = buildFocusContext(focus);
 
-    const focusContext = buildFocusContext(focus);
+  const messages: Array<{ role: "user" | "assistant"; content: string }> = [];
 
-    const messages: Array<{ role: "user" | "assistant"; content: string }> = [];
+  if (history.length === 0) {
+    messages.push({
+      role: "user",
+      content: `${focusContext}\n\n${buildAudienceContext(audience)}\n\n${postContext ? `Here's what I have so far:\n\n${postContext}\n\n` : ""}Let's brainstorm!`,
+    });
+  } else {
+    messages.push({
+      role: "user",
+      content: `${focusContext}\n\n${buildAudienceContext(audience)}\n\n${postContext ? `Context — current draft:\n\n${postContext}\n\n` : ""}(Continuing our brainstorm session)`,
+    });
+    messages.push(...history.map((m) => ({ role: m.role, content: m.content })));
+  }
 
-    if (history.length === 0) {
-      messages.push({
-        role: "user",
-        content: `${focusContext}\n\n${buildAudienceContext(audience)}\n\n${postContext ? `Here's what I have so far:\n\n${postContext}\n\n` : ""}Let's brainstorm!`,
+  c.header("content-type", "text/event-stream");
+  c.header("cache-control", "no-cache");
+
+  return streamText(c, async (stream) => {
+    try {
+      const res = await fetch(`${c.env.AI_GATEWAY_URL}/anthropic/v1/messages`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-6",
+          max_tokens: 4096,
+          stream: true,
+          system: SYSTEM_PROMPT,
+          messages,
+        }),
       });
-    } else {
-      messages.push({
-        role: "user",
-        content: `${focusContext}\n\n${buildAudienceContext(audience)}\n\n${postContext ? `Context — current draft:\n\n${postContext}\n\n` : ""}(Continuing our brainstorm session)`,
-      });
-      messages.push(...history.map((m) => ({ role: m.role, content: m.content })));
-    }
 
-    c.header("content-type", "text/event-stream");
-    c.header("cache-control", "no-cache");
+      if (!res.ok) {
+        const errText = await res.text();
+        await stream.writeln(JSON.stringify({ type: "error", message: `${res.status} ${errText}` }));
+        return;
+      }
 
-    return streamText(c, async (stream) => {
-      try {
-        const res = await fetch(`${c.env.AI_GATEWAY_URL}/anthropic/v1/messages`, {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            "x-api-key": apiKey,
-            "anthropic-version": "2023-06-01",
-          },
-          body: JSON.stringify({
-            model: "claude-sonnet-4-6",
-            max_tokens: 4096,
-            stream: true,
-            system: SYSTEM_PROMPT,
-            messages,
-          }),
-        });
+      const reader = res.body?.getReader();
+      if (!reader) {
+        await stream.writeln(JSON.stringify({ type: "error", message: "No stream" }));
+        return;
+      }
+      const decoder = new TextDecoder();
+      let buf = "";
 
-        if (!res.ok) {
-          const errText = await res.text();
-          await stream.writeln(JSON.stringify({ type: "error", message: `${res.status} ${errText}` }));
-          return;
-        }
-
-        const reader = res.body?.getReader();
-        if (!reader) { await stream.writeln(JSON.stringify({ type: "error", message: "No stream" })); return; }
-        const decoder = new TextDecoder();
-        let buf = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buf += decoder.decode(value, { stream: true });
-          const lines = buf.split("\n");
-          buf = lines.pop() || "";
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const data = line.slice(6);
-            if (data === "[DONE]") continue;
-            try {
-              const event = JSON.parse(data);
-              if (event.type === "content_block_delta" && event.delta?.text) {
-                await stream.writeln(JSON.stringify({ type: "content", data: event.delta.text }));
-              }
-            } catch { /* skip */ }
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buf += decoder.decode(value, { stream: true });
+        const lines = buf.split("\n");
+        buf = lines.pop() || "";
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6);
+          if (data === "[DONE]") continue;
+          try {
+            const event = JSON.parse(data);
+            if (event.type === "content_block_delta" && event.delta?.text) {
+              await stream.writeln(JSON.stringify({ type: "content", data: event.delta.text }));
+            }
+          } catch {
+            /* skip */
           }
         }
-
-        await stream.writeln(JSON.stringify({ type: "done" }));
-      } catch (error) {
-        try {
-          await stream.writeln(JSON.stringify({ type: "error", message: error instanceof Error ? error.message : "Brainstorm failed" }));
-        } catch { /* stream disconnected */ }
       }
-    });
-  },
-);
+
+      await stream.writeln(JSON.stringify({ type: "done" }));
+    } catch (error) {
+      try {
+        await stream.writeln(
+          JSON.stringify({ type: "error", message: error instanceof Error ? error.message : "Brainstorm failed" }),
+        );
+      } catch {
+        /* stream disconnected */
+      }
+    }
+  });
+});

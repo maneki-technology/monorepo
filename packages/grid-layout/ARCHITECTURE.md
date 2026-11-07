@@ -1,6 +1,6 @@
 # Grid Layout Architecture
 
-*Snapshot: April 2026*
+_Snapshot: April 2026_
 
 ## Overview
 
@@ -86,14 +86,14 @@ During interaction, the `[interacting]` attribute is set on the container to sup
 
 Full keyboard navigation is implemented in `handleKeyDown` on `<grid-layout>`:
 
-| Key | Context | Action |
-|---|---|---|
-| Enter / Space | Item focused | Start drag mode |
-| R | Item focused | Start resize mode |
-| Arrow keys | Drag mode | Move one cell |
-| Arrow keys | Resize mode | Grow/shrink one cell |
-| Enter | Drag or resize mode | Confirm |
-| Escape | Drag or resize mode | Cancel, revert |
+| Key           | Context             | Action               |
+| ------------- | ------------------- | -------------------- |
+| Enter / Space | Item focused        | Start drag mode      |
+| R             | Item focused        | Start resize mode    |
+| Arrow keys    | Drag mode           | Move one cell        |
+| Arrow keys    | Resize mode         | Grow/shrink one cell |
+| Enter         | Drag or resize mode | Confirm              |
+| Escape        | Drag or resize mode | Cancel, revert       |
 
 Keyboard state is tracked via private fields: `_kbDragActive`, `_kbResizeActive`, `_kbFocusedItemId`, `_kbOldLayout`. The live region announces pick-up, movement, drop, and cancel events.
 
@@ -107,12 +107,12 @@ External drop state is tracked via `_isDroppable`, `_droppingItem`, `_externalDr
 
 Hooks are JS property setters, not attributes. Return `false` to cancel.
 
-| Hook | Fires | Cancel effect |
-|---|---|---|
-| `beforeDragStart` | Before drag begins | Prevents drag |
-| `beforeResizeStart` | Before resize begins | Prevents resize |
+| Hook                 | Fires                  | Cancel effect              |
+| -------------------- | ---------------------- | -------------------------- |
+| `beforeDragStart`    | Before drag begins     | Prevents drag              |
+| `beforeResizeStart`  | Before resize begins   | Prevents resize            |
 | `layoutChangeFilter` | On every layout change | Rejects or modifies layout |
-| `afterDrop` | After drag ends | Reverts to pre-drag layout |
+| `afterDrop`          | After drag ends        | Reverts to pre-drag layout |
 
 `<responsive-grid-layout>` forwards all four hooks to its inner `<grid-layout>`.
 
@@ -150,4 +150,4 @@ Key properties: `--grid-item-transition-duration`, `--grid-item-active-opacity`,
 
 ---
 
-*This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records.*
+_This document describes the architecture as of April 2026. See `docs/adr/` for individual decision records._

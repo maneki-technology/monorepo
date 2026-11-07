@@ -35,44 +35,44 @@ Or load directly in a browser:
 ```html
 <!DOCTYPE html>
 <html>
-<head>
-  <style>
-    grid-layout {
-      display: block;
-      width: 100%;
-      height: 600px;
-    }
-  </style>
-</head>
-<body>
-  <grid-layout>
-    <grid-item item-id="a" x="0" y="0" w="4" h="2">
-      <div>Item A</div>
-    </grid-item>
-    <grid-item item-id="b" x="4" y="0" w="4" h="2">
-      <div>Item B</div>
-    </grid-item>
-    <grid-item item-id="c" x="8" y="0" w="4" h="2">
-      <div>Item C</div>
-    </grid-item>
-  </grid-layout>
+  <head>
+    <style>
+      grid-layout {
+        display: block;
+        width: 100%;
+        height: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <grid-layout>
+      <grid-item item-id="a" x="0" y="0" w="4" h="2">
+        <div>Item A</div>
+      </grid-item>
+      <grid-item item-id="b" x="4" y="0" w="4" h="2">
+        <div>Item B</div>
+      </grid-item>
+      <grid-item item-id="c" x="8" y="0" w="4" h="2">
+        <div>Item C</div>
+      </grid-item>
+    </grid-layout>
 
-  <script type="module">
-    import '@maneki/grid-layout';
+    <script type="module">
+      import "@maneki/grid-layout";
 
-    const grid = document.querySelector('grid-layout');
+      const grid = document.querySelector("grid-layout");
 
-    grid.gridConfig = {
-      cols: 12,
-      rowHeight: 150,
-      margin: [10, 10],
-    };
+      grid.gridConfig = {
+        cols: 12,
+        rowHeight: 150,
+        margin: [10, 10],
+      };
 
-    grid.addEventListener('layout-change', (e) => {
-      console.log('Layout changed:', e.detail.layout);
-    });
-  </script>
-</body>
+      grid.addEventListener("layout-change", (e) => {
+        console.log("Layout changed:", e.detail.layout);
+      });
+    </script>
+  </body>
 </html>
 ```
 
@@ -86,24 +86,24 @@ The main container. Manages layout state, drag, and resize for all child `<grid-
 
 **Properties**
 
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `layout` | `Layout[]` | `[]` | Array of layout item definitions |
-| `gridConfig` | `GridConfig` | see below | Grid dimensions and spacing |
-| `dragConfig` | `DragConfig` | see below | Drag behavior |
-| `resizeConfig` | `ResizeConfig` | see below | Resize behavior |
-| `compactType` | `"vertical" \| "horizontal" \| null` | `"vertical"` | How items compact after a move |
-| `preventCollision` | `boolean` | `false` | Prevent items from overlapping |
+| Property           | Type                                 | Default      | Description                      |
+| ------------------ | ------------------------------------ | ------------ | -------------------------------- |
+| `layout`           | `Layout[]`                           | `[]`         | Array of layout item definitions |
+| `gridConfig`       | `GridConfig`                         | see below    | Grid dimensions and spacing      |
+| `dragConfig`       | `DragConfig`                         | see below    | Drag behavior                    |
+| `resizeConfig`     | `ResizeConfig`                       | see below    | Resize behavior                  |
+| `compactType`      | `"vertical" \| "horizontal" \| null` | `"vertical"` | How items compact after a move   |
+| `preventCollision` | `boolean`                            | `false`      | Prevent items from overlapping   |
 
 **Setting layout programmatically**
 
 ```js
-const grid = document.querySelector('grid-layout');
+const grid = document.querySelector("grid-layout");
 
 grid.layout = [
-  { i: 'a', x: 0, y: 0, w: 4, h: 2 },
-  { i: 'b', x: 4, y: 0, w: 4, h: 2 },
-  { i: 'c', x: 8, y: 0, w: 4, h: 2 },
+  { i: "a", x: 0, y: 0, w: 4, h: 2 },
+  { i: "b", x: 4, y: 0, w: 4, h: 2 },
+  { i: "c", x: 8, y: 0, w: 4, h: 2 },
 ];
 ```
 
@@ -115,24 +115,24 @@ Individual grid cell. Place these as direct children of `<grid-layout>`.
 
 **Attributes**
 
-| Attribute | Type | Description |
-|---|---|---|
-| `item-id` | `string` | Required. Matches the `i` field in the layout array |
-| `x` | `number` | Column position (0-based) |
-| `y` | `number` | Row position (0-based) |
-| `w` | `number` | Width in columns |
-| `h` | `number` | Height in rows |
-| `min-w` | `number` | Minimum width in columns |
-| `max-w` | `number` | Maximum width in columns |
-| `min-h` | `number` | Minimum height in rows |
-| `max-h` | `number` | Maximum height in rows |
-| `static` | `boolean` | If present, item cannot be dragged or resized |
+| Attribute | Type      | Description                                         |
+| --------- | --------- | --------------------------------------------------- |
+| `item-id` | `string`  | Required. Matches the `i` field in the layout array |
+| `x`       | `number`  | Column position (0-based)                           |
+| `y`       | `number`  | Row position (0-based)                              |
+| `w`       | `number`  | Width in columns                                    |
+| `h`       | `number`  | Height in rows                                      |
+| `min-w`   | `number`  | Minimum width in columns                            |
+| `max-w`   | `number`  | Maximum width in columns                            |
+| `min-h`   | `number`  | Minimum height in rows                              |
+| `max-h`   | `number`  | Maximum height in rows                              |
+| `static`  | `boolean` | If present, item cannot be dragged or resized       |
 
 **Properties**
 
-| Property | Type | Description |
-|---|---|---|
-| `isDraggable` | `boolean` | Override drag for this item |
+| Property      | Type      | Description                   |
+| ------------- | --------- | ----------------------------- |
+| `isDraggable` | `boolean` | Override drag for this item   |
 | `isResizable` | `boolean` | Override resize for this item |
 
 ---
@@ -149,36 +149,36 @@ A breakpoint-aware wrapper that swaps layouts as the container width changes.
 ```
 
 ```js
-const rgl = document.querySelector('responsive-grid-layout');
+const rgl = document.querySelector("responsive-grid-layout");
 
 rgl.layouts = {
   lg: [
-    { i: 'a', x: 0, y: 0, w: 6, h: 2 },
-    { i: 'b', x: 6, y: 0, w: 6, h: 2 },
+    { i: "a", x: 0, y: 0, w: 6, h: 2 },
+    { i: "b", x: 6, y: 0, w: 6, h: 2 },
   ],
   sm: [
-    { i: 'a', x: 0, y: 0, w: 6, h: 2 },
-    { i: 'b', x: 0, y: 2, w: 6, h: 2 },
+    { i: "a", x: 0, y: 0, w: 6, h: 2 },
+    { i: "b", x: 0, y: 2, w: 6, h: 2 },
   ],
 };
 
-rgl.addEventListener('breakpoint-change', (e) => {
-  console.log('Breakpoint:', e.detail.breakpoint, 'Cols:', e.detail.cols);
+rgl.addEventListener("breakpoint-change", (e) => {
+  console.log("Breakpoint:", e.detail.breakpoint, "Cols:", e.detail.cols);
 });
 ```
 
 **Properties**
 
-| Property | Type | Description |
-|---|---|---|
-| `layouts` | `ResponsiveLayouts` | Per-breakpoint layout arrays |
-| `breakpoints` | `Breakpoints` | Width thresholds per breakpoint name |
-| `cols` | `Record<string, number>` | Column count per breakpoint |
-| `gridConfig` | `GridConfig` | Forwarded to inner `<grid-layout>` |
-| `dragConfig` | `DragConfig` | Forwarded to inner `<grid-layout>` |
-| `resizeConfig` | `ResizeConfig` | Forwarded to inner `<grid-layout>` |
-| `compactType` | `"vertical" \| "horizontal" \| null` | Forwarded |
-| `preventCollision` | `boolean` | Forwarded |
+| Property           | Type                                 | Description                          |
+| ------------------ | ------------------------------------ | ------------------------------------ |
+| `layouts`          | `ResponsiveLayouts`                  | Per-breakpoint layout arrays         |
+| `breakpoints`      | `Breakpoints`                        | Width thresholds per breakpoint name |
+| `cols`             | `Record<string, number>`             | Column count per breakpoint          |
+| `gridConfig`       | `GridConfig`                         | Forwarded to inner `<grid-layout>`   |
+| `dragConfig`       | `DragConfig`                         | Forwarded to inner `<grid-layout>`   |
+| `resizeConfig`     | `ResizeConfig`                       | Forwarded to inner `<grid-layout>`   |
+| `compactType`      | `"vertical" \| "horizontal" \| null` | Forwarded                            |
+| `preventCollision` | `boolean`                            | Forwarded                            |
 
 **Default breakpoints**
 
@@ -200,11 +200,11 @@ rgl.addEventListener('breakpoint-change', (e) => {
 
 ```js
 grid.gridConfig = {
-  cols: 12,              // number of columns
-  rowHeight: 150,        // row height in pixels
-  margin: [10, 10],      // [horizontal, vertical] gap between items
+  cols: 12, // number of columns
+  rowHeight: 150, // row height in pixels
+  margin: [10, 10], // [horizontal, vertical] gap between items
   containerPadding: null, // [horizontal, vertical] padding, or null to match margin
-  maxRows: Infinity,     // maximum number of rows
+  maxRows: Infinity, // maximum number of rows
 };
 ```
 
@@ -212,11 +212,11 @@ grid.gridConfig = {
 
 ```js
 grid.dragConfig = {
-  enabled: true,         // enable drag globally
-  bounded: false,        // constrain drag within the grid container
-  handle: null,          // CSS selector for drag handle (e.g. '.drag-handle')
-  cancel: null,          // CSS selector for elements that cancel drag
-  threshold: 3,          // pixels of movement before drag starts
+  enabled: true, // enable drag globally
+  bounded: false, // constrain drag within the grid container
+  handle: null, // CSS selector for drag handle (e.g. '.drag-handle')
+  cancel: null, // CSS selector for elements that cancel drag
+  threshold: 3, // pixels of movement before drag starts
 };
 ```
 
@@ -225,7 +225,7 @@ grid.dragConfig = {
 ```js
 grid.resizeConfig = {
   enabled: true,
-  handles: ['se'],       // active resize handles
+  handles: ["se"], // active resize handles
   // available: 's', 'w', 'e', 'n', 'sw', 'nw', 'se', 'ne'
 };
 ```
@@ -286,22 +286,22 @@ During drag and resize, the container height transition is automatically suppres
 Hooks are set as JS properties. Return `false` to cancel the operation.
 
 ```js
-const grid = document.querySelector('grid-layout');
+const grid = document.querySelector("grid-layout");
 
 // Cancel drag for specific items
 grid.beforeDragStart = (item, event) => {
-  if (item.i === 'locked') return false;
+  if (item.i === "locked") return false;
 };
 
 // Cancel resize based on axis
 grid.beforeResizeStart = (item, axis, event) => {
-  if (item.i === 'fixed-width' && (axis === 'e' || axis === 'w')) return false;
+  if (item.i === "fixed-width" && (axis === "e" || axis === "w")) return false;
 };
 
 // Modify or reject layout changes
 grid.layoutChangeFilter = (newLayout, oldLayout, source) => {
   // source: 'drag' | 'resize' | 'compact' | 'set'
-  if (source === 'drag') {
+  if (source === "drag") {
     // Return a modified layout, or false to reject
     return newLayout;
   }
@@ -310,7 +310,7 @@ grid.layoutChangeFilter = (newLayout, oldLayout, source) => {
 
 // Called after drag ends. Return false to revert to pre-drag layout
 grid.afterDrop = (item, layout, oldLayout, event) => {
-  console.log('Dropped:', item.i, 'at', item.x, item.y);
+  console.log("Dropped:", item.i, "at", item.x, item.y);
 };
 ```
 
@@ -323,21 +323,29 @@ grid.afterDrop = (item, layout, oldLayout, event) => {
 All events bubble and are composed, so they cross Shadow DOM boundaries.
 
 ```js
-grid.addEventListener('drag-start', (e) => {
+grid.addEventListener("drag-start", (e) => {
   const { layout, oldItem, newItem, placeholder, event, element } = e.detail;
 });
 
-grid.addEventListener('drag', (e) => { /* same detail shape */ });
-grid.addEventListener('drag-stop', (e) => { /* same detail shape */ });
+grid.addEventListener("drag", (e) => {
+  /* same detail shape */
+});
+grid.addEventListener("drag-stop", (e) => {
+  /* same detail shape */
+});
 
-grid.addEventListener('resize-start', (e) => {
+grid.addEventListener("resize-start", (e) => {
   const { layout, oldItem, newItem, placeholder, event, element } = e.detail;
 });
 
-grid.addEventListener('resize', (e) => { /* same detail shape */ });
-grid.addEventListener('resize-stop', (e) => { /* same detail shape */ });
+grid.addEventListener("resize", (e) => {
+  /* same detail shape */
+});
+grid.addEventListener("resize-stop", (e) => {
+  /* same detail shape */
+});
 
-grid.addEventListener('layout-change', (e) => {
+grid.addEventListener("layout-change", (e) => {
   const { layout } = e.detail;
 });
 ```
@@ -345,11 +353,11 @@ grid.addEventListener('layout-change', (e) => {
 On `<responsive-grid-layout>`, `layout-change` includes extra fields:
 
 ```js
-rgl.addEventListener('layout-change', (e) => {
+rgl.addEventListener("layout-change", (e) => {
   const { layout, layouts, breakpoint } = e.detail;
 });
 
-rgl.addEventListener('breakpoint-change', (e) => {
+rgl.addEventListener("breakpoint-change", (e) => {
   const { breakpoint, oldBreakpoint, cols } = e.detail;
 });
 ```
@@ -362,10 +370,10 @@ rgl.addEventListener('breakpoint-change', (e) => {
 
 ### ARIA roles and attributes
 
-| Element | Role | Attributes |
-|---|---|---|
-| `<grid-layout>` | `grid` | `aria-roledescription="draggable grid"` |
-| `<grid-item>` | `gridcell` | `tabindex="0"`, `aria-grabbed` (true/false during keyboard drag) |
+| Element         | Role       | Attributes                                                       |
+| --------------- | ---------- | ---------------------------------------------------------------- |
+| `<grid-layout>` | `grid`     | `aria-roledescription="draggable grid"`                          |
+| `<grid-item>`   | `gridcell` | `tabindex="0"`, `aria-grabbed` (true/false during keyboard drag) |
 
 The live region inside `<grid-layout>` announces when an item is picked up, moved, resized, dropped, or when an action is cancelled.
 
@@ -381,14 +389,14 @@ grid-layout {
 
 ### Keyboard navigation
 
-| Key | Context | Action |
-|---|---|---|
-| `Enter` or `Space` | Item focused | Start drag mode |
-| `R` | Item focused | Start resize mode |
-| Arrow keys | Drag mode | Move item one cell in that direction |
-| Arrow keys | Resize mode | Expand or shrink item by one cell |
-| `Enter` | Drag or resize mode | Confirm and drop |
-| `Escape` | Drag or resize mode | Cancel and revert to original position |
+| Key                | Context             | Action                                 |
+| ------------------ | ------------------- | -------------------------------------- |
+| `Enter` or `Space` | Item focused        | Start drag mode                        |
+| `R`                | Item focused        | Start resize mode                      |
+| Arrow keys         | Drag mode           | Move item one cell in that direction   |
+| Arrow keys         | Resize mode         | Expand or shrink item by one cell      |
+| `Enter`            | Drag or resize mode | Confirm and drop                       |
+| `Escape`           | Drag or resize mode | Cancel and revert to original position |
 
 Keyboard interaction is automatic. Tab to a `<grid-item>` and press `Enter` or `Space` to start dragging, then use arrow keys to move, and `Enter` again to confirm.
 
@@ -414,17 +422,17 @@ You can drag elements from outside the grid and drop them in as new items. Enabl
 
 ### Properties
 
-| Property | Type | Default | Description |
-|---|---|---|---|
-| `isDroppable` | `boolean` | `false` | Allow external elements to be dropped onto the grid |
-| `droppingItem` | `{ i: string, w: number, h: number }` | — | Size and id of the item being dragged in |
+| Property       | Type                                  | Default | Description                                         |
+| -------------- | ------------------------------------- | ------- | --------------------------------------------------- |
+| `isDroppable`  | `boolean`                             | `false` | Allow external elements to be dropped onto the grid |
+| `droppingItem` | `{ i: string, w: number, h: number }` | —       | Size and id of the item being dragged in            |
 
 Both properties are forwarded by `<responsive-grid-layout>`.
 
 ### Event
 
 ```js
-grid.addEventListener('external-drop', (e) => {
+grid.addEventListener("external-drop", (e) => {
   const { layout, item, event } = e.detail;
   // layout: updated Layout array after the drop
   // item:   the LayoutItem that was placed
@@ -435,23 +443,23 @@ grid.addEventListener('external-drop', (e) => {
 ### Example
 
 ```js
-const paletteItem = document.querySelector('#palette-item');
-const grid = document.querySelector('grid-layout');
+const paletteItem = document.querySelector("#palette-item");
+const grid = document.querySelector("grid-layout");
 
-paletteItem.setAttribute('draggable', 'true');
+paletteItem.setAttribute("draggable", "true");
 
-paletteItem.addEventListener('dragstart', () => {
+paletteItem.addEventListener("dragstart", () => {
   grid.isDroppable = true;
-  grid.droppingItem = { i: 'new-item', w: 2, h: 2 };
+  grid.droppingItem = { i: "new-item", w: 2, h: 2 };
 });
 
-paletteItem.addEventListener('dragend', () => {
+paletteItem.addEventListener("dragend", () => {
   grid.isDroppable = false;
 });
 
-grid.addEventListener('external-drop', (e) => {
+grid.addEventListener("external-drop", (e) => {
   const { item } = e.detail;
-  console.log('Dropped at', item.x, item.y);
+  console.log("Dropped at", item.x, item.y);
 
   // Persist the new item into your layout state
   grid.layout = [...grid.layout, item];
@@ -481,7 +489,7 @@ import {
   getAllCollisions,
   getBreakpointFromWidth,
   findOrGenerateResponsiveLayout,
-} from '@maneki/grid-layout';
+} from "@maneki/grid-layout";
 ```
 
 ---

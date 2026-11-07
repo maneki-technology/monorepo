@@ -107,7 +107,9 @@ With 50 components × 10+ customizable properties each, this is ~500 `var()` dec
 <!-- Declarative Shadow DOM (what SSR needs to emit) -->
 <ui-button action="primary">
   <template shadowrootmode="open">
-    <style>/* component styles */</style>
+    <style>
+      /* component styles */
+    </style>
     <button class="base"><slot></slot></button>
   </template>
   Click me
@@ -115,6 +117,7 @@ With 50 components × 10+ customizable properties each, this is ~500 `var()` dec
 ```
 
 Options to get there:
+
 - **Add Lit** — provides `@lit-labs/ssr` for free, but adds a runtime dependency (contradicts ADR-012)
 - **Custom `renderToString()`** — per-component server rendering function. Huge effort, fragile to maintain.
 - **Accept client-side hydration** — the pragmatic choice. Framework SSR renders `<ui-button>` as an empty tag, component hydrates client-side.
@@ -122,6 +125,7 @@ Options to get there:
 ### Practical impact
 
 For SPAs (React, Vue, Next.js, Nuxt), client-side hydration works fine:
+
 - Server emits `<ui-button>Click me</ui-button>` as a string
 - Browser registers the custom element and upgrades it
 - Brief flash of unstyled content (FOUC) until JS loads
@@ -168,16 +172,16 @@ class MySearch extends HTMLElement {
 
 **Tradeoffs:**
 
-| | Shadow DOM | Light DOM |
-|---|---|---|
-| Style encapsulation | Bulletproof | Requires naming convention (BEM, prefixes) |
-| Global theming | Blocked — needs explicit `--custom-prop` hooks | Just works — CSS cascade applies |
-| Font inheritance | Broken — `@font-face` must be re-declared per component | Works naturally |
-| Form participation | Needs `ElementInternals` | Native |
-| SSR | Painful (Declarative Shadow DOM) | Trivial |
-| DOM queries | Blocked at shadow boundary | Normal |
-| Consumer CSS accidents | Impossible | Possible without discipline |
-| Debugging | Extra clicks in DevTools | Normal |
+|                        | Shadow DOM                                              | Light DOM                                  |
+| ---------------------- | ------------------------------------------------------- | ------------------------------------------ |
+| Style encapsulation    | Bulletproof                                             | Requires naming convention (BEM, prefixes) |
+| Global theming         | Blocked — needs explicit `--custom-prop` hooks          | Just works — CSS cascade applies           |
+| Font inheritance       | Broken — `@font-face` must be re-declared per component | Works naturally                            |
+| Form participation     | Needs `ElementInternals`                                | Native                                     |
+| SSR                    | Painful (Declarative Shadow DOM)                        | Trivial                                    |
+| DOM queries            | Blocked at shadow boundary                              | Normal                                     |
+| Consumer CSS accidents | Impossible                                              | Possible without discipline                |
+| Debugging              | Extra clicks in DevTools                                | Normal                                     |
 
 ### Hybrid approach (worth considering)
 
@@ -192,7 +196,6 @@ Libraries like Lit support both modes per-component via `static shadowRootOption
 
 We stay with Shadow DOM across all components (ADR-002) for consistency. The theming tax is real but manageable via CSS custom property hooks. If the number of per-context overrides grows significantly, revisit the hybrid approach.
 
-
 ## Shadow DOM Blocks Pointer Event Propagation for Drag-and-Drop
 
 When using `grid-layout` with Shadow DOM content (e.g., `ui-card` inside `grid-item`), `closest("grid-item")` can't cross shadow boundaries. The event target is inside the shadow root, so DOM traversal stops at the shadow boundary.
@@ -201,7 +204,7 @@ When using `grid-layout` with Shadow DOM content (e.g., `ui-card` inside `grid-i
 
 ```ts
 const path = e.composedPath();
-const gridItem = path.find(el => el instanceof HTMLElement && el.tagName === "GRID-ITEM");
+const gridItem = path.find((el) => el instanceof HTMLElement && el.tagName === "GRID-ITEM");
 ```
 
 Also, `setPointerCapture` must be called on the `grid-layout` element itself, not the event target. If captured on a shadow DOM child, pointer events route to the wrong element. Use `pointermove`/`pointerup` listeners on `this` (the grid-layout) instead of `document`.

@@ -207,9 +207,7 @@ describe("ui-accordion-item", () => {
     const shadow = el.shadowRoot!;
     const header = shadow.querySelector(".header") as HTMLElement;
     expect((el as unknown as { expanded: boolean }).expanded).toBe(false);
-    header.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
-    );
+    header.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     expect((el as unknown as { expanded: boolean }).expanded).toBe(true);
   });
 
@@ -219,9 +217,7 @@ describe("ui-accordion-item", () => {
     const shadow = el.shadowRoot!;
     const header = shadow.querySelector(".header") as HTMLElement;
     expect((el as unknown as { expanded: boolean }).expanded).toBe(false);
-    header.dispatchEvent(
-      new KeyboardEvent("keydown", { key: " ", bubbles: true })
-    );
+    header.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
     expect((el as unknown as { expanded: boolean }).expanded).toBe(true);
   });
 

@@ -138,7 +138,6 @@ describe("ui-side-panel", () => {
     expect(el.hasAttribute("overlay")).toBe(false);
   });
 
-
   it("mobile getter returns false by default on desktop", () => {
     const panel = el as UiSidePanel;
     expect(panel.mobile).toBe(false);
@@ -190,9 +189,7 @@ describe("ui-side-panel", () => {
   });
 
   it("clicking toggle button calls toggle", async () => {
-    const toggleBtn = el.shadowRoot!.querySelector(
-      ".header-toggle",
-    ) as HTMLButtonElement;
+    const toggleBtn = el.shadowRoot!.querySelector(".header-toggle") as HTMLButtonElement;
     toggleBtn.click();
     await (el as UiSidePanel).updateComplete;
     expect(el.getAttribute("state")).toBe("collapsed");
@@ -257,9 +254,7 @@ describe("ui-side-panel", () => {
   });
 
   it("toggle button type is button", () => {
-    const toggleBtn = el.shadowRoot!.querySelector(
-      ".header-toggle",
-    ) as HTMLButtonElement;
+    const toggleBtn = el.shadowRoot!.querySelector(".header-toggle") as HTMLButtonElement;
     expect(toggleBtn.type).toBe("button");
   });
 
@@ -274,7 +269,6 @@ describe("ui-side-panel", () => {
     const Ctor = customElements.get("ui-side-panel") as typeof UiSidePanel;
     expect(Ctor.observedAttributes).toContain("overlay");
   });
-
 
   it("observedAttributes includes mobile", () => {
     const Ctor = customElements.get("ui-side-panel") as typeof UiSidePanel;

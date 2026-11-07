@@ -19,7 +19,8 @@ const projects = [
   {
     slug: "maneki-design-system",
     title: "Maneki Design System",
-    description: "A zero-dependency Web Component design system with 50+ components, design tokens, and full dark theme support.",
+    description:
+      "A zero-dependency Web Component design system with 50+ components, design tokens, and full dark theme support.",
     body_md: "",
     tech: JSON.stringify(["TypeScript", "Web Components", "Figma"]),
     url: "https://kien.maneki.tech",
@@ -32,7 +33,8 @@ const projects = [
   {
     slug: "grid-layout-engine",
     title: "Grid Layout Engine",
-    description: "Drag-and-resize grid layout as a Web Component. ~8KB gzipped, keyboard accessible, responsive breakpoints.",
+    description:
+      "Drag-and-resize grid layout as a Web Component. ~8KB gzipped, keyboard accessible, responsive breakpoints.",
     body_md: "",
     tech: JSON.stringify(["TypeScript", "Algorithms", "A11y"]),
     url: null,

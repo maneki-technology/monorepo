@@ -76,15 +76,9 @@ const STATUS_INNER_TRACK: Record<string, string> = {
   complete: STATUS_SURFACE_COMPLETE_SUBTLE,
   suspended: STATUS_SURFACE_SUSPENDED_SUBTLE,
   cancelled: STATUS_SURFACE_CANCELLED_SUBTLE,
-}
-
-export {
-  TEXT_PRIMARY,
-  STATUS_FILL,
-  STATUS_TRACK,
-  STATUS_INNER_FILL,
-  STATUS_INNER_TRACK,
 };
+
+export { TEXT_PRIMARY, STATUS_FILL, STATUS_TRACK, STATUS_INNER_FILL, STATUS_INNER_TRACK };
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 

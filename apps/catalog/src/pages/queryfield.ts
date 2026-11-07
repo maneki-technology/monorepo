@@ -97,13 +97,30 @@ registerPage("queryfield", {
     </div>
   `,
   setup: () => {
-    const qf = document.getElementById("interactive-qf") as HTMLElement & { filters: Array<{ name: string; label: string; operators: string[]; values: string[] }> };
+    const qf = document.getElementById("interactive-qf") as HTMLElement & {
+      filters: Array<{ name: string; label: string; operators: string[]; values: string[] }>;
+    };
     if (!qf) return;
     qf.filters = [
-      { name: "city", label: "City", operators: ["equals", "not", "contains"], values: ["London", "Bengaluru", "New York", "Tokyo"] },
-      { name: "title", label: "Title", operators: ["equals", "contains", "starts with"], values: ["Vice President", "Managing Director", "Associate", "Analyst"] },
+      {
+        name: "city",
+        label: "City",
+        operators: ["equals", "not", "contains"],
+        values: ["London", "Bengaluru", "New York", "Tokyo"],
+      },
+      {
+        name: "title",
+        label: "Title",
+        operators: ["equals", "contains", "starts with"],
+        values: ["Vice President", "Managing Director", "Associate", "Analyst"],
+      },
       { name: "age", label: "Age", operators: ["equals", "not"], values: ["25", "30", "35", "40", "45"] },
-      { name: "name", label: "Name", operators: ["equals", "contains", "starts with"], values: ["Jess Smith", "John Doe", "Jane Roe"] },
+      {
+        name: "name",
+        label: "Name",
+        operators: ["equals", "contains", "starts with"],
+        values: ["Jess Smith", "John Doe", "Jane Roe"],
+      },
     ];
 
     // Wire up dismiss on pre-existing tags

@@ -17,7 +17,7 @@ const postsDir = resolve(__dirname, "../content/posts");
 const title = process.argv[2];
 
 if (!title) {
-  console.error("Usage: npm run new-post \"My Post Title\"");
+  console.error('Usage: npm run new-post "My Post Title"');
   process.exit(1);
 }
 

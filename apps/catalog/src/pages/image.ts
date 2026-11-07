@@ -9,10 +9,14 @@ registerPage("image", {
   render: () => `
     <h3>Aspect Ratios</h3>
     <div class="stack-l w-600">
-      ${["16:9", "3:2", "1:1", "3:1", "21:9"].map(r => `<div>
+      ${["16:9", "3:2", "1:1", "3:1", "21:9"]
+        .map(
+          (r) => `<div>
         <p class="mono-label">${r}</p>
         <ui-image ratio="${r}" src="${landscapeSvg}" alt="landscape"></ui-image>
-      </div>`).join("")}
+      </div>`,
+        )
+        .join("")}
     </div>
 
     <h3>Object Fit</h3>
@@ -88,10 +92,13 @@ registerPage("image", {
     const phDemo = document.getElementById("placeholder-demo");
     if (phDemo) {
       const c = document.createElement("canvas");
-      c.width = 4; c.height = 2;
+      c.width = 4;
+      c.height = 2;
       const ctx = c.getContext("2d")!;
-      ctx.fillStyle = "#87CEEB"; ctx.fillRect(0, 0, 4, 2);
-      ctx.fillStyle = "#228B22"; ctx.fillRect(0, 1, 4, 1);
+      ctx.fillStyle = "#87CEEB";
+      ctx.fillRect(0, 0, 4, 2);
+      ctx.fillStyle = "#228B22";
+      ctx.fillRect(0, 1, 4, 1);
       const placeholder = c.toDataURL("image/png");
 
       // With placeholder + real image (shows blur then crossfade)

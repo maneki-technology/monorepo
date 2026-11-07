@@ -38,8 +38,6 @@ describe("ui-textarea", () => {
     expect((el as unknown as { value: string }).value).toBe("");
   });
 
-
-
   it("defaults placeholder to empty string", () => {
     expect((el as unknown as { placeholder: string }).placeholder).toBe("");
   });
@@ -586,7 +584,6 @@ describe("ui-textarea", () => {
 
     component.size = "l";
     expect(component.size).toBe("l");
-
 
     component.placeholder = "Type here";
     expect(component.placeholder).toBe("Type here");

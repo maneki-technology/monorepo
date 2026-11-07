@@ -1,9 +1,11 @@
 # packages/flex-layout — Panel-Based Flex Layout
 
 ## OVERVIEW
+
 Panel-based flex layout Web Component system for dashboard-style interfaces. Three components: `<flex-layout>`, `<flex-panel>`, `<flex-panel-header>`. TypeScript, Vite, Shadow DOM, Constructable Stylesheets. Extracted from Figma "Flex Layout" page.
 
 ## STRUCTURE
+
 ```
 flex-layout/
 ├── src/
@@ -22,66 +24,73 @@ flex-layout/
 ```
 
 ## WHERE TO LOOK
-| Task | Location | Notes |
-|------|----------|-------|
-| Add new size variant | `flex-layout.ts` SIZE_CONFIG + CSS `:host([size="..."])` | Also update `flex-panel-header.ts` size presets |
-| Add new header variant | `flex-panel-header.ts` | Add CSS for `:host([variant="..."])` |
-| Change panel styling | `flex-panel.ts` STYLES | White bg, padding, divider |
-| Change container styling | `flex-layout.ts` STYLES | Gap, padding, background |
-| Add CSS custom property | Component's STYLES const | Use `var(--flex-*, fallback)` pattern |
+
+| Task                     | Location                                                 | Notes                                           |
+| ------------------------ | -------------------------------------------------------- | ----------------------------------------------- |
+| Add new size variant     | `flex-layout.ts` SIZE_CONFIG + CSS `:host([size="..."])` | Also update `flex-panel-header.ts` size presets |
+| Add new header variant   | `flex-panel-header.ts`                                   | Add CSS for `:host([variant="..."])`            |
+| Change panel styling     | `flex-panel.ts` STYLES                                   | White bg, padding, divider                      |
+| Change container styling | `flex-layout.ts` STYLES                                  | Gap, padding, background                        |
+| Add CSS custom property  | Component's STYLES const                                 | Use `var(--flex-*, fallback)` pattern           |
 
 ## COMPONENTS
 
 ### `<flex-layout>`
+
 Flex container with size-based gap/padding presets.
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `size` | `"large" \| "medium" \| "small"` | `"medium"` | Controls gap and padding |
-| `direction` | `"row" \| "column"` | `"row"` | Flex direction |
+| Attribute   | Type                             | Default    | Description              |
+| ----------- | -------------------------------- | ---------- | ------------------------ |
+| `size`      | `"large" \| "medium" \| "small"` | `"medium"` | Controls gap and padding |
+| `direction` | `"row" \| "column"`              | `"row"`    | Flex direction           |
 
 Size presets (from Figma):
-| Size | Gap | Padding |
-|------|-----|---------|
-| large | 8px | 8px |
-| medium | 8px | 8px |
-| small | 4px | 4px |
+
+| Size   | Gap | Padding |
+| ------ | --- | ------- |
+| large  | 8px | 8px     |
+| medium | 8px | 8px     |
+| small  | 4px | 4px     |
 
 CSS custom properties: `--flex-bg`, `--flex-gap`, `--flex-padding`, `--flex-direction`, `--flex-align`
 
 ### `<flex-panel>`
+
 Content panel with optional header slot.
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `width` | `number \| null` | `null` | Fixed width in px (overrides flex) |
-| `no-padding` | `boolean` | `false` | Remove content padding |
+| Attribute    | Type             | Default | Description                        |
+| ------------ | ---------------- | ------- | ---------------------------------- |
+| `width`      | `number \| null` | `null`  | Fixed width in px (overrides flex) |
+| `no-padding` | `boolean`        | `false` | Remove content padding             |
 
 Slots: `header` (named), default (content)
 
 CSS custom properties: `--flex-panel-flex`, `--flex-panel-bg`, `--flex-panel-padding`, `--flex-panel-divider`
 
 ### `<flex-panel-header>`
+
 Panel header bar with title and/or tabs.
 
-| Attribute | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `variant` | `"title" \| "tabs" \| "title-tabs"` | `"title"` | Header type |
-| `size` | `"large" \| "medium" \| "small"` | `"medium"` | Size preset |
-| `heading` | `string` | `""` | Title text |
+| Attribute | Type                                | Default    | Description |
+| --------- | ----------------------------------- | ---------- | ----------- |
+| `variant` | `"title" \| "tabs" \| "title-tabs"` | `"title"`  | Header type |
+| `size`    | `"large" \| "medium" \| "small"`    | `"medium"` | Size preset |
+| `heading` | `string`                            | `""`       | Title text  |
 
 Slots: `action` (named, for icon button), `tabs` (named, for tab content)
 
 Size presets (from Figma):
-| Size | Height | Font Size |
-|------|--------|-----------|
-| large | 32px | 12px |
-| medium | 24px | 12px |
-| small | 20px | 11px |
+
+| Size   | Height | Font Size |
+| ------ | ------ | --------- |
+| large  | 32px   | 12px      |
+| medium | 24px   | 12px      |
+| small  | 20px   | 11px      |
 
 CSS custom properties: `--flex-header-bg`, `--flex-header-height`, `--flex-header-color`, `--flex-header-divider`, `--flex-header-font-size`, `--flex-header-font-weight`, `--flex-header-line-height`, `--flex-header-icon-size`, `--flex-header-icon-color`, `--flex-header-padding-*`
 
 ## CONVENTIONS
+
 - **`@maneki/foundation` is a production dependency.** Components import `semanticVar`, `spaceVar` for CSS custom property fallbacks.
 - **Shadow DOM + Constructable Stylesheets.** `const sheet = new CSSStyleSheet(); sheet.replaceSync(STYLES);` at module level, `shadow.adoptedStyleSheets = [sheet]` in constructor.
 - **CSS custom properties** use `--flex-*` prefix.
@@ -91,11 +100,13 @@ CSS custom properties: `--flex-header-bg`, `--flex-header-height`, `--flex-heade
 - **Tests co-located.** `foo.ts` → `foo.test.ts` in same directory.
 
 ## ANTI-PATTERNS
+
 - **Don't hardcode colors** — use `semanticVar()` / `spaceVar()` from foundation
 - **Don't use `role="banner"` on headers** — causes duplicate landmark violations when multiple headers exist
 - **Don't use `role="region"` on layout containers** — causes unique landmark violations when nested
 
 ## COMMANDS
+
 ```bash
 npx vitest --run             # Unit tests (50 tests)
 npx tsc --noEmit             # Type check

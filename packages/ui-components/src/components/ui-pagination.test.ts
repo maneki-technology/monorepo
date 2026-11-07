@@ -170,16 +170,22 @@ describe("ui-pagination", () => {
   it("has correct observedAttributes list", () => {
     const ctor = customElements.get("ui-pagination") as typeof UiPagination;
     expect(ctor.observedAttributes).toEqual([
-      "size", "type", "current-page", "total-pages", "page-size", "total-items", "page-size-options",
+      "size",
+      "type",
+      "current-page",
+      "total-pages",
+      "page-size",
+      "total-items",
+      "page-size-options",
     ]);
   });
 
   // ── STYLES ───────────────────────────────────────────────────────────────────
 
   it("STYLES contains size-specific rules", () => {
-    expect(STYLES).toContain(":host([size=\"xs\"])");
-    expect(STYLES).toContain(":host([size=\"s\"])");
-    expect(STYLES).toContain(":host([size=\"m\"])");
+    expect(STYLES).toContain(':host([size="xs"])');
+    expect(STYLES).toContain(':host([size="s"])');
+    expect(STYLES).toContain(':host([size="m"])');
   });
 
   // ── Data Grid type ──────────────────────────────────────────────────────────
@@ -246,7 +252,9 @@ describe("ui-pagination", () => {
 
     it("clicking page number dispatches page-change", () => {
       let detail: { page: number } | null = null;
-      el.addEventListener("page-change", ((e: CustomEvent) => { detail = e.detail; }) as EventListener);
+      el.addEventListener("page-change", ((e: CustomEvent) => {
+        detail = e.detail;
+      }) as EventListener);
       const nav = el.shadowRoot!.querySelector(".nav")!;
       const pageButtons = nav.querySelectorAll("button:not(.nav-btn)");
       (pageButtons[0] as HTMLButtonElement).click(); // page 2
@@ -256,7 +264,9 @@ describe("ui-pagination", () => {
 
     it("clicking Next increments page", () => {
       let detail: { page: number } | null = null;
-      el.addEventListener("page-change", ((e: CustomEvent) => { detail = e.detail; }) as EventListener);
+      el.addEventListener("page-change", ((e: CustomEvent) => {
+        detail = e.detail;
+      }) as EventListener);
       const btns = el.shadowRoot!.querySelectorAll(".nav-btn");
       (btns[2] as HTMLButtonElement).click(); // Next
       expect(detail!.page).toBe(5);
@@ -264,7 +274,9 @@ describe("ui-pagination", () => {
 
     it("clicking Prev decrements page", () => {
       let detail: { page: number } | null = null;
-      el.addEventListener("page-change", ((e: CustomEvent) => { detail = e.detail; }) as EventListener);
+      el.addEventListener("page-change", ((e: CustomEvent) => {
+        detail = e.detail;
+      }) as EventListener);
       const btns = el.shadowRoot!.querySelectorAll(".nav-btn");
       (btns[1] as HTMLButtonElement).click(); // Prev
       expect(detail!.page).toBe(3);
@@ -272,7 +284,9 @@ describe("ui-pagination", () => {
 
     it("clicking First goes to page 1", () => {
       let detail: { page: number } | null = null;
-      el.addEventListener("page-change", ((e: CustomEvent) => { detail = e.detail; }) as EventListener);
+      el.addEventListener("page-change", ((e: CustomEvent) => {
+        detail = e.detail;
+      }) as EventListener);
       const btns = el.shadowRoot!.querySelectorAll(".nav-btn");
       (btns[0] as HTMLButtonElement).click(); // First
       expect(detail!.page).toBe(1);
@@ -280,7 +294,9 @@ describe("ui-pagination", () => {
 
     it("clicking Last goes to last page", () => {
       let detail: { page: number } | null = null;
-      el.addEventListener("page-change", ((e: CustomEvent) => { detail = e.detail; }) as EventListener);
+      el.addEventListener("page-change", ((e: CustomEvent) => {
+        detail = e.detail;
+      }) as EventListener);
       const btns = el.shadowRoot!.querySelectorAll(".nav-btn");
       (btns[3] as HTMLButtonElement).click(); // Last
       expect(detail!.page).toBe(20);
@@ -314,7 +330,9 @@ describe("ui-pagination", () => {
 
     it("goto input changes page on Enter", () => {
       let detail: { page: number } | null = null;
-      el.addEventListener("page-change", ((e: CustomEvent) => { detail = e.detail; }) as EventListener);
+      el.addEventListener("page-change", ((e: CustomEvent) => {
+        detail = e.detail;
+      }) as EventListener);
       const input = el.shadowRoot!.querySelector(".goto-input") as HTMLInputElement;
       input.value = "10";
       input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
@@ -323,7 +341,9 @@ describe("ui-pagination", () => {
 
     it("goto input clamps to valid range", () => {
       let detail: { page: number } | null = null;
-      el.addEventListener("page-change", ((e: CustomEvent) => { detail = e.detail; }) as EventListener);
+      el.addEventListener("page-change", ((e: CustomEvent) => {
+        detail = e.detail;
+      }) as EventListener);
       const input = el.shadowRoot!.querySelector(".goto-input") as HTMLInputElement;
       input.value = "999";
       input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
@@ -471,7 +491,9 @@ describe("ui-pagination", () => {
       el.setAttribute("total-pages", "10");
       el.setAttribute("current-page", "1");
       let called = false;
-      el.addEventListener("page-change", () => { called = true; });
+      el.addEventListener("page-change", () => {
+        called = true;
+      });
       const btns = el.shadowRoot!.querySelectorAll(".nav-btn");
       (btns[0] as HTMLButtonElement).click(); // First — already on page 1
       expect(called).toBe(false);

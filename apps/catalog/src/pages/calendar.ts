@@ -11,32 +11,44 @@ registerPage("calendar", {
   render: () => `
     <h3>Sizes</h3>
     <div class="variant-row row-start-wrap">
-      ${["s", "m", "l"].map(size => `
+      ${["s", "m", "l"]
+        .map(
+          (size) => `
         <div class="variant-col">
           <span class="variant-label">Size ${size}</span>
           <ui-calendar size="${size}" value="2024-06-15"></ui-calendar>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
 
     <h3>Range Selection</h3>
     <div class="variant-row row-start-wrap">
-      ${["s", "m", "l"].map(size => `
+      ${["s", "m", "l"]
+        .map(
+          (size) => `
         <div class="variant-col">
           <span class="variant-label">Size ${size}</span>
           <ui-calendar id="cal-range-${size}" size="${size}" mode="range"></ui-calendar>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
 
     <h3>Monthly View</h3>
     <div class="variant-row row-start-wrap">
-      ${["s", "m", "l"].map(size => `
+      ${["s", "m", "l"]
+        .map(
+          (size) => `
         <div class="variant-col">
           <span class="variant-label">Size ${size}</span>
           <ui-calendar size="${size}" view="monthly" value="2024-06-15"></ui-calendar>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
 
     <h3>With Min/Max Constraints</h3>

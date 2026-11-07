@@ -1,43 +1,43 @@
-$schema: 'https://moonrepo.dev/schemas/project.json'
+$schema: "https://moonrepo.dev/schemas/project.json"
 
-language: 'typescript'
+language: "typescript"
 
 dependsOn:
-  - 'foundation'
-  - 'ui-components'
-  - 'grid-layout'
-  - 'flex-layout'
-  - 'charts'
+  - "foundation"
+  - "ui-components"
+  - "grid-layout"
+  - "flex-layout"
+  - "charts"
 
 tasks:
   dev:
-    command: 'vite --port 5174'
-    preset: 'server'
+    command: "vite --port 5174"
+    preset: "server"
 
   build:
-    script: 'vite build'
+    script: "vite build"
     inputs:
-      - 'src/**/*'
-      - 'index.html'
-      - 'tsconfig.json'
-      - 'vite.config.ts'
+      - "src/**/*"
+      - "index.html"
+      - "tsconfig.json"
+      - "vite.config.ts"
     outputs:
-      - 'dist'
+      - "dist"
     deps:
-      - '^:build'
+      - "^:build"
 
   test-visual:
-    command: 'playwright test'
+    command: "playwright test"
     inputs:
-      - 'src/**/*'
-      - 'e2e/**/*'
-      - 'playwright.config.ts'
+      - "src/**/*"
+      - "e2e/**/*"
+      - "playwright.config.ts"
     deps:
-      - '~:build'
+      - "~:build"
 
   test-visual-update:
-    command: 'playwright test --update-snapshots'
+    command: "playwright test --update-snapshots"
     inputs:
-      - 'src/**/*'
-      - 'e2e/**/*'
-      - 'playwright.config.ts'
+      - "src/**/*"
+      - "e2e/**/*"
+      - "playwright.config.ts"

@@ -8,7 +8,9 @@ registerPage("table", {
   section: "Data Display",
   render: () => `
     <div class="stack-l w-720">
-    ${["s", "m", "l"].map(size => `
+    ${["s", "m", "l"]
+      .map(
+        (size) => `
       <div>
         <p class="section-label">Size ${size.toUpperCase()}</p>
         <ui-table size="${size}">
@@ -29,7 +31,9 @@ registerPage("table", {
           </ui-table-row>
         </ui-table>
       </div>
-    `).join("")}
+    `,
+      )
+      .join("")}
     </div>
 
     <h3>Separators</h3>

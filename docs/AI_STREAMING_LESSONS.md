@@ -119,7 +119,9 @@ On stream end, call `_flushTypeQueue()` to immediately render any remaining queu
 ```ts
 try {
   await db.execute("ALTER TABLE brainstorm_conversations ADD COLUMN audience TEXT NOT NULL DEFAULT 'general'");
-} catch { /* column already exists */ }
+} catch {
+  /* column already exists */
+}
 ```
 
 ## SELECT Must Include New Columns
