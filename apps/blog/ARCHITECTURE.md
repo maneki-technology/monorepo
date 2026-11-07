@@ -62,7 +62,7 @@ Turso DB ──(build time)──→ Vite plugin ──→ virtual module ──
 - `virtual:projects` — portfolio projects
 - `virtual:photos` — published photos with EXIF, tags, thumbhash
 - `virtual:albums` — published albums with photo counts
-- `virtual:pages` — generic CMS pages (about, resume)
+- `virtual:pages` — generic CMS pages (about, resume, home tagline)
 
 The markdown plugins also transform rendered HTML: `<a>` → `<ui-link>`, `<img>` → `<ui-image>`, so the output uses design system components.
 
