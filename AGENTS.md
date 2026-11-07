@@ -229,7 +229,7 @@ npm run seed-posts # Seed markdown posts into Turso (one-time)
 ## NOTES
 - Git repo: `maneki-technology/monorepo` on GitHub
 - CI/CD: Playwright visual regression tests in `apps/catalog/`. Catalog deployed via Cloudflare Pages.
-- CI test pipeline runs on PRs (`.github/workflows/test.yml`). Deploy workflows for both blog (`deploy-blog.yml`) and catalog (`deploy-catalog.yml`).
+- CI test pipeline runs on PRs (`.github/workflows/test.yml`; browser tests in `catalog-test.yml` and `blog-test.yml`, each only when its app or shared packages change). Deploy workflows for both blog (`deploy-blog.yml`) and catalog (`deploy-catalog.yml`).
 - `apps/catalog/` — Visual catalog app with Playwright visual + a11y suites (see `apps/catalog/AGENTS.md`). History API routing, workbox caches JS/CSS/fonts only (not HTML).
 - Node pinned at 22 (see `.prototools`) for the toolchain (Vite 8, Vitest 4, etc.)
 - LSP diagnostics unavailable (no global typescript-language-server) — use `npx tsc --noEmit` instead

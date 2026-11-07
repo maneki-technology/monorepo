@@ -123,7 +123,7 @@ Every change gets its own branch (`feat/ui-*`, `fix/*`, `refactor/*`). No direct
 | Type checking | `tsc --noEmit` | Per-package |
 | Linting | ESLint, stylelint, html-validate | Pre-commit hook |
 
-CI runs on PRs (`.github/workflows/test.yml`). Deploy workflows for blog and catalog.
+CI runs on PRs (`.github/workflows/test.yml`; browser tests in `catalog-test.yml` and `blog-test.yml`, each only when its app or shared packages change). Deploy workflows for blog and catalog.
 
 ## Deployment
 
