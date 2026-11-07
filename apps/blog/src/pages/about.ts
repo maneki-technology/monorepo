@@ -26,7 +26,7 @@ export const aboutRoute: Route = {
   meta: {
     title: "About",
     description:
-      "Senior Software Engineer with 14+ years of experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization.",
+      "Lead Software Engineer with 14+ years of experience across the full stack. Polyglot engineer specializing in distributed systems, micro-frontend architecture, and fine-grained authorization.",
   },
   render: renderAboutPage,
 };
