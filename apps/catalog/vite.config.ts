@@ -44,7 +44,7 @@ export default defineConfig(({ command }) => ({
   root: ".",
   resolve: command === "serve" ? { alias: devAliases } : {},
   plugins: [
-    injectTokensPlugin(),
+    injectTokensPlugin({ defaultDark: true }),
     fontPlugin(),
     VitePWA({
       registerType: "prompt",

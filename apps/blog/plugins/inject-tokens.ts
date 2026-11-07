@@ -16,16 +16,19 @@ import {
   radiusToCssProperties,
   borderWidthToCssProperties,
   shadowToCssProperties,
+  darkSemanticToCssProperties,
+  darkElevationToCssProperties,
+  darkShadowToCssProperties,
 } from "@maneki/foundation";
 import { generateHerouiCss } from "@maneki/foundation/heroui-theme.js";
 
-export function injectTokensPlugin(): Plugin {
+/** `defaultDark`: also emit the default `[data-theme="dark"]` block (the catalog needs it; the blog is HeroUI-only). */
+export function injectTokensPlugin({ defaultDark = false }: { defaultDark?: boolean } = {}): Plugin {
   return {
     name: "inject-tokens",
     enforce: "post",
     transformIndexHtml(html) {
-      // Foundation base tokens — only :root (light), skip default dark theme
-      // Blog uses HeroUI theme exclusively, so [data-theme="dark"] is unused
+      // Foundation base tokens on :root (light)
       const tokenCss = [
         colorsToCssProperties(),
         semanticToCssProperties(),
@@ -37,7 +40,11 @@ export function injectTokensPlugin(): Plugin {
         shadowToCssProperties(),
       ].join("\n");
 
-      const foundationStyle = `<style id="maneki-foundation-all">:root {\n${tokenCss}\n}</style>`;
+      const darkCss = defaultDark
+        ? `\n\n[data-theme="dark"] {\n${[darkSemanticToCssProperties(), darkElevationToCssProperties(), darkShadowToCssProperties()].join("\n")}\n}`
+        : "";
+
+      const foundationStyle = `<style id="maneki-foundation-all">:root {\n${tokenCss}\n}${darkCss}</style>`;
 
       // HeroUI theme tokens (light + dark)
       const herouiStyle = `<style id="maneki-heroui-theme">${generateHerouiCss()}</style>`;
