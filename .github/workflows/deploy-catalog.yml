@@ -22,6 +22,12 @@ on:
       - 'packages/charts/**'
       - '.github/workflows/deploy-catalog.yml'
 
+# A newer deploy supersedes a running one: each run builds the full site from its
+# commit, and Cloudflare only promotes a finished upload. PR previews group per branch.
+concurrency:
+  group: deploy-catalog-${{ github.event_name == 'pull_request' && github.ref || 'prod' }}
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
