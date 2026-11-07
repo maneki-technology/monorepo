@@ -56,7 +56,7 @@ maneki-monorepo/
 │       ├── functions/        # CF Pages Functions (Hono API adapter)
 │       │   └── api/[[route]].ts
 │       ├── plugins/          # Vite plugins: markdown-posts (Turso), auto-ui-components, sitemap, rss-feed, photography (virtual:photos, virtual:albums), pages (virtual:pages)
-│       ├── scripts/          # prerender.ts, migrate.ts, seed-posts.ts, seed-resume.ts, seed-about.ts
+│       ├── scripts/          # prerender.ts, migrate.ts, seed-posts.ts, seed-resume.ts, seed-about.ts, seed-home.ts
 │       ├── wrangler.toml     # CF Pages local dev config
 │       └── src/
 │           ├── api/           # Hono API backend
@@ -103,7 +103,7 @@ maneki-monorepo/
 | Blog API routes                       | `apps/blog/src/api/`                                    | Hono: posts CRUD, ui-state, deploy trigger, image upload (R2), photos CRUD, albums CRUD, review (AI streaming), brainstorm (AI streaming), review-conversations, brainstorm-conversations |
 | Blog editor                           | `apps/blog/src/pages/editor/`                           | 20 modules: state, sidebar (Lit), tabbar (Lit), preview, toolbar, upload, api, types, review-panel, brainstorm-panel + more                                                               |
 | Blog Vite plugins                     | `apps/blog/plugins/`                                    | markdown-posts (Turso), auto-ui-components, sitemap (Turso), rss-feed (Turso), photography (virtual:photos, virtual:albums), pages (virtual:pages)                                        |
-| Blog scripts                          | `apps/blog/scripts/`                                    | prerender.ts, migrate.ts, seed-posts.ts, seed-resume.ts, seed-about.ts                                                                                                                    |
+| Blog scripts                          | `apps/blog/scripts/`                                    | prerender.ts, migrate.ts, seed-posts.ts, seed-resume.ts, seed-about.ts, seed-home.ts                                                                                                      |
 | Shared Vite config                    | `shared/`                                               | Dev aliases for cross-package HMR                                                                                                                                                         |
 | Linting                               | `.stylelintrc.json`, `.htmlvalidate.json`, `.husky/`    | CSS + HTML linting with pre-commit hook                                                                                                                                                   |
 | Admin hub                             | `apps/blog/admin.html`                                  | Hub with Editor, Gallery, Pages, View Site cards                                                                                                                                          |
@@ -111,7 +111,7 @@ maneki-monorepo/
 | Admin editor                          | `apps/blog/admin/editor.html`                           | Editor at /admin/editor (new URL)                                                                                                                                                         |
 | Photography backend                   | `apps/blog/src/api/routes/photos.ts`, `albums.ts`       | CRUD for photos + albums, Zod validation, soft delete                                                                                                                                     |
 | Pages API + plugin                    | `apps/blog/src/api/routes/pages.ts`, `plugins/pages.ts` | Generic CRUD + virtual:pages Vite plugin                                                                                                                                                  |
-| Seed scripts                          | `apps/blog/scripts/`                                    | prerender.ts, migrate.ts, seed-posts.ts, seed-resume.ts, seed-about.ts                                                                                                                    |
+| Seed scripts                          | `apps/blog/scripts/`                                    | prerender.ts, migrate.ts, seed-posts.ts, seed-resume.ts, seed-about.ts, seed-home.ts                                                                                                      |
 | Admin pages editor                    | `apps/blog/admin/pages.html`                            | Edit about, resume, and other pages                                                                                                                                                       |
 | AI review panel                       | `apps/blog/src/pages/editor/review-panel.ts`            | Lit side panel, Claude streaming via CF AI Gateway, audience selector, conversation persistence                                                                                           |
 | AI brainstorm panel                   | `apps/blog/src/pages/editor/brainstorm-panel.ts`        | Lit side panel, focus areas (structure/hooks/angles/audience/SEO/open), conversation persistence                                                                                          |
