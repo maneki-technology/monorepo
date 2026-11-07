@@ -1,0 +1,50 @@
+name: Catalog Test
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "apps/catalog/**"
+      - "packages/**"
+      - "shared/**"
+      - ".moon/**"
+      - ".prototools"
+      - ".github/workflows/catalog-test.yml"
+      - "package.json"
+      - "package-lock.json"
+  push:
+    branches: [main]
+    paths:
+      - "apps/catalog/**"
+      - "packages/**"
+      - "shared/**"
+      - ".moon/**"
+      - ".prototools"
+      - ".github/workflows/catalog-test.yml"
+      - "package.json"
+      - "package-lock.json"
+
+permissions:
+  contents: read
+
+jobs:
+  catalog-browser:
+    runs-on: ubuntu-latest
+    # Snapshots are generated in this image; the bare runner renders differently
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # proto's installer unpacks .tar.xz archives; moon runs git as the container's root user
+      - run: |
+          apt-get update && apt-get install -y --no-install-recommends xz-utils
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - uses: moonrepo/setup-toolchain@v0
+        with:
+          auto-install: true
+      - run: npm ci
+      - run: moon run catalog:build
+      - name: Catalog visual and accessibility tests
+        run: npx playwright test --project=chromium --project=mobile-chromium
+        working-directory: apps/catalog

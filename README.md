@@ -59,7 +59,7 @@ Blog signature transitions capture rendered typography and animate to the final 
 
 CI builds and tests packages without database credentials. The blog browser job uses a read-only Turso token to build and prerender the site, then runs Playwright against the production preview server.
 
-Tooling security updates are locked in `package-lock.json`; PWA 2 supports Vite 8. Keep the Playwright container in `.github/workflows/test.yml` aligned with the locked `@playwright/test` version.
+Tooling security updates are locked in `package-lock.json`; PWA 2 supports Vite 8. Keep the Playwright container in `.github/workflows/catalog-test.yml` aligned with the locked `@playwright/test` version.
 
 The remaining development-only audit exception is `braces@3.0.3` ([GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm)), for which no patched release is published. It enters through Stylelint and lint-staged and produces six audit entries (`braces`, `micromatch`, `fast-glob`, `globby`, `stylelint`, `lint-staged`). These tools process repository-controlled glob patterns, rather than production requests. Updating Stylelint still retains the affected chain; the replacement in lint-staged 17 requires a newer Node version than the repository pins. Do not apply audit's suggested downgrade to Stylelint 7.
 
